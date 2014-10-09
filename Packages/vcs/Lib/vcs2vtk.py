@@ -14,13 +14,28 @@ import cdtime
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
+def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
+    tatt = getattr(tmpl,tmplattribute)
+    if txtobj is None:
+        txtobj = vcs.createtext(To_source=tatt.textorientation,Tt_source=tatt.texttable)
+    for att in ["x","y","priority"]:
+        setattr(txtobj,att,getattr(tatt,att))
+    return txtobj
+
+def numpy_to_vtk_wrapper(numpyArray, deep=False, array_type=None):
+    result = VN.numpy_to_vtk(numpyArray, deep, array_type)
+    # Prevent garbage collection on shallow copied data:
+    if not deep:
+        result.numpyArray = numpyArray
+    return result
+
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   #Ok now looking
   msk = data.mask
-  imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
+  imsk =  numpy_to_vtk_wrapper(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
   if msk is not numpy.ma.nomask and not numpy.allclose(msk,False):
-      msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
+      msk =  numpy_to_vtk_wrapper(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
           if grid.IsA("vtkStructuredGrid"):
             grid2 = vtk.vtkStructuredGrid()
@@ -55,7 +70,59 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGrid(data1,data2,gm):
+def genGridOnPoints(data1,data2,gm,deep=True):
+  continents = False
+  xm,xM,ym,yM = None, None, None, None
+  useStructuredGrid = True
+  try:
+    g=data1.getGrid()
+    x = g.getLongitude()[:]
+    y = g.getLatitude()[:]
+    continents=True
+    wrap=[0,360]
+    if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
+      useStructuredGrid = False
+  except:
+    #hum no grid that's much easier
+    x=data1.getAxis(-1)[:]
+    y=data1.getAxis(-2)[:]
+    wrap=None
+
+  if x.ndim==1:
+    y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
+    x = x[numpy.newaxis,:]*numpy.ones(y.shape)
+  x=x.flatten()
+  y=y.flatten()
+  sh =list(x.shape)
+  sh.append(1)
+  x=numpy.reshape(x,sh)
+  y=numpy.reshape(y,sh)
+  #Ok we have our points in 2D let's create unstructured points grid
+  xm=x.min()
+  xM=x.max()
+  ym=y.min()
+  yM=y.max()
+  z = numpy.zeros(x.shape)
+  m3 = numpy.concatenate((x,y),axis=1)
+  m3 = numpy.concatenate((m3,z),axis=1)
+  deep = True
+  pts = vtk.vtkPoints()
+  ## Convert nupmy array to vtk ones
+  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
+  pts.SetData(ppV)
+  projection = vcs.elements["projection"][gm.projection]
+  xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
+  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
+  ## Sets the vertics into the grid
+  if useStructuredGrid:
+    vg = vtk.vtkStructuredGrid()
+    vg.SetDimensions(y.shape[1],y.shape[0],1)
+  else:
+    vg = vtk.vtkUnstructuredGrid()
+  vg.SetPoints(geopts)
+  return vg,xm,xM,ym,yM,continents,wrap,geo
+  
+def genGrid(data1,data2,gm,deep=True):
   continents = False
   wrap = None
   m3 = None
@@ -214,10 +281,9 @@ def genGrid(data1,data2,gm):
         ym=lat.min()
         yM=lat.max()
     # First create the points/vertices (in vcs terms)
-  deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
-  ppV = VN.numpy_to_vtk(m3,deep=deep)
+  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
@@ -522,7 +588,7 @@ def dump2VTK(obj,fnm=None):
 
 
 #Wrapping around
-def doWrap(Act,wc,wrap=[0.,360]):
+def doWrap(Act,wc,wrap=[0.,360], fastClip=True):
   if wrap is None:
     return Act
   Mapper = Act.GetMapper()
@@ -597,17 +663,33 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
       appendFilter.Update()
-  appendFilter.Update()
+
+  # Clip the data to the final window:
+  clipBox = vtk.vtkBox()
+  clipBox.SetXMin(xmn, ymn, -1.0)
+  clipBox.SetXMax(xmx, ymx,  1.0)
+  if fastClip:
+      clipper = vtk.vtkExtractPolyDataGeometry()
+      clipper.ExtractInsideOn()
+      clipper.SetImplicitFunction(clipBox)
+      clipper.ExtractBoundaryCellsOn()
+      clipper.PassPointsOff()
+  else:
+      clipper = vtk.vtkClipPolyData()
+      clipper.InsideOutOn()
+      clipper.SetClipFunction(clipBox)
+  clipper.SetInputConnection(appendFilter.GetOutputPort())
+  clipper.Update()
+
   Actor = vtk.vtkActor()
   Actor.SetProperty(Act.GetProperty())
   #Mapper2 = vtk.vtkDataSetMapper()
   #Mapper2 = vtk.vtkCompositePolyDataMapper()
   Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(appendFilter.GetOutput())
+  Mapper2.SetInputData(clipper.GetOutput())
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor
@@ -706,7 +788,6 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   elif to.valign in [3,'base']:
     warnings.warn("VTK does not support 'base' align, using 'bottom'")
     p.SetVerticalJustificationToBottom()
-  p.SetOrientation(-to.angle)
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
   p.SetFontSize(int(to.height*winSize[1]/800.))
@@ -736,6 +817,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   sz = renderer.GetRenderWindow().GetSize()
   for i in range(n):
     t = vtk.vtkTextActor()
+    t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
@@ -971,9 +1053,12 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
-      
+
     if pd is None:
-      s/=float(max(marker.worldcoordinate))
+      # Use the difference in x to scale the point, as later we'll use the
+      # x range to correct the aspect ratio:
+      dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
+      s *= float(dx)/500.
     gs.SetScale(s)
     gs.Update()
 

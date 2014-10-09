@@ -571,18 +571,18 @@ gm.linewidth=0
     return vcs.elements["isoline"][Gi_name_src]
 getisoline.__doc__ = getisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isoline_output)
 
-def createoneD(name=None,source='default'):
-    name,source = check_name_source(name,source,'oned')
+def create1d(name=None,source='default'):
+    name,source = check_name_source(name,source,'1d')
     return unified1D.G1d(name,source)
 
-def getoneD(name):
+def get1d(name):
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name,str):
        raise vcsError, 'The argument must be a string.'
 
-    if not name in vcs.elements["oned"]:
-      raise ValueError,"The oneD '%s' graphics method does not exists" % name
-    return vcs.elements["oned"][name]
+    if not name in vcs.elements["1d"]:
+      raise ValueError,"The 1d '%s' graphics method does not exists" % name
+    return vcs.elements["1d"][name]
 
 def createxyvsy(name=None, source='default'):
     """
@@ -627,7 +627,6 @@ vcs.show('xyvsy')
 
 """
 
-    warnings.warn("the createxyvsy method is now obsolete, 1D graphics method have been unified, to avoid your code breaking in the future please change it to use: createoneD and set the 'flip' option to True")
     if source[-7:]=="_xyvsy_":
       source = source[:-7]
     name,source = check_name_source(name,source,'xyvsy')
@@ -732,7 +731,6 @@ vcs.show('yxvsx')
 
 """
 
-    warnings.warn("the createyxvsx method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
     if source[-7:]=="_yxvsx_":
       source = source[:-7]
     name,source = check_name_source(name,source,'yxvsx')
@@ -834,7 +832,6 @@ vcs.show('xvsy')
 
 """
 
-    warnings.warn("the createxvsy method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
     if source[-6:]=="_xvsy_":
       source = source[:-6]
     name,source = check_name_source(name,source,'xvsy')
@@ -990,7 +987,6 @@ vcs.show('scatter')
 #########################################################################################################################
 
 """
-    warnings.warn("the createscatter method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
     if source[-9:] == "_scatter_":
       source=source[:-9]
     name,source = check_name_source(name,source,'scatter')

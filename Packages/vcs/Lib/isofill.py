@@ -139,80 +139,6 @@ def process_src(nm,code):
         g.fillareaindices = fai
         g.fillareastyle = fas[0]
 
-def add_level_ext_1(self, ext_value):
-    if ((ext_value == 'n') and (self.ext_1 == 'y')): # remove extension
-       if (type(self.levels[0]) == ListType): # remove from tuple of lists
-          self.levels[0].remove(self.levels[0][0])
-          return self.levels
-       if (type(self.levels) == TupleType):       # remove from list
-          ret_tup = []
-          for i in range(len(self.levels)):
-             ret_tup.insert(i+1,self.levels[i])
-          ret_tup.remove(self.levels[0])
-          return ret_tup
-
-    if (type(self.levels) == TupleType):
-       if (type(self.levels[0]) == ListType): # add to tuple of lists
-          self.levels[0].insert(0,-1e20)
-          return self.levels
-       else:                                  # must be a mutable tuple
-          ret_tup = [-1e20]		      # therefore, covert to a list
-          for i in range(len(self.levels)):   # then add extension to list
-             ret_tup.insert(i+1,self.levels[i])
-          return ret_tup
-    if (type(self.levels) == ListType):       # add extension to list
-          if (((self.levels[(len(self.levels)-1)] - self.levels[0])) >= 0):
-             self.levels.insert(0,-1e20)
-          else:
-             self.levels.insert(0,-1e20)
-          return self.levels
-
-###############################################################################
-#                                                                             #
-# Function:     add_level_ext_2                                               #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that adds the extension triangle to the right of the #
-#       legend on the plot                                                    #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      add_level_ext_2(self, ext_value)                                       #
-#              where: self is the class (e.g., Gfi)                           #
-#                     ext_value is either 'n' to remove the triangle on the   #
-#                       legend or 'y' to show the triangle on the triangle    #
-#                                                                             #
-###############################################################################
-def add_level_ext_2(self, ext_value):
-    if ((ext_value == 'n') and (self.ext_2 == 'y')): # remove extension
-       if isinstance(self.levels[0],list): # remove from tuple of lists
-          last=len(self.levels) - 1
-          last2=len(self.levels[last]) - 1
-          self.levels[last].remove(self.levels[last][last2])
-          return self.levels
-       if isinstance(self.levels, tuple):       # remove from list
-          ret_tup = []		      	
-          for i in range(len(self.levels)-1):
-             ret_tup.insert(i+1,self.levels[i])
-          return ret_tup
-
-    if isinstance(self.levels, tuple):
-       last=len(self.levels) - 1
-       if isinstance(self.levels[last], list): # add to tuple of lists
-          self.levels[last].append(1e20)
-          return self.levels
-       else:                                  # must be a mutable tuple
-          ret_tup = []			      # therefore, covert to a list
-          for i in range(len(self.levels)):   # then add extension to list
-             ret_tup.insert(i,self.levels[i])
-          ret_tup.insert(i+1,1e20)
-          return ret_tup
-    if isinstance(self.levels, list):       # add extension to list
-          if (((self.levels[(len(self.levels)-1)] - self.levels[0])) > 0):
-             self.levels.insert(len(self.levels),1e20)
-          else:
-             self.levels.insert(len(self.levels),-1e20)
-          return self.levels
 
 class Gfi(object,AutoAPI.AutoAPI):
     """
@@ -449,43 +375,8 @@ Class: Gfi				# Isofill
          self._fillareastyle=value
     fillareastyle=property(_getfillareastyle,_setfillareastyle)
 
-    def _getext_1(self):
-         return self._ext_1
-    def _setext_1(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_1',value)
-         if do:
-              if value=='y' and (-9.9E19<self.levels[0]<9.9E19):
-                 returned_levels = add_level_ext_1(self, value)
-                 self._ext_1=value
-                 #self._setlevels(returned_levels)
-              elif value=='n':
-                 returned_levels = add_level_ext_1(self, value)
-                 self._ext_1=value
-                 #self._setlevels(returned_levels)
-              else:
-                 self._ext_1=value
-         else:
-            self._ext_1=value
-    ext_1=property(_getext_1,_setext_1)
-
-    def _getext_2(self):
-         return self._ext_2
-    def _setext_2(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_2',value)
-         if do:
-              if value=='y' and (-9.9E19<self.levels[-1]<9.9E19):
-                 returned_levels = add_level_ext_2(self, value)
-                 self._ext_2=value
-                 #self._setlevels(returned_levels)
-              elif value=='n':
-                 returned_levels = add_level_ext_2(self, value)
-                 self._ext_2=value
-                 #self._setlevels(returned_levels)
-              else:
-                 self._ext_2=value
-         else:
-            self._ext_2=value
-    ext_2=property(_getext_2,_setext_2)
+    ext_1=VCS_validation_functions.ext_1
+    ext_2=VCS_validation_functions.ext_2
 
     def _getmissing(self):
          return self._missing

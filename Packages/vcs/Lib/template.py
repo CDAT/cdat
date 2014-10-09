@@ -154,7 +154,7 @@ class P(object):
         "_xname","_yname","_zname","_tname","_xunits","_yunits","_zunits","_tunits",
         "_xvalue","_zvalue","_yvalue","_tvalue","_mean","_min","_max","_xtic1","_xtic2","_xmintic1","_xmintic2",
         "_ytic1","_ytic2","_ymintic1","_ymintic2","_xlabel1","_xlabel2","_box1","_box2","_box3","_box4",
-        "_ylabel1","_ylabel2","_line1","_line2","_line3","_line4","_legend","_data"]
+        "_ylabel1","_ylabel2","_line1","_line2","_line3","_line4","_legend","_data","_scaledFont"]
 
     def _getName(self):
       return self._name
@@ -302,6 +302,7 @@ class P(object):
         #################################################
         # The following initializes the template's TEXT #
         #################################################
+        self._scaledFont = False
         if Pic_name == "default":
           self._orientation=0
           self._file=Pt('file')
@@ -913,7 +914,7 @@ class P(object):
             wc[1]=X[:].max()
         else:
           wc[1] = gm.datawc_x2
-        if not vcs.utils.monotonic(X[:]) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+        if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[0]=X[:].min()
           wc[1]=X[:].max()
         if gm.datawc_y1 > 9.E19 :
@@ -942,9 +943,15 @@ class P(object):
             wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
-        if not vcs.utils.monotonic(Y[:]) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+        if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[2]=Y[:].min()
           wc[3]=Y[:].max()
+        if wc[3]==wc[2]:
+          wc[2]-=.0001
+          wc[3]+=.0001
+        if numpy.allclose(wc[0],wc[1]):
+          wc[0]-=.0001
+          wc[1]+=.0001
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]
@@ -1060,6 +1067,11 @@ class P(object):
              ticks.x=xs
              ticks.y=ys
              displays.append(x.line(ticks,bg=bg,**kargs))
+        del(vcs.elements["line"][ticks.name])
+        sp = tt.name.split(":::")
+        del(vcs.elements["texttable"][sp[0]])
+        del(vcs.elements["textorientation"][sp[1]])
+        del(vcs.elements["textcombined"][tt.name])
         return displays
    
 
@@ -1220,7 +1232,8 @@ class P(object):
               try:
                    v=getattr(self,a)
                    to=getattr(v,'textorientation')
-                   to=vcs.createtextorientation(source=to)
+                   if self._scaledFont is False: # first time let's copy it
+                     to=vcs.createtextorientation(source=to)
                    to.height=to.height*scale
                    setattr(v,'textorientation',to)
               except:
@@ -1251,6 +1264,7 @@ class P(object):
                     'comment1','comment2','comment3','comment4','xname','yname',
                     'zname','tname','zunits','tunits','xvalue','yvalue','zvalue',
                     'tvalue','mean','min','max']
+
         if gm=='taylordiagram':
              attributes=attributes[:-3]
 
@@ -1278,6 +1292,34 @@ class P(object):
                 tt.y=[sub.y]
                 tt.priority=sub.priority
                 displays.append(x.text(tt,bg=bg,**kargs))
+                sp = tt.name.split(":::")
+                del(vcs.elements["texttable"][sp[0]])
+                del(vcs.elements["textorientation"][sp[1]])
+                del(vcs.elements["textcombined"][tt.name])
+                
+
+        nms = ["x","y","z","t"]
+        for i,ax in enumerate(slab.getAxisList()[::-1]):
+           nm=nms[i]+"name"
+           sub = getattr(self,nm)
+           tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+           if i==0 and gm.g_name=="G1d":
+             if gm.flip or hasattr(slab,"_yname"):
+               tt.string=[slab.id]
+             else:
+               tt.string=[ax.id]
+           elif i==1 and gm.g_name=="G1d":
+             if hasattr(slab,"_yname"):
+               tt.string=[slab._yname]
+             else:
+               tt.string=[ax.id]
+           else:
+               tt.string=[ax.id]
+           tt.x=[sub.x,]
+           tt.y=[sub.y,]
+           tt.priority=sub.priority
+           displays.append(x.text(tt,bg=bg,**kargs))
+
 
 
         # Do the tickmarks/labels
@@ -1295,6 +1337,7 @@ class P(object):
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.box2
         if b.priority!=0:
@@ -1303,6 +1346,7 @@ class P(object):
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.box3
         if b.priority!=0:
@@ -1311,6 +1355,7 @@ class P(object):
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.box4
         if b.priority!=0:
@@ -1319,6 +1364,7 @@ class P(object):
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.line1
         if b.priority!=0:
@@ -1327,6 +1373,7 @@ class P(object):
              l.y=[b.y1,b.y2]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.line2
         if b.priority!=0:
@@ -1335,6 +1382,7 @@ class P(object):
              l.y=[b.y1,b.y2]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.line3
         if b.priority!=0:
@@ -1343,6 +1391,7 @@ class P(object):
              l.y=[b.y1,b.y2]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
 
         b=self.line4
         if b.priority!=0:
@@ -1351,6 +1400,7 @@ class P(object):
              l.y=[b.y1,b.y2]
              l.priority=b.priority
              displays.append(x.line(l,bg=bg,**kargs))
+             del(vcs.elements["line"][l.name])
         #x.mode=m
         # I think i have to use dict here because it's a valid value
         # (obviously since i got it from the object itself and didn't touch it
@@ -1484,6 +1534,7 @@ class P(object):
               fa.y=L
 ##          fa.list()
          displays.append(x.fillarea(fa,bg=bg,**kargs))
+         del(vcs.elements["fillarea"][fa.name])
          # Now draws the legend
          # Fisrt of all make sure we draw the arrows
          Sl=[]
@@ -1591,6 +1642,11 @@ class P(object):
          # Now reset the viewport and worldcoordiantes
          displays.append(x.line(ln,bg=bg,**kargs))
          displays.append(x.text(txt,bg=bg,**kargs))
+         del(vcs.elements["line"][ln.name])
+         sp = txt.name.split(":::")
+         del(vcs.elements["texttable"][sp[0]])
+         del(vcs.elements["textorientation"][sp[1]])
+         del(vcs.elements["textcombined"][txt.name])
          x.viewport=vp
          x.worldcoordinate=wc
          return displays
@@ -1765,7 +1821,7 @@ class P(object):
          else:
               self.data._ratio = Rwished
               
-              
+         del(vcs.elements["template"][t.name])     
          return
 
          

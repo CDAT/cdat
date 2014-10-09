@@ -55,13 +55,53 @@ add_test(vcs_test_dump_json
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
   )
 
-message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
+# Some vector plot testing
+FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
+  add_test(vcs_test_vectors_angle_${angle}
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+    --angle=${angle}
+    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_${angle}.png
+    )
+ENDFOREACH(angle)
+FOREACH(scale 0.5 2)
+  add_test(vcs_test_vectors_scaling_${scale}
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+    --scale=${scale}
+    --angle=45
+    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_${scale}.png
+    )
+ENDFOREACH(scale)
+add_test(vcs_test_vectors_amplitude
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+  --scale=2
+  --angle=45
+  --amplitude
+  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_2_amplitude.png
+  )
+add_test(vcs_test_vectors_missing
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
+  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.png
+  )
 
 #These test actually plot things need sample data
   add_test(vcs_test_gen_meshfill
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gen_meshfill.png
+    )
+  add_test(vcs_setcolormap
+    "${CMAKE_INSTALL_PREFIX}/bin/python"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.py"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.png"
+    )
+  add_test(vcs_test_1d_in_boxfill
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.png
     )
   add_test(vcs_test_1d_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -118,10 +158,22 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_masked_numpy.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_masked_numpy.png
     )
+  add_test(vcs_test_1D_with_manyDs
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.png
+    )
 
-  #These test actually plot things need sample data
+  # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
-    FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
+    FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
+      add_test(vcs_test_basic_${gm}_zero
+        ${CMAKE_INSTALL_PREFIX}/bin/python
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+        --gm_type=${gm}
+        --zero
+        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_zero.png
+        )
       add_test(vcs_test_basic_${gm}
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
@@ -136,6 +188,7 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked.png
         )
     ENDFOREACH(gm)
+
     FOREACH(gm boxfill isofill isoline vector meshfill )
      FOREACH(ptype 0 -3 aeqd)
       add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
@@ -243,6 +296,7 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+
     add_test(vcs_test_${gm}_patterns
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
@@ -253,11 +307,11 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
       ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
       ${cdat_SOURCE_DIR}/testing/vcs/first_png_blank.png
       )
-    add_test(vcs_test_aspect_ratio
-      ${CMAKE_INSTALL_PREFIX}/bin/python
-      ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
-      )
+    #    add_test(vcs_test_aspect_ratio
+    #  ${CMAKE_INSTALL_PREFIX}/bin/python
+    #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+    #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+    #  )
     add_test(vcs_test_polar_set_opt_param_polar
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.py
@@ -283,6 +337,7 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.png
       )
+
     FOREACH(flip None X XY Y)
       add_test(vcs_test_flip${flip}
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -290,10 +345,17 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.png
         )
     ENDFOREACH(flip)
+
     add_test(vcs_test_boxfill_lev1_lev2_ta_missing
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.png
+      )
+
+    add_test(vcs_test_close
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.png
       )
   endif()
 

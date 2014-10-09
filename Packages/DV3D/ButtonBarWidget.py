@@ -105,7 +105,7 @@ class Button:
                 self.buttonRepresentation.Modified()
                 self.buttonRepresentation.NeedToRenderOn()
                 self.buttonWidget.Render()
-                print "Button %s: widget state = %d " % ( self.id, self.buttonRepresentation.GetState() )
+#                print "Button %s: widget state = %d " % ( self.id, self.buttonRepresentation.GetState() )
     
     def executeFunction( self, function ):
         if   function == Button.FuncToggleStateOn:  self.setToggleState( 1 )
@@ -114,8 +114,6 @@ class Button:
     def createButtonRepresentation(self, **args):
         self.buttonRepresentation = vtk.vtkTexturedButtonRepresentation2D()
         self.buttonRepresentation.SetPlaceFactor( args.get( 'scale', 1 ) )
-        if self.names[0] == "Run":
-            print "."
         self.numberOfImages = len( self.names )
         if self.numberOfImages:
             self.buttonRepresentation.SetNumberOfStates(self.numberOfImages)
@@ -261,26 +259,29 @@ class ButtonBarHandler:
     def restoreInteractionState(self): 
 #        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = self.getButtonBar( 'Plot' ) 
-        bbar.InteractionState = None
-        current_config_function = None
-        for configFunct in bbar.configurableFunctions.values():
-            if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
-                b = bbar.getButton( configFunct.name )
-                if b.getState():
-                    if current_config_function == None:
-                        current_config_function = configFunct
-                    else:
-                        if not configFunct.sameGroup( current_config_function ):
-                            print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
-                            return
-                    bbar.InteractionState = configFunct.name 
-                    n_active_sliders = configFunct.position[1] if configFunct.position else 1
-                    position_index = configFunct.position[0] if configFunct.position else 0
-                    tvals = configFunct.value.getValues()               
-                    bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
-                    bbar.positionSlider( position_index, n_active_sliders )
-                    self.current_configuration_mode = configFunct.label
-#                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
+        if bbar is not None:
+            bbar.InteractionState = None
+            current_config_function = None
+            for configFunct in bbar.configurableFunctions.values():
+                if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
+                    b = bbar.getButton( configFunct.name )
+                    if b.getState():
+    #                    print "Activating Slider ", configFunct.name
+                        if current_config_function == None:
+                            current_config_function = configFunct
+                        else:
+                            if not configFunct.sameGroup( current_config_function ):
+                                print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
+                                return
+                        bbar.InteractionState = configFunct.name 
+                        n_active_sliders = configFunct.position[1] if configFunct.position else 1
+                        position_index = configFunct.position[0] if configFunct.position else 0
+                        tvals = configFunct.value.getValues() 
+                        tval =  tvals[0] if ( len( tvals ) > 0 ) else 0.0             
+                        bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
+                        bbar.positionSlider( position_index, n_active_sliders )
+                        self.current_configuration_mode = configFunct.label
+    #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
 
 class ButtonBar:
     
@@ -427,10 +428,12 @@ class ControlBar(ButtonBar):
             self.addButton( bspec )
             
     def addButton( self, bspec ):
+        toggle_button = False
         if hasattr(bspec, "__iter__"):
-            bnames = bspec
+            bnames = [ bspec[0] ]
+            toggle_button = bspec[1] if len( bspec ) > 1 else True
         else: bnames = [ bspec ]        
-        button = Button( self.interactor, names=bnames, toggle = False )
+        button = Button( self.interactor, names=bnames, toggle = toggle_button )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
 
@@ -461,8 +464,8 @@ class ButtonBarWidget(ButtonBar):
 
     def setSliderVisibility( self, islider, isVisible ):
         self._slidersVisible[ islider ] = isVisible
-#        if islider == 2: 
-#            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
+#         if islider == 2: 
+#             print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
                             
     def initializeState(self):
         for ib in self.buttons:
@@ -486,6 +489,7 @@ class ButtonBarWidget(ButtonBar):
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
+#        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
@@ -631,15 +635,17 @@ class ButtonBarWidget(ButtonBar):
             
     def positionSlider(self, position_index, n_sliders ):
         slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
-        sliderRep = swidget.GetRepresentation( ) 
-        sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
-        sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
-        sliderRep.Modified()
-        swidget.Modified()    
-        sliderRep.NeedToRenderOn()
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( position_index, ( None, None, None ) )
+        if swidget is not None:
+            sliderRep = swidget.GetRepresentation( ) 
+            sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
+            sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
+            sliderRep.Modified()
+            swidget.Modified()    
+            sliderRep.NeedToRenderOn()
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
+        if bounds == None: return
 #        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
         widget_item = self.currentControls.get( index, None )
         isButtonWidget = type(label) == list
@@ -769,7 +775,7 @@ class ButtonBarWidget(ButtonBar):
     def reset(self, active_state=None ):
         self.releaseSliders()
     
-    def updateInteractionState( self, config_state, button_state, **args ):    
+    def updateInteractionState( self, config_state, button_state, **args ): 
 #         rcf = None
 #         if config_state == None: 
 #             self.finalizeLeveling()
@@ -819,7 +825,8 @@ class ButtonBarWidget(ButtonBar):
 #                        self.setSliderValue( position_index, slicePosition.getValue() )  
                                            
                     if self.isSliderVisible( position_index ) or force_enable:
-                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
+                        tval = tvals[0]  if len( tvals ) > 0 else 0.0
+                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
                         self.positionSlider( position_index, n_active_sliders )
                         self.setSliderVisibility( position_index, True )
                     else: self.releaseSlider( position_index )
@@ -881,7 +888,7 @@ class ButtonBarWidget(ButtonBar):
                 if (parent_button <> None) and parent_button.getState(): 
                     if self.visible: 
                         child_button.activate() 
-                        print "Activate child: ", child_button.id
+#                        print "Activate child: ", child_button.id
                     if child_button.id in parent_button.children:
                         return True
                 else:                       
@@ -919,27 +926,3 @@ class ButtonBarWidget(ButtonBar):
 
 def processTestStateChange( button_id, key, state, force = False ):
     print " processTestStateChange: state  = %d "% state
-
-if __name__ == '__main__':
-        
-    ren = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
-    renWin.AddRenderer(ren)
-    iren = vtk.vtkRenderWindowInteractor()
-    iren.SetRenderWindow(renWin)
-    iren.SetInteractorStyle( vtk.vtkInteractorStyleTrackballCamera()  )
-    ren.SetBackground( 1.0, 1.0, 1.0 )
-    renWin.SetSize(400,400)
-    
-    buttonBarHandler = ButtonBarHandler()
-    
-    control_bar = buttonBarHandler.createControlBar( 'Test', iren, [ ( "Step", ("Run","Stop") ), processTestStateChange ], position = ( 0.5, 0.5 ) )
-
-    ren.ResetCamera()
-    ren.ResetCameraClippingRange()   
-    iren.Initialize()
-    renWin.Render()
-    
-    control_bar.show()
-    
-    iren.Start()

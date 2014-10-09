@@ -115,7 +115,7 @@ elements = { "boxfill" : {},
              "outline" : {},
              "template" : {},
              "taylordiagram" :{},
-             "oned":{},
+             "1d":{},
              "vector":{},
              "yxvsx":{},
              "xyvsy":{},
@@ -195,6 +195,10 @@ texttable.Tt("default")
 textorientation.To("default")
 to = textorientation.To("defcenter")
 to.halign = "center"
+to = textorientation.To("defup")
+to.angle = -90
+to.valign="half"
+to.halign="center"
 to = textorientation.To("defright")
 to.halign = "right"
 boxfill.Gfb("default")
@@ -207,6 +211,7 @@ xy = unified1D.G1d("default_xyvsy_")
 xy.flip = True
 vcs.elements["xyvsy"]["default"]=xy
 sc = unified1D.G1d("default_scatter_")
+sc._linewidth=0
 vcs.elements["scatter"]["default"]=sc
 xvy = unified1D.G1d("default_xvsy_")
 vcs.elements["xvsy"]["default"]=xvy
@@ -231,7 +236,6 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 
 fillarea.Tf("default")
 template.P("default")
-
   
 taylordiagrams=[taylor.Gtd()]
 
