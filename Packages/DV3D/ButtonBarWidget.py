@@ -275,7 +275,7 @@ class ButtonBarHandler:
                                 print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
                                 return
                         bbar.InteractionState = configFunct.name 
-                        print " ---> Set Plot bbar interaction State: ", configFunct.name
+                        #print " ---> Set Plot bbar interaction State: ", configFunct.name
                         n_active_sliders = configFunct.position[1] if configFunct.position else 1
                         position_index = configFunct.position[0] if configFunct.position else 0
                         tvals = configFunct.value.getValues() 
@@ -649,7 +649,7 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+        #print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
         widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
@@ -730,7 +730,7 @@ class ButtonBarWidget(ButtonBar):
                     if self.InteractionState <> None: self.endInteraction()
                     self.InteractionState = interaction_state
                     self.process_mode = process_mode
-                    print " --> Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
+                    #print " --> Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
                 return item[0]
         return None
             
@@ -797,7 +797,7 @@ class ButtonBarWidget(ButtonBar):
 #                    self.releaseSliders() 
             configFunct.open( config_state )
             self.InteractionState = config_state  
-            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
+            #print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
             if button_state: 
                 self.LastInteractionState = self.InteractionState
 #            self.disableVisualizationInteraction()
