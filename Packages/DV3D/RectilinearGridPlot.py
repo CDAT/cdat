@@ -8,7 +8,6 @@ import sys, vtk, cdms2, traceback, os, cdtime, math
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
 from ImagePlaneWidget import *  
-from DistributedPointCollections import kill_all_zombies
 from StructuredGridPlot import  *
 from StructuredDataset import *
 import numpy as np

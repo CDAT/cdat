@@ -1340,7 +1340,7 @@ class CPCPlot( DV3DPlot ):
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None
-        grid_file = None  
+        grid_file = args.get( 'grid_file', None )  
         ROI = None       
         return [ grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace ] 
 
@@ -1349,6 +1349,8 @@ class CPCPlot( DV3DPlot ):
         self.init( init=init_args, **args )
 
     def init(self, **args ):
+        from DistributedPointCollections import kill_all_zombies   
+        kill_all_zombies()
         init_args = args.get( 'init', None )                  
         n_overview_points = args.get( 'n_overview_points', 500000 )    
         n_subproc_points = args.get( 'n_subproc_points', 500000 )  
@@ -1358,7 +1360,7 @@ class CPCPlot( DV3DPlot ):
         self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         nInputPoints = self.point_cloud_overview.getNumberOfInputPoints()
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
-        nPartitions = int( round( min( nInputPoints / n_subproc_points, 10  ) ) )
+        nPartitions = min( nInputPoints / n_subproc_points, 10  ) 
         nCollections = min( nPartitions, n_cores-1 )
         print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )

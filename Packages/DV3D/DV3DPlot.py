@@ -738,7 +738,7 @@ class DV3DPlot():
 #            self.renderWindowInteractor.AddObserver(vtk.vtkCommand.TimerEvent, cb)
             
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
-#            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
+            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             RenderWindow.AddObserver( 'ExitEvent', self.onWindowExit )
             self.updateInteractor()
