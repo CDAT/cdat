@@ -108,6 +108,10 @@ add_test("CDMS_Test_pack"
     ${CMAKE_INSTALL_PREFIX}/bin/python 
     ${cdat_SOURCE_DIR}/testing/cdms2/test_pack_data.py)
 
+add_test("CDMS_asdatetime"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_cdms2_axis_as_datetime.py)
+
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
 
