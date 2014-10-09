@@ -282,7 +282,8 @@ class DV3DPlot():
  
         self.renderer.RemoveAllViewProps()
         self.clearReferrents()
-        self.renderWindowInteractor.TerminateApp()
+        if self.renderWindowInteractor <> None:
+            self.renderWindowInteractor.TerminateApp()
 
     def terminate( self ):
         pass
@@ -739,6 +740,7 @@ class DV3DPlot():
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
 #            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
+            RenderWindow.AddObserver( 'ExitEvent', self.onWindowExit )
             self.updateInteractor()
             self.addLogo()
             self.activated = True 
@@ -866,9 +868,14 @@ class DV3DPlot():
             self.onRenderWindowResize()
             self.renderWindowSize = window_size
         time.sleep(0.0)
+ 
+    def onWindowExit( self, caller=None, event=None ):
+        #print "Window Event: ", event
+        self.onClosing()
              
     def onAnyWindowEvent( self, caller=None, event=None ):
-         print "Window Event: ", event
+        pass
+        #print "Window Event: ", event
 
                                        
 #     def onWindowModified( self, caller=None, event=None ):
