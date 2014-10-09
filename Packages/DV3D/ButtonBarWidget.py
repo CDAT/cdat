@@ -257,7 +257,7 @@ class ButtonBarHandler:
         for bbar in self.button_bars.values():
             bbar.initializeChildren( **args )
  
-    def restoreInteractionState(self): 
+    def restoreInteractionState( self, state ): 
 #        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = self.getButtonBar( 'Plot' ) 
         if bbar is not None:
@@ -275,6 +275,7 @@ class ButtonBarHandler:
                                 print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
                                 return
                         bbar.InteractionState = configFunct.name 
+                        print " ---> Set Plot bbar interaction State: ", configFunct.name
                         n_active_sliders = configFunct.position[1] if configFunct.position else 1
                         position_index = configFunct.position[0] if configFunct.position else 0
                         tvals = configFunct.value.getValues() 
@@ -519,7 +520,7 @@ class ButtonBarWidget(ButtonBar):
                     positions = [ position_index ] if position_index else range(4)
                     for pindex in positions: self.releaseSlider( pindex ) 
                     configFunct.processInteractionEvent( [ "InitConfig", 0, False, self ] )
-                    self.handler.restoreInteractionState()
+                    self.handler.restoreInteractionState( state )
     #        config_function = self.configurableFunctions.get( button_id, None )
     #        if config_function: config_function.processStateChangeEvent( state )
     #        button = self.buttons.get( button_id, None )
@@ -648,7 +649,7 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-#1        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
         widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
@@ -796,7 +797,7 @@ class ButtonBarWidget(ButtonBar):
 #                    self.releaseSliders() 
             configFunct.open( config_state )
             self.InteractionState = config_state  
-#1            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
+            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
             if button_state: 
                 self.LastInteractionState = self.InteractionState
 #            self.disableVisualizationInteraction()
@@ -829,6 +830,7 @@ class ButtonBarWidget(ButtonBar):
                                            
                     if self.isSliderVisible( position_index ) or force_enable:
                         tval = tvals[0]  if len( tvals ) > 0 else 0.0
+                        self.InteractionState = configFunct.cfg_state
                         self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
                         self.positionSlider( position_index, n_active_sliders )
                         self.setSliderVisibility( position_index, True )
