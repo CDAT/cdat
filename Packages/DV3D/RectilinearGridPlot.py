@@ -324,7 +324,7 @@ class RectGridPlot(StructuredGridPlot):
         if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
-        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
+        #print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
             plane_widget.beginSlicing()
         elif args and args[0] == "Init":
@@ -367,7 +367,7 @@ class RectGridPlot(StructuredGridPlot):
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
                 if (plane_index == 2) and (value < 0.01): value = 0.01
-                print " Set slice position: ", str( value )
+                #print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
