@@ -3713,8 +3713,9 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
-        if not hasattr(__main__,"__file__") and not bg:
-            warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
+        # Commented out as agreed we shouldn't use warnings in these contexts.
+        #if not hasattr(__main__,"__file__") and not bg:
+        #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
     def setAnimationStepper( self, stepper ):
@@ -3749,7 +3750,7 @@ Options:::
     # CGM  wrapper for VCS.                                                     #
     #                                                                           #
     #############################################################################
-    def cgm(self, file,mode='r'):
+    def cgm(self, file,mode='w'):
         """
  Function: cgm
 
@@ -3769,13 +3770,12 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.cgm(o)
     a.cgm('example')           # by default a cgm file will overwrite an existing file
-    a.cgm('example','a')  # 'a' will instruct cgm to append to an existing file
-    a.cgm('example','r')  # 'r' will instruct cgm to overwrite an existing file
-    a.cgm('example',mode='r')  # 'r' will instruct cgm to overwrite an existing file
+    a.cgm('example','w')  # 'r' will instruct cgm to overwrite an existing file
+    a.cgm('example',mode='w')  # 'r' will instruct cgm to overwrite an existing file
 
 """
-        if mode!='r':
-          warnings.warn("cgm only supports 'r' mode ignoring your mode ('%s')" % mode)
+        if mode!='w':
+          warnings.warn("cgm only supports 'w' mode ignoring your mode ('%s')" % mode)
         return self.backend.cgm(file)
 
     #############################################################################
@@ -3902,8 +3902,8 @@ Options:::
     a.colormapgui()
     a.colormapgui(max_intensity = 255)
 '''
-        
-        warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
 ##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
 
@@ -3926,7 +3926,8 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
         ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
 
@@ -3978,7 +3979,8 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
     ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
     ## gui_parent=gui_parent)
