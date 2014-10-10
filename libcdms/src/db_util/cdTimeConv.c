@@ -144,6 +144,7 @@ cdParseRelunits(cdCalenType timetype, char* relunits, cdUnitTime* unit, cdCompTi
 		*unit = cdMinute;
 	}
 	else if(!strncmp(charunits,"hour",4) || !strcmp(charunits,"hr")){
+       printf("yes units are hours\n");
 		*unit = cdHour;
 	}
 	else if(!strncmp(charunits,"day",3) || !strcmp(charunits,"dy")){
@@ -502,12 +503,14 @@ cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* com
 	long idelta=0;
 
 					     /* Parse the relunits */
+    printf("ok we do come here %s ---\n",relunits);
 	if(cdParseRelunits(timetype, relunits, &unit, &base_comptime))
 		return;
 
 	if (timetype == cdMixed){
 		switch(unit){
 		case cdWeek: case cdDay: case cdHour: case cdMinute: case cdSecond:
+          printf("case 1\n");
 			cdRel2CompMixed(reltime, unit, base_comptime, comptime);
 			return;
 		case cdYear: case cdSeason: case cdMonth:
@@ -520,38 +523,47 @@ cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* com
 
 	switch(unit){
 	  case cdSecond:
+          printf("case S\n");
 		delta = reltime/3600.0;
 		baseunits = cdHour;
 		break;
 	  case cdMinute:
+          printf("case M\n");
 		delta = reltime/60.0;
 		baseunits = cdHour;
 		break;
 	  case cdHour:
+          printf("case H\n");
 		delta = reltime;
 		baseunits = cdHour;
 		break;
 	  case cdDay:
+          printf("case d\n");
 		delta = 24.0 * reltime;
 		baseunits = cdHour;
 		break;
 	  case cdWeek:
+          printf("case w\n");
 		delta = 168.0 * reltime;
 		baseunits = cdHour;
 		break;
 	  case cdMonth:
+          printf("case m\n");
 		idelta = (long)(reltime + (reltime<0 ? -1.e-10 : 1.e-10));
 		baseunits = cdMonth;
 		break;
 	  case cdSeason:
+          printf("case s\n");
 		idelta = (long)(3.0 * reltime + (reltime<0 ? -1.e-10 : 1.e-10));
 		baseunits = cdMonth;
 		break;
 	  case cdYear:
+          printf("case y\n");
 		idelta = (long)(12 * reltime + (reltime<0 ? -1.e-10 : 1.e-10));
 		baseunits = cdMonth;
 		break;
        	  case cdFraction:
+          printf("case f\n");
 	        break;
 	}
 
@@ -1104,6 +1116,7 @@ cdComp2RelMixed(cdCompTime ct, cdUnitTime unit, cdCompTime basetime, double *rel
 void
 cdRel2CompMixed(double reltime, cdUnitTime unit, cdCompTime basetime, cdCompTime *comptime){
 
+    printf("reltime is: %f\n",reltime);
 	reltime = cdToHours(reltime, unit);
 	cdCompAddMixed(basetime, reltime, comptime);
 	return;
