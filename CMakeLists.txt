@@ -230,13 +230,16 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
-set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
-set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
+  if( (DEFINED CDAT_BUILD_MODE) AND (NOT "${CDAT_BUILD_MODE}" STREQUAL "LEAN") )
+    message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
+  endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
+set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
