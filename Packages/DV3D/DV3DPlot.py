@@ -361,6 +361,7 @@ class DV3DPlot():
                         
     def saveState(self, **args): 
         print "Save State" 
+        self.printParameterValues()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
@@ -371,6 +372,11 @@ class DV3DPlot():
 
     def getConfigurationParms(self, **args): 
         return self.cfgManager.getConfigurationParms( **args )
+
+    def printParameterValues(self):
+        parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
+        for param_name in parameter_names:
+            print '%s = %s\n' % ( param_name, self.cfgManager.getParameterValue( param_name ) ) 
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -687,7 +693,7 @@ class DV3DPlot():
 #         return getClassName( iren.GetInteractorStyle() ) == getClassName( self.configurationInteractorStyle )
             
     def onKeyRelease(self, caller, event):
-        return 0
+        print " Key event "
         
     def onModified(self, caller, event):
 #        print " --- Modified Event --- "
@@ -738,7 +744,7 @@ class DV3DPlot():
 #            self.renderWindowInteractor.AddObserver(vtk.vtkCommand.TimerEvent, cb)
             
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
-            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
+#            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             RenderWindow.AddObserver( 'ExitEvent', self.onWindowExit )
             self.updateInteractor()
@@ -790,7 +796,7 @@ class DV3DPlot():
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
                 config_function.setState( config_function.initial_value[0] ) 
-                self.toggleIsosurfaceVisibility( args, config_function )  
+            if state: self.toggleIsosurfaceVisibility( args, config_function )  
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
             self.processConfigStateChange( config_function.value )
@@ -801,7 +807,7 @@ class DV3DPlot():
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
                 config_function.setState( config_function.initial_value[0] ) 
-                self.toggleVolumeVisibility( args, config_function )  
+            if state: self.toggleVolumeVisibility( args, config_function )  
         elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
             self.processConfigStateChange( config_function.value )
@@ -1009,7 +1015,7 @@ class DV3DPlot():
         key = eventArgs[0]
         keysym =  eventArgs[1]            
         if keysym   == "i":  self.clearInteractions()
-#        elif keysym == "2":  self.enableDualInputs()
+        elif keysym == "s":  self.enableDualInputs()
         else: return False
         return True
     

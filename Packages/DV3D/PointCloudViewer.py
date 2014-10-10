@@ -195,11 +195,11 @@ class CPCPlot( DV3DPlot ):
 #        self.addConfigurableLevelingFunction( 'map_opacity', 'M', label='Base Map Opacity', rangeBounds=[ 0.0, 1.0 ],  setLevel=self.setMapOpacity, activeBound='min',  getLevel=self.getMapOpacity, isDataValue=False, layerDependent=True, group=ConfigGroup.BaseMap, bound = False )
 
                  
-    def toggleProjection( self, args, config_function  ):
+    def toggleProjection( self, args, config_function, **kwargs  ):
 #         if len( args ) > 1: 
 #             self.toggleTopo( state = args[1] ) 
 #         else: 
-        self.toggleTopo() 
+        self.toggleTopo(**kwargs) 
         
     def processTimerEvent(self, caller, event):
 #        print " ***************** processTimerEvent, caller = ", caller.__class__.__name__
@@ -339,10 +339,11 @@ class CPCPlot( DV3DPlot ):
     def toggleTopo( self, **args ):
         state = args.get( 'state', None )
         self.topo = ( self.topo + 1 ) % 2 if (state == None) else state
-        self.updateProjection()
+        self.updateProjection(**args)
         
-    def updateProjection(self):
-        self.recordCamera()
+    def updateProjection( self, **args ):
+        record = args.get( 'record', True )
+        if record: self.recordCamera()
         pts =  [  self.partitioned_point_cloud.setTopo( self.topo ) if self.partitioned_point_cloud else False,
                   self.point_cloud_overview.setTopo( self.topo)    ] 
         if pts[self.render_mode]:
@@ -1027,9 +1028,10 @@ class CPCPlot( DV3DPlot ):
             vscale_val = ( xwidth + ywidth )/500.0
             config_function.setRangeBounds( [ vscale_val/5.0, vscale_val*5.0 ] )
             init_value = vscale.getInitValue()
-            vscale_ival = vscale_val if  ( init_value is None ) else init_value
+            vscale_ival = vscale_val if  ( init_value is None ) else init_value[0] if isinstance( init_value, (list, tuple) ) else init_value
             vscale.setValues( [ vscale_ival ] ) 
             self.scaling_spec = ( self.vertVar, vscale_ival )
+            print "Init zscale: ", str( self.scaling_spec )
             self.skipIndex = 5
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )                      
@@ -1093,8 +1095,14 @@ class CPCPlot( DV3DPlot ):
         self.render() 
 
     def processProjectionCommand( self, args, config_function  ): 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.cfgManager.initialized = True 
+            if config_function.initial_value <> None:
+                config_function.setState( config_function.initial_value[0] ) 
+            if state: self.toggleProjection( args, config_function, record=False )
         if args and (args[0] == "InitConfig") and args[1]: 
-            self.toggleProjection( args, config_function )
+            self.toggleProjection( args, config_function, record=False )
             self.setRenderMode( ProcessMode.HighRes )
             self.render() 
                 
@@ -1369,8 +1377,10 @@ class CPCPlot( DV3DPlot ):
         self.fetchPlotButtons()
         self.initializeConfiguration()       
         self.cfgManager.initParameters()
+        self.updateVerticalScaling()
         self.initializePlots()
         self.setCameraPos()
+        self.updateThresholding()
              
 #             pc = self.point_cloud_overview.getPointCollection()
 #             cfgInterface = ConfigurationInterface( metadata=pc.getMetadata(), defvar=pc.var.id, callback=self.processConfigCmd  )

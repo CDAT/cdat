@@ -649,7 +649,7 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+#        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
         widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
@@ -797,7 +797,7 @@ class ButtonBarWidget(ButtonBar):
 #                    self.releaseSliders() 
             configFunct.open( config_state )
             self.InteractionState = config_state  
-            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
+#            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
             if button_state: 
                 self.LastInteractionState = self.InteractionState
 #            self.disableVisualizationInteraction()
