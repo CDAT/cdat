@@ -4,7 +4,7 @@ set(CDAT_deps ${wget_pkg} ${python_pkg} ${numpy_pkg}
 if (CDAT_BUILD_GRAPHICS)
   if (CDAT_BUILD_PARALLEL)
     list(APPEND CDAT_deps ${paraview_pkg})
-  else
+  else()
     list(APPEND CDAT_deps ${vtk_pkg})
   endif()
   list(APPEND CDAT_deps ${ffmpeg_pkg})
