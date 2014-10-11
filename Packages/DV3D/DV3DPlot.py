@@ -957,6 +957,9 @@ class DV3DPlot():
             self.logoWidget = vtk.vtkLogoWidget()
             self.logoWidget.SetInteractor( self.renderWindowInteractor )
             self.logoWidget.SetRepresentation(self.logoRepresentation)
+            self.logoWidget.SelectableOff()
+            self.logoWidget.SetManagesCursor(0)
+            self.logoWidget.SetResizable(0)
             self.logoWidget.On()
             self.render() 
 

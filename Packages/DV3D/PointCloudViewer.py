@@ -1032,6 +1032,11 @@ class CPCPlot( DV3DPlot ):
             vscale.setValues( [ vscale_ival ] ) 
             self.scaling_spec = ( self.vertVar, vscale_ival )
             print "Init zscale: ", str( self.scaling_spec )
+#             if self.partitioned_point_cloud:
+#                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+#                 self.setRenderMode( ProcessMode.HighRes )
+#                 self.render() 
+#             self.processConfigParameterChange( vscale )
             self.skipIndex = 5
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )                      
