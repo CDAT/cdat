@@ -115,16 +115,16 @@ class PointCollectionExecutionTarget:
         data_packet[ 'grid' ] = self.point_collection.getGridType()  
         data_packet[ 'nlevels' ] = self.point_collection.getNLevels()
         data_packet[ 'bounds' ] = self.point_collection.getBounds()
-        print "Done Packing VARDATA[%d]: %s\n" % ( self.collection_index, str(vardata.__class__) ); sys.stdout.flush()
+#        print "Done Packing VARDATA[%d]: %s\n" % ( self.collection_index, str(vardata.__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointsData( self ):
         data_packet = ExecutionDataPacket( ExecutionDataPacket.POINTS, self.collection_index, self.point_collection.getPoints() )
-        print "Done Packing POINTS[%d]: %s\n" % ( self.collection_index, str(self.point_collection.getPoints().__class__) ); sys.stdout.flush()
+#        print "Done Packing POINTS[%d]: %s\n" % ( self.collection_index, str(self.point_collection.getPoints().__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointHeightsData( self ):
-        print " ExecutionTarget-%d: packPointHeightsData" % ( self.collection_index )
+#        print " ExecutionTarget-%d: packPointHeightsData" % ( self.collection_index )
         data_packet = ExecutionDataPacket( ExecutionDataPacket.HEIGHTS, self.collection_index, self.point_collection.getPointHeights() )
         data_packet[ 'bounds' ] = self.point_collection.getBounds()
         return data_packet
@@ -135,7 +135,7 @@ class PointCollectionExecutionTarget:
 #        range_type = 'trange' if ( target == "vardata" ) else "crange"
 #        data_packet[ target ] = self.point_collection.getThresholdTargetType() 
         data_packet[ 'target' ] = target
-        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange()
+        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange() 
         return data_packet
 
 class vtkPointCloud():
@@ -512,7 +512,6 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.parameter_cache = {}
             
     def runProcess(self, procType, **args):
-#        print "Run Process[%d] (%s)" ( self.pcIndex, str(args) )
         if   procType == PCProc.Subset:    self.generateSubset( **args )
         elif procType == PCProc.ZScaling:  self.generateZScaling( **args )
         elif procType == PCProc.Timestep:  self.stepTime( **args )
@@ -553,7 +552,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.arg_queue.put( op_specs,  False ) 
         
     def getResults( self, block = False ):
-        print " ---> getResults[%d]" % self.pcIndex
+#        print " ---> getResults[%d]" % self.pcIndex
         try:
             result = self.result_queue.get( block )
         except Exception, err:
