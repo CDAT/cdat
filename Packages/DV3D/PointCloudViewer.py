@@ -1037,6 +1037,10 @@ class CPCPlot( DV3DPlot ):
 #                  self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
 #                  print "Init zscale: ", str( self.scaling_spec )
 #                  self.setRenderMode( ProcessMode.HighRes )
+            if self.partitioned_point_cloud:
+                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+                 print "Init zscale: ", str( self.scaling_spec )
+                 self.setRenderMode( ProcessMode.HighRes )
 #                 self.render()
 #             self.processConfigParameterChange( vscale )
             self.skipIndex = 5
