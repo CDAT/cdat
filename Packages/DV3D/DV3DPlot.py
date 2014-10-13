@@ -360,7 +360,7 @@ class DV3DPlot():
             self.changeButtonActivation( *activation_spec )
                         
     def saveState(self, **args): 
-        print "Save State" 
+        #print "Save State" 
         self.printParameterValues()
         self.cfgManager.saveState()
 
@@ -693,7 +693,8 @@ class DV3DPlot():
 #         return getClassName( iren.GetInteractorStyle() ) == getClassName( self.configurationInteractorStyle )
             
     def onKeyRelease(self, caller, event):
-        print " Key event "
+        #print " Key event "
+        return
         
     def onModified(self, caller, event):
 #        print " --- Modified Event --- "
