@@ -8,7 +8,6 @@ import sys, vtk, cdms2, traceback, os, cdtime, math
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
 from ImagePlaneWidget import *  
-from DistributedPointCollections import kill_all_zombies
 from StructuredGridPlot import  *
 from StructuredDataset import *
 import numpy as np
@@ -367,7 +366,7 @@ class RectGridPlot(StructuredGridPlot):
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
                 if (plane_index == 2) and (value < 0.01): value = 0.01
-                #print " Set slice position: ", str( value )
+#                print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
