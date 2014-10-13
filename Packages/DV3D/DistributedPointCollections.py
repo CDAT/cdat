@@ -544,7 +544,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         if cached_zscale_value <> zscale_value:
             self.clearQueues()
             op_specs = [ 'points' ] + list(z_subset_spec)
-            print " Generate Z Scaling [P-%d]: %s, zscale_value = %s, op_specs = (%s)" % ( self.pcIndex, str( args ), str( zscale_value ), str(op_specs) )
+            #print " Generate Z Scaling [P-%d]: %s, zscale_value = %s, op_specs = (%s)" % ( self.pcIndex, str( args ), str( zscale_value ), str(op_specs) )
             self.arg_queue.put( op_specs,  False )
             self.parameter_cache['zscale'] = zscale_value
 
@@ -577,7 +577,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #             if self.pcIndex == 1: 
 #                 self.printLogMessage(  " vtkSubProcPointCloud --->> Get Results, Args: %s " % str(result['args']) )
         elif result.type == ExecutionDataPacket.POINTS:
-            print " ---> Got POINTS"
+            #print " ---> Got POINTS"
             self.np_points_data = result.data
         return True
     
@@ -610,7 +610,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #            print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
             self.setPointHeights( result.data )
             self.grid_bounds = result['bounds']
-            print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
+            #print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
         return True
         
     def waitForData( self, dtype ):
