@@ -237,7 +237,8 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-
+        self.addKeyPressHandler( 'p',  self.printParameterValues )
+        
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
         
@@ -360,8 +361,6 @@ class DV3DPlot():
             self.changeButtonActivation( *activation_spec )
                         
     def saveState(self, **args): 
-        #print "Save State"
-        #self.printParameterValues()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
@@ -373,10 +372,11 @@ class DV3DPlot():
     def getConfigurationParms(self, **args): 
         return self.cfgManager.getConfigurationParms( **args )
 
-    def printParameterValues(self):
+    def printParameterValues( self, **args ):
+        self.recordCamera()
         parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
         for param_name in parameter_names:
-            print '%s = %s\n' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
+            print '%s = %s' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
