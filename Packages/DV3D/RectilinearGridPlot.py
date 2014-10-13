@@ -338,7 +338,14 @@ class RectGridPlot(StructuredGridPlot):
             if ival < 0.01: ival = 0.01
             slicePosition.setValues( [ ival ] ) 
             plane_widget.SetSlicePosition( ival )
-            if config_function.key == 'z':
+            state =  config_function.getState()
+            if state <> None:            
+                bbar = self.getPlotButtonbar()
+                button = bbar.getButton( slider_buttons[plane_index] ) 
+                button.setButtonState( 1 ) 
+                if state: 
+                    self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+            elif config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
