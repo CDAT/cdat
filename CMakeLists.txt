@@ -9,10 +9,12 @@ endif()
 project(cdat)
 
 # Disable in source build of any kind
-STRING(REGEX MATCH "^${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
+STRING(LENGTH "${cdat_SOURCE_DIR}/" source_len)
+STRING(SUBSTRING "${cdat_BINARY_DIR}/" 0 "${source_len}" source_match)
+STRING(COMPARE EQUAL "${cdat_SOURCE_DIR}/" "${source_match}" BUILDINSOURCE)
 if (BUILDINSOURCE)
    set(msg "[ERROR] CDAT requires an out of source Build.")
-   set(msg "${msg} Run 'git clean -dfx' to restore source dir.")
+   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
    message(FATAL_ERROR "${msg}")
 endif()
 
