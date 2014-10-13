@@ -277,7 +277,7 @@ class ConfigManager:
         if param_name == 'Camera':
             value = str( param.values )
         else:
-            value = param.getValues()
+            value = str( param.getValues() )
             if param.getState(): value = value + ", vcs.on"
         return value
 
