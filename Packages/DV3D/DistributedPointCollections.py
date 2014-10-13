@@ -102,7 +102,7 @@ class PointCollectionExecutionTarget:
                 data_packet = self.packPointsData()
             data_packet[ 'args' ] = args
             
-            #print "execute PointCollectionExecutionTarget[%s], result-> queue " % str(self.init_args); sys.stdout.flush()
+            print "execute PointCollectionExecutionTarget[%s], result-> queue " % str(self.init_args); sys.stdout.flush()
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
@@ -116,16 +116,16 @@ class PointCollectionExecutionTarget:
         data_packet[ 'grid' ] = self.point_collection.getGridType()  
         data_packet[ 'nlevels' ] = self.point_collection.getNLevels()
         data_packet[ 'bounds' ] = self.point_collection.getBounds()
-#        print "Done Packing VARDATA[%d]: %s\n" % ( self.collection_index, str(vardata.__class__) ); sys.stdout.flush()
+        print "Done Packing VARDATA[%d]: %s\n" % ( self.collection_index, str(vardata.__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointsData( self ):
         data_packet = ExecutionDataPacket( ExecutionDataPacket.POINTS, self.collection_index, self.point_collection.getPoints() )
-#        print "Done Packing POINTS[%d]: %s\n" % ( self.collection_index, str(self.point_collection.getPoints().__class__) ); sys.stdout.flush()
+        print "Done Packing POINTS[%d]: %s\n" % ( self.collection_index, str(self.point_collection.getPoints().__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointHeightsData( self ):
-#        print " ExecutionTarget-%d: packPointHeightsData" % ( self.collection_index )
+        print " ExecutionTarget-%d: packPointHeightsData" % ( self.collection_index )
         data_packet = ExecutionDataPacket( ExecutionDataPacket.HEIGHTS, self.collection_index, self.point_collection.getPointHeights() )
         data_packet[ 'bounds' ] = self.point_collection.getBounds()
         return data_packet
@@ -137,6 +137,7 @@ class PointCollectionExecutionTarget:
 #        data_packet[ target ] = self.point_collection.getThresholdTargetType() 
         data_packet[ 'target' ] = target
         data_packet[ 'trange' ] = self.point_collection.getThresholdedRange()
+        print "Done Packing INDEX data"
         return data_packet
 
 class vtkPointCloud():
@@ -553,7 +554,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.arg_queue.put( op_specs,  False ) 
         
     def getResults( self, block = False ):
-#        print " ---> getResults[%d]" % self.pcIndex
+        print " ---> getResults[%d]" % self.pcIndex
         try:
             result = self.result_queue.get( block )
         except Exception, err:
@@ -594,7 +595,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
             self.nlevels = result['nlevels']
             self.grid_bounds = result['bounds']
             self.updateScalars()   
-#            print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
+            print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
         elif result.type == ExecutionDataPacket.INDICES:
             self.np_index_seq = result.data 
 #            self.threshold_target = result['target']
@@ -605,9 +606,9 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #             if self.pcIndex == 1:
 #                 self.printLogMessage(  " vtkSubProcPointCloud --->> Process Results, Args: %s " % str(result['args']) )
             self.updateVertices()  
-#            print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
+            print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
         elif result.type == ExecutionDataPacket.HEIGHTS:
-#            print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
+            print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
             self.setPointHeights( result.data )
             self.grid_bounds = result['bounds']
             #print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
