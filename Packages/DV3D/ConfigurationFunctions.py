@@ -245,7 +245,7 @@ class ConfigManager:
 #                print "Getting config param from parent: ", param_name 
                 cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
-            self.parameters[ param_name ] = cparm
+            self.addParam( param_name, cparm )
         return cparm
             
 #     def getParameter( self, param_name, **args ):
@@ -298,7 +298,6 @@ class ConfigManager:
 
     def addParam(self, key ,cparm ):
         self.parameters[ key ] = cparm
-#        print "Add param[%s]" % key
                      
     def saveConfig( self ):
         try:
@@ -442,6 +441,7 @@ class ConfigManager:
             from Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
         else:
+            pass
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
             p1 = RectGridPlot(cm=self,display=False) 
@@ -453,7 +453,7 @@ class ConfigManager:
              parameter_list.add( basename )  
         for pname in extra_parms:
              parameter_list.add( pname )  
-#        print "Generated parameter_list: " , str( parameter_list )            
+        print "Generated parameter_list: " , str( parameter_list )            
         return parameter_list
         
     def initParameters(self):
