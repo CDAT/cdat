@@ -361,7 +361,7 @@ class DV3DPlot():
                         
     def saveState(self, **args): 
         #print "Save State" 
-        self.printParameterValues()
+        #self.printParameterValues()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
