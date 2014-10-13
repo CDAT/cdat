@@ -270,10 +270,17 @@ class ConfigManager:
         param.setInitValue( data )
 #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
+
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
-        return None if ( param == None ) else param.getValues()
-        
+        if ( param == None ): return None
+        if param_name == 'Camera':
+            value = str( param.values )
+        else:
+            value = param.getValues()
+            if param.getState(): value = value + ", vcs.on"
+        return value
+
     def getConfigurableFunction(self, name, **args ):
         rv = self.configurableFunctions.get( name, None )
         if rv == None:
@@ -1239,4 +1246,4 @@ def extractMetadata( fieldData ):
                     metadata.update( md )
                 mdList.append( metadata )
         for md in mdList: md['inputVarList'] = inputVarList
-    return mdList 
+    return mdList
