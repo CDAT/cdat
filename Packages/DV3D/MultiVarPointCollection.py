@@ -512,7 +512,7 @@ class MultiVarPointCollection():
                 self.metadata[ varname ] = ( var_long_name, var_units, vrng )
         
     def getPoints(self):
-        print " ---- getPoints ---- "
+        #print " ---- getPoints ---- "
         point_comps = [ self.point_data_arrays[comp].flat for comp in [ 'x', 'y', 'z'] ]
         return numpy.dstack( point_comps ).flatten()
 
@@ -610,7 +610,7 @@ class MultiVarPointCollection():
                 self.selected_index_array = index_array[ threshold_mask ]  
                 return vmin, vmax   
         elif op == 'points': 
-            print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
+            #print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
             if not args[2] is None:
                 self.setPointHeights( height_var=args[1], z_scale=args[2] )  
         elif op == 'ROI': 
