@@ -177,7 +177,7 @@ class Button:
         self.broadcastState( state )
         self.setToggleProps()
         
-    def setButtonState( self, state, indirect = False ):
+    def setButtonState( self, state, broadcast = True ):
 #        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
         if (state <> self.getState()) or not self.toggle:
             if broadcast:

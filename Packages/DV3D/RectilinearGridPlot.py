@@ -350,6 +350,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+        slider_buttons = [ 'XSlider', 'YSlider', 'ZSlider' ]
         if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
