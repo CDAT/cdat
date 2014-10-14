@@ -358,11 +358,11 @@ class RectGridPlot(StructuredGridPlot):
 #                     self.modifySlicePlaneVisibility( index, "xyz"[index], button.getState() ) 
                 self.updateTextDisplay( config_function.label ) 
             self.modifySlicePlaneVisibility( plane_index, config_function.key, args[1] )
+            if config_function.getState() == 0: 
+                self.processConfigParameterChange( slicePosition )
             self.render() 
-#         elif args and args[0] == "ProcessSliderInit":
-#             for plane_index in range(3):
-#                 self.modifySlicePlaneVisibility( plane_index, 'xyz'[plane_index]  ) 
-#             self.render()              
+        elif args and args[0] == "ProcessSliderInit":
+            self.processConfigParameterChange( slicePosition )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
