@@ -319,6 +319,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+        slider_buttons = [ 'XSlider', 'YSlider', 'ZSlider' ]
         if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
@@ -1179,7 +1180,7 @@ class RectGridPlot(StructuredGridPlot):
             if self.transferFunctionConfig:
                 self.transferFunctionConfig.setTransferFunctionType( otf_data[2] )
             self._range = self.getImageValues( ( otf_data[0], otf_data[1], 0.0 ) )
-            if len( otf_data ) > 3: self.refinement = [ otf_data[3], otf_data[4] ]
+            if len( otf_data ) > 4: self.refinement = [ otf_data[3], otf_data[4] ]
             self.updateOTF()
 #        printArgs( "generateOTF", irange=self._range,  otf_data=otf_data, refinement=self.refinement  )   
            
