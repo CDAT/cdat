@@ -455,7 +455,7 @@ class ConfigManager:
              parameter_list.add( basename )  
         for pname in extra_parms:
              parameter_list.add( pname )  
-        print "Generated parameter_list: " , str( parameter_list )            
+#        print "Generated parameter_list: " , str( parameter_list )            
         return parameter_list
         
     def initParameters(self):
