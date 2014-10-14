@@ -11,6 +11,14 @@ VTK_NOTATION_SIZE = 10
 
 PlotButtonNames = [ 'XSlider', 'YSlider', 'ZSlider', 'ToggleSurfacePlot', 'ToggleVolumePlot' ]
 
+def addState( values, state ):
+    state_val = 'vcs.on' if ( state == 1 ) else 'vcs.off'
+    for index, val in enumerate(values):
+        if val in [ "vcs.on", "vcs.off" ]:
+            values[ index ] = state_val
+            return
+    values.append( state_val )
+
 class AnimationStepper:
     
     def __init__( self, target ):
@@ -262,7 +270,7 @@ class DV3DPlot():
     def processConfigParameterChange( self, parameter ):
         values = parameter.getValues()
         state = parameter.getState()
-        if state: values.append(state)
+        if state <> None: addState( values, state )
         argList = [ parameter.name, parameter.ptype, str(values) ] 
         print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
