@@ -270,7 +270,7 @@ class DV3DPlot():
     def processConfigParameterChange( self, parameter ):
         values = parameter.getValues()
         state = parameter.getState()
-        if state: values.append(state)
+        if state <> None: addState( values, state )
         argList = [ parameter.name, parameter.ptype, str(values) ] 
         print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
