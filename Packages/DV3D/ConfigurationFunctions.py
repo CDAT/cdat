@@ -245,7 +245,7 @@ class ConfigManager:
 #                print "Getting config param from parent: ", param_name 
                 cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
-            self.parameters[ param_name ] = cparm
+            self.addParam( param_name, cparm )
         return cparm
             
 #     def getParameter( self, param_name, **args ):
@@ -262,14 +262,16 @@ class ConfigManager:
 #         return cparm
      
     def setParameter( self, param_name, data, **args ):
-        if isinstance( data, str ): 
-            try: data = ast.literal_eval( data )
-            except ValueError: pass
         param = self.getParameter( param_name, **args )
-#        pdata = data if hasattr( data, '__iter__' ) else [ data ]
-        param.setInitValue( data )
-#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
-
+        if data == None:
+            param.setInitValue( args )
+        else:
+            if isinstance( data, str ): 
+                try: data = ast.literal_eval( data )
+                except ValueError: pass
+    #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
+            param.setInitValue( data )
+    #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -277,7 +279,7 @@ class ConfigManager:
         if param_name == 'Camera':
             value = str( param.values )
         else:
-            value = param.getValues()
+            value = str( param.getValues() )
             if param.getState(): value = value + ", vcs.on"
         return value
 
@@ -298,7 +300,6 @@ class ConfigManager:
 
     def addParam(self, key ,cparm ):
         self.parameters[ key ] = cparm
-#        print "Add param[%s]" % key
                      
     def saveConfig( self ):
         try:
@@ -442,6 +443,7 @@ class ConfigManager:
             from Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
         else:
+            pass
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
             p1 = RectGridPlot(cm=self,display=False) 
@@ -505,14 +507,19 @@ class ConfigParameter:
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
         self.parent = args.get( 'parent', None ) 
+        self.stateKeyList = []
         if self.parent<> None: 
             self.parent.addChild( self )
             self.values.update( self.parent.values )
             self.valueKeyList = list( self.parent.values.keys() )
+            plist = makeList( self.parent.getValue(0) )
+            if plist <> None:
+                for pval in plist:
+                    if   pval == "vcs.on":    self.setValue('state',1)
+                    elif pval == "vcs.off":   self.setValue('state',0)
         else:
             self.values.update( args )
             self.valueKeyList = list( args.keys() )
-        self.stateKeyList = []
 #        self.scaling_bounds = None
       
     def addChild(self, child ): 

@@ -337,7 +337,14 @@ class RectGridPlot(StructuredGridPlot):
             if ival < 0.01: ival = 0.01
             slicePosition.setValues( [ ival ] ) 
             plane_widget.SetSlicePosition( ival )
-            if config_function.key == 'z':
+            state =  config_function.getState()
+            if state <> None:            
+                bbar = self.getPlotButtonbar()
+                button = bbar.getButton( slider_buttons[plane_index] ) 
+                button.setButtonState( 1 ) 
+                if state: 
+                    self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+            elif config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
@@ -351,11 +358,11 @@ class RectGridPlot(StructuredGridPlot):
 #                     self.modifySlicePlaneVisibility( index, "xyz"[index], button.getState() ) 
                 self.updateTextDisplay( config_function.label ) 
             self.modifySlicePlaneVisibility( plane_index, config_function.key, args[1] )
+            if config_function.getState() == 0: 
+                self.processConfigParameterChange( slicePosition )
             self.render() 
-#         elif args and args[0] == "ProcessSliderInit":
-#             for plane_index in range(3):
-#                 self.modifySlicePlaneVisibility( plane_index, 'xyz'[plane_index]  ) 
-#             self.render()              
+        elif args and args[0] == "ProcessSliderInit":
+            self.processConfigParameterChange( slicePosition )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":

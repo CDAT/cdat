@@ -593,12 +593,15 @@ class ButtonBarWidget(ButtonBar):
             srep.SetValue( value  )
             
     def initializeSliderPosition( self, index ):
-        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
-        if swidget:
-            srep = swidget.GetRepresentation( ) 
-            values = self.handler.cfgManager.getParameterValue( interaction_state )
-            value = ( ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 )  if ( values == None ) else values[0]
-            srep.SetValue( value  ) 
+        try:
+            ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
+            if swidget:
+                srep = swidget.GetRepresentation( ) 
+                values = self.handler.cfgManager.getParameterValue( interaction_state )
+                value = ( ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 )  if ( values == None ) else values[0]
+                srep.SetValue( value  ) 
+        except Exception, err:
+            print str(err)
                     
     def createSliderWidget( self, index ): 
         sliderRep = vtk.vtkSliderRepresentation2D()

@@ -11,6 +11,14 @@ VTK_NOTATION_SIZE = 10
 
 PlotButtonNames = [ 'XSlider', 'YSlider', 'ZSlider', 'ToggleSurfacePlot', 'ToggleVolumePlot' ]
 
+def addState( values, state ):
+    state_val = 'vcs.on' if ( state == 1 ) else 'vcs.off'
+    for index, val in enumerate(values):
+        if val in [ "vcs.on", "vcs.off" ]:
+            values[ index ] = state_val
+            return
+    values.append( state_val )
+
 class AnimationStepper:
     
     def __init__( self, target ):
@@ -234,7 +242,8 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-
+        self.addKeyPressHandler( 'p',  self.printParameterValues )
+        
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
         
@@ -259,7 +268,10 @@ class DV3DPlot():
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
-        argList = [ parameter.name, parameter.ptype, str(parameter.getValues()) ] 
+        values = parameter.getValues()
+        state = parameter.getState()
+        if state <> None: addState( values, state )
+        argList = [ parameter.name, parameter.ptype, str(values) ] 
         print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
 
@@ -359,8 +371,6 @@ class DV3DPlot():
             self.changeButtonActivation( *activation_spec )
                         
     def saveState(self, **args): 
-        #print "Save State"
-        #self.printParameterValues()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
@@ -372,10 +382,11 @@ class DV3DPlot():
     def getConfigurationParms(self, **args): 
         return self.cfgManager.getConfigurationParms( **args )
 
-    def printParameterValues(self):
+    def printParameterValues( self, **args ):
+        self.recordCamera()
         parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
         for param_name in parameter_names:
-            print '%s = %s\n' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
+            print '%s = %s' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )

@@ -1031,10 +1031,10 @@ class CPCPlot( DV3DPlot ):
             vscale_ival = vscale_val if  ( init_value is None ) else init_value[0] if isinstance( init_value, (list, tuple) ) else init_value
             vscale.setValues( [ vscale_ival ] ) 
             self.scaling_spec = ( self.vertVar, vscale_ival )
-            #print "Init zscale: ", str( self.scaling_spec )
 #             if self.partitioned_point_cloud:
-#                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
-#                 self.setRenderMode( ProcessMode.HighRes )
+#                  self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+#                  print "Init zscale: ", str( self.scaling_spec )
+#                  self.setRenderMode( ProcessMode.HighRes )
 #                 self.render()
 #             self.processConfigParameterChange( vscale )
             self.skipIndex = 5
@@ -1382,10 +1382,7 @@ class CPCPlot( DV3DPlot ):
         self.fetchPlotButtons()
         self.initializeConfiguration()       
         self.cfgManager.initParameters()
-        self.updateVerticalScaling()
         self.initializePlots()
-        self.setCameraPos()
-        self.updateThresholding()
              
 #             pc = self.point_cloud_overview.getPointCollection()
 #             cfgInterface = ConfigurationInterface( metadata=pc.getMetadata(), defvar=pc.var.id, callback=self.processConfigCmd  )
@@ -1397,9 +1394,9 @@ class CPCPlot( DV3DPlot ):
     def initializePlots(self):         
         DV3DPlot.initializePlots(self)
         self.setRenderMode( ProcessMode.HighRes )               
-#        self.updateThresholding()        
+        self.setCameraPos()
 #        self.updateVerticalScaling() 
-#        self.render()  
+#        self.updateThresholding()        
                          
     def setCameraPos(self):
         ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
