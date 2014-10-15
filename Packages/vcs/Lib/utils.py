@@ -25,17 +25,31 @@ import vcsaddons
 
 indent = 1
 sort_keys = True
-def dumpToDict(obj,skipped,must):
+def dumpToDict(obj,skipped=[],must=[]):
   dic = {}
+  associated={"texttable":set(),
+              "textorientation":set(),
+              "line":set(),
+              "colormap":set()
+              }
+  associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
       try:
         val = getattr(obj,a)
       except:
         continue
+      if a in associated_keys and not val in ["default","defup","defcenter","defright"]:
+        associated[a].add(val)
       if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
         val = dumpToDict(val,skipped,must)
       dic[a] = val
+  for etype in associated_keys:
+    print "ETYPE:",etype
+    for asso in associated[etype]:
+      print "\t",asso
+      print "\t\t",vcs.elements[etype][asso]
+      dic.update(dumpToDict(vcs.elements[etype][asso]))
   return dic
 
 def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,sort_keys=sort_keys):
