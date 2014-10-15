@@ -27,6 +27,9 @@ list(APPEND ParaView_tpl_args
   -DModule_vtkIOCGM:BOOL=ON
   )
 
+if(NOT CDAT_BUILD_LEAN)
+  list(APPEND ParaView_tpl_args -DPARAVIEW_ENABLE_FFMPEG:BOOL=ON)
+endif()
 
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
