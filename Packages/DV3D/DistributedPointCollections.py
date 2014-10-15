@@ -511,7 +511,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.result_queue = Queue() # JoinableQueue()
         self.parameter_cache = {}
             
-    def runProcess(self, procType, **args):
+    def runProcess(self, procType, **args): 
         if   procType == PCProc.Subset:    self.generateSubset( **args )
         elif procType == PCProc.ZScaling:  self.generateZScaling( **args )
         elif procType == PCProc.Timestep:  self.stepTime( **args )
