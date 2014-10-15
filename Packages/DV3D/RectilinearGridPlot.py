@@ -1726,7 +1726,6 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
                 imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
-#                print " scaleColormap[%s] %s %s " % ( constituent, str(imageRange), str(ctf_data) )  
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
