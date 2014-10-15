@@ -220,7 +220,6 @@ class RectGridPlot(StructuredGridPlot):
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )  
-#            print "ColorScale EndConfig" 
         elif args and args[0] == "InitConfig":         
             state = args[1]
             self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
