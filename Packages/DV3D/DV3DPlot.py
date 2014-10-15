@@ -360,11 +360,12 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
+        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
         if state <> None:
-            button.setState( state )
+            button.setToggleState( state )
             
     def changeButtonActivations(self, activation_list ):
         for activation_spec in activation_list:
