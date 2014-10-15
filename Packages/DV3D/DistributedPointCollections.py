@@ -514,7 +514,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.parameter_cache = {}
             
     def runProcess(self, procType, **args):
-        print "Run Process[%d] (%s)" ( self.pcIndex, str(args) )
+#        print "Run Process[%d] (%s)" ( self.pcIndex, str(args) )
         if   procType == PCProc.Subset:    self.generateSubset( **args )
         elif procType == PCProc.ZScaling:  self.generateZScaling( **args )
         elif procType == PCProc.Timestep:  self.stepTime( **args )
