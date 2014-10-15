@@ -168,7 +168,6 @@ class VTKVCSBackend(object):
           key_args.append({"ratio":d.ratio})
       else:
           key_args.append({})
-    self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
     if self.logo is None:
