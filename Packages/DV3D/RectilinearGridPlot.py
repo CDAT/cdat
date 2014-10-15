@@ -226,9 +226,10 @@ class RectGridPlot(StructuredGridPlot):
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
             cscale = colorScaleRange.getValues()
-            self.scaleEnabledColormaps( cscale )
             if self.isConstituentConfigEnabled('Volume'):
                 self.generateCTF( cscale )
+#            if self.isConstituentConfigEnabled('Slice') or self.isConstituentConfigEnabled('Surface'):
+            self.scaleEnabledColormaps( cscale )
             for plotItem in self.plotConstituents.items():
                 if self.isConstituentConfigEnabled(plotItem[0]):
                     colorScaleRange.setValue( plotItem[0], colorScaleRange.getValues() )
@@ -1697,11 +1698,12 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
                 imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
-                print " scaleColormap[%s] %s %s " % ( constituent, str(imageRange), str(ctf_data) )
+#                print " scaleColormap[%s] %s %s " % ( constituent, str(imageRange), str(ctf_data) )
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
-                self.updatingColormap( cmap_index, colormapManager )
+                if constituent == 'Slice':
+                    self.updatingColormap( cmap_index, colormapManager )
                 ispec.addMetadata( { '-'.join( [ 'colormap', constituent ] ) : self.getColormapSpec(constituent), 'orientation' : self.iOrientation } )
 
 
