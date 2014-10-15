@@ -1712,7 +1712,8 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
-                self.updatingColormap( cmap_index, colormapManager )
+                if constituent == 'Slice':
+                    self.updatingColormap( cmap_index, colormapManager )
                 ispec.addMetadata( { '-'.join( [ 'colormap', constituent ] ) : self.getColormapSpec(constituent), 'orientation' : self.iOrientation } )
 
 
