@@ -365,7 +365,7 @@ class DV3DPlot():
             if activate: button.activate()
             else: button.deactivate()
         if state <> None:
-            button.setState( state )
+            button.setToggleState( state )
             
     def changeButtonActivations(self, activation_list ):
         for activation_spec in activation_list:
