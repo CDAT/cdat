@@ -115,6 +115,7 @@ class RectGridPlot(StructuredGridPlot):
         self.showOutlineMap = True
         self.state = self.Start
         self.volume = None
+        self.cs_bbar = None
         self.probeFilter = None
         self.cursorActor     = vtk.vtkActor()
         
@@ -180,16 +181,25 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
             state = args[1]
-            cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
-            if state: cs_bbar.show()
-            else:     cs_bbar.hide()
+            print "OpacityScaling InitConfig, state = %d" % state
+            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
+            if state: 
+                self.cs_bbar.show()
+                print "Show ConstituentSelectionBar: ", config_function.cfg_state
+            else:     
+                self.cs_bbar.hide()
+                self.cs_bbar = None
+                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility( islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-            pass
+             if self.cs_bbar <> None:
+                 self.cs_bbar.hide()
+                 self.cs_bbar = None
+                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
         elif args and args[0] == "UpdateConfig":
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
@@ -210,18 +220,28 @@ class RectGridPlot(StructuredGridPlot):
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )
+            print "ColorScale EndConfig" 
         elif args and args[0] == "InitConfig":         
             state = args[1]
-            cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
-            if state: cs_bbar.show()
-            else:     cs_bbar.hide()
+            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
+            print "ColorScale InitConfig, state = %d" % state
+            if state: 
+                self.cs_bbar.show()
+                print "Show ConstituentSelectionBar: ", config_function.cfg_state
+            else:     
+                self.cs_bbar.hide()
+                self.cs_bbar = None
+                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-            pass
+             if self.cs_bbar <> None:
+                 self.cs_bbar.hide()
+                 self.cs_bbar = None
+                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
         elif args and args[0] == "UpdateConfig":
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
