@@ -587,6 +587,11 @@ class ConfigParameter:
             self.addValueKey( item[0] )
         args1.append( self.name )
         self.ValueChanged( args1 )
+        
+    def loadConstituent( self, constituent ):
+        cvals = self.values.get( constituent, None )
+        if cvals <> None:
+            self.setValues( cvals )
          
     def getName(self):
         return self.name

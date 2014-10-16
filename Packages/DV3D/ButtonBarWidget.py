@@ -137,13 +137,17 @@ class Button:
     def setToggleProps(self, state = None ):
         if self.toggle:
             prop = self.buttonRepresentation.GetProperty()
-            prop.SetOpacity( 0.4 if ( self.getState() == 0 ) else 1.0 )
+            opacity = 0.4 if ( self.getState() == 0 ) else 1.0
+            prop.SetOpacity( opacity )
             self.buttonRepresentation.SetProperty(prop)
             prop = self.buttonRepresentation.GetHoveringProperty()
-            prop.SetOpacity( 0.7 if ( self.getState() == 0 ) else 1.0 )
+            h_opacity = 0.7 if ( self.getState() == 0 ) else 1.0
+            prop.SetOpacity( h_opacity )
             self.buttonRepresentation.SetHoveringProperty(prop)
             self.buttonRepresentation.Modified()
             self.buttonRepresentation.NeedToRenderOn()
+            if self.id == "Volume":
+                print "  ---> Set Volume constituent button opacity: ", str( opacity )
             
     def processKeyEvent( self, key, ctrl = 0 ):
         if self.processFunctionKey( key, ctrl ): 
@@ -315,6 +319,11 @@ class ButtonBar:
     def getButton(self, name ): 
         for b in self.buttons:
             if b.id == name: return b
+        return None
+
+    def getActiveButton(self): 
+        for b in self.buttons:
+            if b.getState(): return b
         return None
 
     def updateWindowSize(self):
