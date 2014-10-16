@@ -4713,7 +4713,8 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
+
         """
  Function: png
 
