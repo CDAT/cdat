@@ -41,6 +41,8 @@ def dumpToDict(obj,skipped=[],must=[]):
       except:
         continue
       if a in associated_keys and not val in ["default","defup","defcenter","defright"]:
+        if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
+          continue
         associated[a].add(val)
       if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
         val,asso = dumpToDict(val,skipped,must)
