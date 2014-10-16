@@ -271,7 +271,11 @@ class RectGridPlot(StructuredGridPlot):
                 print " Reset sliders: ", str( new_values )
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
+<<<<<<< HEAD
                 interaction_param.loadConstituent( constituent )  
+=======
+                interaction_param.loadConstituent( constituent )
+>>>>>>> Fix constituent buttons
                                    
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
@@ -1386,6 +1390,10 @@ class RectGridPlot(StructuredGridPlot):
             contourInput.Modified() 
         return input
               
+<<<<<<< HEAD
+=======
+    
+>>>>>>> Fix constituent buttons
     def setConstituentOpacities(self, param, range, **args ): 
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
