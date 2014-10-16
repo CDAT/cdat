@@ -64,6 +64,7 @@ class Button:
         self.buttonWidget.SetRepresentation( self.buttonRepresentation )
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
+        self.buttonWidget.SetPriority(1.0)
         self.updateWidgetState()
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
