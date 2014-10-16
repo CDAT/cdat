@@ -176,7 +176,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Init":
             if config_function.initial_value == None:       
                 config_function.initial_value = [ 1.0, 1.0 ]  
-            self.setOpacities( config_function.initial_value )
+            self.setConstituentOpacities( opacityRange, config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
@@ -204,7 +204,7 @@ class RectGridPlot(StructuredGridPlot):
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
             orange = opacityRange.getValues()
-            self.setOpacities( orange )
+            self.setConstituentOpacities( opacityRange, orange )
 
     def processColorScaleCommand( self, args, config_function = None ):
         colorScaleRange = config_function.value
@@ -265,11 +265,14 @@ class RectGridPlot(StructuredGridPlot):
             param.setValue( 'ConfigEnabled', state ) 
             print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
             if ( prevState == 0 ) and state:
-                colorScale = self.cfgManager.getParameter( 'ScaleColormap' ) 
-                new_values = colorScale.getValue( constituent, colorScale.getValues() )
+                interactionButtons = self.getInteractionButtons()
+                b = interactionButtons.getActiveButton()
+                interaction_param = self.cfgManager.getParameter( b.id ) 
+                new_values = interaction_param.getValue( constituent, interaction_param.getValues() )
                 print " Reset sliders: ", str( new_values )
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
+                interaction_param.loadConstituent( constituent )
                                    
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
@@ -1385,10 +1388,11 @@ class RectGridPlot(StructuredGridPlot):
         return input
               
     
-    def setOpacities(self, range, **args ): 
+    def setConstituentOpacities(self, param, range, **args ): 
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
-                self.updateOpacity( plotItem[0], range, **args  ) 
+                self.updateOpacity( plotItem[0], range, **args  )
+                param.setValue( plotItem[0], range ) 
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
