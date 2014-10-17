@@ -240,7 +240,7 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 fillarea.Tf("default")
 template.P("default")
   
-taylordiagrams=[taylor.Gtd()]
+taylordiagrams=[taylor.Gtd("default")]
 
 canvaslist = []
 #meshfills=[meshfill.Gfm()]
