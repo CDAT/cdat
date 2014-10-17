@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs,numpy.ma,sys,string,colors,numpy,cdms2,types,VCS_validation_functions
 import MV2
+import copy
 
 def process_src(name,code):
   # Now break the string
@@ -465,6 +466,7 @@ class Gtd(object):
       self.template=None
       self._name=name
       self.g_name='Gtd'
+      self._x=None
       if name == "default":
         self._max=None # maximum value of the standard deviaton, copied to the value of the outter circle
         self._quadrans=1
@@ -481,7 +483,6 @@ class Gtd(object):
         self._arrowlength=.05
         self._arrowangle=20.
         self._arrowbase=.75
-        self._x=None
         self._yticlabels1='*'
         self._xticlabels1='*'
         self._cticlabels1='*'
@@ -508,7 +509,6 @@ class Gtd(object):
         self.arrowlength=src.arrowlength
         self.arrowangle=src.arrowangle
         self.arrowbase=src.arrowbase
-        self.x=src.x
         self.yticlabels1=src.yticlabels1
         self.xticlabels1=src.xticlabels1
         self.cticlabels1=src.cticlabels1

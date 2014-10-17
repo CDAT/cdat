@@ -34,12 +34,12 @@ t.ymintic2.x2=t.data.x2
 t.ymintic2.line='gdl'
 
 # Same thing the circles
-t.xtic2.x1=t.data.x1
-t.xtic2.x2=t.data.x2
+t.xtic2.y1=t.data.y1
+t.xtic2.y2=t.data.y2
 t.xtic2.line='gl'
 # Same thing the mintic circles
-t.xmintic2.x1=t.data.x1
-t.xmintic2.x2=t.data.x2
+t.xmintic2.y1=t.data.y1
+t.xmintic2.y2=t.data.y2
 t.xmintic2.line='gdl'
 
 # turn the circles on
