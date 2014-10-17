@@ -43,7 +43,7 @@ def check_name_source(name,source,typ):
   if name in elts:
       raise vcsError, "Error %s object named %s already exists" % (typ,name)
   if not source in elts and typ!="display":
-      raise vcsError, "Error source %s object (%s) does not exist!" % (typ,name)
+      raise vcsError, "Error source %s object (%s) does not exist!" % (typ,source)
   return name,source
 
 def createtemplate(name=None, source='default'):
