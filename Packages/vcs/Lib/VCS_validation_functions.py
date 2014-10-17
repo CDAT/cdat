@@ -555,7 +555,7 @@ def checkTextOrientation(self,name,value):
        value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("textorientation"):
-               checkedRaise(self,value,ValueError,"Error : not a valid textorientation")
+               checkedRaise(self,value,ValueError,"Error: %s not a valid textorientation" % value)
      elif not isinstance(value,vcs.textorientation.To):
           checkedRaise(self,value,ValueError,"Error you must pass a textorientation objector a textorientation name")
      else:
