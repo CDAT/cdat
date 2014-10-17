@@ -1,6 +1,6 @@
 import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
-pth = os.path.join(os.path.dirname(src),"..")
+pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 
