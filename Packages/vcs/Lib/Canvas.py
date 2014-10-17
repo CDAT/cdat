@@ -3430,24 +3430,22 @@ Options:::
                     arglist[2]=keyargs[k]
                     del(keyargs[k])
             # look through the available taylordiagram methods and use the plot function
-            for t in vcs.taylordiagrams:
-                if t.name==arglist[4]:
-                    t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
-                    result = self.getplot(self.return_display_names()[-1], arglist[2])
-                    result.g_type='taylordiagram'
-                    result.g_name=arglist[4]
-                    result.extradisplays=t.displays
+            t = vcs.elements["taylordiagram"].get(arglist[4],None)
+            if t is None:
+              raise ValueError("unknown taylordiagram graphic method: %s" % arglist[4])
+            t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
+            result = self.getplot(self.return_display_names()[-1], arglist[2])
+            result.g_type='taylordiagram'
+            result.g_name=arglist[4]
+            result.extradisplays=t.displays
 ##                     dn.array=arglist[0]
-                    for p in slab_changed_attributes.keys():
-                        tmp = slab_changed_attributes[p]
-                        if tmp == (None,None):
-                            delattr(arglist[0],p)
-                        else:
-                            setattr(arglist[0],p,tmp)
-                            
-                    return result
-##                     return self.getplot(dn, template_origin)
-            raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
+            for p in slab_changed_attributes.keys():
+                tmp = slab_changed_attributes[p]
+                if tmp == (None,None):
+                    delattr(arglist[0],p)
+                else:
+                    setattr(arglist[0],p,tmp)
+            return result
         else: #not taylor diagram
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 gm= arglist[3]
