@@ -516,6 +516,7 @@ class Gtd(object):
         self.xmtics1=src.xmtics1
         self.cmtics1=src.cmtics1
       self.displays = []
+      self.Marker.equalize()
       vcs.elements["taylordiagram"][name]=self
 
     def _getname(self):

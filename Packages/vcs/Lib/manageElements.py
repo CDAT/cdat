@@ -268,30 +268,7 @@ vcs.show('taylordiagram')
       raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
     if not source in vcs.elements["taylordiagram"].keys():
       raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
-    n=vcs.taylor.Gtd()
-    n._name=name
-    m = vcs.elements["taylordiagram"][source]
-    n.max=m.max
-    n.quadrans=m.quadrans
-    n.skillValues=m.skillValues
-    n.skillColor=m.skillColor
-    n.skillDrawLabels=m.skillDrawLabels
-    n.skillCoefficient=m.skillCoefficient
-    n.detail=m.detail
-    n.referencevalue=m.referencevalue
-    n.Marker=copy.deepcopy(m.Marker)
-    n.arrowlength=m.arrowlength
-    n.arrowangle=m.arrowangle
-    n.arrowbase=m.arrowbase
-    n.xticlabels1=m.xticlabels1
-    n.xmtics1=m.xmtics1
-    n.yticlabels1=m.yticlabels1
-    n.ymtics1=m.xmtics1
-    n.cticlabels1=m.cticlabels1
-    n.cmtics1=m.xmtics1
-            
-    vcs.elements["taylordiagram"][name]=n
-    n.Marker.equalize()
+    n=vcs.taylor.Gtd(name,source)
     return n
 
 def gettaylordiagram(Gtd_name_src='default'):
