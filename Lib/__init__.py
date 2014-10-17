@@ -198,6 +198,10 @@ to.halign = "center"
 to = textorientation.To("defup")
 to.angle = -90
 to.valign="half"
+to = textorientation.To("defcentup")
+to.angle = -90
+to.valign="half"
+to.halign = "center"
 to = textorientation.To("defright")
 to.halign = "right"
 boxfill.Gfb("default")
