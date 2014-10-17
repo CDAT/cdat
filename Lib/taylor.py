@@ -461,12 +461,7 @@ class Gtd(object):
 ##         '_cmtics1',
 ##         ]
             
-    def __init__(self):
-        self.init()
-
-
-    def init(self):
-
+    def __init__(self,name):
         self.template=None
         self._max=None # maximum value of the standard deviaton, copied to the value of the outter circle
         self._quadrans=1
