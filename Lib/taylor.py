@@ -461,8 +461,11 @@ class Gtd(object):
 ##         '_cmtics1',
 ##         ]
             
-    def __init__(self,name):
-        self.template=None
+    def __init__(self,name,source="default"):
+      self.template=None
+      self._name=name
+      self.g_name='Gtd'
+      if name == "default":
         self._max=None # maximum value of the standard deviaton, copied to the value of the outter circle
         self._quadrans=1
         self.preserveaspectratio='y'
@@ -478,8 +481,6 @@ class Gtd(object):
         self._arrowlength=.05
         self._arrowangle=20.
         self._arrowbase=.75
-        self._name='default'
-        self.g_name='Gtd'
         self._x=None
         self._yticlabels1='*'
         self._xticlabels1='*'
@@ -488,6 +489,34 @@ class Gtd(object):
         self._xmtics1='*'
         self._cmtics1='*'
         self.displays = []
+      else:
+        if not source in vcs.elements["taylordiagram"].keys():
+          raise Exception,"the source taylordiagram %s doe not exist" % source
+        src = vcs.elements["taylordiagram"][source]
+        self.max=src.max
+        self.quadrans=src.quadrans
+        self.preserveaspectratio=src.preserveaspectratio
+        self.skillValues=src.skillValues
+        self.skillDrawLabels=src.skillDrawLabels
+        self.skillColor=src.skillColor
+        self.skillCoefficient=src.skillCoefficient
+        self.outtervalue=src.outtervalue
+        self.detail=src.detail
+        self.referencevalue=src.referencevalue
+##         self._referencecolor=src'black'
+        self.Marker=copy.copy(src.Marker)
+        self.arrowlength=src.arrowlength
+        self.arrowangle=src.arrowangle
+        self.arrowbase=src.arrowbase
+        self.x=src.x
+        self.yticlabels1=src.yticlabels1
+        self.xticlabels1=src.xticlabels1
+        self.cticlabels1=src.cticlabels1
+        self.ymtics1=src.ymtics1
+        self.xmtics1=src.xmtics1
+        self.cmtics1=src.cmtics1
+      self.displays = []
+      vcs.elements["taylordiagram"][name]=self
 
     def _getname(self):
          return self._name
@@ -1431,8 +1460,15 @@ class Gtd(object):
         canvas.mode=savedmode
         return
 
-        
-
-
-
-
+    def rename(self,newname):
+      if newname == "default":
+        raise Exception,"You cannot overwrite the default taylordiagram graphic method"
+      if newname in vcs.elements["taylordiagram"].keys():
+        raise Exception,"Sorry %s taylordiagram graphic method already exists" % newname
+      vcs.elements["taylordiagram"][newname]=vcs.elements["taylordiagram"][self.name]
+      if self.name=="default":
+        warnings.warn("You were trying to rename the 'deafult' taylordiagram method, it was merely copied not renamed")
+      else:
+        del(vcs.elements["taylordiagram"][self.name])
+      self = vcs.elements["taylordiagram"][newname]
+      return
