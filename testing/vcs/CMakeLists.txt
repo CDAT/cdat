@@ -1,4 +1,5 @@
-#This test verifiy we can plot hurricane markers
+set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
+
 add_test(vcs_verify_import
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -61,7 +62,7 @@ FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
     --angle=${angle}
-    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_${angle}.png
+    "--source=${BASELINE_DIR}/test_vcs_basic_vectors_${angle}.png"
     )
 ENDFOREACH(angle)
 FOREACH(scale 0.5 2)
@@ -70,7 +71,7 @@ FOREACH(scale 0.5 2)
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
     --scale=${scale}
     --angle=45
-    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_${scale}.png
+    "--source=${BASELINE_DIR}/test_vcs_basic_vectors_45_${scale}.png"
     )
 ENDFOREACH(scale)
 add_test(vcs_test_vectors_amplitude
@@ -79,89 +80,89 @@ add_test(vcs_test_vectors_amplitude
   --scale=2
   --angle=45
   --amplitude
-  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_2_amplitude.png
+  "--source=${BASELINE_DIR}/test_vcs_basic_vectors_45_2_amplitude.png"
   )
 add_test(vcs_test_vectors_missing
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
-  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.png
+  "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
 
 #These test actually plot things need sample data
   add_test(vcs_test_gen_meshfill
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gen_meshfill.png
+    "${BASELINE_DIR}/test_vcs_gen_meshfill.png"
     )
   add_test(vcs_setcolormap
     "${CMAKE_INSTALL_PREFIX}/bin/python"
     "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.py"
-    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.png"
+    "${BASELINE_DIR}/test_vcs_setcolormap.png"
     )
   add_test(vcs_test_1d_in_boxfill
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.png
+    "${BASELINE_DIR}/test_1d_in_boxfill.png"
     )
   add_test(vcs_test_1d_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_missing.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1d_missing.png
+    "${BASELINE_DIR}/test_vcs_1d_missing.png"
     )
   add_test(vcs_test_infinity
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_infinity.py
-    ${cdat_SOURCE_DIR}/testing/vcs/infinity.png
+    "${BASELINE_DIR}/infinity.png"
     )
   add_test(test_vcs_1D_datawc
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc.png
+    "${BASELINE_DIR}/test_vcs_1D_datawc.png"
     )
   add_test(test_vcs_1D_datawc_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.png
+    "${BASELINE_DIR}/test_vcs_1D_datawc_missing.png"
     )
   add_test(vcs_test_wmo_marker
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_w07_marker.py
-    ${cdat_SOURCE_DIR}/testing/vcs/wmo_marker.png
+    "${BASELINE_DIR}/wmo_marker.png"
     )
   add_test(vcs_test_wmo_markers
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_markers.py
-    ${cdat_SOURCE_DIR}/testing/vcs/wmo_markers.png
+    "${BASELINE_DIR}/wmo_markers.png"
     )
   add_test(vcs_test_iso_celine_part1
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso.png
+    "${BASELINE_DIR}/test_celine_iso.png"
     )
   add_test(vcs_test_iso_celine_part2
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug_part2.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_2.png
+    "${BASELINE_DIR}/test_celine_iso_2.png"
     )
   add_test(vcs_test_markers
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_markers.png
+    "${BASELINE_DIR}/test_markers.png"
     )
   add_test(vcs_test_boxfill_10x10_numpy
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_numpy.png
+    "${BASELINE_DIR}/test_vcs_boxfill_10x10_numpy.png"
     )
   add_test(vcs_test_boxfill_10x10_masked_numpy
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_masked_numpy.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_masked_numpy.png
+    "${BASELINE_DIR}/test_vcs_boxfill_10x10_masked_numpy.png"
     )
   add_test(vcs_test_1D_with_manyDs
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.png
+    "${BASELINE_DIR}/test_1D_with_manyDs.png"
     )
 
   # These test actually plot things need sample data
@@ -172,20 +173,20 @@ add_test(vcs_test_vectors_missing
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
         --zero
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_zero.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_zero.png"
         )
       add_test(vcs_test_basic_${gm}
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}.png"
         )
       add_test(vcs_test_basic_${gm}_masked
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
         --mask
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
         )
     ENDFOREACH(gm)
 
@@ -197,7 +198,7 @@ add_test(vcs_test_vectors_missing
         --gm_type=${gm}
         --mask
         --projection=${ptype}
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked_${ptype}_proj.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked_${ptype}_proj.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -206,7 +207,7 @@ add_test(vcs_test_vectors_missing
         --projection=${ptype}
         --lat1=-90
         --lat2=0
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -217,7 +218,7 @@ add_test(vcs_test_vectors_missing
         --lat2=0
         --lon1=-180
         --lon2=180
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -228,7 +229,7 @@ add_test(vcs_test_vectors_missing
         --lat2=0
         --lon1=0
         --lon2=360
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_NH
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -237,7 +238,7 @@ add_test(vcs_test_vectors_missing
         --projection=${ptype}
         --lat1=90
         --lat2=0
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_NH.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -247,7 +248,7 @@ add_test(vcs_test_vectors_missing
         --lat1=-90
         --lat2=0
         --range_via_gm
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -259,7 +260,7 @@ add_test(vcs_test_vectors_missing
         --lon1=-180
         --lon2=180
         --range_via_gm
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -271,7 +272,7 @@ add_test(vcs_test_vectors_missing
         --lon1=0
         --lon2=360
         --range_via_gm
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -281,7 +282,7 @@ add_test(vcs_test_vectors_missing
         --lat1=90
         --lat2=0
         --range_via_gm
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png"
         )
       add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm_flip
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -292,7 +293,7 @@ add_test(vcs_test_vectors_missing
         --lat2=0
         --range_via_gm
         --gm_flips_lat_range
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_gmflip_NH_via_gm.png
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_gmflip_NH_via_gm.png"
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
@@ -300,12 +301,12 @@ add_test(vcs_test_vectors_missing
     add_test(vcs_test_${gm}_patterns
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.png
+      "${BASELINE_DIR}/test_vcs_patterns.png"
       )
     add_test(vcs_test_first_png_blank
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
-      ${cdat_SOURCE_DIR}/testing/vcs/first_png_blank.png
+      "${BASELINE_DIR}/first_png_blank.png"
       )
     #    add_test(vcs_test_aspect_ratio
     #  ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -315,47 +316,47 @@ add_test(vcs_test_vectors_missing
     add_test(vcs_test_polar_set_opt_param_polar
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.png
+      "${BASELINE_DIR}/test_polar_set_opt_param_polar.png"
       )
     add_test(vcs_test_boxfill_lev1_lev2
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2.png
+      "${BASELINE_DIR}/test_boxfill_lev1_lev2.png"
       )
     add_test(vcs_test_boxfill_lev1_lev2_ext1
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1.png
+      "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1.png"
       )
     add_test(vcs_test_boxfill_lev1_lev2_ext2
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext2.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext2.png
+      "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext2.png"
       )
     add_test(vcs_test_boxfill_lev1_lev2_ext1_ext2
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.png
+      "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1_ext2.png"
       )
 
     FOREACH(flip None X XY Y)
       add_test(vcs_test_flip${flip}
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.py
-        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.png
+        "${BASELINE_DIR}/test_vcs_flip${flip}.png"
         )
     ENDFOREACH(flip)
 
     add_test(vcs_test_boxfill_lev1_lev2_ta_missing
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.png
+      "${BASELINE_DIR}/test_boxfill_lev1_lev2_ta_missing.png"
       )
 
     add_test(vcs_test_close
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.png
+      "${BASELINE_DIR}/test_vcs_close.png"
       )
   endif()
 

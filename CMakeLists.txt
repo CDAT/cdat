@@ -174,6 +174,27 @@ else()
  )
 endif()
 
+# Checkout the baseline repository.
+if(BUILD_TESTING)
+  set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
+    CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
+  set(REPO_URL "")
+  if(GIT_PROTOCOL MATCHES "http://")
+    set(REPO_URL "http://github.com/UV-CDAT/uvcdat-testdata.git")
+  else()
+    set(REPO_URL "git://github.com/UV-CDAT/uvcdat-testdata.git")
+  endif()
+  find_package(Git QUIET REQUIRED)
+  add_custom_target(update-testdata ALL
+    COMMAND "${CMAKE_COMMAND}"
+      "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+      "-DTESTDATA_URL=${REPO_URL}"
+      "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
+      -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
+    COMMENT "Updating uvcdat-testdata repo."
+  )
+endif()
+
 # Initialize submodules
 #-----------------------------------------------------------------------------
 # C. Doutriaux commented this out no submodules left at this time

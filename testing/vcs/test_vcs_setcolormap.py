@@ -4,7 +4,7 @@ import sys
 import vcs
 
 baselineFilename = sys.argv[1]
-checkImagePath = os.path.join(os.path.dirname(baselineFilename),"..")
+checkImagePath = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(checkImagePath)
 import checkimage
 
