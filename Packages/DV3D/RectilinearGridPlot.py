@@ -220,7 +220,7 @@ class RectGridPlot(StructuredGridPlot):
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )
-            print "ColorScale EndConfig" 
+#            print "ColorScale EndConfig" 
         elif args and args[0] == "InitConfig":         
             state = args[1]
             self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
@@ -1714,6 +1714,8 @@ class RectGridPlot(StructuredGridPlot):
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
+                if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
+                   cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
