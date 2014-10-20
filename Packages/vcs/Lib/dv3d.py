@@ -83,10 +83,11 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
               fp.write("import vcs\n")
               fp.write("v=vcs.init()\n\n")
               
-           gtype = 'xyt' if (self._axes=="xyt") else 'default' 
+           gtype = 'xyt' if (self._axes=="Hovmoller3D") else 'default' 
            unique_name = 'gm3d_%s' % str( time.time() % 1 )[2:]
            if self.g_name=='3d_scalar': fp.write( '%s = vcs.get3d_scalar( %s )\n' % ( unique_name, gtype ) )
            if self.g_name=='3d_vector': ffp.write( '%s = vcs.get3d_vector( %s )\n' % ( unique_name, gtype ))       
+           if self.g_name=='3d_dual_scalar': fp.write( '%s = vcs.get3d_dual_scalar( %s )\n' % ( unique_name, gtype ) )
            for param_name in self.parameter_names:
                fp.write( '%s.%s = %s\n' % ( unique_name, param_name, self.cfgManager.getParameterValue( param_name ) ) )
         else:
@@ -107,7 +108,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.projection = 'default' 
         self.provenanceHandler = None
                 
-        if Gfdv3d_name=="xyt": 
+        if Gfdv3d_name=="Hovmoller3D": 
             self._axes="xyt"
         else:
             self._axes="xyz"
@@ -195,6 +196,12 @@ class Gf3Dscalar(Gfdv3d):
         self.g_name='3d_scalar'                        
         Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
         self.VectorDisplay = Gfdv3d_name
+
+class Gf3DDualScalar(Gfdv3d):
+
+    def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):        
+        self.g_name='3d_dual_scalar'                        
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
 
 if __name__ == '__main__':
     dv3d = vcs.get3d_scalar()

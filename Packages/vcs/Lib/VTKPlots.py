@@ -337,7 +337,7 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
 
     if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+        if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
             ren = self.createRenderer()
@@ -351,7 +351,7 @@ class VTKVCSBackend(object):
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm)
-    elif gtype in ["3d_scalar", "3d_vector"]:
+    elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
       if not cdms_var is None:
