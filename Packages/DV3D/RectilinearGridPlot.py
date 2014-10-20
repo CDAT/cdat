@@ -1713,6 +1713,8 @@ class RectGridPlot(StructuredGridPlot):
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
+                if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
+                   cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
