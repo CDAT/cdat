@@ -234,7 +234,7 @@ class RectGridPlot(StructuredGridPlot):
                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
+            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )  
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
