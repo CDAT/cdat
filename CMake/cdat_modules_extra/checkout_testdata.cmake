@@ -25,8 +25,10 @@
 if(NOT EXISTS "${TESTDATA_DIR}")
   message("Cloning \"${TESTDATA_URL}\" into \"${TESTDATA_DIR}\"...")
 
+  # Use depth=1 to avoid fetching the full history. Use "git pull --unshallow"
+  # to backfill the history if needed.
   execute_process(COMMAND
-    "${GIT_EXECUTABLE}" "clone" "${TESTDATA_URL}" "${TESTDATA_DIR}"
+    "${GIT_EXECUTABLE}" clone --depth=1 "${TESTDATA_URL}" "${TESTDATA_DIR}"
     RESULT_VARIABLE RESULT
     ERROR_VARIABLE OUTPUT
     OUTPUT_VARIABLE OUTPUT)
