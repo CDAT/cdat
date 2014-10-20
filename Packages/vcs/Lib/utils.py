@@ -546,6 +546,7 @@ def scriptrun(script):
         "Tm":"marker",
         "Tl":"line",
         "Gf3Dscalar":"3d_scalar",
+        "Gf3DDualScalar":"3d_dual_scalar",
         "Gf3Dvector":"3d_vector",
         "Proj":"projection",
         "Gtd":"taylordiagram",
