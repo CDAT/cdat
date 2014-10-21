@@ -1617,7 +1617,7 @@ class RectGridPlot(StructuredGridPlot):
                 else:
                     axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
                     textDisplay = " %s = %s ." % ( axisName, spos )
-                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d " % ( iAxis, sliceIndex ), textDisplay
+#                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d " % ( iAxis, sliceIndex ), textDisplay
                     
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
