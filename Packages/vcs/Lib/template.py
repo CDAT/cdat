@@ -887,71 +887,7 @@ class P(object):
         if Y is None:
           Y=slab.getAxis(-2)
         displays = []
-        # compute the spanning in x and y, and adjust for the viewport
-        if gm.datawc_x1 > 9.E19 :
-          try:
-            i=0
-            try:
-              while X[:][i].count()==0:
-                i+=1
-            except:
-              pass
-            wc[0]=X[:][i]
-          except:
-            wc[0]=X[:].min()
-        else:
-          wc[0] = gm.datawc_x1
-        if gm.datawc_x2 > 9.E19 :
-          try:
-            i=-1
-            try:
-              while X[:][i].count()==0:
-                i-=1
-            except:
-              pass
-            wc[1]=X[:][i]
-          except:
-            wc[1]=X[:].max()
-        else:
-          wc[1] = gm.datawc_x2
-        if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
-          wc[0]=X[:].min()
-          wc[1]=X[:].max()
-        if gm.datawc_y1 > 9.E19 :
-          try:
-            i=0
-            try:
-              while Y[:][i].count()==0:
-                i+=1
-            except Exception,err:
-              pass
-            wc[2]=Y[:][i]
-          except:
-            wc[2]=Y[:].min()
-        else:
-          wc[2] = gm.datawc_y1
-        if gm.datawc_y2 > 9.E19 :
-          try:
-            i=-1
-            try:
-              while Y[:][i].count()==0:
-                i-=1
-            except:
-              pass
-            wc[3]=Y[:][i]
-          except:
-            wc[3]=Y[:].max()
-        else:
-          wc[3] = gm.datawc_y2
-        if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
-          wc[2]=Y[:].min()
-          wc[3]=Y[:].max()
-        if wc[3]==wc[2]:
-          wc[2]-=.0001
-          wc[3]+=.0001
-        if numpy.allclose(wc[0],wc[1]):
-          wc[0]-=.0001
-          wc[1]+=.0001
+        wc = vcs.utils.getworldcoordinates(gm,X,Y)
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]
