@@ -35,6 +35,11 @@ add_test(vcs_test_colorcells
   ${cdat_SOURCE_DIR}/testing/vcs/test_colorcells.py
   )
 
+add_test(vcs_test_template_associated
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_template_saves_associated_to_tt.py
+  ${cdat_SOURCE_DIR}/testing/vcs/template_test_associated_dump.json
+  )
 add_test(vcs_test_load_json
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_load_json.py

@@ -25,21 +25,35 @@ import vcsaddons
 
 indent = 1
 sort_keys = True
-def dumpToDict(obj,skipped,must):
+def dumpToDict(obj,skipped=[],must=[]):
   dic = {}
+  associated={"texttable":set(),
+              "textorientation":set(),
+              "line":set(),
+              "colormap":set(),
+              "projection":set(),
+              }
+  associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
       try:
         val = getattr(obj,a)
       except:
         continue
+      if a in associated_keys and not val in ["default","defup","defcenter","defright"]:
+        if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
+          continue
+        associated[a].add(val)
       if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
-        val = dumpToDict(val,skipped,must)
+        val,asso = dumpToDict(val,skipped,must)
+        for k in associated_keys:
+          for v in asso[k]:
+            associated[k].add(v)
       dic[a] = val
-  return dic
+  return dic,associated
 
 def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,sort_keys=sort_keys):
-  dic = dumpToDict(obj,skipped,must)
+  dic,associated = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
       f=open(fileout,"a+")
@@ -54,7 +68,7 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
           f.seek(0)
           D = json.load(f)
         except Exception,err:
-          print "Error reading json file, will be overwritten",fileout
+          print "Error reading json file, will be overwritten",fileout,err
           D = {}
       else:
         D={}
@@ -75,6 +89,10 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
     json.dump(D,f,sort_keys=sort_keys,indent=indent)
     if isinstance(fileout,str):
       f.close()
+      for etype in associated.keys():
+        for asso in associated[etype]:
+          if asso is not None:
+            dumpToJson(vcs.elements[etype][asso],fileout,skipped=skipped,must=[],indent=indent,sort_keys=sort_keys)
   else:
     return json.dumps(dic,sort_keys=sort_keys,indent=indent)
 
