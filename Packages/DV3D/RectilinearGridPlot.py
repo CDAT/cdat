@@ -1010,9 +1010,9 @@ class RectGridPlot(StructuredGridPlot):
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
         
         if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
-            rangeBounds = self.getRangeBounds(1)
-            colormapManager = self.getColormapManager( 'Slice', index=1 )
-            self.scaleColormap( 'Slice', rangeBounds, 1 )
+            rangeBounds = self.getRangeBounds( contour_input_index )
+            colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
+            self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
 #            colormapManager = self.getColormapManager()
             self.generateContours = True   
             self.contours = vtk.vtkContourFilter()
