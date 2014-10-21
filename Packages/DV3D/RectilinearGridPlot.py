@@ -1614,7 +1614,7 @@ class RectGridPlot(StructuredGridPlot):
                     textDisplay = " time = %s." % ( ctime )
                 else:
                     axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
-                    textDisplay = " %s = %s ." % ( axisName, spos )
+                    textDisplay = " %s = %s ." % ( axisName, spos )  
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
                 self.slicePosition[ iAxis ] = sliceIndex                  
