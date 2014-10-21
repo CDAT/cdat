@@ -303,6 +303,11 @@ add_test(vcs_test_vectors_missing
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
 
+    add_test(vcs_test_oned_level_axis
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
+      "${BASELINE_DIR}/test_oned_level_axis.png"
+      )
     add_test(vcs_test_${gm}_patterns
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
