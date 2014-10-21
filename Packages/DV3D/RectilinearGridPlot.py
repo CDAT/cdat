@@ -1617,7 +1617,6 @@ class RectGridPlot(StructuredGridPlot):
                     textDisplay = " %s = %s ." % ( axisName, spos )
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
-#                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d, pos=%.2f, " % ( iAxis, sliceIndex, p1[0] ), textDisplay
                 self.slicePosition[ iAxis ] = sliceIndex                  
                 self.updateTextDisplay( textDisplay ) 
 
