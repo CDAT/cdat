@@ -1,9 +1,21 @@
 execute_process(
   COMMAND
   "@CMAKE_COMMAND@" -E copy_if_different "@cdat_SOURCE_DIR@/pysrc/src/setup-@PYTHON_VERSION@.py" "@python_SOURCE_DIR@/setup.py"
+  RESULT_VARIABLE errcode
 )
+if("${errcode}" STREQUAL "0")
+    message(STATUS "setup.py replaced")
+else()
+    message(FATAL_ERROR "Replacing setup.py failed: ${errcode}")
+endif()
 
 execute_process(
   COMMAND
   "@CMAKE_COMMAND@" -E copy_if_different "@cdat_SOURCE_DIR@/pysrc/src/site-@PYTHON_VERSION@.py" "@python_SOURCE_DIR@/Lib/site.py"
+  RESULT_VARIABLE errcode
 )
+if("${errcode}" STREQUAL "0")
+    message(STATUS "site.py replaced")
+else()
+    message(FATAL_ERROR "Replacing site.py failed: ${errcode}")
+endif()
