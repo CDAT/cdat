@@ -912,7 +912,10 @@ class RectGridPlot(StructuredGridPlot):
     def buildPipeline(self):
 
         self.debug_log( 'buildPipeline' )
-        contour_ispec = self.getInputSpec(  1 )       
+        always_plot_contours = False
+        for contour_input_index in [ 1, 0 ]:
+            contour_ispec = self.getInputSpec( contour_input_index ) 
+            if (contour_ispec <> None) or not always_plot_contours: break     
 
         contourInput = contour_ispec.input() if contour_ispec <> None else None
         primaryInput = self.input()
@@ -1008,9 +1011,9 @@ class RectGridPlot(StructuredGridPlot):
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
         
         if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
-            rangeBounds = self.getRangeBounds(1)
-            colormapManager = self.getColormapManager( 'Slice', index=1 )
-            self.scaleColormap( 'Slice', rangeBounds, 1 )
+            rangeBounds = self.getRangeBounds( contour_input_index )
+            colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
+            self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
 #            colormapManager = self.getColormapManager()
             self.generateContours = True   
             self.contours = vtk.vtkContourFilter()
@@ -1022,9 +1025,9 @@ class RectGridPlot(StructuredGridPlot):
             self.contourLineMapperer.SetColorModeToMapScalars()
             self.contourLineMapperer.SetLookupTable( colormapManager.lut )
             self.contourLineMapperer.UseLookupTableScalarRangeOn()
-        else:
-            self.setBasemapCoastlineLineSpecs( [ 1, 1 ] )
-            self.setBasemapCountriesLineSpecs( [ 0, 1 ] )
+
+        self.setBasemapCoastlineLineSpecs( [ 1, 1 ] )
+        self.setBasemapCountriesLineSpecs( [ 0, 1 ] )
          
         if (self.planeWidgetX <> None): self.modifySlicePlaneVisibility( 0, 'x', False )   
         if (self.planeWidgetY <> None): self.modifySlicePlaneVisibility( 1, 'y', False )   
@@ -1614,6 +1617,7 @@ class RectGridPlot(StructuredGridPlot):
                 else:
                     axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
                     textDisplay = " %s = %s ." % ( axisName, spos )
+                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d " % ( iAxis, sliceIndex ), textDisplay
                     
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
