@@ -123,11 +123,10 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  message("[INFO] Select Either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
   set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  return()
+  message(FATAL_ERROR "[ERROR] Select either git:// or http:// for checking out git submodules.
+           If you are behind a firewall then likely you need to choose http:// instead.")
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
