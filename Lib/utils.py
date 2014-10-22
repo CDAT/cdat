@@ -25,21 +25,35 @@ import vcsaddons
 
 indent = 1
 sort_keys = True
-def dumpToDict(obj,skipped,must):
+def dumpToDict(obj,skipped=[],must=[]):
   dic = {}
+  associated={"texttable":set(),
+              "textorientation":set(),
+              "line":set(),
+              "colormap":set(),
+              "projection":set(),
+              }
+  associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
       try:
         val = getattr(obj,a)
       except:
         continue
+      if a in associated_keys and not val in ["default","defup","defcenter","defright"]:
+        if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
+          continue
+        associated[a].add(val)
       if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
-        val = dumpToDict(val,skipped,must)
+        val,asso = dumpToDict(val,skipped,must)
+        for k in associated_keys:
+          for v in asso[k]:
+            associated[k].add(v)
       dic[a] = val
-  return dic
+  return dic,associated
 
 def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,sort_keys=sort_keys):
-  dic = dumpToDict(obj,skipped,must)
+  dic,associated = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
       f=open(fileout,"a+")
@@ -54,7 +68,7 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
           f.seek(0)
           D = json.load(f)
         except Exception,err:
-          print "Error reading json file, will be overwritten",fileout
+          print "Error reading json file, will be overwritten",fileout,err
           D = {}
       else:
         D={}
@@ -75,6 +89,10 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
     json.dump(D,f,sort_keys=sort_keys,indent=indent)
     if isinstance(fileout,str):
       f.close()
+      for etype in associated.keys():
+        for asso in associated[etype]:
+          if asso is not None:
+            dumpToJson(vcs.elements[etype][asso],fileout,skipped=skipped,must=[],indent=indent,sort_keys=sort_keys)
   else:
     return json.dumps(dic,sort_keys=sort_keys,indent=indent)
 
@@ -1496,3 +1514,73 @@ def creategraphicsmethod(gtype,name):
         return None
     copy_mthd=func(source = name)
     return copy_mthd
+
+def getworldcoordinates(gm,X,Y):
+  """Given a graphics method and two axes figures out correct world coordinates"""
+  # compute the spanning in x and y, and adjust for the viewport
+  wc=[0,1,0,1]
+  if gm.datawc_x1 > 9.E19 :
+    try:
+      i=0
+      try:
+        while X[:][i].count()==0:
+          i+=1
+      except:
+        pass
+      wc[0]=X[:][i]
+    except:
+      wc[0]=X[:].min()
+  else:
+    wc[0] = gm.datawc_x1
+  if gm.datawc_x2 > 9.E19 :
+    try:
+      i=-1
+      try:
+        while X[:][i].count()==0:
+          i-=1
+      except:
+        pass
+      wc[1]=X[:][i]
+    except:
+      wc[1]=X[:].max()
+  else:
+    wc[1] = gm.datawc_x2
+  if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+    wc[0]=X[:].min()
+    wc[1]=X[:].max()
+  if gm.datawc_y1 > 9.E19 :
+    try:
+      i=0
+      try:
+        while Y[:][i].count()==0:
+          i+=1
+      except Exception,err:
+        pass
+      wc[2]=Y[:][i]
+    except:
+      wc[2]=Y[:].min()
+  else:
+    wc[2] = gm.datawc_y1
+  if gm.datawc_y2 > 9.E19 :
+    try:
+      i=-1
+      try:
+        while Y[:][i].count()==0:
+          i-=1
+      except:
+        pass
+      wc[3]=Y[:][i]
+    except:
+      wc[3]=Y[:].max()
+  else:
+    wc[3] = gm.datawc_y2
+  if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+    wc[2]=Y[:].min()
+    wc[3]=Y[:].max()
+  if wc[3]==wc[2]:
+    wc[2]-=.0001
+    wc[3]+=.0001
+  if numpy.allclose(wc[0],wc[1]):
+    wc[0]-=.0001
+    wc[1]+=.0001
+  return wc
