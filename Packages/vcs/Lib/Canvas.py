@@ -3434,10 +3434,13 @@ Options:::
             if t is None:
               raise ValueError("unknown taylordiagram graphic method: %s" % arglist[4])
             t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
-            result = self.getplot(self.return_display_names()[-1], arglist[2])
-            result.g_type='taylordiagram'
-            result.g_name=arglist[4]
-            result.extradisplays=t.displays
+            nm,src = self.check_name_source(None,"default","display")
+            dn = displayplot.Dp(nm)
+            dn.template = arglist[2]
+            dn.g_type = arglist[3]
+            dn.g_name = arglist[4]
+            dn.array = arglist[:2]
+            dn.extradisplays=t.displays
 ##                     dn.array=arglist[0]
             for p in slab_changed_attributes.keys():
                 tmp = slab_changed_attributes[p]
@@ -3445,7 +3448,7 @@ Options:::
                     delattr(arglist[0],p)
                 else:
                     setattr(arglist[0],p,tmp)
-            return result
+            return dn
         else: #not taylor diagram
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 gm= arglist[3]

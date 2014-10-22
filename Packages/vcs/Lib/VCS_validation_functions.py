@@ -1391,3 +1391,17 @@ def _setext_2(self,value):
      else:
         self._ext_2=value
 ext_2=property(_getext_2,_setext_2)
+
+def _getwc(self):
+     return self._worldcoordinate
+def _setwc(self,value):
+     value = checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
+     self._worldcoordinate = value
+worldcoordinate=property(_getwc,_setwc)
+
+def _getvp(self):
+     return self._viewport
+def _setvp(self,value):
+     value = checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
+     self._viewport = value
+viewport=property(_getvp,_setvp)

@@ -245,7 +245,7 @@ class TDMarker(object):
     def _setnumber(self,value):
          self._number=VCS_validation_functions.checkInt(self,'number',value)
     number=property(_getnumber,_setnumber)            
-                
+
     def pop(self,i):
         self.status.pop(i)
         self.line.pop(i)
@@ -416,52 +416,62 @@ class TDMarker(object):
         
 class Gtd(object):
     """ class"""    
-##     __slots__ = [
-##         '_template',
-##         'max',
-##         'quadrans',
-##         'preserveaspectratio',
-##         'skillValues',
-##         'skillDrawLabels',
-##         'skillColor',
-##         'skillCoefficient',
-##         'outtervalue',
-##         'detail',
-##         'referencevalue',
-##         'Marker',
-##         'arrowlength',
-##         'arrowangle',
-##         'name',
-##         'g_name',
-##         '_x',
-##         'yticlabels1',
-##         'xticlabels1',
-##         'cticlabels1',
-##         'ymtics1',
-##         'xmtics1',
-##         'cmtics1',
-##         '_max',
-##         '_quadrans',
-##         '_preserveaspectratio',
-##         '_skillValues',
-##         '_skillDrawLabels',
-##         '_skillColor',
-##         '_skillCoefficient',
-##         '_outtervalue',
-##         '_detail',
-##         '_referencevalue',
-##         'Marker',
-##         '-arrowlength',
-##         '_arrowangle',
-##         '_name',
-##         '-yticlabels1',
-##         '-xticlabels1',
-##         '_cticlabels1',
-##         '-ymtics1',
-##         '-xmtics1',
-##         '_cmtics1',
-##         ]
-            
+    __slots__=[
+        'template',
+        'max',
+        'quadrans',
+        'preserveaspectratio',
+        'skillValues',
+        'skillDrawLabels',
+        'skillColor',
+        'skillCoefficient',
+        'outtervalue',
+        'detail',
+        'referencevalue',
+        'Marker',
+        'arrowbase',
+        'arrowlength',
+        'arrowangle',
+        'name',
+        'g_name',
+        'displays',
+        'bg',
+        'viewport',
+        'worldcoordinate',
+        '_stdmax',
+        '_x',
+        'yticlabels1',
+        'xticlabels1',
+        'cticlabels1',
+        'ymtics1',
+        'xmtics1',
+        'cmtics1',
+        '_template',
+        '_max',
+        '_quadrans',
+        '_preserveaspectratio',
+        '_skillValues',
+        '_skillDrawLabels',
+        '_skillColor',
+        '_skillCoefficient',
+        '_outtervalue',
+        '_detail',
+        '_referencevalue',
+        '_Marker',
+        '_arrowbase',
+        '_arrowlength',
+        '_arrowangle',
+        '_name',
+        '_yticlabels1',
+        '_xticlabels1',
+        '_cticlabels1',
+        '_ymtics1',
+        '_xmtics1',
+        '_cmtics1',
+        '_viewport',
+        '_worldcoordinate',
+        ]
+
     def __init__(self,name,source="default"):
       self.template=None
       self._name=name
@@ -687,6 +697,9 @@ class Gtd(object):
         except:
             return 1.E20
 
+    worldcoordinate=VCS_validation_functions.worldcoordinate
+
+    viewport=VCS_validation_functions.viewport
     
     def __mkblk(self,obj):
         lst=dir(obj)
@@ -718,13 +731,13 @@ class Gtd(object):
         v1=[]
         v2=[]
         for i in range(self.detail):
-            x=float(i)/self.detail*self.stdmax*self.quadrans-self.stdmax*(self.quadrans-1)
+            x=float(i)/self.detail*self._stdmax*self.quadrans-self._stdmax*(self.quadrans-1)
             v1.append(x)
             for j in range(self.detail):
-                y=float(j)/self.detail*self.stdmax
+                y=float(j)/self.detail*self._stdmax
                 if i==0: v2.append(y)
                 std=numpy.sqrt(float(x)**2.+float(y)**2.)                    
-                if 0<std<self.stdmax:
+                if 0<std<self._stdmax:
                     cor=x/std
                     a[j,i]=function(std,cor)
         iso=createnewvcsobj(canvas,'isoline','td_new_')
@@ -889,10 +902,10 @@ class Gtd(object):
                 t.priority=4
                 t.color=VCS_validation_functions.color2vcs(self.Marker.id_color[i])
                 t.font=self.Marker.id_font[i]
-##                 t.x=[d1*(d0+self.stdmax*self.Marker.xoffset[i]/100.)]
-                t.x=[d1*d0+self.stdmax*self.Marker.xoffset[i]/100.,]
-##                 t.y=[numpy.ma.sin(numpy.ma.arccos(d1))*(d0+self.stdmax*self.Marker.yoffset[i]/100.)]
-                t.y=[float(numpy.ma.sin(numpy.ma.arccos(d1))*d0+self.stdmax*self.Marker.yoffset[i]/100.),]
+##                 t.x=[d1*(d0+self._stdmax*self.Marker.xoffset[i]/100.)]
+                t.x=[d1*d0+self._stdmax*self.Marker.xoffset[i]/100.,]
+##                 t.y=[numpy.ma.sin(numpy.ma.arccos(d1))*(d0+self._stdmax*self.Marker.yoffset[i]/100.)]
+                t.y=[float(numpy.ma.sin(numpy.ma.arccos(d1))*d0+self._stdmax*self.Marker.yoffset[i]/100.),]
                 self.displays.append(canvas.plot(t,bg=self.bg))
 
             if not self.Marker.line[i] is None:
@@ -1012,8 +1025,8 @@ class Gtd(object):
         viewport=[self.template.data.x1,self.template.data.x2,
                   self.template.data.y1,self.template.data.y2]
         self.viewport=viewport
-        max=self.stdmax*1.15
-        max=self.stdmax
+        max=self._stdmax*1.15
+        max=self._stdmax
         if self.quadrans==1:
             preserve=0.
             X=max*preserve/2.
@@ -1028,6 +1041,7 @@ class Gtd(object):
             try:
                 canvasinfo=canvas.canvasinfo()
                 pr=float(canvasinfo['width'])/float(canvasinfo['height'])
+                print "Pr is:",pr,canvasinfo
             except:
                 if page=='portrait':
                     pr=1./1.29381443299
@@ -1361,7 +1375,7 @@ class Gtd(object):
         tic.x=[self.convert(x1*self.outtervalue*ddx,axis='x')]
         tic.y=[self.convert(y1*self.outtervalue*ddx,axis='y')]
         tic.string=['Correlation']
-##         tic.height=int(40.*self.stdmax)+1
+##         tic.height=int(40.*self._stdmax)+1
         tic.angle=45
         tic.halign='center'
         tic.valign='bottom'
@@ -1386,7 +1400,7 @@ class Gtd(object):
         stdaxis.priority=self.template.xname.priority
 ##         stdaxis.halign='center'
 ##         stdaxis.valign='top'
-##         stdaxis.height=int(40.*self.stdmax)+1
+##         stdaxis.height=int(40.*self._stdmax)+1
         
         xstdaxis=createnewvcsobj(canvas,'text','xstax',self.template.xname.texttable,self.template.xname.textorientation)
 ##         xstdaxis.worldcoordinate=self.worldcoordinate
@@ -1418,7 +1432,7 @@ class Gtd(object):
     
     def plot(self,data,template='deftaylor',skill=None,bg=0,canvas=None):
         """plots"""
-        self.__dict__['bg']=bg
+        self.bg=bg
         self.displays=[]
         if canvas is None:
             canvas=vcs.init()
@@ -1426,38 +1440,38 @@ class Gtd(object):
         savedmode=canvas.mode
         canvas.mode=0
         if isinstance(template,str):
-            self.__dict__['template']=canvas.gettemplate(template)
+            self.template=canvas.gettemplate(template)
         elif vcs.istemplate(template):
-            self.__dict__['template']=template
+            self.template=template
         else:
             raise Exception,'Error you passed an invalid template'
         
         canvas.pause_time=0
         #canvas.open()
 ##         canvas.clear()
-        savedstdmax=getattr(self,'stdmax',None)
+        savedstdmax=getattr(self,'_stdmax',None)
         if self.max is None:
-            self.__dict__['stdmax']=1.2*numpy.ma.maximum(data[...,0])
+            self._stdmax=1.2*numpy.ma.maximum(data[...,0])
         else:            
-            self.__dict__['stdmax']=self.max
+            self._stdmax=self.max
         resetoutter=0
         if self.outtervalue is None:
-            if self.referencevalue<self.stdmax:
-                self.__dict__['outtervalue']=self.stdmax
+            if self.referencevalue<self._stdmax:
+                self.outtervalue=self._stdmax
             else:
-                self.__dict__['outtervalue']=self.referencevalue*1.2
+                self.outtervalue=self.referencevalue*1.2
             resetoutter=1
         self.drawFrame(canvas,data=data)
         self.drawSkill(canvas,values=self.skillValues,function=skill)
         self.draw(canvas,data)
         ## Ok now draws the little comment/source, etc
-        self.displays+=self.template.plot(data,'taylordiagram',bg=bg)
+        self.displays+=self.template.plot(canvas,data,self,bg=bg)
         if resetoutter:
-            self.__dict__['outtervalue']=None
+            self.outtervalue=None
         if savedstdmax is not None:
-            self.__dict__['stdmax']=savedstdmax
+            self._stdmax=savedstdmax
         else:
-            delattr(self,'stdmax')
+            delattr(self,'_stdmax')
         canvas.mode=savedmode
         return
 
