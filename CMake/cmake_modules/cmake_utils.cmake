@@ -125,7 +125,7 @@ macro(disable_cdat_package package_name)
   string(TOLOWER ${package_name} lc_package)
 
   set(cdat_var CDAT_BUILD_${uc_package})
-  if(DEFINED cdat_var)
+  if(DEFINED ${cdat_var})
     set_property(CACHE ${cdat_var} PROPERTY VALUE OFF)
   endif()
 endmacro()

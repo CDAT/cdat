@@ -39,11 +39,14 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
         
-    def runTest(self, testName, interactive=False ):
+    def runTest(self, testName, interactive=False, baselinedir=None ):
         test = TestManager.DefinedTests.get( testName, None )
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
+        if baselinedir is not None:
+            test.test_dir = baselinedir
+            test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
         test.test( interactive )
 
     def showTest(self, testName ):
@@ -148,9 +151,3 @@ if __name__ == '__main__':
 #    testManager.runTests()
 #    testManager.runTest( 'dv3d_slider_test', True )
 #    testManager.showTest( 'dv3d_slider_test' )
-    
-
-
-
-        
-    

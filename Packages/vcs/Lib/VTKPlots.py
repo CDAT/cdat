@@ -444,14 +444,7 @@ class VTKVCSBackend(object):
     l.type = gm.line
     l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
-    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
-      x1,x2 = gm.datawc_x1,gm.datawc_x2
-    else:
-      x1,x2 = X.min(),X.max()
-    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
-      y1,y2 = gm.datawc_y1,gm.datawc_y2
-    else:
-      y1,y2 = Y.min(),Y.max()
+    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,cdms2.createAxis(X[:]),cdms2.createAxis(Y[:]))
     if numpy.allclose(y1,y2):
         y1-=.0001
         y2+=.0001
@@ -1239,7 +1232,7 @@ class VTKVCSBackend(object):
   def svg(self, file, width=None, height=None, units=None):
       return self.vectorGraphics("svg", file, width, height, units)
 
-  def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
+  def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
@@ -1259,8 +1252,10 @@ class VTKVCSBackend(object):
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
         ignore_alpha = args.get( 'ignore_alpha', False )
-        if ignore_alpha:    imgfiltr.SetInputBufferTypeToRGB()
-        else:               imgfiltr.SetInputBufferTypeToRGBA()
+        if ignore_alpha or draw_white_background:
+          imgfiltr.SetInputBufferTypeToRGB()
+        else:
+          imgfiltr.SetInputBufferTypeToRGBA()
         imgfiltr.Update()
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())

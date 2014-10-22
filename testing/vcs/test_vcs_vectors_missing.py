@@ -11,7 +11,7 @@ args = p.parse_args(sys.argv[1:])
 
 if not args.show:
   src = args.src
-  pth = os.path.join(os.path.dirname(src),"..")
+  pth = os.path.join(os.path.dirname(__file__),"..")
   sys.path.append(pth)
   import checkimage
 
