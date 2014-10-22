@@ -701,23 +701,6 @@ class Gtd(object):
 
     viewport=VCS_validation_functions.viewport
     
-    def __mkblk(self,obj):
-        lst=dir(obj)
-        try:
-            setattr(obj,'priority',0)
-        except:
-            pass
-        for l in lst:
-            o=getattr(obj,l)
-            try:
-                setattr(o,'priority',0)
-            except:
-                pass
-            if type(o)==types.InstanceType and type(o)!=type(obj):
-                self.__mkblk(o)
-                
-            
-
     def drawSkill(self,canvas,values,function=None):
         """
         Draw a skill score, default skill score provide in defaultSkill
@@ -766,15 +749,15 @@ class Gtd(object):
         a.setAxis(0,av2)
         a.setAxis(1,av)
         
-        self.__dict__['tmpl']=createnewvcsobj(canvas,'template','tdtempl','deftaylor')
+        tmpl=createnewvcsobj(canvas,'template','tdtempl','deftaylor')
                 
-        self.__mkblk(self.tmpl)
-        self.tmpl.data.priority=1
-        self.tmpl.data.x1=self.template.data.x1
-        self.tmpl.data.x2=self.template.data.x2
-        self.tmpl.data.y1=self.template.data.y1
-        self.tmpl.data.y2=self.template.data.y2
-        self.displays.append(canvas.plot(a,iso,self.tmpl,bg=self.bg))
+        tmpl.blank()
+        tmpl.data.priority=1
+        tmpl.data.x1=self.template.data.x1
+        tmpl.data.x2=self.template.data.x2
+        tmpl.data.y1=self.template.data.y1
+        tmpl.data.y2=self.template.data.y2
+        self.displays.append(canvas.plot(a,iso,tmpl,bg=self.bg))
 
     def list(self):
         print ' ----------Taylordiagram (Gtd) member (attribute) listings ----------'
@@ -1154,41 +1137,41 @@ class Gtd(object):
         ticklength=extension*self.outtervalue
         sticklength=ticklength/2.
         ## Ok figures out if we have defined the labels/tics
-        if isinstance(self.yticlabels1,str): # Ok we want automatic
-            vals=vcs.mkscale(0,self.outtervalue,20)
-            tmp=vals[::2]
-            if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
-            levs=vcs.mklabels(tmp)
-        else:
-            levs=self.yticlabels1
-        for v in levs.keys():
-            if wc[0]<v<min(wc[1],wc[3]):       
-                ticxs2.append(self.template.ylabel1.x)
-                ticys2.append(self.convert(v,'y'))
-                ticstr2.append(levs[v]+' ')
-                ytic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
-                ytic1x.append([self.template.ytic1.x1,self.template.ytic1.x2])
-        ytic1.x=ytic1x
-        ytic1.y=ytic1y
-        if ytic1.x!=[]:
-            self.displays.append(canvas.plot(ytic1,bg=self.bg))
-            
-##                 fx.append([0.,ticklength])
-##                 fy.append([v,v])
-        if isinstance(self.ymtics1,str): # Ok we want automatic
-            vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
-            levs=vcs.mklabels(vals)
-        else:
-            levs=self.ymtics1
-        for v in levs.keys():
-            if wc[0]<v<min(wc[1],wc[3]):       
-                ymtic1x.append([self.template.ymintic1.x1,self.template.ymintic1.x2])
-                ymtic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
-                pass
-        ymtic1.x=ymtic1x
-        ymtic1.y=ymtic1y
-        if ymtic1.x!=[]:
-            self.displays.append(canvas.plot(ymtic1,bg=self.bg))
+        if self.quadrans==1:
+          if isinstance(self.yticlabels1,str): # Ok we want automatic
+              vals=vcs.mkscale(0,self.outtervalue,20)
+              tmp=vals[::2]
+              if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
+              levs=vcs.mklabels(tmp)
+          else:
+              levs=self.yticlabels1
+          for v in levs.keys():
+              if wc[0]<v<min(wc[1],wc[3]):
+                  ticxs2.append(self.template.ylabel1.x)
+                  ticys2.append(self.convert(v,'y'))
+                  ticstr2.append(levs[v]+' ')
+                  ytic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
+                  ytic1x.append([self.template.ytic1.x1,self.template.ytic1.x2])
+          ytic1.x=ytic1x
+          ytic1.y=ytic1y
+          if ytic1.x!=[]:
+              self.displays.append(canvas.plot(ytic1,bg=self.bg))
+  ##                 fx.append([0.,ticklength])
+  ##                 fy.append([v,v])
+          if isinstance(self.ymtics1,str): # Ok we want automatic
+              vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
+              levs=vcs.mklabels(vals)
+          else:
+              levs=self.ymtics1
+          for v in levs.keys():
+              if wc[0]<v<min(wc[1],wc[3]):
+                  ymtic1x.append([self.template.ymintic1.x1,self.template.ymintic1.x2])
+                  ymtic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
+                  pass
+          ymtic1.x=ymtic1x
+          ymtic1.y=ymtic1y
+          if ymtic1.x!=[]:
+              self.displays.append(canvas.plot(ymtic1,bg=self.bg))
 
         if isinstance(self.xmtics1,str): # Ok we want automatic
             vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
@@ -1450,15 +1433,15 @@ class Gtd(object):
 ##         canvas.clear()
         savedstdmax=getattr(self,'_stdmax',None)
         if self.max is None:
-            self._stdmax=1.2*numpy.ma.maximum(data[...,0])
+            self._stdmax=float(1.2*numpy.ma.maximum(data[...,0]))
         else:            
-            self._stdmax=self.max
+            self._stdmax=float(self.max)
         resetoutter=0
         if self.outtervalue is None:
             if self.referencevalue<self._stdmax:
                 self.outtervalue=self._stdmax
             else:
-                self.outtervalue=self.referencevalue*1.2
+                self.outtervalue=float(self.referencevalue*1.2)
             resetoutter=1
         self.drawFrame(canvas,data=data)
         self.drawSkill(canvas,values=self.skillValues,function=skill)
