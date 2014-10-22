@@ -386,7 +386,8 @@ class Multi(object):
                 
             
         self.x.postscript(out)
-        self.x.gif(out)
+        self.x.pdf(out)
+        self.x.png(out)
             
             
     
