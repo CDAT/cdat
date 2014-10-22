@@ -1011,6 +1011,26 @@ class P(object):
         return displays
    
 
+    def blank(self,attribute=None):
+      """
+      This function blanks elements of a template object
+      the argument: elements can be None/str/list
+      if None then all eleements will be turned off
+      Otherwise only the elets named by "elements" will be
+      """
+      if attribute is None:
+        attribute = self.__slots__
+      elif isinstance(attribute,str):
+        attribute = [attribute,]
+      elif not isinstance(attribute,(list,tuple)):
+        raise Exception("template.blank function argument must be None, string or list")
+      for a in attribute:
+        try:
+          elt = getattr(self,a)
+          if hasattr(elt,"priority"):
+            elt.priority=0
+        except:
+          pass
 
     def reset(self,sub_name,v1,v2,ov1=None,ov2=None):
          """
