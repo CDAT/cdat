@@ -1,8 +1,12 @@
-# Adapted for numpy/ma/cdms2 by convertcdms.py
+import sys,os
+src = sys.argv[1]
+pth = os.path.join(os.path.dirname(__file__),"..")
+sys.path.append(pth)
+import checkimage
 import vcs, MV2
 
 
-bg=False
+bg=True
 
 #
 # First create some sample data
@@ -16,9 +20,16 @@ data = MV2.array([[-0.50428531,-0.8505522 ,],
 
 x=vcs.init()
 
+if bg:
+  x.setbgoutputdimensions(1200,1091,units="pixels")
+
 td=x.createtaylordiagram('new')
 
 td.quadrans = 2
 x.plot(data,td,skill = td.defaultSkillFunction,bg=bg)
 fnm = "test_vcs_taylor_2quads.png"
 x.png(fnm)
+ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+if not bg:
+    raw_input("Press Enter")
+sys.exit(ret)

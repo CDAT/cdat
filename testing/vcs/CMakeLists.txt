@@ -97,6 +97,11 @@ add_test(vcs_test_taylor_template_ctl
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_taylor_template_ctl.py
   ${BASELINE_DIR}/test_vcs_taylor_template_ctl.png
   )
+add_test(vcs_test_taylor_2_quads
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_taylor_2quads.py
+  ${BASELINE_DIR}/test_vcs_taylor_2quads.png
+  )
 
 #These test actually plot things need sample data
   add_test(vcs_test_gen_meshfill
