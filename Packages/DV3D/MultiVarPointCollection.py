@@ -140,7 +140,7 @@ class MultiVarPointCollection():
                         data_z_slice = var[ self.iTimeStep, ilev ].flatten()
                         lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                     np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )     
-#            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape) )
+#            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s, type = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape), np_var_data_block.__class__.__name__ )
                         
             if not isNone( np_var_data_block ):                
                 if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
@@ -227,6 +227,7 @@ class MultiVarPointCollection():
             return lev_values_ascending
     
     def setPointHeights( self, **args ):
+#        print " PointCollection-->setPointHeights, args = %s " % str( args )
         if self.lev == None:
             stage_height = 0.0
             if self.point_layout == PlotType.List:
@@ -238,6 +239,7 @@ class MultiVarPointCollection():
         else: 
             height_varname = args.get( 'height_var', None )
             z_scaling = args.get( 'z_scale', 1.0 )
+            if isinstance( z_scaling, (list, tuple) ): z_scaling = z_scaling[0]
             self.data_height = args.get( 'data_height', None )
             ascending = self.levelsAreAscending()
             stage_height = ( self.maxStageHeight * z_scaling )
@@ -510,6 +512,7 @@ class MultiVarPointCollection():
                 self.metadata[ varname ] = ( var_long_name, var_units, vrng )
         
     def getPoints(self):
+        #print " ---- getPoints ---- "
         point_comps = [ self.point_data_arrays[comp].flat for comp in [ 'x', 'y', 'z'] ]
         return numpy.dstack( point_comps ).flatten()
 
@@ -607,7 +610,7 @@ class MultiVarPointCollection():
                 self.selected_index_array = index_array[ threshold_mask ]  
                 return vmin, vmax   
         elif op == 'points': 
-#            print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
+            #print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
             if not args[2] is None:
                 self.setPointHeights( height_var=args[1], z_scale=args[2] )  
         elif op == 'ROI': 

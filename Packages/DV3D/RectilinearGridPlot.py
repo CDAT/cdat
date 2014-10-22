@@ -8,7 +8,6 @@ import sys, vtk, cdms2, traceback, os, cdtime, math
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
 from ImagePlaneWidget import *  
-from DistributedPointCollections import kill_all_zombies
 from StructuredGridPlot import  *
 from StructuredDataset import *
 import numpy as np
@@ -320,10 +319,11 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+        slider_buttons = [ 'XSlider', 'YSlider', 'ZSlider' ]
         if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
-#        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
+        #print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
             plane_widget.beginSlicing()
         elif args and args[0] == "Init":
@@ -345,8 +345,11 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( slicePosition )
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
+            bbar = self.getPlotButtonbar()
             if (len(args) > 2) and args[2]: 
-                for index in range(3):  self.modifySlicePlaneVisibility( index, "xyz"[index], False ) 
+#                 for index in range(3): 
+#                     button = bbar.getButton( slider_buttons[index] )  
+#                     self.modifySlicePlaneVisibility( index, "xyz"[index], button.getState() ) 
                 self.updateTextDisplay( config_function.label ) 
             self.modifySlicePlaneVisibility( plane_index, config_function.key, args[1] )
             self.render() 
@@ -362,7 +365,7 @@ class RectGridPlot(StructuredGridPlot):
             count = slicePosition.incrementValue( 'count' )
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
-                if value < 0.01: value = 0.01
+                if (plane_index == 2) and (value < 0.01): value = 0.01
 #                print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )

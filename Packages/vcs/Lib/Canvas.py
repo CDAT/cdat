@@ -2859,7 +2859,7 @@ Options:::
                 'viewport',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 copy_tmpl.reset('x',keyargs[p][0],keyargs[p][1],copy_tmpl.data.x1,copy_tmpl.data.x2)
                 copy_tmpl.reset('y',keyargs[p][2],keyargs[p][3],copy_tmpl.data.y1,copy_tmpl.data.y2)
@@ -2870,7 +2870,7 @@ Options:::
                 'label2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
@@ -2897,7 +2897,7 @@ Options:::
                 'tic2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
 
                 k=keyargs[p]
@@ -2926,7 +2926,7 @@ Options:::
                 'data','legend',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
@@ -2965,7 +2965,7 @@ Options:::
                ]:
                 k=keyargs[p]
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 if getattr(getattr(check_tmpl,p),'priority')==0:
                     setattr(getattr(copy_tmpl,p),'priority',1)
@@ -3711,8 +3711,9 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
-        if not hasattr(__main__,"__file__") and not bg:
-            warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
+        # Commented out as agreed we shouldn't use warnings in these contexts.
+        #if not hasattr(__main__,"__file__") and not bg:
+        #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
     def setAnimationStepper( self, stepper ):
@@ -3747,7 +3748,7 @@ Options:::
     # CGM  wrapper for VCS.                                                     #
     #                                                                           #
     #############################################################################
-    def cgm(self, file,mode='r'):
+    def cgm(self, file,mode='w'):
         """
  Function: cgm
 
@@ -3767,13 +3768,12 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.cgm(o)
     a.cgm('example')           # by default a cgm file will overwrite an existing file
-    a.cgm('example','a')  # 'a' will instruct cgm to append to an existing file
-    a.cgm('example','r')  # 'r' will instruct cgm to overwrite an existing file
-    a.cgm('example',mode='r')  # 'r' will instruct cgm to overwrite an existing file
+    a.cgm('example','w')  # 'r' will instruct cgm to overwrite an existing file
+    a.cgm('example',mode='w')  # 'r' will instruct cgm to overwrite an existing file
 
 """
-        if mode!='r':
-          warnings.warn("cgm only supports 'r' mode ignoring your mode ('%s')" % mode)
+        if mode!='w':
+          warnings.warn("cgm only supports 'w' mode ignoring your mode ('%s')" % mode)
         return self.backend.cgm(file)
 
     #############################################################################
@@ -3900,8 +3900,8 @@ Options:::
     a.colormapgui()
     a.colormapgui(max_intensity = 255)
 '''
-        
-        warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
 ##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
 
@@ -3924,7 +3924,8 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
         ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
 
@@ -3976,7 +3977,8 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        # removing warning shouln't be used for software usage.
+        #warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
     ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
     ## gui_parent=gui_parent)
@@ -4709,7 +4711,8 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
+
         """
  Function: png
 

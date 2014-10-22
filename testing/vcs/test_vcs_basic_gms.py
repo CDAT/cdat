@@ -20,7 +20,7 @@ args = p.parse_args(sys.argv[1:])
 
 gm_type= args.gm
 src = args.src
-pth = os.path.join(os.path.dirname(src),"..")
+pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 

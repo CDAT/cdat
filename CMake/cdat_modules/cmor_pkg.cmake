@@ -1,4 +1,8 @@
-set(CMOR_VERSION 2.8.3)
-set(CMOR_SOURCE N/A)
+set(CMOR_VERSION 2.9.2)
+set(CMOR_URL ${LLNL_URL})
+set(CMOR_GZ CMOR-${CMOR_VERSION}.tar.gz)
+set(CMOR_MD5 f7e78104878d93ffbd3cae2ccd95db2c)
+set (nm CMOR)
+string(TOUPPER ${nm} uc_nm)
 
-add_cdat_package_dependent(CMOR "" "" OFF "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(CMOR "" "" ON "CDAT_BUILD_CMOR" OFF)
