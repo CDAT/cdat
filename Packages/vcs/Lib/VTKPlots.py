@@ -444,14 +444,7 @@ class VTKVCSBackend(object):
     l.type = gm.line
     l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
-    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
-      x1,x2 = gm.datawc_x1,gm.datawc_x2
-    else:
-      x1,x2 = X.min(),X.max()
-    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
-      y1,y2 = gm.datawc_y1,gm.datawc_y2
-    else:
-      y1,y2 = Y.min(),Y.max()
+    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,cdms2.createAxis(X[:]),cdms2.createAxis(Y[:]))
     if numpy.allclose(y1,y2):
         y1-=.0001
         y2+=.0001
