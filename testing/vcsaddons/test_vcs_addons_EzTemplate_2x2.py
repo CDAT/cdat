@@ -11,11 +11,9 @@ import cdms2
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt",time=slice(0,1),squeeze=1)
 
-bg = False
+bg = True
 
 M=vcsaddons.EzTemplate.Multi(rows=2,columns=2)
-M.preview()
-raw_input("press enter")
 x=vcs.init()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
