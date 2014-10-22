@@ -1,17 +1,19 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs,MV2 as MV,support
-bg=support.bg
+bg=True
 
 x=vcs.init()
+print x.canvasinfo()
 if bg==0:
     x.open()
 ## Create a template from the default taylor diagram
 t=x.createtemplate('mytaylor','deftaylor')
-
+t.data.list()
 ## Create a taylordiagrma graphic method
 td=x.createtaylordiagram('my')
+print x.canvasinfo()
 x.portrait()
-
+print x.canvasinfo()
 ## Create a line which we will make dotted and grey
 gdl=x.createline('gdl')
 gdl.color=252
@@ -49,6 +51,9 @@ t.xmintic2.priority=1
 # Create some dummy data for display purposes
 data=MV.array([[1.52,.52,],[.83,.84]])
 
+print x.canvasinfo()
 x.plot(data,t,td,bg=bg)
-support.check_plot(x)
-
+fnm="test_vcs_taylor_template_ctl.png"
+x.png(fnm)
+if not bg:
+  raw_input("Press enter")
