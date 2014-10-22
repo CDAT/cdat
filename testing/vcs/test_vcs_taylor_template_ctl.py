@@ -1,19 +1,26 @@
-# Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,MV2 as MV,support
+import sys,os
+src = sys.argv[1]
+pth = os.path.join(os.path.dirname(__file__),"..")
+sys.path.append(pth)
+import checkimage
+import vcs,MV2
+
 bg=True
 
 x=vcs.init()
-print x.canvasinfo()
-if bg==0:
+if bg:
+  x.setbgoutputdimensions(1200,1091,units="pixels")
+if not bg:
     x.open()
+
 ## Create a template from the default taylor diagram
 t=x.createtemplate('mytaylor','deftaylor')
-t.data.list()
+
 ## Create a taylordiagrma graphic method
 td=x.createtaylordiagram('my')
-print x.canvasinfo()
+
 x.portrait()
-print x.canvasinfo()
+
 ## Create a line which we will make dotted and grey
 gdl=x.createline('gdl')
 gdl.color=252
@@ -49,11 +56,14 @@ t.xtic2.priority=1
 t.xmintic2.priority=1
 
 # Create some dummy data for display purposes
-data=MV.array([[1.52,.52,],[.83,.84]])
+data=MV2.array([[1.52,.52,],[.83,.84]])
 
-print x.canvasinfo()
 x.plot(data,t,td,bg=bg)
 fnm="test_vcs_taylor_template_ctl.png"
 x.png(fnm)
+print "fnm:",fnm
+print "src:",src
+ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
 if not bg:
-  raw_input("Press enter")
+    raw_input("Press Enter")
+sys.exit(ret)

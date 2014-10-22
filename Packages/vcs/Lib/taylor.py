@@ -1041,7 +1041,6 @@ class Gtd(object):
             try:
                 canvasinfo=canvas.canvasinfo()
                 pr=float(canvasinfo['width'])/float(canvasinfo['height'])
-                print "Pr is:",pr,canvasinfo
             except:
                 if page=='portrait':
                     pr=1./1.29381443299
