@@ -1049,24 +1049,24 @@ class P(object):
                         ov=getattr(v,sub_name+'1')
                         if ov1 is not None:
                              delta=(ov-ov1)*ratio
-                        setattr(v,sub_name+'1',v1+delta)
+                        setattr(v,sub_name+'1',min(1,max(0,v1+delta)))
                    delta=0.
                    if sub_name+'2' in subattr:
                         ov=getattr(v,sub_name+'2')
                         if ov2 is not None:
                              delta=(ov-ov2)*ratio
-                        setattr(v,sub_name+'2',v2+delta)
+                        setattr(v,sub_name+'2',min(1,max(0,v2+delta)))
                    delta=0.
                    if sub_name in subattr:
                         ov=getattr(v,sub_name)
                         if ov1 is not None:
                              delta=(ov-ov1)*ratio
-                        setattr(v,sub_name,v1+delta)
+                        setattr(v,sub_name,min(1,max(0,v1+delta)))
                         if a[-1]=='2':
                              ov=getattr(v,sub_name+'2')
                              if ov2 is not None:
                                   delta=(ov-ov2)*ratio
-                             setattr(v,sub_name,v2+delta)
+                             setattr(v,sub_name,min(1,max(0,v2+delta)))
                 except Exception,err:
                   pass
 
