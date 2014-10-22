@@ -229,7 +229,7 @@ class Multi(object):
             self.x.removeP(t)
         self.template_names=[]
         
-    def get(self,column=None,row=None,legend=None,font=True,fontlimit=0.):
+    def get(self,column=None,row=None,legend=None,font=True,fontlimit=0.8):
         """
         Returns a template to use in vcs
         Usage:
