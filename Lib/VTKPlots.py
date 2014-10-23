@@ -40,6 +40,7 @@ class VTKVCSBackend(object):
     self.plotApps = {}
     self.plotRenderers = set()
     self.renderer = None
+    self._renderers = {}
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0
     if renWin is not None:
@@ -111,6 +112,7 @@ class VTKVCSBackend(object):
                 st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
         except:
             st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
+    print "This one"
     ren = vtk.vtkRenderer()
     ren.SetBackground(.96,.96,.86)
     ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
@@ -216,6 +218,7 @@ class VTKVCSBackend(object):
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
+      print "interactor call"
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
@@ -226,6 +229,7 @@ class VTKVCSBackend(object):
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
+      print "Ok real one"
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255., g/255., b/255.)
@@ -340,11 +344,13 @@ class VTKVCSBackend(object):
         if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
-            ren = self.createRenderer()
-            if not (vcs.issecondaryobject(gm) and gm.priority==0):
-                self.setLayer(ren,tpl.data.priority)
-                self.renderer = ren
-                self.renWin.AddRenderer(ren)
+            #print "Calling 1"
+            #ren = self.createRenderer()
+            #if not (vcs.issecondaryobject(gm) and gm.priority==0):
+            #    self.setLayer(ren,tpl.data.priority)
+            #    self.renderer = ren
+            #    self.renWin.AddRenderer(ren)
+            pass
         #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
@@ -363,27 +369,56 @@ class VTKVCSBackend(object):
       self.plot3D(data1,data2,tpl,gm,ren,**kargs)
     elif gtype in ["text"]:
       if tt.priority!=0:
-        self.renWin.AddRenderer(ren)
-        self.setLayer(ren,tt.priority)
+        if not (None,None,None,True) in self._renderers.keys():
+            print "good calling"
+            ren = self.createRenderer()
+            self.renWin.AddRenderer(ren)
+            self.setLayer(ren,1)
+            self._renderers[(None,None,None)]=ren
+        else:
+            ren = self._renderers[(None,None,None)]
         vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        self.setLayer(ren,tt.priority)
     elif gtype=="line":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
+        act,geo = vcs2vtk.prepLine(self.renWin,gm)
+        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+        ren.AddActor(act)
         self.setLayer(ren,gm.priority)
-        vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
+        g,gs,pd,act,geo = vcs2vtk.prepMarker(self.renWin,gm)
+        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+        ren.AddActor(act)
         self.setLayer(ren,gm.priority)
-        vcs2vtk.prepMarker(self.renWin,ren,gm)
+        # Add a transform to correct the glyph's aspect ratio:
+        if pd is None and act.GetUserTransform():
+          # Invert the scale of the actor's transform.
+          glyphTransform = vtk.vtkTransform()
+          scale = act.GetUserTransform().GetScale()
+          xComp = scale[0]
+          scale = [xComp / float(val) for val in scale]
+          glyphTransform.Scale(scale)
+
+          glyphFixer = vtk.vtkTransformPolyDataFilter()
+          glyphFixer.SetTransform(glyphTransform)
+
+          if pd is None:
+            glyphFixer.SetInputConnection(gs.GetOutputPort())
+          else:
+            glyphFixer.SetInputData(pd)
+            g.SetSourceData(None)
+
+          g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
+        act,geo = vcs2vtk.prepFillarea(self.renWin,gm)
+        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+        ren.AddActor(act)
         self.setLayer(ren,gm.priority)
-        vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="1d":
-      self.renWin.AddRenderer(ren)
-      self.plot1D(data1,data2,tpl,gm,ren)
+      #self.renWin.AddRenderer(ren)
+      self.plot1D(data1,data2,tpl,gm)
     elif gtype=="vector":
       self.plotVector(data1,data2,tpl,gm)
     else:
@@ -391,13 +426,14 @@ class VTKVCSBackend(object):
     if self.logo is None:
       self.createLogo()
     if self.renWin.GetSize()!=(0,0):
-      self.scaleLogo()
+        self.scaleLogo()
     if not kargs.get("donotstoredisplay",False):
+      print "Rendering now",self.renWin.GetRenderers().GetNumberOfItems()
+      print "Renderers:",self._renderers.keys()
       self.renWin.Render()
 
 
-  def plot1D(self,data1,data2,tmpl,gm,ren):
-    self.setLayer(ren,tmpl.data.priority)
+  def plot1D(self,data1,data2,tmpl,gm):
     Y = self.trimData1D(data1)
     if data2 is None:
       X=Y.getAxis(0)[:]
@@ -466,9 +502,10 @@ class VTKVCSBackend(object):
 
     if not (Y.min()>max(y1,y2) or Y.max()<min(y1,y2) or X.min()>max(x1,x2) or X.max()<min(x1,x2)):
     	if l.priority>0:
-        	self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
-    	if m.priority>0:
-        	self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
+            self.canvas.plot(l,donotstoredisplay=True)
+        if m.priority>0:
+            self.canvas.plot(m,donotstoredisplay=True)
+    print "Need to look at this renderer"
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
@@ -478,9 +515,6 @@ class VTKVCSBackend(object):
     del(vcs.elements["marker"][m.name])
 
     if tmpl.legend.priority>0:
-        ren2 = self.createRenderer()
-        self.renWin.AddRenderer(ren2)
-        self.setLayer(ren2,tmpl.legend.priority)
         legd = self.canvas.createline()
         legd.x = [tmpl.legend.x1, tmpl.legend.x2]
         legd.y = [tmpl.legend.y1, tmpl.legend.y1]
@@ -491,12 +525,12 @@ class VTKVCSBackend(object):
         t.x=tmpl.legend.x2
         t.y=tmpl.legend.y2
         t.string=data1.id
-        self.canvas.plot(t,renderer=ren2,donotstoredisplay=True)
+        self.canvas.plot(t,donotstoredisplay=True)
         sp = t.name.split(":::")
         del(vcs.elements["texttable"][sp[0]])
         del(vcs.elements["textorientation"][sp[1]])
         del(vcs.elements["textcombined"][t.name])
-        self.canvas.plot(legd,renderer=ren2,donotstoredisplay=True)
+        self.canvas.plot(legd,donotstoredisplay=True)
         del(vcs.elements["line"][legd.name])
 
   def setLayer(self,renderer,priority):
@@ -664,12 +698,11 @@ class VTKVCSBackend(object):
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-    ren = self.createRenderer()
-    self.renWin.AddRenderer(ren)
-    self.setLayer(ren,tmpl.data.priority)
-    vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+    ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
         ren.AddActor(act)
+        self.setLayer(ren,tmpl.data.priority)
+    ren.AddActor(act)
     self.renderTemplate(tmpl,data1,gm,taxis,zaxis)
     if self.canvas._continents is None:
       continents = False
@@ -995,11 +1028,10 @@ class VTKVCSBackend(object):
           pass
         # create a new renderer for this mapper
         # (we need one for each mapper because of cmaera flips)
-        ren = self.createRenderer()
-        self.renWin.AddRenderer(ren)
-        self.setLayer(ren,tmpl.data.priority)
-        ren.AddActor(act)
-        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+        ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+        if tmpl.data.priority>0:
+            ren.AddActor(act)
+            self.setLayer(ren,tmpl.data.priority)
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,
@@ -1049,11 +1081,9 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
-      ren = self.createRenderer()
-      self.renWin.AddRenderer(ren)
-      self.setLayer(ren,tmpl.data.priority)
-      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+      ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
+        self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(contActor)
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
@@ -1065,9 +1095,14 @@ class VTKVCSBackend(object):
         crdate.string = tstr.split()[0].replace("-","/")
         crtime = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crtime")
         crtime.string = tstr.split()[1]
-        ren = self.createRenderer()
-        self.renWin.AddRenderer(ren)
-        self.setLayer(ren,1)
+        if not (None,None,None,True) in self._renderers.keys():
+            print "another  good call"
+            ren = self.createRenderer()
+            self.renWin.AddRenderer(ren)
+            self.setLayer(ren,1)
+            self._renderers[(None,None,None)]=ren
+        else:
+            ren = self._renderers[(None,None,None)]
         tt,to = crdate.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
@@ -1095,9 +1130,14 @@ class VTKVCSBackend(object):
             zvalue.string = str(zaxis.asComponentTime()[0])
         else:
             zvalue.string= "%g" % zaxis[0]
-        ren = self.createRenderer()
-        self.setLayer(ren,1)
-        self.renWin.AddRenderer(ren)
+        if not (None,None,None,True) in self._renderers.keys():
+            print "Should be a good call"
+            ren = self.createRenderer()
+            self.renWin.AddRenderer(ren)
+            self.setLayer(ren,1)
+            self._renderers[(None,None,None)]=ren
+        else:
+            ren = self._renderers[(None,None,None)]
         tt,to = zname.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
@@ -1177,6 +1217,7 @@ class VTKVCSBackend(object):
     origin = imageData.GetOrigin()
     spc = imageData.GetSpacing()
     ext = imageData.GetExtent()
+    print "put img call"
     ren = self.createRenderer()
     cam = ren.GetActiveCamera()
     cam.ParallelProjectionOn()
@@ -1317,10 +1358,16 @@ class VTKVCSBackend(object):
     x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
     ia = vtk.vtkImageActor()
     ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
-    ren = self.createRenderer()
-    self.renWin.AddRenderer(ren)
-    r,g,b = self.canvas.backgroundcolor
-    ren.SetBackground(r/255.,g/255.,b/255.)
+    if not (None,None,None,True) in self._renderers.keys():
+        print "Clean place?"
+        ren = self.createRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,1)
+        self._renderers[(None,None,None)]=ren
+    else:
+        ren = self._renderers[(None,None,None)]
+    #r,g,b = self.canvas.backgroundcolor
+    #ren.SetBackground(r/255.,g/255.,b/255.)
     #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
     ren.AddActor(ia)
     self.logo = ren
@@ -1345,6 +1392,140 @@ class VTKVCSBackend(object):
     cam.SetFocalPoint(w/2.,h/2.,0.)
     cam.SetPosition(w/2.,h/2.,H/(2-SC))
 
+  def fitToViewport(self,Actor,vp,wc=None,geo=None):
+      ## Data range in World Coordinates
+      vp=tuple(vp)
+      if wc is None:
+        Xrg = list(Actor.GetXRange())
+        Yrg = list(Actor.GetYRange())
+      else:
+        Xrg=[float(wc[0]),float(wc[1])]
+        Yrg=[float(wc[2]),float(wc[3])]
+      if Yrg[0]>Yrg[1]:
+        #Yrg=[Yrg[1],Yrg[0]]
+        #T.RotateY(180)
+        Yrg=[Yrg[1],Yrg[0]]
+        flipY = True
+      else:
+        flipY = False
+      if Xrg[0]>Xrg[1]:
+        Xrg=[Xrg[1],Xrg[0]]
+        flipX=True
+      else:
+        flipX=False
+
+      if geo is not None:
+       pt = vtk.vtkPoints()
+       pt.SetNumberOfPoints(1)
+       Xrg2 = [1.e20,-1.e20]
+       Yrg2 = [1.e20,-1.e20]
+       Npts=50.
+       for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
+         for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
+           pt.SetPoint(0,x,y,0)
+           pts = vtk.vtkPoints()
+           geo.TransformPoints(pt,pts)
+           b = pts.GetBounds()
+           xm,xM,ym,yM=b[:4]
+           if xm!=-numpy.inf:
+             Xrg2[0]=min(Xrg2[0],xm)
+           if xM!=numpy.inf:
+             Xrg2[1]=max(Xrg2[1],xM)
+           if ym!=-numpy.inf:
+             Yrg2[0]=min(Yrg2[0],ym)
+           if yM!=numpy.inf:
+             Yrg2[1]=max(Yrg2[1],yM)
+       Xrg=Xrg2
+       Yrg=Yrg2
+      sc = self.renWin.GetSize()
+      wRatio = float(sc[0])/float(sc[1])
+      dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
+      vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
+
+
+      if wRatio>1.: #landscape orientated window
+          yScale = 1.
+          xScale = vRatio*wRatio/dRatio
+      else:
+          xScale = 1.
+          yScale = dRatio/(vRatio*wRatio)
+      ## Ok now we know scaling and vp, let's see if we did this already.
+      if (vp,xScale,yScale,True) in self._renderers.keys():
+        #yep already have one, we will use this Renderer
+        Renderer = self._renderers[(vp,xScale,yScale)]
+        didRenderer = True
+      else:
+        print "fit call"
+        Renderer = self.createRenderer()
+        self.renWin.AddRenderer(Renderer)
+        self._renderers[(vp,xScale,yScale)]=Renderer
+        Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
+        didRenderer = False
+
+      T = vtk.vtkTransform()
+      T.Scale(xScale,yScale,1.)
+
+      Actor.SetUserTransform(T)
+
+      mapper = Actor.GetMapper()
+      planeCollection = mapper.GetClippingPlanes()
+
+      # We have to transform the hardware clip planes as well
+      if (planeCollection is not None):
+          planeCollection.InitTraversal()
+          plane = planeCollection.GetNextItem()
+          while (plane):
+              origin = plane.GetOrigin()
+              inOrigin = [origin[0], origin[1], origin[2], 1.0]
+              outOrigin = [origin[0], origin[1], origin[2], 1.0]
+
+              normal = plane.GetNormal()
+              inNormal = [normal[0], normal[1], normal[2], 0.0]
+              outNormal = [normal[0], normal[1], normal[2], 0.0]
+
+              T.MultiplyPoint(inOrigin, outOrigin)
+              if (outOrigin[3] != 0.0):
+                  outOrigin[0] /= outOrigin[3]
+                  outOrigin[1] /= outOrigin[3]
+                  outOrigin[2] /= outOrigin[3]
+              plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
+
+              # For normal matrix, compute the transpose of inverse
+              normalTransform = vtk.vtkTransform()
+              normalTransform.DeepCopy(T)
+              mat = vtk.vtkMatrix4x4()
+              normalTransform.GetTranspose(mat)
+              normalTransform.GetInverse(mat)
+              normalTransform.SetMatrix(mat)
+              normalTransform.MultiplyPoint(inNormal, outNormal)
+              if (outNormal[3] != 0.0):
+                  outNormal[0] /= outNormal[3]
+                  outNormal[1] /= outNormal[3]
+                  outNormal[2] /= outNormal[3]
+              plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
+
+              plane = planeCollection.GetNextItem()
+
+      if not didRenderer:
+        print "Doing cam thing"
+        xc = xScale*float(Xrg[1]+Xrg[0])/2.
+        yc = yScale*float(Yrg[1]+Yrg[0])/2.
+        xd = xScale*float(Xrg[1]-Xrg[0])/2.
+        yd = yScale*float(Yrg[1]-Yrg[0])/2.
+        cam = Renderer.GetActiveCamera()
+        cam.ParallelProjectionOn()
+        cam.SetParallelScale(yd)
+        cd = cam.GetDistance()
+        cam.SetPosition(xc,yc,cd)
+        cam.SetFocalPoint(xc,yc,0.)
+        if geo is None:
+          if flipY:
+            cam.Elevation(180.)
+            cam.Roll(180.)
+            pass
+          if flipX:
+            cam.Azimuth(180.)
+      return Renderer
 
 class VTKAnimate(animate_helper.AnimationController):
    pass

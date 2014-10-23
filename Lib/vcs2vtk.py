@@ -815,13 +815,15 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
       a.append(a[-1])
 
   sz = renderer.GetRenderWindow().GetSize()
+  print "Size:",string,sz
   for i in range(n):
     t = vtk.vtkTextActor()
     t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
-    prepTextProperty(p,sz,to,tt,cmap)
+    #prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
     X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
+    print "X,Y:",X,Y
     t.SetPosition(X,Y)
     #T=vtk.vtkTransform()
     #T.Scale(1.,sz[1]/606.,1.)
@@ -853,7 +855,7 @@ def prepPrimitive(prim):
     setattr(prim,a,v)
   return n
 
-def prepFillarea(renWin,ren,farea,cmap=None):
+def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
     return
@@ -900,9 +902,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    ren.AddActor(a)
-    fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
-  return
+  return a, geo
 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -921,7 +921,7 @@ def genPoly(coords,pts,filled=True):
     pid.SetId(j,j+N)
   return poly
 
-def prepMarker(renWin,ren,marker,cmap=None):
+def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
     return
@@ -1082,33 +1082,11 @@ def prepMarker(renWin,ren,marker,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    ren.AddActor(a)
-    fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
 
-    # Add a transform to correct the glyph's aspect ratio:
 
-    if pd is None and a.GetUserTransform():
-      # Invert the scale of the actor's transform.
-      glyphTransform = vtk.vtkTransform()
-      scale = a.GetUserTransform().GetScale()
-      xComp = scale[0]
-      scale = [xComp / float(val) for val in scale]
-      glyphTransform.Scale(scale)
+  return g,gs,pd,a, geo
 
-      glyphFixer = vtk.vtkTransformPolyDataFilter()
-      glyphFixer.SetTransform(glyphTransform)
-
-      if pd is None:
-        glyphFixer.SetInputConnection(gs.GetOutputPort())
-      else:
-        glyphFixer.SetInputData(pd)
-        g.SetSourceData(None)
-
-      g.SetSourceConnection(glyphFixer.GetOutputPort())
-
-  return
-
-def prepLine(renWin,ren,line,cmap=None):
+def prepLine(renWin,line,cmap=None):
   n = prepPrimitive(line)
   if n==0:
     return
@@ -1169,9 +1147,7 @@ def prepLine(renWin,ren,line,cmap=None):
       p.SetLineStippleRepeatFactor(1)
     else:
       raise Exception,"Unkonw line type: '%s'" % t
-    ren.AddActor(a)
-    fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
-  return
+  return a,geo
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
@@ -1189,6 +1165,7 @@ def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
 def R2World(ren,x,y):
   """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
   #print "ok X and Y:",x,y
+  print "Acting on renderer"
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
   return wp
@@ -1196,130 +1173,9 @@ def R2World(ren,x,y):
 def vtkWorld2Renderer(ren,x,y):
   ren.SetWorldPoint(x,y,0,0)
   ren.WorldToDisplay()
+  print "Acting on renderer 2"
   renpts = ren.GetDisplayPoint()
   return renpts
-
-def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
-  T = vtk.vtkTransform()
-  ## Data range in World Coordinates
-  if wc is None:
-    Xrg = list(Actor.GetXRange())
-    Yrg = list(Actor.GetYRange())
-  else:
-    Xrg=[float(wc[0]),float(wc[1])]
-    Yrg=[float(wc[2]),float(wc[3])]
-  if Yrg[0]>Yrg[1]:
-    #Yrg=[Yrg[1],Yrg[0]]
-    #T.RotateY(180)
-    Yrg=[Yrg[1],Yrg[0]]
-    flipY = True
-  else:
-    flipY = False
-  if Xrg[0]>Xrg[1]:
-    Xrg=[Xrg[1],Xrg[0]]
-    flipX=True
-  else:
-    flipX=False
-
-  if geo is not None:
-   pt = vtk.vtkPoints()
-   pt.SetNumberOfPoints(1)
-   Xrg2 = [1.e20,-1.e20]
-   Yrg2 = [1.e20,-1.e20]
-   Npts=50.
-   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
-     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-       pt.SetPoint(0,x,y,0)
-       pts = vtk.vtkPoints()
-       geo.TransformPoints(pt,pts)
-       b = pts.GetBounds()
-       xm,xM,ym,yM=b[:4]
-       if xm!=-numpy.inf:
-         Xrg2[0]=min(Xrg2[0],xm)
-       if xM!=numpy.inf:
-         Xrg2[1]=max(Xrg2[1],xM)
-       if ym!=-numpy.inf:
-         Yrg2[0]=min(Yrg2[0],ym)
-       if yM!=numpy.inf:
-         Yrg2[1]=max(Yrg2[1],yM)
-   Xrg=Xrg2
-   Yrg=Yrg2
-  Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
-  rw = Renderer.GetRenderWindow()
-  sc = rw.GetSize()
-  wRatio = float(sc[0])/float(sc[1])
-  dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
-  vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
-
-
-  if wRatio>1.: #landscape orientated window
-      yScale = 1.
-      xScale = vRatio*wRatio/dRatio
-  else:
-      xScale = 1.
-      yScale = dRatio/(vRatio*wRatio)
-
-
-  T.Scale(xScale,yScale,1.)
-
-  Actor.SetUserTransform(T)
-
-  mapper = Actor.GetMapper()
-  planeCollection = mapper.GetClippingPlanes()
-
-  # We have to transform the hardware clip planes as well
-  if (planeCollection is not None):
-      planeCollection.InitTraversal()
-      plane = planeCollection.GetNextItem()
-      while (plane):
-          origin = plane.GetOrigin()
-          inOrigin = [origin[0], origin[1], origin[2], 1.0]
-          outOrigin = [origin[0], origin[1], origin[2], 1.0]
-
-          normal = plane.GetNormal()
-          inNormal = [normal[0], normal[1], normal[2], 0.0]
-          outNormal = [normal[0], normal[1], normal[2], 0.0]
-
-          T.MultiplyPoint(inOrigin, outOrigin)
-          if (outOrigin[3] != 0.0):
-              outOrigin[0] /= outOrigin[3]
-              outOrigin[1] /= outOrigin[3]
-              outOrigin[2] /= outOrigin[3]
-          plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
-
-          # For normal matrix, compute the transpose of inverse
-          normalTransform = vtk.vtkTransform()
-          normalTransform.DeepCopy(T)
-          mat = vtk.vtkMatrix4x4()
-          normalTransform.GetTranspose(mat)
-          normalTransform.GetInverse(mat)
-          normalTransform.SetMatrix(mat)
-          normalTransform.MultiplyPoint(inNormal, outNormal)
-          if (outNormal[3] != 0.0):
-              outNormal[0] /= outNormal[3]
-              outNormal[1] /= outNormal[3]
-              outNormal[2] /= outNormal[3]
-          plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
-
-          plane = planeCollection.GetNextItem()
-
-  xc = xScale*float(Xrg[1]+Xrg[0])/2.
-  yc = yScale*float(Yrg[1]+Yrg[0])/2.
-  xd = xScale*float(Xrg[1]-Xrg[0])/2.
-  yd = yScale*float(Yrg[1]-Yrg[0])/2.
-  cam = Renderer.GetActiveCamera()
-  cam.ParallelProjectionOn()
-  cam.SetParallelScale(yd)
-  cd = cam.GetDistance()
-  cam.SetPosition(xc,yc,cd)
-  cam.SetFocalPoint(xc,yc,0.)
-  if geo is None:
-    if flipY:
-      cam.Elevation(180.)
-      cam.Roll(180.)
-      pass
-    if flipX:
-      cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
 vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]
