@@ -1011,6 +1011,26 @@ class P(object):
         return displays
    
 
+    def blank(self,attribute=None):
+      """
+      This function blanks elements of a template object
+      the argument: elements can be None/str/list
+      if None then all eleements will be turned off
+      Otherwise only the elets named by "elements" will be
+      """
+      if attribute is None:
+        attribute = self.__slots__
+      elif isinstance(attribute,str):
+        attribute = [attribute,]
+      elif not isinstance(attribute,(list,tuple)):
+        raise Exception("template.blank function argument must be None, string or list")
+      for a in attribute:
+        try:
+          elt = getattr(self,a)
+          if hasattr(elt,"priority"):
+            elt.priority=0
+        except:
+          pass
 
     def reset(self,sub_name,v1,v2,ov1=None,ov2=None):
          """
@@ -1197,12 +1217,12 @@ class P(object):
 
         attributes=['file','function','logicalmask','transformation',
                     'source','id','title','units','crdate','crtime',
-                    'comment1','comment2','comment3','comment4','xname','yname',
+                    'comment1','comment2','comment3','comment4',
                     'zname','tname','zunits','tunits','xvalue','yvalue','zvalue',
-                    'tvalue','mean','min','max']
+                    'tvalue','mean','min','max','xname','yname',]
 
-        if gm=='taylordiagram':
-             attributes=attributes[:-3]
+        if isinstance(gm,vcs.taylor.Gtd):
+             attributes=attributes[:-5]
 
         for s in attributes: # loop through various section of the template object
             if hasattr(slab,s):
@@ -1234,32 +1254,33 @@ class P(object):
                 del(vcs.elements["textcombined"][tt.name])
                 
 
-        nms = ["x","y","z","t"]
-        for i,ax in enumerate(slab.getAxisList()[::-1]):
-           nm=nms[i]+"name"
-           sub = getattr(self,nm)
-           tt=x.createtext(None,sub.texttable,None,sub.textorientation)
-           if i==0 and gm.g_name=="G1d":
-             if gm.flip or hasattr(slab,"_yname"):
-               tt.string=[slab.id]
+        if not isinstance(gm,vcs.taylor.Gtd):
+          nms = ["x","y","z","t"]
+          for i,ax in enumerate(slab.getAxisList()[::-1]):
+             nm=nms[i]+"name"
+             sub = getattr(self,nm)
+             tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+             if i==0 and gm.g_name=="G1d":
+               if gm.flip or hasattr(slab,"_yname"):
+                 tt.string=[slab.id]
+               else:
+                 tt.string=[ax.id]
+             elif i==1 and gm.g_name=="G1d":
+               if hasattr(slab,"_yname"):
+                 tt.string=[slab._yname]
+               else:
+                 tt.string=[ax.id]
              else:
-               tt.string=[ax.id]
-           elif i==1 and gm.g_name=="G1d":
-             if hasattr(slab,"_yname"):
-               tt.string=[slab._yname]
-             else:
-               tt.string=[ax.id]
-           else:
-               tt.string=[ax.id]
-           tt.x=[sub.x,]
-           tt.y=[sub.y,]
-           tt.priority=sub.priority
-           displays.append(x.text(tt,bg=bg,**kargs))
+                 tt.string=[ax.id]
+             tt.x=[sub.x,]
+             tt.y=[sub.y,]
+             tt.priority=sub.priority
+             displays.append(x.text(tt,bg=bg,**kargs))
 
 
 
         # Do the tickmarks/labels
-        if gm!='taylordiagram':
+        if not isinstance(gm,vcs.taylor.Gtd):
              displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)

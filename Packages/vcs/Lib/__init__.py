@@ -199,6 +199,10 @@ to = textorientation.To("defup")
 to.angle = -90
 to.valign="half"
 to.halign="center"
+to = textorientation.To("defcentup")
+to.angle = -90
+to.valign="half"
+to.halign = "center"
 to = textorientation.To("defright")
 to.halign = "right"
 boxfill.Gfb("default")
@@ -237,7 +241,8 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 fillarea.Tf("default")
 template.P("default")
   
-taylordiagrams=[taylor.Gtd()]
+t=taylor.Gtd("default")
+
 
 canvaslist = []
 #meshfills=[meshfill.Gfm()]

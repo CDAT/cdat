@@ -239,8 +239,8 @@ class VTKVCSBackend(object):
   def canvasinfo(self):
     if self.renWin is None:
       mapstate = False
-      height = self.canvas.bgX
-      width = self.canvas.bgY
+      height = self.canvas.bgY
+      width = self.canvas.bgX
       depth = None
       x=0
       y=0
