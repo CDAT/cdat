@@ -4423,13 +4423,8 @@ Options:::
     a=vcs.init()
     a.listelements()
 """
-        if args != () and args[0].lower() =='taylordiagram':
-            L = []
-            for t in vcs.taylordiagrams:
-                L.append(t.name)
-        else:
-            f = vcs.listelements
-            L = apply(f, args)
+        f = vcs.listelements
+        L = apply(f, args)
 
         L.sort()
 
