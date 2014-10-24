@@ -48,6 +48,7 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     self.logo = None
+    self._lastLogoSize = None
 
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -112,7 +113,6 @@ class VTKVCSBackend(object):
                 st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
         except:
             st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
-    print "This one"
     ren = vtk.vtkRenderer()
     ren.SetBackground(.96,.96,.86)
     ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
@@ -175,8 +175,7 @@ class VTKVCSBackend(object):
       self.canvas.plot(*pargs,**key_args[i])
     if self.logo is None:
       self.createLogo()
-    if self.renWin.GetSize()!=(0,0):
-      self.scaleLogo()
+    self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -196,6 +195,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self._renderers = {}
 
   def createDefaultInteractor( self, ren=None ):
     defaultInteractor = self.renWin.GetInteractor()
@@ -218,7 +218,6 @@ class VTKVCSBackend(object):
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
-      print "interactor call"
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
@@ -229,7 +228,6 @@ class VTKVCSBackend(object):
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
-      print "Ok real one"
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255., g/255., b/255.)
@@ -369,8 +367,7 @@ class VTKVCSBackend(object):
       self.plot3D(data1,data2,tpl,gm,ren,**kargs)
     elif gtype in ["text"]:
       if tt.priority!=0:
-        if not (None,None,None,True) in self._renderers.keys():
-            print "good calling"
+        if not (None,None,None) in self._renderers.keys():
             ren = self.createRenderer()
             self.renWin.AddRenderer(ren)
             self.setLayer(ren,1)
@@ -381,41 +378,44 @@ class VTKVCSBackend(object):
         self.setLayer(ren,tt.priority)
     elif gtype=="line":
       if gm.priority!=0:
-        act,geo = vcs2vtk.prepLine(self.renWin,gm)
-        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-        ren.AddActor(act)
-        self.setLayer(ren,gm.priority)
+        actors = vcs2vtk.prepLine(self.renWin,gm)
+        for act,geo in actors:
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren.AddActor(act)
+            self.setLayer(ren,gm.priority)
     elif gtype=="marker":
       if gm.priority!=0:
-        g,gs,pd,act,geo = vcs2vtk.prepMarker(self.renWin,gm)
-        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-        ren.AddActor(act)
-        self.setLayer(ren,gm.priority)
-        # Add a transform to correct the glyph's aspect ratio:
-        if pd is None and act.GetUserTransform():
-          # Invert the scale of the actor's transform.
-          glyphTransform = vtk.vtkTransform()
-          scale = act.GetUserTransform().GetScale()
-          xComp = scale[0]
-          scale = [xComp / float(val) for val in scale]
-          glyphTransform.Scale(scale)
+        actors = vcs2vtk.prepMarker(self.renWin,gm)
+        for g,gs,pd,act,geo in actors:
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren.AddActor(act)
+            self.setLayer(ren,gm.priority)
+            # Add a transform to correct the glyph's aspect ratio:
+            if pd is None and act.GetUserTransform():
+              # Invert the scale of the actor's transform.
+              glyphTransform = vtk.vtkTransform()
+              scale = act.GetUserTransform().GetScale()
+              xComp = scale[0]
+              scale = [xComp / float(val) for val in scale]
+              glyphTransform.Scale(scale)
 
-          glyphFixer = vtk.vtkTransformPolyDataFilter()
-          glyphFixer.SetTransform(glyphTransform)
+              glyphFixer = vtk.vtkTransformPolyDataFilter()
+              glyphFixer.SetTransform(glyphTransform)
 
-          if pd is None:
-            glyphFixer.SetInputConnection(gs.GetOutputPort())
-          else:
-            glyphFixer.SetInputData(pd)
-            g.SetSourceData(None)
+              if pd is None:
+                glyphFixer.SetInputConnection(gs.GetOutputPort())
+              else:
+                glyphFixer.SetInputData(pd)
+                g.SetSourceData(None)
 
-          g.SetSourceConnection(glyphFixer.GetOutputPort())
+              g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
-        act,geo = vcs2vtk.prepFillarea(self.renWin,gm)
-        ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-        ren.AddActor(act)
-        self.setLayer(ren,gm.priority)
+        actors = vcs2vtk.prepFillarea(self.renWin,gm)
+        for act,geo in actors:
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren.AddActor(act)
+            self.setLayer(ren,gm.priority)
     elif gtype=="1d":
       #self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm)
@@ -425,11 +425,9 @@ class VTKVCSBackend(object):
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if self.logo is None:
       self.createLogo()
-    if self.renWin.GetSize()!=(0,0):
-        self.scaleLogo()
+    sz = self.renWin.GetSize()
+    self.scaleLogo()
     if not kargs.get("donotstoredisplay",False):
-      print "Rendering now",self.renWin.GetRenderers().GetNumberOfItems()
-      print "Renderers:",self._renderers.keys()
       self.renWin.Render()
 
 
@@ -1095,8 +1093,7 @@ class VTKVCSBackend(object):
         crdate.string = tstr.split()[0].replace("-","/")
         crtime = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crtime")
         crtime.string = tstr.split()[1]
-        if not (None,None,None,True) in self._renderers.keys():
-            print "another  good call"
+        if not (None,None,None) in self._renderers.keys():
             ren = self.createRenderer()
             self.renWin.AddRenderer(ren)
             self.setLayer(ren,1)
@@ -1130,8 +1127,7 @@ class VTKVCSBackend(object):
             zvalue.string = str(zaxis.asComponentTime()[0])
         else:
             zvalue.string= "%g" % zaxis[0]
-        if not (None,None,None,True) in self._renderers.keys():
-            print "Should be a good call"
+        if not (None,None,None) in self._renderers.keys():
             ren = self.createRenderer()
             self.renWin.AddRenderer(ren)
             self.setLayer(ren,1)
@@ -1217,7 +1213,6 @@ class VTKVCSBackend(object):
     origin = imageData.GetOrigin()
     spc = imageData.GetSpacing()
     ext = imageData.GetExtent()
-    print "put img call"
     ren = self.createRenderer()
     cam = ren.GetActiveCamera()
     cam.ParallelProjectionOn()
@@ -1358,14 +1353,9 @@ class VTKVCSBackend(object):
     x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
     ia = vtk.vtkImageActor()
     ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
-    if not (None,None,None,True) in self._renderers.keys():
-        print "Clean place?"
-        ren = self.createRenderer()
-        self.renWin.AddRenderer(ren)
-        self.setLayer(ren,1)
-        self._renderers[(None,None,None)]=ren
-    else:
-        ren = self._renderers[(None,None,None)]
+    ren = self.createRenderer()
+    self.renWin.AddRenderer(ren)
+    self.setLayer(ren,1)
     #r,g,b = self.canvas.backgroundcolor
     #ren.SetBackground(r/255.,g/255.,b/255.)
     #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
@@ -1378,8 +1368,13 @@ class VTKVCSBackend(object):
         return
     #Figuring out scale
     #Get dimensions of input file
+    sz=self.renWin.GetSize()
+
+    if sz == (0,0) or sz == self._lastLogoSize:
+        return
+    self._lastLogoSize = sz
     w,h=self.logoExtent
-    W,H=self.renWin.GetSize()
+    W,H=sz
     SC = .05
     sc = SC*float(H)/float(h)
     nw = w*sc
@@ -1450,12 +1445,11 @@ class VTKVCSBackend(object):
           xScale = 1.
           yScale = dRatio/(vRatio*wRatio)
       ## Ok now we know scaling and vp, let's see if we did this already.
-      if (vp,xScale,yScale,True) in self._renderers.keys():
+      if (vp,xScale,yScale) in self._renderers.keys():
         #yep already have one, we will use this Renderer
         Renderer = self._renderers[(vp,xScale,yScale)]
         didRenderer = True
       else:
-        print "fit call"
         Renderer = self.createRenderer()
         self.renWin.AddRenderer(Renderer)
         self._renderers[(vp,xScale,yScale)]=Renderer
@@ -1503,11 +1497,9 @@ class VTKVCSBackend(object):
                   outNormal[1] /= outNormal[3]
                   outNormal[2] /= outNormal[3]
               plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
-
               plane = planeCollection.GetNextItem()
 
       if not didRenderer:
-        print "Doing cam thing"
         xc = xScale*float(Xrg[1]+Xrg[0])/2.
         yc = yScale*float(Yrg[1]+Yrg[0])/2.
         xd = xScale*float(Xrg[1]-Xrg[0])/2.

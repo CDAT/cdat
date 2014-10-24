@@ -815,15 +815,13 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
       a.append(a[-1])
 
   sz = renderer.GetRenderWindow().GetSize()
-  print "Size:",string,sz
   for i in range(n):
     t = vtk.vtkTextActor()
     t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
-    #prepTextProperty(p,sz,to,tt,cmap)
+    prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
     X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
-    print "X,Y:",X,Y
     t.SetPosition(X,Y)
     #T=vtk.vtkTransform()
     #T.Scale(1.,sz[1]/606.,1.)
@@ -859,6 +857,7 @@ def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
     return
+  actors =[]
   for i in range(n):
     x   = farea.x[i]
     y   = farea.y[i]
@@ -902,7 +901,8 @@ def prepFillarea(renWin,farea,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-  return a, geo
+    actors.append((a,geo))
+  return actors
 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -925,6 +925,7 @@ def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
     return
+  actors=[]
   for i in range(n):
     ## Creates the glyph
     g = vtk.vtkGlyph2D()
@@ -1082,14 +1083,16 @@ def prepMarker(renWin,marker,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
+    actors.append[(g,gs,pd,a,geo)]
 
 
-  return g,gs,pd,a, geo
+  return actors
 
 def prepLine(renWin,line,cmap=None):
   n = prepPrimitive(line)
   if n==0:
     return
+  actors = []
   for i in range(n):
     l = vtk.vtkLine()
     lines = vtk.vtkCellArray()
@@ -1146,8 +1149,9 @@ def prepLine(renWin,line,cmap=None):
       p.SetLineStipplePattern(int('1111111111111111',2))
       p.SetLineStippleRepeatFactor(1)
     else:
-      raise Exception,"Unkonw line type: '%s'" % t
-  return a,geo
+      raise Exception,"Unknown line type: '%s'" % t
+    actors.append((a,geo))
+  return actors
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
@@ -1165,7 +1169,6 @@ def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
 def R2World(ren,x,y):
   """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
   #print "ok X and Y:",x,y
-  print "Acting on renderer"
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
   return wp
@@ -1173,7 +1176,6 @@ def R2World(ren,x,y):
 def vtkWorld2Renderer(ren,x,y):
   ren.SetWorldPoint(x,y,0,0)
   ren.WorldToDisplay()
-  print "Acting on renderer 2"
   renpts = ren.GetDisplayPoint()
   return renpts
 
