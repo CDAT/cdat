@@ -122,7 +122,7 @@ def genGridOnPoints(data1,data2,gm,deep=True):
   vg.SetPoints(geopts)
   return vg,xm,xM,ym,yM,continents,wrap,geo
   
-def genGrid(data1,data2,gm,deep=True):
+def genGrid(data1,data2,gm,deep=True,grid=None):
   continents = False
   wrap = None
   m3 = None
