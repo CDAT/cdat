@@ -191,6 +191,7 @@ class DV3DPlot():
         self.activate_display=args.get('display',True)
         self.renderer = None
         self.useDepthPeeling = False
+        self.record_animation = False
         self.renderWindowInteractor = None
         self.inputSpecs = {}
         self.logoActor = None
