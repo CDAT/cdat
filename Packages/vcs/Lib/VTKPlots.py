@@ -41,7 +41,7 @@ class VTKVCSBackend(object):
     self.plotRenderers = set()
     self.renderer = None
     self._renderers = {}
-    self._plot_keywords = ['renderer','vtkGrid']
+    self._plot_keywords = ['renderer','vtkGrid','vtkGeo']
     self.numberOfPlotCalls = 0
     if renWin is not None:
       self.renWin = renWin
@@ -356,8 +356,9 @@ class VTKVCSBackend(object):
       ren = kargs["renderer"]
 
     vtkGrid = kargs.get("vtkGrid",None)
+    vtkGeo = kargs.get("vtkGeo",None)
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
-      returned_kargs["vtkGrid"] = self.plot2D(data1,data2,tpl,gm,vtkGrid=vtkGrid)
+      returned_kargs["vtkGrid"],returned_kargs["vtkGeo"] = self.plot2D(data1,data2,tpl,gm,vtkGrid=vtkGrid,vtkGeo=vtkGeo)
     elif gtype in ["3d_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
@@ -423,7 +424,7 @@ class VTKVCSBackend(object):
       #self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm)
     elif gtype=="vector":
-      returned_kargs["vtkGrid"] = self.plotVector(data1,data2,tpl,gm,vtkGrid=vtkGrid)
+      returned_kargs["vtkGrid"],returned_kargs["vtkGeo"] = self.plotVector(data1,data2,tpl,gm,vtkGrid=vtkGrid,vtkGeo=vtkGeo)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if self.logo is None:
@@ -569,7 +570,7 @@ class VTKVCSBackend(object):
           if hasattr( plot, 'onClosing' ):
               plot.onClosing()
 
-  def plotVector(self,data1,data2,tmpl,gm,vtkGrid=None):
+  def plotVector(self,data1,data2,tmpl,gm,vtkGrid=None,vtkGeo=None):
     #Preserve time and z axis for plotting these inof in rendertemplate
     taxis = data1.getTime()
     if data1.ndim>2:
@@ -578,7 +579,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    vtkGrid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtkGrid)
+    vtkGrid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtkGrid,geo=vtkGeo)
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtkGrid,None,False,deep=False)
 
     u=numpy.ma.ravel(data1)
@@ -711,9 +712,9 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
-    return vtkGrid
+    return vtkGrid,geo
 
-  def plot2D(self,data1,data2,tmpl,gm,vtkGrid=None):
+  def plot2D(self,data1,data2,tmpl,gm,vtkGrid=None,vtkGeo=None):
     #Preserve time and z axis for plotting these inof in rendertemplate
     t = data1.getTime()
     if data1.ndim>2:
@@ -723,7 +724,7 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    vtkGrid,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtkGrid)
+    vtkGrid,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtkGrid,geo=vtkGeo)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -1063,7 +1064,7 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
-    return vtkGrid
+    return vtkGrid,geo
 
   def plotContinents(self,x1,x2,y1,y2,projection,wrap,tmpl):
       contData = vcs2vtk.prepContinents(self.canvas._continents)
