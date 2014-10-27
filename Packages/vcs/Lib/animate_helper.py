@@ -938,7 +938,6 @@ class AnimationController(animate_obj_old):
     #for a in checks:
     #  pre[a]=len(vcs.elements[a])
     for iarg, args in enumerate(frame_args):
-        print iarg,len(frame_kargs),type(frame_kargs)
         if len(frame_kargs)>iarg:
           kargs = frame_kargs[iarg]
         else:
