@@ -619,6 +619,7 @@ class AnimationCreate(StoppableThread):
     self.controller.reset_file_paths()
 
     self._really_used = [] 
+    self._backend_kargs = []
     for i, args in enumerate(all_args):
       if self.is_stopped():
         break
@@ -627,10 +628,14 @@ class AnimationCreate(StoppableThread):
       if self._really_used!=[]:
         for j,a in enumerate(args):
           args[j]=a[:-3]+self._really_used[j]
-      displays = self.controller.render_frame(args, i)
+          kargs = self._backend_kargs
+      else:
+        kargs = []
+      displays = self.controller.render_frame(args, i, kargs)
       if self._really_used==[]:
         for d in displays:
           self._really_used.append([d._gettemplate(),d._getg_type(),d._getg_name()])
+          self._backend_kargs.append(d.backend)
 
       # this is how you allow the GUI to process events during
       # animation creation
@@ -915,7 +920,7 @@ class AnimationController(animate_obj_old):
             self.animation_files = []
         self.animation_seed = None
 
-  def render_frame(self, frame_args, frame_num):
+  def render_frame(self, frame_args, frame_num, frame_kargs=[]):
     if self.animation_seed is None:
         self.animation_seed = numpy.random.randint(10000000000)
     fn = os.path.join(os.environ["HOME"],".uvcdat",
@@ -932,8 +937,13 @@ class AnimationController(animate_obj_old):
     #pre = {}
     #for a in checks:
     #  pre[a]=len(vcs.elements[a])
-    for args in frame_args:
-        displays.append(self.create_canvas.plot(*args, bg=1))
+    for iarg, args in enumerate(frame_args):
+        print iarg,len(frame_kargs),type(frame_kargs)
+        if len(frame_kargs)>iarg:
+          kargs = frame_kargs[iarg]
+        else:
+          kargs={}
+        displays.append(self.create_canvas.plot(*args, bg=1, **kargs))
     #post={}
     #for a in checks:
     #  post[a]=len(vcs.elements[a])
