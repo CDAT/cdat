@@ -3642,7 +3642,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                self.backend.plot(*arglist,**keyargs)
+                returned_kargs = self.backend.plot(*arglist,**keyargs)
                 if not keyargs.get("donotstoredisplay",False):
                   nm,src = self.check_name_source(None,"default","display")
                   dn = displayplot.Dp(nm)
@@ -3650,6 +3650,7 @@ Options:::
                   dn.g_type = arglist[3]
                   dn.g_name = arglist[4]
                   dn.array = arglist[:2]
+                  dn.backend = returned_kargs
                 else:
                   dn = None
         
