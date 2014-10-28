@@ -1095,7 +1095,7 @@ class VTKVCSBackend(object):
         self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(contActor)
         col = ren.GetActors()
-        print "We have %i actors:",col.GetNumberOfItems()
+        print "We have %i actors:"%col.GetNumberOfItems()
         col.InitTraversal()
         n=col.GetNextActor()
         while (n):
