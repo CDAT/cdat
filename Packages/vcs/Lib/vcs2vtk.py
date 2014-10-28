@@ -313,7 +313,6 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
     vg.SetPoints(geopts)
   else:
     vg=grid
-  print "CONTINENTS:",continents
   return vg,xm,xM,ym,yM,continents,wrap,geo,cellData
 
 def getRange(gm,xm,xM,ym,yM):
@@ -366,7 +365,7 @@ def prepContinents(fnm):
               l,L = float(sp[i*2]),float(sp[i*2+1])
               spts.append([l,L])
             for p in spts:
-              pts.InsertNextPoint(p[1],p[0],0.)
+              pts.InsertNextPoint(p[1],p[0],0.0001)
             n+=sn
             didIt = True
           except:
