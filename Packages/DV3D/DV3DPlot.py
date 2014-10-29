@@ -5,7 +5,7 @@ Created on Apr 30, 2014
 '''
 from ColorMapManager import *
 from ButtonBarWidget import *
-import vtk, traceback, time
+import vtk, traceback, time, threading
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
@@ -192,6 +192,7 @@ class DV3DPlot():
         self.renderer = None
         self.useDepthPeeling = False
         self.record_animation = False
+        self.animation_frames = []
         self.renderWindowInteractor = None
         self.inputSpecs = {}
         self.logoActor = None
@@ -334,7 +335,7 @@ class DV3DPlot():
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.recordCamera()
             self.saveState()
-        self.renderWindowInteractor.TerminateApp() 
+        self.onClosing()
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
@@ -553,7 +554,7 @@ class DV3DPlot():
                 if self.animating:
                     self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
                 else:
-                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ), ( 'Record', True, 0 ) ] )  
             else:
                 bbar.hide()
         elif args and args[0] == "Open":
@@ -952,7 +953,7 @@ class DV3DPlot():
             self.onRenderWindowResize()
             self.renderWindowSize = window_size
         time.sleep(0.0)
- 
+         
     def onWindowExit( self, caller=None, event=None ):
         #print "Window Event: ", event
         self.onClosing()

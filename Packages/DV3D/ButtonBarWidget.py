@@ -443,7 +443,10 @@ class ControlBar(ButtonBar):
         button_specs = build_args[0]
         self.processStateChangeEvent = build_args[1]
         for bspec in button_specs:
-            self.addButton( bspec, **args )
+            if ( len( bspec ) == 2 ) and isinstance( bspec[1], bool ):
+                self.addButton( bspec[0], toggle=bspec[1], **args ) 
+            else: 
+                self.addButton( bspec, **args )
             
     def addButton( self, bspec, **args ):
         if hasattr(bspec, "__iter__"):
