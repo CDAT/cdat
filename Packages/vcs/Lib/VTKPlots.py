@@ -1232,6 +1232,9 @@ class VTKVCSBackend(object):
   def svg(self, file, width=None, height=None, units=None):
       return self.vectorGraphics("svg", file, width, height, units)
 
+  def gif(self,filename='noname.gif', merge='r', orientation=None, geometry='1600x1200'):
+    raise RuntimeError("gif method not implemented in VTK backend yet")
+
   def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
 
         if self.renWin is None:
