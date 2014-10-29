@@ -373,10 +373,22 @@ class DV3DPlot():
             self.animationTimerId = -1
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
-        self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )        
-        t1 = time.clock()
-        if self.currTime <> None: print " Animation step, DT = %.3f" % ( t1 - self.currTime )
-        self.currTime = t1
+        self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
+        
+    def captureFrame( self, **args ):   
+        frameCaptureFilter = vtk.vtkWindowToImageFilter()
+        frameCaptureFilter.SetInput( self.renderWindow )
+        ignore_alpha = args.get( 'ignore_alpha', True )
+        if ignore_alpha:    frameCaptureFilter.SetInputBufferTypeToRGB()
+        else:               frameCaptureFilter.SetInputBufferTypeToRGBA()
+        frameCaptureFilter.Update()
+        output = frameCaptureFilter.GetOutput()
+        self.animation_frames.append( output )
+                
+    def saveAnimation(self):
+        saveAnimationThread = SaveAnimation( self.animation_frames )
+        self.animation_frames =[]
+        saveAnimationThread.run()
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
@@ -533,7 +545,17 @@ class DV3DPlot():
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
-            self.updateAnimationControlBar( args[1], config_function )
+            state = args[1]
+            bbar = self.getControlBar( config_function, [ ( "Step", "Run", "Stop", ( "Record", True ) ), self.processAnimationStateChange ], mag=1.4 )
+            if state == 1:
+                self.updateTextDisplay( config_function.label )
+                bbar.show()
+                if self.animating:
+                    self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                else:
+                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+            else:
+                bbar.hide()
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
