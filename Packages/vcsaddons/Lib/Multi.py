@@ -337,10 +337,10 @@ class Multi(object):
                 dx=self.legend.stretch
                 dy=self.legend.thickness
 ##                 print x1,x2,y1,y2,dx,dy
-        t.legend.x1=x1+(x2-x1)*(1.-dx)/2.
-        t.legend.x2=x2-(x2-x1)*(1.-dx)/2.
-        t.legend.y1=y1+(y2-y1)*(1.-dy)/2.
-        t.legend.y2=y2-(y2-y1)*(1.-dy)/2.            
+        t.legend.x1=min(1,max(0,x1+(x2-x1)*(1.-dx)/2.))
+        t.legend.x2=min(1,max(0,x2-(x2-x1)*(1.-dx)/2.))
+        t.legend.y1=min(1,max(0,y1+(y2-y1)*(1.-dy)/2.))
+        t.legend.y2=min(1,max(0,y2-(y2-y1)*(1.-dy)/2.))
         return t
 
     def preview(self,out='EZTemplate_Multi',bg=1):
