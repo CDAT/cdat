@@ -2265,7 +2265,7 @@ Options:::
     # Set alias for the secondary createtextcombined.
     createtext = createtextcombined
 
-    def gettextcombined(self,Tt_name_src='default', To_name_src='default', string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+    def gettextcombined(self,Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
         return vcs.gettextcombined(Tt_name_src, To_name_src, string,
             font, spacing, expansion, color, priority, viewport, worldcoordinate,
             x, y, height, angle, path, halign, valign)
