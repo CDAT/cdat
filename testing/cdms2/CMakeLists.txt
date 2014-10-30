@@ -112,6 +112,11 @@ add_test("CDMS_asdatetime"
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/cdms2/test_cdms2_axis_as_datetime.py)
 
+add_test("test_cdms2_full_averagering_full_missing"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_full_averaging.py
+  )
+
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
 
