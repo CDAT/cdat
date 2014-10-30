@@ -16,7 +16,7 @@ if (CDAT_BUILD_VCS_LEGACY)
     set(qt_flags "--enable-qt-framework")
   endif()
 
-  set(cdat_xtra_flags "--enable-vcs-legacy ${qt_flags} --with-qt=${QT_ROOT} --with-qt-lib=${QT_LIB_DIR} --with-qt-inc=${QT_INC_DIR}" --with-qt-bin=${QT_BINARY_DIR})
+  set(cdat_xtra_flags "--enable-vcs-legacy ${qt_flags} --with-qt=${QT_ROOT} --with-qt-lib=${QT_LIB_DIR} --with-qt-inc=${QT_INC_DIR} --with-qt-bin=${QT_BINARY_DIR}")
 endif()
 
 if (CDAT_BUILD_WITH_LIBDRS)
