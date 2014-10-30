@@ -1,6 +1,10 @@
 
 # cdms2 tests
 
+add_test("test_ascontiguous_regrid_nan_issue"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_ascontiguous_regrid_nan_issue.py
+  )
 add_test("test_dim_unlimited"
     ${CMAKE_INSTALL_PREFIX}/bin/python 
     ${cdat_SOURCE_DIR}/testing/cdms2/test_dim_unlimited.py
