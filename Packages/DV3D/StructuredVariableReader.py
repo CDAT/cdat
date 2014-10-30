@@ -119,7 +119,7 @@ class StructuredDataReader:
                             if self.fileSpecs <> None: break
                         try: self.df = cdms2.open( self.fileSpecs )  
                         except: 
-                            print>>sys.stderr, "Error, can't open data file '%s'" % self.fileSpecs
+                            print>>sys.stderr, "Warning, can't open data file '%s'" % self.fileSpecs
                             self.df = None                    
                     else:
                         self.datasetId = self.vars[0].name
@@ -512,7 +512,9 @@ class StructuredDataReader:
             lon_axis= var.getLongitude()  
             if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
             lev_axis= var.getLevel()  
-            if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
+            if not lev_axis is None:
+                lev_data = lev_axis.getValue()  
+                vmd[ 'lev' ] =  lev_data[::-1] if ( hasattr( lev_axis, 'positive') and ( lev_axis.positive == 'down' ) ) else lev_data
             vmd[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
              
             enc_mdata = encodeToString( vmd ) 
@@ -654,7 +656,9 @@ class StructuredDataReader:
                         axis = tvar.getLatitude()
                         if not axis is None: md[ 'lat' ] =  axis.getValue()
                         axis = tvar.getLevel()
-                        if not axis is None: md[ 'lev' ] =  axis.getValue()
+                        if not axis is None: 
+                            lev_data = axis.getValue() 
+                            md[ 'lev' ] =  lev_data[::-1] if ( hasattr( axis, 'positive') and ( axis.positive == 'down' ) ) else lev_data
                         axis = tvar.getTime()
                         if not axis is None: md[ 'time' ] =  [ str(tc) for tc in axis.asComponentTime() ]
                         else: md[ 'time' ] =  md[ 'base_time' ] 
