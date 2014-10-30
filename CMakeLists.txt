@@ -240,6 +240,7 @@ set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
