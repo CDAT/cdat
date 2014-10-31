@@ -684,7 +684,6 @@ def minmax(*data) :
         return mx,mn
     from numpy.ma import maximum,minimum,masked_where,absolute,greater,count
     try:
-      d=masked_where(greater(absolute(d),9.9E19),d)
       if count(d)==0 : return mx,mn
       mx=float(maximum(mx,float(maximum(d))))
       mn=float(minimum(mn,float(minimum(d))))
