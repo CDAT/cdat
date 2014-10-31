@@ -757,6 +757,8 @@ def mkscale(n1,n2,nc=12,zero=1,ends=False):
     if min>0. : min=0.
     if max<0. : max=0.
   rg=float(max-min)  # range
+  if rg == 0:
+    return [min,]
   delta=rg/nc # basic delta
   # scale delta to be >10 and <= 100
   lg=-numpy.log10(delta)+2.
