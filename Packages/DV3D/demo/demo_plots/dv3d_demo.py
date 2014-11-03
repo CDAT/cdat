@@ -19,7 +19,7 @@ if len(sys.argv) > 1:
     demo_index = sys.argv[1]
    
 x = vcs.init()
-f = cdms2.open( "/Users/tpmaxwel/Data/AConaty/comp-ECMWF/geos5.xml" ) # "geos5-sample.nc" )
+f = cdms2.open( "/Users/tpmaxwel/Data/AConaty/comp-ECMWF/geos5.xml" ) # "geos5-sample.nc" ) 
 if background_render:
     x.setbgoutputdimensions(width=bgX, height=bgY, units='pixels')   
     

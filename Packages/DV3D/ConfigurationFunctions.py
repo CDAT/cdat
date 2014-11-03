@@ -25,6 +25,11 @@ defaultMapCut = -180
 SLIDER_MAX_VALUE = 100
 MAX_IMAGE_SIZE = 1000000
 
+def isNumerical( vals ):
+    for val in vals:
+        if type( val ) not in [ int, float ]: return False  
+    return True
+        
 class CDMSDataType:
     Volume = 1
     Slice = 2
@@ -526,6 +531,7 @@ class ConfigParameter:
         self.children.add( child )  
           
     def serializeState( self, **args ):
+        print " serializeState: ", self.varname, ", Keys: ", str( self.stateKeyList )
         if len( self.stateKeyList ) == 0:
             return None
         state_parms = {}
@@ -626,9 +632,11 @@ class ConfigParameter:
             for val_item in value.items():
                 self.setValue( val_item[0], val_item[1], update )
         elif ( type( value ) == tuple ):
-            for val_item in value:
-                self.setInitValue( val_item, update )
-            self.setValues( value  )
+            if isNumerical( value ):
+                self.setValues( value  )
+                self.setValue( 'init', value, update )
+            else:
+                for val_item in value: self.setInitValue( val_item, update )
         else:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )

@@ -12,6 +12,11 @@ from StructuredGridPlot import  *
 from StructuredDataset import *
 import numpy as np
 
+def get_scalar_value( tvals ):
+    if hasattr( tvals, '__iter__' ):
+        return get_scalar_value( tvals[0] )
+    else: return tvals
+    
 LegacyAbsValueTransferFunction = 0
 LinearTransferFunction = 1 
 PosValueTransferFunction = 2  
@@ -366,9 +371,12 @@ class RectGridPlot(StructuredGridPlot):
             if state <> None:            
                 bbar = self.getPlotButtonbar()
                 button = bbar.getButton( slider_buttons[plane_index] ) 
-                button.setButtonState( 1 ) 
                 if state: 
+                    button.setButtonState( 1 ) 
                     self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+                else:
+                    button.setButtonState( 0 ) 
+                    plane_widget.VisibilityOff() 
             elif config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
@@ -831,9 +839,9 @@ class RectGridPlot(StructuredGridPlot):
         cf = interactionButtons.getConfigFunction('IsosurfaceValue')
         initVals = cf.value.getInitValue()
         if initVals:
-            self.levelSetFilter.SetValue ( 0, initVals[0] ) 
+            self.levelSetFilter.SetValue ( 0, get_scalar_value(initVals) ) 
             self.levelSetFilter.Modified()
-                              
+                                  
     def buildVolumePipeline(self):
         """ execute() -> None
         Dispatch the vtkRenderer to the actual rendering widget
@@ -1032,6 +1040,18 @@ class RectGridPlot(StructuredGridPlot):
         if (self.planeWidgetY <> None): self.modifySlicePlaneVisibility( 1, 'y', False )   
         if (self.planeWidgetZ <> None): self.modifySlicePlaneVisibility( 2, 'z', False )  
 
+    def processToggleClippingCommand( self, args, config_function ):
+        if args and args[0] == "InitConfig": 
+            self.toggleClipping( args[1] )
+        elif args and args[0] == "Init":
+            plane_positions = config_function.initial_value
+            if (plane_positions <> None):
+                for ip, pval in enumerate( plane_positions ):
+                    self.cropRegion[ip] = pval
+                self.clipper.PlaceWidget( self.cropRegion )
+                self.toggleClipping( True )
+                self.executeClip()
+                self.toggleClipping( False )  
       
     def clipObserver( self, caller=None, event=None ):
         print " Clip Observer: %s ", str(event)
@@ -1058,6 +1078,8 @@ class RectGridPlot(StructuredGridPlot):
             origin = self.input().GetOrigin()        
             self.cropZextent = [ int( ( self.cropRegion[ip] - origin[ip/2] ) / spacing[ip/2] ) for ip in [4,5] ]
         self.volumeMapper.SetCroppingRegionPlanes( self.cropRegion  ) 
+        ToggleClippingParam = self.cfgManager.getParameter( 'ToggleClipping' )  
+        ToggleClippingParam.setValues( self.cropRegion )  
         self.render()
 
     def rebuildVolume( self ):

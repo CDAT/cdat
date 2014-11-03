@@ -35,10 +35,6 @@ class StructuredGridPlot(DV3DPlot):
         self.shapefilePolylineActors = {}
         self.basemapLineSpecs = {}
 
-    def processToggleClippingCommand( self, args, config_function ):
-        if args and args[0] == "InitConfig": 
-            self.toggleClipping( args[1] )
-
     def processBasemapOpacityCommand( self, args, config_function ):
         opacity = config_function.value
         if args and args[0] == "StartConfig":
