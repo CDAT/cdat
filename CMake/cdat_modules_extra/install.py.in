@@ -261,6 +261,13 @@ SOURCE = 'CDAT'
 def get_version():
   return Version
 
+def get_prefix():
+  import os
+  try:
+    return os.environ["UVCDAT_SETUP_PATH"]
+  except KeyError:
+    raise RuntimeError("UVCDAT environment not configured. Please source the setup_runtime script.")
+
 def runCheck():
     import cdat_info,os
     if cdat_info.ping_checked is False:

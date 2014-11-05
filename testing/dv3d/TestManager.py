@@ -71,7 +71,7 @@ class vcsTest:
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
-        self.file_path = os.path.join( sys.prefix, "sample_data", filename )
+        self.file_path = os.path.join( vcs.prefix, "sample_data", filename )
         self.file = cdms2.open( self.file_path )
         self.roi =  args.get( 'roi', None )
         self.ptype = args.get( 'type', 'scalar' )
@@ -133,7 +133,7 @@ class vcsTest:
         
     def writeCMakeDef( self, f ):
         f.write( "add_test(%s\n" % self.name )
-        f.write( "  ${CMAKE_INSTALL_PREFIX}/bin/python\n"  )
+        f.write( "  \"${PYTHON_EXECUTABLE}\"\n"  )
         f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/%s.py\n" % self.name )
 #        f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/images/%s.png\n" % self.name )
         f.write( ")\n\n\n")

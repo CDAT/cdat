@@ -10,7 +10,7 @@ pth = os.path.join(pth0,"..")
 sys.path.append(pth)
 import checkimage
 
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
 s=f("clt",time=slice(0,1),squeeze=1)
 gm=vcs.createisofill()
 

@@ -11,7 +11,7 @@ image_check = False
 if __name__ == '__main__':
     import sys
     
-    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
+    f = cdms2.open( os.path.join( vcs.prefix, "sample_data", "geos5-sample.nc") )
     U = f["uwnd"] 
     U = U(lon=(-105.0, -15.0),lev=(1000.0, 0.10000000100000001),lat=(7.0, 50.0),squeeze=1,)
     canvas = vcs.init()

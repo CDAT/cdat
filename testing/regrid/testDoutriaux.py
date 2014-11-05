@@ -3,6 +3,7 @@ Test from Charles Doutriaux, compares the accuracy of all the
 interpolation methods
 """
 import unittest
+import cdat_info
 import cdms2
 import numpy
 import sys
@@ -21,7 +22,7 @@ class Test(unittest.TestCase):
         One way interpolation
         """
     
-        fnm = sys.prefix + '/sample_data/clt.nc'
+        fnm = cdat_info.get_prefix() + '/sample_data/clt.nc'
         f = cdms2.open(fnm)
 
         s=f("clt")
@@ -66,7 +67,7 @@ class Test(unittest.TestCase):
         Forward/backward interpolation
         """
     
-        fnm=sys.prefix+'/sample_data/clt.nc'
+        fnm=cdat_info.get_prefix()+'/sample_data/clt.nc'
         f=cdms2.open(fnm)
 
         s=f("clt")

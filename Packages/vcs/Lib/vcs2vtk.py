@@ -11,7 +11,7 @@ import cdms2
 import warnings
 import cdtime
 
-f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
+f = open(os.path.join(vcs.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
 def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):

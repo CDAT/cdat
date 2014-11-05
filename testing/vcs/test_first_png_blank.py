@@ -3,7 +3,7 @@ src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
 T=f('clt')
 v = vcs.init()
 v.setbgoutputdimensions(1200,1091,units="pixels")

@@ -71,9 +71,9 @@ if args.lon1!=args.lon2:
 if args.rg:
     nm_xtra+="_via_gm"
 if gm_type=="meshfill":
-    f=cdms2.open(os.path.join(sys.prefix,'sample_data','sampleCurveGrid4.nc'))
+    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','sampleCurveGrid4.nc'))
 else:
-    f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 if gm_type=="vector":
     u=f("u",**xtra)
     v=f("v",**xtra)
