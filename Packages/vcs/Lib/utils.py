@@ -681,7 +681,7 @@ def minmax(*data) :
   def myfunction(d,mx,mn):
     if d is None:
         return mx,mn
-    from numpy.ma import maximum,minimum
+    from numpy.ma import maximum,minimum,count
     try:
       if count(d)==0 : return mx,mn
       mx=float(maximum(mx,float(maximum(d))))
