@@ -1238,6 +1238,14 @@ class VTKVCSBackend(object):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
+        interactor = self.renWin.GetInteractor()
+        if interactor is None:
+          ## we need an interactor for logo to be dispalyed
+          interactor = vtk.vtkRenderWindowInteractor()
+          interactor.SetRenderWindow(self.renWin)
+          self.logoWidget.SetInteractor(interactor)
+          self.logoWidget.On()
+          #self.renWin.Render()
 
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
@@ -1316,9 +1324,9 @@ class VTKVCSBackend(object):
         self.logoRepresentation = vtk.vtkLogoRepresentation()
         self.logoRepresentation.SetImage(logo_input)
         self.logoRepresentation.ProportionalResizeOn ()
-        self.logoRepresentation.SetPosition( 0.82, 0.0 )
-        self.logoRepresentation.SetPosition2( 0.12, 0.08 )
-        self.logoRepresentation.GetImageProperty().SetOpacity( 0.8 )
+        self.logoRepresentation.SetPosition( 0.882, 0.0 )
+        self.logoRepresentation.SetPosition2( 0.10, 0.05 )
+        self.logoRepresentation.GetImageProperty().SetOpacity( 1 )
         self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
         self.logoWidget = vtk.vtkLogoWidget()
         if self.renWin is not None:
