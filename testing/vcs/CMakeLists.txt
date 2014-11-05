@@ -4,6 +4,10 @@ add_test(vcs_verify_import
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+add_test(vcs_mkscale_zero_range
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_zero_range.py
+)
 add_test(vcs_verify_create_get
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
