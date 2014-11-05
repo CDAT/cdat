@@ -662,7 +662,6 @@ def minmax(*data) :
   Function : minmax
   Description of Function
     Return the minimum and maximum of a serie of array/list/tuples (or combination of these)
-    Values those absolute value are greater than 1.E20, are masked
     You can combined list/tuples/... pretty much any combination is allowed
     
   Examples of Use
