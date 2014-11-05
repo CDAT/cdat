@@ -4,7 +4,7 @@ import cdms2
 import vtk
 import os
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 s=f("clt")
 x=vcs.init()
 x.open()

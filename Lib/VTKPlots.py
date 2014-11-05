@@ -1312,7 +1312,7 @@ class VTKVCSBackend(object):
         ## Ok we do not want a logo here
         return
     # Pth to logo
-    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+    logoFile = os.path.join(vcs.prefix,"share","vcs","uvcdat.png")
     # VTK reader for logo
     logoRdr=vtk.vtkPNGReader()
     logoRdr.SetFileName(logoFile)
