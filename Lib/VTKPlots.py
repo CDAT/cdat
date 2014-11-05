@@ -46,7 +46,7 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
-    self.logo = None
+    self.createLogo()
 
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -59,6 +59,7 @@ class VTKVCSBackend(object):
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
+      self.logoWidget.SetInteractor( interactor )
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -151,6 +152,8 @@ class VTKVCSBackend(object):
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
       return
+    interactor = self.renWin.GetInteractor()
+    self.logoWidget.SetInteractor( interactor )
     self._lastSize = sz
     plots_args = []
     key_args =[]
@@ -171,10 +174,7 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
-    if self.logo is None:
-      self.createLogo()
-    if self.renWin.GetSize()!=(0,0):
-      self.scaleLogo()
+    self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -194,6 +194,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self.createLogo()
 
   def createDefaultInteractor( self, ren=None ):
     defaultInteractor = self.renWin.GetInteractor()
@@ -206,6 +207,7 @@ class VTKVCSBackend(object):
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
+    self.logoWidget.SetInteractor( defaultInteractor )
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -388,12 +390,9 @@ class VTKVCSBackend(object):
       self.plotVector(data1,data2,tpl,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
-    if self.logo is None:
-      self.createLogo()
-    if self.renWin.GetSize()!=(0,0):
-      self.scaleLogo()
     if not kargs.get("donotstoredisplay",False):
       self.renWin.Render()
+    self.scaleLogo()
 
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
@@ -1308,46 +1307,38 @@ class VTKVCSBackend(object):
     else:
       self.renWin.SetMultiSamples(antialiasing)
   def createLogo(self):
-    if self.canvas.drawLogo is False:
-        ## Ok we do not want a logo here
-        return
-    # Pth to logo
-    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-    # VTK reader for logo
-    logoRdr=vtk.vtkPNGReader()
-    logoRdr.SetFileName(logoFile)
-    logoRdr.Update()
-    x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
-    ia = vtk.vtkImageActor()
-    ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
-    ren = self.createRenderer()
-    self.renWin.AddRenderer(ren)
-    r,g,b = self.canvas.backgroundcolor
-    ren.SetBackground(r/255.,g/255.,b/255.)
-    #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
-    ren.AddActor(ia)
-    self.logo = ren
-    self.logoExtent = [x1,y1]
+    if self.canvas.drawLogo:
+        defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+        reader = vtk.vtkPNGReader()
+        reader.SetFileName( defaultLogoFile )
+        reader.Update()
+        logo_input = reader.GetOutput()
+        self.logoRepresentation = vtk.vtkLogoRepresentation()
+        self.logoRepresentation.SetImage(logo_input)
+        self.logoRepresentation.ProportionalResizeOn ()
+        self.logoRepresentation.SetPosition( 0.82, 0.0 )
+        self.logoRepresentation.SetPosition2( 0.12, 0.08 )
+        self.logoRepresentation.GetImageProperty().SetOpacity( 0.8 )
+        self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
+        self.logoWidget = vtk.vtkLogoWidget()
+        if self.renWin is not None:
+          interactor = self.renWin.GetInteractor()
+          self.logoWidget.SetInteractor( interactor )
+        self.logoWidget.SetRepresentation(self.logoRepresentation)
+        self.logoWidget.SelectableOff()
+        self.logoWidget.SetManagesCursor(0)
+        self.logoWidget.SetResizable(0)
 
   def scaleLogo(self):
     if self.canvas.drawLogo is False:
         return
-    #Figuring out scale
-    #Get dimensions of input file
-    w,h=self.logoExtent
-    W,H=self.renWin.GetSize()
-    SC = .05
-    sc = SC*float(H)/float(h)
-    nw = w*sc
-    pw = (W-nw)/W
-    self.logo.SetViewport(pw,0.,1.,SC)
-    self.logo.SetLayer(self.renWin.GetNumberOfLayers()-1)
-    cam = self.logo.GetActiveCamera()
-    d=cam.GetDistance()
-    cam.SetParallelScale(.5*(h+1))
-    cam.SetFocalPoint(w/2.,h/2.,0.)
-    cam.SetPosition(w/2.,h/2.,H/(2-SC))
-
+    if self.logoWidget is None:
+      self.createLogo()
+    if self.renWin is not None:
+        interactor = self.renWin.GetInteractor()
+        if interactor is not None:
+          self.logoWidget.SetInteractor( interactor )
+          self.logoWidget.On()
 
 class VTKAnimate(animate_helper.AnimationController):
    pass
