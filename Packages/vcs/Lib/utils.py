@@ -663,7 +663,6 @@ def minmax(*data) :
   Function : minmax
   Description of Function
     Return the minimum and maximum of a serie of array/list/tuples (or combination of these)
-    Values those absolute value are greater than 1.E20, are masked
     You can combined list/tuples/... pretty much any combination is allowed
     
   Examples of Use
@@ -683,9 +682,8 @@ def minmax(*data) :
   def myfunction(d,mx,mn):
     if d is None:
         return mx,mn
-    from numpy.ma import maximum,minimum,masked_where,absolute,greater,count
+    from numpy.ma import maximum,minimum,count
     try:
-      d=masked_where(greater(absolute(d),9.9E19),d)
       if count(d)==0 : return mx,mn
       mx=float(maximum(mx,float(maximum(d))))
       mn=float(minimum(mn,float(minimum(d))))
@@ -758,6 +756,8 @@ def mkscale(n1,n2,nc=12,zero=1,ends=False):
     if min>0. : min=0.
     if max<0. : max=0.
   rg=float(max-min)  # range
+  if rg == 0:
+    return [min,]
   delta=rg/nc # basic delta
   # scale delta to be >10 and <= 100
   lg=-numpy.log10(delta)+2.
