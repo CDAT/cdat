@@ -181,20 +181,20 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Init":
             if config_function.initial_value == None:       
                 config_function.initial_value = [ 1.0, 1.0 ]  
-            self.setConstituentOpacities( opacityRange, config_function.initial_value )
+            self.initConstituentOpacities( opacityRange, config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
             state = args[1]
-            print "OpacityScaling InitConfig, state = %d" % state
+#            print "OpacityScaling InitConfig, state = %d" % state
             self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
             if state: 
                 self.cs_bbar.show()
-                print "Show ConstituentSelectionBar: ", config_function.cfg_state
+#                print "Show ConstituentSelectionBar: ", config_function.cfg_state
             else:     
                 self.cs_bbar.hide()
                 self.cs_bbar = None
-                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
+#                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility( islider, islider < len(config_function.sliderLabels) )   
@@ -204,7 +204,7 @@ class RectGridPlot(StructuredGridPlot):
              if self.cs_bbar <> None:
                  self.cs_bbar.hide()
                  self.cs_bbar = None
-                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
+#                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
         elif args and args[0] == "UpdateConfig":
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
@@ -220,8 +220,8 @@ class RectGridPlot(StructuredGridPlot):
             config_function.setRangeBounds( init_range ) 
             if config_function.initial_value == None:       
                 config_function.initial_value = init_range  
-            self.scaleEnabledColormaps( config_function.initial_value )
-            self.generateCTF( config_function.initial_value )
+            self.initConstituentColormapScaling( colorScaleRange, config_function.initial_value )
+            self.generateCTF( colorScaleRange.getValue('Volume') )
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )  
@@ -1413,12 +1413,21 @@ class RectGridPlot(StructuredGridPlot):
             if self.isConstituentConfigEnabled( plotItem[0] ): 
                 self.updateOpacity( plotItem[0], range, **args  )
                 param.setValue( plotItem[0], range ) 
+
+    def initConstituentOpacities(self, param, init_range, **args ): 
+        for plotItem in self.plotConstituents.items():
+            crange = param.getValue( plotItem[0] )
+            range = crange if crange else init_range 
+#            print " Opacity constituent init [%s]: %s " % ( plotItem[0], str( range ) )
+            self.opacityUpdateCount = 0
+            self.updateOpacity( plotItem[0], range, **args  )
+            param.setValue( plotItem[0], range ) 
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setAlphaRange( [ bound( opacity[i], [ 0.0, 1.0 ] ) for i in (0,1) ] )
         if (self.opacityUpdateCount % 5) == 0: 
-            print " updateOpacity[%s]: %s " % ( constituent, str(opacity) )
+#            print " updateOpacity[%s]: %s " % ( constituent, str(opacity) )
             if constituent == 'Volume': 
                 maxop = abs( opacity[1] ) 
                 self.max_opacity = maxop if maxop < 1.0 else 1.0
@@ -1738,6 +1747,15 @@ class RectGridPlot(StructuredGridPlot):
                 if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
                    cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
+
+    def initConstituentColormapScaling( self, param, init_value, cmap_index=0, **args ):
+        for plotItem in self.plotConstituents.items():
+            cvalue = param.getValue( plotItem[0] )
+            value = cvalue if cvalue else init_value
+            if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
+               cmap_index = 1 
+            self.scaleColormap( plotItem[0], value, cmap_index, **args)
+            param.setValue( plotItem[0], value )
 
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
         if self.isConstituentConfigEnabled( constituent ):
