@@ -985,6 +985,9 @@ class VTKVCSBackend(object):
       mapper.SetScalarRange(lmn,lmx)
 
     if missingMapper is not None:
+      if isinstance(gm,meshfill.Gfm):
+        mappers.append(missingMapper)
+      else:
         mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)

@@ -59,10 +59,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           lut.SetNumberOfTableValues(1)
           r,g,b = actorColor
           lut.SetNumberOfTableValues(2)
-          lut.SetTableValue(0,r/100.,g/100.,b/100.)
-          lut.SetTableValue(1,r/100.,g/100.,b/100.)
+          lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
+          lut.SetTableValue(1,r/100.,g/100.,b/100.,0.)
           mapper.SetLookupTable(lut)
-          mapper.SetScalarRange(1,1)
+          mapper.SetScalarRange(0,1)
       if grid.IsA("vtkStructuredGrid"):
         if not cellData:
           grid.SetPointVisibilityArray(msk)
