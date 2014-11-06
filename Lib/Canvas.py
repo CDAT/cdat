@@ -3701,7 +3701,7 @@ Options:::
 
         # Now executes output commands
         for cc in cmds.keys():
-            c=string.lower(cc)
+            c=cc.lower()
             if type(cmds[cc])!=type(''):
                 args=tuple(cmds[cc])
             else:
@@ -5527,7 +5527,7 @@ Options:::
 """ % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
-        g = string.split(geometry,'x')
+        g = geometry.split('x')
         f1 = f1=float(g[0]) / 1100.0 * 100.0
         f2 = f2=float(g[1]) / 849.85 * 100.0
         geometry = "%4.1fx%4.1f" % (f2,f1)
@@ -5576,7 +5576,7 @@ Options:::
 """ % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
-        r = string.split(resolution,'x')
+        r = resolution.split('x')
         f1 = f1=float(r[0]) / 1100.0 * 100.0
         f2 = f2=float(r[1]) / 849.85 * 100.0
         resolution = "%4.1fx%4.1f" % (f2,f1)
