@@ -865,7 +865,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     idx = farea.index[i]
     N = max(len(x),len(y))
     for a in [x,y]:
-      while len(a)<n:
+      while len(a)<N:
         a.append(a[-1])
     #Create points
     pts = vtk.vtkPoints()
