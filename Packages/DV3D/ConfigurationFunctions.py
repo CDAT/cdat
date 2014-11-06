@@ -531,7 +531,7 @@ class ConfigParameter:
         self.children.add( child )  
           
     def serializeState( self, **args ):
-        print " serializeState: ", self.varname, ", Keys: ", str( self.stateKeyList )
+        #print " serializeState: ", self.varname, ", Keys: ", str( self.stateKeyList )
         if len( self.stateKeyList ) == 0:
             return None
         state_parms = {}
@@ -550,7 +550,7 @@ class ConfigParameter:
             return
         self.values.update( state )
         self.values[ 'init' ] = self.getValues()
-        print " --> Restore state [%s] : %s " % ( self.name, stateData )
+        #print " --> Restore state [%s] : %s " % ( self.name, stateData )
                                     
     def __str__(self):
         return " ConfigParameter[%s]: %s " % ( self.name, str( self.values ) )

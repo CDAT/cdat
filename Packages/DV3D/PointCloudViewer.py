@@ -793,11 +793,11 @@ class CPCPlot( DV3DPlot ):
                 pc = self.getPointCloud(resolution)
                 pc.setPointSize( config_function.initial_value[resolution] )
         elif arg and arg[0] == "InitConfig":
-            print "InitConfig: ", str( arg )
+            #print "InitConfig: ", str( arg )
             self.updateTextDisplay( config_function.label )
         elif arg[0] == 'StartConfig':
             render_mode = arg[1]
-            print "StartConfig: ", str( arg )
+            #print "StartConfig: ", str( arg )
             if self.setRenderMode( render_mode ):
                 if render_mode == ProcessMode.HighRes: 
                     if self.partitioned_point_cloud:

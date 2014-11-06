@@ -147,8 +147,8 @@ class Button:
             self.buttonRepresentation.SetHoveringProperty(prop)
             self.buttonRepresentation.Modified()
             self.buttonRepresentation.NeedToRenderOn()
-            if self.id == "Volume":
-                print "  ---> Set Volume constituent button opacity: ", str( opacity )
+            #if self.id == "Volume":
+            #    print "  ---> Set Volume constituent button opacity: ", str( opacity )
             
     def processKeyEvent( self, key, ctrl = 0 ):
         if self.processFunctionKey( key, ctrl ): 
