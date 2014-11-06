@@ -101,7 +101,7 @@ class PointCollectionExecutionTarget:
             elif args[0] == 'ROI':
                 data_packet = self.packPointsData()
             data_packet[ 'args' ] = args           
-            print "execute PointCollectionExecutionTarget(%s): init_args=[%s], result-> queue " % ( str(args), str(self.init_args) ); sys.stdout.flush()
+            #print "execute PointCollectionExecutionTarget(%s): init_args=[%s], result-> queue " % ( str(args), str(self.init_args) ); sys.stdout.flush()
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )

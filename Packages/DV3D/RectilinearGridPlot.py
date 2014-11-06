@@ -186,15 +186,15 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
             state = args[1]
-            print "OpacityScaling InitConfig, state = %d" % state
+            #print "OpacityScaling InitConfig, state = %d" % state
             self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
             if state: 
                 self.cs_bbar.show()
-                print "Show ConstituentSelectionBar: ", config_function.cfg_state
+                #print "Show ConstituentSelectionBar: ", config_function.cfg_state
             else:     
                 self.cs_bbar.hide()
                 self.cs_bbar = None
-                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
+                #print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility( islider, islider < len(config_function.sliderLabels) )   
@@ -204,7 +204,7 @@ class RectGridPlot(StructuredGridPlot):
              if self.cs_bbar <> None:
                  self.cs_bbar.hide()
                  self.cs_bbar = None
-                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
+                 #print "Hide ConstituentSelectionBar: ", config_function.cfg_state
         elif args and args[0] == "UpdateConfig":
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
@@ -231,11 +231,11 @@ class RectGridPlot(StructuredGridPlot):
             print "ColorScale InitConfig, state = %d" % state
             if state: 
                 self.cs_bbar.show()
-                print "Show ConstituentSelectionBar: ", config_function.cfg_state
+                #print "Show ConstituentSelectionBar: ", config_function.cfg_state
             else:     
                 self.cs_bbar.hide()
                 self.cs_bbar = None
-                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
+                #print "Hide ConstituentSelectionBar: ", config_function.cfg_state
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )  
@@ -245,7 +245,7 @@ class RectGridPlot(StructuredGridPlot):
              if self.cs_bbar <> None:
                  self.cs_bbar.hide()
                  self.cs_bbar = None
-                 print "Hide ConstituentSelectionBar: ", config_function.cfg_state                
+                 #print "Hide ConstituentSelectionBar: ", config_function.cfg_state
         elif args and args[0] == "UpdateConfig":
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
@@ -267,13 +267,13 @@ class RectGridPlot(StructuredGridPlot):
         if param <> None:
             prevState = param.getValue( 'ConfigEnabled', 1 ) 
             param.setValue( 'ConfigEnabled', state ) 
-            print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
+            #print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
             if ( prevState == 0 ) and state:
                 interactionButtons = self.getInteractionButtons()
                 b = interactionButtons.getActiveButton()
                 interaction_param = self.cfgManager.getParameter( b.id ) 
                 new_values = interaction_param.getValue( constituent, interaction_param.getValues() )
-                print " Reset sliders: ", str( new_values )
+                #print " Reset sliders: ", str( new_values )
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
                 interaction_param.loadConstituent( constituent )    

@@ -460,7 +460,7 @@ class DV3DPlot():
             self.processConfigStateChange( config_function.value )
             
     def processColorbarConstituentSelection( self, *args, **kwargs ):
-        print " Process Colorbar Constituent Selection: %s  " % str( args )
+        #print " Process Colorbar Constituent Selection: %s  " % str( args )
         constituent = self.plotConstituents.keys()[ args[2] ]
         colorbarParameter = self.cfgManager.getParameter( 'Colorbar' )
         colorbarParameter.setValue( 'ConstituentSelected', constituent )
@@ -526,7 +526,7 @@ class DV3DPlot():
     def updateAnimationControlBar(self, state, config_function ):
         bbar = self.getControlBar( config_function, [ ( "Step", "Run", "Stop" ), self.processAnimationStateChange ], mag=1.4 )
         if state == 1:
-            print " ** Displaying AnimationControlBar ** "
+            #print " ** Displaying AnimationControlBar ** "
             self.updateTextDisplay( config_function.label )
             bbar.show()
             if self.animating:
