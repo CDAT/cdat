@@ -859,6 +859,7 @@ class VTKVCSBackend(object):
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
               cot.SetNumberOfContours(len(l))
+              cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
                   cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
