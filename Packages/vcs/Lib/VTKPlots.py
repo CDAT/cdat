@@ -152,7 +152,6 @@ class VTKVCSBackend(object):
       # not catch configure Events but only modifiedEvents....
       return
     interactor = self.renWin.GetInteractor()
-    #self.logoWidget.SetInteractor( interactor )
     self._lastSize = sz
     plots_args = []
     key_args =[]
@@ -206,7 +205,6 @@ class VTKVCSBackend(object):
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
-    #self.logoWidget.SetInteractor( defaultInteractor )
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -1237,14 +1235,6 @@ class VTKVCSBackend(object):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
-        interactor = self.renWin.GetInteractor()
-        if interactor is None:
-          ## we need an interactor for logo to be dispalyed
-          interactor = vtk.vtkRenderWindowInteractor()
-          interactor.SetRenderWindow(self.renWin)
-          #self.logoWidget.SetInteractor(interactor)
-          #self.logoWidget.On()
-          #self.renWin.Render()
 
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
