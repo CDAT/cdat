@@ -59,7 +59,6 @@ class VTKVCSBackend(object):
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
-      #self.logoWidget.SetInteractor( interactor )
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -1331,23 +1330,12 @@ class VTKVCSBackend(object):
         self.logoRenderer = vtk.vtkRenderer()
         self.logoRenderer.AddViewProp(self.logoRepresentation)
         self.logoRepresentation.SetRenderer(self.logoRenderer)
-      #  self.logoWidget = vtk.vtkLogoWidget()
-      #  if self.renWin is not None:
-      #    interactor = self.renWin.GetInteractor()
-      #    self.logoWidget.SetInteractor( interactor )
-      #  self.logoWidget.SetRepresentation(self.logoRepresentation)
-      #  self.logoWidget.SelectableOff()
-      #  self.logoWidget.SetManagesCursor(0)
-      #  self.logoWidget.SetResizable(0)
 
   def scaleLogo(self):
-    if self.canvas.drawLogo is False:
-        return
-#    if self.logoWidget is None:
-    self.createLogo()
-    if self.renWin is not None:
-        self.setLayer(self.logoRenderer,1)
-        self.renWin.AddRenderer(self.logoRenderer)
+    if self.canvas.drawLogo:
+        if self.renWin is not None:
+            self.setLayer(self.logoRenderer,1)
+            self.renWin.AddRenderer(self.logoRenderer)
 
 class VTKAnimate(animate_helper.AnimationController):
    pass
