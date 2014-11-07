@@ -59,7 +59,7 @@ class VTKVCSBackend(object):
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
-      self.logoWidget.SetInteractor( interactor )
+      #self.logoWidget.SetInteractor( interactor )
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -153,7 +153,7 @@ class VTKVCSBackend(object):
       # not catch configure Events but only modifiedEvents....
       return
     interactor = self.renWin.GetInteractor()
-    self.logoWidget.SetInteractor( interactor )
+    #self.logoWidget.SetInteractor( interactor )
     self._lastSize = sz
     plots_args = []
     key_args =[]
@@ -207,7 +207,7 @@ class VTKVCSBackend(object):
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
-    self.logoWidget.SetInteractor( defaultInteractor )
+    #self.logoWidget.SetInteractor( defaultInteractor )
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -1243,8 +1243,8 @@ class VTKVCSBackend(object):
           ## we need an interactor for logo to be dispalyed
           interactor = vtk.vtkRenderWindowInteractor()
           interactor.SetRenderWindow(self.renWin)
-          self.logoWidget.SetInteractor(interactor)
-          self.logoWidget.On()
+          #self.logoWidget.SetInteractor(interactor)
+          #self.logoWidget.On()
           #self.renWin.Render()
 
         if not file.split('.')[-1].lower() in ['png']:
@@ -1328,25 +1328,26 @@ class VTKVCSBackend(object):
         self.logoRepresentation.SetPosition2( 0.10, 0.05 )
         self.logoRepresentation.GetImageProperty().SetOpacity( 1 )
         self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
-        self.logoWidget = vtk.vtkLogoWidget()
-        if self.renWin is not None:
-          interactor = self.renWin.GetInteractor()
-          self.logoWidget.SetInteractor( interactor )
-        self.logoWidget.SetRepresentation(self.logoRepresentation)
-        self.logoWidget.SelectableOff()
-        self.logoWidget.SetManagesCursor(0)
-        self.logoWidget.SetResizable(0)
+        self.logoRenderer = vtk.vtkRenderer()
+        self.logoRenderer.AddViewProp(self.logoRepresentation)
+        self.logoRepresentation.SetRenderer(self.logoRenderer)
+      #  self.logoWidget = vtk.vtkLogoWidget()
+      #  if self.renWin is not None:
+      #    interactor = self.renWin.GetInteractor()
+      #    self.logoWidget.SetInteractor( interactor )
+      #  self.logoWidget.SetRepresentation(self.logoRepresentation)
+      #  self.logoWidget.SelectableOff()
+      #  self.logoWidget.SetManagesCursor(0)
+      #  self.logoWidget.SetResizable(0)
 
   def scaleLogo(self):
     if self.canvas.drawLogo is False:
         return
-    if self.logoWidget is None:
-      self.createLogo()
+#    if self.logoWidget is None:
+    self.createLogo()
     if self.renWin is not None:
-        interactor = self.renWin.GetInteractor()
-        if interactor is not None:
-          self.logoWidget.SetInteractor( interactor )
-          self.logoWidget.On()
+        self.setLayer(self.logoRenderer,1)
+        self.renWin.AddRenderer(self.logoRenderer)
 
 class VTKAnimate(animate_helper.AnimationController):
    pass
