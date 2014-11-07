@@ -362,7 +362,7 @@ class RectGridPlot(StructuredGridPlot):
             config_function.setRangeBounds( init_range ) 
             if config_function.initial_value == None:
                 config_function.initial_value = 0.0 if (plane_index == 2) else init_range 
-            pos = config_function.initial_value[0]
+            pos = config_function.initial_value[0] if hasattr( config_function.initial_value, '__getitem__' ) else config_function.initial_value
             if plane_index == 2:
                 slicePosition.setValue( 'relative',  pos ) 
                 pos = plane_widget.SetSlicePositionFromRelative( pos )

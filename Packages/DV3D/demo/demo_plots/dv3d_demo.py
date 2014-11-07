@@ -9,7 +9,7 @@ import sys
 import os, time
 import subprocess, signal 
 
-demo_index = '4'
+demo_index = '5'
 background_render = 0
 bgX=2048
 bgY=1024
@@ -74,7 +74,12 @@ elif demo_index == '4':
     is_vector = True
     dv3d_v.VerticalScaling = 4.0 
     dv3d_v.BasemapOpacity = 0.0 
-    
+
+elif demo_index == '5': 
+    varname = "tmpu"
+    v = f[varname]
+    dv3d.ToggleVolumePlot = vcs.off
+        
 else:
     print>>sys.stderr, "Unknown demo index: ", demo_index
 

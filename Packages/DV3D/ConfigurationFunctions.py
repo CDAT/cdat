@@ -978,7 +978,7 @@ class InputSpecs:
         plotType = self.metadata[ 'plotType' ]                   
         world_coords = None
         try:
-            if plotType == 'zyt':
+            if plotType == 'xyt':
                 lat = self.metadata[ 'lat' ]
                 lon = self.metadata[ 'lon' ]
                 timeAxis = self.metadata[ 'time' ]
@@ -1001,7 +1001,7 @@ class InputSpecs:
         plotType = self.metadata[ 'plotType' ]                   
         world_coords = None
         try:
-            if plotType == 'zyt':
+            if plotType == 'xyt':
                 lat = self.metadata[ 'lat' ]
                 lon = self.metadata[ 'lon' ]
                 timeAxis = self.metadata[ 'time' ]
@@ -1022,20 +1022,23 @@ class InputSpecs:
     
     def getWorldCoord( self, image_coord, iAxis, latLonGrid  ):
         plotType = self.metadata[ 'plotType' ] 
-        if plotType == 'zyt':                  
+        if plotType == 'xyt':                  
             axisNames = [ 'Longitude', 'Latitude', 'Time' ] if latLonGrid else [ 'X', 'Y', 'Time' ]
         else:
             axisNames =  [ 'Longitude', 'Latitude', 'Level' ] if latLonGrid else [ 'X', 'Y', 'Level' ]
         try:
-            axes = [ 'lon', 'lat', 'time' ] if plotType == 'zyt'  else [ 'lon', 'lat', 'lev' ]
+            axes = [ 'lon', 'lat', 'time' ] if plotType == 'xyt'  else [ 'lon', 'lat', 'lev' ]
+#             if ( plotType == 'xyz') and  ( iAxis == 2 ): 
+#                 lev_ordering = self.metadata.get( 'lev_ordering', 'up')
+#                 if lev_ordering == 'down': image_coord = - ( image_coord + 1 )
             world_coord = self.metadata[ axes[iAxis] ][ image_coord ]
-            if ( plotType == 'zyt') and  ( iAxis == 2 ):
+            if ( plotType == 'xyt') and  ( iAxis == 2 ):
                 timeAxis = self.metadata[ 'time' ]     
                 timeValue = cdtime.reltime( float( world_coord ), timeAxis.units ) 
                 world_coord = str( timeValue.tocomp() )          
             return axisNames[iAxis], getFloatStr( world_coord )
         except:
-            if (plotType == 'zyx') or (iAxis < 2):
+            if (plotType == 'xyz') or (iAxis < 2):
                 gridSpacing = self.input().GetSpacing()
                 gridOrigin = self.input().GetOrigin()
                 return axes[iAxis], getFloatStr( gridOrigin[iAxis] + image_coord*gridSpacing[iAxis] ) 
@@ -1043,23 +1046,23 @@ class InputSpecs:
 
     def getImageCoord( self, model_coord, iAxis, latLonGrid  ):
         plotType = self.metadata[ 'plotType' ] 
-        if plotType == 'zyt':                  
+        if plotType == 'xyt':                  
             axisNames = [ 'Longitude', 'Latitude', 'Time' ] if latLonGrid else [ 'X', 'Y', 'Time' ]
         else:
             axisNames =  [ 'Longitude', 'Latitude', 'Level' ] if latLonGrid else [ 'X', 'Y', 'Level' ]
         try:
-            axes = [ 'lon', 'lat', 'time' ] if plotType == 'zyt'  else [ 'lon', 'lat', 'lev' ]
+            axes = [ 'lon', 'lat', 'time' ] if plotType == 'xyt'  else [ 'lon', 'lat', 'lev' ]
             mdata = self.metadata[ axes[iAxis] ]
             
             
             
-            if ( plotType == 'zyt') and  ( iAxis == 2 ):
+            if ( plotType == 'xyt') and  ( iAxis == 2 ):
                 timeAxis = self.metadata[ 'time' ]     
                 timeValue = cdtime.reltime( float( world_coord ), timeAxis.units ) 
                 world_coord = str( timeValue.tocomp() )          
             return axisNames[iAxis], getFloatStr( world_coord )
         except:
-            if (plotType == 'zyx') or (iAxis < 2):
+            if (plotType == 'xyz') or (iAxis < 2):
                 gridSpacing = self.input().GetSpacing()
                 gridOrigin = self.input().GetOrigin()
                 return axes[iAxis], getFloatStr( gridOrigin[iAxis] + image_coord*gridSpacing[iAxis] ) 

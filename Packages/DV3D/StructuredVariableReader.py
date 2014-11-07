@@ -511,10 +511,12 @@ class StructuredDataReader:
             if not lat_axis is None: vmd[ 'lat' ] =  lat_axis.getValue()  
             lon_axis= var.getLongitude()  
             if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
-            lev_axis= var.getLevel()  
+            lev_axis= var.getLevel() 
             if not lev_axis is None:
+                lev_ordering_downward =  self.levOrderingDownward( lev_axis )
                 lev_data = lev_axis.getValue()  
-                vmd[ 'lev' ] =  lev_data[::-1] if ( hasattr( lev_axis, 'positive') and ( lev_axis.positive == 'down' ) ) else lev_data
+                vmd[ 'lev' ] =  lev_data[::-1] if lev_ordering_downward else lev_data
+                vmd[ 'lev_ordering' ] = 'down' if lev_ordering_downward else 'up'
             vmd[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
              
             enc_mdata = encodeToString( vmd ) 
@@ -522,7 +524,14 @@ class StructuredDataReader:
                 fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) ) 
                 vars.append( varName )                   
         fieldData.AddArray( getStringDataArray( 'varlist',  vars  ) ) 
-        
+           
+    def levOrderingDownward( self, lev_axis ):
+        values = lev_axis.getValue()  
+        ascending_values = ( values[-1] > values[0] )
+        if   lev_axis.attributes.get( 'positive', '' ) == 'down' and ascending_values:   return True
+        elif lev_axis.attributes.get( 'positive', '' ) == 'up' and not ascending_values: return True
+        return False
+       
     def getFieldData( self ):
         if self.fieldData == None:
             self.initializeMetadata()
@@ -657,8 +666,10 @@ class StructuredDataReader:
                         if not axis is None: md[ 'lat' ] =  axis.getValue()
                         axis = tvar.getLevel()
                         if not axis is None: 
+                            lev_ordering_downward = self.levOrderingDownward( axis )
                             lev_data = axis.getValue() 
-                            md[ 'lev' ] =  lev_data[::-1] if ( hasattr( axis, 'positive') and ( axis.positive == 'down' ) ) else lev_data
+                            md[ 'lev' ] =  lev_data[::-1] if lev_ordering_downward else lev_data
+                            md[ 'lev_ordering' ] = 'down' if lev_ordering_downward else 'up'
                         axis = tvar.getTime()
                         if not axis is None: md[ 'time' ] =  [ str(tc) for tc in axis.asComponentTime() ]
                         else: md[ 'time' ] =  md[ 'base_time' ] 
