@@ -9,7 +9,7 @@ import sys
 import os, time
 import subprocess, signal 
 
-demo_index = '1'
+demo_index = '4'
 background_render = 0
 bgX=2048
 bgY=1024
