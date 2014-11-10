@@ -25,6 +25,11 @@ defaultMapCut = -180
 SLIDER_MAX_VALUE = 100
 MAX_IMAGE_SIZE = 1000000
 
+def isNumerical( vals ):
+    for val in vals:
+        if type( val ) not in [ int, float ]: return False  
+    return True
+        
 class CDMSDataType:
     Volume = 1
     Slice = 2
@@ -245,7 +250,7 @@ class ConfigManager:
 #                print "Getting config param from parent: ", param_name 
                 cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
-            self.parameters[ param_name ] = cparm
+            self.addParam( param_name, cparm )
         return cparm
             
 #     def getParameter( self, param_name, **args ):
@@ -262,14 +267,16 @@ class ConfigManager:
 #         return cparm
      
     def setParameter( self, param_name, data, **args ):
-        if isinstance( data, str ): 
-            try: data = ast.literal_eval( data )
-            except ValueError: pass
         param = self.getParameter( param_name, **args )
-#        pdata = data if hasattr( data, '__iter__' ) else [ data ]
-        param.setInitValue( data )
-#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
-
+        if data == None:
+            param.setInitValue( args )
+        else:
+            if isinstance( data, str ): 
+                try: data = ast.literal_eval( data )
+                except ValueError: pass
+    #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
+            param.setInitValue( data )
+    #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -277,7 +284,7 @@ class ConfigManager:
         if param_name == 'Camera':
             value = str( param.values )
         else:
-            value = param.getValues()
+            value = str( param.getValues() )
             if param.getState(): value = value + ", vcs.on"
         return value
 
@@ -298,7 +305,6 @@ class ConfigManager:
 
     def addParam(self, key ,cparm ):
         self.parameters[ key ] = cparm
-#        print "Add param[%s]" % key
                      
     def saveConfig( self ):
         try:
@@ -442,6 +448,7 @@ class ConfigManager:
             from Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
         else:
+            pass
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
             p1 = RectGridPlot(cm=self,display=False) 
@@ -505,20 +512,26 @@ class ConfigParameter:
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
         self.parent = args.get( 'parent', None ) 
+        self.stateKeyList = []
         if self.parent<> None: 
             self.parent.addChild( self )
             self.values.update( self.parent.values )
             self.valueKeyList = list( self.parent.values.keys() )
+            plist = makeList( self.parent.getValue(0) )
+            if plist <> None:
+                for pval in plist:
+                    if   pval == "vcs.on":    self.setValue('state',1)
+                    elif pval == "vcs.off":   self.setValue('state',0)
         else:
             self.values.update( args )
             self.valueKeyList = list( args.keys() )
-        self.stateKeyList = []
 #        self.scaling_bounds = None
       
     def addChild(self, child ): 
         self.children.add( child )  
           
     def serializeState( self, **args ):
+        #print " serializeState: ", self.varname, ", Keys: ", str( self.stateKeyList )
         if len( self.stateKeyList ) == 0:
             return None
         state_parms = {}
@@ -537,7 +550,7 @@ class ConfigParameter:
             return
         self.values.update( state )
         self.values[ 'init' ] = self.getValues()
-        print " --> Restore state [%s] : %s " % ( self.name, stateData )
+        #print " --> Restore state [%s] : %s " % ( self.name, stateData )
                                     
     def __str__(self):
         return " ConfigParameter[%s]: %s " % ( self.name, str( self.values ) )
@@ -580,6 +593,11 @@ class ConfigParameter:
             self.addValueKey( item[0] )
         args1.append( self.name )
         self.ValueChanged( args1 )
+        
+    def loadConstituent( self, constituent ):
+        cvals = self.values.get( constituent, None )
+        if cvals <> None:
+            self.setValues( cvals )
          
     def getName(self):
         return self.name
@@ -614,9 +632,11 @@ class ConfigParameter:
             for val_item in value.items():
                 self.setValue( val_item[0], val_item[1], update )
         elif ( type( value ) == tuple ):
-            for val_item in value:
-                self.setInitValue( val_item, update )
-            self.setValues( value  )
+            if isNumerical( value ):
+                self.setValues( value  )
+                self.setValue( 'init', value, update )
+            else:
+                for val_item in value: self.setInitValue( val_item, update )
         else:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )
@@ -958,7 +978,7 @@ class InputSpecs:
         plotType = self.metadata[ 'plotType' ]                   
         world_coords = None
         try:
-            if plotType == 'zyt':
+            if plotType == 'xyt':
                 lat = self.metadata[ 'lat' ]
                 lon = self.metadata[ 'lon' ]
                 timeAxis = self.metadata[ 'time' ]
@@ -981,7 +1001,7 @@ class InputSpecs:
         plotType = self.metadata[ 'plotType' ]                   
         world_coords = None
         try:
-            if plotType == 'zyt':
+            if plotType == 'xyt':
                 lat = self.metadata[ 'lat' ]
                 lon = self.metadata[ 'lon' ]
                 timeAxis = self.metadata[ 'time' ]
@@ -1002,20 +1022,47 @@ class InputSpecs:
     
     def getWorldCoord( self, image_coord, iAxis, latLonGrid  ):
         plotType = self.metadata[ 'plotType' ] 
-        if plotType == 'zyt':                  
+        if plotType == 'xyt':                  
             axisNames = [ 'Longitude', 'Latitude', 'Time' ] if latLonGrid else [ 'X', 'Y', 'Time' ]
         else:
             axisNames =  [ 'Longitude', 'Latitude', 'Level' ] if latLonGrid else [ 'X', 'Y', 'Level' ]
         try:
-            axes = [ 'lon', 'lat', 'time' ] if plotType == 'zyt'  else [ 'lon', 'lat', 'lev' ]
+            axes = [ 'lon', 'lat', 'time' ] if plotType == 'xyt'  else [ 'lon', 'lat', 'lev' ]
+#             if ( plotType == 'xyz') and  ( iAxis == 2 ): 
+#                 lev_ordering = self.metadata.get( 'lev_ordering', 'up')
+#                 if lev_ordering == 'down': image_coord = - ( image_coord + 1 )
             world_coord = self.metadata[ axes[iAxis] ][ image_coord ]
-            if ( plotType == 'zyt') and  ( iAxis == 2 ):
+            if ( plotType == 'xyt') and  ( iAxis == 2 ):
                 timeAxis = self.metadata[ 'time' ]     
                 timeValue = cdtime.reltime( float( world_coord ), timeAxis.units ) 
                 world_coord = str( timeValue.tocomp() )          
             return axisNames[iAxis], getFloatStr( world_coord )
         except:
-            if (plotType == 'zyx') or (iAxis < 2):
+            if (plotType == 'xyz') or (iAxis < 2):
+                gridSpacing = self.input().GetSpacing()
+                gridOrigin = self.input().GetOrigin()
+                return axes[iAxis], getFloatStr( gridOrigin[iAxis] + image_coord*gridSpacing[iAxis] ) 
+            return axes[iAxis], ""
+
+    def getImageCoord( self, model_coord, iAxis, latLonGrid  ):
+        plotType = self.metadata[ 'plotType' ] 
+        if plotType == 'xyt':                  
+            axisNames = [ 'Longitude', 'Latitude', 'Time' ] if latLonGrid else [ 'X', 'Y', 'Time' ]
+        else:
+            axisNames =  [ 'Longitude', 'Latitude', 'Level' ] if latLonGrid else [ 'X', 'Y', 'Level' ]
+        try:
+            axes = [ 'lon', 'lat', 'time' ] if plotType == 'xyt'  else [ 'lon', 'lat', 'lev' ]
+            mdata = self.metadata[ axes[iAxis] ]
+            
+            
+            
+            if ( plotType == 'xyt') and  ( iAxis == 2 ):
+                timeAxis = self.metadata[ 'time' ]     
+                timeValue = cdtime.reltime( float( world_coord ), timeAxis.units ) 
+                world_coord = str( timeValue.tocomp() )          
+            return axisNames[iAxis], getFloatStr( world_coord )
+        except:
+            if (plotType == 'xyz') or (iAxis < 2):
                 gridSpacing = self.input().GetSpacing()
                 gridOrigin = self.input().GetOrigin()
                 return axes[iAxis], getFloatStr( gridOrigin[iAxis] + image_coord*gridSpacing[iAxis] ) 
