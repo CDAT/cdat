@@ -337,7 +337,7 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
 
     if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+        if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
             ren = self.createRenderer()
@@ -351,7 +351,7 @@ class VTKVCSBackend(object):
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm)
-    elif gtype in ["3d_scalar", "3d_vector"]:
+    elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
       if not cdms_var is None:
@@ -506,11 +506,10 @@ class VTKVCSBackend(object):
     renderer.SetLayer(n)
     pass
 
-
-
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      self.canvas.drawLogo = False
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
