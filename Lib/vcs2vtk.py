@@ -43,26 +43,27 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
             grid2 = vtk.vtkUnstructuredGrid()
           grid2.CopyStructure(grid)
           geoFilter = vtk.vtkDataSetSurfaceFilter()
+          lut = vtk.vtkLookupTable()
+          r,g,b = actorColor
+          lut.SetNumberOfTableValues(2)
           if not cellData:
               grid2.GetPointData().SetScalars(imsk)
               #grid2.SetCellVisibilityArray(imsk)
               p2c = vtk.vtkPointDataToCellData()
               p2c.SetInputData(grid2)
               geoFilter.SetInputConnection(p2c.GetOutputPort())
+              #lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
+              #lut.SetTableValue(1,r/100.,g/100.,b/100.,0.)
           else:
               grid2.GetCellData().SetScalars(imsk)
-              geoFilter.SetInputData(grid)
+              geoFilter.SetInputData(grid2)
+          lut.SetTableValue(0,r/100.,g/100.,b/100.,0.)
+          lut.SetTableValue(1,r/100.,g/100.,b/100.,1.)
           geoFilter.Update()
           mapper = vtk.vtkPolyDataMapper()
           mapper.SetInputData(geoFilter.GetOutput())
-          lut = vtk.vtkLookupTable()
-          lut.SetNumberOfTableValues(1)
-          r,g,b = actorColor
-          lut.SetNumberOfTableValues(2)
-          lut.SetTableValue(0,r/100.,g/100.,b/100.)
-          lut.SetTableValue(1,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
-          mapper.SetScalarRange(1,1)
+          mapper.SetScalarRange(0,1)
       if grid.IsA("vtkStructuredGrid"):
         if not cellData:
           grid.SetPointVisibilityArray(msk)

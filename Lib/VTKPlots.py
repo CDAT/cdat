@@ -337,7 +337,7 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
 
     if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+        if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
             ren = self.createRenderer()
@@ -351,7 +351,7 @@ class VTKVCSBackend(object):
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm)
-    elif gtype in ["3d_scalar", "3d_vector"]:
+    elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
       if not cdms_var is None:
@@ -500,17 +500,16 @@ class VTKVCSBackend(object):
         del(vcs.elements["line"][legd.name])
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000
+    n = self.numberOfPlotCalls + (priority-1)*10000+1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
     pass
 
-
-
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      self.canvas.drawLogo = False
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
@@ -908,16 +907,27 @@ class VTKVCSBackend(object):
           levs = numpy.arange(levs[0],levs[-1]+dx,dx)
         else:
           if gm.boxfill_type=="log10":
-              levs = vcs.mkscale(numpy.ma.log10(gm.level_1),numpy.ma.log10(gm.level_2))
+              levslbls = vcs.mkscale(numpy.ma.log10(gm.level_1),numpy.ma.log10(gm.level_2))
+              levs = vcs.mkevenlevels(numpy.ma.log10(gm.level_1),
+                      numpy.ma.log10(gm.level_2),
+                      nlev=(gm.color_2-gm.color_1)+1)
           else:
-              levs = vcs.mkscale(gm.level_1,gm.level_2)
-          legend = vcs.mklabels(levs)
+              levslbls = vcs.mkscale(gm.level_1,gm.level_2)
+              levs = vcs.mkevenlevels(gm.level_1,gm.level_2,nlev=(gm.color_2-gm.color_1)+1)
+          if len(levs)>25:
+              ## Too many colors/levels need to prettyfy this for legend
+              legend = vcs.mklabels(levslbls)
+              ## Make sure extremes are in
+              legd2=vcs.mklabels([levs[0],levs[-1]])
+              legend.update(legd2)
+          else:
+              legend = vcs.mklabels(levs)
           if gm.boxfill_type=="log10":
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
-          levs = numpy.arange(levs[0],levs[-1]+dx,dx)
+          #dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
+          #levs = numpy.arange(levs[0],levs[-1]+dx,dx)
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
@@ -975,6 +985,9 @@ class VTKVCSBackend(object):
       mapper.SetScalarRange(lmn,lmx)
 
     if missingMapper is not None:
+      if isinstance(gm,meshfill.Gfm):
+        mappers.append(missingMapper)
+      else:
         mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
