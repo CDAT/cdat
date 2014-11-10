@@ -382,5 +382,13 @@ add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
       "${BASELINE_DIR}/test_vcs_close.png"
       )
+
+    add_test(vcs_test_basic_isofill_bigvalues
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py"
+      --gm_type=isofill
+      --bigvalues
+      "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
+      )
   endif()
 
