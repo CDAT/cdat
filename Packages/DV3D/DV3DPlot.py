@@ -333,7 +333,6 @@ class DV3DPlot():
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
-            self.recordCamera()
             self.saveState()
         self.onClosing()
         sys.exit( 0 )
@@ -405,6 +404,7 @@ class DV3DPlot():
             self.changeButtonActivation( *activation_spec )
                         
     def saveState(self, **args): 
+        self.recordCamera()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
