@@ -868,7 +868,6 @@ class VTKVCSBackend(object):
               lut.SetNumberOfTableValues(len(COLS[i]))
               for j,color in enumerate(COLS[i]):
                   r,g,b = cmap.index[color]
-                  print "lut:",j,color,r/100.,g/100.,b/100.,r*2.55,g*2.55,b*2.55
                   lut.SetTableValue(j,r/100.,g/100.,b/100.)
                   #print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
               mapper.SetLookupTable(lut)
