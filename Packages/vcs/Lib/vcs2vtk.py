@@ -858,6 +858,31 @@ def prepFillarea(renWin,ren,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
     return
+
+  # Find color map:
+  if cmap is None:
+    if farea.colormap is not None:
+      cmap = farea.colormap
+    else:
+      cmap = 'default'
+  if isinstance(cmap,str):
+    cmap = vcs.elements["colormap"][cmap]
+
+  # Create data structures:
+  pts = vtk.vtkPoints()
+  polygons = vtk.vtkCellArray()
+  colors = vtk.vtkUnsignedCharArray()
+  colors.SetNumberOfComponents(3)
+  colors.SetNumberOfTuples(n)
+  polygonPolyData = vtk.vtkPolyData()
+  polygonPolyData.SetPoints(pts)
+  polygonPolyData.SetPolys(polygons)
+  polygonPolyData.GetCellData().SetScalars(colors)
+
+  # Reuse this temporary container to avoid reallocating repeatedly:
+  polygon = vtk.vtkPolygon()
+
+  # Iterate through polygons:
   for i in range(n):
     x   = farea.x[i]
     y   = farea.y[i]
@@ -865,44 +890,32 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     st  = farea.style[i]
     idx = farea.index[i]
     N = max(len(x),len(y))
+
     for a in [x,y]:
-      while len(a)<n:
-        a.append(a[-1])
-    #Create points
-    pts = vtk.vtkPoints()
-    for j in range(N):
-      pts.InsertNextPoint(x[j],y[j],0.)
-    #Create polygon out of these points
-    polygon = vtk.vtkPolygon()
+      assert(len(a) == N)
+
+    # Add current polygon
     pid = polygon.GetPointIds()
     pid.SetNumberOfIds(N)
     for j in range(N):
-      pid.SetId(j,j)
-    polygons = vtk.vtkCellArray()
-    polygons.InsertNextCell(polygon)
+      pid.SetId(j, pts.InsertNextPoint(x[j],y[j],0.))
+    cellId = polygons.InsertNextCell(polygon)
 
-    polygonPolyData = vtk.vtkPolyData()
-    geo,pts = project(pts,farea.projection,farea.worldcoordinate)
-    polygonPolyData.SetPoints(pts)
-    polygonPolyData.SetPolys(polygons)
-
-    a = vtk.vtkActor()
-    m = vtk.vtkPolyDataMapper()
-    m.SetInputData(polygonPolyData)
-    a.SetMapper(m)
-    p = a.GetProperty()
-
-    if cmap is None:
-      if farea.colormap is not None:
-        cmap = farea.colormap
-      else:
-        cmap = 'default'
-    if isinstance(cmap,str):
-      cmap = vcs.elements["colormap"][cmap]
+    # Add the color to the color array:
     color = cmap.index[c]
-    p.SetColor([C/100. for C in color])
-    ren.AddActor(a)
-    fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
+    colors.SetTupleValue(cellId, [int((C/100.) * 255) for C in color])
+
+  # Transform points:
+  geo,pts = project(pts,farea.projection,farea.worldcoordinate)
+
+  # Setup rendering
+  m = vtk.vtkPolyDataMapper()
+  m.SetInputData(polygonPolyData)
+  a = vtk.vtkActor()
+  a.SetMapper(m)
+
+  fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
+  ren.AddActor(a)
   return
 
 def genPoly(coords,pts,filled=True):
