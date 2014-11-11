@@ -1049,7 +1049,6 @@ class VTKVCSBackend(object):
         ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
         if tmpl.data.priority>0:
             ren.AddActor(act)
-            print "Data render prio:",tmpl.data.priority
             self.setLayer(ren,tmpl.data.priority)
 
     if isinstance(gm,meshfill.Gfm):
@@ -1076,7 +1075,6 @@ class VTKVCSBackend(object):
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
-    print "Ok contients:",continents,x1,x2,y1,y2
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
@@ -1103,18 +1101,12 @@ class VTKVCSBackend(object):
       else:
           geo=None
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
-      print "nactors aft cont fit",ren.GetActors().GetNumberOfItems()
       if tmpl.data.priority!=0:
-        print "Yes we come here",tmpl.data.priority
         self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(contActor)
         col = ren.GetActors()
-        print "We have %i actors:"%col.GetNumberOfItems()
         col.InitTraversal()
         n=col.GetNextActor()
-        while (n):
-            print "BOUNDS:",n.GetBounds()
-            n=col.GetNextActor()
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
@@ -1481,14 +1473,10 @@ class VTKVCSBackend(object):
           yScale = dRatio/(vRatio*wRatio)
       ## Ok now we know scaling and vp, let's see if we did this already.
       if (vp,xScale,yScale) in self._renderers.keys():
-        if vp[0]!=0.:
-              print "REUSING",vp,wc
         #yep already have one, we will use this Renderer
         Renderer = self._renderers[(vp,xScale,yScale)]
         didRenderer = True
       else:
-        if vp[0]!=0. :
-          print "Creating",vp,wc
         Renderer = self.createRenderer()
         self.renWin.AddRenderer(Renderer)
         self._renderers[(vp,xScale,yScale)]=Renderer
@@ -1538,8 +1526,6 @@ class VTKVCSBackend(object):
               plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
               plane = planeCollection.GetNextItem()
 
-      if vp[0]!=0.:
-        print "ok flips are:",flipY,flipX,didRenderer
       if not didRenderer:
         xc = xScale*float(Xrg[1]+Xrg[0])/2.
         yc = yScale*float(Yrg[1]+Yrg[0])/2.
@@ -1551,8 +1537,6 @@ class VTKVCSBackend(object):
         cd = cam.GetDistance()
         cam.SetPosition(xc,yc,cd)
         cam.SetFocalPoint(xc,yc,0.)
-        if vp[0]!=0.:
-            print "ok nums are:",xc,yc,cd,flipY,flipX,didRenderer
         if geo is None:
           if flipY:
             cam.Elevation(180.)
