@@ -41,6 +41,14 @@ add_test(vcs_test_clear_empy_canvas
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_clear_empty_canvas.py
   )
+add_test(vcs_test_interact_no_open
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_open.py
+  )
+add_test(vcs_test_interact_no_plot
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_plot.py
+  )
 
 add_test(vcs_test_colorcells
   ${CMAKE_INSTALL_PREFIX}/bin/python
