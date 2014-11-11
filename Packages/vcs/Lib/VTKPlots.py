@@ -337,7 +337,7 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
 
     if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+        if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
             ren = self.createRenderer()
@@ -351,7 +351,7 @@ class VTKVCSBackend(object):
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm)
-    elif gtype in ["3d_scalar", "3d_vector"]:
+    elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
       if not cdms_var is None:
@@ -506,11 +506,10 @@ class VTKVCSBackend(object):
     renderer.SetLayer(n)
     pass
 
-
-
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      self.canvas.drawLogo = False
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
@@ -826,7 +825,7 @@ class VTKVCSBackend(object):
                     ## ok it's an extension arrow
                     L=[mn-1.,levs[0][1]]
                 else:
-                    L = levs[i]
+                    L = list(levs[i])
                 I = [indices[i],]
             else:
                 if l[0] == L[-1] and I[-1]==indices[i]:
@@ -859,8 +858,9 @@ class VTKVCSBackend(object):
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
               cot.SetNumberOfContours(len(l))
+              cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
-                  cot.SetValue(j,v)
+                cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
               cot.Update()
               mapper.SetInputConnection(cot.GetOutputPort())
@@ -1028,12 +1028,12 @@ class VTKVCSBackend(object):
       if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
+          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
             levs.insert(0,-1.e20)
       if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.allclose(levs[-1][-1],1.e20)):
+          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
             levs.append(1.e20)
 
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
