@@ -7,8 +7,8 @@ x=vcs.init()
 f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
 s=f("clt",slice(0,1),squeeze=1)
 b=x.createboxfill()
-b.level_1=20
-b.level_2=80
+b.level_1=.5
+b.level_2=14.5
 x.plot(s,b,bg=1)
 
 fnm= "test_boxfill_lev1_lev2.png"

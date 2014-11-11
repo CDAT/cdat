@@ -341,7 +341,7 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
 
     if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+        if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
             #print "Calling 1"
@@ -359,7 +359,7 @@ class VTKVCSBackend(object):
     vtkGeo = kargs.get("vtkGeo",None)
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       returned_kargs["vtkGrid"],returned_kargs["vtkGeo"] = self.plot2D(data1,data2,tpl,gm,vtkGrid=vtkGrid,vtkGeo=vtkGeo)
-    elif gtype in ["3d_scalar", "3d_vector"]:
+    elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
       if not cdms_var is None:
@@ -537,17 +537,16 @@ class VTKVCSBackend(object):
         del(vcs.elements["line"][legd.name])
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000
+    n = self.numberOfPlotCalls + (priority-1)*10000+1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
     pass
 
-
-
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      self.canvas.drawLogo = False
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
@@ -863,7 +862,7 @@ class VTKVCSBackend(object):
                     ## ok it's an extension arrow
                     L=[mn-1.,levs[0][1]]
                 else:
-                    L = levs[i]
+                    L = list(levs[i])
                 I = [indices[i],]
             else:
                 if l[0] == L[-1] and I[-1]==indices[i]:
@@ -896,8 +895,9 @@ class VTKVCSBackend(object):
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
               cot.SetNumberOfContours(len(l))
+              cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
-                  cot.SetValue(j,v)
+                cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
               cot.Update()
               mapper.SetInputConnection(cot.GetOutputPort())
@@ -944,16 +944,27 @@ class VTKVCSBackend(object):
           levs = numpy.arange(levs[0],levs[-1]+dx,dx)
         else:
           if gm.boxfill_type=="log10":
-              levs = vcs.mkscale(numpy.ma.log10(gm.level_1),numpy.ma.log10(gm.level_2))
+              levslbls = vcs.mkscale(numpy.ma.log10(gm.level_1),numpy.ma.log10(gm.level_2))
+              levs = vcs.mkevenlevels(numpy.ma.log10(gm.level_1),
+                      numpy.ma.log10(gm.level_2),
+                      nlev=(gm.color_2-gm.color_1)+1)
           else:
-              levs = vcs.mkscale(gm.level_1,gm.level_2)
-          legend = vcs.mklabels(levs)
+              levslbls = vcs.mkscale(gm.level_1,gm.level_2)
+              levs = vcs.mkevenlevels(gm.level_1,gm.level_2,nlev=(gm.color_2-gm.color_1)+1)
+          if len(levs)>25:
+              ## Too many colors/levels need to prettyfy this for legend
+              legend = vcs.mklabels(levslbls)
+              ## Make sure extremes are in
+              legd2=vcs.mklabels([levs[0],levs[-1]])
+              legend.update(legd2)
+          else:
+              legend = vcs.mklabels(levs)
           if gm.boxfill_type=="log10":
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
-          levs = numpy.arange(levs[0],levs[-1]+dx,dx)
+          #dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
+          #levs = numpy.arange(levs[0],levs[-1]+dx,dx)
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
@@ -1011,6 +1022,9 @@ class VTKVCSBackend(object):
       mapper.SetScalarRange(lmn,lmx)
 
     if missingMapper is not None:
+      if isinstance(gm,meshfill.Gfm):
+        mappers.append(missingMapper)
+      else:
         mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
@@ -1051,12 +1065,12 @@ class VTKVCSBackend(object):
       if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
+          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
             levs.insert(0,-1.e20)
       if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.allclose(levs[-1][-1],1.e20)):
+          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
             levs.append(1.e20)
 
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
@@ -1285,6 +1299,9 @@ class VTKVCSBackend(object):
 
   def svg(self, file, width=None, height=None, units=None):
       return self.vectorGraphics("svg", file, width, height, units)
+
+  def gif(self,filename='noname.gif', merge='r', orientation=None, geometry='1600x1200'):
+    raise RuntimeError("gif method not implemented in VTK backend yet")
 
   def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
 

@@ -64,6 +64,7 @@ class Button:
         self.buttonWidget.SetRepresentation( self.buttonRepresentation )
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
+        self.buttonWidget.SetPriority(1.0)
         self.updateWidgetState()
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
@@ -73,6 +74,8 @@ class Button:
 
     def setState(self, value):
         self._state = value
+        self.buttonRepresentation.Highlight( self._state )
+        self.setToggleProps()
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
         self.updateWidgetState()
@@ -135,13 +138,17 @@ class Button:
     def setToggleProps(self, state = None ):
         if self.toggle:
             prop = self.buttonRepresentation.GetProperty()
-            prop.SetOpacity( 0.4 if ( self.getState() == 0 ) else 1.0 )
+            opacity = 0.4 if ( self.getState() == 0 ) else 1.0
+            prop.SetOpacity( opacity )
             self.buttonRepresentation.SetProperty(prop)
             prop = self.buttonRepresentation.GetHoveringProperty()
-            prop.SetOpacity( 0.7 if ( self.getState() == 0 ) else 1.0 )
+            h_opacity = 0.7 if ( self.getState() == 0 ) else 1.0
+            prop.SetOpacity( h_opacity )
             self.buttonRepresentation.SetHoveringProperty(prop)
             self.buttonRepresentation.Modified()
             self.buttonRepresentation.NeedToRenderOn()
+            #if self.id == "Volume":
+            #    print "  ---> Set Volume constituent button opacity: ", str( opacity )
             
     def processKeyEvent( self, key, ctrl = 0 ):
         if self.processFunctionKey( key, ctrl ): 
@@ -158,8 +165,7 @@ class Button:
         self.setState(state)
         self.setToggleProps()       
 
-    def processStateChangeEvent( self, obj, event ):
-#        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
+    def processStateChangeEvent( self, obj, event, indirect = False ):
         self.invokingEvent = True 
         self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates )      
         self.invokingEvent = False
@@ -185,6 +191,7 @@ class Button:
         self.PublicStateChangedSignal( self.id, self.key, state )
         
     def place( self, bounds ):
+ #       print " Place Button %s: %s " % ( self.id, str( bounds ) )
         self.buttonRepresentation.PlaceWidget( bounds )
         
     def size(self):
@@ -193,18 +200,22 @@ class Button:
     def On(self):
         if self.active:
             self.buttonWidget.On()
+#            print " Button %s on " % self.id
 
     def Off(self):
         self.buttonWidget.Off()
+#         if self.id == "Step":
+#             print " Button %s off " % self.id
         
     def activate(self):
         self.active = True
         self.buttonWidget.On()
+#        print " Button %s on " % self.id
 
     def deactivate(self):
         self.active = False
-        self.buttonWidget.Off()
-        
+        self.Off()
+                    
 class ButtonBarHandler:
     
     def __init__( self, cfgMgr, **args ):
@@ -226,7 +237,7 @@ class ButtonBarHandler:
             if 'position' not in args:      args[ 'position' ]    = ( 0.55, 0.08 ) 
             if 'orientation' not in args:   args[ 'orientation' ] = Orientation.Horizontal
             cbar = ControlBar( name, interactor, **args )
-            cbar.init( build_args )
+            cbar.init( build_args, **args )
             self.button_bars[ name ] = cbar
         return cbar
 
@@ -310,6 +321,11 @@ class ButtonBar:
             if b.id == name: return b
         return None
 
+    def getActiveButton(self): 
+        for b in self.buttons:
+            if b.getState(): return b
+        return None
+
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize() if ( self.interactor <> None ) else [ 100, 100 ]
 
@@ -319,7 +335,7 @@ class ButtonBar:
         scale = float(window_size) * self.magnification / self.fullButtonWindowSize
         if scale > 1.0:   scale = 1.0
         if scale < 0.5:   scale = 0.5
-#        print " ################################# Resize Button %s: ws=%d, scale=%s " % ( button.id, window_size, str(scale) )
+#        print " ################################# Resize Button %s: ws=%d, scale=%s, pos=%s " % ( button.id, window_size, str(scale), str(position) )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
 #        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
@@ -340,7 +356,6 @@ class ButtonBar:
         self.build( **args )
            
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
-#        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
         self.vtk_coord.SetValue(  normalized_display_position[0], normalized_display_position[1] )
         ren = self.getRenderer()
         screen_pos = self.vtk_coord.GetComputedDisplayValue( ren ) if ( ren <> None ) else [ 100, 100 ]
@@ -348,6 +363,7 @@ class ButtonBar:
         if   self.orientation == Orientation.Vertical: position_offset[ 0 ] = 0
         elif self.orientation == Orientation.Horizontal: position_offset[ 1 ] = 0
         if buffered: screen_pos = self.getBufferedPos( screen_pos, position_offset  )
+#        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position ), "], screen position = ", str( screen_pos )
         return screen_pos
   
     def getBufferedPos( self, screen_pos, position_offset = [ 0, 0 ] ): 
@@ -423,26 +439,28 @@ class ControlBar(ButtonBar):
         cbar.init( build_args )
         return cbar
         
-    def init( self, build_args ):   # ( "Step", ("Run","Stop") ), self.processAnimationControl
+    def init( self, build_args, **args ):   # ( "Step", ("Run","Stop") ), self.processAnimationControl
         button_specs = build_args[0]
         self.processStateChangeEvent = build_args[1]
         for bspec in button_specs:
-            self.addButton( bspec )
+            if ( len( bspec ) == 2 ) and isinstance( bspec[1], bool ):
+                self.addButton( bspec[0], toggle=bspec[1], **args ) 
+            else: 
+                self.addButton( bspec, **args )
             
-    def addButton( self, bspec ):
-        toggle_button = False
+    def addButton( self, bspec, **args ):
         if hasattr(bspec, "__iter__"):
-            bnames = [ bspec[0] ]
-            toggle_button = bspec[1] if len( bspec ) > 1 else True
-        else: bnames = [ bspec ]        
-        button = Button( self.interactor, names=bnames, toggle = toggle_button )
+            bnames = bspec
+        else: bnames = [ bspec ] 
+        toggle = args.get( 'toggle', False )       
+        button = Button( self.interactor, names=bnames, toggle = toggle )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
 
     def reset( self, active_state=None  ):
         if ( active_state == None ) or ( self.name <> active_state ):
             self.hide()
-    
+  
 class ButtonBarWidget(ButtonBar):
         
     def __init__( self, handler, name, interactor, **args ):
@@ -587,12 +605,15 @@ class ButtonBarWidget(ButtonBar):
             srep.SetValue( value  )
             
     def initializeSliderPosition( self, index ):
-        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
-        if swidget:
-            srep = swidget.GetRepresentation( ) 
-            values = self.handler.cfgManager.getParameterValue( interaction_state )
-            value = ( ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 )  if ( values == None ) else values[0]
-            srep.SetValue( value  ) 
+        try:
+            ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
+            if swidget:
+                srep = swidget.GetRepresentation( ) 
+                values = self.handler.cfgManager.getParameterValue( interaction_state )
+                value = ( ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 )  if ( values == None ) else values[0]
+                srep.SetValue( value  ) 
+        except Exception, err:
+            print str(err)
                     
     def createSliderWidget( self, index ): 
         sliderRep = vtk.vtkSliderRepresentation2D()
@@ -638,14 +659,24 @@ class ButtonBarWidget(ButtonBar):
             
     def positionSlider(self, position_index, n_sliders ):
         slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentControls.get( position_index, ( None, None, None ) )
-        if swidget is not None:
-            sliderRep = swidget.GetRepresentation( ) 
-            sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
-            sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
-            sliderRep.Modified()
-            swidget.Modified()    
-            sliderRep.NeedToRenderOn()
+        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
+        sliderRep = swidget.GetRepresentation( ) 
+        sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
+        sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
+        sliderRep.Modified()
+        swidget.Modified()    
+        sliderRep.NeedToRenderOn()
+
+    def setSliderValues( self, values ):
+        for index, value in enumerate(values):
+            widget_item = self.currentControls.get( index, None )
+            if widget_item == None: 
+                swidget = self.createSliderWidget(index)
+                self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget ) 
+            else:
+                ( process_mode, interaction_state, swidget ) = widget_item
+            srep = swidget.GetRepresentation( ) 
+            srep.SetValue( value )  
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
@@ -671,6 +702,7 @@ class ButtonBarWidget(ButtonBar):
             srep.SetValue( value )
             swidget.SetEnabled( 1 )         
         self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget )
+        
         
     def createButtonWidget(self, index, label ):
         pass
@@ -917,9 +949,10 @@ class ButtonBarWidget(ButtonBar):
            
     def initializeConfiguration( self, **args ):
         for configFunct in self.configurableFunctions.values():
-            try: configFunct.init( **args )
-            except Exception, err:
-                print>>sys.stderr, "Error initializing configurableFunction %s: %s" % ( configFunct.name, str(err)  )
+            configFunct.init( **args )
+#             try: configFunct.init( **args )
+#             except Exception, err:
+#                 print>>sys.stderr, "Error initializing configurableFunction %s: %s" % ( configFunct.name, str(err)  )
         for button in self.buttons:
             if button.toggle:
                 button.broadcastState( button.getState() )

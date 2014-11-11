@@ -297,15 +297,10 @@ td2=vcs.gettaylordiagram('default')          # td2 instance of existing 'default
     if not isinstance(Gtd_name_src,str):
         raise vcsError, 'The argument must be a string.'
     
-    for m in vcs.taylordiagrams:
-        if m.name==Gtd_name_src:
-##                 n=copy.copy(m)
-            n=m
-            #vcs.taylordiagrams.append(n)
-            n.Marker.equalize()
-            return n
-    warnings.warn("Possible implementation issue here trying to access %s" % (Gtd_name_src))
-    return 
+    if not Gtd_name_src in vcs.elements["taylordiagram"].keys():
+        raise vcsError("The taylordiagram graphic method %s does not exists" % Gtd_name_src)
+    else:
+        return vcs.elements["taylordiagram"][Gtd_name_src]
 
 def createmeshfill(name=None, source='default'):
     """
@@ -1576,7 +1571,7 @@ vcs.show('textorientation')
 # Set alias for the secondary createtextcombined.
 createtext = createtextcombined
 
-def gettextcombined(Tt_name_src='default', To_name_src='default', string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
     """
 Function: gettext or gettextcombined   # Construct a new textcombined secondary method
 
@@ -1605,6 +1600,11 @@ if istextcombined(tc):               # Check to see if tc is a textcombined
     # Check to make sure the arguments passed in are a STRINGS
     if not isinstance(Tt_name_src,str):
         raise vcsError, 'The first argument must be a string.'
+    if To_name_src is None:
+        sp=Tt_name_src.split(":::")
+        if len(sp)==2:
+            Tt_name_src = sp[0]
+            To_name_src = sp[1]
     if not isinstance(To_name_src,str):
         raise vcsError, 'The second argument must be a string.'
     
@@ -1700,6 +1700,58 @@ plot=a.create3d_scalar()
     name,source = check_name_source(name,source,'3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
 
+def get3d_dual_scalar(Gfdv3d_name_src='default'):
+    """
+Function: get3d_dual_scalar                        # Construct a new 3DDualScalar graphics method
+
+Description of Function:
+VCS contains a list of graphics methods. This function will create a
+dv3d class object from an existing VCS dv3d graphics method. If
+no dv3d name is given, then dv3d 'default' will be used.
+
+Note, VCS does not allow the modification of `default' attribute
+sets. However, a `default' attribute set that has been copied under a 
+different name can be modified. (See the create3Dscalar function.)
+
+Example of Use:
+a.show('3d_dual_scalar')                      # Show all the existing 3Dscalar graphics methods
+plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d graphics
+                                        # method
+"""
+
+    # Check to make sure the argument passed in is a STRING
+    if not isinstance(Gfdv3d_name_src,str):
+        raise vcsError, 'The argument must be a string.'
+
+    if not Gfdv3d_name_src in vcs.elements["3d_dual_scalar"]:
+        raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+
+    return vcs.elements["3d_dual_scalar"][Gfdv3d_name_src]
+
+
+def create3d_dual_scalar(name=None, source='default'):
+    """
+Function: create3d_dual_scalar                # Construct a new dv3d graphics method
+
+Description of Function:
+Create a new dv3d graphics method given the the name and the existing
+dv3d graphics method to copy the attributes from. If no existing
+dv3d graphics method name is given, then the default dv3d graphics
+method will be used as the graphics method to which the attributes will
+be copied from.
+
+If the name provided already exists, then a error will be returned. Graphics
+method names must be unique.
+
+Example of Use:
+a=vcs.init()
+a.show('3d_dual_scalar')
+plot=a.create3d_dual_scalar()
+"""
+#    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    name,source = check_name_source(name,source,'3d_dual_scalar')
+    return dv3d.Gf3DDualScalar(name, source)
+
 
 def get3d_vector(Gfdv3d_name_src='default'):
     """
@@ -1779,14 +1831,7 @@ cp=a.createcolormap('example2','AMIP')
 a.show('colormap')
 
 """
-    # Check to make sure the arguments passed in are STRINGS
-    if not isinstance(Cp_name,str):
-       raise ValueError, 'Error -  The first argument must be a string.'
-    if not isinstance(Cp_name_src,str):
-       raise ValueError, 'Error -  The second argument must be a string.'
-
-    if Cp_name in vcs.elements["colormap"]:
-      raise Exception,"The colrmap '%s' already exists" % Cp_name
+    Cp_name,Cp_name_src = check_name_source(Cp_name,Cp_name_src,'colormap')
     return colormap.Cp(Cp_name, Cp_name_src)
 
 def getcolormap(Cp_name_src='default'):

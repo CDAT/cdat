@@ -461,16 +461,16 @@ class MultiVarPointCollection():
 
     def initialize( self, args, **cfg_args ): 
         self.configure( **cfg_args )
-        ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace ) = args
+        ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace, zscale ) = args
         self.interface = interface
         self.roi = ROI
         self.gf = cdms2.open( grid_file ) if grid_file else None
         self.df = cdms2.open( data_file ) if data_file else None         
         self.grid_vars = grd_vars if ( grd_vars <> None ) else self.df.variables[0]
         self.grid_coords = grd_coords
-        self.initPoints( var_proc_op )
+        self.initPoints( var_proc_op, zscale )
         
-    def initPoints( self, var_proc_op=None ):
+    def initPoints( self, var_proc_op=None, z_scale = 0.5 ):
         self.var = self.getProcessedVariable( var_proc_op )
         varname = self.var.id
         self.grid = self.var.getGrid()
@@ -481,8 +481,7 @@ class MultiVarPointCollection():
             self.metadata[ 'lat' ] = ( getattr( lat, 'long_name', 'Latitude' ), getattr( lat, 'units', None ), self.axis_bounds.get( 'y', None ) )  
             self.vars[ 'lon' ] = lon 
             self.metadata[ 'lon' ] = ( getattr( lon, 'long_name', 'Longitude' ), getattr( lon, 'units', None ), self.axis_bounds.get( 'x', None ) )  
-            self.time = self.var.getTime()
-            z_scale = 0.5
+            self.time = self.var.getTime()        
             self.missing_value = self.var.attributes.get( 'missing_value', None )
             if self.lev == None:
                 domain = self.var.getDomain()

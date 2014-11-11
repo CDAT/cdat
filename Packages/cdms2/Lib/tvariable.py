@@ -73,6 +73,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             m= numpy.ascontiguousarray(m)
         out = TransientVariable(out,mask=m,attributes=self.attributes)
         out.setAxisList(self.getAxisList())
+        out.setMissing(self.getMissing())
         return out
     
     ascontiguous = ascontiguousarray
