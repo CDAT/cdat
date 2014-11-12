@@ -140,6 +140,18 @@ if(UVCDAT_TESTDATA_LOCATION)
     -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION})
 endif()
 
+if(CDAT_BUILD_OFFSCREEN)
+  list(APPEND ParaView_tpl_args
+    "-DVTK_USE_X:BOOL=OFF"
+    "-DVTK_OPENGL_HAS_OSMESA:BOOL=ON"
+    "-DOPENGL_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOPENGL_gl_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa.so"
+    "-DOPENGL_glu_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libGLU.so"
+    "-DOSMESA_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOSMESA_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa.so"
+  )
+endif()
+
 include(GetGitRevisionDescription)
 set(paraview_branch ${PARAVIEW_MD5})
 
