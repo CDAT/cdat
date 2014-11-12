@@ -288,12 +288,14 @@ class DV3DPlot():
         control_bar.reposition()
         return control_bar
     
-    def processConfigParameterChange( self, parameter ):
-        values = parameter.getValues()
+    def processConfigParameterChange( self, parameter, val_key = None ):
+        values = parameter.getValue(val_key)
+        if values == None: values = parameter.getValues() 
+        if not hasattr( values, '__iter__' ): values = [ values ]
         state = parameter.getState()
         if state <> None: addState( values, state )
         argList = [ parameter.name, parameter.ptype, str(values) ] 
-#        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
+        print " ..........>>>>>> Process Config Parameter Change: %s ( key: %s ) " % ( str(argList), str( val_key ) )  
         self.ParameterValueChanged( argList )
 
     def processConfigStateChange( self, parameter ):

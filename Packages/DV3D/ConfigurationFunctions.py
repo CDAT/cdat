@@ -616,6 +616,7 @@ class ConfigParameter:
         return str( self.values )
 
     def getValue( self, key=0, default_value=None ):
+        if key == None: return default_value
         return self.values.get( key, default_value )
 
     def getState( self ):
