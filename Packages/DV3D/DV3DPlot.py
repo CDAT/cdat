@@ -856,7 +856,8 @@ class DV3DPlot():
         bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if (self.type == '3d_vector') or not enable_3d_plots:
-            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
+            sliderLabels= 'Slice Position' if enable_3d_plots else []
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
             b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )
