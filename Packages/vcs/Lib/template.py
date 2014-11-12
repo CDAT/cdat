@@ -1276,6 +1276,10 @@ class P(object):
              tt.y=[sub.y,]
              tt.priority=sub.priority
              displays.append(x.text(tt,bg=bg,**kargs))
+             sp = tt.name.split(":::")
+             del(vcs.elements["texttable"][sp[0]])
+             del(vcs.elements["textorientation"][sp[1]])
+             del(vcs.elements["textcombined"][tt.name])
 
 
 
