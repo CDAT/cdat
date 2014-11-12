@@ -825,7 +825,7 @@ class VTKVCSBackend(object):
                     ## ok it's an extension arrow
                     L=[mn-1.,levs[0][1]]
                 else:
-                    L = levs[i]
+                    L = list(levs[i])
                 I = [indices[i],]
             else:
                 if l[0] == L[-1] and I[-1]==indices[i]:
@@ -858,8 +858,9 @@ class VTKVCSBackend(object):
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
               cot.SetNumberOfContours(len(l))
+              cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
-                  cot.SetValue(j,v)
+                cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
               cot.Update()
               mapper.SetInputConnection(cot.GetOutputPort())
@@ -1027,12 +1028,12 @@ class VTKVCSBackend(object):
       if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
+          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
             levs.insert(0,-1.e20)
       if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.allclose(levs[-1][-1],1.e20)):
+          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
             levs.append(1.e20)
 
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
