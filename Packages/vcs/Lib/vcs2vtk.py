@@ -338,11 +338,15 @@ def getRange(gm,xm,xM,ym,yM):
     return x1,x2,y1,y2
 
 ## Continents first
+## Try to save time and memorize these continents
+vcsContinents= {}
 def prepContinents(fnm):
   """ This converts vcs continents files to vtkpolydata
   Author: Charles Doutriaux
   Input: vcs continent file name
   """
+  if vcsContinents.has_key(fnm):
+    return vcsContinents[fnm]
   poly =vtk.vtkPolyData()
   cells = vtk.vtkCellArray()
   pts = vtk.vtkPoints()
@@ -384,6 +388,7 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+  vcsContinents[fnm]=poly
   return poly
 
 
