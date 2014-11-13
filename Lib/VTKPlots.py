@@ -29,7 +29,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       self.AddObserver( "RenderEvent", parent.renderEvent )
-      #self.AddObserver( "AnyEvent",parent.stdEvent)
+      self.AddObserver( "AnyEvent",parent.stdEvent)
       
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -72,14 +72,18 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor.Start()
 
+  def stdEvent(self,caller,evt):
+    print evt
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
     window_size = renwin.GetSize() 
+    print "Yes we are herE",window_size,self.renderWindowSize
     if ( window_size <> self.renderWindowSize ): 
       self.configureEvent(caller,evt)
       self.renderWindowSize = window_size
 
   def leftButtonPressEvent(self,obj,event):
+    print "We do come here"
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
@@ -164,10 +168,13 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
+    print "Conf:",sz,self._lastSize
     if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
+      if self.renWin is not None:
+        self.renWin.Render()
       return
     self._lastSize = sz
     plots_args = []
@@ -193,6 +200,13 @@ class VTKVCSBackend(object):
       self.createLogo()
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
+    if self.renWin is not None:
+      self.renWin.Render()
+      iren = self.renWin.GetInteractor()
+      if iren is not None:
+        iren.InvokeEvent(vtk.vtkCommand.LeftButtonPressEvent)
+        iren.InvokeEvent(vtk.vtkCommand.LeftButtonReleaseEvent)
+        self.configureEvent(obj,ev)
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
