@@ -95,6 +95,7 @@ class vcsTest:
         plot_args.append( self.gm )
             
         plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
+        self.canvas.setantialiasing(False)
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
 #        self.applyActions()
@@ -153,5 +154,5 @@ class vcsTest:
 if __name__ == '__main__':
     from TestDefinitions import testManager    
 #    testManager.runTests()
-#    testManager.runTest( 'dv3d_slider_test', True )
-    testManager.showTest( 'dv3d_constituents_test' )
+    testManager.runTest( 'dv3d_slider_test', True )
+#    testManager.showTest( 'dv3d_constituents_test' )

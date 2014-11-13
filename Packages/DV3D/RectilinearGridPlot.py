@@ -366,7 +366,8 @@ class RectGridPlot(StructuredGridPlot):
             if plane_index == 2:
                 slicePosition.setValue( 'relative',  pos ) 
                 pos = plane_widget.SetSlicePositionFromRelative( pos )
-            slicePosition.setValues( [ pos ] )            
+            slicePosition.setValues( [ pos ] )  
+            plane_widget.SetSlicePosition( pos )           
             state =  config_function.getState()
             if state <> None:            
                 bbar = self.getPlotButtonbar()
