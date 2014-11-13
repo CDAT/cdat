@@ -247,7 +247,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector' ):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector', '3d_dual_scalar' ):
             if found_slabs != 2:
                 raise vcsError, "Graphics method %s requires 2 slabs." % arglist[igraphics_method]
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -564,7 +564,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.ndim
+        try:     rank = origv.ndim
+        except:  rank = len( origv.shape )
+            
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -1491,6 +1493,18 @@ Options:::
 
     def vector3d(self, *args, **parms):
         arglist=_determine_arg_list('3d_vector',args)            
+        return self.__plot(arglist, parms)
+
+    def create3d_dual_scalar(self,name=None,source='default'):
+      return vcs.create3d_dual_scalar(name,source)
+  
+    create3d_dual_scalar.__doc__ = vcs.manageElements.create3d_dual_scalar.__doc__
+    def get3d_dual_scalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_dual_scalar(Gfdv3d_name_src)
+    get3d_dual_scalar.__doc__ = vcs.manageElements.get3d_dual_scalar.__doc__
+
+    def dual_scalar3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_dual_scalar',args)            
         return self.__plot(arglist, parms)
 
     #############################################################################

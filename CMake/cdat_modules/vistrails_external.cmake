@@ -9,7 +9,7 @@ get_git_head_revision(refspec sha)
 string(REGEX REPLACE ".+/(.+)" "\\1" _branch "${refspec}")
 
 # Did we extract out the branch?
-if (NOT _branch STREQUAL refspec)
+if (NOT _branch STREQUAL "${refspec}")
     # Get the remote the branh if from
     get_git_remote_for_branch(${_branch} _remote)
 
