@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs,numpy.ma,sys,string,colors,numpy,cdms2,types,VCS_validation_functions
 import MV2
+import copy
 
 def process_src(name,code):
   # Now break the string
@@ -244,7 +245,7 @@ class TDMarker(object):
     def _setnumber(self,value):
          self._number=VCS_validation_functions.checkInt(self,'number',value)
     number=property(_getnumber,_setnumber)            
-                
+
     def pop(self,i):
         self.status.pop(i)
         self.line.pop(i)
@@ -415,59 +416,68 @@ class TDMarker(object):
         
 class Gtd(object):
     """ class"""    
-##     __slots__ = [
-##         '_template',
-##         'max',
-##         'quadrans',
-##         'preserveaspectratio',
-##         'skillValues',
-##         'skillDrawLabels',
-##         'skillColor',
-##         'skillCoefficient',
-##         'outtervalue',
-##         'detail',
-##         'referencevalue',
-##         'Marker',
-##         'arrowlength',
-##         'arrowangle',
-##         'name',
-##         'g_name',
-##         '_x',
-##         'yticlabels1',
-##         'xticlabels1',
-##         'cticlabels1',
-##         'ymtics1',
-##         'xmtics1',
-##         'cmtics1',
-##         '_max',
-##         '_quadrans',
-##         '_preserveaspectratio',
-##         '_skillValues',
-##         '_skillDrawLabels',
-##         '_skillColor',
-##         '_skillCoefficient',
-##         '_outtervalue',
-##         '_detail',
-##         '_referencevalue',
-##         'Marker',
-##         '-arrowlength',
-##         '_arrowangle',
-##         '_name',
-##         '-yticlabels1',
-##         '-xticlabels1',
-##         '_cticlabels1',
-##         '-ymtics1',
-##         '-xmtics1',
-##         '_cmtics1',
-##         ]
-            
-    def __init__(self):
-        self.init()
+    __slots__=[
+        'template',
+        'max',
+        'quadrans',
+        'preserveaspectratio',
+        'skillValues',
+        'skillDrawLabels',
+        'skillColor',
+        'skillCoefficient',
+        'outtervalue',
+        'detail',
+        'referencevalue',
+        'Marker',
+        'arrowbase',
+        'arrowlength',
+        'arrowangle',
+        'name',
+        'g_name',
+        'displays',
+        'bg',
+        'viewport',
+        'worldcoordinate',
+        '_stdmax',
+        '_x',
+        'yticlabels1',
+        'xticlabels1',
+        'cticlabels1',
+        'ymtics1',
+        'xmtics1',
+        'cmtics1',
+        '_template',
+        '_max',
+        '_quadrans',
+        '_preserveaspectratio',
+        '_skillValues',
+        '_skillDrawLabels',
+        '_skillColor',
+        '_skillCoefficient',
+        '_outtervalue',
+        '_detail',
+        '_referencevalue',
+        '_Marker',
+        '_arrowbase',
+        '_arrowlength',
+        '_arrowangle',
+        '_name',
+        '_yticlabels1',
+        '_xticlabels1',
+        '_cticlabels1',
+        '_ymtics1',
+        '_xmtics1',
+        '_cmtics1',
+        '_viewport',
+        '_worldcoordinate',
+        ]
 
-
-    def init(self):
-
-        self.template=None
+    def __init__(self,name,source="default"):
+      self.template=None
+      self._name=name
+      self.g_name='Gtd'
+      self._x=None
+      if name == "default":
         self._max=None # maximum value of the standard deviaton, copied to the value of the outter circle
         self._quadrans=1
         self.preserveaspectratio='y'
@@ -483,9 +493,6 @@ class Gtd(object):
         self._arrowlength=.05
         self._arrowangle=20.
         self._arrowbase=.75
-        self._name='default'
-        self.g_name='Gtd'
-        self._x=None
         self._yticlabels1='*'
         self._xticlabels1='*'
         self._cticlabels1='*'
@@ -493,6 +500,34 @@ class Gtd(object):
         self._xmtics1='*'
         self._cmtics1='*'
         self.displays = []
+      else:
+        if not source in vcs.elements["taylordiagram"].keys():
+          raise Exception,"the source taylordiagram %s doe not exist" % source
+        src = vcs.elements["taylordiagram"][source]
+        self.max=src.max
+        self.quadrans=src.quadrans
+        self.preserveaspectratio=src.preserveaspectratio
+        self.skillValues=src.skillValues
+        self.skillDrawLabels=src.skillDrawLabels
+        self.skillColor=src.skillColor
+        self.skillCoefficient=src.skillCoefficient
+        self.outtervalue=src.outtervalue
+        self.detail=src.detail
+        self.referencevalue=src.referencevalue
+##         self._referencecolor=src'black'
+        self.Marker=copy.copy(src.Marker)
+        self.arrowlength=src.arrowlength
+        self.arrowangle=src.arrowangle
+        self.arrowbase=src.arrowbase
+        self.yticlabels1=src.yticlabels1
+        self.xticlabels1=src.xticlabels1
+        self.cticlabels1=src.cticlabels1
+        self.ymtics1=src.ymtics1
+        self.xmtics1=src.xmtics1
+        self.cmtics1=src.cmtics1
+      self.displays = []
+      self.Marker.equalize()
+      vcs.elements["taylordiagram"][name]=self
 
     def _getname(self):
          return self._name
@@ -662,24 +697,10 @@ class Gtd(object):
         except:
             return 1.E20
 
-    
-    def __mkblk(self,obj):
-        lst=dir(obj)
-        try:
-            setattr(obj,'priority',0)
-        except:
-            pass
-        for l in lst:
-            o=getattr(obj,l)
-            try:
-                setattr(o,'priority',0)
-            except:
-                pass
-            if type(o)==types.InstanceType and type(o)!=type(obj):
-                self.__mkblk(o)
-                
-            
+    worldcoordinate=VCS_validation_functions.worldcoordinate
 
+    viewport=VCS_validation_functions.viewport
+    
     def drawSkill(self,canvas,values,function=None):
         """
         Draw a skill score, default skill score provide in defaultSkill
@@ -693,13 +714,13 @@ class Gtd(object):
         v1=[]
         v2=[]
         for i in range(self.detail):
-            x=float(i)/self.detail*self.stdmax*self.quadrans-self.stdmax*(self.quadrans-1)
+            x=float(i)/self.detail*self._stdmax*self.quadrans-self._stdmax*(self.quadrans-1)
             v1.append(x)
             for j in range(self.detail):
-                y=float(j)/self.detail*self.stdmax
+                y=float(j)/self.detail*self._stdmax
                 if i==0: v2.append(y)
                 std=numpy.sqrt(float(x)**2.+float(y)**2.)                    
-                if 0<std<self.stdmax:
+                if 0<std<self._stdmax:
                     cor=x/std
                     a[j,i]=function(std,cor)
         iso=createnewvcsobj(canvas,'isoline','td_new_')
@@ -728,15 +749,15 @@ class Gtd(object):
         a.setAxis(0,av2)
         a.setAxis(1,av)
         
-        self.__dict__['tmpl']=createnewvcsobj(canvas,'template','tdtempl','deftaylor')
+        tmpl=createnewvcsobj(canvas,'template','tdtempl','deftaylor')
                 
-        self.__mkblk(self.tmpl)
-        self.tmpl.data.priority=1
-        self.tmpl.data.x1=self.template.data.x1
-        self.tmpl.data.x2=self.template.data.x2
-        self.tmpl.data.y1=self.template.data.y1
-        self.tmpl.data.y2=self.template.data.y2
-        self.displays.append(canvas.plot(a,iso,self.tmpl,bg=self.bg))
+        tmpl.blank()
+        tmpl.data.priority=1
+        tmpl.data.x1=self.template.data.x1
+        tmpl.data.x2=self.template.data.x2
+        tmpl.data.y1=self.template.data.y1
+        tmpl.data.y2=self.template.data.y2
+        self.displays.append(canvas.plot(a,iso,tmpl,bg=self.bg))
 
     def list(self):
         print ' ----------Taylordiagram (Gtd) member (attribute) listings ----------'
@@ -864,10 +885,10 @@ class Gtd(object):
                 t.priority=4
                 t.color=VCS_validation_functions.color2vcs(self.Marker.id_color[i])
                 t.font=self.Marker.id_font[i]
-##                 t.x=[d1*(d0+self.stdmax*self.Marker.xoffset[i]/100.)]
-                t.x=[d1*d0+self.stdmax*self.Marker.xoffset[i]/100.,]
-##                 t.y=[numpy.ma.sin(numpy.ma.arccos(d1))*(d0+self.stdmax*self.Marker.yoffset[i]/100.)]
-                t.y=[float(numpy.ma.sin(numpy.ma.arccos(d1))*d0+self.stdmax*self.Marker.yoffset[i]/100.),]
+##                 t.x=[d1*(d0+self._stdmax*self.Marker.xoffset[i]/100.)]
+                t.x=[d1*d0+self._stdmax*self.Marker.xoffset[i]/100.,]
+##                 t.y=[numpy.ma.sin(numpy.ma.arccos(d1))*(d0+self._stdmax*self.Marker.yoffset[i]/100.)]
+                t.y=[float(numpy.ma.sin(numpy.ma.arccos(d1))*d0+self._stdmax*self.Marker.yoffset[i]/100.),]
                 self.displays.append(canvas.plot(t,bg=self.bg))
 
             if not self.Marker.line[i] is None:
@@ -987,8 +1008,8 @@ class Gtd(object):
         viewport=[self.template.data.x1,self.template.data.x2,
                   self.template.data.y1,self.template.data.y2]
         self.viewport=viewport
-        max=self.stdmax*1.15
-        max=self.stdmax
+        max=self._stdmax*1.15
+        max=self._stdmax
         if self.quadrans==1:
             preserve=0.
             X=max*preserve/2.
@@ -1116,41 +1137,41 @@ class Gtd(object):
         ticklength=extension*self.outtervalue
         sticklength=ticklength/2.
         ## Ok figures out if we have defined the labels/tics
-        if isinstance(self.yticlabels1,str): # Ok we want automatic
-            vals=vcs.mkscale(0,self.outtervalue,20)
-            tmp=vals[::2]
-            if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
-            levs=vcs.mklabels(tmp)
-        else:
-            levs=self.yticlabels1
-        for v in levs.keys():
-            if wc[0]<v<min(wc[1],wc[3]):       
-                ticxs2.append(self.template.ylabel1.x)
-                ticys2.append(self.convert(v,'y'))
-                ticstr2.append(levs[v]+' ')
-                ytic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
-                ytic1x.append([self.template.ytic1.x1,self.template.ytic1.x2])
-        ytic1.x=ytic1x
-        ytic1.y=ytic1y
-        if ytic1.x!=[]:
-            self.displays.append(canvas.plot(ytic1,bg=self.bg))
-            
-##                 fx.append([0.,ticklength])
-##                 fy.append([v,v])
-        if isinstance(self.ymtics1,str): # Ok we want automatic
-            vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
-            levs=vcs.mklabels(vals)
-        else:
-            levs=self.ymtics1
-        for v in levs.keys():
-            if wc[0]<v<min(wc[1],wc[3]):       
-                ymtic1x.append([self.template.ymintic1.x1,self.template.ymintic1.x2])
-                ymtic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
-                pass
-        ymtic1.x=ymtic1x
-        ymtic1.y=ymtic1y
-        if ymtic1.x!=[]:
-            self.displays.append(canvas.plot(ymtic1,bg=self.bg))
+        if self.quadrans==1:
+          if isinstance(self.yticlabels1,str): # Ok we want automatic
+              vals=vcs.mkscale(0,self.outtervalue,20)
+              tmp=vals[::2]
+              if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
+              levs=vcs.mklabels(tmp)
+          else:
+              levs=self.yticlabels1
+          for v in levs.keys():
+              if wc[0]<v<min(wc[1],wc[3]):
+                  ticxs2.append(self.template.ylabel1.x)
+                  ticys2.append(self.convert(v,'y'))
+                  ticstr2.append(levs[v]+' ')
+                  ytic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
+                  ytic1x.append([self.template.ytic1.x1,self.template.ytic1.x2])
+          ytic1.x=ytic1x
+          ytic1.y=ytic1y
+          if ytic1.x!=[]:
+              self.displays.append(canvas.plot(ytic1,bg=self.bg))
+  ##                 fx.append([0.,ticklength])
+  ##                 fy.append([v,v])
+          if isinstance(self.ymtics1,str): # Ok we want automatic
+              vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
+              levs=vcs.mklabels(vals)
+          else:
+              levs=self.ymtics1
+          for v in levs.keys():
+              if wc[0]<v<min(wc[1],wc[3]):
+                  ymtic1x.append([self.template.ymintic1.x1,self.template.ymintic1.x2])
+                  ymtic1y.append([self.convert(v,axis='y'),self.convert(v,axis='y')])
+                  pass
+          ymtic1.x=ymtic1x
+          ymtic1.y=ymtic1y
+          if ymtic1.x!=[]:
+              self.displays.append(canvas.plot(ymtic1,bg=self.bg))
 
         if isinstance(self.xmtics1,str): # Ok we want automatic
             vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
@@ -1336,7 +1357,7 @@ class Gtd(object):
         tic.x=[self.convert(x1*self.outtervalue*ddx,axis='x')]
         tic.y=[self.convert(y1*self.outtervalue*ddx,axis='y')]
         tic.string=['Correlation']
-##         tic.height=int(40.*self.stdmax)+1
+##         tic.height=int(40.*self._stdmax)+1
         tic.angle=45
         tic.halign='center'
         tic.valign='bottom'
@@ -1361,7 +1382,7 @@ class Gtd(object):
         stdaxis.priority=self.template.xname.priority
 ##         stdaxis.halign='center'
 ##         stdaxis.valign='top'
-##         stdaxis.height=int(40.*self.stdmax)+1
+##         stdaxis.height=int(40.*self._stdmax)+1
         
         xstdaxis=createnewvcsobj(canvas,'text','xstax',self.template.xname.texttable,self.template.xname.textorientation)
 ##         xstdaxis.worldcoordinate=self.worldcoordinate
@@ -1393,7 +1414,7 @@ class Gtd(object):
     
     def plot(self,data,template='deftaylor',skill=None,bg=0,canvas=None):
         """plots"""
-        self.__dict__['bg']=bg
+        self.bg=bg
         self.displays=[]
         if canvas is None:
             canvas=vcs.init()
@@ -1401,43 +1422,50 @@ class Gtd(object):
         savedmode=canvas.mode
         canvas.mode=0
         if isinstance(template,str):
-            self.__dict__['template']=canvas.gettemplate(template)
+            self.template=canvas.gettemplate(template)
         elif vcs.istemplate(template):
-            self.__dict__['template']=template
+            self.template=template
         else:
             raise Exception,'Error you passed an invalid template'
         
         canvas.pause_time=0
         #canvas.open()
 ##         canvas.clear()
-        savedstdmax=getattr(self,'stdmax',None)
+        savedstdmax=getattr(self,'_stdmax',None)
         if self.max is None:
-            self.__dict__['stdmax']=1.2*numpy.ma.maximum(data[...,0])
+            self._stdmax=float(1.2*numpy.ma.maximum(data[...,0]))
         else:            
-            self.__dict__['stdmax']=self.max
+            self._stdmax=float(self.max)
         resetoutter=0
         if self.outtervalue is None:
-            if self.referencevalue<self.stdmax:
-                self.__dict__['outtervalue']=self.stdmax
+            if self.referencevalue<self._stdmax:
+                self.outtervalue=self._stdmax
             else:
-                self.__dict__['outtervalue']=self.referencevalue*1.2
+                self.outtervalue=float(self.referencevalue*1.2)
             resetoutter=1
         self.drawFrame(canvas,data=data)
         self.drawSkill(canvas,values=self.skillValues,function=skill)
         self.draw(canvas,data)
         ## Ok now draws the little comment/source, etc
-        self.displays+=self.template.plot(data,'taylordiagram',bg=bg)
+        self.displays+=self.template.plot(canvas,data,self,bg=bg)
         if resetoutter:
-            self.__dict__['outtervalue']=None
+            self.outtervalue=None
         if savedstdmax is not None:
-            self.__dict__['stdmax']=savedstdmax
+            self._stdmax=savedstdmax
         else:
-            delattr(self,'stdmax')
+            delattr(self,'_stdmax')
         canvas.mode=savedmode
         return
 
-        
-
-
-
-
+    def rename(self,newname):
+      if newname == "default":
+        raise Exception,"You cannot overwrite the default taylordiagram graphic method"
+      if newname in vcs.elements["taylordiagram"].keys():
+        raise Exception,"Sorry %s taylordiagram graphic method already exists" % newname
+      vcs.elements["taylordiagram"][newname]=vcs.elements["taylordiagram"][self.name]
+      if self.name=="default":
+        warnings.warn("You were trying to rename the 'deafult' taylordiagram method, it was merely copied not renamed")
+      else:
+        del(vcs.elements["taylordiagram"][self.name])
+      self = vcs.elements["taylordiagram"][newname]
+      return

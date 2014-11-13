@@ -140,7 +140,7 @@ class MultiVarPointCollection():
                         data_z_slice = var[ self.iTimeStep, ilev ].flatten()
                         lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                     np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )     
-#            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape) )
+#            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s, type = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape), np_var_data_block.__class__.__name__ )
                         
             if not isNone( np_var_data_block ):                
                 if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
@@ -227,6 +227,7 @@ class MultiVarPointCollection():
             return lev_values_ascending
     
     def setPointHeights( self, **args ):
+#        print " PointCollection-->setPointHeights, args = %s " % str( args )
         if self.lev == None:
             stage_height = 0.0
             if self.point_layout == PlotType.List:
@@ -238,6 +239,7 @@ class MultiVarPointCollection():
         else: 
             height_varname = args.get( 'height_var', None )
             z_scaling = args.get( 'z_scale', 1.0 )
+            if isinstance( z_scaling, (list, tuple) ): z_scaling = z_scaling[0]
             self.data_height = args.get( 'data_height', None )
             ascending = self.levelsAreAscending()
             stage_height = ( self.maxStageHeight * z_scaling )
@@ -459,16 +461,16 @@ class MultiVarPointCollection():
 
     def initialize( self, args, **cfg_args ): 
         self.configure( **cfg_args )
-        ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace ) = args
+        ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace, zscale ) = args
         self.interface = interface
         self.roi = ROI
         self.gf = cdms2.open( grid_file ) if grid_file else None
         self.df = cdms2.open( data_file ) if data_file else None         
         self.grid_vars = grd_vars if ( grd_vars <> None ) else self.df.variables[0]
         self.grid_coords = grd_coords
-        self.initPoints( var_proc_op )
+        self.initPoints( var_proc_op, zscale )
         
-    def initPoints( self, var_proc_op=None ):
+    def initPoints( self, var_proc_op=None, z_scale = 0.5 ):
         self.var = self.getProcessedVariable( var_proc_op )
         varname = self.var.id
         self.grid = self.var.getGrid()
@@ -479,8 +481,7 @@ class MultiVarPointCollection():
             self.metadata[ 'lat' ] = ( getattr( lat, 'long_name', 'Latitude' ), getattr( lat, 'units', None ), self.axis_bounds.get( 'y', None ) )  
             self.vars[ 'lon' ] = lon 
             self.metadata[ 'lon' ] = ( getattr( lon, 'long_name', 'Longitude' ), getattr( lon, 'units', None ), self.axis_bounds.get( 'x', None ) )  
-            self.time = self.var.getTime()
-            z_scale = 0.5
+            self.time = self.var.getTime()        
             self.missing_value = self.var.attributes.get( 'missing_value', None )
             if self.lev == None:
                 domain = self.var.getDomain()
@@ -510,6 +511,7 @@ class MultiVarPointCollection():
                 self.metadata[ varname ] = ( var_long_name, var_units, vrng )
         
     def getPoints(self):
+        #print " ---- getPoints ---- "
         point_comps = [ self.point_data_arrays[comp].flat for comp in [ 'x', 'y', 'z'] ]
         return numpy.dstack( point_comps ).flatten()
 
@@ -607,7 +609,7 @@ class MultiVarPointCollection():
                 self.selected_index_array = index_array[ threshold_mask ]  
                 return vmin, vmax   
         elif op == 'points': 
-#            print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
+            #print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
             if not args[2] is None:
                 self.setPointHeights( height_var=args[1], z_scale=args[2] )  
         elif op == 'ROI': 

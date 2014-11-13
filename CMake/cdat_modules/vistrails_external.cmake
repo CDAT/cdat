@@ -2,14 +2,14 @@
 # and configure and build it
 
 include(GetGitRevisionDescription)
-set(vistrails_branch uvcdat-master)
+set(vistrails_branch ${VISTRAILS_MD5})
 
 get_git_head_revision(refspec sha)
 
 string(REGEX REPLACE ".+/(.+)" "\\1" _branch "${refspec}")
 
 # Did we extract out the branch?
-if (NOT _branch STREQUAL refspec)
+if (NOT _branch STREQUAL "${refspec}")
     # Get the remote the branh if from
     get_git_remote_for_branch(${_branch} _remote)
 
@@ -19,9 +19,9 @@ if (NOT _branch STREQUAL refspec)
         if (_url)
             if(_url MATCHES "^.*uvcdat.git")
               if(_branch STREQUAL "master")
-                set(vistrails_branch uvcdat-master)
+                set(vistrails_branch ${VISTRAILS_MD5})
               elseif(_branch STREQUAL "release")
-                set(vistrails_branch uvcdat-release)
+                set(vistrails_branch ${VISTRAILS_MD5})
               endif()
             elseif(_url MATCHES "^.*uvcdat-devel.git")
               set(vistrails_branch uvcdat-next)

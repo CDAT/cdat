@@ -1,6 +1,10 @@
 
 # cdms2 tests
 
+add_test("test_ascontiguous_regrid_nan_issue"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_ascontiguous_regrid_nan_issue.py
+  )
 add_test("test_dim_unlimited"
     ${CMAKE_INSTALL_PREFIX}/bin/python 
     ${cdat_SOURCE_DIR}/testing/cdms2/test_dim_unlimited.py
@@ -107,6 +111,15 @@ add_test("CDMS_Test_detecting_axes_type"
 add_test("CDMS_Test_pack"
     ${CMAKE_INSTALL_PREFIX}/bin/python 
     ${cdat_SOURCE_DIR}/testing/cdms2/test_pack_data.py)
+
+add_test("CDMS_asdatetime"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_cdms2_axis_as_datetime.py)
+
+add_test("test_cdms2_full_averagering_full_missing"
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_full_averaging.py
+  )
 
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")

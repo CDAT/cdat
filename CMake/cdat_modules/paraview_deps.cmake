@@ -8,3 +8,6 @@ if(CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_deps "${mpi_pkg}")
 endif()
 
+if(NOT CDAT_BUILD_LEAN)
+  list(APPEND ParaView_deps "${ffmpeg_pkg}")
+endif()

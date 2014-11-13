@@ -39,11 +39,14 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
         
-    def runTest(self, testName, interactive=False ):
+    def runTest(self, testName, interactive=False, baselinedir=None ):
         test = TestManager.DefinedTests.get( testName, None )
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
+        if baselinedir is not None:
+            test.test_dir = baselinedir
+            test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
         test.test( interactive )
 
     def showTest(self, testName ):
@@ -114,9 +117,13 @@ class vcsTest:
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
         ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
-        print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
-        shutil.copy( self.image_name, ref_image )
-        ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold )
+        try:
+            shutil.copy( self.image_name, ref_image )
+            print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
+            ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold )
+        except IOError:
+            print "No ref image found."
+            ret = 0
         if  interactive: 
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
             sys.stdout.flush()
@@ -147,10 +154,4 @@ if __name__ == '__main__':
     from TestDefinitions import testManager    
 #    testManager.runTests()
 #    testManager.runTest( 'dv3d_slider_test', True )
-#    testManager.showTest( 'dv3d_slider_test' )
-    
-
-
-
-        
-    
+    testManager.showTest( 'dv3d_constituents_test' )

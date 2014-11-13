@@ -9,7 +9,6 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "flip": false, 
-   "line": "solid", 
    "linecolor": 241, 
    "linewidth": 1, 
    "marker": "dot", 
@@ -173,9 +172,6 @@
      0.0, 
      1.0000000200408773e+20
     ]
-   ], 
-   "line": [
-    "solid"
    ], 
    "linecolors": [
     1
@@ -458,10 +454,10 @@
    }, 
    "xname": {
     "priority": 1, 
-    "textorientation": "default", 
+    "textorientation": "defcenter", 
     "texttable": "default", 
     "x": 0.5, 
-    "y": 0.277000010014
+    "y": 0.21
    }, 
    "xtic1": {
     "line": "default", 
@@ -516,10 +512,10 @@
    }, 
    "yname": {
     "priority": 1, 
-    "textorientation": "default", 
+    "textorientation": "defup", 
     "texttable": "default", 
-    "x": 0.0168999992311, 
-    "y": 0.420033991337
+    "x": 0.006, 
+    "y": 0.56
    }, 
    "ytic1": {
     "line": "default", 
@@ -574,6 +570,26 @@
  }, 
  "Proj": {
   "Charles.Doutriaux": {
+   "parameters": [
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20
+   ], 
+   "type": "linear"
+  }, 
+  "linear": {
    "parameters": [
     1e+20, 
     1e+20, 

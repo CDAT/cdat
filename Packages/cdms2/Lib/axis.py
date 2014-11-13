@@ -806,6 +806,20 @@ class AbstractAxis(CdmsObj):
 
         return result
 
+    def asdatetime(self, calendar=None):
+        "Array version of cdtime tocomp. Returns a list of datetime objects."
+        import datetime
+        if not hasattr(self, 'units'):
+            raise CDMSError, "No time units defined"
+        result = []
+        if calendar is None:
+            calendar = self.getCalendar()
+        for val in self[:]:
+            c=cdtime.reltime(val, self.units).tocomp(calendar)
+            dtg = datetime.datetime(c.year,c.month,c.day,c.hour,c.minute,int(c.second),int((c.second-int(c.second))*1000))
+            result.append(dtg)
+        return result
+
     def asRelativeTime( self, units=None ):
         "Array version of cdtime torel. Returns a list of relative times."
         sunits = getattr(self,'units',None)

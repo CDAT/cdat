@@ -123,11 +123,10 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  message("[INFO] Select Either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
   set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  return()
+  message(FATAL_ERROR "[ERROR] Select either git:// or http:// for checking out git submodules.
+           If you are behind a firewall then likely you need to choose http:// instead.")
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
@@ -172,6 +171,27 @@ else()
     COMMAND ${GIT_EXECUTABLE} config --global --unset url.http://github.com/ajdawson/windspharm.git.insteadof git://github.com/ajdawson/windspharm.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
  )
+endif()
+
+# Checkout the baseline repository.
+if(BUILD_TESTING)
+  set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
+    CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
+  set(REPO_URL "")
+  if(GIT_PROTOCOL MATCHES "http://")
+    set(REPO_URL "http://github.com/UV-CDAT/uvcdat-testdata.git")
+  else()
+    set(REPO_URL "git://github.com/UV-CDAT/uvcdat-testdata.git")
+  endif()
+  find_package(Git QUIET REQUIRED)
+  add_custom_target(update-testdata ALL
+    COMMAND "${CMAKE_COMMAND}"
+      "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+      "-DTESTDATA_URL=${REPO_URL}"
+      "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
+      -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
+    COMMENT "Updating uvcdat-testdata repo."
+  )
 endif()
 
 # Initialize submodules
@@ -394,7 +414,6 @@ set(found_system_libraries)
 include(basemap_pkg)
 include(cdat_pkg)
 include(clapack_pkg)
-#include(cmor_pkg)
 include(curl_pkg)
 include(cython_pkg)
 include(data_pkg)
@@ -466,6 +485,7 @@ else()
   include(tiff_pkg)
   include(curses_pkg)
 endif()
+include(cmor_pkg)
 include(udunits2_pkg)
 include(uuid_pkg)
 # IF we build the UVCDAT Metrics package
@@ -473,7 +493,7 @@ if (CDAT_BUILD_UVCMETRICSPKG)
   set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
   include(uvcmetrics_pkg)
 endif()
-include(visit_pkg)
+#include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)

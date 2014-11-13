@@ -414,7 +414,6 @@ class animate_obj_old(object):
       if ((self.create_flg == 1) and (self.run_flg == 0)):
          self.run_flg = 1
          #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
-         print self.vcs_self.canvas.animate_run
          self.vcs_self.canvas.animate_run()
 
    ##############################################################################
@@ -619,12 +618,20 @@ class AnimationCreate(StoppableThread):
     all_args = self.controller.get_all_frame_args()
     self.controller.reset_file_paths()
 
+    self._really_used = [] 
     for i, args in enumerate(all_args):
       if self.is_stopped():
         break
       self.wait_if_paused()
       # print "RENDERING FRAME", i, "OF", len(all_args)
-      self.controller.render_frame(args, i)
+      if self._really_used!=[]:
+        for j,a in enumerate(args):
+          args[j]=a[:-3]+self._really_used[j]
+      displays = self.controller.render_frame(args, i)
+      if self._really_used==[]:
+        for d in displays:
+          self._really_used.append([d._gettemplate(),d._getg_type(),d._getg_name()])
+
       # this is how you allow the GUI to process events during
       # animation creation
       time.sleep(0.001)
@@ -920,9 +927,22 @@ class AnimationController(animate_obj_old):
     #self.vcs_self.replot()
 
     self.create_canvas.clear()
+    displays = []
+    #checks = ["template","marker","texttable","textorientation","boxfill","isofill","isoline","line","textcombined"]
+    #pre = {}
+    #for a in checks:
+    #  pre[a]=len(vcs.elements[a])
     for args in frame_args:
-        self.create_canvas.plot(*args, bg=1)
+        displays.append(self.create_canvas.plot(*args, bg=1))
+    #post={}
+    #for a in checks:
+    #  post[a]=len(vcs.elements[a])
+    #for a in checks:
+    #  if pre[a]!=post[a]:
+    #    print "Created: %i %s" % (post[a]-pre[a],a)
+
     self.create_canvas.png(fn,draw_white_background=1)
+    return displays
 
   def draw_frame(self, frame_num=None):
     if frame_num is not None:
