@@ -1,3 +1,4 @@
+
 import sys,os
 src = sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -8,6 +9,7 @@ import cdms,EzTemplate,vcs,sys
 ## 12 plots 1 legend per row on the right
 ## Initialize VCS
 x=vcs.init()
+x.drawlogooff()
 bg=True
 M=EzTemplate.Multi(rows=4,columns=3)
 M.legend.direction='vertical'

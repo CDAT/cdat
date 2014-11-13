@@ -1,3 +1,4 @@
+
 import sys,os
 src = sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -15,6 +16,7 @@ bg = True
 
 M=vcsaddons.EzTemplate.Multi(rows=2,columns=2)
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 for i in range(4):
