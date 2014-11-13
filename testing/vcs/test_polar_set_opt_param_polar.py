@@ -1,3 +1,4 @@
+
 import vcs
 import cdms2
 import sys
@@ -11,6 +12,7 @@ import checkimage
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt",slice(0,1),squeeze=1)
 x=vcs.init()
+x.drawlogooff()
 i=x.createisofill()
 p=x.getprojection("polar")
 i.projection=p

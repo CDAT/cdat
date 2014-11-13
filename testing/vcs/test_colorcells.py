@@ -1,7 +1,9 @@
+
 import vcs
 
 b=vcs.createboxfill()
 x=vcs.init()
+x.drawlogooff()
 b.colormap = "rainbow"
 x.setcolormap("rainbow")
 assert(x.colormap=="rainbow")
