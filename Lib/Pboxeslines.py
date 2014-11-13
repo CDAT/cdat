@@ -32,7 +32,7 @@ from types import *
 # Template text (Pbl) Class.                                                #
 #                                                                           #
 #############################################################################
-class Pbl:
+class Pbl(object):
     '''
  Class:	Pbl				# Template text
 

@@ -21,24 +21,39 @@ import json
 import os
 import tempfile
 import colormap
+import vcsaddons
 
 indent = 1
 sort_keys = True
-def dumpToDict(obj,skipped,must):
+def dumpToDict(obj,skipped=[],must=[]):
   dic = {}
+  associated={"texttable":set(),
+              "textorientation":set(),
+              "line":set(),
+              "colormap":set(),
+              "projection":set(),
+              }
+  associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
       try:
         val = getattr(obj,a)
       except:
         continue
+      if a in associated_keys and not val in ["default","defup","defcenter","defright"]:
+        if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
+          continue
+        associated[a].add(val)
       if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
-        val = dumpToDict(val,skipped,must)
+        val,asso = dumpToDict(val,skipped,must)
+        for k in associated_keys:
+          for v in asso[k]:
+            associated[k].add(v)
       dic[a] = val
-  return dic
+  return dic,associated
 
 def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,sort_keys=sort_keys):
-  dic = dumpToDict(obj,skipped,must)
+  dic,associated = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
       f=open(fileout,"a+")
@@ -53,7 +68,7 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
           f.seek(0)
           D = json.load(f)
         except Exception,err:
-          print "Error reading json file, will be overwritten",fileout
+          print "Error reading json file, will be overwritten",fileout,err
           D = {}
       else:
         D={}
@@ -74,6 +89,10 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,
     json.dump(D,f,sort_keys=sort_keys,indent=indent)
     if isinstance(fileout,str):
       f.close()
+      for etype in associated.keys():
+        for asso in associated[etype]:
+          if asso is not None:
+            dumpToJson(vcs.elements[etype][asso],fileout,skipped=skipped,must=[],indent=indent,sort_keys=sort_keys)
   else:
     return json.dumps(dic,sort_keys=sort_keys,indent=indent)
 
@@ -545,6 +564,7 @@ def scriptrun(script):
         "Tm":"marker",
         "Tl":"line",
         "Gf3Dscalar":"3d_scalar",
+        "Gf3DDualScalar":"3d_dual_scalar",
         "Gf3Dvector":"3d_vector",
         "Proj":"projection",
         "Gtd":"taylordiagram",
@@ -643,7 +663,6 @@ def minmax(*data) :
   Function : minmax
   Description of Function
     Return the minimum and maximum of a serie of array/list/tuples (or combination of these)
-    Values those absolute value are greater than 1.E20, are masked
     You can combined list/tuples/... pretty much any combination is allowed
     
   Examples of Use
@@ -663,9 +682,8 @@ def minmax(*data) :
   def myfunction(d,mx,mn):
     if d is None:
         return mx,mn
-    from numpy.ma import maximum,minimum,masked_where,absolute,greater,count
+    from numpy.ma import maximum,minimum,count
     try:
-      d=masked_where(greater(absolute(d),9.9E19),d)
       if count(d)==0 : return mx,mn
       mx=float(maximum(mx,float(maximum(d))))
       mn=float(minimum(mn,float(minimum(d))))
@@ -738,6 +756,8 @@ def mkscale(n1,n2,nc=12,zero=1,ends=False):
     if min>0. : min=0.
     if max<0. : max=0.
   rg=float(max-min)  # range
+  if rg == 0:
+    return [min,]
   delta=rg/nc # basic delta
   # scale delta to be >10 and <= 100
   lg=-numpy.log10(delta)+2.
@@ -1190,12 +1210,17 @@ def prettifyAxisLabels(ticks,axis):
                 ticks[0]="Eq"
     return ticks
 
-def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
     """ Sets the labels and ticks for a graphics method made in python
     Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
     datawc are world coordinates
     
     """
+    ## Ok all this is nice but if user specified datawc we need to use it!
+    for a in ["x1","x2","y1","y2"]:
+      nm = "datawc_%s" % a
+      if not numpy.allclose(getattr(gm,nm),1.e20):
+        exec("%s = gm.%s" % (nm,nm))
     if isinstance(gm,vcs.taylor.Gtd):
         return
     # Now the template stuff
@@ -1205,6 +1230,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic[i]=False
     #xticklabels1
     if gm.xticlabels1 is None or gm.xticlabels1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks="lon30"
         else:
@@ -1217,6 +1245,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels1']=True
     #xmtics1
     if gm.xmtics1 is None or gm.xmtics1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks=gm.xticlabels1.keys()
         else:
@@ -1232,6 +1263,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xmtics1']=True
     #xticklabels2
     if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks="lon30"
         else:
@@ -1245,6 +1279,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels2']=True
     #xmtics2
     if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks=gm.xticlabels2.keys()
         else:
@@ -1260,6 +1297,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xmtics2']=True
     #yticklabels1
     if gm.yticlabels1 is None or gm.yticlabels1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks="lat20"
         else:
@@ -1272,6 +1312,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels1']=True
     #ymtics1
     if gm.ymtics1 is None or gm.ymtics1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks=gm.yticlabels1.keys()
         else:
@@ -1287,6 +1330,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['ymtics1']=True
     #yticklabels2
     if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks="lat20"
         else:
@@ -1300,6 +1346,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels2']=True
     #ymtics2
     if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks=gm.yticlabels2.keys()
         else:
@@ -1313,7 +1362,7 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         ##         del(ticks[k])
         setattr(gm,'ymtics2',ticks)
         dic['ymtics2']=True
-    return dic
+    return copy_gm
 
 def getcolormap(Cp_name_src='default'):
     """
@@ -1426,3 +1475,113 @@ def monotonic(x):
     dx = numpy.diff(x)
     return numpy.all(dx <= 0) or numpy.all(dx >= 0)
 
+def getgraphicsmethod(type,name):
+    if isinstance(type,vcsaddons.core.VCSaddon):
+        func = type.getgm
+        copy_mthd=func(source = name)
+    else:
+      try:
+        copy_mthd = vcs.elements[type][name]
+      except:
+        copy_mthd = None
+    return copy_mthd
+
+def creategraphicsmethod(gtype,name):
+    if gtype in ['isoline','Gi']:
+        func=vcs.createisoline
+    elif gtype in ['isofill','Gfi']:
+        func=vcs.createisofill
+    elif gtype in ['boxfill','default']:
+        func=vcs.createboxfill
+    elif gtype in ['meshfill','Gfm']:
+        func=vcs.createmeshfill
+    elif gtype in ['scatter',]:
+        func=vcs.createscatter
+    elif gtype in ['xvsy',]:
+        func=vcs.createxvsy
+    elif gtype in ['xyvsy',]:
+        func=vcs.createxyvsy
+    elif gtype in ['yxvsx',]:
+        func=vcs.createyxvsx
+    elif gtype in ['1d','G1d']:
+        func=vcs.create1d
+    elif gtype in ['vector','Gv']:
+        func=vcs.createvector
+    elif gtype in ['taylordiagram','Gtd']:
+        func=vcs.createtaylordiagram
+    elif isinstance(type,vcsaddons.core.VCSaddon):
+        func = type.creategm
+    else:
+        return None
+    copy_mthd=func(source = name)
+    return copy_mthd
+
+def getworldcoordinates(gm,X,Y):
+  """Given a graphics method and two axes figures out correct world coordinates"""
+  # compute the spanning in x and y, and adjust for the viewport
+  wc=[0,1,0,1]
+  if gm.datawc_x1 > 9.E19 :
+    try:
+      i=0
+      try:
+        while X[:][i].count()==0:
+          i+=1
+      except:
+        pass
+      wc[0]=X[:][i]
+    except:
+      wc[0]=X[:].min()
+  else:
+    wc[0] = gm.datawc_x1
+  if gm.datawc_x2 > 9.E19 :
+    try:
+      i=-1
+      try:
+        while X[:][i].count()==0:
+          i-=1
+      except:
+        pass
+      wc[1]=X[:][i]
+    except:
+      wc[1]=X[:].max()
+  else:
+    wc[1] = gm.datawc_x2
+  if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+    wc[0]=X[:].min()
+    wc[1]=X[:].max()
+  if gm.datawc_y1 > 9.E19 :
+    try:
+      i=0
+      try:
+        while Y[:][i].count()==0:
+          i+=1
+      except Exception,err:
+        pass
+      wc[2]=Y[:][i]
+    except:
+      wc[2]=Y[:].min()
+  else:
+    wc[2] = gm.datawc_y1
+  if gm.datawc_y2 > 9.E19 :
+    try:
+      i=-1
+      try:
+        while Y[:][i].count()==0:
+          i-=1
+      except:
+        pass
+      wc[3]=Y[:][i]
+    except:
+      wc[3]=Y[:].max()
+  else:
+    wc[3] = gm.datawc_y2
+  if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+    wc[2]=Y[:].min()
+    wc[3]=Y[:].max()
+  if wc[3]==wc[2]:
+    wc[2]-=.0001
+    wc[3]+=.0001
+  if numpy.allclose(wc[0],wc[1]):
+    wc[0]-=.0001
+    wc[1]+=.0001
+  return wc
