@@ -370,7 +370,7 @@ def prepContinents(fnm):
               l,L = float(sp[i*2]),float(sp[i*2+1])
               spts.append([l,L])
             for p in spts:
-              pts.InsertNextPoint(p[1],p[0],0.0001)
+              pts.InsertNextPoint(p[1],p[0],0.)
             n+=sn
             didIt = True
           except:
@@ -378,7 +378,7 @@ def prepContinents(fnm):
         if didIt is False:
           while len(ln)>2:
             l,L=float(ln[:8]),float(ln[8:16])
-            pts.InsertNextPoint(L,l,0.0001)
+            pts.InsertNextPoint(L,l,0.)
             ln=ln[16:]
             n+=2
     ln = vtk.vtkPolyLine()
