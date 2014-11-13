@@ -1,5 +1,4 @@
 #!/bin/sh
 
 cd @CMAKE_INSTALL_PREFIX@
-@GIT_EXECUTABLE@ clone --depth 1 -b @BRANCH@  @GIT_URL@
-
+@GIT_EXECUTABLE@ clone --depth 1 -b @BRANCH@ @GIT_URL@ @GIT_TARGET@
