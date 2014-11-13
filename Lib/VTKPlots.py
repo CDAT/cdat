@@ -1323,6 +1323,7 @@ class VTKVCSBackend(object):
       warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
     else:
       self.renWin.SetMultiSamples(antialiasing)
+
   def createLogo(self):
     if self.canvas.drawLogo:
         defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
@@ -1335,7 +1336,7 @@ class VTKVCSBackend(object):
         self.logoRepresentation.ProportionalResizeOn ()
         self.logoRepresentation.SetPosition( 0.882, 0.0 )
         self.logoRepresentation.SetPosition2( 0.10, 0.05 )
-        self.logoRepresentation.GetImageProperty().SetOpacity( 1 )
+        self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
         self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
         self.logoRenderer = vtk.vtkRenderer()
         self.logoRenderer.AddViewProp(self.logoRepresentation)
