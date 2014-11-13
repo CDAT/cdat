@@ -1038,7 +1038,7 @@ avariable.regrid: regridTool = 'esmf' requires bounds for source grid, will swit
                     warnings.warn(message, Warning)
                     regridTool = 'libcf'
                     regridMethod = 'linear'
-                 if not hasattr(regrid2,"ESMFRegrid"):
+                if not hasattr(regrid2,"ESMFRegrid"):
                   message = """
 avariable.regrid: regridTool = 'esmf' but your version does not seems to be built with esmf, will switch to regridTool = 'libcf'
                   """
