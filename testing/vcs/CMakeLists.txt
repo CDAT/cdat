@@ -115,7 +115,7 @@ add_test(vcs_test_vectors_missing
 add_test(vcs_test_draw_logo_on
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
-  --source=${BASELINE_DIR}/test_vcs_draw_logo_on.png
+  ${BASELINE_DIR}/test_vcs_draw_logo_on.png
   )
 add_test(vcs_test_taylor_template_ctl
   ${CMAKE_INSTALL_PREFIX}/bin/python
