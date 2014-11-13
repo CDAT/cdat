@@ -473,15 +473,15 @@ class VTKVCSBackend(object):
     if prev is not None:
         xs.append(prev)
         ys.append(prev2)
-    l.x = xs
-    l.y = ys
+    l._x = xs
+    l._y = ys
     l.color=gm.linecolor
     if gm.linewidth>0:
         l.width = gm.linewidth
     else:
         l.priority=0
     l.type = gm.line
-    l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
+    l._viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
     x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,cdms2.createAxis(X[:]),cdms2.createAxis(Y[:]))
     if numpy.allclose(y1,y2):
@@ -490,7 +490,7 @@ class VTKVCSBackend(object):
     if numpy.allclose(x1,x2):
         x1-=.0001
         x2+=.0001
-    l.worldcoordinate = [x1,x2,y1,y2]
+    l._worldcoordinate = [x1,x2,y1,y2]
     m=self.canvas.createmarker()
     m.type = gm.marker
     m.color = gm.markercolor
@@ -498,17 +498,16 @@ class VTKVCSBackend(object):
         m.size = gm.markersize
     else:
         m.priority=0
-    m.x = l.x
-    m.y = l.y
-    m.viewport=l.viewport
-    m.worldcoordinate = l.worldcoordinate
+    m._x = l.x
+    m._y = l.y
+    m._viewport=l.viewport
+    m._worldcoordinate = l.worldcoordinate
 
     if not (Y.min()>max(y1,y2) or Y.max()<min(y1,y2) or X.min()>max(x1,x2) or X.max()<min(x1,x2)):
     	if l.priority>0:
             self.canvas.plot(l,donotstoredisplay=True)
         if m.priority>0:
             self.canvas.plot(m,donotstoredisplay=True)
-    print "Need to look at this renderer"
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
