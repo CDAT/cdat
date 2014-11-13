@@ -59,8 +59,14 @@ class VTKVCSBackend(object):
         plot.setAnimationStepper( stepper )
 
   def interact(self,*args,**kargs):
-      warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
+      if self.renWin is None:
+          warnings.warn("Cannot interact if you did not open the canvas yet")
+          return
       interactor = self.renWin.GetInteractor()
+      if interactor is None:
+          warnings.warn("Cannot start interaction. Blank plot?")
+          return
+      warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
