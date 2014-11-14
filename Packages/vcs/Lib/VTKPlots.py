@@ -186,7 +186,6 @@ class VTKVCSBackend(object):
   def clear(self):
     if self.renWin is None: #Nothing to clear
           return
-    self.renWin.Finalize()
     renderers = self.renWin.GetRenderers()
 #    plot_renderers = [ id(g.plot.renderer) for g in self.plotApps.values() ]
 #    print " ------------------------------------ ------------------------------------  CLEAR: %s  ------------------------------------ ------------------------------------ " % str( plot_renderers )
@@ -310,6 +309,7 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       return
     self.clear()
+    self.renWin.Finalize()
     self.renWin = None
 
   def geometry(self,x,y,*args):
