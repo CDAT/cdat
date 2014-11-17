@@ -227,26 +227,11 @@ class Tf(object):
          self._priority = value
     priority = property(_getpriority,_setpriority)
 
-    def _getprojection(self):
-         return getmember(self,'projection')
-    def _setprojection(self,value):
-         value=VCS_validation_functions.checkProjection(self,'projection',value)
-         self._projection = value
-    projection=property(_getprojection,_setprojection)
+    projection=VCS_validation_functions.projection
     
-    def _getwc(self):
-         return getmember(self,'worldcoordinate')
-    def _setwc(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         self._worldcoordinate = value
-    worldcoordinate=property(_getwc,_setwc)
+    worldcoordinate=VCS_validation_functions.worldcoordinate
     
-    def _getvp(self):
-         return getmember(self,'viewport')
-    def _setvp(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         self._viewport = value
-    viewport=property(_getvp,_setvp)
+    viewport=VCS_validation_functions.viewport
 
     def _getx(self):
          return getmember(self,'x')

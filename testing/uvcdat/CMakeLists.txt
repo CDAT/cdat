@@ -3,6 +3,8 @@ file(COPY ${cdat_SOURCE_DIR}/testing
      DESTINATION ${CMAKE_BINARY_DIR}/tmp
      FILES_MATCHING PATTERN "*.vt")
 
+set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/uvcdat")
+
 #this test verifies that uvcdat starts up and exits cleanly
 add_test(run_uvcdat ${CMAKE_INSTALL_PREFIX}/bin/uvcdat -P -N -T 2 -S ${CMAKE_BINARY_DIR}/tmp)
 
@@ -20,7 +22,7 @@ add_test(cdms_verify
   ${CMAKE_BINARY_DIR}/tmp/testing/uvcdat/cdms_test.vt:test
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
   cdms_test_4.png
-  uvcdat
+  "${BASELINE_DIR}"
   0.05
 )
 
@@ -30,8 +32,8 @@ add_test(cdms_load_and_plot_axis_variable
   ${CMAKE_BINARY_DIR}/tmp
   ${CMAKE_BINARY_DIR}/tmp/testing/uvcdat/cdms_test_axis_var.vt:test_plot_axis_var
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
-  cdms_test_axis_var_4.png
-  uvcdat
+  "${BASELINE_DIR}/cdms_test_axis_var_4.png"
+  "${BASELINE_DIR}"
   0.05
 )
 

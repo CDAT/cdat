@@ -887,71 +887,7 @@ class P(object):
         if Y is None:
           Y=slab.getAxis(-2)
         displays = []
-        # compute the spanning in x and y, and adjust for the viewport
-        if gm.datawc_x1 > 9.E19 :
-          try:
-            i=0
-            try:
-              while X[:][i].count()==0:
-                i+=1
-            except:
-              pass
-            wc[0]=X[:][i]
-          except:
-            wc[0]=X[:].min()
-        else:
-          wc[0] = gm.datawc_x1
-        if gm.datawc_x2 > 9.E19 :
-          try:
-            i=-1
-            try:
-              while X[:][i].count()==0:
-                i-=1
-            except:
-              pass
-            wc[1]=X[:][i]
-          except:
-            wc[1]=X[:].max()
-        else:
-          wc[1] = gm.datawc_x2
-        if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
-          wc[0]=X[:].min()
-          wc[1]=X[:].max()
-        if gm.datawc_y1 > 9.E19 :
-          try:
-            i=0
-            try:
-              while Y[:][i].count()==0:
-                i+=1
-            except Exception,err:
-              pass
-            wc[2]=Y[:][i]
-          except:
-            wc[2]=Y[:].min()
-        else:
-          wc[2] = gm.datawc_y1
-        if gm.datawc_y2 > 9.E19 :
-          try:
-            i=-1
-            try:
-              while Y[:][i].count()==0:
-                i-=1
-            except:
-              pass
-            wc[3]=Y[:][i]
-          except:
-            wc[3]=Y[:].max()
-        else:
-          wc[3] = gm.datawc_y2
-        if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
-          wc[2]=Y[:].min()
-          wc[3]=Y[:].max()
-        if wc[3]==wc[2]:
-          wc[2]-=.0001
-          wc[3]+=.0001
-        if numpy.allclose(wc[0],wc[1]):
-          wc[0]-=.0001
-          wc[1]+=.0001
+        wc = vcs.utils.getworldcoordinates(gm,X,Y)
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]
@@ -1075,6 +1011,26 @@ class P(object):
         return displays
    
 
+    def blank(self,attribute=None):
+      """
+      This function blanks elements of a template object
+      the argument: elements can be None/str/list
+      if None then all eleements will be turned off
+      Otherwise only the elets named by "elements" will be
+      """
+      if attribute is None:
+        attribute = self.__slots__
+      elif isinstance(attribute,str):
+        attribute = [attribute,]
+      elif not isinstance(attribute,(list,tuple)):
+        raise Exception("template.blank function argument must be None, string or list")
+      for a in attribute:
+        try:
+          elt = getattr(self,a)
+          if hasattr(elt,"priority"):
+            elt.priority=0
+        except:
+          pass
 
     def reset(self,sub_name,v1,v2,ov1=None,ov2=None):
          """
@@ -1113,24 +1069,24 @@ class P(object):
                         ov=getattr(v,sub_name+'1')
                         if ov1 is not None:
                              delta=(ov-ov1)*ratio
-                        setattr(v,sub_name+'1',v1+delta)
+                        setattr(v,sub_name+'1',min(1,max(0,v1+delta)))
                    delta=0.
                    if sub_name+'2' in subattr:
                         ov=getattr(v,sub_name+'2')
                         if ov2 is not None:
                              delta=(ov-ov2)*ratio
-                        setattr(v,sub_name+'2',v2+delta)
+                        setattr(v,sub_name+'2',min(1,max(0,v2+delta)))
                    delta=0.
                    if sub_name in subattr:
                         ov=getattr(v,sub_name)
                         if ov1 is not None:
                              delta=(ov-ov1)*ratio
-                        setattr(v,sub_name,v1+delta)
+                        setattr(v,sub_name,min(1,max(0,v1+delta)))
                         if a[-1]=='2':
                              ov=getattr(v,sub_name+'2')
                              if ov2 is not None:
                                   delta=(ov-ov2)*ratio
-                             setattr(v,sub_name,v2+delta)
+                             setattr(v,sub_name,min(1,max(0,v2+delta)))
                 except Exception,err:
                   pass
 
@@ -1261,12 +1217,12 @@ class P(object):
 
         attributes=['file','function','logicalmask','transformation',
                     'source','id','title','units','crdate','crtime',
-                    'comment1','comment2','comment3','comment4','xname','yname',
+                    'comment1','comment2','comment3','comment4',
                     'zname','tname','zunits','tunits','xvalue','yvalue','zvalue',
-                    'tvalue','mean','min','max']
+                    'tvalue','mean','min','max','xname','yname',]
 
-        if gm=='taylordiagram':
-             attributes=attributes[:-3]
+        if isinstance(gm,vcs.taylor.Gtd):
+             attributes=attributes[:-5]
 
         for s in attributes: # loop through various section of the template object
             if hasattr(slab,s):
@@ -1298,32 +1254,33 @@ class P(object):
                 del(vcs.elements["textcombined"][tt.name])
                 
 
-        nms = ["x","y","z","t"]
-        for i,ax in enumerate(slab.getAxisList()[::-1]):
-           nm=nms[i]+"name"
-           sub = getattr(self,nm)
-           tt=x.createtext(None,sub.texttable,None,sub.textorientation)
-           if i==0 and gm.g_name=="G1d":
-             if gm.flip or hasattr(slab,"_yname"):
-               tt.string=[slab.id]
+        if not isinstance(gm,vcs.taylor.Gtd):
+          nms = ["x","y","z","t"]
+          for i,ax in enumerate(slab.getAxisList()[::-1]):
+             nm=nms[i]+"name"
+             sub = getattr(self,nm)
+             tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+             if i==0 and gm.g_name=="G1d":
+               if gm.flip or hasattr(slab,"_yname"):
+                 tt.string=[slab.id]
+               else:
+                 tt.string=[ax.id]
+             elif i==1 and gm.g_name=="G1d":
+               if hasattr(slab,"_yname"):
+                 tt.string=[slab._yname]
+               else:
+                 tt.string=[ax.id]
              else:
-               tt.string=[ax.id]
-           elif i==1 and gm.g_name=="G1d":
-             if hasattr(slab,"_yname"):
-               tt.string=[slab._yname]
-             else:
-               tt.string=[ax.id]
-           else:
-               tt.string=[ax.id]
-           tt.x=[sub.x,]
-           tt.y=[sub.y,]
-           tt.priority=sub.priority
-           displays.append(x.text(tt,bg=bg,**kargs))
+                 tt.string=[ax.id]
+             tt.x=[sub.x,]
+             tt.y=[sub.y,]
+             tt.priority=sub.priority
+             displays.append(x.text(tt,bg=bg,**kargs))
 
 
 
         # Do the tickmarks/labels
-        if gm!='taylordiagram':
+        if not isinstance(gm,vcs.taylor.Gtd):
              displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
@@ -1765,11 +1722,11 @@ class P(object):
          self.data.y2=t.data.y2
      ##     print odx,ndx
          if odx!=ndx:
-             self.data.x1+=(odx-ndx)/2.
-             self.data.x2+=(odx-ndx)/2.
+             self.data.x1=max(0,min(1,self.data.x1+(odx-ndx)/2.))
+             self.data.x2=max(0,min(1,self.data.x2+(odx-ndx)/2.))
          else:
-             self.data.y1+=(ody-ndy)/2.
-             self.data.y2+=(ody-ndy)/2.
+             self.data.y1=max(0,min(1,self.data.y1+(ody-ndy)/2.))
+             self.data.y2=max(0,min(1,self.data.y2+(ody-ndy)/2.))
 
          if box_and_ticks:
               # Box1 resize
@@ -1786,37 +1743,37 @@ class P(object):
               # X tic
               dy=self.xtic1.y2-self.xtic1.y1
               self.xtic1.y1=self.data.y1
-              self.xtic1.y2=self.xtic1.y1+dy
+              self.xtic1.y2=max(0,min(1,self.xtic1.y1+dy))
               dy=self.xtic2.y2-self.xtic2.y1
               self.xtic2.y1=self.data.y2
-              self.xtic2.y2=self.xtic2.y1+dy
+              self.xtic2.y2=max(0,min(1,self.xtic2.y1+dy))
               # Xmin tic
               dy=self.xmintic1.y2-self.xmintic1.y1
               self.xmintic1.y1=self.data.y1
-              self.xmintic1.y2=self.xtic1.y1+dy
+              self.xmintic1.y2=max(0,min(1,self.xtic1.y1+dy))
               dy=self.xmintic2.y2-self.xmintic2.y1
               self.xmintic2.y1=self.data.y2
-              self.xmintic2.y2=self.xmintic2.y1+dy
+              self.xmintic2.y2=max(0,min(1,self.xmintic2.y1+dy))
               # Y tic
               dx=self.ytic1.x2-self.ytic1.x1
               self.ytic1.x1=self.data.x1
-              self.ytic1.x2=self.ytic1.x1+dx
+              self.ytic1.x2=max(0,min(1,self.ytic1.x1+dx))
               dx=self.ytic2.x2-self.ytic2.x1
               self.ytic2.x1=self.data.x2
-              self.ytic2.x2=self.ytic2.x1+dx
+              self.ytic2.x2=max(0,min(1,self.ytic2.x1+dx))
               # Ymin tic
               dx=self.ymintic1.x2-self.ymintic1.x1
               self.ymintic1.x1=self.data.x1
-              self.ymintic1.x2=self.ymintic1.x1+dx
+              self.ymintic1.x2=max(0,min(1,self.ymintic1.x1+dx))
               dx=self.ymintic2.x2-self.ymintic2.x1
               self.ymintic2.x1=self.data.x2
-              self.ymintic2.x2=self.ymintic2.x1+dx
+              self.ymintic2.x2=max(0,min(1,self.ymintic2.x1+dx))
               # Xlabels
-              self.xlabel1.y=self.xtic1.y1+dY1
-              self.xlabel2.y=self.xtic2.y1+dY2
+              self.xlabel1.y=max(0,min(1,self.xtic1.y1+dY1))
+              self.xlabel2.y=max(0,min(1,self.xtic2.y1+dY2))
               # Ylabels
-              self.ylabel1.x=self.ytic1.x1+dX1
-              self.ylabel2.x=self.ytic2.x1+dX2
+              self.ylabel1.x=max(0,min(1,self.ytic1.x1+dX1))
+              self.ylabel2.x=max(0,min(1,self.ytic2.x1+dX2))
               self.data._ratio = -Rwished
          else:
               self.data._ratio = Rwished

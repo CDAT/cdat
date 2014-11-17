@@ -996,7 +996,24 @@ class ImagePlaneWidget:
                 
 #----------------------------------------------------------------------------
 
+    def ConvertPositionToRelative( self, position ):
+        bounds = self.dataBounds[ self.PlaneOrientation*2:]
+        bsize = ( bounds[1] - bounds[0] )
+        rpos = 0.0 if ( bsize == 0.0 ) else ( position - bounds[0] ) / bsize
+        return rpos
+
+    def ConvertPositionFromRelative( self, relative_position ):
+        bounds = self.dataBounds[ self.PlaneOrientation*2:]
+        pos =  bounds[0]  +  relative_position * ( bounds[1] - bounds[0] )
+        return pos
+
+    def SetSlicePositionFromRelative( self, rel_position ):
+        position = self.ConvertPositionFromRelative( rel_position )
+        self.SetSlicePosition( position )
+        return position
+
     def SetSlicePosition( self, position ):
+#        print " SetSlicePosition: %s, bounds: %s " % ( str(position), str(self.dataBounds) )
         self.CurrentPosition = position
         planeOrigin = list( self.PlaneSource.GetOrigin() )    
         planeOrigin[ self.PlaneOrientation ] = position                      
@@ -1873,10 +1890,10 @@ class VectorSliceWidget(ImagePlaneWidget):
         return self.glyphDecimationFactorBounds
 
     def scaleColormap( self, ctf_data, cmap_index=0, **args ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+        colormapManager = self.getColormapManager( 'Slice', index=cmap_index )
         colormapManager.setScale( ctf_data, ctf_data )
         ispec = self.inputSpecs[ cmap_index ] 
-        ispec.addMetadata( { 'colormap' : self.getColormapSpec() } )
+        ispec.addMetadata( { '-'.join( [ 'colormap', 'Slice' ] ) : self.getColormapSpec('Slice') } )
         self.glyphMapper.SetLookupTable( colormapManager.lut )
         self.Interactor.Render()
 

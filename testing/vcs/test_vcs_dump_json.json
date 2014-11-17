@@ -9,7 +9,6 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "flip": false, 
-   "line": "solid", 
    "linecolor": 241, 
    "linewidth": 1, 
    "marker": "dot", 
@@ -173,9 +172,6 @@
      0.0, 
      1.0000000200408773e+20
     ]
-   ], 
-   "line": [
-    "solid"
    ], 
    "linecolors": [
     1
@@ -574,6 +570,26 @@
  }, 
  "Proj": {
   "Charles.Doutriaux": {
+   "parameters": [
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20
+   ], 
+   "type": "linear"
+  }, 
+  "linear": {
    "parameters": [
     1e+20, 
     1e+20, 
