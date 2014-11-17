@@ -406,7 +406,7 @@ class VTKVCSBackend(object):
     self.setLayer(ren,tmpl.data.priority)
     Y = self.trimData1D(data1)
     if data2 is None:
-      X=Y.getAxis(0)[:]
+      X=Y.getAxis(0)
     else:
       X=Y
       data1._yname = data2.id
@@ -420,8 +420,8 @@ class VTKVCSBackend(object):
     if gm.smooth is not None:
         Y = smooth(Y,gm.smooth)
     l = self.canvas.createline()
-    Xs = X.tolist()
-    Ys = Y.tolist()
+    Xs = X[:].tolist()
+    Ys = Y[:].tolist()
     xs = []
     ys = []
     prev = None
@@ -450,7 +450,7 @@ class VTKVCSBackend(object):
     l.type = gm.line
     l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
-    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,cdms2.createAxis(X[:]),cdms2.createAxis(Y[:]))
+    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,X,Y)
     if numpy.allclose(y1,y2):
         y1-=.0001
         y2+=.0001
@@ -470,7 +470,8 @@ class VTKVCSBackend(object):
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
 
-    if not (Y.min()>max(y1,y2) or Y.max()<min(y1,y2) or X.min()>max(x1,x2) or X.max()<min(x1,x2)):
+    if not (Y[:].min()>max(y1,y2) or Y[:].max()<min(y1,y2) \
+            or X[:].min()>max(x1,x2) or X[:].max()<min(x1,x2)):
     	if l.priority>0:
         	self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
     	if m.priority>0:
