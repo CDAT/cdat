@@ -1,5 +1,5 @@
 """
-Test from Charles Doutriaux, compares the accuracy of all the 
+Test from Charles Doutriaux, compares the accuracy of all the
 interpolation methods
 """
 import unittest
@@ -20,7 +20,6 @@ class Test(unittest.TestCase):
         """
         One way interpolation
         """
-    
         fnm = sys.prefix + '/sample_data/clt.nc'
         f = cdms2.open(fnm)
 
@@ -65,7 +64,7 @@ class Test(unittest.TestCase):
         """
         Forward/backward interpolation
         """
-    
+
         fnm=sys.prefix+'/sample_data/clt.nc'
         f=cdms2.open(fnm)
 
@@ -110,6 +109,7 @@ class Test(unittest.TestCase):
 if __name__ == '__main__':
     print ""
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
-    unittest.TextTestRunner(verbosity = 1).run(suite)
+    a= unittest.TextTestRunner(verbosity = 1).run(suite)
     if PLOT:
         pylab.show()
+    sys.exit(len(a.errors))
