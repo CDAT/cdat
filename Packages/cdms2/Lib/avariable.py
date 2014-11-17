@@ -971,6 +971,7 @@ class AbstractVariable(CdmsObj, Slab):
         # there is a circular dependency between cdms2 and regrid2. In 
         # principle, cdms2 files should not import regrid2, we're bending
         # rules here...
+        import regrid2
         from regrid2 import Horizontal
 
         if togrid is None: 
@@ -988,8 +989,8 @@ class AbstractVariable(CdmsObj, Slab):
                     keywords['periodicity'] = 1 # for the ESMF regridders
                     keywords['mkCyclic'] = 1    # for LibCF regridder
 
-            # check if there are bounds
-            if fromgrid.getBounds() is not None:
+            # check if there are bounds and we have esmf
+            if fromgrid.getBounds() is not None and hasattr(regrid2,"ESMFRegrid"):
                 regridTool = 'esmf'
                 regridMethod = 'linear'
 
@@ -1037,6 +1038,14 @@ avariable.regrid: regridTool = 'esmf' requires bounds for source grid, will swit
                     warnings.warn(message, Warning)
                     regridTool = 'libcf'
                     regridMethod = 'linear'
+                if not hasattr(regrid2,"ESMFRegrid"):
+                  message = """
+avariable.regrid: regridTool = 'esmf' but your version does not seems to be built with esmf, will switch to regridTool = 'libcf'
+                  """
+                  warnings.warn(message, Warning)
+                  regridTool = 'libcf'
+                  regridMethod = 'linear'
+
 
             if re.search('conserv', regridMethod, re.I):
                 # make sure destination grid has bounds
