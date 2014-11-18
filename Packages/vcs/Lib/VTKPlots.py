@@ -28,7 +28,8 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
-      self.AddObserver( "RenderEvent", parent.renderEvent )
+      if sys.platform == "darwin":
+          self.AddObserver( "RenderEvent", parent.renderEvent )
       #self.AddObserver( "AnyEvent",parent.stdEvent)
       
 class VTKVCSBackend(object):
@@ -51,8 +52,8 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     self.logo = None
-    self.reDO = False
-    self._leftPressed = False
+    if sys.platform == "darwin":
+        self.reDO = False
 
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -67,13 +68,14 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot interact if you did not open the canvas yet")
           return
       interactor = self.renWin.GetInteractor()
-      self.renWin.AddObserver( "RenderEvent", self.renderEvent )
-      #self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
-      #self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
-      #self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
-      #self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
-      self.renWin.AddObserver( "AnyEvent",self.stdEvent)
-      self.renWin.AddObserver( "EndEvent",self.endEvent)
+      if sys.platform == "darwin":
+          self.renWin.AddObserver( "RenderEvent", self.renderEvent )
+          self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
+          self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
+          self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
+          self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
+          self.renWin.AddObserver( "EndEvent",self.endEvent)
+      #self.renWin.AddObserver( "AnyEvent",self.stdEvent)
       if interactor is None:
           warnings.warn("Cannot start interaction. Blank plot?")
           return
@@ -84,13 +86,10 @@ class VTKVCSBackend(object):
     print evt
   def endEvent(self,obj,event):
     if self.renWin is not None:
-      print "yep end envent"
       if self.reDO:
         self.reDO = False
         self._lastSize = None
-        print "Ok we are triggering that crap"
         self.renWin.Render()
-      print "processed"
 
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
@@ -193,7 +192,7 @@ class VTKVCSBackend(object):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
-      if self.renWin is not None:
+      if self.renWin is not None and sys.platform == "darwin":
         self.renWin.Render()
       return
     #print "configuring"
@@ -221,14 +220,10 @@ class VTKVCSBackend(object):
       self.createLogo()
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
-    if self.renWin is not None:
+    if self.renWin is not None and sys.platform == "darwin":
       self.renWin.Render()
-      #iren = self.renWin.GetInteractor()
-      #if iren is not None:
-      #  iren.InvokeEvent(vtk.vtkCommand.LeftButtonPressEvent)
-      #  iren.InvokeEvent(vtk.vtkCommand.LeftButtonReleaseEvent)
-      #  self.configureEvent(obj,ev)
-    self.reDO = True
+    if sys.platform == "darwin":
+        self.reDO = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
