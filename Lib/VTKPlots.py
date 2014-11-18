@@ -52,6 +52,7 @@ class VTKVCSBackend(object):
         self.createDefaultInteractor()
     self.logo = None
     self.reDO = False
+    self._leftPressed = False
 
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -67,10 +68,10 @@ class VTKVCSBackend(object):
           return
       interactor = self.renWin.GetInteractor()
       self.renWin.AddObserver( "RenderEvent", self.renderEvent )
-      self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
-      self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
-      self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
-      self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
+      #self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
+      #self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
+      #self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
+      #self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
       #self.renWin.AddObserver( "AnyEvent",self.stdEvent)
       self.renWin.AddObserver( "EndEvent",self.endEvent)
       if interactor is None:
@@ -83,8 +84,9 @@ class VTKVCSBackend(object):
     print evt
   def endEvent(self,obj,event):
     if self.renWin is not None:
-      if self.reDO:
+      if self.reDO and not self._leftPressed:
         self.reDO = False
+        self._lastSize = None
         self.renWin.Render()
 
   def renderEvent(self,caller,evt):
@@ -97,6 +99,7 @@ class VTKVCSBackend(object):
 
   def leftButtonPressEvent(self,obj,event):
     #print "We do come here"
+    self._leftPressed = True
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
@@ -174,7 +177,7 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def leftButtonReleaseEvent(self,obj,event):
-    self._lastSize = None
+    #print "releasing"
     self.clickRenderer.RemoveAllViewProps()
     self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
@@ -189,6 +192,7 @@ class VTKVCSBackend(object):
       if self.renWin is not None:
         self.renWin.Render()
       return
+    #print "configuring"
     self._lastSize = sz
     plots_args = []
     key_args =[]
