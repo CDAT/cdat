@@ -202,6 +202,10 @@ add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    add_test(vcs_test_plot_file_varible
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
+      )
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       add_test(vcs_test_basic_${gm}_zero
         ${CMAKE_INSTALL_PREFIX}/bin/python
