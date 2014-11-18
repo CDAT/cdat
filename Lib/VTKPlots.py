@@ -29,7 +29,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       self.AddObserver( "RenderEvent", parent.renderEvent )
-      self.AddObserver( "AnyEvent",parent.stdEvent)
+      #self.AddObserver( "AnyEvent",parent.stdEvent)
       
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -71,7 +71,7 @@ class VTKVCSBackend(object):
       self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
       self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
       self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
-      self.renWin.AddObserver( "AnyEvent",self.stdEvent)
+      #self.renWin.AddObserver( "AnyEvent",self.stdEvent)
       self.renWin.AddObserver( "EndEvent",self.endEvent)
       if interactor is None:
           warnings.warn("Cannot start interaction. Blank plot?")
@@ -90,13 +90,13 @@ class VTKVCSBackend(object):
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
     window_size = renwin.GetSize() 
-    print "Yes we are herE",window_size,self.renderWindowSize
+    #print "Yes we are herE",window_size,self.renderWindowSize
     if ( window_size <> self.renderWindowSize ): 
       self.configureEvent(caller,evt)
       self.renderWindowSize = window_size
 
   def leftButtonPressEvent(self,obj,event):
-    print "We do come here"
+    #print "We do come here"
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
@@ -182,7 +182,6 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    print "Conf:",sz,self._lastSize
     if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
