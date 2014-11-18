@@ -24,13 +24,13 @@ endif()
 set(PYTHONPATH ${PYTHON_SITE_PACKAGES})
 
 if (CDAT_USE_SYSTEM_PYTHON)
-   include(FindPythonInterp)
+   find_package(PythonInterp)
    set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
    # \NOTE This is required or else FindPythonLibs may find whatever version is
    # listed first internally and if that version exists on the system. For example
    # a system might have python version 2.6 and 2.7 both installed.
    set(Python_ADDITIONAL_VERSIONS ${PYVER})
-   include(FindPythonLibs)
+   find_package(PythonLibs)
    set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
    message("[INFO] Using system python ${PYTHON_EXECUTABLE}")
    message("[INFO] Putting packages in directory ${PYTHON_SITE_PACKAGES}")
