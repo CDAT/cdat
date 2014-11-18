@@ -72,7 +72,7 @@ class VTKVCSBackend(object):
       #self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
       #self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
       #self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
-      #self.renWin.AddObserver( "AnyEvent",self.stdEvent)
+      self.renWin.AddObserver( "AnyEvent",self.stdEvent)
       self.renWin.AddObserver( "EndEvent",self.endEvent)
       if interactor is None:
           warnings.warn("Cannot start interaction. Blank plot?")
@@ -84,10 +84,13 @@ class VTKVCSBackend(object):
     print evt
   def endEvent(self,obj,event):
     if self.renWin is not None:
-      if self.reDO and not self._leftPressed:
+      print "yep end envent"
+      if self.reDO:
         self.reDO = False
         self._lastSize = None
+        print "Ok we are triggering that crap"
         self.renWin.Render()
+      print "processed"
 
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
@@ -177,9 +180,10 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def leftButtonReleaseEvent(self,obj,event):
-    #print "releasing"
     self.clickRenderer.RemoveAllViewProps()
-    self.clickRenderer.Render()
+    # The following seg fault on Mac if clicking before resizing the window
+    # commenting out
+    #self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
     self.renWin.Render()
 
