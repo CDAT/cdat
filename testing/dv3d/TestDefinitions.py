@@ -16,7 +16,7 @@ test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="ge
                                  'ScaleColormap': [-10.0, 10.0, 1], 
                                  'BasemapOpacity': [0.5],
                                  'XSlider': ( -50.0, vcs.on ),
-                                 'ZSlider': ( 10.0,  vcs.on ),
+                                 'ZSlider': ( 0.0,  vcs.on ),
                                  'YSlider': ( 20.0,  vcs.on ), 
                                  }  )       
      

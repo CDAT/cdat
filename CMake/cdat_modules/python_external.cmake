@@ -6,10 +6,6 @@ set(python_BUILD_IN_SOURCE 1)
 
 set(python_aqua_cdat no)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_patch_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/python_patch_step.cmake
-  @ONLY)
-
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_configure_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake
   @ONLY)
@@ -41,7 +37,6 @@ ExternalProject_Add(${proj}
   SOURCE_DIR ${python_SOURCE_DIR}
   BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
   UPDATE_COMMAND pwd
-  PATCH_COMMAND ${python_PATCH_COMMAND}
   CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
   BUILD_COMMAND ${python_BUILD_COMMAND}
   INSTALL_COMMAND ${python_INSTALL_COMMAND}
@@ -69,6 +64,3 @@ else()
   set(PYTHON_INCLUDE ${CMAKE_INSTALL_PREFIX}/include/python${PYVER})
   set(PYTHON_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libpython${PYVER}.so)
 endif()
-
-
-

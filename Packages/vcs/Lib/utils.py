@@ -22,6 +22,7 @@ import os
 import tempfile
 import colormap
 import vcsaddons
+import cdms2
 
 indent = 1
 sort_keys = True
@@ -1546,7 +1547,8 @@ def getworldcoordinates(gm,X,Y):
       wc[1]=X[:].max()
   else:
     wc[1] = gm.datawc_x2
-  if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+  if (((not isinstance(X,cdms2.axis.TransientAxis) and isinstance(Y,cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(X[:])) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20))\
+      or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear") :
     wc[0]=X[:].min()
     wc[1]=X[:].max()
   if gm.datawc_y1 > 9.E19 :
@@ -1575,7 +1577,8 @@ def getworldcoordinates(gm,X,Y):
       wc[3]=Y[:].max()
   else:
     wc[3] = gm.datawc_y2
-  if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+  if (((not isinstance(Y,cdms2.axis.TransientAxis) and isinstance(X,cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(Y[:])) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) \
+  or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear") :
     wc[2]=Y[:].min()
     wc[3]=Y[:].max()
   if wc[3]==wc[2]:
