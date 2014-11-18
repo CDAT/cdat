@@ -51,6 +51,7 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     self.logo = None
+    self.reDO = False
 
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -66,6 +67,12 @@ class VTKVCSBackend(object):
           return
       interactor = self.renWin.GetInteractor()
       self.renWin.AddObserver( "RenderEvent", self.renderEvent )
+      self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
+      self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
+      self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
+      self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
+      self.renWin.AddObserver( "AnyEvent",self.stdEvent)
+      self.renWin.AddObserver( "EndEvent",self.endEvent)
       if interactor is None:
           warnings.warn("Cannot start interaction. Blank plot?")
           return
@@ -74,6 +81,12 @@ class VTKVCSBackend(object):
 
   def stdEvent(self,caller,evt):
     print evt
+  def endEvent(self,obj,event):
+    if self.renWin is not None:
+      if self.reDO:
+        self.reDO = False
+        self.renWin.Render()
+
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
     window_size = renwin.GetSize() 
@@ -161,6 +174,7 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def leftButtonReleaseEvent(self,obj,event):
+    self._lastSize = None
     self.clickRenderer.RemoveAllViewProps()
     self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
@@ -202,11 +216,12 @@ class VTKVCSBackend(object):
       self.scaleLogo()
     if self.renWin is not None:
       self.renWin.Render()
-      iren = self.renWin.GetInteractor()
-      if iren is not None:
-        iren.InvokeEvent(vtk.vtkCommand.LeftButtonPressEvent)
-        iren.InvokeEvent(vtk.vtkCommand.LeftButtonReleaseEvent)
-        self.configureEvent(obj,ev)
+      #iren = self.renWin.GetInteractor()
+      #if iren is not None:
+      #  iren.InvokeEvent(vtk.vtkCommand.LeftButtonPressEvent)
+      #  iren.InvokeEvent(vtk.vtkCommand.LeftButtonReleaseEvent)
+      #  self.configureEvent(obj,ev)
+    self.reDO = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
