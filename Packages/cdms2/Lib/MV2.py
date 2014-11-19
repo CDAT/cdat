@@ -402,7 +402,12 @@ def average (a, axis=None, weights=None, returned=False):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.average(ta, axis, weights, returned)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    if returned: maresult, wresult = maresult
+    if returned:
+      if isinstance(maresult,tuple):
+        maresult, wresult = maresult
+      else:
+        #ok it's masked constant need to return both things by hand
+        wresult = numpy.ma.masked
     F=getattr(a,"fill_value",1.e20)
     r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
     if returned:

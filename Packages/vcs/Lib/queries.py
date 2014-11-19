@@ -61,6 +61,8 @@ def isgraphicsmethod(gobj):
             return 1
         elif (isinstance(gobj,dv3d.Gf3Dscalar)):
             return 1
+        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
+            return 1
         elif (isinstance(gobj,dv3d.Gf3Dvector)):
             return 1
         elif (isinstance(gobj,isoline.Gi)):
@@ -97,7 +99,7 @@ ill,
     a=vcs.init()
     gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_vector' ]
+        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector' ]
 
 def graphicsmethodtype(gobj):
         """
@@ -127,6 +129,8 @@ def graphicsmethodtype(gobj):
             return 'isofill'
         elif (isinstance(gobj,dv3d.Gf3Dscalar)):
             return '3d_scalar'
+        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
+            return '3d_dual_scalar'
         elif (isinstance(gobj,dv3d.Gf3Dvector)):
             return '3d_vector'
         elif (isinstance(gobj,isoline.Gi)):
@@ -419,10 +423,38 @@ if queries.is3d_scalar(plot):
    ...
 
 """
-    if (isinstance(obj,dv3d.Gf3Dscalar)):
+    if (isinstance(obj,dv3d.Gf3Dscalar) or isinstance(obj,dv3d.Gf3DDualScalar)):
         return 1
     else:
        return 0
+   
+   
+#############################################################################
+#                                                                           #
+# Is this a primary 3d_scalar graphics method in VCS?                         #
+#                                                                           #
+#############################################################################
+def is3d_dual_scalar(obj):
+    """
+ Function: is3d_dual_scalar
+
+ Description of Function:
+Check to see if this object is a VCS primary 3d_dual_scalar graphics method.
+
+ Example of Use:
+a=vcs.init()
+plot=a.get3d_dual_scalar()  # To Modify an existing 3d_scalar object
+...
+
+if queries.is3d_dual_scalar(plot):
+   ...
+
+"""
+    if isinstance(obj,dv3d.Gf3DDualScalar):
+        return 1
+    else:
+       return 0
+   
    
 #############################################################################
 #                                                                           #
