@@ -204,6 +204,9 @@ class Button(Widget):
         return self.repr.GetState()
     
     def set_state(self, state):
+        new_state = self.states[state]
+        label = self.label if new_state.label is None else new_state.label
+        self.text_widget.set_text(label)
         self.repr.SetState(state)
 
     def show(self):
@@ -218,12 +221,12 @@ class Button(Widget):
     def __advance__(self, point):
         x, y = point
         state = self.repr.GetState()
-        self.repr.SetState( (state + 1) % len(self.states) )
+        self.set_state( (state + 1) % len(self.states) )
         #self.clicked(self.widget, "StateChangedEvent") Do we need to call this? I bet we don't.
 
     def clicked(self, obj, event):
         self.place()
-        state = self.repr.GetState()
+        state = self.get_state()
         button_state = self.states[state]
         
         self.text_widget.set_text( button_state.label if button_state.label else self.label )
@@ -238,9 +241,9 @@ class Button(Widget):
              height=self.height, left=self.left, top=self.top, image=self.image, label=self.label, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
              opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
 
-        state = self.repr.GetState()
+        state = self.get_state()
         if state != 0:
-            b.repr.SetState(state)
+            b.set_state(state)
             b.action(state)
 
         return b
@@ -277,7 +280,7 @@ class ToggleButton(Button):
         state = self.repr.GetState()
         
         if state != 0:
-            b.repr.SetState(state)
+            b.set_state(state)
             b.on()
 
         return b
@@ -330,7 +333,7 @@ class SliderButton(ToggleButton):
 
         state = self.repr.GetState()
         if state != 0:
-            b.repr.SetState(state)
+            b.set_state(state)
             b.action(state)
 
         return b
