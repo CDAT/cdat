@@ -1568,25 +1568,17 @@ class VTKVCSBackend(object):
           if flipX:
             cam.Azimuth(180.)
       return Renderer
-
+  def update_input(self,vtkobjects,array1,array2=None):
+      print vtkobjects
+      if vtkobjects.has_key("vtk_backend_grid"):
+          ## Ok ths is where we update the input data
+          vg=vtkobjects["vtk_backend_grid"]
+          data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
+          pData= vg.GetPointData().GetScalars()
+          if pData is not None:
+              vg.GetPointData().SetScalars(data)
+          else:
+              vg.GetCellData().SetScalars(data)
+      self.renWin.Render()
 class VTKAnimate(animate_helper.AnimationController):
-   pass
-
-# class VTKAnimate(animate_helper.animate_obj):
-#   def __init__(self,*args,**kargs):
-#     animate_helper.animate_obj.__init__(self,*args,**kargs)
-#     self._initial_blink_done = False
-#   def draw2(self,frame):
-#     if self.create_flg == 1:
-#         self.current_frame = frame
-#         kargs = {}
-#         if self._initial_blink_done:
-#           kargs["noblink"]=True
-#         else:
-#           self._initial_blink_done = True
-#         self.vcs_self.backend.clear()
-#         self.vcs_self.put_png_on_canvas(self.animation_files[frame],
-#                 self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
-#         if animate_helper.hasPyQt:
-#           self.signals.drew.emit()
-
+    pass
