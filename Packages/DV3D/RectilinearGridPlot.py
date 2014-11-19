@@ -382,7 +382,8 @@ class RectGridPlot(StructuredGridPlot):
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
-            self.processConfigParameterChange( slicePosition )
+            val_key = 'relative' if (plane_index == 2) else None
+            self.processConfigParameterChange( slicePosition, val_key )
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
             bbar = self.getPlotButtonbar()
