@@ -131,7 +131,16 @@ def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
     vg.SetPoints(geopts)
   else:
     vg=grid
-  return vg,xm,xM,ym,yM,continents,wrap,geo
+  out={"vtk_backend_grid":vg,
+      "xm":xm,
+      "xM":xM,
+      "ym":ym,
+      "yM":yM,
+      "continents":continents,
+      "wrap":wrap,
+      "geo":geo,
+      }
+  return out
   
 def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
   continents = False
@@ -314,7 +323,17 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
     vg.SetPoints(geopts)
   else:
     vg=grid
-  return vg,xm,xM,ym,yM,continents,wrap,geo,cellData
+  out={"vtk_backend_grid":vg,
+      "xm":xm,
+      "xM":xM,
+      "ym":ym,
+      "yM":yM,
+      "continents":continents,
+      "wrap":wrap,
+      "geo":geo,
+      "cellData":cellData,
+      }
+  return out
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
