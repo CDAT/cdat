@@ -589,7 +589,7 @@ class VTKVCSBackend(object):
     vtk_backend_grid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
-        exec("%s = gridGenDict['%s']" % (k,k)
+        exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,None,False,deep=False)
@@ -740,7 +740,7 @@ class VTKVCSBackend(object):
       data2 = self.trimData2D(data2)
     gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
-        exec("%s = gridGenDict['%s']" % (k,k)
+        exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     #Now applies the actual data on each cell
