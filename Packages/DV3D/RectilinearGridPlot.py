@@ -10,12 +10,8 @@ from Shapefile import shapeFileReader
 from ImagePlaneWidget import *  
 from StructuredGridPlot import  *
 from StructuredDataset import *
+from ConfigurationFunctions import get_scalar_value
 import numpy as np
-
-def get_scalar_value( tvals ):
-    if hasattr( tvals, '__iter__' ):
-        return get_scalar_value( tvals[0] )
-    else: return tvals
     
 LegacyAbsValueTransferFunction = 0
 LinearTransferFunction = 1 
