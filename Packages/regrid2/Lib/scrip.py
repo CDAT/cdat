@@ -56,7 +56,6 @@ class ScripRegridder:
             
         # If input is an numpy.ma, make it Numeric
         if numpy.ma.isMaskedArray(input):
-            print "Filling it"
             input = input.filled()
 
         restoreShape = input.shape[:-rank]
@@ -64,7 +63,6 @@ class ScripRegridder:
         oldshape = input.shape
         newshape = (restoreLen, gridsize)
         input.shape = newshape
-        print "old,new:",oldshape,newshape
 
         # Regrid
         output = self.regrid(input)
@@ -121,16 +119,15 @@ class ConservativeRegridder(ScripRegridder):
 
     def regrid(self, input):
         if self.normal is None:
-            print "On input, num_links = %d"%(len(self.sourceAddress))
-            print "On input, nextra = %d"%(input.shape[0])
-            print "On input, ninput = %d"%(input.shape[1])
-            print "On input, noutput = %d"%(self.outputGrid.size())
-            print "On input, shape(input) = %s"%`input.shape`
-            print "On input, shape(output) = %s"%`self.outputGrid.shape`
-            print "On input, shape(remap_matrix) = %s"%`self.remapMatrix.shape`
-            print "On input, shape(src_address) = %s"%`self.sourceAddress.shape`
-            print "On input, shape(dst_address) = %s"%`self.destAddress.shape`
-            print type(self.remapMatrix),self.remapMatrix.shape
+##             print "On input, num_links = %d"%(len(self.sourceAddress))
+##             print "On input, nextra = %d"%(input.shape[0])
+##             print "On input, ninput = %d"%(input.shape[1])
+##             print "On input, noutput = %d"%(self.outputGrid.size())
+##             print "On input, shape(input) = %s"%`input.shape`
+##             print "On input, shape(output) = %s"%`self.outputGrid.shape`
+##             print "On input, shape(remap_matrix) = %s"%`self.remapMatrix.shape`
+##             print "On input, shape(src_address) = %s"%`self.sourceAddress.shape`
+##             print "On input, shape(dst_address) = %s"%`self.destAddress.shape`
             result = _scrip.conserv_regrid(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress)
         else:
             result = _scrip.conserv_regrid_normal(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress, self.normal)
@@ -274,7 +271,6 @@ def readRegridder(fileobj, mapMethod=None, checkGrid=1):
     convention = 'SCRIP'
     if fileobj.variables.keys().count('S'):
         convention = 'NCAR'
-    print "Convention:",convention
     if convention == 'SCRIP':
         remapMatrix = fileobj('remap_matrix').filled()
         srcAddress = fileobj('src_address').filled()
