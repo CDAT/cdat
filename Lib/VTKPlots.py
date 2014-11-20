@@ -43,7 +43,6 @@ class VTKVCSBackend(object):
     self.plotRenderers = set()
     self.renderer = None
     self._plot_keywords = ['renderer',]
-    self.numberOfPlotCalls = 0
     self.numberOfPlotCalls = 0 
     self.renderWindowSize=None
     if renWin is not None:
@@ -79,8 +78,6 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor.Start()
 
-  def stdEvent(self,caller,evt):
-    print evt
   def endEvent(self,obj,event):
     if self.renWin is not None:
       if self.reRender:
