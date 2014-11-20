@@ -234,7 +234,14 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
-option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF)
+# OSMesa/VTK aren't playing nicely on macs. Disabling for now.
+if(NOT APPLE)
+  option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF)
+else()
+  # If the option is passed on the command line, let the user know it won't work
+  message(FATAL_ERROR "[ERROR] CDAT_BUILD_OFFSCREEN is currently not available "
+                      "on macs. Please remove this option and rerun CMake.")
+endif()
 
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
