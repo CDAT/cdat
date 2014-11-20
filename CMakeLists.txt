@@ -4,6 +4,20 @@ if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
   message(WARNING "Your CMake version is ${CMAKE_VERSION} which is depreciated for UV-CDAT. The recommended minimum CMake version is 2.8.12. Using older versions can result in build errors particularly with Xcode 5")
 endif()
 
+function(dump_watch_info var access val listfile stack)
+  message("")
+  message("[DEBUG] ${var} used in ${listfile}!")
+  message("[DEBUG] Access: ${access}")
+  message("[DEBUG] Value: ${val}")
+  message("[DEBUG] Stack:")
+  foreach(frame ${stack})
+    message("[DEBUG]    ${frame}")
+  endforeach()
+  message("")
+endfunction()
+
+variable_watch(PYTHON_SITE_PACKAGES dump_watch_info)
+
 # Project name and initial checks
 #-----------------------------------------------------------------------------
 project(cdat)

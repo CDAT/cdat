@@ -19,6 +19,8 @@ set(PyQt_configure_command
     -e QtXml -e QtXmlPatterns -e QtCore
 )
 
+message("[DEBUG] PyQt configure command:\n${PyQt_configure_command}")
+
 ExternalProject_Add(PyQt
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${PyQt_source}
