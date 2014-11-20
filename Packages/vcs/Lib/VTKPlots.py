@@ -93,7 +93,6 @@ class VTKVCSBackend(object):
       self.renderWindowSize = window_size
 
   def leftButtonPressEvent(self,obj,event):
-    self._leftPressed = True
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
