@@ -156,6 +156,121 @@ class P(object):
         "_ytic1","_ytic2","_ymintic1","_ymintic2","_xlabel1","_xlabel2","_box1","_box2","_box3","_box4",
         "_ylabel1","_ylabel2","_line1","_line2","_line3","_line4","_legend","_data","_scaledFont"]
 
+    def getConfigurables(self):
+        from vtk_ui.configuration import FloatOption, BoxOption, ListOption, BoolOption, PointOption
+
+        # Getter and setter for the chart box
+        def update_chart(point1, point2):
+            x1, y1 = point1
+            x2, y2 = point2
+
+            # moveto x1/y1
+            self.moveto(x1, y1)
+            # scale x
+            new_width = abs(x2 - x1)
+            old_width = abs(self.data.x2 - self.data.x1)
+            scale = float(new_width) / old_width
+
+            if scale != 1:
+                self.scale(scale, axis="x")
+
+            # scale y
+            new_height = abs(y2 - y1)
+            old_height = abs(self.data.y2 - self.data.y1)
+            scale = float(new_height) / old_height
+
+            if scale != 1:
+                self.scale(scale, axis="y")
+
+            self.box1.x1 = x1
+            self.box1.y1 = y1
+            self.box1.x2 = x2
+            self.box1.y2 = y2
+
+        def get_chart():
+            return (self.data.x1, self.data.y1), (self.data.x2, self.data.y2)
+
+        def box(attr):
+            def update(point1, point2):
+                b = getattr(self, attr)
+                b.x1, b.y1 = point1
+                b.x2, b.y2 = point2
+
+            def get():
+                b = getattr(self, attr)
+                return (b.x1, b.y1), (b.x2, b.y2)
+
+            return BoxOption(attr, update, get, normalize=True)
+
+        def text(label_name):
+
+            def update(point1):
+                b = getattr(self, label_name)
+                b.x, b.y = point1
+
+            def get():
+                b = getattr(self, label_name)
+                return (b.x, b.y)
+
+            return PointOption(label_name, update, get, normalize=True)
+
+        def f_config(attr, subattr):
+            a = getattr(self, attr)
+
+            def setter(f):
+                setattr(a, subattr, f)
+
+            def get():
+                return getattr(a, subattr)
+
+            return FloatOption(attr, setter, get)
+
+        configs = [
+            BoxOption("Chart", update_chart, get_chart, normalize=True),
+            box("legend"),
+            text('mean'),
+            text('min'),
+            text('max'),
+            text("dataname"),
+            text("title"),
+            text("units"),
+            text("crdate"),
+            text("crtime"),
+            text("comment1"),
+            text("comment2"),
+            text("comment3"),
+            text("comment4"),
+            f_config("xlabel1", "y"),
+            f_config("ylabel1", "x"),
+        ]
+
+        """
+        "file": text('file'),
+        "function": text('function'),
+        "logicalmask": text('logicalmask'),
+        "transformation": text('transformation'),
+        "source": text('source'),
+        "dataname": text('dataname'),
+        "title": text('title'),
+        "units": text('units'),
+        "crdate": text('crdate'),
+        "crtime": text('crtime'),
+        "comment1": text('comment1'),
+        "comment2": text('comment2'),
+        "comment3": text('comment3'),
+        "comment4": text('comment4'),
+        "xname": text('xname'),
+        "yname": text('yname'),
+        "zname": text('zname'),
+        "tname": text('tname'),
+        "xunits": text('xunits'),
+        "yunits": text('yunits'),
+        "zunits": text('zunits'),
+        "tunits": text('tunits'),
+        """
+
+        return configs
+
     def _getName(self):
       return self._name
     name = property(_getName)
