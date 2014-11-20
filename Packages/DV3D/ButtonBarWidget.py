@@ -12,11 +12,6 @@ PackagePath = os.path.dirname( __file__ )
 DataDir = os.path.join( PackagePath, 'data' )
 ButtonDir = os.path.join( DataDir, 'buttons' )
 
-def get_scalar_value( tvals ):
-    if hasattr( tvals, '__iter__' ):
-        return get_scalar_value( tvals[0] )
-    else: return tvals
-
 class OriginPosition:
     Upper_Left = [ 0, 1 ] 
     Upper_Right = [ 1, 1 ]  
