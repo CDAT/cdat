@@ -533,7 +533,8 @@ class ButtonBarWidget(ButtonBar):
                     positions = [ position_index ] if position_index else range(4)
                     for pindex in positions: self.releaseSlider( pindex ) 
                     configFunct.processInteractionEvent( [ "InitConfig", 0, False, self ] )
-                    if self.name <> "Configure": self.handler.restoreInteractionState( state )
+                    if (self.name <> "Configure"): self.handler.restoreInteractionState( state )
+
     #        config_function = self.configurableFunctions.get( button_id, None )
     #        if config_function: config_function.processStateChangeEvent( state )
     #        button = self.buttons.get( button_id, None )
