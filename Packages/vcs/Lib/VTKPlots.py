@@ -1601,19 +1601,36 @@ class VTKVCSBackend(object):
               vg.GetPointData().SetScalars(data)
           else:
               vg.GetCellData().SetScalars(data)
+      taxis = array1.getTime()
+      if taxis is not None:
+          tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
+      else:
+          tstr = None
+      print "TAXIS:",taxis,array1.shape
       ## Min/Max/Mean
-      for att in ["Min","Max","Mean"]:
+      for att in ["Min","Max","Mean","crtime","crdate","zvalue"]:
           if vtkobjects.has_key("vtk_backend_%s_text_actor" % att):
               t = vtkobjects["vtk_backend_%s_text_actor" % att]
               if att == "Min":
                   t.SetInput("Min %g" % array1.min())
               elif att == "Max":
                   t.SetInput("Max %g" % array1.max())
-              else:
+              elif att == "Mean":
                 if not inspect.ismethod(getattr(array1,'mean')):
                      t.SetInput('Mean '+str(getattr(array1,"mean")))
                 else:
                      t.SetInput('Mean %f'%array1.mean())
+              elif att=="crdate" and tstr is not None:
+                  t.SetInput(tstr.split()[0].replace("-","/"))
+              elif att=="crtime" and tstr is not None:
+                  t.SetInput(tstr.split()[1])
+              elif att=="zvalue":
+                  if len(array1.shape)>2:
+                      l=array1.getAxis(-3)
+                      if l.isTime():
+                          t.SetInput(str(l.asComponentTime()[0]))
+                      else:
+                          t.SetInput("%g" % l[0])
 
       self.renWin.Render()
 class VTKAnimate(animate_helper.AnimationController):
