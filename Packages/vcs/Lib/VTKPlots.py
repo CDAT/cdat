@@ -11,6 +11,7 @@ import cdms2
 import DV3D
 import MV2
 import cdtime
+import inspect
 
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -385,11 +386,12 @@ class VTKVCSBackend(object):
             self._renderers[(None,None,None)]=ren
         else:
             ren = self._renderers[(None,None,None)]
-        vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(ren,to=to,tt=tt)
         self.setLayer(ren,tt.priority)
     elif gtype=="line":
       if gm.priority!=0:
         actors = vcs2vtk.prepLine(self.renWin,gm)
+        returned["vtk_backend_line_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -397,6 +399,7 @@ class VTKVCSBackend(object):
     elif gtype=="marker":
       if gm.priority!=0:
         actors = vcs2vtk.prepMarker(self.renWin,gm)
+        returned["vtk_backend_marker_actors"]=actors
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -423,6 +426,7 @@ class VTKVCSBackend(object):
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
+        returned["vtk_backend_fillarea_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -1130,7 +1134,22 @@ class VTKVCSBackend(object):
       return {}
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
-    tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    ## ok first basic template stuff, let's store the displays
+    ## because we need to return actors for min/max/mean
+    displays = tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    returned = {}
+    print displays
+    for d in displays:
+        if d is None:
+          continue
+        texts=d.backend.get("vtk_backend_text_actors",None)
+        if texts is not None:
+          for t in texts:
+            ## ok we had a text actor, let's see if it's min/max/mean
+            txt = t.GetInput()
+            s0=txt.split()[0]
+            if s0 in ["Min","Max","Mean"]:
+                returned["vtk_backend_%s_text_actor" % s0] = t
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
@@ -1149,7 +1168,8 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if crdate.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_crdate_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crdate.name])
@@ -1157,7 +1177,8 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if crtime.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_crtime_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
@@ -1199,11 +1220,12 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if zvalue.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_zvalue_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zvalue.name])
-    return {}
+    return returned
 
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
@@ -1579,6 +1601,20 @@ class VTKVCSBackend(object):
               vg.GetPointData().SetScalars(data)
           else:
               vg.GetCellData().SetScalars(data)
+      ## Min/Max/Mean
+      for att in ["Min","Max","Mean"]:
+          if vtkobjects.has_key("vtk_backend_%s_text_actor" % att):
+              t = vtkobjects["vtk_backend_%s_text_actor" % att]
+              if att == "Min":
+                  t.SetInput("Min %g" % array1.min())
+              elif att == "Max":
+                  t.SetInput("Max %g" % array1.max())
+              else:
+                if not inspect.ismethod(getattr(array1,'mean')):
+                     t.SetInput('Mean '+str(getattr(array1,"mean")))
+                else:
+                     t.SetInput('Mean %f'%array1.mean())
+
       self.renWin.Render()
 class VTKAnimate(animate_helper.AnimationController):
     pass
