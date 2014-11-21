@@ -123,10 +123,19 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
+   set(temp_git_protocol "git://")
+   execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "git://github.com/UV-CDAT/uvcdat.git"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT res EQUAL 0)
+    set(temp_git_protocol "http://")
+  endif()
+
+  set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  message(FATAL_ERROR "[ERROR] Select either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
