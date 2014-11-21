@@ -1138,7 +1138,6 @@ class VTKVCSBackend(object):
     ## because we need to return actors for min/max/mean
     displays = tmpl.plot(self.canvas,data,gm,bg=self.bg)
     returned = {}
-    print displays
     for d in displays:
         if d is None:
           continue
@@ -1591,7 +1590,6 @@ class VTKVCSBackend(object):
             cam.Azimuth(180.)
       return Renderer
   def update_input(self,vtkobjects,array1,array2=None):
-      print vtkobjects
       if vtkobjects.has_key("vtk_backend_grid"):
           ## Ok ths is where we update the input data
           vg=vtkobjects["vtk_backend_grid"]
@@ -1606,7 +1604,6 @@ class VTKVCSBackend(object):
           tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
       else:
           tstr = None
-      print "TAXIS:",taxis,array1.shape
       ## Min/Max/Mean
       for att in ["Min","Max","Mean","crtime","crdate","zvalue"]:
           if vtkobjects.has_key("vtk_backend_%s_text_actor" % att):
