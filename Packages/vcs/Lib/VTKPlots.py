@@ -1186,8 +1186,9 @@ class VTKVCSBackend(object):
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
-        zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
-        zunits.string=zaxis.units
+        if hasattr(zaxis,"units"):
+          zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
+          zunits.string=zaxis.units
         zvalue = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zvalue")
         if zaxis.isTime():
             zvalue.string = str(zaxis.asComponentTime()[0])
@@ -1208,14 +1209,15 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zname.name])
-        tt,to = zunits.name.split(":::")
-        tt = vcs.elements["texttable"][tt]
-        to = vcs.elements["textorientation"][to]
-        if zunits.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
-        del(vcs.elements["texttable"][tt.name])
-        del(vcs.elements["textorientation"][to.name])
-        del(vcs.elements["textcombined"][zunits.name])
+        if hasattr(zaxis,"units"):
+          tt,to = zunits.name.split(":::")
+          tt = vcs.elements["texttable"][tt]
+          to = vcs.elements["textorientation"][to]
+          if zunits.priority>0:
+              vcs2vtk.genTextActor(ren,to=to,tt=tt)
+          del(vcs.elements["texttable"][tt.name])
+          del(vcs.elements["textorientation"][to.name])
+          del(vcs.elements["textcombined"][zunits.name])
         tt,to = zvalue.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
@@ -1590,15 +1592,18 @@ class VTKVCSBackend(object):
           if flipX:
             cam.Azimuth(180.)
       return Renderer
-  def update_input(self,vtkobjects,array1,array2=None):
+  def update_input(self,vtkobjects,array1,array2=None,update=True):
       if vtkobjects.has_key("vtk_backend_grid"):
+          print "ok?"
           ## Ok ths is where we update the input data
           vg=vtkobjects["vtk_backend_grid"]
           data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
           pData= vg.GetPointData().GetScalars()
           if pData is not None:
+              print "OK HERE"
               vg.GetPointData().SetScalars(data)
           else:
+              print "OK HERE 2",array1.shape
               vg.GetCellData().SetScalars(data)
       taxis = array1.getTime()
       if taxis is not None:
@@ -1630,4 +1635,5 @@ class VTKVCSBackend(object):
                       else:
                           t.SetInput("%g" % l[0])
 
-      self.renWin.Render()
+      if update:
+        self.renWin.Render()

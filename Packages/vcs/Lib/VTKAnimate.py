@@ -2,6 +2,10 @@
 ## Author:  Charles Doutriaux
 import animate_helper
 import vcs
+import time
+import random
+import hashlib
+import os
 
 class VTKAnimationCreate(animate_helper.StoppableThread):
   def __init__(self, controller):
@@ -10,33 +14,9 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 
   def run(self):
     self.describe()
-    if self.controller.create_params.a_min is not None:
-      gms = []
-      for info in self.controller.animate_info:
-         d = info[0]
-         if not d.g_type in ["text",]:
-            exec("gm = self.controller.vcs_self.create%s(source='%s')" % (d.g_type,d.g_name))
-            if vcs.isboxfill(gm) and gm.boxfill_type!="custom":
-              gm.level_1 = self.controller.create_params.a_min
-              gm.level_2 = self.controller.create_params.a_max
-            elif hasattr(gm,"levels"):
-              levs = vcs.mkevenlevels(self.controller.create_params.a_min,self.controller.create_params.a_max)
-              gm.levels=levs
-              gm.fillareacolors=vcs.getcolors(levs)
-            else: # probably 1D ?
-              if gm.flip:
-                gm.datawc_x1=self.controller.create_params.a_min
-                gm.datawc_x2=self.controller.create_params.a_max
-              else:
-                gm.datawc_y1=self.controller.create_params.a_min
-                gm.datawc_y2=self.controller.create_params.a_max
-         else:
-           gm = None
-         gms.append(gm)
-
-      #Ok we are stocking this for frame updating later
-      self.controller.create_params.gms=gms
-    self.animation_created = True
+    self.controller.animation_created = True
+    self.controller._unique_prefix=hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
+    print "NFRAMES:",self.controller.number_of_frames()
 
   def describe(self):
     for info in self.controller.animate_info:
@@ -49,11 +29,47 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
       else:
         print "No Array"
 
-class VTKAnimationPlayback:
+class VTKAnimationPlayback(animate_helper.AnimationPlayback):
+  def __init__(self, controller):
+    animate_helper.AnimationPlayback.__init__(self,controller)
   pass
+
 class VTKAnimate(animate_helper.AnimationController):
     def __init__(self,vcs_self):
         animate_helper.AnimationController.__init__(self,vcs_self)
         self.AnimationCreate = VTKAnimationCreate
         self.AnimationPlayback = VTKAnimationPlayback
     pass
+    def draw_frame(self):
+      print "Drawing frame:",self.frame_num
+      png_name=os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_%.10i" % self.frame_num)
+      if os.path.exists(png_name) and self.playback_params.zoom_factor!=1:
+        ## Ok we have the pngs and we need to zoom, need to use png
+        ## maybe the zoom factor thing can be taken off, not sure what's faster
+        self.vcs_self.put_png_on_canvas(
+          png_name,
+          self.playback_params.zoom_factor,
+          self.playback_params.vertical_factor,
+          self.playback_params.horizontal_factor)
+      else: # Ok no pngs let's update the arrays and redraw
+        ## Ok let's loop through the arrays and figure out the slice needed and update
+        for i,info in enumerate(self.vcs_self.animate_info):
+          disp,slabs = info
+          slab = slabs[0]
+          if slab is None:
+            continue # nothing to do
+          #Ok we have a slab, let's figure which slice it is
+          args=[]
+          N=1
+          for a in slab.getAxisList()[:-self._number_of_dims_used_for_plot][::-1]:
+             n=self.frame_num/N % len(a)
+             N*=len(a)
+             args.append(slice(n,n+1))
+          args=args[::-1]
+          if self.frame_num  == 0:
+            print "NFrame <-> args: %i <-> %s" % (self.frame_num,args)
+            print "BE ANIM:",disp.backend
+          self.vcs_self.backend.update_input(disp.backend,slab(*args),update=True)
+        #self.vcs_self.backend.renWin.Render()
+      if self.signals is not None:
+        self.signals.drawn.emit(self.frame_num)
