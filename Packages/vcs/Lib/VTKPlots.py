@@ -12,6 +12,7 @@ import DV3D
 import MV2
 import cdtime
 import inspect
+import VTKAnimate
 
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -1395,7 +1396,7 @@ class VTKVCSBackend(object):
           writer.Write()
           a=A.GetNextActor()
   def Animate(self,*args,**kargs):
-    return VTKAnimate(*args,**kargs)
+    return VTKAnimate.VTKAnimate(*args,**kargs)
 
   def gettextextent(self,textorientation,texttable):
       warnings.warn("Please implement gettextextent for VTK Backend")
@@ -1630,5 +1631,3 @@ class VTKVCSBackend(object):
                           t.SetInput("%g" % l[0])
 
       self.renWin.Render()
-class VTKAnimate(animate_helper.AnimationController):
-    pass
