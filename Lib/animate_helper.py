@@ -729,6 +729,8 @@ class AnimationController(animate_obj_old):
     self.playback_params = AnimationPlaybackParams()
     # GUI will set these if available
     self.signals = None
+    self.AnimationCreate = AnimationCreate
+    self.AnimationPlayback = AnimationPlayback
 
   def set_signals(self, signals):
     self.signals = signals
@@ -744,7 +746,7 @@ class AnimationController(animate_obj_old):
       self.animate_info = self.vcs_self.animate_info
       self.create_params.a_min = min
       self.create_params.a_max = max
-      self.create_thread = AnimationCreate(self)
+      self.create_thread = self.AnimationCreate(self)
       self.create_thread.start()
     if not thread_it:
       self.create_thread.join()
@@ -764,7 +766,7 @@ class AnimationController(animate_obj_old):
   def playback(self):
     if (self.created() and 
         (self.playback_thread is None or not self.playback_thread.is_alive())):
-      self.playback_thread = AnimationPlayback(self)
+      self.playback_thread = self.AnimationPlayback(self)
       self.playback_thread.start()
 
   # alias run to playback for command-line compatibility
