@@ -18,29 +18,37 @@ class Configurator(object):
         now = datetime.datetime.now()
 
         point = self.interactor.GetEventPosition()
+
+        for display in self.displays:
+            obj = self.in_display_plot(point, display)
+            if obj is not None:
+                break
+
+        if obj:
+            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == obj:
+                self.clicked = None
+                self.activate(obj)
+            else:
+                self.clicked = (now, obj)
+
+    def activate(self, obj):
+        print "Activating %s" % obj.name
+
+    def in_display_plot(self, point, dp):
         #Normalize the point
         x, y = point
         w, h = self.interactor.GetRenderWindow().GetSize()
-        point = (x / float(w), y / float(h))
+        if x > 1 or y > 1:
+            point = (x / float(w), y / float(h))
+            x, y = point
 
-        fudge = 5 / float(w)
-
-        for display in self.displays:
-            attr = in_template(point, t(display.template), fudge=fudge)
-            if attr is not None:
-                print "In %s.%s" % (display.template, attr.member)
-                break
-
-        if attr:
-            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == attr:
-                self.clicked = None
-                self.activate(attr)
-            else:
-                self.clicked = (now, attr)
-
-    def activate(self, attr):
-        print "Activating %s" % attr.member
-
+        if dp.g_type == "fillarea":
+            fill = vcs.getfillarea(dp.g_name)
+            if fillarea_intersection(fill, *point) is not None:
+                return fill
+        else:
+            fudge = 5 / float(w)
+            return in_template(point, t(dp.template), fudge=fudge)
 
 
 def t(name):
@@ -107,7 +115,7 @@ def in_template(point, template, fudge=None):
 
     for attr in attrs:
         attribute = getattr(template, attr)
-        if attribute.priority == 0 or intersecting is not None and intersecting.priority > attribute.priority:
+        if attribute.priority == 0 or (intersecting is not None and intersecting.priority > attribute.priority):
             # 0 is turned off
             continue
         t_x = safe_get(attribute, "x")
@@ -116,7 +124,7 @@ def in_template(point, template, fudge=None):
         if t_x is not None or t_y is not None:
             if t_x is not None and t_y is not None:
                 # It's probably a text blob
-                if t_x < x + fudge and t_x > x - fudge and t_y < y + fudge and t_y > y - fudge:
+                if is_point_in_box((x, y), ((t_x - fudge, t_y - fudge), (t_x + fudge, t_y + fudge))):
                     intersecting = attribute
             else:
                 # It's probably the labels for an axis
@@ -133,10 +141,66 @@ def in_template(point, template, fudge=None):
             if None in (x1, y1, x2, y2):
                 continue
             else:
-                if min(x1, x2) < x and max(x1, x2) > x and min(y1, y2) < y and max(y1, y2) > y:
+                if is_point_in_box((x, y), ((min(x1, x2), min(y1, y2)), (max(x1, x2), max(y1, y2)))):
                     intersecting = attribute
 
     return intersecting
+
+def is_point_in_box(point, box):
+    """
+    Box should be provided as ((xmin, ymin), (xmax, ymax))
+    """
+    x, y = point
+    (x1, y1), (x2, y2) = box
+    return x1 <= x and x2 >= x and y1 <= y and y2 >= y
+
+def fillarea_intersection(fillarea, x, y):
+    """
+    Determines if a point is inside a fillarea; returns the index of the
+    fill shape selected or None.
+    """
+
+    for ind, xcoords in enumerate(fillarea.x):
+
+        # Points are stored as a list of lists, once the fill has been rendered
+        points = zip(xcoords, fillarea.y[ind])
+
+
+        if len(points) == 1:
+            if points[0][0] == x and points[0][1] == y:
+                # If you magically click the exact point that this is, sure, you can edit it.
+                return ind
+            continue
+        elif len(points) == 0:
+            continue
+
+        # Test if point is inside bounding box
+        xmin, xmax = min(xcoords), max(xcoords)
+        ymin, ymax = min(fillarea.y[ind]), max(fillarea.y[ind])
+
+        if not is_point_in_box((x,y), ((xmin, ymin), (xmax, ymax))):
+            continue
+
+        sides = [ (point, points[point_ind - 1]) for point_ind, point in enumerate(points) ]
+
+        # We're going to cast a ray straight to the right from x,y
+        # Every side that we intersect will get added here.
+        # If intersected is even, we're outside the shape.
+        # If intersected is odd, we're inside the shape.
+        intersected = 0
+        for side in sides:
+            x1, y1 = side[0]
+            x2, y2 = side[1]
+
+            if (x1 > x or x2 > x) and min(y1, y2) < y and max(y1, y2) > y:
+                intersected += 1
+
+        if intersected % 2 == 1:
+            return ind
+
+    return None
+
+
 
 
 def safe_get(obj, attr, sentinel=None):
