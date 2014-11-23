@@ -22,3 +22,9 @@ add_test(dv3d_constituents_test
 )
 
 
+add_test(dv3d_hovmoller_test
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_hovmoller_test.py
+)
+
+

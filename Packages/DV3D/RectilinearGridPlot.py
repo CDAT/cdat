@@ -10,12 +10,8 @@ from Shapefile import shapeFileReader
 from ImagePlaneWidget import *  
 from StructuredGridPlot import  *
 from StructuredDataset import *
+from ConfigurationFunctions import get_scalar_value
 import numpy as np
-
-def get_scalar_value( tvals ):
-    if hasattr( tvals, '__iter__' ):
-        return get_scalar_value( tvals[0] )
-    else: return tvals
     
 LegacyAbsValueTransferFunction = 0
 LinearTransferFunction = 1 
@@ -382,7 +378,8 @@ class RectGridPlot(StructuredGridPlot):
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
-            self.processConfigParameterChange( slicePosition )
+            val_key = 'relative' if (plane_index == 2) else None
+            self.processConfigParameterChange( slicePosition, val_key )
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
             bbar = self.getPlotButtonbar()

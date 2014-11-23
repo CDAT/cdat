@@ -103,7 +103,7 @@ class StructuredDataReader:
             self.vars =  args.get( 'vars', None )
             if self.vars <> None:
                 dfile = self.vars[0].parent
-                self.subSpace = args.get( 'axes', 'xyz' )
+                self.subSpace = get_scalar_value( args.get( 'axes', 'xyz' ) )
                 if dfile <> None:
                     self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
                     self.fileSpecs = dfile.id
