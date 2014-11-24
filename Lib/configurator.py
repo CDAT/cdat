@@ -1,12 +1,16 @@
 import vcs
 import datetime
+import editors.fillarea
 
 class Configurator(object):
-    def __init__(self, backend):
-        self.backend = backend
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.backend = canvas.backend
         self.interactor = None
         self.displays = []
         self.clicked = None
+        self.clicked_info = None
+        self.target = None
 
     def update(self, displays):
         if self.backend.renWin and self.interactor is None:
@@ -15,6 +19,10 @@ class Configurator(object):
         self.displays = [vcs.elements["display"][display] for display in displays]
 
     def click(self, object, event):
+        if self.target is not None:
+            # Target should register for own events; don't want to step on toes
+            return
+
         now = datetime.datetime.now()
 
         point = self.interactor.GetEventPosition()
@@ -26,13 +34,17 @@ class Configurator(object):
 
         if obj:
             if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == obj:
+                self.activate(obj, display)
                 self.clicked = None
-                self.activate(obj)
+                self.clicked_info = None
             else:
                 self.clicked = (now, obj)
 
-    def activate(self, obj):
+    def activate(self, obj, display):
         print "Activating %s" % obj.name
+
+        if display.g_type == "fillarea":
+            self.target = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
 
     def in_display_plot(self, point, dp):
         #Normalize the point
@@ -44,11 +56,16 @@ class Configurator(object):
 
         if dp.g_type == "fillarea":
             fill = vcs.getfillarea(dp.g_name)
-            if fillarea_intersection(fill, *point) is not None:
+            info = fillarea_intersection(fill, *point)
+            if info is not None:
+                self.clicked_info = info
                 return fill
         else:
             fudge = 5 / float(w)
             return in_template(point, t(dp.template), fudge=fudge)
+
+    def save(self):
+        self.canvas.update()
 
 
 def t(name):

@@ -1,3 +1,4 @@
+from manager import get_manager
 
 class Widget(object):
     def __init__(self, interactor, widget):
@@ -6,6 +7,9 @@ class Widget(object):
         self.widget.SetInteractor(interactor)
         self.repr = widget.GetRepresentation()
         self.subscriptions = {}
+
+        manager = get_manager(interactor)
+        manager.add_widget(self)
 
     def subscribe(self, event, action):
         if event in self.subscriptions:
@@ -25,3 +29,10 @@ class Widget(object):
         for event in events:
             self.widget.RemoveObserver(self.subscriptions[event])
             del self.subscriptions[event]
+
+    def detach(self):
+        render = self.repr.GetRenderer()
+        if render.HasViewProp(self.repr):
+            render.RemoveViewProp(self.repr)
+        self.repr.SetRenderer(None)
+        self.repr.SetInteractor(None)
