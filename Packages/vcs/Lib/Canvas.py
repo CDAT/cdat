@@ -937,7 +937,7 @@ class Canvas(object,AutoAPI.AutoAPI):
           warnings.warn("Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" % backend)
           self.backend=backend
 
-        self.configurator = configurator.Configurator(self.backend)
+        self.configurator = configurator.Configurator(self)
 
         self._animate = self.backend.Animate( self )
 ## Initial.attributes is being called in main.c, so it is not needed here!

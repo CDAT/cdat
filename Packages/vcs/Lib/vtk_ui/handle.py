@@ -2,7 +2,7 @@ from vtk import vtkHandleWidget, vtkPointHandleRepresentation2D
 from widget import Widget
 
 class Handle(Widget):
-    def __init__(self, interactor, point, width=10, height=10, opacity=1, color=(1, 1, 1), clicked=None, dragged=None, released=None, normalize=False):
+    def __init__(self, interactor, point, width=10, height=10, opacity=1, color=(0, 0, 0), clicked=None, dragged=None, released=None, normalize=False):
         
         self.x, self.y = point
         self.color = color
@@ -95,91 +95,6 @@ class Handle(Widget):
         if self.dragged:
             # Need to get the point that we're dragged to here
             self.dragged(self, self.x, self.y)
-
-"""
-Drag doesn't work yet... I think because the interaction style absorbs the mousemove events.
-from vtk import vtkPolyDataMapper, vtkRenderer, vtkActor, vtkCommand
-
-class DraggableRect(object):
-    def __init__(self, interactor, point1, point2, color=(1,1,1), clicked=None, dragged=None, released=None):
-        self.interactor = interactor
-        
-        self.x1, self.y1 = point1
-        self.x2, self.y2 = point2
-
-        w, h = self.get_dimensions()
-
-        self.quad = quad_poly_data(w, h)
-        window = self.interactor.GetRenderWindow()
-
-        self.mapper = vtkPolyDataMapper()
-        self.mapper.SetInputData(self.quad)
-
-        self.actor = vtkActor()
-        self.actor.SetMapper(self.mapper)
-        self.actor.SetPosition(self.x1, self.y1, 0)
-
-        self.renderer = vtkRenderer()
-        
-        self.renderer.InteractiveOff()
-        self.renderer.SetLayer(0)
-
-        window.AddRenderer(self.renderer)
-        self.renderer.AddActor(self.actor)
-
-        self.subscriptions = {}
-
-        self.subscribe(vtkCommand.StartInteractionEvent, self.click)
-
-        self.dragged = dragged
-        self.clicked = clicked
-        self.released = released
-    
-    def place(self):
-        self.actor.SetPosition(self.x1, self.y1, 0)
-
-
-    def get_dimensions(self):
-        return abs(self.x1 - self.x2), abs(self.y1 - self.y2)
-
-    def subscribe(self, event, action):
-
-        self.subscriptions[event] = self.interactor.AddObserver(event, action)
-
-    def unsubscribe(self, *events):
-        for event in events:
-            if event in self.subscriptions:
-                self.interactor.RemoveObserver(self.subscriptions[event])
-            del self.subscriptions[event]
-
-    def release(self, object, event):
-        print "Release"
-        self.unsubscribe(vtkCommand.EndInteractionEvent, vtkCommand.InteractionEvent)
-        if self.released:
-            self.released(self)
-
-    def drag(self, object, event):
-        # assign position correctly based on this
-        x, y = self.interactor.GetEventPosition()
-        print x,y
-        self.x1 = x
-        self.y1 = y
-        #self.place()
-        if self.dragged:
-            self.dragged(self, x, y)
-
-    def click(self, object, event):
-        x, y = self.interactor.GetEventPosition()
-        if x > min(self.x1, self.x2) and x < max(self.x1, self.x2):
-            if y > min(self.y1, self.y2) and y < max(self.y1, self.y2):
-                self.subscribe(vtkCommand.EndInteractionEvent, self.release)
-                self.subscribe(vtkCommand.InteractionEvent, self.drag)
-                if self.clicked:
-                    self.clicked(self)
-    
-    def show(self):
-        pass
-"""
 
 def quad_poly_data(width, height):
     from vtk import vtkPoints, vtkQuad, vtkCellArray, vtkPolyData
