@@ -68,6 +68,7 @@ class Dp(object):
                   "off",
                   "priority",
                   "template",
+                  "backend",
                   "_template_origin",
                   "g_type",
                   "g_name",
@@ -83,6 +84,7 @@ class Dp(object):
                   "_g_name",
                   "_array",
                   "_continents",
+                  "_backend",
                   "ratio",
     ]
 
@@ -160,6 +162,14 @@ class Dp(object):
            raise ValueError,"invalid g_type '%s' must be one of: %s " % (value,vcs.elements.keys())
          self._g_type=value
     g_type = property(_getg_type,_setg_type)
+    def _get_backend(self):
+      return self._backend
+    def _set_backend(self,value):
+      if not isinstance(value,(dict,None)):
+        raise Exception("The dispaly backend attribute must be a dictionary or None")
+      self._backend = value
+    backend = property(_get_backend,_set_backend,None,"dictionary of things the backend wants to be able to reuse")
+
 
     #############################################################################
     #                                                                           #
