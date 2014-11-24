@@ -70,6 +70,7 @@ class VTKAnimate(animate_helper.AnimationController):
             print "NFrame <-> args: %i <-> %s" % (self.frame_num,args)
             print "BE ANIM:",disp.backend
           self.vcs_self.backend.update_input(disp.backend,slab(*args),update=True)
-        #self.vcs_self.backend.renWin.Render()
+          self.vcs_self.png("tmp_png")
+        self.vcs_self.backend.renWin.Render()
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)

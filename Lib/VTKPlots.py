@@ -806,6 +806,7 @@ class VTKVCSBackend(object):
       else:
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
+      returned["vtk_backend_filter"]=c2p
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
@@ -913,6 +914,7 @@ class VTKVCSBackend(object):
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
 
+          cots=[]
           if isinstance(gm,isofill.Gfi):
               mapper = vtk.vtkPolyDataMapper()
               lut = vtk.vtkLookupTable()
@@ -925,6 +927,7 @@ class VTKVCSBackend(object):
                 cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
               cot.Update()
+              cots.append(cot)
               mapper.SetInputConnection(cot.GetOutputPort())
               lut.SetNumberOfTableValues(len(COLS[i]))
               for j,color in enumerate(COLS[i]):
@@ -934,6 +937,7 @@ class VTKVCSBackend(object):
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
+              returned["vtk_backend_contours"]=cots
           else:
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
@@ -1063,8 +1067,8 @@ class VTKVCSBackend(object):
         else:
           mapper.Update()
           act.SetMapper(mapper)
-        if geo is None:
-          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        #if geo is None:
+        #  act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
@@ -1605,6 +1609,13 @@ class VTKVCSBackend(object):
           else:
               print "OK HERE 2",array1.shape
               vg.GetCellData().SetScalars(data)
+          if vtkobjects.has_key("vtk_backend_filter"):
+            print "FILTER"
+            vtkobjects["vtk_backend_filter"].Update()
+          if vtkobjects.has_key("vtk_backend_contours"):
+            for c in vtkobjects["vtk_backend_contours"]:
+              print "UPING"
+              c.Update()
       taxis = array1.getTime()
       if taxis is not None:
           tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
@@ -1636,4 +1647,22 @@ class VTKVCSBackend(object):
                           t.SetInput("%g" % l[0])
 
       if update:
+        ##Ok let's go thru all renderers
+        renderers = self.renWin.GetRenderers()
+        renderers.InitTraversal()
+        ren = renderers.GetNextItem()
+        i=0
+        while ren:
+          i+=1
+          actors = ren.GetActors()
+          actors.InitTraversal()
+          actor = actors.GetNextItem()
+          j=0
+          while actor:
+            j+=1
+            #print "renderer:",i,"actor",j
+            m = actor.GetMapper()
+            m.Update()
+            actor=actors.GetNextItem()
+          ren=renderers.GetNextItem()
         self.renWin.Render()
