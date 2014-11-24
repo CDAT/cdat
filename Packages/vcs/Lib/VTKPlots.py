@@ -1138,6 +1138,9 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
+      contMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
+      contMapper.SetResolveCoincidentTopologyToPolygonOffset()
+
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         self.setLayer(ren,tmpl.data.priority)
