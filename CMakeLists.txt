@@ -234,6 +234,11 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
+# OSMesa/VTK aren't playing nicely on macs. Disabling for now.
+include(CMakeDependentOption)
+cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
+  "NOT APPLE" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
@@ -293,6 +298,12 @@ endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
+endif()
+
+# Don't build GUI if this is an offscreen-only build:
+if(CDAT_BUILD_OFFSCREEN AND CDAT_BUILD_GUI)
+  message("[INFO] Turning off CDAT_BUILD_GUI; incompatible with CDAT_BUILD_OFFSCREEN.")
   set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
 
@@ -451,6 +462,7 @@ include(netcdfplus_pkg)
 include(numexpr_pkg)
 include(numpy_pkg)
 include(mpi_pkg)
+include(osmesa_pkg)
 include(python_pkg)
 if (CDAT_BUILD_PARALLEL)
   include(paraview_pkg)

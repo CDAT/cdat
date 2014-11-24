@@ -7,3 +7,7 @@ endif()
 if(NOT CDAT_BUILD_LEAN)
   list(APPEND VTK_deps ${ffmpeg_pkg})
 endif()
+
+if(CDAT_BUILD_OFFSCREEN)
+  list(APPEND VTK_deps ${osmesa_pkg})
+endif()
