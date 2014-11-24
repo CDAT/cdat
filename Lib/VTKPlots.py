@@ -30,7 +30,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       if sys.platform == "darwin":
           self.AddObserver( "RenderEvent", parent.renderEvent )
-      
+
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
@@ -44,7 +44,7 @@ class VTKVCSBackend(object):
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
-    self.numberOfPlotCalls = 0 
+    self.numberOfPlotCalls = 0
     self.renderWindowSize=None
     if renWin is not None:
       self.renWin = renWin
@@ -90,8 +90,8 @@ class VTKVCSBackend(object):
 
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
-    window_size = renwin.GetSize() 
-    if ( window_size <> self.renderWindowSize ): 
+    window_size = renwin.GetSize()
+    if ( window_size <> self.renderWindowSize ):
       self.configureEvent(caller,evt)
       self.renderWindowSize = window_size
 
@@ -179,7 +179,7 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz: 
+    if self._lastSize == sz:
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
@@ -251,11 +251,11 @@ class VTKVCSBackend(object):
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
       self.renWin.SetAlphaBitPlanes(1)
+      ## turning on Stencil for Labels on iso plots
+      self.renWin.SetStencilCapable(1)
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
-      ## turning on Stencil for Labels on iso plots
-      self.renWin.SetStencilCapable(1)
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
@@ -877,7 +877,7 @@ class VTKVCSBackend(object):
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
 
-      if isinstance(gm,isoline.Gi):
+      if isinstance(gm, isoline.Gi):
         cot.SetNumberOfContours(Nlevs)
         if levs[0]==1.e20:
           levs[0]=-1.e20
@@ -885,19 +885,23 @@ class VTKVCSBackend(object):
           cot.SetValue(i,levs[i])
         cot.SetValue(Nlevs,levs[-1])
         cot.Update()
-        mapper.SetInputConnection(cot.GetOutputPort())
         mappers = []
-        print "YES AASHISH WE DO COME HERE"
-        mapper2 = vtk.vtkLabeledContourMapper()
-        mapper2.GetPolyDataMapper().ScalarVisibilityOff();
-        mapper2.GetTextProperty().SetBold(1);
-        mapper2.GetTextProperty().SetFontSize(12);
-        mapper2.GetTextProperty().SetColor(1,0,0)
+        mapper = vtk.vtkLabeledContourMapper()
+        lut = vtk.vtkLookupTable()
+        lut.SetNumberOfTableValues(1)
+        lut.SetTableValue(0, 0, 0, 0)
+        mapper.GetPolyDataMapper().SetLookupTable(lut)
+        if (gm.label):
+          mapper.SetLabelVisibility(1)
+        else:
+          mapper.SetLabelVisibility(0)
+        mapper.GetTextProperty().SetFontSize(12);
+        mapper.GetTextProperty().SetColor(0, 0, 0)
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
-        mapper2.SetInputConnection(stripper.GetOutputPort())
-        mappers.append([mapper2,])
-        #mappers.append([mapper,])
+        mapper.SetInputConnection(stripper.GetOutputPort())
+        stripper.Update()
+        mappers.append([mapper,])
       else:
         mappers = []
         LEVS = []
