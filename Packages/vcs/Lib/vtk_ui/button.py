@@ -97,6 +97,8 @@ class Button(Widget):
 
         super(Button, self).__init__(interactor, widget)
         
+        if self.renderer:
+            self.repr.SetRenderer(self.renderer)
         self.update()
         self.subscribe( 'StateChangedEvent', self.clicked)
 
@@ -210,9 +212,14 @@ class Button(Widget):
         self.repr.SetState(state)
 
     def show(self):
+        self.check_render_stack()
         self.widget.On()
         self.text_widget.show()
         self.place()
+
+    def check_render_stack(self):
+        super(Button, self).check_render_stack()
+        self.text_widget.check_render_stack()
 
     def hide(self):
         self.text_widget.hide()
@@ -318,6 +325,9 @@ class SliderButton(ToggleButton):
         self.slider.hide()
         super(SliderButton, self).hide()
 
+    def detach(self):
+        super(SliderButton, self).detach()
+        self.slider.detach()
 
     def copy(self, interactor):
         value = self.slider.repr.GetValue()

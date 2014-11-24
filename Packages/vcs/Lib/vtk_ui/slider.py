@@ -1,9 +1,14 @@
+from widget import Widget
 import vtk
-class Slider(object):
+class Slider(Widget):
 
     def __init__(self, interactor, value=0, min_val=0, max_val=1, point1=(0,.1), point2=(1,.1), end=None, update=None, title=""):
-        self.interactor = interactor
-        self.repr = vtk.vtkSliderRepresentation2D()
+
+        sliderWidget = vtk.vtkSliderWidget()
+        sliderWidget.SetRepresentation(vtk.vtkSliderRepresentation2D())
+
+        super(Slider, self).__init__(interactor, sliderWidget)
+
         self.end_callback = end
         self.update_callback = update
 
@@ -39,25 +44,19 @@ class Slider(object):
         self.repr.SetTitleHeight( 0.02 )
         self.repr.SetTitleText(title)
 
-        sliderWidget = vtk.vtkSliderWidget()
-        sliderWidget.SetInteractor(interactor)
-        sliderWidget.SetRepresentation( self.repr )
         sliderWidget.SetAnimationModeToAnimate()
-        
         
         sliderWidget.AddObserver("EndInteractionEvent", self.end_slide)
         sliderWidget.AddObserver("InteractionEvent", self.slide_value)
 
         sliderWidget.KeyPressActivationOff()
 
-        self.slider = sliderWidget
-
     def show(self):
-        self.slider.EnabledOn()
-        self.slider.On()
+        self.widget.EnabledOn()
+        self.widget.On()
     
     def hide(self):
-        self.slider.Off()
+        self.widget.Off()
 
     def end_slide(self, obj, event):
         value = self.repr.GetValue()

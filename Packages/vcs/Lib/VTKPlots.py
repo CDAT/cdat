@@ -207,12 +207,29 @@ class VTKVCSBackend(object):
           key_args.append({"ratio":d.ratio})
       else:
           key_args.append({})
+
+    # Have to pull out the UI layer so it doesn't get borked by the clear
+    from vtk_ui.manager import get_manager
+    manager = get_manager(self.renWin.GetInteractor())
+    if manager:
+      self.renWin.RemoveRenderer(manager.renderer)
+
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
 
     if self.canvas.animate.created():
       self.canvas.animate.draw_frame()
+
+    if manager:
+      # Set the UI renderer's layer on top of what's there right now
+      self.setLayer(manager.renderer, 3)
+
+      # Re-add the UI layer
+      self.renWin.AddRenderer(manager.renderer)
+
+    if self.logo is None:
+      self.createLogo()
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
@@ -583,7 +600,7 @@ class VTKVCSBackend(object):
     return {}
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000+1
+    n = self.numberOfPlotCalls + (priority-1)*10000 + 1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
