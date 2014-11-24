@@ -155,5 +155,5 @@ class vcsTest:
 if __name__ == '__main__':
     from TestDefinitions import testManager    
 #    testManager.runTests()
-    testManager.runTest( 'dv3d_slider_test', True )
+    testManager.runTest( 'dv3d_constituents_test', True )
 #    testManager.showTest( 'dv3d_constituents_test' )

@@ -288,17 +288,17 @@ class DV3DPlot():
         control_bar.reposition()
         return control_bar
     
-    def processConfigParameterChange( self, parameter ):
-        values = parameter.getValues()
+    def processConfigParameterChange( self, parameter, val_key = None ):
+        values = parameter.getValue(val_key)
+        if values == None: values = parameter.getValues()
+        if not hasattr( values, '__iter__' ): values = [ values ]
         state = parameter.getState()
         if state <> None: addState( values, state )
         argList = [ parameter.name, parameter.ptype, str(values) ] 
-#        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
-        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
@@ -333,7 +333,6 @@ class DV3DPlot():
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
-            self.recordCamera()
             self.saveState()
         self.onClosing()
         sys.exit( 0 )
@@ -393,7 +392,7 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
-        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+#        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
@@ -405,6 +404,7 @@ class DV3DPlot():
             self.changeButtonActivation( *activation_spec )
                         
     def saveState(self, **args): 
+        self.recordCamera()
         self.cfgManager.saveState()
 
     def getStateData(self, **args): 
@@ -856,7 +856,8 @@ class DV3DPlot():
         bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if (self.type == '3d_vector') or not enable_3d_plots:
-            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
+            sliderLabels= 'Slice Position' if enable_3d_plots else []
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
             b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )

@@ -11,3 +11,7 @@ endif()
 if(NOT CDAT_BUILD_LEAN)
   list(APPEND ParaView_deps "${ffmpeg_pkg}")
 endif()
+
+if(CDAT_BUILD_OFFSCREEN)
+  list(APPEND ParaView_deps "${osmesa_pkg}")
+endif()
