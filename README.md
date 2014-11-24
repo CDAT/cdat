@@ -1,6 +1,6 @@
 uvcdat
 ======
-![Build Status](https://travis-ci.org/OpenGeoscience/geojs.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat.svg)
+![Build Status](https://travis-ci.org/OpenGeoscience/geojs.svg?branch=master)
 ![Repo size](https://reposs.herokuapp.com/?path=UV-CDAT/uvcdat)
 ![Stable version](http://img.shields.io/badge/Stable Version-2.0.0-green.svg)
 [![DOI](https://zenodo.org/badge/6619/UV-CDAT/uvcdat.png)](http://dx.doi.org/10.5281/zenodo.12251)
