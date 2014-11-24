@@ -61,6 +61,17 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+if(CDAT_BUILD_OFFSCREEN)
+  list(APPEND vtk_build_args
+    "-DVTK_USE_X:BOOL=OFF"
+    "-DVTK_OPENGL_HAS_OSMESA:BOOL=ON"
+    "-DOPENGL_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOPENGL_gl_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa${_LINK_LIBRARY_SUFFIX}"
+    "-DOPENGL_glu_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libGLU${_LINK_LIBRARY_SUFFIX}"
+    "-DOSMESA_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOSMESA_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa${_LINK_LIBRARY_SUFFIX}"
+  )
+endif()
 
 set(_vtk_module_options)
 foreach(_module ${_vtk_modules})
