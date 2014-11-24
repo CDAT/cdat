@@ -119,6 +119,7 @@ class RectGridPlot(StructuredGridPlot):
         self.cs_bbar = None
         self.probeFilter = None
         self.cursorActor     = vtk.vtkActor()
+        self.clipPlanes = vtk.vtkPlanes() 
         
         self.pipelineDebug = False
         
@@ -136,7 +137,6 @@ class RectGridPlot(StructuredGridPlot):
         self.clipping_enabled = False
         self.cropRegion = None
         self.cropZextent = None
-        self.clipper = None
         self.volRenderConfig = [ 'Default', 'False' ]
         self.transFunctGraphVisible = False
         self.transferFunctionConfig = None
@@ -429,18 +429,19 @@ class RectGridPlot(StructuredGridPlot):
         if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():      
 #            print " Update planeWidgetZ "
             self.planeWidgetZ.UpdateInputs()
+            
+    def initializeClipper(self):
+        if( self.cropRegion == None ): 
+            self.cropRegion = self.getVolumeBounds()
+        if self.clipper:
+            if ( self.renderWindowInteractor <> None ): 
+                self.clipper.SetInteractor( self.renderWindowInteractor )
+            self.clipper.PlaceWidget( self.cropRegion )
+            self.clipper.GetPlanes( self.clipPlanes )
          
     def activateEvent( self, caller, event ):
         StructuredGridPlot.activateEvent( self, caller, event )
-        if self.clipper and ( self.cropRegion == None ):
-            self.renwin = self.renderer.GetRenderWindow( )
-            if self.renwin <> None:                
-                if ( self.renderWindowInteractor <> None ): 
-                    self.clipper.SetInteractor( self.renderWindowInteractor )
-                    self.cropRegion = self.getVolumeBounds()
-                    self.clipper.PlaceWidget( self.cropRegion )
-                    self.clipPlanes = vtk.vtkPlanes() 
-                    self.clipper.GetPlanes( self.clipPlanes )
+        self.initializeClipper()
         self.render() 
 
     def getVolumeBounds( self, **args ):  
@@ -1045,6 +1046,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Init":
             plane_positions = config_function.initial_value
             if (plane_positions <> None):
+                if not self.cropRegion: self.initializeClipper()
                 for ip, pval in enumerate( plane_positions ):
                     self.cropRegion[ip] = pval
                 self.clipper.PlaceWidget( self.cropRegion )
@@ -1064,7 +1066,7 @@ class RectGridPlot(StructuredGridPlot):
     def executeClip( self, caller=None, event=None ):
         np = 6
         self.clipper.GetPlanes( self.clipPlanes )
-        if not self.cropRegion: self.cropRegion = [0.0]*np
+        if not self.cropRegion: self.initializeClipper()
         for ip in range( np ):
             plane = self.clipPlanes.GetPlane( ip )
             o = plane.GetOrigin()
