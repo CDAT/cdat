@@ -28,7 +28,9 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
-
+      if sys.platform == "darwin":
+          self.AddObserver( "RenderEvent", parent.renderEvent )
+      
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
@@ -42,7 +44,8 @@ class VTKVCSBackend(object):
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
-    self.numberOfPlotCalls = 0
+    self.numberOfPlotCalls = 0 
+    self.renderWindowSize=None
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
@@ -50,9 +53,8 @@ class VTKVCSBackend(object):
     self.logo = None
     self._lastLogoSize = None
 
-#   def applicationFocusChanged(self):
-#       for plotApp in self.plotApps.values():
-#           if hasattr(plotApp, 'refresh'): plotApp.refresh()
+    if sys.platform == "darwin":
+        self.reRender = False
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -63,11 +65,35 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot interact if you did not open the canvas yet")
           return
       interactor = self.renWin.GetInteractor()
+      ## Mac seems to handle events a bit differently
+      ## Need to add observers on renWin
+      ## Linux is fine w/o it so no need to do it
+      if sys.platform == "darwin":
+          self.renWin.AddObserver( "RenderEvent", self.renderEvent )
+          self.renWin.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent )
+          self.renWin.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent )
+          self.renWin.AddObserver( "ModifiedEvent", self.configureEvent )
+          self.renWin.AddObserver( "ConfigureEvent", self.configureEvent )
+          self.renWin.AddObserver( "EndEvent",self.endEvent)
       if interactor is None:
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor.Start()
+
+  def endEvent(self,obj,event):
+    if self.renWin is not None:
+      if self.reRender:
+        self.reRender = False
+        self._lastSize = None
+        self.renWin.Render()
+
+  def renderEvent(self,caller,evt):
+    renwin = self.renWin if (caller == None) else caller
+    window_size = renwin.GetSize() 
+    if ( window_size <> self.renderWindowSize ): 
+      self.configureEvent(caller,evt)
+      self.renderWindowSize = window_size
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
@@ -148,16 +174,17 @@ class VTKVCSBackend(object):
 
   def leftButtonReleaseEvent(self,obj,event):
     self.clickRenderer.RemoveAllViewProps()
-    self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
     self.renWin.Render()
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
+    if self._lastSize == sz: 
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
+      if self.renWin is not None and sys.platform == "darwin":
+        self.renWin.Render()
       return
     self._lastSize = sz
     plots_args = []
@@ -181,14 +208,18 @@ class VTKVCSBackend(object):
       self.canvas.plot(*pargs,**key_args[i])
     if self.logo is None:
       self.createLogo()
-    self.scaleLogo()
+    if self.renWin.GetSize()!=(0,0):
+      self.scaleLogo()
+    if self.renWin is not None and sys.platform == "darwin":
+      self.renWin.Render()
+    if sys.platform == "darwin":
+        ## ON mac somehow we need to issue an extra Render after resize
+        self.reRender = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
           return
     renderers = self.renWin.GetRenderers()
-#    plot_renderers = [ id(g.plot.renderer) for g in self.plotApps.values() ]
-#    print " ------------------------------------ ------------------------------------  CLEAR: %s  ------------------------------------ ------------------------------------ " % str( plot_renderers )
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     hasValidRenderer = True if ren is not None else False
@@ -206,7 +237,6 @@ class VTKVCSBackend(object):
   def createDefaultInteractor( self, ren=None ):
     defaultInteractor = self.renWin.GetInteractor()
     if defaultInteractor is None:
-      #defaultInteractor = vtk.vtkGenericRenderWindowInteractor()
       defaultInteractor = vtk.vtkRenderWindowInteractor()
     self.vcsInteractorStyle = VCSInteractorStyle(self)
     if ren:
@@ -313,7 +343,6 @@ class VTKVCSBackend(object):
     self.renWin = None
 
   def geometry(self,x,y,*args):
-      #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(x,y)
 
   def flush(self):
@@ -336,8 +365,6 @@ class VTKVCSBackend(object):
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
-    #self.renWin.Render()
-    #screenSize = self.renWin.GetScreenSize()
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -446,7 +473,7 @@ class VTKVCSBackend(object):
   def plot1D(self,data1,data2,tmpl,gm):
     Y = self.trimData1D(data1)
     if data2 is None:
-      X=Y.getAxis(0)[:]
+      X=Y.getAxis(0)
     else:
       X=Y
       data1._yname = data2.id
@@ -460,8 +487,8 @@ class VTKVCSBackend(object):
     if gm.smooth is not None:
         Y = smooth(Y,gm.smooth)
     l = self.canvas.createline()
-    Xs = X.tolist()
-    Ys = Y.tolist()
+    Xs = X[:].tolist()
+    Ys = Y[:].tolist()
     xs = []
     ys = []
     prev = None
@@ -490,7 +517,7 @@ class VTKVCSBackend(object):
     l.type = gm.line
     l._viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
-    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,cdms2.createAxis(X[:]),cdms2.createAxis(Y[:]))
+    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,X,Y)
     if numpy.allclose(y1,y2):
         y1-=.0001
         y2+=.0001
@@ -510,7 +537,8 @@ class VTKVCSBackend(object):
     m._viewport=l.viewport
     m._worldcoordinate = l.worldcoordinate
 
-    if not (Y.min()>max(y1,y2) or Y.max()<min(y1,y2) or X.min()>max(x1,x2) or X.max()<min(x1,x2)):
+    if not (Y[:].min()>max(y1,y2) or Y[:].max()<min(y1,y2) \
+            or X[:].min()>max(x1,x2) or X[:].max()<min(x1,x2)):
     	if l.priority>0:
             self.canvas.plot(l,donotstoredisplay=True)
         if m.priority>0:
@@ -693,13 +721,6 @@ class VTKVCSBackend(object):
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.*gm.scale)
 
-    #if cellData:
-    #    if vtk_backend_grid.IsA("vtkUnstructuredGrid"):
-    #        glyphFilter.SetInputConnection(cln.GetOutputPort())
-    #    else:
-    #        glyphFilter.SetInputConnection(c2p.GetOutputPort())
-    #else:
-    #    glyphFilter.SetInputData(vtk_backend_grid)
     glyphFilter.SetInputData(vtk_backend_grid)
 
     mapper = vtk.vtkPolyDataMapper()
@@ -925,7 +946,6 @@ class VTKVCSBackend(object):
               for j,color in enumerate(COLS[i]):
                   r,g,b = cmap.index[color]
                   lut.SetTableValue(j,r/100.,g/100.,b/100.)
-                  #print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
@@ -983,8 +1003,6 @@ class VTKVCSBackend(object):
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          #dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
-          #levs = numpy.arange(levs[0],levs[-1]+dx,dx)
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
