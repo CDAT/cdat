@@ -254,6 +254,8 @@ class VTKVCSBackend(object):
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
+      ## turning on Stencil for Labels on iso plots
+      self.renWin.SetStencilCapable(1)
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
@@ -614,7 +616,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    vtk_backend_grid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    #vtk_backend_grid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
@@ -831,7 +833,6 @@ class VTKVCSBackend(object):
         else:
           cot.SetInputData(vtk_backend_grid)
 
-
       levs = gm.levels
       if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
         levs = vcs.mkscale(mn,mx)
@@ -886,6 +887,17 @@ class VTKVCSBackend(object):
         cot.Update()
         mapper.SetInputConnection(cot.GetOutputPort())
         mappers = []
+        print "YES AASHISH WE DO COME HERE"
+        mapper2 = vtk.vtkLabeledContourMapper()
+        mapper2.GetPolyDataMapper().ScalarVisibilityOff();
+        mapper2.GetTextProperty().SetBold(1);
+        mapper2.GetTextProperty().SetFontSize(12);
+        mapper2.GetTextProperty().SetColor(1,0,0)
+        stripper = vtk.vtkStripper()
+        stripper.SetInputConnection(cot.GetOutputPort())
+        mapper2.SetInputConnection(stripper.GetOutputPort())
+        mappers.append([mapper2,])
+        #mappers.append([mapper,])
       else:
         mappers = []
         LEVS = []
@@ -949,6 +961,7 @@ class VTKVCSBackend(object):
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
+              mappers.append([mapper,])
           else:
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
@@ -1070,6 +1083,7 @@ class VTKVCSBackend(object):
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
       for mapper in mappers:
+        print "Yes we are using stripper",mapper
         act = vtk.vtkActor()
         if isinstance(mapper,list):
           act.SetMapper(mapper[0])
