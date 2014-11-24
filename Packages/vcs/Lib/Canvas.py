@@ -669,11 +669,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                     # mesh array needs to be mutable, so make it a tv.
                     # Normally this is done up front in _determine_arg_list.
                     arglist[ARRAY_2] = cdms2.asVariable(mesh, 0)
-                    try:
-                        meshobj = self.getmeshfill('__d_meshobj')
-                    except:
-                        meshobj = self.createmeshfill('__d_meshobj')
-                        meshobj.wrap = [0.0, 360.0] # Wraparound
+                    meshobj = self.createmeshfill()
+                    meshobj.wrap = [0.0, 360.0] # Wraparound
                     arglist[GRAPHICS_OPTION] = '__d_meshobj'
 
         # IF Meshfill method and no mesh passed then try to get the mesh from the object
@@ -3481,15 +3478,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
-            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
+            if arglist[0] is not None or keyargs.has_key('variable'):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
-                # Check data's dimension size (VCS cannot take variables with
-                # with dimensions larger than 4D, below makes sure the variable
-                # has no more than 4 dimensions.
-                while (len(arglist[0].shape) > 4):
-                   # Scale the first dimension down to size 1, then squeeze it out.
-                   arglist[0]= (MV2.take(arglist[0],(0,),0)).subRegion( squeeze=1)
                 ## Now applies the attributes change
                 for p in slab_changed_attributes.keys():
                     if hasattr(arglist[0],p):
