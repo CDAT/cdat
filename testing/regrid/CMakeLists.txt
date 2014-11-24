@@ -11,10 +11,10 @@ add_test("testMPIGrid"
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "1"
           ${CMAKE_INSTALL_PREFIX}/bin/python
           ${cdat_SOURCE_DIR}/testing/regrid/testMPIGrid.py)
-add_test("testDoutriaux" 
+        add_test("testAccuracy"
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "1" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
-          ${cdat_SOURCE_DIR}/testing/regrid/testDoutriaux.py)
+          ${cdat_SOURCE_DIR}/testing/regrid/testAccuracy.py)
 add_test("testMarvel" 
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "1"
           ${CMAKE_INSTALL_PREFIX}/bin/python 
@@ -218,9 +218,9 @@ else()
 add_test("testMPIGrid"
           ${CMAKE_INSTALL_PREFIX}/bin/python
           ${cdat_SOURCE_DIR}/testing/regrid/testMPIGrid.py)
-add_test("testDoutriaux" 
+        add_test("testAccuracy"
           ${CMAKE_INSTALL_PREFIX}/bin/python 
-          ${cdat_SOURCE_DIR}/testing/regrid/testDoutriaux.py)
+          ${cdat_SOURCE_DIR}/testing/regrid/testAccuracy.py)
 add_test("testMarvel" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testMarvel.py)
