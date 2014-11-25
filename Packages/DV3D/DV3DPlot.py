@@ -290,17 +290,15 @@ class DV3DPlot():
     
     def processConfigParameterChange( self, parameter, val_key = None ):
         values = parameter.getValue(val_key)
-        if values == None: values = parameter.getValues() 
+        if values == None: values = parameter.getValues()
         if not hasattr( values, '__iter__' ): values = [ values ]
         state = parameter.getState()
         if state <> None: addState( values, state )
         argList = [ parameter.name, parameter.ptype, str(values) ] 
-        #print " ..........>>>>>> Process Config Parameter Change: %s ( key: %s ) " % ( str(argList), str( val_key ) )  
         self.ParameterValueChanged( argList )
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
-        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
@@ -394,7 +392,7 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
-        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+#        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
@@ -830,7 +828,6 @@ class DV3DPlot():
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             RenderWindow.AddObserver( 'ExitEvent', self.onWindowExit )
             self.updateInteractor()
-            self.addLogo()
             self.activated = True 
             
     def buildConfigurationButton(self):
@@ -859,7 +856,7 @@ class DV3DPlot():
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if (self.type == '3d_vector') or not enable_3d_plots:
             sliderLabels= 'Slice Position' if enable_3d_plots else []
-            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
             b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )
