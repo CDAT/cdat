@@ -89,6 +89,7 @@ class vcsTest:
             plot_args.append( var )
             
         self.canvas = vcs.init()
+        self.canvas.drawlogooff()
         self.gm = vcs.get3d_scalar( self.template ) if ( self.ptype == 'scalar' ) else vcs.get3d_vector( self.template )        
         for pitem in self.parameters.items():
             self.gm.setParameter( pitem[0], pitem[1] )

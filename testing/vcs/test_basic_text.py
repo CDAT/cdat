@@ -1,3 +1,4 @@
+
 import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -5,6 +6,7 @@ sys.path.append(pth)
 import checkimage
 
 x=vcs.init()
+x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 txt=x.createtext()
 txt.x = [.0000005,.00000005,.5,.99999,.999999]
