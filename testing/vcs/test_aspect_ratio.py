@@ -1,3 +1,4 @@
+
 import vcs
 import cdms2
 import sys
@@ -17,6 +18,7 @@ gm=vcs.createisofill()
 def plot_a_ratio(s,gm,ratio):
     ret = 0
     x=vcs.init()
+x.drawlogooff()
     x.open()
     x.geometry(400,800)
     y=vcs.init()

@@ -4,6 +4,10 @@ add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+add_test(vcs_mkscale_zero_range
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_zero_range.py
+)
 add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
@@ -15,6 +19,10 @@ add_test(vcs_test_antialiasing
 add_test(vcs_verify_init
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
+)
+add_test(vcs_mkscale_great_range
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
 )
 add_test(vcs_verify_boxfill_basics
   "${PYTHON_EXECUTABLE}"
@@ -32,6 +40,14 @@ add_test(vcs_verify_fillarea_basics
 add_test(vcs_test_clear_empy_canvas
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_clear_empty_canvas.py
+  )
+add_test(vcs_test_interact_no_open
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_open.py
+  )
+add_test(vcs_test_interact_no_plot
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_plot.py
   )
 
 add_test(vcs_test_colorcells
@@ -95,6 +111,16 @@ add_test(vcs_test_vectors_missing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
+  )
+add_test(vcs_test_draw_logo_on
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
+  ${BASELINE_DIR}/test_vcs_draw_logo_on.png
+  )
+add_test(vcs_test_monotonic_decreasing_yxvsx_default
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_monotonic_decreasing_yxvsx_default.py
+  ${BASELINE_DIR}/test_vcs_monotonic_decreasing_yxvsx_default.png
   )
 add_test(vcs_test_taylor_template_ctl
   "${PYTHON_EXECUTABLE}"
@@ -186,6 +212,10 @@ add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    add_test(vcs_test_plot_file_varible
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
+      )
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
@@ -316,7 +346,16 @@ add_test(vcs_test_taylor_2_quads
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
-
+    add_test(vcs_test_isoline_numpy
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
+      ${BASELINE_DIR}/test_vcs_isoline_numpy.png
+      )
+    add_test(vcs_test_meshfill_draw_mesh
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
+      ${BASELINE_DIR}/test_meshfill_draw_mesh.png
+      )
     add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
@@ -382,5 +421,12 @@ add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
       "${BASELINE_DIR}/test_vcs_close.png"
       )
-  endif()
 
+    add_test(vcs_test_basic_isofill_bigvalues
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py"
+      --gm_type=isofill
+      --bigvalues
+      "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
+      )
+  endif()

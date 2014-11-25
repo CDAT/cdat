@@ -247,7 +247,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector' ):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector', '3d_dual_scalar' ):
             if found_slabs != 2:
                 raise vcsError, "Graphics method %s requires 2 slabs." % arglist[igraphics_method]
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -564,7 +564,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.ndim
+        try:     rank = origv.ndim
+        except:  rank = len( origv.shape )
+            
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -667,11 +669,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                     # mesh array needs to be mutable, so make it a tv.
                     # Normally this is done up front in _determine_arg_list.
                     arglist[ARRAY_2] = cdms2.asVariable(mesh, 0)
-                    try:
-                        meshobj = self.getmeshfill('__d_meshobj')
-                    except:
-                        meshobj = self.createmeshfill('__d_meshobj')
-                        meshobj.wrap = [0.0, 360.0] # Wraparound
+                    meshobj = self.createmeshfill()
+                    meshobj.wrap = [0.0, 360.0] # Wraparound
                     arglist[GRAPHICS_OPTION] = '__d_meshobj'
 
         # IF Meshfill method and no mesh passed then try to get the mesh from the object
@@ -1491,6 +1490,18 @@ Options:::
 
     def vector3d(self, *args, **parms):
         arglist=_determine_arg_list('3d_vector',args)            
+        return self.__plot(arglist, parms)
+
+    def create3d_dual_scalar(self,name=None,source='default'):
+      return vcs.create3d_dual_scalar(name,source)
+  
+    create3d_dual_scalar.__doc__ = vcs.manageElements.create3d_dual_scalar.__doc__
+    def get3d_dual_scalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_dual_scalar(Gfdv3d_name_src)
+    get3d_dual_scalar.__doc__ = vcs.manageElements.get3d_dual_scalar.__doc__
+
+    def dual_scalar3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_dual_scalar',args)            
         return self.__plot(arglist, parms)
 
     #############################################################################
@@ -3467,15 +3478,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
-            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
+            if arglist[0] is not None or keyargs.has_key('variable'):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
-                # Check data's dimension size (VCS cannot take variables with
-                # with dimensions larger than 4D, below makes sure the variable
-                # has no more than 4 dimensions.
-                while (len(arglist[0].shape) > 4):
-                   # Scale the first dimension down to size 1, then squeeze it out.
-                   arglist[0]= (MV2.take(arglist[0],(0,),0)).subRegion( squeeze=1)
                 ## Now applies the attributes change
                 for p in slab_changed_attributes.keys():
                     if hasattr(arglist[0],p):
@@ -3642,7 +3646,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                self.backend.plot(*arglist,**keyargs)
+                returned_kargs = self.backend.plot(*arglist,**keyargs)
                 if not keyargs.get("donotstoredisplay",False):
                   nm,src = self.check_name_source(None,"default","display")
                   dn = displayplot.Dp(nm)
@@ -3650,6 +3654,7 @@ Options:::
                   dn.g_type = arglist[3]
                   dn.g_name = arglist[4]
                   dn.array = arglist[:2]
+                  dn.backend = returned_kargs
                 else:
                   dn = None
         

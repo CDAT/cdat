@@ -100,9 +100,8 @@ class PointCollectionExecutionTarget:
                 data_packet = self.packVarData()
             elif args[0] == 'ROI':
                 data_packet = self.packPointsData()
-            data_packet[ 'args' ] = args
-            
-            #print "execute PointCollectionExecutionTarget[%s], result-> queue " % str(self.init_args); sys.stdout.flush()
+            data_packet[ 'args' ] = args           
+            #print "execute PointCollectionExecutionTarget(%s): init_args=[%s], result-> queue " % ( str(args), str(self.init_args) ); sys.stdout.flush()
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
@@ -136,7 +135,7 @@ class PointCollectionExecutionTarget:
 #        range_type = 'trange' if ( target == "vardata" ) else "crange"
 #        data_packet[ target ] = self.point_collection.getThresholdTargetType() 
         data_packet[ 'target' ] = target
-        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange()
+        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange() 
         return data_packet
 
 class vtkPointCloud():
@@ -511,8 +510,8 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.arg_queue = Queue() # JoinableQueue() 
         self.result_queue = Queue() # JoinableQueue()
         self.parameter_cache = {}
-            
-    def runProcess(self, procType, **args):
+
+    def runProcess(self, procType, **args): 
         if   procType == PCProc.Subset:    self.generateSubset( **args )
         elif procType == PCProc.ZScaling:  self.generateZScaling( **args )
         elif procType == PCProc.Timestep:  self.stepTime( **args )
@@ -594,7 +593,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
             self.nlevels = result['nlevels']
             self.grid_bounds = result['bounds']
             self.updateScalars()   
-#            print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
+            #print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
         elif result.type == ExecutionDataPacket.INDICES:
             self.np_index_seq = result.data 
 #            self.threshold_target = result['target']
@@ -605,9 +604,9 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #             if self.pcIndex == 1:
 #                 self.printLogMessage(  " vtkSubProcPointCloud --->> Process Results, Args: %s " % str(result['args']) )
             self.updateVertices()  
-#            print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
+            #print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
         elif result.type == ExecutionDataPacket.HEIGHTS:
-#            print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
+            #print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
             self.setPointHeights( result.data )
             self.grid_bounds = result['bounds']
             #print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
@@ -793,7 +792,7 @@ class vtkPartitionedPointCloud:
     def checkProcQueues(self):
         pc_item, rv = self.processProcQueue()
         if rv:
-#            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
+            #print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
             self.NewDataAvailable( pc_item[0], rv )
             self.subproc_responses = self.subproc_responses + 1
             if self.subproc_responses == len( self.point_clouds ): 

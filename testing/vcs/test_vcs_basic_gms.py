@@ -1,10 +1,10 @@
+
 import sys,os
 import argparse
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
 p.add_argument("--gm_type", dest="gm", help="gm to test")
-p.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
 p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
 p.add_argument("--projection-type", dest="projtype", default="default", help="use a specific projection type")
 p.add_argument("--lat1", dest="lat1", default=0, type=float, help="First latitude")
@@ -15,6 +15,10 @@ p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the r
 p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
 p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
+
+dataMods = p.add_mutually_exclusive_group()
+dataMods.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
+dataMods.add_argument("--bigvalues", dest="bigvalues", action="store_true",help="replace some of the data with 1e40")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -34,6 +38,7 @@ import MV2
 bg = not args.show
 
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
@@ -87,12 +92,16 @@ elif gm_type=="meshfill":
     gm.mesh=True
     if args.mask:
         s=MV2.masked_less(s,1150.)
+    elif args.bigvalues:
+        s[s < 1150] = 1e40
     if args.zero:
        s-=s
 else:
     s=f("clt",**xtra)
     if args.mask:
         s=MV2.masked_greater(s,78.)
+    elif args.bigvalues:
+        s[s > 78] = 1e40
     if gm_type in ["1d","yxvsx","xyvsy","xvsy","scatter"]:
         s = s(latitude=(20,20,"cob"),longitude=(112,112,"cob"),squeeze=1)
         s2=MV2.sin(s)
@@ -100,6 +109,10 @@ else:
            s2-=s2
     if args.zero:
        s-=s
+
+if args.bigvalues:
+    gm.levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 1.e36]
+
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
@@ -109,6 +122,8 @@ else:
 fnm = "test_vcs_basic_%s" % gm_type.lower()
 if args.mask:
     fnm+="_masked"
+elif args.bigvalues:
+    fnm+="_bigvalues"
 if args.projtype!="default":
     fnm+="_%s_proj" % args.projtype
 if args.zero:
