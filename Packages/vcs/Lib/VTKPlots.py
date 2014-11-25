@@ -1216,8 +1216,6 @@ class VTKVCSBackend(object):
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
-        zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
-        zunits.string=zaxis.units
         zvalue = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zvalue")
         if zaxis.isTime():
             zvalue.string = str(zaxis.asComponentTime()[0])
@@ -1241,6 +1239,18 @@ class VTKVCSBackend(object):
         tt,to = zunits.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
+        if hasattr(zaxis,"units"):
+            zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
+            zunits.string=zaxis.units
+            if zunits.priority>0:
+                tt,to = zunits.name.split(":::")
+                tt = vcs.elements["texttable"][tt]
+                to = vcs.elements["textorientation"][to]
+                vcs2vtk.genTextActor(ren,to=to,tt=tt)
+                del(vcs.elements["texttable"][tt.name])
+                del(vcs.elements["textorientation"][to.name])
+                del(vcs.elements["textcombined"][zunits.name])
+
         if zunits.priority>0:
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
         del(vcs.elements["texttable"][tt.name])
