@@ -571,6 +571,7 @@ class VTKVCSBackend(object):
         del(vcs.elements["textcombined"][t.name])
         self.canvas.plot(legd,donotstoredisplay=True)
         del(vcs.elements["line"][legd.name])
+    return {}
 
   def setLayer(self,renderer,priority):
     n = self.numberOfPlotCalls + (priority-1)*10000+1
@@ -616,7 +617,6 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    #vtk_backend_grid,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
