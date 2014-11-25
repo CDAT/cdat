@@ -116,6 +116,7 @@ add_test(vcs_test_draw_logo_on
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
   ${BASELINE_DIR}/test_vcs_draw_logo_on.png
+  )
 add_test(vcs_test_monotonic_decreasing_yxvsx_default
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_monotonic_decreasing_yxvsx_default.py
