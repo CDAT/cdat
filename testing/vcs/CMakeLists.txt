@@ -342,6 +342,11 @@ add_test(vcs_test_taylor_2_quads
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
 
+    add_test(vcs_test_meshfill_draw_mesh
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
+      ${BASELINE_DIR}/test_meshfill_draw_mesh.png
+      )
     add_test(vcs_test_oned_level_axis
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
