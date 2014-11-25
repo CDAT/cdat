@@ -16,8 +16,14 @@ class InterfaceManager(object):
         self.widgets = []
 
     def add_widget(self, widget):
-        widget.repr.SetRenderer(self.renderer)
         self.widgets.append(widget)
+        # This is a weird VTK behavior; if you set renderer on the representation,
+        # it gets overriden in widget.SetEnabled(); it uses the coordinate of the
+        # last UI event to determine what renderer to use, and then sets CurrentRenderer
+        # to that renderer, which it will use in the future to populate the repr.Renderer
+        # Setting the CurrentRenderer short circuits that logic, and just assigns the correct
+        # renderer to the object.
+        widget.widget.SetCurrentRenderer(self.renderer)
 
     def remove_widget(self, widget):
         if widget in self.widgets:
@@ -36,7 +42,7 @@ def get_manager(inter):
         return None
 
     if ui_managers.get(inter, None) is None:
+        print "Making a manager for window %s" % repr(inter.GetRenderWindow())
         ui_managers[inter] = InterfaceManager(inter)
-        print ""
 
     return ui_managers[inter]

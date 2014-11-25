@@ -7,9 +7,8 @@ class Widget(object):
         self.widget.SetInteractor(interactor)
         self.repr = widget.GetRepresentation()
         self.subscriptions = {}
-
-        manager = get_manager(interactor)
-        manager.add_widget(self)
+        self.manager = get_manager(interactor)
+        self.manager.add_widget(self)
 
     def subscribe(self, event, action):
         if event in self.subscriptions:
