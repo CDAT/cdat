@@ -828,7 +828,6 @@ class DV3DPlot():
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             RenderWindow.AddObserver( 'ExitEvent', self.onWindowExit )
             self.updateInteractor()
-            #self.addLogo()
             self.activated = True 
             
     def buildConfigurationButton(self):
