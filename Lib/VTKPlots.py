@@ -30,7 +30,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       if sys.platform == "darwin":
           self.AddObserver( "RenderEvent", parent.renderEvent )
-      
+
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
@@ -44,14 +44,13 @@ class VTKVCSBackend(object):
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
-    self.numberOfPlotCalls = 0 
+    self.numberOfPlotCalls = 0
     self.renderWindowSize=None
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
-    self.logo = None
-    self._lastLogoSize = None
+    self.createLogo()
 
     if sys.platform == "darwin":
         self.reRender = False
@@ -90,8 +89,8 @@ class VTKVCSBackend(object):
 
   def renderEvent(self,caller,evt):
     renwin = self.renWin if (caller == None) else caller
-    window_size = renwin.GetSize() 
-    if ( window_size <> self.renderWindowSize ): 
+    window_size = renwin.GetSize()
+    if ( window_size <> self.renderWindowSize ):
       self.configureEvent(caller,evt)
       self.renderWindowSize = window_size
 
@@ -179,13 +178,14 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz: 
+    if self._lastSize == sz:
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
       if self.renWin is not None and sys.platform == "darwin":
         self.renWin.Render()
       return
+    interactor = self.renWin.GetInteractor()
     self._lastSize = sz
     plots_args = []
     key_args =[]
@@ -206,8 +206,6 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
-    if self.logo is None:
-      self.createLogo()
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
@@ -232,6 +230,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self.createLogo()
     self._renderers = {}
 
   def createDefaultInteractor( self, ren=None ):
@@ -461,9 +460,6 @@ class VTKVCSBackend(object):
       returned.update(self.plotVector(data1,data2,tpl,gm,vtk_backend_grid=vtk_backend_grid,vtk_backend_geo=vtk_backend_geo))
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
-    if self.logo is None:
-      self.createLogo()
-    sz = self.renWin.GetSize()
     self.scaleLogo()
     if not kargs.get("donotstoredisplay",False):
       self.renWin.Render()
@@ -1441,52 +1437,30 @@ class VTKVCSBackend(object):
       warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
     else:
       self.renWin.SetMultiSamples(antialiasing)
+
   def createLogo(self):
-    if self.canvas.drawLogo is False:
-        ## Ok we do not want a logo here
-        return
-    # Pth to logo
-    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-    # VTK reader for logo
-    logoRdr=vtk.vtkPNGReader()
-    logoRdr.SetFileName(logoFile)
-    logoRdr.Update()
-    x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
-    ia = vtk.vtkImageActor()
-    ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
-    ren = self.createRenderer()
-    self.renWin.AddRenderer(ren)
-    self.setLayer(ren,1)
-    #r,g,b = self.canvas.backgroundcolor
-    #ren.SetBackground(r/255.,g/255.,b/255.)
-    #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
-    ren.AddActor(ia)
-    self.logo = ren
-    self.logoExtent = [x1,y1]
+    if self.canvas.drawLogo:
+        defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+        reader = vtk.vtkPNGReader()
+        reader.SetFileName( defaultLogoFile )
+        reader.Update()
+        logo_input = reader.GetOutput()
+        self.logoRepresentation = vtk.vtkLogoRepresentation()
+        self.logoRepresentation.SetImage(logo_input)
+        self.logoRepresentation.ProportionalResizeOn ()
+        self.logoRepresentation.SetPosition( 0.882, 0.0 )
+        self.logoRepresentation.SetPosition2( 0.10, 0.05 )
+        self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
+        self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
+        self.logoRenderer = vtk.vtkRenderer()
+        self.logoRenderer.AddViewProp(self.logoRepresentation)
+        self.logoRepresentation.SetRenderer(self.logoRenderer)
 
   def scaleLogo(self):
-    if self.canvas.drawLogo is False:
-        return
-    #Figuring out scale
-    #Get dimensions of input file
-    sz=self.renWin.GetSize()
-
-    if sz == (0,0) or sz == self._lastLogoSize:
-        return
-    self._lastLogoSize = sz
-    w,h=self.logoExtent
-    W,H=sz
-    SC = .05
-    sc = SC*float(H)/float(h)
-    nw = w*sc
-    pw = (W-nw)/W
-    self.logo.SetViewport(pw,0.,1.,SC)
-    self.logo.SetLayer(self.renWin.GetNumberOfLayers()-1)
-    cam = self.logo.GetActiveCamera()
-    d=cam.GetDistance()
-    cam.SetParallelScale(.5*(h+1))
-    cam.SetFocalPoint(w/2.,h/2.,0.)
-    cam.SetPosition(w/2.,h/2.,H/(2-SC))
+    if self.canvas.drawLogo:
+        if self.renWin is not None:
+            self.setLayer(self.logoRenderer,1)
+            self.renWin.AddRenderer(self.logoRenderer)
 
   def fitToViewport(self,Actor,vp,wc=None,geo=None):
       ## Data range in World Coordinates
