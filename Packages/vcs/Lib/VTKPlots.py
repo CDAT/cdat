@@ -1067,6 +1067,30 @@ class VTKVCSBackend(object):
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
 
+    # Add a second mapper for wireframe meshfill:
+    if isinstance(gm, meshfill.Gfm) and gm.mesh:
+      lineMappers = []
+      wireLUT = vtk.vtkLookupTable()
+      wireLUT.SetNumberOfTableValues(1)
+      wireLUT.SetTableValue(0,0,0,0)
+      for polyMapper in mappers:
+        if isinstance(polyMapper, list):
+            polyMapper = polyMapper[0]
+        lineMapper = vtk.vtkPolyDataMapper()
+        lineMapper.SetInputConnection(polyMapper.GetInputConnection(0, 0))
+        #lineMapper.SetInputConnection(geoFilter.GetOutputPort())
+        lineMapper._useWireFrame = True
+
+        # Setup depth resolution so lines stay above points:
+        polyMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(0, 1)
+        polyMapper.SetResolveCoincidentTopologyToPolygonOffset()
+        lineMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
+        lineMapper.SetResolveCoincidentTopologyToPolygonOffset()
+        lineMapper.SetLookupTable(wireLUT)
+
+        lineMappers.append(lineMapper)
+      mappers.extend(lineMappers)
+
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
       for mapper in mappers:
@@ -1076,9 +1100,15 @@ class VTKVCSBackend(object):
         else:
           mapper.Update()
           act.SetMapper(mapper)
+          if hasattr(mapper, "_useWireFrame"):
+            prop = act.GetProperty()
+            # Makes wireframed
+            prop.SetRepresentationToWireframe()
         if geo is None:
+          #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
           act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
+          ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
           pass
