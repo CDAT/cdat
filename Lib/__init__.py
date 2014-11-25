@@ -111,6 +111,7 @@ elements = { "boxfill" : {},
              "isoline" : {},
              "meshfill" : {},
              "3d_scalar" : {},
+             "3d_dual_scalar" : {},
              "3d_vector" : {},
              "outfill": {},
              "outline" : {},
@@ -227,7 +228,9 @@ colormap.Cp("default")
 displayplot.Dp("default")
 dv3d.Gf3Dvector("default")
 dv3d.Gf3Dscalar("default")
-dv3d.Gf3Dscalar("xyt")
+dv3d.Gf3Dscalar("Hovmoller3D")  
+dv3d.Gf3DDualScalar("default")
+
 on = { 'state' : 1 }
 off = { 'state' : 0 }
 

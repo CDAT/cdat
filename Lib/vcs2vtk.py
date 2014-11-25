@@ -43,26 +43,27 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
             grid2 = vtk.vtkUnstructuredGrid()
           grid2.CopyStructure(grid)
           geoFilter = vtk.vtkDataSetSurfaceFilter()
+          lut = vtk.vtkLookupTable()
+          r,g,b = actorColor
+          lut.SetNumberOfTableValues(2)
           if not cellData:
               grid2.GetPointData().SetScalars(imsk)
               #grid2.SetCellVisibilityArray(imsk)
               p2c = vtk.vtkPointDataToCellData()
               p2c.SetInputData(grid2)
               geoFilter.SetInputConnection(p2c.GetOutputPort())
+              #lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
+              #lut.SetTableValue(1,r/100.,g/100.,b/100.,0.)
           else:
               grid2.GetCellData().SetScalars(imsk)
-              geoFilter.SetInputData(grid)
+              geoFilter.SetInputData(grid2)
+          lut.SetTableValue(0,r/100.,g/100.,b/100.,0.)
+          lut.SetTableValue(1,r/100.,g/100.,b/100.,1.)
           geoFilter.Update()
           mapper = vtk.vtkPolyDataMapper()
           mapper.SetInputData(geoFilter.GetOutput())
-          lut = vtk.vtkLookupTable()
-          lut.SetNumberOfTableValues(1)
-          r,g,b = actorColor
-          lut.SetNumberOfTableValues(2)
-          lut.SetTableValue(0,r/100.,g/100.,b/100.)
-          lut.SetTableValue(1,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
-          mapper.SetScalarRange(1,1)
+          mapper.SetScalarRange(0,1)
       if grid.IsA("vtkStructuredGrid"):
         if not cellData:
           grid.SetPointVisibilityArray(msk)
@@ -70,59 +71,78 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm,deep=True):
+def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   useStructuredGrid = True
   try:
     g=data1.getGrid()
-    x = g.getLongitude()[:]
-    y = g.getLatitude()[:]
+    if grid is None:
+      x = g.getLongitude()[:]
+      y = g.getLatitude()[:]
     continents=True
     wrap=[0,360]
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
       useStructuredGrid = False
   except:
     #hum no grid that's much easier
-    x=data1.getAxis(-1)[:]
-    y=data1.getAxis(-2)[:]
     wrap=None
+    if grid is None:
+      x=data1.getAxis(-1)[:]
+      y=data1.getAxis(-2)[:]
 
-  if x.ndim==1:
-    y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
-    x = x[numpy.newaxis,:]*numpy.ones(y.shape)
-  x=x.flatten()
-  y=y.flatten()
-  sh =list(x.shape)
-  sh.append(1)
-  x=numpy.reshape(x,sh)
-  y=numpy.reshape(y,sh)
-  #Ok we have our points in 2D let's create unstructured points grid
-  xm=x.min()
-  xM=x.max()
-  ym=y.min()
-  yM=y.max()
-  z = numpy.zeros(x.shape)
-  m3 = numpy.concatenate((x,y),axis=1)
-  m3 = numpy.concatenate((m3,z),axis=1)
-  deep = True
-  pts = vtk.vtkPoints()
-  ## Convert nupmy array to vtk ones
-  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
-  pts.SetData(ppV)
+  if grid is None:
+    if x.ndim==1:
+      y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
+      x = x[numpy.newaxis,:]*numpy.ones(y.shape)
+    x=x.flatten()
+    y=y.flatten()
+    sh =list(x.shape)
+    sh.append(1)
+    x=numpy.reshape(x,sh)
+    y=numpy.reshape(y,sh)
+    #Ok we have our points in 2D let's create unstructured points grid
+    xm=x.min()
+    xM=x.max()
+    ym=y.min()
+    yM=y.max()
+    z = numpy.zeros(x.shape)
+    m3 = numpy.concatenate((x,y),axis=1)
+    m3 = numpy.concatenate((m3,z),axis=1)
+    deep = True
+    pts = vtk.vtkPoints()
+    ## Convert nupmy array to vtk ones
+    ppV = numpy_to_vtk_wrapper(m3,deep=deep)
+    pts.SetData(ppV)
+  else:
+    xm,xM,ym,yM,tmp,tmp2 = grid.GetPoints().GetBounds()
+    vg = grid
   projection = vcs.elements["projection"][gm.projection]
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
-  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
+  if geo is None:
+    geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
-  if useStructuredGrid:
-    vg = vtk.vtkStructuredGrid()
-    vg.SetDimensions(y.shape[1],y.shape[0],1)
+  if grid is None:
+    if useStructuredGrid:
+      vg = vtk.vtkStructuredGrid()
+      vg.SetDimensions(y.shape[1],y.shape[0],1)
+    else:
+      vg = vtk.vtkUnstructuredGrid()
+    vg.SetPoints(geopts)
   else:
-    vg = vtk.vtkUnstructuredGrid()
-  vg.SetPoints(geopts)
-  return vg,xm,xM,ym,yM,continents,wrap,geo
+    vg=grid
+  out={"vtk_backend_grid":vg,
+      "xm":xm,
+      "xM":xM,
+      "ym":ym,
+      "yM":yM,
+      "continents":continents,
+      "wrap":wrap,
+      "geo":geo,
+      }
+  return out
   
-def genGrid(data1,data2,gm,deep=True):
+def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
   continents = False
   wrap = None
   m3 = None
@@ -132,39 +152,42 @@ def genGrid(data1,data2,gm,deep=True):
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
-      m=g.getMesh()
-      xm = m[:,1].min()
-      xM = m[:,1].max()
-      ym = m[:,0].min()
-      yM = m[:,0].max()
-      N=m.shape[0]
-      #For vtk we need to reorder things
-      m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
-      m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
-      m2=m2[...,::-1]
-      # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
-      m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
       continents = True
       wrap = [0.,360.]
+      if grid is None:
+        m=g.getMesh()
+        xm = m[:,1].min()
+        xM = m[:,1].max()
+        ym = m[:,0].min()
+        yM = m[:,0].max()
+        N=m.shape[0]
+        #For vtk we need to reorder things
+        m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
+        m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
+        m2=m2[...,::-1]
+        # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
+        m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
     ## Could still be meshfill with mesh data
     ## Ok probably should do a test for hgrid before sending data2
     if isinstance(gm,meshfill.Gfm) and data2 is not None:
-      xm = data2[:,1].min()
-      xM = data2[:,1].max()
-      ym = data2[:,0].min()
-      yM = data2[:,0].max()
-      N = data2.shape[0]
-      m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
-      nVertices = m2.shape[-2]
-      m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
-      m2=m2[...,::-1]
-      # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
-      m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
+      wrap = gm.wrap
       if gm.wrap[1]==360.:
         continents = True
-      wrap = gm.wrap
+      if grid is None:
+        xm = data2[:,1].min()
+        xM = data2[:,1].max()
+        ym = data2[:,0].min()
+        yM = data2[:,0].max()
+        N = data2.shape[0]
+        m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
+        nVertices = m2.shape[-2]
+        m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
+        m2=m2[...,::-1]
+        # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
+        m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    print "No mesh data found"
+    #print "No mesh data found"
+    pass
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
@@ -184,14 +207,21 @@ def genGrid(data1,data2,gm,deep=True):
     vg.SetCells(vtk.VTK_POLYGON, cells)
   else:
     #Ok a simple structured grid is enough
-    vg = vtk.vtkStructuredGrid()
+    if grid is None:
+      vg = vtk.vtkStructuredGrid()
     if g is not None:
       # Ok we have grid
-      lat = g.getLatitude()
-      lon = g.getLongitude()
       continents = True
       wrap = [0.,360.]
-      if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
+      if grid is None:
+        lat = g.getLatitude()
+        lon = g.getLongitude()
+      if isinstance(g,cdms2.hgrid.AbstractCurveGrid):
+        #Ok in this case it is a structured grid we have no bounds, using ponitData
+        ## ??? We should probably revist and see if we can use the "bounds" attribute
+        ## to generate cell instead of points
+        cellData = False
+      elif grid is None:
           lon=data1.getAxis(-1)
           lat=data1.getAxis(-2)
           xm=lon[0]
@@ -222,12 +252,8 @@ def genGrid(data1,data2,gm,deep=True):
             lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
           lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
           lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
-      else:
-        #Ok in this case it is a structured grid we have no bounds, using ponitData
-        ## ??? We should probably revist and see if we can use the "bounds" attribute
-        ## to generate cell instead of points
-        cellData = False
-    else:
+    elif grid is None:
+      ## No grid info from data, making one up
       data1=cdms2.asVariable(data1)
       lon=data1.getAxis(-1)
       lat=data1.getAxis(-2)
@@ -259,39 +285,55 @@ def genGrid(data1,data2,gm,deep=True):
         lon2[-1]=lon[-1]+(lon[-1]-lon[-2])/2.
       lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
       lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
-    vg.SetDimensions(lat.shape[1],lat.shape[0],1)
-    lon = numpy.ma.ravel(lon)
-    lat = numpy.ma.ravel(lat)
-    sh = list(lat.shape)
-    sh.append(1)
-    lon = numpy.ma.reshape(lon,sh)
-    lat = numpy.ma.reshape(lat,sh)
-    z = numpy.zeros(lon.shape)
-    m3 = numpy.concatenate((lon,lat),axis=1)
-    m3 = numpy.concatenate((m3,z),axis=1)
-    if xm is None:
-      try:
-        xm = lon[0]
-        xM = lon[-1]
-        ym = lat[0]
-        yM = lat[-1]
-      except:
-        xm=lon.min()
-        xM=lon.max()
-        ym=lat.min()
-        yM=lat.max()
+    if grid is None:
+      vg.SetDimensions(lat.shape[1],lat.shape[0],1)
+      lon = numpy.ma.ravel(lon)
+      lat = numpy.ma.ravel(lat)
+      sh = list(lat.shape)
+      sh.append(1)
+      lon = numpy.ma.reshape(lon,sh)
+      lat = numpy.ma.reshape(lat,sh)
+      z = numpy.zeros(lon.shape)
+      m3 = numpy.concatenate((lon,lat),axis=1)
+      m3 = numpy.concatenate((m3,z),axis=1)
+      if xm is None:
+        try:
+          xm = lon[0]
+          xM = lon[-1]
+          ym = lat[0]
+          yM = lat[-1]
+        except:
+          xm=lon.min()
+          xM=lon.max()
+          ym=lat.min()
+          yM=lat.max()
+  if grid is None:
     # First create the points/vertices (in vcs terms)
-  pts = vtk.vtkPoints()
-  ## Convert nupmy array to vtk ones
-  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
-  pts.SetData(ppV)
-
+    pts = vtk.vtkPoints()
+    ## Convert nupmy array to vtk ones
+    ppV = numpy_to_vtk_wrapper(m3,deep=deep)
+    pts.SetData(ppV)
+  else:
+     xm,xM,ym,yM,tmp,tmp2 = grid.GetPoints().GetBounds()
   projection = vcs.elements["projection"][gm.projection]
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
-  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
-  ## Sets the vertics into the grid
-  vg.SetPoints(geopts)
-  return vg,xm,xM,ym,yM,continents,wrap,geo,cellData
+  if grid is None:
+    geo, geopts = project(pts,projection,[xm,xM,ym,yM],geo)
+    ## Sets the vertics into the grid
+    vg.SetPoints(geopts)
+  else:
+    vg=grid
+  out={"vtk_backend_grid":vg,
+      "xm":xm,
+      "xM":xM,
+      "ym":ym,
+      "yM":yM,
+      "continents":continents,
+      "wrap":wrap,
+      "geo":geo,
+      "cellData":cellData,
+      }
+  return out
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
@@ -315,11 +357,15 @@ def getRange(gm,xm,xM,ym,yM):
     return x1,x2,y1,y2
 
 ## Continents first
+## Try to save time and memorize these continents
+vcsContinents= {}
 def prepContinents(fnm):
   """ This converts vcs continents files to vtkpolydata
   Author: Charles Doutriaux
   Input: vcs continent file name
   """
+  if vcsContinents.has_key(fnm):
+    return vcsContinents[fnm]
   poly =vtk.vtkPolyData()
   cells = vtk.vtkCellArray()
   pts = vtk.vtkPoints()
@@ -343,7 +389,7 @@ def prepContinents(fnm):
               l,L = float(sp[i*2]),float(sp[i*2+1])
               spts.append([l,L])
             for p in spts:
-              pts.InsertNextPoint(p[1],p[0],0.0001)
+              pts.InsertNextPoint(p[1],p[0],0.)
             n+=sn
             didIt = True
           except:
@@ -351,7 +397,7 @@ def prepContinents(fnm):
         if didIt is False:
           while len(ln)>2:
             l,L=float(ln[:8]),float(ln[8:16])
-            pts.InsertNextPoint(L,l,0.0001)
+            pts.InsertNextPoint(L,l,0.)
             ln=ln[16:]
             n+=2
     ln = vtk.vtkPolyLine()
@@ -361,48 +407,50 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+  vcsContinents[fnm]=poly
   return poly
 
 
 #Geo projection
-def project(pts,projection,wc):
+def project(pts,projection,wc,geo=None):
   xm,xM,ym,yM= wc
   if isinstance(projection,(str,unicode)):
     projection = vcs.elements["projection"][projection]
   if projection.type=="linear":
     return None,pts
-  geo = vtk.vtkGeoTransform()
-  ps = vtk.vtkGeoProjection()
-  #for i in range(ps.GetNumberOfProjections()):
-  #  print i, ps.GetProjectionName(i)
-  pd = vtk.vtkGeoProjection()
-  names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
-  proj_dic = {"polar stereographic":"stere",
-      -3:"aeqd",
-      }
-  for i in range(len(names)):
-    proj_dic[i]=names[i]
+  if geo is None:
+    geo = vtk.vtkGeoTransform()
+    ps = vtk.vtkGeoProjection()
+    #for i in range(ps.GetNumberOfProjections()):
+    #  print i, ps.GetProjectionName(i)
+    pd = vtk.vtkGeoProjection()
+    names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
+    proj_dic = {"polar stereographic":"stere",
+        -3:"aeqd",
+        }
+    for i in range(len(names)):
+      proj_dic[i]=names[i]
 
-  pname = proj_dic.get(projection._type,projection.type)
-  projName = pname
-  #for i in range(0,184,2):
-  #  pd.SetName(pd.GetProjectionName(i))
-  #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-  #  pd.SetName(pd.GetProjectionName(i+1))
-  #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
+    pname = proj_dic.get(projection._type,projection.type)
+    projName = pname
+    #for i in range(0,184,2):
+    #  pd.SetName(pd.GetProjectionName(i))
+    #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
+    #  pd.SetName(pd.GetProjectionName(i+1))
+    #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
 
-  pd.SetName(projName)
-  if projection.type == "polar (non gctp)":
-    if ym<yM:
-      pd.SetOptionalParameter("lat_0","-90.")
-      pd.SetCentralMeridian(xm)
+    pd.SetName(projName)
+    if projection.type == "polar (non gctp)":
+      if ym<yM:
+        pd.SetOptionalParameter("lat_0","-90.")
+        pd.SetCentralMeridian(xm)
+      else:
+        pd.SetOptionalParameter("lat_0","90.")
+        pd.SetCentralMeridian(xm+180.)
     else:
-      pd.SetOptionalParameter("lat_0","90.")
-      pd.SetCentralMeridian(xm+180.)
-  else:
-    setProjectionParameters(pd,projection)
-  geo.SetSourceProjection(ps)
-  geo.SetDestinationProjection(pd)
+      setProjectionParameters(pd,projection)
+    geo.SetSourceProjection(ps)
+    geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
   geo.TransformPoints(pts,geopts)
   return geo,geopts
@@ -853,10 +901,36 @@ def prepPrimitive(prim):
     setattr(prim,a,v)
   return n
 
-def prepFillarea(renWin,ren,farea,cmap=None):
+def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
     return
+  actors =[]
+
+  # Find color map:
+  if cmap is None:
+    if farea.colormap is not None:
+      cmap = farea.colormap
+    else:
+      cmap = 'default'
+  if isinstance(cmap,str):
+    cmap = vcs.elements["colormap"][cmap]
+
+  # Create data structures:
+  pts = vtk.vtkPoints()
+  polygons = vtk.vtkCellArray()
+  colors = vtk.vtkUnsignedCharArray()
+  colors.SetNumberOfComponents(3)
+  colors.SetNumberOfTuples(n)
+  polygonPolyData = vtk.vtkPolyData()
+  polygonPolyData.SetPoints(pts)
+  polygonPolyData.SetPolys(polygons)
+  polygonPolyData.GetCellData().SetScalars(colors)
+
+  # Reuse this temporary container to avoid reallocating repeatedly:
+  polygon = vtk.vtkPolygon()
+
+  # Iterate through polygons:
   for i in range(n):
     x   = farea.x[i]
     y   = farea.y[i]
@@ -864,45 +938,32 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     st  = farea.style[i]
     idx = farea.index[i]
     N = max(len(x),len(y))
+
     for a in [x,y]:
-      while len(a)<n:
-        a.append(a[-1])
-    #Create points
-    pts = vtk.vtkPoints()
-    for j in range(N):
-      pts.InsertNextPoint(x[j],y[j],0.)
-    #Create polygon out of these points
-    polygon = vtk.vtkPolygon()
+      assert(len(a) == N)
+
+    # Add current polygon
     pid = polygon.GetPointIds()
     pid.SetNumberOfIds(N)
     for j in range(N):
-      pid.SetId(j,j)
-    polygons = vtk.vtkCellArray()
-    polygons.InsertNextCell(polygon)
+      pid.SetId(j, pts.InsertNextPoint(x[j],y[j],0.))
+    cellId = polygons.InsertNextCell(polygon)
 
-    polygonPolyData = vtk.vtkPolyData()
-    geo,pts = project(pts,farea.projection,farea.worldcoordinate)
-    polygonPolyData.SetPoints(pts)
-    polygonPolyData.SetPolys(polygons)
-
-    a = vtk.vtkActor()
-    m = vtk.vtkPolyDataMapper()
-    m.SetInputData(polygonPolyData)
-    a.SetMapper(m)
-    p = a.GetProperty()
-
-    if cmap is None:
-      if farea.colormap is not None:
-        cmap = farea.colormap
-      else:
-        cmap = 'default'
-    if isinstance(cmap,str):
-      cmap = vcs.elements["colormap"][cmap]
+    # Add the color to the color array:
     color = cmap.index[c]
-    p.SetColor([C/100. for C in color])
-    ren.AddActor(a)
-    fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
-  return
+    colors.SetTupleValue(cellId, [int((C/100.) * 255) for C in color])
+
+  # Transform points:
+  geo,pts = project(pts,farea.projection,farea.worldcoordinate)
+
+  # Setup rendering
+  m = vtk.vtkPolyDataMapper()
+  m.SetInputData(polygonPolyData)
+  a = vtk.vtkActor()
+  a.SetMapper(m)
+  actors.append((a,geo))
+  return actors
+
 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -921,10 +982,11 @@ def genPoly(coords,pts,filled=True):
     pid.SetId(j,j+N)
   return poly
 
-def prepMarker(renWin,ren,marker,cmap=None):
+def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
     return
+  actors=[]
   for i in range(n):
     ## Creates the glyph
     g = vtk.vtkGlyph2D()
@@ -1082,36 +1144,16 @@ def prepMarker(renWin,ren,marker,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    ren.AddActor(a)
-    fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
+    actors.append((g,gs,pd,a,geo))
 
-    # Add a transform to correct the glyph's aspect ratio:
 
-    if pd is None and a.GetUserTransform():
-      # Invert the scale of the actor's transform.
-      glyphTransform = vtk.vtkTransform()
-      scale = a.GetUserTransform().GetScale()
-      xComp = scale[0]
-      scale = [xComp / float(val) for val in scale]
-      glyphTransform.Scale(scale)
+  return actors
 
-      glyphFixer = vtk.vtkTransformPolyDataFilter()
-      glyphFixer.SetTransform(glyphTransform)
-
-      if pd is None:
-        glyphFixer.SetInputConnection(gs.GetOutputPort())
-      else:
-        glyphFixer.SetInputData(pd)
-        g.SetSourceData(None)
-
-      g.SetSourceConnection(glyphFixer.GetOutputPort())
-
-  return
-
-def prepLine(renWin,ren,line,cmap=None):
+def prepLine(renWin,line,cmap=None):
   n = prepPrimitive(line)
   if n==0:
     return
+  actors = []
   for i in range(n):
     l = vtk.vtkLine()
     lines = vtk.vtkCellArray()
@@ -1168,10 +1210,9 @@ def prepLine(renWin,ren,line,cmap=None):
       p.SetLineStipplePattern(int('1111111111111111',2))
       p.SetLineStippleRepeatFactor(1)
     else:
-      raise Exception,"Unkonw line type: '%s'" % t
-    ren.AddActor(a)
-    fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
-  return
+      raise Exception,"Unknown line type: '%s'" % t
+    actors.append((a,geo))
+  return actors
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
@@ -1198,128 +1239,6 @@ def vtkWorld2Renderer(ren,x,y):
   ren.WorldToDisplay()
   renpts = ren.GetDisplayPoint()
   return renpts
-
-def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
-  T = vtk.vtkTransform()
-  ## Data range in World Coordinates
-  if wc is None:
-    Xrg = list(Actor.GetXRange())
-    Yrg = list(Actor.GetYRange())
-  else:
-    Xrg=[float(wc[0]),float(wc[1])]
-    Yrg=[float(wc[2]),float(wc[3])]
-  if Yrg[0]>Yrg[1]:
-    #Yrg=[Yrg[1],Yrg[0]]
-    #T.RotateY(180)
-    Yrg=[Yrg[1],Yrg[0]]
-    flipY = True
-  else:
-    flipY = False
-  if Xrg[0]>Xrg[1]:
-    Xrg=[Xrg[1],Xrg[0]]
-    flipX=True
-  else:
-    flipX=False
-
-  if geo is not None:
-   pt = vtk.vtkPoints()
-   pt.SetNumberOfPoints(1)
-   Xrg2 = [1.e20,-1.e20]
-   Yrg2 = [1.e20,-1.e20]
-   Npts=50.
-   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
-     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-       pt.SetPoint(0,x,y,0)
-       pts = vtk.vtkPoints()
-       geo.TransformPoints(pt,pts)
-       b = pts.GetBounds()
-       xm,xM,ym,yM=b[:4]
-       if xm!=-numpy.inf:
-         Xrg2[0]=min(Xrg2[0],xm)
-       if xM!=numpy.inf:
-         Xrg2[1]=max(Xrg2[1],xM)
-       if ym!=-numpy.inf:
-         Yrg2[0]=min(Yrg2[0],ym)
-       if yM!=numpy.inf:
-         Yrg2[1]=max(Yrg2[1],yM)
-   Xrg=Xrg2
-   Yrg=Yrg2
-  Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
-  rw = Renderer.GetRenderWindow()
-  sc = rw.GetSize()
-  wRatio = float(sc[0])/float(sc[1])
-  dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
-  vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
-
-
-  if wRatio>1.: #landscape orientated window
-      yScale = 1.
-      xScale = vRatio*wRatio/dRatio
-  else:
-      xScale = 1.
-      yScale = dRatio/(vRatio*wRatio)
-
-
-  T.Scale(xScale,yScale,1.)
-
-  Actor.SetUserTransform(T)
-
-  mapper = Actor.GetMapper()
-  planeCollection = mapper.GetClippingPlanes()
-
-  # We have to transform the hardware clip planes as well
-  if (planeCollection is not None):
-      planeCollection.InitTraversal()
-      plane = planeCollection.GetNextItem()
-      while (plane):
-          origin = plane.GetOrigin()
-          inOrigin = [origin[0], origin[1], origin[2], 1.0]
-          outOrigin = [origin[0], origin[1], origin[2], 1.0]
-
-          normal = plane.GetNormal()
-          inNormal = [normal[0], normal[1], normal[2], 0.0]
-          outNormal = [normal[0], normal[1], normal[2], 0.0]
-
-          T.MultiplyPoint(inOrigin, outOrigin)
-          if (outOrigin[3] != 0.0):
-              outOrigin[0] /= outOrigin[3]
-              outOrigin[1] /= outOrigin[3]
-              outOrigin[2] /= outOrigin[3]
-          plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
-
-          # For normal matrix, compute the transpose of inverse
-          normalTransform = vtk.vtkTransform()
-          normalTransform.DeepCopy(T)
-          mat = vtk.vtkMatrix4x4()
-          normalTransform.GetTranspose(mat)
-          normalTransform.GetInverse(mat)
-          normalTransform.SetMatrix(mat)
-          normalTransform.MultiplyPoint(inNormal, outNormal)
-          if (outNormal[3] != 0.0):
-              outNormal[0] /= outNormal[3]
-              outNormal[1] /= outNormal[3]
-              outNormal[2] /= outNormal[3]
-          plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
-
-          plane = planeCollection.GetNextItem()
-
-  xc = xScale*float(Xrg[1]+Xrg[0])/2.
-  yc = yScale*float(Yrg[1]+Yrg[0])/2.
-  xd = xScale*float(Xrg[1]-Xrg[0])/2.
-  yd = yScale*float(Yrg[1]-Yrg[0])/2.
-  cam = Renderer.GetActiveCamera()
-  cam.ParallelProjectionOn()
-  cam.SetParallelScale(yd)
-  cd = cam.GetDistance()
-  cam.SetPosition(xc,yc,cd)
-  cam.SetFocalPoint(xc,yc,0.)
-  if geo is None:
-    if flipY:
-      cam.Elevation(180.)
-      cam.Roll(180.)
-      pass
-    if flipX:
-      cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
 vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]
