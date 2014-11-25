@@ -341,6 +341,11 @@ add_test(vcs_test_taylor_2_quads
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+    add_test(vcs_test_isoline_numpy
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
+      ${BASELINE_DIR}/test_vcs_isoline_numpy.png
+      )
     add_test(vcs_test_meshfill_draw_mesh
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
