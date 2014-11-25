@@ -1087,7 +1087,6 @@ class VTKVCSBackend(object):
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
       for mapper in mappers:
-        print "Yes we are using stripper",mapper
         act = vtk.vtkActor()
         if isinstance(mapper,list):
           act.SetMapper(mapper[0])
