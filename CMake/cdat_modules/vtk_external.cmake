@@ -84,7 +84,7 @@ ExternalProject_Add(VTK
   BINARY_DIR ${vtk_binary}
   INSTALL_DIR ${vtk_install}
   ${GIT_CMD_STR}
-  GIT_TAG uvcdat-master
+  GIT_TAG ${VTK_MD5}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
