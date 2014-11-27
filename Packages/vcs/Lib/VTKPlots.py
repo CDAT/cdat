@@ -1240,9 +1240,9 @@ class VTKVCSBackend(object):
                 tt = vcs.elements["texttable"][tt]
                 to = vcs.elements["textorientation"][to]
                 vcs2vtk.genTextActor(ren,to=to,tt=tt)
-            del(vcs.elements["texttable"][tt.name])
-            del(vcs.elements["textorientation"][to.name])
-            del(vcs.elements["textcombined"][zunits.name])
+                del(vcs.elements["texttable"][tt.name])
+                del(vcs.elements["textorientation"][to.name])
+                del(vcs.elements["textcombined"][zunits.name])
         tt,to = zvalue.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
