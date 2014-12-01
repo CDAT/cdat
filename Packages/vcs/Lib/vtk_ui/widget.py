@@ -33,5 +33,7 @@ class Widget(object):
         render = self.repr.GetRenderer()
         if render.HasViewProp(self.repr):
             render.RemoveViewProp(self.repr)
-        self.repr.SetRenderer(None)
-        self.repr.SetInteractor(None)
+        self.unsubscribe(*self.subscriptions.keys())
+        self.widget.SetCurrentRenderer(None)
+        self.widget.SetInteractor(None)
+        self.widget.Off()
