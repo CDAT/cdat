@@ -16,6 +16,7 @@ class Configurator(object):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
+
         self.displays = [vcs.elements["display"][display] for display in displays]
 
     def click(self, object, event):
@@ -40,8 +41,12 @@ class Configurator(object):
             else:
                 self.clicked = (now, obj)
 
+    def deactivate(self, obj):
+        if self.target == obj:
+            obj.detach()
+            self.target = None
+
     def activate(self, obj, display):
-        print "Activating %s" % obj.name
 
         if display.g_type == "fillarea":
             self.target = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
@@ -56,7 +61,7 @@ class Configurator(object):
 
         if dp.g_type == "fillarea":
             fill = vcs.getfillarea(dp.g_name)
-            info = fillarea_intersection(fill, *point)
+            info = editors.fillarea.inside_fillarea(fill, *point)
             if info is not None:
                 self.clicked_info = info
                 return fill
@@ -170,53 +175,6 @@ def is_point_in_box(point, box):
     x, y = point
     (x1, y1), (x2, y2) = box
     return x1 <= x and x2 >= x and y1 <= y and y2 >= y
-
-def fillarea_intersection(fillarea, x, y):
-    """
-    Determines if a point is inside a fillarea; returns the index of the
-    fill shape selected or None.
-    """
-
-    for ind, xcoords in enumerate(fillarea.x):
-
-        # Points are stored as a list of lists, once the fill has been rendered
-        points = zip(xcoords, fillarea.y[ind])
-
-
-        if len(points) == 1:
-            if points[0][0] == x and points[0][1] == y:
-                # If you magically click the exact point that this is, sure, you can edit it.
-                return ind
-            continue
-        elif len(points) == 0:
-            continue
-
-        # Test if point is inside bounding box
-        xmin, xmax = min(xcoords), max(xcoords)
-        ymin, ymax = min(fillarea.y[ind]), max(fillarea.y[ind])
-
-        if not is_point_in_box((x,y), ((xmin, ymin), (xmax, ymax))):
-            continue
-
-        sides = [ (point, points[point_ind - 1]) for point_ind, point in enumerate(points) ]
-
-        # We're going to cast a ray straight to the right from x,y
-        # Every side that we intersect will get added here.
-        # If intersected is even, we're outside the shape.
-        # If intersected is odd, we're inside the shape.
-        intersected = 0
-        for side in sides:
-            x1, y1 = side[0]
-            x2, y2 = side[1]
-
-            if (x1 > x or x2 > x) and min(y1, y2) < y and max(y1, y2) > y:
-                intersected += 1
-
-        if intersected % 2 == 1:
-            return ind
-
-    return None
-
 
 
 
