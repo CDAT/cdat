@@ -42,7 +42,6 @@ def get_manager(inter):
         return None
 
     if ui_managers.get(inter, None) is None:
-        print "Making a manager for window %s" % repr(inter.GetRenderWindow())
         ui_managers[inter] = InterfaceManager(inter)
 
     return ui_managers[inter]
