@@ -12,6 +12,8 @@ class Handle(Widget):
         self.normalize = normalize
         widget = vtkHandleWidget()
         
+        widget.AllowHandleResizeOff()
+
         widget.SetRepresentation(vtkPointHandleRepresentation2D())
 
         super(Handle, self).__init__(interactor, widget)
@@ -81,7 +83,6 @@ class Handle(Widget):
             self.released(self)
 
     def drag(self, object, event):
-        
 
         if self.normalize:
             w, h = self.interactor.GetRenderWindow().GetSize()
