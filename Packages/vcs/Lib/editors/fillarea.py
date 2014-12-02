@@ -6,10 +6,15 @@ class FillEditor(object):
         self.index = index
         self.fill = fillarea
         self.interactor = interactor
-        self.actions = []
-        self.actions.append(self.interactor.AddObserver("LeftButtonPressEvent", self.clicked))
-        self.actions.append(self.interactor.AddObserver("RightButtonPressEvent", self.rightclick))
+        self.actions = {}
 
+        self.actions["LeftButtonPressEvent"] = self.interactor.AddObserver("LeftButtonPressEvent", self.mouse_down)
+        self.actions["LeftButtonReleaseEvent"] = self.interactor.AddObserver("LeftButtonReleaseEvent", self.mouse_up)
+        self.actions["RightButtonReleaseEvent"] = self.interactor.AddObserver("RightButtonReleaseEvent", self.rightclick)
+        self.actions["MouseMoveEvent"] = self.interactor.AddObserver("MouseMoveEvent", self.mouse_move)
+
+        self.drag_position = None
+        self.drag_origin = None
         self.clicked_on = None
         self.handles = []
         self.configurator = configurator
@@ -46,12 +51,7 @@ class FillEditor(object):
 
     def rightclick(self, obj, event):
 
-        point = self.interactor.GetEventPosition()
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        x, y = point
-        x = x / float(w)
-        y = y / float(h)
-        point = (x, y)
+        x, y = self.event_position()
 
         # Check each vertex to see if the rightclick was on it
         for ind, x1 in enumerate(self.fill.x[self.index]):
@@ -64,17 +64,64 @@ class FillEditor(object):
                     self.save()
                     break
 
-
-    def clicked(self, obj, event):
+    def event_position(self):
         point = self.interactor.GetEventPosition()
         w, h = self.interactor.GetRenderWindow().GetSize()
         x, y = point
         x = x / float(w)
         y = y / float(h)
         point = (x, y)
+        return point
+
+    def mouse_down(self, obj, event):
+
+        x, y = self.event_position()
+
+        if inside_fillarea(self.fill, x, y) == self.index:
+            self.drag_origin = (x, y)
+
+    def mouse_move(self, obj, event):
+
+        if self.drag_origin is None:
+            return
+
+        x, y = self.event_position()
+
+        if self.drag_position is None:
+            x0, y0 = self.drag_origin
+            if x - .005 < x0 and x + .005 > x0 and y - .005 < y0 and y + .005 > y0:
+                return
+            else:
+                self.drag_position = self.drag_origin
+
+        old_x, old_y = self.drag_position
+
+        for h in self.handles:
+            h.x -= old_x - x
+            h.y -= old_y - y
+            h.place()
+
+        self.drag_position = (x, y)
+
+    def mouse_up(self, obj, event):
+        x, y = self.event_position()
+
+        if self.drag_origin == (x, y) or self.drag_position is None:
+            self.click()
+        else:
+            # Update vertex positions
+            for ind, h in enumerate(self.handles):
+                self.fill.x[self.index][ind], self.fill.y[self.index][ind] = h.x, h.y
+            self.save()
+        self.drag_position = None
+        self.drag_origin = None
+
+    def click(self):
+        point = self.event_position()
+        x, y = point
 
         # Check if there was a click in or around a line.
-        line_click = self.in_side( x, y)
+        line_click = self.in_side(x, y)
 
         # Add a new point on double clicks
         if line_click is not None:
@@ -114,7 +161,7 @@ class FillEditor(object):
             h.detach()
 
         for action in self.actions:
-            self.interactor.RemoveObserver(action)
+            self.interactor.RemoveObserver(self.actions[action])
 
 
 def inside_fillarea(fillarea, x, y, index=None):
