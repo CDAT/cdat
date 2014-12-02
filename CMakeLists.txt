@@ -538,8 +538,10 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 
