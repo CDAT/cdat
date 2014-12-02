@@ -253,13 +253,13 @@ class VTKVCSBackend(object):
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
+      self.initialSize()
+      
+    if self.renderer == None:
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
-      return True
-    else:
-      return False
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
@@ -330,9 +330,7 @@ class VTKVCSBackend(object):
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
 
   def open(self):
-    if self.createRenWin():
-      self.initialSize()
-    #self.renWin.Render()
+    self.createRenWin( open=True )
 
   def close(self):
     if self.renWin is None:
@@ -357,9 +355,7 @@ class VTKVCSBackend(object):
         self.bg= True
       else:
         self.bg= False
-    created = self.createRenWin(**kargs)
-    if created:
-        self.initialSize()
+    self.createRenWin(**kargs)
     if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
