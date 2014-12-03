@@ -729,18 +729,8 @@ def doWrap(Act,wc,wrap=[0.,360], fastClip=True):
   clipper.SetInputConnection(appendFilter.GetOutputPort())
   clipper.Update()
 
-  Actor = vtk.vtkActor()
-  Actor.SetProperty(Act.GetProperty())
-  #Mapper2 = vtk.vtkDataSetMapper()
-  #Mapper2 = vtk.vtkCompositePolyDataMapper()
-  Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(clipper.GetOutput())
-  Mapper2.SetLookupTable(Mapper.GetLookupTable())
-  Mapper2.SetScalarRange(Mapper.GetScalarRange())
-  Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  Mapper2.Update()
-  Actor.SetMapper(Mapper2)
-  return Actor
+  Mapper.SetInputData(clipper.GetOutput())
+  return Act
 
 def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
     clipPlaneCollection = vtk.vtkPlaneCollection()
