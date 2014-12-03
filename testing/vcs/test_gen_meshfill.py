@@ -1,3 +1,4 @@
+
 import vcs,numpy,os,sys
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -5,6 +6,7 @@ sys.path.append(pth)
 import checkimage
 
 x=vcs.init()
+x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
 

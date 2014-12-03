@@ -1,3 +1,4 @@
+
 import sys,os
 src = sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -19,6 +20,7 @@ data = MV2.array([[-0.50428531,-0.8505522 ,],
  [ 1.14083397,-0.78326507,]])
 
 x=vcs.init()
+x.drawlogooff()
 
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")

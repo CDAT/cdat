@@ -103,10 +103,10 @@ def checkLine(self,name,value):
 def isNumber(value,min=None,max=None):
      """ Checks if value is a Number, optionaly can check if min<value<max
      """
-     try:
-          value=value.tolist() # converts MA/MV/numpy
-     except:
-          pass
+    # try:
+    #      value=value.tolist() # converts MA/MV/numpy
+    # except:
+    #      pass
      if not isinstance(value,(int,long,float,numpy.floating)):
           return False
      if min is not None and value<min:
@@ -117,10 +117,10 @@ def isNumber(value,min=None,max=None):
 
 def checkNumber(self,name,value,minvalue=None,maxvalue=None):
      checkName(self,name,value)
-     try:
-          value=value.tolist() # converts MA/MV/numpy
-     except:
-          pass
+     #try:
+     #     value=value.tolist() # converts MA/MV/numpy
+     #except:
+     #     pass
      n=isNumber(value,min=minvalue,max=maxvalue)
      if n is False:
           checkedRaise(self,value, ValueError, name+' must be a number')

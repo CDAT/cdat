@@ -1,3 +1,4 @@
+
 import sys,os
 import argparse
 
@@ -37,6 +38,7 @@ import MV2
 bg = not args.show
 
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
@@ -87,7 +89,6 @@ if gm_type=="vector":
       v-=v
 elif gm_type=="meshfill":
     s=f("sample",**xtra)
-    gm.mesh=True
     if args.mask:
         s=MV2.masked_less(s,1150.)
     elif args.bigvalues:

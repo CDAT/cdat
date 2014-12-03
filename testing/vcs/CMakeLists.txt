@@ -112,6 +112,11 @@ add_test(vcs_test_vectors_missing
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
+add_test(vcs_test_draw_logo_on
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
+  ${BASELINE_DIR}/test_vcs_draw_logo_on.png
+  )
 add_test(vcs_test_monotonic_decreasing_yxvsx_default
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_monotonic_decreasing_yxvsx_default.py
@@ -341,7 +346,16 @@ add_test(vcs_test_taylor_2_quads
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
-
+    add_test(vcs_test_isoline_numpy
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
+      ${BASELINE_DIR}/test_vcs_isoline_numpy.png
+      )
+    add_test(vcs_test_meshfill_draw_mesh
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
+      ${BASELINE_DIR}/test_meshfill_draw_mesh.png
+      )
     add_test(vcs_test_oned_level_axis
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
@@ -416,4 +430,3 @@ add_test(vcs_test_taylor_2_quads
       "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
       )
   endif()
-
