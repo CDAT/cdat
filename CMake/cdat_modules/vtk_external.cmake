@@ -73,6 +73,12 @@ if(CDAT_BUILD_OFFSCREEN)
   )
 endif()
 
+if(CDAT_BUILD_VTKWEB)
+  list(APPEND vtk_build_args
+    "-DVTK_Group_Web:BOOL=ON"
+  )
+endif()
+
 set(_vtk_module_options)
 foreach(_module ${_vtk_modules})
   list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
