@@ -581,9 +581,11 @@ class ConfigParameter:
         return len(self.values)
 
     def __getitem__(self, key):
+        if hasattr( key, 'id' ): key = key.id
         return self.values.get( key, None )
 
     def __setitem__(self, key, value ):
+        if hasattr( key, 'id' ): key = key.id
         self.values[key] = value 
         self.addValueKey( key )
         
@@ -621,7 +623,8 @@ class ConfigParameter:
         return str( self.values )
 
     def getValue( self, key=0, default_value=None ):
-        if key == None: return default_value
+        if key is None: return default_value
+        if hasattr( key, 'id' ): key = key.id
         return self.values.get( key, default_value )
 
     def getState( self ):
@@ -649,6 +652,7 @@ class ConfigParameter:
 
 
     def setValue( self, key, val, update=False  ):
+        if hasattr( key, 'id' ): key = key.id
         self.values[ key ] = val
         self.addValueKey( key )
         if update: 
@@ -663,6 +667,7 @@ class ConfigParameter:
 
     def setValues( self, values, update=False  ):
         for key,value in enumerate( values ):
+            if hasattr( key, 'id' ): key = key.id
             self.setValue( key, value )
             if not self.parent is None:
                 self.parent.setValue( key, value )

@@ -740,7 +740,7 @@ class CPCPlot( DV3DPlot ):
         self.current_subset_specs = {}
         
     def updateThresholding( self, target=None, trange=None, normalized=True ):
-        if target <> None:
+        if target is not None:
             subset_spec = ( target, trange[0], trange[1], normalized )
             self.current_subset_specs[target] = subset_spec
 #            print " $$$$$$ Update Thresholding: Generated spec = %s, render mode = %d " % ( str( subset_spec ), self.render_mode )
@@ -1350,8 +1350,8 @@ class CPCPlot( DV3DPlot ):
         for file_attribute_name in ['url', 'filename', 'file' ]:
             if data_file <> None: break
             data_file = self.plot_attributes.get( file_attribute_name, None ) 
-        varnames = [ getVarName( var1 ) ]
-        if not var2 is None: varnames.append( getVarName( var2 ) )
+        varnames = [ getVarName( var1 ) if (data_file <> None) else var1 ]
+        if not var2 is None: varnames.append( getVarName( var2 ) if (dfile <> None) else var2 )
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None

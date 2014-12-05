@@ -439,7 +439,7 @@ class MultiVarPointCollection():
         return process
     
     def getProcessedVariable( self, var_proc_op = None ):
-        var = self.df[ self.grid_vars[0] ] if ( type( self.grid_vars[0] ) == str ) else self.grid_vars[0]           
+        var = self.df[ self.grid_vars[0] ] if ( (self.df <> None) and ( type( self.grid_vars[0] ) == str ) ) else self.grid_vars[0]           
         self.point_layout = self.getPointsLayout( var )
         if isNone( var ):
             print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( self.grid_vars[0] )
