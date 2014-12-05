@@ -720,7 +720,7 @@ class RectGridPlot(StructuredGridPlot):
     def enableDualInputs(self):
         if self.levelSetActor <> None:
             if self.probeFilter == None:
-                ispec = self.getInputSpec( 1 )   
+                ispec = self.getInputSpec( 0 )   
                 self.probeFilter = vtk.vtkProbeFilter()
                 textureRange = ispec.GetScalarRange()
                 self.probeFilter.SetSource( ispec )
@@ -1577,8 +1577,10 @@ class RectGridPlot(StructuredGridPlot):
             else:                           mapper.SetInputData(primaryInput)        
             mapper.Modified()
         if self.levelSetActor <> None:
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(primaryInput)
-            else:                           self.levelSetFilter.SetInputData(primaryInput)        
+            levelset_ispec = self.getInputSpec( -1 ) 
+            levelset_input = primaryInput # levelset_ispec.input()      
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(levelset_input)
+            else:                           self.levelSetFilter.SetInputData(levelset_input)        
             self.levelSetFilter.Modified()           
         self.render()
 

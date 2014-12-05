@@ -329,6 +329,7 @@ class StructuredGridPlot(DV3DPlot):
 
 
     def getInputSpec( self, input_index=0 ):
+        if input_index == -1: input_index = len( self.inputSpecs ) - 1
         return self.inputSpecs.get( input_index, None )
 
     def getDataValue( self, image_value, input_index = 0 ):
