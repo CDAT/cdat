@@ -41,6 +41,7 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self.plotApps = {}
     self.plotRenderers = set()
+    self.logoRenderer = None
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
@@ -50,8 +51,6 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
-    self.createLogo()
-
     if sys.platform == "darwin":
         self.reRender = False
 
@@ -348,6 +347,7 @@ class VTKVCSBackend(object):
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
+    self.canvas.drawLogo = True
     ## these are keyargs that can be reused later by the backend.
     returned = {}
     if self.bg is None:
@@ -1436,7 +1436,7 @@ class VTKVCSBackend(object):
       self.renWin.SetMultiSamples(antialiasing)
 
   def createLogo(self):
-    if self.canvas.drawLogo:
+    if self.canvas.drawLogo and (self.logoRenderer == None):
         defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
         reader = vtk.vtkPNGReader()
         reader.SetFileName( defaultLogoFile )
@@ -1456,6 +1456,7 @@ class VTKVCSBackend(object):
   def scaleLogo(self):
     if self.canvas.drawLogo:
         if self.renWin is not None:
+            self.createLogo()
             self.setLayer(self.logoRenderer,1)
             self.renWin.AddRenderer(self.logoRenderer)
 
