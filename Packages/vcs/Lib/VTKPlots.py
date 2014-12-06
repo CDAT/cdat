@@ -347,7 +347,6 @@ class VTKVCSBackend(object):
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
-    self.canvas.drawLogo = True
     ## these are keyargs that can be reused later by the backend.
     returned = {}
     if self.bg is None:
@@ -360,6 +359,7 @@ class VTKVCSBackend(object):
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
+    self.canvas.initLogoDrawing()
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
