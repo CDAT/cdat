@@ -229,6 +229,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self.logoRenderer = None
     self.createLogo()
     self._renderers = {}
 
