@@ -228,9 +228,6 @@ class VTKVCSBackend(object):
       # Re-add the UI layer
       self.renWin.AddRenderer(manager.renderer)
 
-    if self.logo is None:
-      self.createLogo()
-
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
