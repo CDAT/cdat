@@ -31,6 +31,9 @@ class Widget(object):
 
     def detach(self):
         render = self.repr.GetRenderer()
+        if render is None:
+            return
+
         if render.HasViewProp(self.repr):
             render.RemoveViewProp(self.repr)
         self.unsubscribe(*self.subscriptions.keys())

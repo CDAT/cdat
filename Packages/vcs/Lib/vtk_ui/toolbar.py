@@ -2,7 +2,7 @@ from button import ToggleButton, SliderButton, ButtonState, Button
 
 class Toolbar(object):
 
-    def __init__(self, interactor, label, vertical=True, left=10, top=10, button_margin=5, parent=None, save=None):
+    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", close_label="Close", button_margin=5, parent=None, save=None):
         
         self.save = save
         self.interactor = interactor
@@ -10,7 +10,7 @@ class Toolbar(object):
         # Left is automatically modified by the margin; was running into issues with updating left at a later date, this was the easiest solution.
         self.left = left
         self.top = top
-        self.label = ToggleButton(self.interactor, label, on=self.__on__, off=self.__off__, on_prefix="Open", off_prefix="Close", left=self.left - self.margin, top=self.top)
+        self.label = ToggleButton(self.interactor, label, on=self.__on__, off=self.__off__, on_prefix=open_label, off_prefix=close_label, left=self.left - self.margin, top=self.top)
         
         self.vertical = vertical
 
@@ -142,6 +142,10 @@ class Toolbar(object):
         
         self.place()
 
+    def detach(self):
+        self.label.detach()
+        for w in self.widgets:
+            w.detach()
 
     def get_toolbar(self, label):
         """
@@ -178,14 +182,14 @@ class Toolbar(object):
             self.width = kwargs["left"] + b.get_dimensions()[0]
 
         self.widgets.append(b)
+        return b
 
 
 
-    def add_toolbar(self, label, vertical=None):
+    def add_toolbar(self, label, **kwargs):
         """
         Adds a toolbar using the same configs as this one has
         """
-        kwargs = {}
         kwargs["parent"] = self
         if self.vertical:
             kwargs["top"] = self.top + self.height + self.margin
@@ -195,7 +199,7 @@ class Toolbar(object):
             kwargs["left"] = self.left + self.width + self.margin
         kwargs["button_margin"] = self.margin
         
-        if vertical is None:
+        if "vertical" not in kwargs:
             kwargs["vertical"] = self.vertical
 
         toolbar = Toolbar(self.interactor, label, **kwargs)
@@ -210,6 +214,7 @@ class Toolbar(object):
 
         self.widgets.append(toolbar)
         self.bars[label] = toolbar
+        return toolbar
 
     def add_toggle_button(self, label, **kwargs):
         
@@ -247,6 +252,7 @@ class Toolbar(object):
             self.width = kwargs["left"] + b.get_dimensions()[0]
 
         self.widgets.append(b)
+        return b
 
     def add_slider_button(self, value, min_val, max_val, label, **kwargs):
         
@@ -278,3 +284,4 @@ class Toolbar(object):
             self.width = kwargs["left"] + b.get_dimensions()[0]
 
         self.widgets.append(b)
+        return b
