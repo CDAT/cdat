@@ -20,6 +20,32 @@ class FillEditor(object):
         self.configurator = configurator
         self.rebuild()
 
+        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Fill %s" % fillarea.name, open_label="Configure")
+        self.toolbar.show()
+        self.toolbar.add_slider_button(fillarea.color[index], 0, 255, "Color", end=self.change_color)
+
+        b = self.toolbar.add_button(["Solid", "Hatch", "Pattern"], action=self.change_style)
+        style = fillarea.style[index]
+        if style == "solid":
+            b.set_state(0)
+        elif style == "hatch":
+            b.set_state(1)
+        elif style == "pattern":
+            b.set_state(2)
+
+    def change_style(self, state):
+        if state == 0:
+            self.fill.style[self.index] = "solid"
+        elif state == 1:
+            self.fill.style[self.index] = "hatch"
+        elif state == 2:
+            self.fill.style[self.index] = "pattern"
+        self.save()
+
+    def change_color(self, value):
+        self.fill.color[self.index] = int(value)
+        self.save()
+
     def rebuild(self):
         for h in self.handles:
             h.detach()
@@ -159,6 +185,8 @@ class FillEditor(object):
     def detach(self):
         for h in self.handles:
             h.detach()
+
+        self.toolbar.detach()
 
         for action in self.actions:
             self.interactor.RemoveObserver(self.actions[action])

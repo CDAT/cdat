@@ -212,14 +212,10 @@ class Button(Widget):
         self.repr.SetState(state)
 
     def show(self):
-        self.check_render_stack()
         self.widget.On()
         self.text_widget.show()
         self.place()
 
-    def check_render_stack(self):
-        super(Button, self).check_render_stack()
-        self.text_widget.check_render_stack()
 
     def hide(self):
         self.text_widget.hide()
