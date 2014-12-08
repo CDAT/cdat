@@ -1,3 +1,4 @@
+
 import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
 pth0 = os.path.dirname(__file__)
@@ -7,6 +8,7 @@ import checkimage
 f=cdms2.open(os.path.join(pth0,"celine.nc"))
 s=f("data")
 x=vcs.init()
+x.drawlogooff()
 x.scriptrun(os.path.join(pth0,"celine.json"))
 i=x.getisofill("celine")
 x.plot(s,i,bg=1)

@@ -29,7 +29,7 @@ def get_scalar_value( tvals ):
     if hasattr( tvals, '__iter__' ):
         return get_scalar_value( tvals[0] )
     else: return tvals
-    
+
 def isNumerical( vals ):
     for val in vals:
         if type( val ) not in [ int, float ]: return False  
