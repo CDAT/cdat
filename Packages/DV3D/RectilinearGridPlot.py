@@ -747,16 +747,19 @@ class RectGridPlot(StructuredGridPlot):
         Dispatch the vtkRenderer to the actual rendering widget
         """ 
         self.debug_log( 'buildIsosurfacePipeline' )
-        texture_ispec = self.getInputSpec( 1 )                
-        xMin, xMax, yMin, yMax, zMin, zMax = self.input().GetExtent()       
+        surface_ispec = self.getInputSpec( 1 )                
+        texture_ispec = self.getInputSpec( 0 )  
+        surface_input = self.input(1)
+        texture_input = self.input(0)
+        print "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ispecs: ", str( surface_ispec.metadata['scalars'] ), str( texture_ispec.metadata['scalars'] )          
+        xMin, xMax, yMin, yMax, zMin, zMax = surface_input.GetExtent()       
         self.sliceCenter = [ (xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2  ]       
-        spacing = self.input().GetSpacing()
-        sx, sy, sz = spacing 
-#        self.input().SetSpacing( sx, sy, 5*sz )      
-        origin = self.input().GetOrigin()
+        spacing = surface_input.GetSpacing()
+        sx, sy, sz = spacing     
+        origin = surface_input.GetOrigin()
         ox, oy, oz = origin
-        dataType = self.input().GetScalarTypeAsString()
-        self.setMaxScalarValue( self.input().GetScalarType() )
+        dataType = surface_input.GetScalarTypeAsString()
+        self.setMaxScalarValue( surface_input.GetScalarType() )
         self.colorByMappedScalars = False
         rangeBounds = self.getRangeBounds()
 
@@ -766,11 +769,11 @@ class RectGridPlot(StructuredGridPlot):
         print "Data Type = %s, range = (%f,%f), range bounds = (%f,%f), max_scalar = %s" % ( dataType, self.range[0], self.range[1], rangeBounds[0], rangeBounds[1], self._max_scalar_value )
         self.probeFilter = None
         textureRange = self.range
-        if texture_ispec and texture_ispec.input():
+        if texture_ispec and texture_input:
             self.probeFilter = vtk.vtkProbeFilter()
-            textureRange = texture_ispec.input().GetScalarRange()
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.probeFilter.SetSource( texture_ispec.input() )
-            else:                           self.probeFilter.SetSourceData( texture_ispec.input() )
+            textureRange = texture_input.GetScalarRange()
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.probeFilter.SetSource( texture_input ) # texture_ispec.input() )
+            else:                           self.probeFilter.SetSourceData( texture_input ) #texture_ispec.input() )
             self.generateTexture = True
 
         if (self.surfacePicker == None):           
@@ -778,8 +781,8 @@ class RectGridPlot(StructuredGridPlot):
                     
         self.levelSetFilter = vtk.vtkContourFilter()
         
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(self.input())
-        else:                           self.levelSetFilter.SetInputData(self.input())        
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(surface_input)
+        else:                           self.levelSetFilter.SetInputData(surface_input)        
 
 #         self.clipper.GetPlanes( self.clipPlanes )
 #         self.polyClipper = vtk.vtkClipPolyData()
