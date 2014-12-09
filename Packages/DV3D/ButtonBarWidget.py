@@ -58,11 +58,15 @@ class Button:
         self.buttonWidget.SetInteractor(self.renderWindowInteractor)
         self.buttonWidget.SetRepresentation( self.buttonRepresentation )
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
+#        self.buttonWidget.AddObserver( 'AnyEvent', self.processButtonEvent )
         self.buttonRepresentation.Highlight( self._state )
         self.buttonWidget.SetPriority(1.0)
         self.updateWidgetState()
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
+
+    def processButtonEvent(self, *args ):
+        print '-----> processButtonEvent: ', str( args )
 
     def getState(self):
         return self._state
@@ -642,8 +646,14 @@ class ButtonBarWidget(ButtonBar):
         sliderWidget.AddObserver("StartInteractionEvent", self.processStartInteractionEvent )
         sliderWidget.AddObserver("EndInteractionEvent", self.processEndInteractionEvent )
         sliderWidget.AddObserver("InteractionEvent", self.processInteractionEvent )
+#        sliderWidget.AddObserver("AnyEvent", self.processSliderEvent )
+#        eventTranslator = sliderWidget.GetEventTranslator()
+#        eventTranslator.SetTranslation (vtk.vtkCommand.RightButtonPressEvent, vtk.vtkWidgetEvent.ModifyEvent )
         sliderWidget.KeyPressActivationOff()
         return sliderWidget
+
+    def processSliderEvent(self, *args ):
+        print '-----> processSliderEvent: ', str( args )
     
     def positionSliders( self, nsliders ): 
         for islider in range( nsliders ):
@@ -741,13 +751,19 @@ class ButtonBarWidget(ButtonBar):
 
     def processStartInteractionEvent( self, obj, event ): 
         slider_index = self.checkInteractionState( obj, event ) 
-#        print " processStartInteractionEvent: ( %s %d )" % ( self.InteractionState, self.process_mode )
+#        print " processStartInteractionEvent: ( %s %d %d )" % ( self.InteractionState, self.process_mode, shift_key )
         if ( self.InteractionState <> None ): 
             config_function = self.getConfigFunction( self.InteractionState )
             if config_function <> None:
+                shift_key = self.interactor.GetShiftKey()
+                if shift_key: self.processWidgetShiftCommand(  obj, slider_index, config_function )
                 config_function.processInteractionEvent( [ "StartConfig", slider_index ] )  
             else:
                 print>>sys.stderr, " FAILED processStartInteractionEvent[%s]: ( %s %d )" % ( self.name, self.InteractionState, self.process_mode )
+    
+    def processWidgetShiftCommand(self, obj, slider_index, config_function  ): 
+        pass
+#        print " --------->>>>> processWidgetToggleCommand:  %s %d %s" % ( str(obj), slider_index, str(config_function)  )  
                 
     def checkInteractionState( self, obj, event ):
         for item in self.currentControls.items():
