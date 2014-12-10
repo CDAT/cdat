@@ -1021,7 +1021,7 @@ class RectGridPlot(StructuredGridPlot):
         self.updateOpacity( 'Slice', [1.0, 1.0] ) 
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
         
-        if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
+        if self.enableContourOverlays and (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
             rangeBounds = self.getRangeBounds( contour_input_index )
             colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
             self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
