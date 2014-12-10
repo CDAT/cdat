@@ -682,7 +682,9 @@ class ButtonBarWidget(ButtonBar):
             else:
                 ( process_mode, interaction_state, swidget ) = widget_item
             srep = swidget.GetRepresentation( ) 
-            srep.SetValue( value )  
+            try: srep.SetValue( value )  
+            except TypeError:
+                print>>sys.stderr, "Type Error setting slider-%d value: " % index, str( value )
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
