@@ -277,6 +277,7 @@ class RectGridPlot(StructuredGridPlot):
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
+            print " setIsosurfaceLevel: ", str( value )
             self.levelSetFilter.SetValue ( 0, value ) 
             self.levelSetFilter.Modified()
                              
