@@ -43,7 +43,7 @@ if (CDAT_USE_SYSTEM_PYTHON)
    set(PYTHON_INCLUDE ${PYTHON_INCLUDE_DIRS})
 
    if(APPLE)
-     set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
+     set(CDAT_OS_XTRA_PATH ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
    endif()
 
 else ()
