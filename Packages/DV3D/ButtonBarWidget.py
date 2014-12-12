@@ -237,6 +237,9 @@ class ButtonBarHandler:
             if 'orientation' not in args:   args[ 'orientation' ] = Orientation.Horizontal
             cbar = ControlBar( name, interactor, **args )
             cbar.init( build_args, **args )
+            for button in cbar.buttons:
+                button.activate()
+                button.setToggleState( 1 )
             self.button_bars[ name ] = cbar
         return cbar
 

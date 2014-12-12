@@ -1760,6 +1760,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
+            print " ######################## scaleColormap[%s]  " % ( plotItem[0] )
             if self.isConstituentConfigEnabled(plotItem[0]):
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
@@ -1779,7 +1780,7 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
                 imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
-                print " %%%%%%%%%%%%%%% colormapManager.setScale:  ", str( imageRange), str( ctf_data )
+                print " ********************** colormapManager[%s].setScale:  " % ( constituent ), str( imageRange), str( ctf_data )
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.enableContourOverlays and self.contourLineMapperer is not None: 
                     self.contourLineMapperer.Modified()
