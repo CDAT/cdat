@@ -30,7 +30,7 @@ class Widget(object):
             del self.subscriptions[event]
 
     def detach(self):
-        render = self.repr.GetRenderer()
+        render = self.widget.GetCurrentRenderer()
         if render is None:
             return
 
