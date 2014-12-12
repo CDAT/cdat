@@ -41,6 +41,8 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self.plotApps = {}
     self.plotRenderers = set()
+    self.logoRenderer = None
+    self.logoRepresentation = None
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
@@ -50,8 +52,6 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
-    self.createLogo()
-
     if sys.platform == "darwin":
         self.reRender = False
 
@@ -245,6 +245,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self.logoRenderer = None
     self.createLogo()
     self._renderers = {}
 
@@ -375,6 +376,7 @@ class VTKVCSBackend(object):
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
+    self.canvas.initLogoDrawing()
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -1452,25 +1454,28 @@ class VTKVCSBackend(object):
 
   def createLogo(self):
     if self.canvas.drawLogo:
-        defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-        reader = vtk.vtkPNGReader()
-        reader.SetFileName( defaultLogoFile )
-        reader.Update()
-        logo_input = reader.GetOutput()
-        self.logoRepresentation = vtk.vtkLogoRepresentation()
-        self.logoRepresentation.SetImage(logo_input)
-        self.logoRepresentation.ProportionalResizeOn ()
-        self.logoRepresentation.SetPosition( 0.882, 0.0 )
-        self.logoRepresentation.SetPosition2( 0.10, 0.05 )
-        self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
-        self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
-        self.logoRenderer = vtk.vtkRenderer()
-        self.logoRenderer.AddViewProp(self.logoRepresentation)
+        if self.logoRepresentation == None:
+            defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+            reader = vtk.vtkPNGReader()
+            reader.SetFileName( defaultLogoFile )
+            reader.Update()
+            logo_input = reader.GetOutput()
+            self.logoRepresentation = vtk.vtkLogoRepresentation()
+            self.logoRepresentation.SetImage(logo_input)
+            self.logoRepresentation.ProportionalResizeOn ()
+            self.logoRepresentation.SetPosition( 0.882, 0.0 )
+            self.logoRepresentation.SetPosition2( 0.10, 0.05 )
+            self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
+            self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
+        if (self.logoRenderer == None):
+            self.logoRenderer = vtk.vtkRenderer()
+            self.logoRenderer.AddViewProp(self.logoRepresentation)
         self.logoRepresentation.SetRenderer(self.logoRenderer)
 
   def scaleLogo(self):
     if self.canvas.drawLogo:
         if self.renWin is not None:
+            self.createLogo()
             self.setLayer(self.logoRenderer,1)
             self.renWin.AddRenderer(self.logoRenderer)
 
