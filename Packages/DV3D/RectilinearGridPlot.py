@@ -811,7 +811,7 @@ class RectGridPlot(StructuredGridPlot):
             self.levelSetMapper.SetInputConnection( self.probeFilter.GetOutputPort() ) 
             self.levelSetMapper.SetScalarRange( textureRange )
             
-        colormapManager = self.getColormapManager( 'Surface', index=1 ) if texture_ispec and texture_input else self.getColormapManager( 'Surface' ) 
+        colormapManager = self.getColormapManager( 'Surface' ) 
         self.scaleColormap( 'Surface', textureRange, 1 )                 
 #        colormapManager = self.getColormapManager()                  
         colormapManager.setAlphaRange ( [ 1, 1 ] ) 
@@ -1577,19 +1577,24 @@ class RectGridPlot(StructuredGridPlot):
         self.updateInteractionStyle()
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )       
-        contourInput = contour_ispec.input() if ( self.enableContourOverlays and ( contour_ispec <> None ) ) else None
-        if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput, contourInput )         
-        if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )         
-        if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput ) 
+        contourInput = contour_ispec.input() if ( contour_ispec <> None )  else None
+        if self.enableContourOverlays:
+            if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput, contourInput )
+            if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )
+            if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
+        else:
+            if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput )
+            if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput )
+            if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput )
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
         if self.volume <> None:
             mapper = self.volume.GetMapper()
             if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
             else:                           mapper.SetInputData(primaryInput)        
             mapper.Modified()
-        if self.levelSetActor <> None:
+        if self.levelSetActor is not None and contourInput is not None:
             if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(contourInput)
-            else:                           self.levelSetFilter.SetInputData(contourInput)        
+            else:                           self.levelSetFilter.SetInputData(contourInput)
             self.levelSetFilter.Modified()           
         self.render()
 
@@ -1756,8 +1761,6 @@ class RectGridPlot(StructuredGridPlot):
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
-                if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
-                   cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def initConstituentColormapScaling( self, param, init_value, cmap_index=0, **args ):
@@ -1776,8 +1779,9 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
                 imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
+                print " %%%%%%%%%%%%%%% colormapManager.setScale:  ", str( imageRange), str( ctf_data )
                 colormapManager.setScale( imageRange, ctf_data )
-                if self.contourLineMapperer: 
+                if self.enableContourOverlays and self.contourLineMapperer is not None: 
                     self.contourLineMapperer.Modified()
                 if constituent == 'Slice':
                     self.updatingColormap( cmap_index, colormapManager )
