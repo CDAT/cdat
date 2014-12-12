@@ -158,14 +158,15 @@ class StructuredGridPlot(DV3DPlot):
     
     def setInputZScale(self, zscale_data, input_index=0, **args  ):
         input = self.variable_reader.output( input_index )
-        spacing = input.GetSpacing()
-        ix, iy, iz = spacing
-        sz = zscale_data[0]
-        if iz <> sz:
-#            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
-            input.SetSpacing( ix, iy, sz )  
-            input.Modified() 
-            self.processScaleChange( spacing, ( ix, iy, sz ) )
+        if input is not None:
+            spacing = input.GetSpacing()
+            ix, iy, iz = spacing
+            sz = zscale_data[0]
+            if iz <> sz:
+    #            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
+                input.SetSpacing( ix, iy, sz )  
+                input.Modified() 
+                self.processScaleChange( spacing, ( ix, iy, sz ) )
         return input
     
     def getDataRangeBounds(self, inputIndex=0 ):

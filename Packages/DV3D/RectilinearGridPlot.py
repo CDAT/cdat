@@ -286,7 +286,7 @@ class RectGridPlot(StructuredGridPlot):
         if args and args[0] == "StartConfig":
             self.setConfiguringIsosurface( True )
         elif args and args[0] == "Init":
-            init_range = self.getSgnRangeBounds(1)
+            init_range = self.getSgnRangeBounds(-1)
             config_function.setRangeBounds( init_range )
             isosurfaceValue.setValue( 'count', 1 )
             if config_function.initial_value == None:
@@ -749,11 +749,17 @@ class RectGridPlot(StructuredGridPlot):
         Dispatch the vtkRenderer to the actual rendering widget
         """ 
         self.debug_log( 'buildIsosurfacePipeline' )
-        surface_ispec = self.getInputSpec( 1 )                
-        texture_ispec = self.getInputSpec( 0 )  
-        surface_input = self.input(1)
-        texture_input = self.input(0)
-        print "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ispecs: ", str( surface_ispec.metadata['scalars'] ), str( texture_ispec.metadata['scalars'] )          
+        surface_ispec = self.getInputSpec( 1 ) 
+        if surface_ispec is None:
+            surface_ispec = self.getInputSpec( 0 ) 
+            texture_ispec = None
+            surface_input = self.input(0)
+            texture_input = None
+        else:              
+            texture_ispec = self.getInputSpec( 0 )  
+            surface_input = self.input(1)
+            texture_input = self.input(0)
+#        print "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ispecs: ", str( surface_ispec.metadata['scalars'] ), str( texture_ispec.metadata['scalars'] )          
         xMin, xMax, yMin, yMax, zMin, zMax = surface_input.GetExtent()       
         self.sliceCenter = [ (xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2  ]       
         spacing = surface_input.GetSpacing()

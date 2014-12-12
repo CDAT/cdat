@@ -430,8 +430,12 @@ class StructuredDataReader:
 #                 self.outputSpecs.append( ispec )
 
     def output( self, iIndex=0 ):
-        cachedImageDataName = self.output_names[ iIndex ]
-        cachedImageData = self.getCachedImageData( cachedImageDataName ) 
+        try:
+            cachedImageDataName = self.output_names[ iIndex ]
+            cachedImageData = self.getCachedImageData( cachedImageDataName ) 
+        except IndexError:
+            print>>sys.stderr, "Error getting output ", int( iIndex )
+            return None
         return cachedImageData
 
     def outputSpec( self, iIndex=0 ):
