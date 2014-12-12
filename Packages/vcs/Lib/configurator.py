@@ -43,13 +43,15 @@ class Configurator(object):
 
     def deactivate(self, obj):
         if self.target == obj:
-            obj.detach()
+            self.target.detach()
             self.target = None
+        self.save()
 
     def activate(self, obj, display):
 
         if display.g_type == "fillarea":
-            self.target = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
+            editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
+            self.target = editor
 
     def in_display_plot(self, point, dp):
         #Normalize the point
@@ -71,7 +73,6 @@ class Configurator(object):
 
     def save(self):
         self.canvas.update()
-
 
 def t(name):
     return vcs.gettemplate(name)
@@ -175,8 +176,6 @@ def is_point_in_box(point, box):
     x, y = point
     (x1, y1), (x2, y2) = box
     return x1 <= x and x2 >= x and y1 <= y and y2 >= y
-
-
 
 def safe_get(obj, attr, sentinel=None):
     """
