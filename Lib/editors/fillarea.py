@@ -1,22 +1,14 @@
-from datetime import datetime, timedelta
 from vcs import vtk_ui
+from vcs.vtk_ui import behaviors
 
-class FillEditor(object):
+class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def __init__(self, interactor, fillarea, index, configurator):
         self.index = index
         self.fill = fillarea
         self.interactor = interactor
-        self.actions = {}
 
-        self.actions["LeftButtonPressEvent"] = self.interactor.AddObserver("LeftButtonPressEvent", self.mouse_down)
-        self.actions["LeftButtonReleaseEvent"] = self.interactor.AddObserver("LeftButtonReleaseEvent", self.mouse_up)
-        self.actions["RightButtonReleaseEvent"] = self.interactor.AddObserver("RightButtonReleaseEvent", self.rightclick)
-        self.actions["MouseMoveEvent"] = self.interactor.AddObserver("MouseMoveEvent", self.mouse_move)
-
-        self.drag_position = None
-        self.drag_origin = None
-        self.clicked_on = None
         self.handles = []
+
         self.configurator = configurator
         self.rebuild()
 
@@ -32,6 +24,10 @@ class FillEditor(object):
             b.set_state(1)
         elif style == "pattern":
             b.set_state(2)
+
+        super(FillEditor, self).__init__()
+        # Register mixins' events
+        self.register()
 
     def change_style(self, state):
         if state == 0:
@@ -74,7 +70,6 @@ class FillEditor(object):
                 return ind
         return None
 
-
     def rightclick(self, obj, event):
 
         x, y = self.event_position()
@@ -90,46 +85,19 @@ class FillEditor(object):
                     self.save()
                     break
 
-    def event_position(self):
-        point = self.interactor.GetEventPosition()
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        x, y = point
-        x = x / float(w)
-        y = y / float(h)
-        point = (x, y)
-        return point
-
-    def mouse_down(self, obj, event):
-
-        x, y = self.event_position()
-
-        if inside_fillarea(self.fill, x, y) == self.index:
-            self.drag_origin = (x, y)
-
-    def mouse_move(self, obj, event):
-
-        if self.drag_origin is None:
-            return
-
-        x, y = self.event_position()
-
-        if self.drag_position is None:
-            x0, y0 = self.drag_origin
-            if x - .005 < x0 and x + .005 > x0 and y - .005 < y0 and y + .005 > y0:
-                return
-            else:
-                self.drag_position = self.drag_origin
-
-        old_x, old_y = self.drag_position
-
+    def drag_move(self, delta_x, delta_y):
         for h in self.handles:
-            h.x -= old_x - x
-            h.y -= old_y - y
+            h.x += delta_x
+            h.y += delta_y
             h.place()
 
-        self.drag_position = (x, y)
+    def drag_stop(self):
+        for ind, h in enumerate(self.handles):
+            self.fill.x[self.index][ind] = h.x
+            self.fill.y[self.index][ind] = h.y
+        self.save()
 
-    def mouse_up(self, obj, event):
+    def click_release(self):
         x, y = self.event_position()
 
         if self.drag_origin == (x, y) or self.drag_position is None:
@@ -142,35 +110,28 @@ class FillEditor(object):
         self.drag_position = None
         self.drag_origin = None
 
-    def click(self):
+    def double_release(self):
         point = self.event_position()
         x, y = point
 
         # Check if there was a click in or around a line.
         line_click = self.in_side(x, y)
-
-        # Add a new point on double clicks
         if line_click is not None:
-
-            if self.clicked_on is not None and (datetime.now() - self.clicked_on) < timedelta(0, .5):
-                self.fill.x[self.index].insert(line_click, x)
-                self.fill.y[self.index].insert(line_click, y)
-                self.rebuild()
-                self.save()
-                self.clicked_on = None
-            else:
-                self.clicked_on = datetime.now()
-
-            return
-
-        if inside_fillarea(self.fill, *point) == self.index:
-            if self.clicked_on is not None:
-                if (datetime.now() - self.clicked_on) < timedelta(0, .5):
-                    self.configurator.deactivate(self)
+            self.fill.x[self.index].insert(line_click, x)
+            self.fill.y[self.index].insert(line_click, y)
+            self.rebuild()
+            self.save()
         else:
             self.configurator.deactivate(self)
+        self.drag_position = None
+        self.drag_origin = None
 
-        self.clicked_on = datetime.now()
+    def click(self):
+        point = self.event_position()
+        x, y = point
+
+        if inside_fillarea(self.fill, x, y, self.index) is None:
+            self.configurator.deactivate(self)
 
     def adjust(self, handle):
         ind = self.handles.index(handle)
@@ -182,15 +143,16 @@ class FillEditor(object):
         for h in self.handles:
             h.show()
 
+    def in_bounds(self, x, y):
+        return inside_fillarea(self.fill, x, y, self.index) is not None
+
     def detach(self):
         for h in self.handles:
             h.detach()
 
+        self.unregister()
+
         self.toolbar.detach()
-
-        for action in self.actions:
-            self.interactor.RemoveObserver(self.actions[action])
-
 
 def inside_fillarea(fillarea, x, y, index=None):
     """
@@ -203,7 +165,6 @@ def inside_fillarea(fillarea, x, y, index=None):
                 continue
         # Points are stored as a list of lists, once the fill has been rendered
         points = zip(xcoords, fillarea.y[ind])
-
 
         if len(points) == 1:
             if points[0][0] == x and points[0][1] == y:
