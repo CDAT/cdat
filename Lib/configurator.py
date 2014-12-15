@@ -1,6 +1,6 @@
 import vcs
 import datetime
-import editors.fillarea
+import editors.fillarea, editors.line
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -52,6 +52,10 @@ class Configurator(object):
         if display.g_type == "fillarea":
             editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
+        elif display.g_type == "line":
+            editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
+            self.target = editor
+
 
     def in_display_plot(self, point, dp):
         #Normalize the point
@@ -67,6 +71,13 @@ class Configurator(object):
             if info is not None:
                 self.clicked_info = info
                 return fill
+        elif dp.g_type == "line":
+            line = vcs.getline(dp.g_name)
+            # Uses screen_height to determine how much buffer space there is around the line
+            info = editors.line.inside_line(line, *point, screen_height=h)
+            if info is not None:
+                self.clicked_info = info
+                return line
         else:
             fudge = 5 / float(w)
             return in_template(point, t(dp.template), fudge=fudge)
