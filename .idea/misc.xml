@@ -20,7 +20,7 @@
   <component name="ProjectModuleManager">
     <modules />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 2.7.8 (~/Development/uvcdat/master/build/install/bin/python)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 2.7.8 (/Developer/Projects/EclipseWorkspace/uvcdat/master/build/install/bin/python)" project-jdk-type="Python SDK" />
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../build/install/bin/python" />
   </component>

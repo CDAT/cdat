@@ -77,7 +77,6 @@ class Button:
         self.setToggleProps()
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
-        self.updateWidgetState()
         
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
@@ -144,10 +143,8 @@ class Button:
             h_opacity = 0.7 if ( self.getState() == 0 ) else 1.0
             prop.SetOpacity( h_opacity )
             self.buttonRepresentation.SetHoveringProperty(prop)
-            self.buttonRepresentation.Modified()
-            self.buttonRepresentation.NeedToRenderOn()
-            #if self.id == "Volume":
-            #    print "  ---> Set Volume constituent button opacity: ", str( opacity )
+            self.updateWidgetState()
+     #       print "  ---> setToggleProps[%s:%x]: active = %s " % ( self.id, id(self), str( self.getState() ) )
             
     def processKeyEvent( self, key, ctrl = 0 ):
         if self.processFunctionKey( key, ctrl ): 
@@ -237,9 +234,10 @@ class ButtonBarHandler:
             if 'orientation' not in args:   args[ 'orientation' ] = Orientation.Horizontal
             cbar = ControlBar( name, interactor, **args )
             cbar.init( build_args, **args )
+     #       print "Activating *constituent* buttons, cbar '%s':%x" % ( name, id(cbar) )
             for button in cbar.buttons:
-                button.activate()
-                button.setToggleState( 1 )
+                 button.activate()
+                 button.setToggleState( 1 )
             self.button_bars[ name ] = cbar
         return cbar
 
@@ -449,7 +447,21 @@ class ControlBar(ButtonBar):
                 self.addButton( bspec[0], toggle=bspec[1], **args ) 
             else: 
                 self.addButton( bspec, **args )
-            
+
+    def changeButtonActivations(self, activation_list ):
+#        print " ** Change Button Activations: ", str( activation_list )
+        for activation_spec in activation_list:
+            self.changeButtonActivation( *activation_spec )
+
+    def changeButtonActivation(self, button_name, activate, state = None ):
+        button = self.getButton( button_name )
+#        print " ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+        if button:
+            if activate: button.activate()
+            else: button.deactivate()
+        if state <> None:
+            button.setToggleState( state )
+
     def addButton( self, bspec, **args ):
         if hasattr(bspec, "__iter__"):
             bnames = bspec

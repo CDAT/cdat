@@ -261,29 +261,11 @@ class DV3DPlot():
         args[ 'toggle' ] = True
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ] ) 
-        return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        activations = [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ]
+        control_bar.changeButtonActivations( activations )
         return control_bar
 
     def getConstituentSelectionButton(self, config_function, build_args, position, **args ):    
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
-        control_bar.reposition()
-        return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-     #   self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] )
-        return control_bar
-
-    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
         control_bar.reposition()
         return control_bar
@@ -392,7 +374,7 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
-#        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+        print " ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
@@ -400,6 +382,7 @@ class DV3DPlot():
             button.setToggleState( state )
             
     def changeButtonActivations(self, activation_list ):
+        print " ** Change Button Activations: ", str( activation_list )
         for activation_spec in activation_list:
             self.changeButtonActivation( *activation_spec )
                         
