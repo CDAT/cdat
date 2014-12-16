@@ -866,6 +866,7 @@ class RectGridPlot(StructuredGridPlot):
         origin = self.input().GetOrigin()
         ox, oy, oz = origin
         self._range = [ rangeBounds[0], rangeBounds[1], rangeBounds[0], 0 ]
+        print " build Volume Pipeline: range = ", str( self._range )
         dataType = self.input().GetScalarTypeAsString()
         self.pos = [ spacing[i]*extent[2*i] for i in range(3) ]
 #        if ( (origin[0] + self.pos[0]) < 0.0): self.pos[0] = self.pos[0] + 360.0
@@ -1243,6 +1244,7 @@ class RectGridPlot(StructuredGridPlot):
             if self.transferFunctionConfig:
                 self.transferFunctionConfig.setTransferFunctionType( otf_data[2] )
             self._range = self.getImageValues( ( otf_data[0], otf_data[1], 0.0 ) )
+     #       print " Generate OTF: range = ", str( self._range )
             if len( otf_data ) > 4: self.refinement = [ otf_data[3], otf_data[4] ]
             self.updateOTF()
 #        printArgs( "generateOTF", irange=self._range,  otf_data=otf_data, refinement=self.refinement  )   
