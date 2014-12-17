@@ -657,15 +657,27 @@ class ConfigParameter:
 
     def setValue( self, key, val, update=False  ):
         if hasattr( key, 'id' ): key = key.id
-        if self.debug: print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
-        self.values[ key ] = val
-        self.addValueKey( key )
-        if update: 
-            args1 = [  self.ptype, key, val, self.name]
-            self.ValueChanged( args1 )
-        if self.parent <> None:
-            self.parent.childUpdate( self, key, val,  )
-            
+        tval = val[0] if isinstance( val, list ) else val
+        if isinstance( tval, str ) and ( tval[0] == '{' ): tval = eval(tval)
+        if isinstance( tval, dict ):
+            self.updateValues( tval, update )
+        else:
+            if self.debug and ( self.name.startswith('ScaleTransferFunction') ):
+                print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
+            self.values[ key ] = val
+            self.addValueKey( key )
+            if update:
+                args1 = [  self.ptype, key, val, self.name]
+                self.ValueChanged( args1 )
+            if self.parent <> None:
+                self.parent.childUpdate( self, key, val,  )
+
+    def updateValues( self, value_map, update ):
+        for (key, val1) in value_map.items():
+            val0 = self.values.get( key, None )
+            if val0 <> val1:
+                self.setValue( key, val1, update )
+
     def signalUpdate( self ):
         args = [  self.ptype, self.getValues(), self.name]
         self.ValueChanged( args )

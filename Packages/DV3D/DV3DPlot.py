@@ -271,11 +271,12 @@ class DV3DPlot():
         return control_bar
     
     def processConfigParameterChange( self, parameter, val_key = None ):
-        values = parameter.getValue(val_key)
-        if values == None: values = parameter.getValues()
-        if not hasattr( values, '__iter__' ): values = [ values ]
-        state = parameter.getState()
-        if state <> None: addState( values, state )
+#        values = parameter.getValue(val_key)
+#        if values == None: values = parameter.getValues()
+#        if not hasattr( values, '__iter__' ): values = [ values ]
+#        state = parameter.getState()
+#        if state <> None: addState( values, state )
+        values = parameter.values
         active_constituents = self.getActiveConstituentNames()
         argList = [ parameter.name, parameter.ptype, str(values), active_constituents ]
         self.ParameterValueChanged( argList )
