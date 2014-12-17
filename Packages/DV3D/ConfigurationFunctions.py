@@ -689,6 +689,15 @@ class ConfigParameter:
             if not self.parent is None:
                 self.parent.setValue( key, value )
 
+    def initValues( self, values, update=False  ):
+        for key,value in enumerate( values ):
+            if hasattr( key, 'id' ): key = key.id
+            val0 = self.values.get( key, None )
+            if val0 == None:
+                self.setValue( key, value )
+                if not self.parent is None:
+                    self.parent.setValue( key, value )
+
     def getValues( self ):
         vals = []
         for index in range( 0, 100 ):

@@ -218,7 +218,7 @@ class RectGridPlot(StructuredGridPlot):
                 config_function.initial_value = init_range  
             self.initConstituentColormapScaling( colorScaleRange, config_function.initial_value )
             self.generateCTF( colorScaleRange.getValue('Volume') )
-            colorScaleRange.setValues( config_function.initial_value )
+            colorScaleRange.initValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )  
         elif args and args[0] == "InitConfig":         
@@ -292,8 +292,8 @@ class RectGridPlot(StructuredGridPlot):
             if config_function.initial_value == None:
                 init_value = (init_range[0]+init_range[1])/2.0          
                 config_function.initial_value = init_value             
-            self.setIsosurfaceLevel( config_function.initial_value ) 
-            isosurfaceValue.setValues( [ config_function.initial_value ] )
+            isosurfaceValue.initValues( [ config_function.initial_value ] )
+            self.setIsosurfaceLevel( isosurfaceValue.getValue(0) )
         elif args and args[0] == "EndConfig":
             self.setConfiguringIsosurface( False )
             self.processConfigParameterChange( isosurfaceValue )
@@ -325,7 +325,7 @@ class RectGridPlot(StructuredGridPlot):
             if config_function.initial_value == None:      
                 config_function.initial_value = init_range   
             self.generateOTF( config_function.initial_value )
-            volumeThresholdRange.setValues( config_function.initial_value )
+            volumeThresholdRange.initValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( volumeThresholdRange )
         elif args and args[0] == "InitConfig":
