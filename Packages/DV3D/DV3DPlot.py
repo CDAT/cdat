@@ -276,8 +276,16 @@ class DV3DPlot():
         if not hasattr( values, '__iter__' ): values = [ values ]
         state = parameter.getState()
         if state <> None: addState( values, state )
-        argList = [ parameter.name, parameter.ptype, str(values) ] 
+        active_constituents = self.getActiveConstituentNames()
+        argList = [ parameter.name, parameter.ptype, str(values), active_constituents ]
         self.ParameterValueChanged( argList )
+
+    def getActiveConstituentNames(self):
+        active_constituents = []
+        for cname in self.plotConstituents.keys():
+            if self.isConstituentConfigEnabled(cname):
+	            active_constituents.append( cname )
+        return active_constituents
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 

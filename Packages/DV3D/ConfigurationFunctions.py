@@ -518,6 +518,7 @@ class ConfigParameter:
         self.ptype = args.get( 'ptype', name ) 
         self.parent = args.get( 'parent', None ) 
         self.stateKeyList = []
+        self.debug = True
         if self.parent<> None: 
             self.parent.addChild( self )
             self.values.update( self.parent.values )
@@ -575,7 +576,7 @@ class ConfigParameter:
             print>>sys.stderr, " Error: parameter structure mismatch in %s ( %d vs %d )" % ( self.name,  len( value_strs ), len( self.values.keys() ) ); sys.stderr.flush()
         for ( key, str_val ) in zip( self.valueKeyList, value_strs ):
             self.values[key] = deserialize_value( str_val ) 
-#        print " && Unpack parameter %s: %s " % ( self.name, str( self.values ) ); sys.stdout.flush()
+        if self.debug: print " && Unpack parameter %s: %s " % ( self.name, str( self.values ) )
             
     def __len__(self):
         return len(self.values)
@@ -586,7 +587,8 @@ class ConfigParameter:
 
     def __setitem__(self, key, value ):
         if hasattr( key, 'id' ): key = key.id
-        self.values[key] = value 
+        self.values[key] = value
+        if self.debug: print "Parameter[%s]: set value item[%s]: %s " % ( self.name, key, str(value))
         self.addValueKey( key )
         
     def childUpdate( self, source, key, val ): 
@@ -594,6 +596,7 @@ class ConfigParameter:
         
     def __call__(self, **args ):
         self.values.update( args )
+        if self.debug: print " && Update parameter %s: %s " % ( self.name, str( self.values ) )
         args1 = [ self.ptype ]
         for item in args.items():
             args1.extend( list(item) )
@@ -617,6 +620,7 @@ class ConfigParameter:
     
     def initialize( self, config_str ):
         self.values = eval( config_str )
+        if self.debug: print " && initialize parameter %s: %s " % ( self.name, str( self.values ) )
         self.sort()
 
     def serialize( self ):
@@ -653,6 +657,7 @@ class ConfigParameter:
 
     def setValue( self, key, val, update=False  ):
         if hasattr( key, 'id' ): key = key.id
+        if self.debug: print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
         self.values[ key ] = val
         self.addValueKey( key )
         if update: 
