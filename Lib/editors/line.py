@@ -83,9 +83,22 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         x, y = self.event_position()
 
         if self.in_bounds(x, y):
-            print ""
+            points = zip(self.line.x[self.index], self.line.y[self.index])
+            for ind, point in enumerate(points):
+                x1, _ = point
+                x2, _ = points[ind + 1]
+
+                # We know that we're inside the line, so we'll exit this loop
+                # before we hit the end
+                if min(x1, x2) < x and max(x1, x2) > x:
+                    break
+            # insert after ind
+            self.line.x[self.index].insert(ind + 1, x)
+            self.line.y[self.index].insert(ind + 1, y)
+            self.rebuild()
+            self.save()
         else:
-            print "Missed the line :("
+            self.configurator.deactivate(self)
 
 
 def inside_line(line, x, y, screen_height, index=None):
@@ -117,9 +130,7 @@ def inside_line(line, x, y, screen_height, index=None):
                 b = y2 - m * x2
 
                 line_y = m * x + b
-                print x, y, line_y
 
                 if offset > abs(line_y - y):
-                    print p_ind, ind
                     return ind
     return None
