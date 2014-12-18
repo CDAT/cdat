@@ -87,6 +87,18 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.line.x[self.index][ind], self.line.y[self.index][ind] = handle.x, handle.y
         self.save()
 
+    def drag_move(self, delta_x, delta_y):
+        for h in self.handles:
+            h.x += delta_x
+            h.y += delta_y
+            h.place()
+
+    def drag_stop(self):
+        for ind, h in enumerate(self.handles):
+            self.line.x[self.index][ind] = h.x
+            self.line.y[self.index][ind] = h.y
+        self.save()
+
     def save(self):
         self.configurator.save()
 
@@ -109,6 +121,9 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def double_release(self):
         x, y = self.event_position()
+
+        # Hack to make draggable work a little better with double click
+        self.drag_origin = None
 
         if self.in_bounds(x, y):
             points = zip(self.line.x[self.index], self.line.y[self.index])
