@@ -1,5 +1,6 @@
 from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
+from vcs.color_picker import ColorPicker
 
 class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def __init__(self, interactor, fillarea, index, configurator):
@@ -14,7 +15,11 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
         self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Fill %s" % fillarea.name, open_label="Configure")
         self.toolbar.show()
-        self.toolbar.add_slider_button(fillarea.color[index], 0, 255, "Color", end=self.change_color)
+
+        self.toolbar.add_button(["Change Color"], action=self.change_color)
+
+        # Used to store the color picker when it's active
+        self.picker = None
 
         b = self.toolbar.add_button(["Solid", "Hatch", "Pattern"], action=self.change_style)
         style = fillarea.style[index]
@@ -38,9 +43,20 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             self.fill.style[self.index] = "pattern"
         self.save()
 
-    def change_color(self, value):
-        self.fill.color[self.index] = int(value)
+    def change_color(self, state):
+        if self.picker:
+            self.picker.make_current()
+        else:
+            self.picker = ColorPicker(500, 500, self.fill.colormap, self.fill.color[self.index], on_save=self.set_color, on_cancel=self.cancel_color)
+
+    def set_color(self, colormap, color):
+        self.fill.colormap = colormap
+        self.fill.color[self.index] = color
+        print color
         self.save()
+
+    def cancel_color(self):
+        self.picker = None
 
     def rebuild(self):
         for h in self.handles:
