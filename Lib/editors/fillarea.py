@@ -85,7 +85,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
                 return ind
         return None
 
-    def rightclick(self, obj, event):
+    def right_release(self):
 
         x, y = self.event_position()
 

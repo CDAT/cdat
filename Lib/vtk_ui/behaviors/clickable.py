@@ -14,9 +14,13 @@ class ClickableMixin(Behavior):
 
         self.add_event_handler("LeftButtonPressEvent", self.click_pressed)
         self.add_event_handler("LeftButtonReleaseEvent", self.click_released)
+        self.add_event_handler("RightButtonPressEvent", self.right_pressed)
+        self.add_event_handler("RightButtonReleaseEvent", self.right_released)
+
         # If they're moving the mouse, it's probably not a double click.
         self.add_event_handler("MouseMoveEvent", self.timer_elapsed)
         self.add_event_handler("TimerEvent", self.timer_elapsed)
+
 
     def click_press(self):
         """Implement in subclass, called on mouse down"""
@@ -34,6 +38,20 @@ class ClickableMixin(Behavior):
         """Implement in subclass, called on double mouse up"""
         pass
 
+    def right_press(self):
+        """Implement in subclass, called on right mouse down"""
+        pass
+
+    def right_release(self):
+        """Implement in subclass, called on right mouse up"""
+        pass
+
+    def right_pressed(self, obj, event):
+        self.right_press()
+
+    def right_released(self, obj, event):
+        self.right_release()
+
     def timer_elapsed(self, obj, event):
         if self.click_timer is not None:
             self.interactor.DestroyTimer(self.click_timer)
@@ -46,8 +64,6 @@ class ClickableMixin(Behavior):
             self.click_release()
 
     def click_pressed(self, obj, event):
-        x, y = self.event_position()
-
         if self.click_timer is None:
             self.click_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
         else:
@@ -56,8 +72,6 @@ class ClickableMixin(Behavior):
             self.double_press()
 
     def click_released(self, obj, event):
-        x, y = self.event_position()
-
         if self.release_timer is None:
             self.release_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
         else:

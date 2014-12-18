@@ -52,6 +52,20 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.line.color[self.index] = color
         self.save()
 
+    def right_release(self):
+        x, y = self.event_position()
+
+        # Check each vertex to see if the rightclick was on it
+        for ind, x1 in enumerate(self.line.x[self.index]):
+            if x1 - .01 < x and x1 + .01 > x:
+                y1 = self.line.y[self.index][ind]
+                if y1 - .01 < y and y1 + .01 > y:
+                    del self.line.x[self.index][ind]
+                    del self.line.y[self.index][ind]
+                    self.rebuild()
+                    self.save()
+                    break
+
     def cancel_color(self):
         self.picker = None
 
