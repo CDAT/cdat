@@ -1,6 +1,6 @@
 import vcs
 import datetime
-from editors import data, fillarea, line
+from editors import box, fillarea, line
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -48,7 +48,6 @@ class Configurator(object):
         self.save()
 
     def activate(self, obj, display):
-
         if display.g_type == "fillarea":
             editor = fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
@@ -56,11 +55,9 @@ class Configurator(object):
             editor = line.LineEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
         else:
-            if obj.member == "data":
-                editor = data.DataEditor(self.interactor, obj, self)
+            if is_box(obj):
+                editor = box.BoxEditor(self.interactor, obj, self)
                 self.target = editor
-
-
 
 
     def in_display_plot(self, point, dp):
@@ -185,6 +182,17 @@ def in_template(point, template, fudge=None):
                     intersecting = attribute
 
     return intersecting
+
+def is_box(member):
+    x1 = safe_get(member, "x1")
+    y1 = safe_get(member, "y1")
+    x2 = safe_get(member, "x2")
+    y2 = safe_get(member, "y2")
+
+    if None in (x1, y1, x2, y2):
+        return False
+    else:
+        return True
 
 def is_point_in_box(point, box):
     """
