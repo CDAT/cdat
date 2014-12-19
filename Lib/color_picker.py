@@ -1,6 +1,6 @@
 import vtk
 import vcs
-from vcs.vtk_ui import Button, ButtonState
+from vcs.vtk_ui import Button, ButtonState, NoInteractionStyle
 
 class ColorPicker(object):
     def __init__(self, width, height, colormap, color, on_save=None, on_cancel=None):
@@ -169,10 +169,6 @@ class ColorPicker(object):
         self.render_window.Finalize()
         #self.render_window.GetInteractor().TerminateApp()
 
-
-class NoInteractionStyle(vtk.vtkInteractorStyle):
-    def __init__(self, parent=None):
-        pass
 
 def make_color_plane(x, y, colors):
     plane = vtk.vtkPlaneSource()

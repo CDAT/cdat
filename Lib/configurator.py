@@ -1,6 +1,6 @@
 import vcs
 import datetime
-import editors.fillarea, editors.line
+from editors import box, fillarea, line
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -48,13 +48,16 @@ class Configurator(object):
         self.save()
 
     def activate(self, obj, display):
-
         if display.g_type == "fillarea":
-            editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
+            editor = fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
         elif display.g_type == "line":
-            editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
+            editor = line.LineEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
+        else:
+            if is_box(obj):
+                editor = box.BoxEditor(self.interactor, obj, self)
+                self.target = editor
 
 
     def in_display_plot(self, point, dp):
@@ -67,14 +70,14 @@ class Configurator(object):
 
         if dp.g_type == "fillarea":
             fill = vcs.getfillarea(dp.g_name)
-            info = editors.fillarea.inside_fillarea(fill, *point)
+            info = fillarea.inside_fillarea(fill, *point)
             if info is not None:
                 self.clicked_info = info
                 return fill
         elif dp.g_type == "line":
             line = vcs.getline(dp.g_name)
             # Uses screen_height to determine how much buffer space there is around the line
-            info = editors.line.inside_line(line, *point, screen_height=h)
+            info = line.inside_line(line, *point, screen_height=h)
             if info is not None:
                 self.clicked_info = info
                 return line
@@ -179,6 +182,17 @@ def in_template(point, template, fudge=None):
                     intersecting = attribute
 
     return intersecting
+
+def is_box(member):
+    x1 = safe_get(member, "x1")
+    y1 = safe_get(member, "y1")
+    x2 = safe_get(member, "x2")
+    y2 = safe_get(member, "y2")
+
+    if None in (x1, y1, x2, y2):
+        return False
+    else:
+        return True
 
 def is_point_in_box(point, box):
     """
