@@ -47,7 +47,6 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.save()
 
     def drag_move(self, d_x, d_y):
-        print d_x, d_y
 
         self.top_left.x += d_x
         self.top_right.x += d_x
