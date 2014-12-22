@@ -50,13 +50,16 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     if sys.platform == "darwin":
         self.reRender = False
-    self.clickRenderer = None
+        self.clickRenderer = None
+        self.oldCursor = None
+
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -234,7 +237,10 @@ class VTKVCSBackend(object):
       self.renWin.Render()
     if sys.platform == "darwin":
         ## ON mac somehow we need to issue an extra Render after resize
-        self.reRender = True
+        if self.renWin.GetCurrentCursor() == self.oldCursor:
+          self.reRender = True
+        else:
+          self.oldCursor = self.renWin.GetCurrentCursor()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
