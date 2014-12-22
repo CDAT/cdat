@@ -11,7 +11,7 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.top_right = vtk_ui.Handle(self.interactor, (box.x2, box.y1), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
         self.bottom_left = vtk_ui.Handle(self.interactor, (box.x1, box.y2), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
         self.bottom_right = vtk_ui.Handle(self.interactor, (box.x2, box.y2), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
-
+        self.drag_buffer = 3
         self.top_left.show()
         self.top_right.show()
         self.bottom_left.show()
@@ -62,9 +62,6 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.top_right.place()
         self.bottom_left.place()
         self.bottom_right.place()
-
-
-    def drag_stop(self):
         self.box.x1 = self.top_left.x
         self.box.y1 = self.top_left.y
         self.box.x2 = self.bottom_right.x
