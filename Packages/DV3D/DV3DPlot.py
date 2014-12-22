@@ -867,7 +867,8 @@ class DV3DPlot():
             state = config_function.getState()
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
+                config_function.setState( config_function.initial_value[0] )
+            state = config_function.getState()
             if state: self.toggleIsosurfaceVisibility( args, config_function )
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
@@ -876,9 +877,11 @@ class DV3DPlot():
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
+                config_function.setState( config_function.initial_value[0] )
+#            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
+            state = config_function.getState()
             if state: self.toggleVolumeVisibility( args, config_function )
         elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  

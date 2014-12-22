@@ -1436,7 +1436,7 @@ class RectGridPlot(StructuredGridPlot):
         for plotItem in self.plotConstituents.items():
             crange = param.getValue( plotItem[0] )
             range = crange if crange else init_range 
-#            print " Opacity constituent init [%s]: %s " % ( plotItem[0], str( range ) )
+            print " Opacity constituent init [%s]: %s " % ( plotItem[0], str( range ) )
             self.opacityUpdateCount = 0
             self.updateOpacity( plotItem[0], range, **args  )
             param.setValue( plotItem[0], range ) 

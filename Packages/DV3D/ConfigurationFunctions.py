@@ -662,8 +662,7 @@ class ConfigParameter:
         if isinstance( tval, dict ):
             self.updateValues( tval, update )
         else:
-            if self.debug and ( self.name.startswith('ScaleTransferFunction') ):
-                print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
+            if self.debug: print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
             self.values[ key ] = val
             self.addValueKey( key )
             if update:
