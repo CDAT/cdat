@@ -1286,7 +1286,8 @@ class InputSpecs:
         dataVector = self.fieldData.GetAbstractArray( 'metadata' ) 
         if dataVector == None:
             cname = getClassName( self ) 
-            if cname <> "InputSpecs": print " Can't get Metadata for class %s " % cname
+            if cname <> "InputSpecs":
+                print " Can't get Metadata for class %s " % cname
         else:
             enc_mdata = encodeToString( metadata )
             dataVector.InsertNextValue( enc_mdata  )

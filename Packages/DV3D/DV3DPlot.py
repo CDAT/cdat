@@ -869,9 +869,10 @@ class DV3DPlot():
             if config_function.initial_value <> None:
                 config_function.setState( config_function.initial_value[0] )
             state = config_function.getState()
-            if state: self.toggleIsosurfaceVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleIsosurfaceVisibility( args, config_function ) 
+            if state: self.toggleIsosurfaceVisibility( state )
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleIsosurfaceVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     def processVolumePlotCommand( self, args, config_function = None ):
@@ -882,9 +883,10 @@ class DV3DPlot():
                 config_function.setState( config_function.initial_value[0] )
 #            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
             state = config_function.getState()
-            if state: self.toggleVolumeVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleVolumeVisibility( args, config_function )  
+            if state: self.toggleVolumeVisibility( state )
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleVolumeVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     

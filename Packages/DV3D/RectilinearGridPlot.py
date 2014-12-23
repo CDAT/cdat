@@ -966,7 +966,7 @@ class RectGridPlot(StructuredGridPlot):
         picker = vtk.vtkCellPicker()
         picker.SetTolerance(0.005) 
         interactionButtons = self.getInteractionButtons()
-                
+
         if self.planeWidgetZ == None:
             if self.type == '3d_vector':
                 vectorDisplayCF = self.cfgManager.getParameter( 'VectorDisplay' )     
@@ -1120,24 +1120,29 @@ class RectGridPlot(StructuredGridPlot):
 #        printArgs( "ResetCameraClippingRange", focal_point=f, cam_pos=p, vol_bounds=bounds )
         self.renderer.ResetCameraClippingRange() 
         
-    def toggleVolumeVisibility( self, args, config_function ):
+    def toggleVolumeVisibility( self, state ):
         if self.volume == None:
             self.buildVolumePipeline()
-        make_visible = args[1] # .get( 'state', not self.volume.GetVisibility())
-        if make_visible: self.volume.VisibilityOn()
+        if state: self.volume.VisibilityOn()
         else: self.volume.VisibilityOff()
+        bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
+        button = bbar.getButton( 'ToggleVolumePlot' )
+        if button <> None:
+            button.setButtonState( state, False )
         self.render()
 
-    def toggleIsosurfaceVisibility( self, args, config_function ):
+    def toggleIsosurfaceVisibility( self, state ):
         if self.levelSetActor == None:
             self.buildIsosurfacePipeline()
-        make_visible = args[1] # .get( 'state', not self.levelSetActor.GetVisibility())
-        if make_visible:
+        if state:
             self.levelSetActor.VisibilityOn() 
         else: 
             self.levelSetActor.VisibilityOff()
             self.cursorActor.VisibilityOff()
-            
+        bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
+        button = bbar.getButton( 'ToggleSurfacePlot' )
+        if button <> None:
+            button.setButtonState( state, False )
         self.render()
         
     def invokeKeyEvent(self, key, ctrl=0 ):
@@ -1585,23 +1590,28 @@ class RectGridPlot(StructuredGridPlot):
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )       
         contourInput = contour_ispec.input() if ( contour_ispec <> None )  else None
+
         if self.enableContourOverlays:
             if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput, contourInput )
             if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )
             if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
         else:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput )
+            if self.type <> '3d_vector':
+                if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput )
+                if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput )
             if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput )
+
+        if self.type == '3d_vector': self.planeWidgetZ.UpdatePlane()
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
         if self.volume <> None:
             mapper = self.volume.GetMapper()
             if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
             else:                           mapper.SetInputData(primaryInput)        
             mapper.Modified()
-        if self.levelSetActor is not None and contourInput is not None:
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(contourInput)
-            else:                           self.levelSetFilter.SetInputData(contourInput)
+        if self.levelSetActor is not None:
+            surface_input = contourInput if ( contourInput is not None ) else primaryInput
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(surface_input)
+            else:                           self.levelSetFilter.SetInputData(surface_input)
             self.levelSetFilter.Modified()           
         self.render()
 

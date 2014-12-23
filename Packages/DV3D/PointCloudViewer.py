@@ -369,22 +369,15 @@ class CPCPlot( DV3DPlot ):
         else: return False
         return True
     
-    def toggleVolumeVisibility( self, args, config_function ):
-        if len( args ) > 1 and args[1]:
-            if (len(args) > 3):
-                button_bar = args[3]
-                button_bar.clear( current=config_function.name )
-            self.render()
-
-    def toggleIsosurfaceVisibility( self, args, config_function ):
-        
+    def toggleVolumeVisibility( self, state ):
         return
-    
-        if len( args ) > 1 and args[1]:
-            if (len(args) > 3):
-                button_bar = args[3]
-                button_bar.clear( current=config_function.name )
-            self.render()
+        # if state:
+        #     if (button_bar <> None) and (config_function <> None):
+        #         button_bar.clear( current=config_function.name )
+        #     self.render()
+
+    def toggleIsosurfaceVisibility( self, state ):
+        return
                          
     def processCategorySelectionCommand( self, args ):
         op = args[0]

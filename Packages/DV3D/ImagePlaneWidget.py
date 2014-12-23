@@ -234,11 +234,7 @@ class ImagePlaneWidget:
 #                self.Interactor.AddObserver( 'MouseMoveEvent', self.OnMouseMove )
                 self.Interactor.AddObserver( 'CharEvent', self.OnKeyPress ) 
 #                self.Interactor.AddObserver( 'AnyEvent', self.OnAnyEvent )   
-                self.SetEnabled()       
-         
-#----------------------------------------------------------------------------
-
-
+                self.SetEnabled()
 
 #----------------------------------------------------------------------------
     def SetEnabled( self ):
