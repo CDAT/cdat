@@ -554,8 +554,11 @@ class DV3DPlot():
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue()
-            runSpeed.setValue( 0, value )
+            try:
+                value = args[2].GetValue()
+                runSpeed.setValue( 0, value )
+            except Exception, err:
+                print>>sys.stderr, "Error setting animation run speed: ", str( err )
                                    
     def processAnimationStateChange( self, button_id, key, state, force = False ):
 #        print " Process Animation State Change[%s], state = %d " % ( button_id, state )
