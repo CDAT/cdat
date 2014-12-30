@@ -748,15 +748,25 @@ class ConfigurableFunction:
     Default = 0
     Slider = 1    
     ConfigurableFunctions = {}    
-    
+
+    def get_initial_value(self):
+        return self._initial_value
+
+    def set_initial_value(self, value ):
+        print " ConfigurableFunction %s set_initial_value: %s " % ( self.name, str(value) )
+        self._initial_value = value
+
+    initial_value = property( get_initial_value, set_initial_value )
+
     def __init__( self, manager, name, **args ):
         self.name = name
+        self._initial_value = []
         self.persist = args.get( 'persist', True )
         self.manager = manager
 #         if name == 'XSlider':
 #             print "."
         self.value = self.manager.addParameter( name, **args )
-        self.initial_value = []
+        print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None

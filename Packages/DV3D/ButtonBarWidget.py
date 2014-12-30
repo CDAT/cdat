@@ -163,7 +163,8 @@ class Button:
 
     def processStateChangeEvent( self, obj, event, indirect = False ):
         self.invokingEvent = True 
-        self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates )      
+#        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
+        self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates )
         self.invokingEvent = False
         
     def refreshButtonState(self):
