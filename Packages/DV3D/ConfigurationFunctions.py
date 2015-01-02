@@ -222,6 +222,11 @@ def get_parameter_name( serialized_value ):
     namelist = deserialize_address( serialized_value )
     return namelist[0]
 
+def get_parameter_cell( serialized_value ):
+    namelist = deserialize_address( serialized_value )
+    if ( len( namelist ) < 2) or ( len(namelist[1]) < 3 ): return None
+    return eval( namelist[1] )
+
 class ConfigManager:
     
     
@@ -243,10 +248,17 @@ class ConfigManager:
                 self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
+    def clear( self, cell ):
+        for parm_address in self.parameters.keys():
+            pcell = get_parameter_cell( parm_address )
+            if (pcell == cell) or (pcell == None):
+                del self.parameters[ parm_address ]
+
     def getParameter( self, param_name, **args ):
         cell = args.get( 'cell', '' )
-#        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
-        if cell: param_name = serialize_address( cell, param_name )
+        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
+        if cell:
+            param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
         if cparm == None:
             if self.parent is None:
@@ -281,7 +293,7 @@ class ConfigManager:
                 except ValueError: pass
     #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
             param.setInitValue( data )
-    #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+            print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -510,15 +522,16 @@ class ConfigManager:
 class ConfigParameter:
     
     def __init__(self, name, **args ):
-        self.name = name 
+        self.name = name
+        print "Create ConfigParameter, name = ", name
         self.values = {}
         self.children = set()
         self.ValueChanged = SIGNAL( 'ValueChanged' )
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
-        self.parent = args.get( 'parent', None ) 
+        self.parent = args.get( 'parent', None )
         self.stateKeyList = []
-        self.debug = True
+        self.debug = False
         if self.parent<> None: 
             self.parent.addChild( self )
             self.values.update( self.parent.values )
@@ -654,7 +667,6 @@ class ConfigParameter:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )
 
-
     def setValue( self, key, val, update=False  ):
         if hasattr( key, 'id' ): key = key.id
         tval = val[0] if isinstance( val, list ) else val
@@ -662,7 +674,8 @@ class ConfigParameter:
         if isinstance( tval, dict ):
             self.updateValues( tval, update )
         else:
-            if self.debug: print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
+            if self.debug or (self.name == 'ScaleColormap'):
+                print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
             self.values[ key ] = val
             self.addValueKey( key )
             if update:
@@ -742,31 +755,46 @@ class ConfigParameter:
         
     def getRange( self ):
         return ( self.rmin, self.rmax )
-  
+
+class WrappedList:
+
+    def __init__(self,name):
+        self.name = name
+        self.list = []
+
+    def __get__(self):
+        return self.list
+
+    def __set__(self, value):
+        print "Set list %s: %s " % ( self.name, str( value ) )
+        self.list = value
+
+    def __len__(self):
+        return len( self.list )
+
+    def __getitem__( self, key ):
+        return self.list[key]
+
+    def __setitem__(self, key, value ):
+        print "Set list value %s[%s]: %s " % ( self.name, str(key), str( value ) )
+        self.list[key] = value
+
+
 class ConfigurableFunction:
 
     Default = 0
-    Slider = 1    
-    ConfigurableFunctions = {}    
-
-    def get_initial_value(self):
-        return self._initial_value
-
-    def set_initial_value(self, value ):
-        print " ConfigurableFunction %s set_initial_value: %s " % ( self.name, str(value) )
-        self._initial_value = value
-
-    initial_value = property( get_initial_value, set_initial_value )
+    Slider = 1
+    ConfigurableFunctions = {}
 
     def __init__( self, manager, name, **args ):
         self.name = name
-        self._initial_value = []
+        self.initial_value = []
         self.persist = args.get( 'persist', True )
         self.manager = manager
-#         if name == 'XSlider':
-#             print "."
+     #   if name == 'ScaleColormap':
+     #        print "."
         self.value = self.manager.addParameter( name, **args )
-        print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
+     #   print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None

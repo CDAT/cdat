@@ -537,8 +537,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     def savecontinentstype(self,value):
       self._savedcontinentstype = value
 
-    def onClosing( self ):
-        self.backend.onClosing()
+    def onClosing( self, cell  ):
+        self.backend.onClosing( cell )
 
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.

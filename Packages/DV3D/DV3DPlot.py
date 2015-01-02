@@ -299,9 +299,10 @@ class DV3DPlot():
     def refresh(self):
         self.onWindowModified()
         
-    def onClosing(self):
-        print "Closing!"
+    def onClosing(self, cell ):
+        print " ------> Closing!"
         self.stopAnimation()
+        self.cfgManager.parent.clear( cell )
         self.terminate()
         
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
