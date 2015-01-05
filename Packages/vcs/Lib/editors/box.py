@@ -58,10 +58,24 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.bottom_left.y += d_y
         self.bottom_right.y += d_y
 
+
+        self.top_left.x = bounds(self.top_left.x)
+        self.top_left.y = bounds(self.top_left.y)
+
+        self.bottom_left.x = bounds(self.bottom_left.x)
+        self.bottom_left.y = bounds(self.bottom_left.y)
+
+        self.bottom_right.x = bounds(self.bottom_right.x)
+        self.bottom_right.y = bounds(self.bottom_right.y)
+
+        self.top_right.x = bounds(self.top_right.x)
+        self.top_right.y = bounds(self.top_right.y)
+
         self.top_left.place()
         self.top_right.place()
         self.bottom_left.place()
         self.bottom_right.place()
+
         self.box.x1 = self.top_left.x
         self.box.y1 = self.top_left.y
         self.box.x2 = self.bottom_right.x
@@ -75,6 +89,9 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         else:
             self.configurator.deactivate(self)
 
+    def double_release(self):
+        self.configurator.deactivate(self)
+
     def save(self):
         self.configurator.save()
 
@@ -85,3 +102,6 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.bottom_right.detach()
 
         self.unregister()
+
+def bounds(value):
+    return min(max(value, 0), 1)
