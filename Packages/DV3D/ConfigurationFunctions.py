@@ -648,10 +648,18 @@ class ConfigParameter:
         return self.values.get( 'state', None )
 
     def getInitValue( self, default_value=None ):
-        ival = self.getValue( 'init' ) 
-        if ( ival == None ) and ( self.parent <> None ): 
-            ival = self.parent.getInitValue() 
-        return default_value if ( ival == None ) else ival
+        ival = self.getValue( 'init' )
+        if ival == None:
+            ival = self.getValue( 'relative' )
+        if ival == None:
+            ival = self.getValues()
+            if len( ival ) == 0:
+                ival = self.parent.getInitValue() if ( self.parent <> None ) else None
+                if ( ival == None ):
+                    return default_value
+        if self.name == 'ZScale':
+            print 'get ZScale InitValue: ', str( ival ), ", vals = ", str( self.values )
+        return ival
 
     def setInitValue( self, value, update = False ):
         if type( value ) == dict:
