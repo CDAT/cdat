@@ -41,6 +41,8 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self.plotApps = {}
     self.plotRenderers = set()
+    self.logoRenderer = None
+    self.logoRepresentation = None
     self.renderer = None
     self._renderers = {}
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
@@ -50,8 +52,6 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
-    self.createLogo()
-
     if sys.platform == "darwin":
         self.reRender = False
 
@@ -230,6 +230,7 @@ class VTKVCSBackend(object):
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
+    self.logoRenderer = None
     self.createLogo()
     self._renderers = {}
 
@@ -253,13 +254,13 @@ class VTKVCSBackend(object):
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
+      self.initialSize()
+      
+    if self.renderer == None:
       self.renderer = self.createRenderer()
       if self.bg is False:
           self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
-      return True
-    else:
-      return False
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
@@ -330,9 +331,7 @@ class VTKVCSBackend(object):
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
 
   def open(self):
-    if self.createRenWin():
-      self.initialSize()
-    #self.renWin.Render()
+    self.createRenWin( open=True )
 
   def close(self):
     if self.renWin is None:
@@ -357,13 +356,12 @@ class VTKVCSBackend(object):
         self.bg= True
       else:
         self.bg= False
-    created = self.createRenWin(**kargs)
-    if created:
-        self.initialSize()
+    self.createRenWin(**kargs)
     if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
+    self.canvas.initLogoDrawing()
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -1240,9 +1238,9 @@ class VTKVCSBackend(object):
                 tt = vcs.elements["texttable"][tt]
                 to = vcs.elements["textorientation"][to]
                 vcs2vtk.genTextActor(ren,to=to,tt=tt)
-            del(vcs.elements["texttable"][tt.name])
-            del(vcs.elements["textorientation"][to.name])
-            del(vcs.elements["textcombined"][zunits.name])
+                del(vcs.elements["texttable"][tt.name])
+                del(vcs.elements["textorientation"][to.name])
+                del(vcs.elements["textcombined"][zunits.name])
         tt,to = zvalue.name.split(":::")
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
@@ -1441,25 +1439,28 @@ class VTKVCSBackend(object):
 
   def createLogo(self):
     if self.canvas.drawLogo:
-        defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-        reader = vtk.vtkPNGReader()
-        reader.SetFileName( defaultLogoFile )
-        reader.Update()
-        logo_input = reader.GetOutput()
-        self.logoRepresentation = vtk.vtkLogoRepresentation()
-        self.logoRepresentation.SetImage(logo_input)
-        self.logoRepresentation.ProportionalResizeOn ()
-        self.logoRepresentation.SetPosition( 0.882, 0.0 )
-        self.logoRepresentation.SetPosition2( 0.10, 0.05 )
-        self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
-        self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
-        self.logoRenderer = vtk.vtkRenderer()
-        self.logoRenderer.AddViewProp(self.logoRepresentation)
+        if self.logoRepresentation == None:
+            defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+            reader = vtk.vtkPNGReader()
+            reader.SetFileName( defaultLogoFile )
+            reader.Update()
+            logo_input = reader.GetOutput()
+            self.logoRepresentation = vtk.vtkLogoRepresentation()
+            self.logoRepresentation.SetImage(logo_input)
+            self.logoRepresentation.ProportionalResizeOn ()
+            self.logoRepresentation.SetPosition( 0.882, 0.0 )
+            self.logoRepresentation.SetPosition2( 0.10, 0.05 )
+            self.logoRepresentation.GetImageProperty().SetOpacity( .8 )
+            self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground()
+        if (self.logoRenderer == None):
+            self.logoRenderer = vtk.vtkRenderer()
+            self.logoRenderer.AddViewProp(self.logoRepresentation)
         self.logoRepresentation.SetRenderer(self.logoRenderer)
 
   def scaleLogo(self):
     if self.canvas.drawLogo:
         if self.renWin is not None:
+            self.createLogo()
             self.setLayer(self.logoRenderer,1)
             self.renWin.AddRenderer(self.logoRenderer)
 

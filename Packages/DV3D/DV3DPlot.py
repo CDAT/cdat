@@ -750,6 +750,7 @@ class DV3DPlot():
         self.clipper.AddObserver( 'EndInteractionEvent', self.endClip )
         self.clipper.AddObserver( 'InteractionEvent', self.executeClip )           
         self.clipOff() 
+        self.addLogo()
     
     def clipOn(self):
         pass

@@ -89,7 +89,6 @@ if gm_type=="vector":
       v-=v
 elif gm_type=="meshfill":
     s=f("sample",**xtra)
-    gm.mesh=True
     if args.mask:
         s=MV2.masked_less(s,1150.)
     elif args.bigvalues:

@@ -31,10 +31,11 @@ class TestManager:
 
     def reviewTest(self, testName ):
         print "Running test: ", testName
-        os.system("python %s.py -i" % testName ) 
+        os.system('python dv3d_execute_test.py %s True' % testName ) 
         
     def writeCMakeLists(self):
         f = open( 'CMakeLists.txt', 'w' )
+        f.write('set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/dv3d")\n\n')
         for (testName, test) in TestManager.DefinedTests.items():
             test.writeCMakeDef( f )
         f.close()
@@ -44,6 +45,7 @@ class TestManager:
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
+        print "Running test %s %s %s" % ( testName, str(interactive), str(baselinedir) )
         if baselinedir is not None:
             test.test_dir = baselinedir
             test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
@@ -120,11 +122,11 @@ class vcsTest:
         ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
         try:
-            shutil.copy( self.image_name, ref_image )
             print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
+            shutil.copy( self.image_name, ref_image )
             ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold )
         except IOError:
-            print "No ref image found."
+            print "No ref image '%s' found." % ref_image
             ret = 0
         if  interactive: 
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
@@ -140,20 +142,19 @@ class vcsTest:
     def writeCMakeDef( self, f ):
         f.write( "add_test(%s\n" % self.name )
         f.write( "  \"${PYTHON_EXECUTABLE}\"\n"  )
-        f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/%s.py\n" % self.name )
-#        f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/images/%s.png\n" % self.name )
+        f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py\n" )
+        f.write( "  '%s'\n" % self.name )
+        f.write( "  '${BASELINE_DIR}'\n" )
         f.write( ")\n\n\n")
-        source_file = os.path.join( self.test_dir, "%s.py" % self.name )
-        f1 = open( source_file, 'w' )
-        f1.write( "import sys\n")
-        f1.write( "from TestDefinitions import testManager\n"  )
-        f1.write( "interactive = ( len(sys.argv) > 1 ) and ( sys.argv[1] == '-i' )\n")
-        f1.write( "testManager.runTest( '%s', interactive )\n" % self.name )
-        f1.close()
+#        source_file = os.path.join( self.test_dir, "%s.py" % self.name )
+#         f1 = open( source_file, 'w' )
+#         f1.write( "import sys\n")
+#         f1.write( "from TestDefinitions import testManager\n"  )
+#         f1.write( "interactive = ( len(sys.argv) > 1 ) and ( sys.argv[1] == '-i' )\n")
+#         f1.write( "testManager.runTest( '%s', interactive )\n" % self.name )
+#         f1.close()
         
         
 if __name__ == '__main__':
     from TestDefinitions import testManager    
-#    testManager.runTests()
-    testManager.runTest( 'dv3d_constituents_test', True )
-#    testManager.showTest( 'dv3d_constituents_test' )
+    testManager.runTest( 'dv3d_hovmoller_test' )
