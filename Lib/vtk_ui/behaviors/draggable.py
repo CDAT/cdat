@@ -59,7 +59,7 @@ class DraggableMixin(Behavior):
         return
 
     def drag_released(self, obj, event):
-        if self.drag_origin is not None and self.drag_position is not None:
+        if self.drag_origin is not None or self.drag_position is not None:
             self.drag_stop()
             self.drag_origin = None
             self.drag_position = None
