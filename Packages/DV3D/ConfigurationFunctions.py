@@ -293,7 +293,7 @@ class ConfigManager:
                 except ValueError: pass
     #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
             param.setInitValue( data )
-            print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+#            print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -682,7 +682,7 @@ class ConfigParameter:
         if isinstance( tval, dict ):
             self.updateValues( tval, update )
         else:
-            if self.debug or (self.name == 'ScaleColormap'):
+            if self.debug:
                 print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
             self.values[ key ] = val
             self.addValueKey( key )

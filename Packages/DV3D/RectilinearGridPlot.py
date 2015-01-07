@@ -277,7 +277,6 @@ class RectGridPlot(StructuredGridPlot):
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
-            print " setIsosurfaceLevel: ", str( value )
             self.levelSetFilter.SetValue ( 0, value ) 
             self.levelSetFilter.Modified()
                              
@@ -774,7 +773,7 @@ class RectGridPlot(StructuredGridPlot):
         dr = rangeBounds[1] - rangeBounds[0]
         range_offset = .2*dr
         self.range = [ rangeBounds[0] + range_offset, rangeBounds[1] - range_offset ]
-        print "Data Type = %s, range = (%f,%f), range bounds = (%f,%f), max_scalar = %s" % ( dataType, self.range[0], self.range[1], rangeBounds[0], rangeBounds[1], self._max_scalar_value )
+#        print "Data Type = %s, range = (%f,%f), range bounds = (%f,%f), max_scalar = %s" % ( dataType, self.range[0], self.range[1], rangeBounds[0], rangeBounds[1], self._max_scalar_value )
         self.probeFilter = None
         textureRange = self.range
         if texture_ispec and texture_input:
@@ -1440,8 +1439,7 @@ class RectGridPlot(StructuredGridPlot):
     def initConstituentOpacities(self, param, init_range, **args ): 
         for plotItem in self.plotConstituents.items():
             crange = param.getValue( plotItem[0] )
-            range = crange if crange else init_range 
-            print " Opacity constituent init [%s]: %s " % ( plotItem[0], str( range ) )
+            range = crange if crange else init_range
             self.opacityUpdateCount = 0
             self.updateOpacity( plotItem[0], range, **args  )
             param.setValue( plotItem[0], range ) 
