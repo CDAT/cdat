@@ -9,7 +9,7 @@ class ClickableMixin(Behavior):
 
         # Used to identify double clicks (in milliseconds)
         self.double_click_duration = 200
-
+        self.clicked = False
         super(ClickableMixin, self).__init__()
 
         self.add_event_handler("LeftButtonPressEvent", self.click_pressed)
@@ -64,6 +64,7 @@ class ClickableMixin(Behavior):
             self.click_release()
 
     def click_pressed(self, obj, event):
+        self.clicked = True
         if self.click_timer is None:
             self.click_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
         else:
@@ -72,6 +73,12 @@ class ClickableMixin(Behavior):
             self.double_press()
 
     def click_released(self, obj, event):
+        # A weird spam event was coming through on object initialization
+        if self.clicked == False:
+            return
+        else:
+            self.clicked = False
+
         if self.release_timer is None:
             self.release_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
         else:
