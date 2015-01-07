@@ -256,7 +256,7 @@ class ConfigManager:
 
     def getParameter( self, param_name, **args ):
         cell = args.get( 'cell', '' )
-        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
+#        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
         if cell:
             param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
@@ -523,7 +523,7 @@ class ConfigParameter:
     
     def __init__(self, name, **args ):
         self.name = name
-        print "Create ConfigParameter, name = ", name
+#        print "Create ConfigParameter, name = ", name
         self.values = {}
         self.children = set()
         self.ValueChanged = SIGNAL( 'ValueChanged' )
