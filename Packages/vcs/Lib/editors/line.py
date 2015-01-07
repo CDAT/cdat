@@ -14,7 +14,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.configurator = configurator
         self.rebuild()
 
-        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Line %s" % line.name, open_label="Configure")
+        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Line Options")
         self.toolbar.show()
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
