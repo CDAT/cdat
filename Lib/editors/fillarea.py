@@ -13,7 +13,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.configurator = configurator
         self.rebuild()
 
-        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Fill %s" % fillarea.name, open_label="Configure")
+        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Fill Area Options")
         self.toolbar.show()
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
