@@ -216,6 +216,8 @@ class Button(Widget):
         self.text_widget.show()
         self.place()
 
+    def detach(self):
+        self.hide()
 
     def hide(self):
         self.text_widget.hide()
