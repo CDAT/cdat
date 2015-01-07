@@ -1,6 +1,6 @@
 import vcs
 import datetime
-from editors import box, fillarea, line
+from editors import box, fillarea, line, legend
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -56,8 +56,12 @@ class Configurator(object):
             self.target = editor
         else:
             if is_box(obj):
-                editor = box.BoxEditor(self.interactor, obj, self)
-                self.target = editor
+                if obj.member == "legend":
+                    editor = legend.LegendEditor(self.interactor, t(display.template), self)
+                    self.target = editor
+                else:
+                    editor = box.BoxEditor(self.interactor, obj, self)
+                    self.target = editor
 
 
     def in_display_plot(self, point, dp):
