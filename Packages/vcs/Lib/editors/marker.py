@@ -1,4 +1,5 @@
 from vcs import vtk_ui
+from vcs.color_picker import ColorPicker
 from vcs.vtk_ui import behaviors
 
 class MarkerEditor(behaviors.ClickableMixin):
@@ -16,6 +17,14 @@ class MarkerEditor(behaviors.ClickableMixin):
             h.show()
             self.handles.append(h)
 
+        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Marker Options")
+        self.toolbar.show()
+
+        self.toolbar.add_button(["Change Color"], action=self.change_color)
+
+        # Used to store the color picker when it's active
+        self.picker = None
+
         super(MarkerEditor, self).__init__()
         self.register()
 
@@ -26,6 +35,23 @@ class MarkerEditor(behaviors.ClickableMixin):
             pass
         else:
             self.deactivate()
+
+    def change_color(self, state):
+        if self.picker:
+            self.picker.make_current()
+        else:
+            self.picker = ColorPicker(500, 500, self.marker.colormap, self.marker.color[self.index], on_save=self.set_color, on_cancel=self.cancel_color)
+
+    def set_color(self, colormap, color):
+        self.marker.colormap = colormap
+        self.marker.color[self.index] = color
+        del self.picker
+        self.picker = None
+        self.save()
+
+    def cancel_color(self):
+        del self.picker
+        self.picker = None
 
     def double_release(self):
         x, y = self.event_position()
@@ -39,7 +65,6 @@ class MarkerEditor(behaviors.ClickableMixin):
             self.marker.x[self.index].append(x)
             self.marker.y[self.index].append(y)
             self.save()
-
 
     def adjust(self, handle):
         ind = self.handles.index(handle)
@@ -72,9 +97,13 @@ class MarkerEditor(behaviors.ClickableMixin):
             del self.handles[ind]
             self.save()
 
-
     def detach(self):
         self.unregister()
+
+        if self.picker:
+            self.picker.close()
+            self.picker = None
+        self.toolbar.detach()
 
         for h in self.handles:
             h.detach()

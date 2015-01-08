@@ -52,6 +52,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def set_color(self, colormap, color):
         self.fill.colormap = colormap
         self.fill.color[self.index] = color
+        self.picker = None
         self.save()
 
     def cancel_color(self):

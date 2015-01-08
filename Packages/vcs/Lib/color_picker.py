@@ -5,6 +5,7 @@ from vcs.vtk_ui import Button, ButtonState, NoInteractionStyle
 class ColorPicker(object):
     def __init__(self, width, height, colormap, color, on_save=None, on_cancel=None):
         self.render_window = vtk.vtkRenderWindow()
+        self.render_window.SetWindowName("Color Picker")
         self.render_window.SetNumberOfLayers(3)
         self.render_window.SetSize(width, height)
         self.color_renderer = vtk.vtkRenderer()
@@ -167,7 +168,10 @@ class ColorPicker(object):
         self.colormap_button.detach()
         self.render_window.RemoveObserver(self.click_handler)
         self.render_window.Finalize()
-        #self.render_window.GetInteractor().TerminateApp()
+        inter = self.render_window.GetInteractor()
+        inter.SetRenderWindow(None)
+        del inter
+        del self.render_window
 
 
 def make_color_plane(x, y, colors):
