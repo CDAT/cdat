@@ -1,6 +1,6 @@
 import vcs
 import datetime
-from editors import box, fillarea, line, legend
+from editors import box, fillarea, line, legend, marker
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -54,6 +54,9 @@ class Configurator(object):
         elif display.g_type == "line":
             editor = line.LineEditor(self.interactor, obj, self.clicked_info, self)
             self.target = editor
+        elif display.g_type == "marker":
+            editor = marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
+            self.target = editor
         else:
             if is_box(obj):
                 if obj.member == "legend":
@@ -79,12 +82,18 @@ class Configurator(object):
                 self.clicked_info = info
                 return fill
         elif dp.g_type == "line":
-            line = vcs.getline(dp.g_name)
+            l = vcs.getline(dp.g_name)
             # Uses screen_height to determine how much buffer space there is around the line
-            info = line.inside_line(line, *point, screen_height=h)
+            info = line.inside_line(l, *point, screen_height=h)
             if info is not None:
                 self.clicked_info = info
-                return line
+                return l
+        elif dp.g_type == "marker":
+            m = vcs.getmarker(dp.g_name)
+            info = marker.inside_marker(m, point[0], point[1], w, h)
+            if info is not None:
+                self.clicked_info = info
+                return m
         else:
             fudge = 5 / float(w)
             return in_template(point, t(dp.template), fudge=fudge)
