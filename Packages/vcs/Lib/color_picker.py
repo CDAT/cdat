@@ -170,6 +170,7 @@ class ColorPicker(object):
         self.render_window.Finalize()
         inter = self.render_window.GetInteractor()
         inter.SetRenderWindow(None)
+        self.render_window.SetInteractor(None)
         del inter
         del self.render_window
 
