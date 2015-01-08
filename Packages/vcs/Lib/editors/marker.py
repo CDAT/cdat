@@ -21,7 +21,7 @@ class MarkerEditor(behaviors.ClickableMixin):
         self.toolbar.show()
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
-
+        self.toolbar.add_slider_button(marker.size[index], 1, 300, "Marker Size", end=self.set_size)
         # Used to store the color picker when it's active
         self.picker = None
 
@@ -35,6 +35,10 @@ class MarkerEditor(behaviors.ClickableMixin):
             pass
         else:
             self.deactivate()
+
+    def set_size(self, size):
+        self.marker.size[self.index] = size
+        self.save()
 
     def change_color(self, state):
         if self.picker:
