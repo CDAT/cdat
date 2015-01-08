@@ -2,9 +2,10 @@
 
 cd @CMAKE_CURRENT_BINARY_DIR@/build/
 
-@GIT_EXECUTABLE@ clone -b @paraview_branch@ @PARAVIEW_SOURCE@
-
+@GIT_EXECUTABLE@ clone @PARAVIEW_SOURCE@
 cd ParaView
+@GIT_EXECUTABLE@ checkout @paraview_branch@ 
+
 
 @GIT_EXECUTABLE@ submodule init
 
