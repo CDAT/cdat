@@ -1031,6 +1031,7 @@ def prepMarker(renWin,marker,cmap=None):
       gs.FilledOff()
     elif t[:8]=='triangle':
       gs.SetGlyphTypeToTriangle()
+      gs.FilledOff()
       if t[9]=="d":
         gs.SetRotationAngle(180)
       elif t[9]=="l":
