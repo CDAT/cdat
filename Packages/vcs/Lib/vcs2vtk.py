@@ -1089,7 +1089,34 @@ def prepMarker(renWin,marker,cmap=None):
       apd.Update()
       g.SetSourceData(apd.GetOutput())
     elif t[:4] == "star":
-      pd = starPolyData()
+      points = starPoints(.01 * s, 0, 0)
+
+      pts = vtk.vtkPoints()
+      # Add all perimeter points
+      for point in points:
+        pts.InsertNextPoint((point[0], point[1], 0))
+
+      center_id = len(points)
+
+      # Add center point
+      pts.InsertNextPoint((0,0,0))
+
+      polygons = vtk.vtkCellArray()
+      for ind in range(0, 10, 2):
+        poly = vtk.vtkPolygon()
+        pid = poly.GetPointIds()
+        pid.SetNumberOfIds(4)
+        pid.SetId(0, ind)
+        pid.SetId(1, (ind - 1) % len(points))
+        pid.SetId(2, center_id)
+        pid.SetId(3, (ind + 1) % len(points))
+        polygons.InsertNextCell(poly)
+
+      pd = vtk.vtkPolyData()
+
+      pd.SetPoints(pts)
+      pd.SetPolys(polygons)
+
       g.SetSourceData(pd)
     elif t in ["w%.2i" % x for x in range(203)]:
       ## WMO marker
@@ -1258,48 +1285,8 @@ def checkProjParameters(self,name,value):
 def getProjType(value):
   return vtkProjections[value-200]
 
-# Used for the star marker
-def starPolyData():
-  """Creates poly data for a star"""
-  points = starPoints(.01, 0, 0)
-  pts = vtk.vtkPoints()
-  for ind, point in enumerate(points):
-    pts.InsertPoint(ind, (point[0], point[1], 0))
-  pts.InsertPoint(ind + 1, (0, 0, 0))
-
-  polys = vtk.vtkCellArray()
-  # Outer triangles
-  for i in range(0, 10, 2):
-    id_list = vtk.vtkIdList()
-    id_list.InsertNextId(i)
-    id_list.InsertNextId((i + 1) % 10)
-    id_list.InsertNextId((i - 1) % 10)
-    polys.InsertNextCell(id_list)
-
-  # Inner triangles
-  point_indices = [
-      (1, 10, 9),
-      (3, 10, 1),
-      (5, 10, 3),
-      (7, 10, 5),
-      (9, 10, 7)
-  ]
-
-  for group in point_indices:
-    id_list = vtk.vtkIdList()
-    for index in group:
-      id_list.InsertNextId(index)
-    polys.InsertNextCell(id_list)
-
-  pd = vtk.vtkPolyData()
-  pd.SetPoints(pts)
-  pd.SetPolys(polys)
-
-  return pd
-
 def starPoints(radius_outer, x, y, number_points = 5):
   """Defines coordinate points for an arbitrary star"""
-  from math import sin, cos
   # Point at the top of the star
   theta = numpy.pi / 2.0
 
@@ -1312,14 +1299,14 @@ def starPoints(radius_outer, x, y, number_points = 5):
   points = []
   for point_index in range(number_points * 2):
     # Outer point
-    dx = radius_outer * cos(theta)
-    dy = radius_outer * sin(theta)
+    dx = radius_outer * numpy.cos(theta)
+    dy = radius_outer * numpy.sin(theta)
 
     points.append((x + dx, y + dy))
 
     # Inner point
-    dx = radius_inner * cos(theta + delta_theta / 2.0)
-    dy = radius_inner * sin(theta + delta_theta / 2.0)
+    dx = radius_inner * numpy.cos(theta + delta_theta / 2.0)
+    dy = radius_inner * numpy.sin(theta + delta_theta / 2.0)
     points.append((x + dx, y + dy))
 
     theta += delta_theta
