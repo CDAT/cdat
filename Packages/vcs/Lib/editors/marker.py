@@ -53,7 +53,7 @@ class MarkerEditor(behaviors.ClickableMixin):
         if self.in_bounds(x, y):
             pass
         else:
-            self.deactivate()
+            self.configurator.deactivate(self)
 
     def change_shape(self, index):
         if index != 0:
@@ -96,7 +96,7 @@ class MarkerEditor(behaviors.ClickableMixin):
         x, y = self.event_position()
 
         if self.in_bounds(x, y):
-            self.deactivate()
+            self.configurator.deactivate(self)
         else:
             h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
             h.show()
@@ -161,9 +161,6 @@ class MarkerEditor(behaviors.ClickableMixin):
 
     def delete(self):
         self.configurator.delete(self.marker, self.index)
-        self.deactivate()
-
-    def deactivate(self):
         self.configurator.deactivate(self)
 
     def save(self):
