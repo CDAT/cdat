@@ -1,6 +1,7 @@
 from vcs import vtk_ui
 from vcs.color_picker import ColorPicker
 from vcs.vtk_ui import behaviors
+from vcs.VCS_validation_functions import checkMarker
 
 class MarkerEditor(behaviors.ClickableMixin):
     def __init__(self, interactor, marker, index, configurator):
@@ -22,6 +23,24 @@ class MarkerEditor(behaviors.ClickableMixin):
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
         self.toolbar.add_slider_button(marker.size[index], 1, 300, "Marker Size", end=self.set_size)
+
+        self.type_bar = self.toolbar.add_toolbar("Marker Type", open_label="Change")
+
+        shapes = marker_shapes()
+
+        shapes.insert(0, "Select Shape")
+        self.shape_button = self.type_bar.add_button(shapes, action=self.change_shape)
+
+        wmos = wmo_shapes()
+        wmos.insert(0, "Select WMO Marker")
+
+        self.wmo_button = self.type_bar.add_button(wmos, action=self.change_wmo)
+
+        if self.marker.type[self.index] in shapes:
+            self.shape_button.set_state(shapes.index(self.marker.type[self.index]))
+        else:
+            self.wmo_button.set_state(wmos.index(self.marker.type[self.index]))
+
         # Used to store the color picker when it's active
         self.picker = None
 
@@ -35,6 +54,22 @@ class MarkerEditor(behaviors.ClickableMixin):
             pass
         else:
             self.deactivate()
+
+    def change_shape(self, index):
+        if index != 0:
+            self.marker.type[self.index] = marker_shapes()[index - 1]
+            self.wmo_button.set_state(0)
+            self.save()
+        else:
+            self.change_wmo(1)
+
+    def change_wmo(self, index):
+        if index != 0:
+            self.marker.type[self.index] = wmo_shapes()[index - 1]
+            self.shape_button.set_state(0)
+            self.save()
+        else:
+            self.change_shape(1)
 
     def set_size(self, size):
         self.marker.size[self.index] = size
@@ -117,6 +152,30 @@ class MarkerEditor(behaviors.ClickableMixin):
 
     def save(self):
         self.configurator.save()
+
+def marker_shapes():
+    # Returns all shapes that are supported (skips star for now), indexed numerically
+    shapes = []
+    for i in xrange(1, 20):
+        try:
+            val = checkMarker(None, "type", i)
+            # Star is busted right now, add it back in once it's fixed
+            shapes.append(val)
+        except ValueError:
+            pass
+    return shapes
+
+def wmo_shapes():
+    wmo = []
+    for i in xrange(100, 203):
+        try:
+            val = checkMarker(None, "type", i)
+            wmo.append(val)
+        except ValueError:
+            pass
+    return wmo
+
+
 
 def inside_marker(marker, x, y, screen_width, screen_height, index=None):
     if index is None:
