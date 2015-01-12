@@ -47,6 +47,10 @@ class Configurator(object):
             self.target = None
         self.save()
 
+    def delete(self, obj, index):
+        obj.priority = 0
+        self.save()
+
     def activate(self, obj, display):
         if display.g_type == "fillarea":
             editor = fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
