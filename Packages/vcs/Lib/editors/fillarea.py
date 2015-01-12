@@ -98,8 +98,22 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
                     del self.fill.x[self.index][ind]
                     del self.fill.y[self.index][ind]
                     self.rebuild()
+                    if len(self.fill.x[self.index]) < 2:
+                        del self.fill.x[self.index]
+                        del self.fill.y[self.index]
+                        del self.fill.color[self.index]
+
+                        if len(self.fill.x) == 0:
+                            self.delete()
+
+                        self.configurator.deactivate(self)
+                        return
+
+
                     self.save()
                     break
+    def delete(self):
+        self.configurator.delete(self.fill, self.index)
 
     def drag_move(self, delta_x, delta_y):
         for h in self.handles:
