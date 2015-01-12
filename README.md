@@ -1,6 +1,10 @@
-uvcdat [![Build Status](https://travis-ci.org/OpenGeoscience/geojs.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat)
+uvcdat
 ======
-DOI: [![DOI](https://zenodo.org/badge/6619/UV-CDAT/uvcdat.png)](http://dx.doi.org/10.5281/zenodo.12251)
+[![build status](https://travis-ci.org/OpenGeoscience/geojs.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat/builds)
+[![stable version](http://img.shields.io/badge/stable version-2.0.0-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/2.0.0)
+![repo size](https://reposs.herokuapp.com/?path=UV-CDAT/uvcdat)
+![platforms](http://img.shields.io/badge/platforms-linux | osx-lightgrey.svg)
+[![DOI](http://img.shields.io/badge/DOI-10.5281/zenodo.12251-orange.svg)](http://doi.org/10.5281/zenodo.12251)
 
 Developed by partnering with ESGF and the community to create a larger problem-solving environment, UV-CDAT is an open source, easy-to-use application that links together disparate software subsystems and packages to form an integrated environment for analysis and visualization. This project seeks to advance climate science by fulfilling computational and diagnostic/visualization capabilities needed for DOE's climate research.
 
