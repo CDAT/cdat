@@ -144,7 +144,6 @@ class MarkerEditor(behaviors.ClickableMixin):
 
             if len(self.marker.x) == 0:
                 self.delete()
-                self.deactivate()
                 return
 
             self.save()
@@ -162,6 +161,7 @@ class MarkerEditor(behaviors.ClickableMixin):
 
     def delete(self):
         self.configurator.delete(self.marker, self.index)
+        self.deactivate()
 
     def deactivate(self):
         self.configurator.deactivate(self)
