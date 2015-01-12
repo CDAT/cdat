@@ -130,10 +130,23 @@ class MarkerEditor(behaviors.ClickableMixin):
                 if x > m_x - w and x < m_x + w and y > m_y - h and y < m_y + h:
                     break
 
+
             del self.marker.x[self.index][ind]
             del self.marker.y[self.index][ind]
             self.handles[ind].detach()
             del self.handles[ind]
+
+            if len(self.marker.x[self.index]) == 0:
+                del self.marker.x[self.index]
+                del self.marker.y[self.index]
+                del self.marker.type[self.index]
+                del self.marker.color[self.index]
+
+            if len(self.marker.x) == 0:
+                self.delete()
+                self.deactivate()
+                return
+
             self.save()
 
     def detach(self):
@@ -146,6 +159,9 @@ class MarkerEditor(behaviors.ClickableMixin):
 
         for h in self.handles:
             h.detach()
+
+    def delete(self):
+        self.configurator.delete(self.marker, self.index)
 
     def deactivate(self):
         self.configurator.deactivate(self)
