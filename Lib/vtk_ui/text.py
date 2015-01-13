@@ -1,4 +1,4 @@
-from vtk import vtkTextActor, vtkTextWidget, vtkTextRepresentation, vtkTextRenderer
+from vtk import vtkTextActor, vtkTextWidget, vtkTextRepresentation, vtkTextRenderer, vtkInteractorStyle
 
 def __set_font(font, text_props):
     """
@@ -26,7 +26,6 @@ def text_actor(string, fgcolor, size, font):
     Build a text actor with some sane defaults
     """
 
-
     actor = vtkTextActor()
     actor.SetInput(string)
     props = actor.GetTextProperty()
@@ -34,7 +33,7 @@ def text_actor(string, fgcolor, size, font):
     __set_font(font, props)
     props.SetFontSize(size)
     props.SetColor(*fgcolor)
-    
+
     # Sane defaults.
     props.SetJustificationToCentered()
     props.SetVerticalJustificationToCentered()
@@ -79,7 +78,7 @@ class Label(Widget):
         super(Label, self).__init__(interactor, widget)
 
         self.widget.ResizableOff()
-        
+
         self.action = action
         self.left, self.top = left, top
         self.top_offset = 0
@@ -95,12 +94,11 @@ class Label(Widget):
     def set_text(self, string):
 
         below, above = baseline_offsets(self.actor.GetInput(), string, self.actor.GetTextProperty())
-        #print below, above
-        self.top_offset += above
 
-        self.actor.SetInput(string)
-        
+        self.top_offset += above
+        self.repr.SetText(string)
         self.place()
+        self.widget.Render()
 
     def set_font_size(self, size):
         prop = self.actor.GetTextProperty()
@@ -130,3 +128,149 @@ class Label(Widget):
         # Pass this to self.action
         if self.action is not None:
             self.action(self.interactor.GetEventPosition())
+
+class Textbox(Label):
+    def __init__(self, interactor, string, fgcolor=(0, 0, 0), size=24, font="Arial", left=0, top=0):
+        super(Textbox, self).__init__(interactor, string, action=self.clicked, fgcolor=fgcolor, size=size, font=font, left=left, top=top)
+        self.editing = False
+        self.edit_indicator = None
+        self.column = 0
+        self.row = 0
+        self.text = string
+        # OK, nevermind; we're going to need to swap out the interactor style when editing is enabled, so we can grab the keys.
+        # We'll initialize that here, then pass the keys into the typed function here.
+        # Since we're not subscribing to a notification from the widget, we need to do this manually
+        self.keyboard_observer = self.interactor.AddObserver("KeyPressEvent", self.typed, 1.0)
+
+    def get_char(self):
+        keycode = self.interactor.GetKeyCode()
+        if len(keycode) == 0 or ord(keycode) > 126 or ord(keycode) < 33:
+            keycode = self.interactor.GetKeySym()
+        return keycode
+
+    def add_character(self, character):
+        rows = self.text.split("\n")
+
+        row = rows[self.row]
+
+        if self.column >= len(row):
+            row += character
+            rows[self.row] = row
+            if character == "\n":
+                self.column = 0
+                self.row += 1
+            else:
+                self.column = len(row)
+        else:
+            row = row[:self.column] + character + row[self.column:]
+            rows[self.row] = row
+            if character != "\n":
+                self.column += 1
+            else:
+                self.row += 1
+                self.column = 0
+
+        self.text = "\n".join(rows)
+
+
+    def delete_character(self):
+        rows = self.text.split("\n")
+
+        if self.column == 0 and self.row > 0:
+            row = rows[self.row - 1]
+            self.column = len(row)
+            row += rows[self.row]
+            rows[self.row - 1] = row
+            del rows[self.row]
+            self.row -= 1
+        elif self.column == 0:
+            return
+        else:
+            row = rows[self.row]
+            if self.column < len(row):
+                print row, row[:self.column - 1], row[self.column:]
+                rows[self.row] = row[:self.column - 1] + row[self.column:]
+
+                self.column -= 1
+            else:
+                rows[self.row] = row[:-1]
+                self.column = len(row)
+
+        self.text = "\n".join(rows)
+
+
+    def typed(self, obj, event):
+        if self.editing:
+            c = self.get_char()
+
+            if c in "qQeEjJ3cCtTaAsS":
+                # Prevents VTK from doing stuff with these keys
+                self.interactor.SetKeyCode("`")
+
+            if c == "Backspace":
+                self.delete_character()
+            elif c == "Return":
+                self.add_character("\n")
+            elif len(c) == 1:
+                self.add_character(c)
+            elif c == "space":
+                self.add_character(" ")
+            elif c == "Escape":
+                self.editing = False
+            elif c[:5] == "Shift":
+                pass
+            elif c == "Tab":
+                self.add_character("\t")
+
+            if c in ("Left", "Right", "Up", "Down"):
+                rows = self.text.split("\n")
+
+                if c == "Left":
+                    if self.column == 0 and self.row > 0:
+                        self.row -= 1
+                        self.column = len(rows[self.row])
+                    else:
+                        self.column = max(0, self.column - 1)
+                elif c == "Right":
+                    if self.column == len(rows[self.row]) and self.row < len(rows) - 1:
+                        self.column = 0
+                        self.row += 1
+                    else:
+                        self.column = min(self.column + 1, len(rows[self.row]))
+                elif c == "Up":
+                    self.row = max(0, self.row - 1)
+                    self.column = min(len(rows[self.row]), self.columnQ)
+                elif c == "Down":
+                    if self.row == len(rows) - 1:
+                        self.column = len(rows[self.row])
+                    else:
+                        self.row += 1
+
+            if self.text[-2:] == "QQ":
+                self.editing = False
+                self.text = self.text[:-2]
+
+            self.update()
+
+    def set_text(self, text):
+        super(Textbox, self).set_text(text)
+        self.text = text
+
+    def update(self):
+        if self.repr.GetText() != self.text:
+            self.widget.On()
+            self.set_text(self.text)
+            self.widget.On()
+
+    def clicked(self, point):
+
+        self.editing = not self.editing
+        if self.editing:
+            rows = self.text.split("\n")
+            # This should get changed to figuring out which row and column based on where the click was
+            self.row = len(rows) - 1
+            self.column = len(rows[-1])
+
+    def detach(self):
+        print "detaching"
+        super(Textbox, self).detach()
