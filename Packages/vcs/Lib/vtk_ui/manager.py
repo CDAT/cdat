@@ -29,9 +29,6 @@ class InterfaceManager(object):
         if widget in self.widgets:
             self.widgets.remove(widget)
 
-        # Remove widget from renderer
-        widget.detach()
-
 
 # Support multiple render windows
 ui_managers = {}
