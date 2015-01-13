@@ -137,6 +137,7 @@ class Textbox(Label):
         self.column = 0
         self.row = 0
         self.text = string
+
         # OK, nevermind; we're going to need to swap out the interactor style when editing is enabled, so we can grab the keys.
         # We'll initialize that here, then pass the keys into the typed function here.
         # Since we're not subscribing to a notification from the widget, we need to do this manually
@@ -188,7 +189,6 @@ class Textbox(Label):
         else:
             row = rows[self.row]
             if self.column < len(row):
-                print row, row[:self.column - 1], row[self.column:]
                 rows[self.row] = row[:self.column - 1] + row[self.column:]
 
                 self.column -= 1
@@ -239,7 +239,7 @@ class Textbox(Label):
                         self.column = min(self.column + 1, len(rows[self.row]))
                 elif c == "Up":
                     self.row = max(0, self.row - 1)
-                    self.column = min(len(rows[self.row]), self.columnQ)
+                    self.column = min(len(rows[self.row]), self.column)
                 elif c == "Down":
                     if self.row == len(rows) - 1:
                         self.column = len(rows[self.row])
@@ -262,15 +262,97 @@ class Textbox(Label):
             self.set_text(self.text)
             self.widget.On()
 
-    def clicked(self, point):
+    def row_col_at_point(self, x, y):
+        rows = self.text.split("\n")
+        prop = self.actor.GetTextProperty()
 
+        text_width, text_height = text_dimensions(self.text, prop)
+
+        # Viewport coordinates of widget
+        sw, sh = self.interactor.GetRenderWindow().GetSize()
+
+        x0, y0 = self.left, sh - self.top
+
+        # Adjust click coords to widget's bounds
+        x = abs(x - x0)
+        y = text_height - abs(y - y0)
+
+
+        # Calculate the bounds of each row
+        row_bounds = []
+        max_width = 0
+        # We're iterating in reverse because y goes from 0 at the bottom to 1 at the top
+        row_at_point = None
+        for row in rows[::-1]:
+            if row == '':
+                row = " "
+
+            w, h = text_dimensions(row, prop)
+            row_bounds.append((w, h))
+
+            if w > max_width:
+                # Use for x offset calculations
+                max_width = w
+
+            if h < y and row_at_point is None:
+                y = y - h
+            else:
+                row_at_point = rows.index(row)
+
+        # List was assembled backwards
+        row_bounds.reverse()
+
+        # Now let's find the column clicked...
+        row = row_bounds[row_at_point]
+        text = rows[row_at_point]
+
+        # If max_width == row[0], then offset is 0 and all of the calcs below still work
+        x -= max_width - row[0]
+
+        row_left = 0
+        row_right = row[0]
+
+        if x < row_left:
+            # Clicked to the left of the row
+            return row_at_point, 0
+
+        if x > row_right:
+            # Clicked to the right of the row
+            return row_at_point, len(rows[row_at_point])
+
+        if row == '':
+            # Clicked on the blank row (inserted a space when calculating width earlier, for height considerations)
+            return row_at_point, 1
+
+        # OK, no easy answer; have to calc the width of each letter in the row till we find the column
+        # Start at left or right depending on which side the click is closer to
+        if x - row_left > row_right - x:
+            # Start from right
+            for reverse_index, c in enumerate(text[::-1]):
+                w,_ = text_dimensions(c, prop)
+                if row_right - w < x:
+                    return row_at_point, len(text) - reverse_index
+                # "New" right side is one character back
+                row_right -= w
+        else:
+            # Start from left
+            for index, c in enumerate(text):
+                w, _ = text_dimensions(c, prop)
+                if row_left + w > x:
+                    return row_at_point, index
+                # "New" left side is one character forward
+                row_left += w
+        # Return the very end of the box if we can't figure it out.
+        return len(rows) - 1, len(rows[len(rows) - 1])
+
+
+    def clicked(self, point):
         self.editing = not self.editing
+
         if self.editing:
-            rows = self.text.split("\n")
-            # This should get changed to figuring out which row and column based on where the click was
-            self.row = len(rows) - 1
-            self.column = len(rows[-1])
+            # TODO: Display border when editing.
+            self.row, self.column = self.row_col_at_point(*point)
+
 
     def detach(self):
-        print "detaching"
         super(Textbox, self).detach()
