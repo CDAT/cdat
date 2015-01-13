@@ -40,3 +40,4 @@ class Widget(object):
         self.widget.SetCurrentRenderer(None)
         self.widget.SetInteractor(None)
         self.widget.Off()
+        get_manager(self.interactor).remove_widget(self)
