@@ -539,7 +539,6 @@ class ButtonBarWidget(ButtonBar):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
             print " processStateChangeEvent: ", str( [ button_id, key, state ] )
-            self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
                 self.updateInteractionState( button_id, state  ) 
@@ -555,6 +554,8 @@ class ButtonBarWidget(ButtonBar):
                     for pindex in positions: self.releaseSlider( pindex ) 
                     configFunct.processInteractionEvent( [ "InitConfig", 0, False, self ] )
                     if (self.name <> "Configure"): self.handler.restoreInteractionState( state )
+
+            self.StateChangedSignal( button_id, key, state )
 
     #        config_function = self.configurableFunctions.get( button_id, None )
     #        if config_function: config_function.processStateChangeEvent( state )
@@ -624,8 +625,10 @@ class ButtonBarWidget(ButtonBar):
         ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
         if swidget:
             srep = swidget.GetRepresentation( )   
+            swidget.InvokeEvent("StartInteractionEvent")
             srep.SetValue( value  )
             swidget.InvokeEvent("InteractionEvent")
+            swidget.InvokeEvent("EndInteractionEvent")
             
     def initializeSliderPosition( self, index ):
         try:
