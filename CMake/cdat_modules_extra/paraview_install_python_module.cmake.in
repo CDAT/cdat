@@ -12,7 +12,7 @@ set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include @cdat_osx_cxxflags@")
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
 execute_process(
-  COMMAND env PYTHONPATH=@PYTHONPATH@ @PYTHON_EXECUTABLE@ setup.py install @PYTHON_EXTRA_PREFIX@
+  COMMAND env PYTHONPATH=@PYTHONPATH@ "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
   WORKING_DIRECTORY @ParaView_binary@/Utilities/VTKPythonWrapping
   RESULT_VARIABLE res)
 
