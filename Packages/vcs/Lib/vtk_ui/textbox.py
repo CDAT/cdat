@@ -23,7 +23,7 @@ class Textbox(Label):
         self.keyboard_observer = self.interactor.AddObserver("KeyPressEvent", self.typed, 1.0)
 
     def blink_cursor(self, obj, event):
-        if datetime.now() - self.last_blink < timedelta(0,0,0,600):
+        if datetime.now() - self.last_blink < timedelta(0,0,0,400):
             return
 
         self.last_blink = datetime.now()
@@ -108,12 +108,16 @@ class Textbox(Label):
                 self.add_character(" ")
             elif c == "Escape":
                 self.stop_editing()
+                return
             elif c[:5] == "Shift":
                 pass
             elif c == "Tab":
                 self.add_character("\t")
 
             if c in ("Left", "Right", "Up", "Down"):
+                # Reset blink counter
+                self.last_blink -= timedelta(0,0, 400)
+
                 rows = self.text.split("\n")
 
                 if c == "Left":
@@ -185,13 +189,12 @@ class Textbox(Label):
         cursor_left += (max_width - row_width) / 2.0
 
         if self.cursor:
-            self.cursor.hide()
             self.cursor.detach()
             del self.cursor
 
         self.cursor = Button(self.interactor, left=cursor_left, top=cursor_top, width=2, height=row_height, corner_radius=0, bgcolor=(0,0,0))
         self.cursor.show()
-        self.cursor.widget.Render()
+        #self.cursor.widget.Render()
 
 
     def row_col_at_point(self, x, y):
@@ -292,7 +295,11 @@ class Textbox(Label):
 
     def stop_editing(self):
         self.editing = False
-        self.cursor.hide()
+        c = self.cursor
+        self.cursor = None
+        self.editing = False
+        c.detach()
+        del c
         self.interactor.GetRenderWindow().Render()
 
     def detach(self):
