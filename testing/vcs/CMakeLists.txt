@@ -429,4 +429,10 @@ add_test(vcs_test_taylor_2_quads
       --bigvalues
       "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
       )
+    add_test(vcs_test_issue_960_labels
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
+      ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
+      ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
+      )
   endif()
