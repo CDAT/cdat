@@ -10,7 +10,7 @@ foreach( item ${ESMP_esmfmkfile})
 endforeach( item ${ESMP_esmfmkfile})
 
 execute_process(
-  COMMAND @PYTHON_EXECUTABLE@ generateESMP_Config.py
+  COMMAND "@PYTHON_EXECUTABLE@" generateESMP_Config.py
   WORKING_DIRECTORY @ESMP_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
