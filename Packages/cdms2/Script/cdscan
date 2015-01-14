@@ -5,12 +5,11 @@ import getopt
 import cdms2
 from cdms2.grid import lookupArray
 from cdms2.axis import calendarToTag, tagToCalendar
-from cdms2.cdmsobj import CdFromObject,CdString,CdScalar,CdFloat,CdDouble,CdShort,CdInt,CdLong,CdInt64
+from cdms2.cdmsobj import CdFromObject,CdString,CdScalar,CdFloat,CdDouble,CdShort,CdInt,CdLong
 import numpy
 import string
 import cdtime
 import os.path
-import pprint
 import copy
 import types
 from cdms2 import cdmsNode
@@ -109,7 +108,7 @@ Options:
 
     -j:		   scan time as a vector dimension. Time values are listed
 		   individually. Turns off the -i option.
-<<
+
     -l levels:     list of levels, comma-separated. Only specify if files are partitioned by
                    levels.
 
@@ -387,7 +386,7 @@ def useKeys(dict, typedict, timeIsLinear=0, referenceDelta = None, forecast=None
     compressPart = None
 #    partition = []
     partition = None
-    previ = 0
+#    previ = 0
     firstunits = None
 #    coordToInd = {(None,None):(None,None)}
 #    linCoordToInd = {(None,None):(None,None)}
@@ -402,7 +401,7 @@ def useKeys(dict, typedict, timeIsLinear=0, referenceDelta = None, forecast=None
         if firstunits is None:
             firstunits = units
         axislist.append(values)
-        prevj = previ+len(values)
+#        prevj = previ+len(values)
 #        coordToInd[(i0,i1)] = (previ, prevj)
 
     fullaxis = numpy.ma.concatenate(axislist)
@@ -1042,7 +1041,8 @@ def main(argv):
             tmpdict = {}
             for axisname in f.axes.keys():
                 axis = f[axisname]
-                if axis.isTime() and hasattr(axis, 'bounds'):
+                #was if axis.isTime() and hasattr(axis, 'bounds'):
+                if axis.isTime() and (axis.getBounds() is not None):
                     tmpdict[axis.bounds] = 1
             boundsids = tmpdict.keys()
 
@@ -1057,6 +1057,20 @@ def main(argv):
             fc_time_attrs = []
 
         varnames = f.variables.keys()
+
+        # try to force all axes to be included...
+        crude_var_axes = [ [ ax[0] for ax in var.getDomain() ] for var in f.variables.values() ]
+        var_axes = set().union( *crude_var_axes )
+        other_axes = list( set(f.axes.values()) - var_axes )
+        if len(other_axes)>0:
+            other_axes.sort( key=(lambda ax:ax.id) )
+            axisvar = cdms2.createVariable( numpy.ones([len(ax) for ax in other_axes]),
+                                            axes=other_axes, id='allaxesdummy')
+            axisvar.autoApiInfo = None    # all CdmsObj objects have this attribute, but for unknown
+            # reasons datasetnode.dump() fails trying to dump this attribute's default value (jfp)
+            varnames.append( axisvar.id )
+        # ...try to force all axes to be considered
+
         varnames.sort()
         for varname in varnames:
 
@@ -1068,7 +1082,11 @@ def main(argv):
                 if mobj is None:
                     continue
 
-            var = f.variables[varname]
+            # was var = f.variables[varname]
+            if varname=='allaxesdummy':
+                var = axisvar
+            else:
+                var = f.variables[varname]
 
             # Reset the variable ID to any specified alias
             if aliasMapFile is not None:
@@ -1142,7 +1160,7 @@ def main(argv):
             else:
                 currentdomain, attrs, tcode = vardict[var.id]
                 if comparedomains(currentdomain, tempdomain):
-                    sepname = disambig(var.id, vardict, var.size(), compareVarDictValues, (tempdomain, None))
+                    sepname = disambig(var.id, vardict, var.size, compareVarDictValues, (tempdomain, None))
                     saveid = var.id
                     varname  = var.id = sepname
                     varattrs = copyDict(var.attributes)
@@ -1182,8 +1200,8 @@ def main(argv):
                         if verbose:
                             print 'Setting time delta to', referenceDelta
 
-                    starttime = vartime[0]
-                    endtime = vartime[-1]
+#                    starttime = vartime[0]
+#                    endtime = vartime[-1]
                     startindex = timeindex(vartime[0], vartime.units, referenceTime, referenceDelta, calendar)
                     endindex = timeindex(vartime[-1], vartime.units, referenceTime, referenceDelta, calendar)
                     if forecast:
@@ -1232,7 +1250,9 @@ def main(argv):
                 filemap[varname] = [tuple(varentry)]
 
             # Set boundsmap : varid => timebounds_id
-            if splitOnTime and vartime is not None and hasattr(vartime, "bounds") and not boundsmap.has_key(varname):
+            #was if splitOnTime and vartime is not None and hasattr(vartime, "bounds") and not boundsmap.has_key(varname):
+            if splitOnTime and vartime is not None and (vartime.getBounds() is not None) and\
+                    not boundsmap.has_key(varname):
                 boundsmap[varname] = vartime.bounds
 
             # End of loop "for varname in varnames"

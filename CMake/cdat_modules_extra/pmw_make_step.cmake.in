@@ -2,7 +2,7 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 execute_process(
-  COMMAND @PYTHON_EXECUTABLE@ setup.py build
+  COMMAND "@PYTHON_EXECUTABLE@" setup.py build
   WORKING_DIRECTORY @Pmw_source@/src
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
