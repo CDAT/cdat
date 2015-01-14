@@ -524,7 +524,7 @@ class ButtonBarWidget(ButtonBar):
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
-#        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
+        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
@@ -538,7 +538,7 @@ class ButtonBarWidget(ButtonBar):
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
@@ -548,6 +548,7 @@ class ButtonBarWidget(ButtonBar):
                     self.updateInteractionState( button_id, state  )                
                 else:
                     if self.name == "Plot": self.resetInteractionButtons( b, 0 )
+                    else: self.InteractionState = None
                     configFunct = self.configurableFunctions.get( button_id, None )
                     position_index = configFunct.getPosition() if configFunct else None
                     positions = [ position_index ] if position_index else range(4)
@@ -603,6 +604,9 @@ class ButtonBarWidget(ButtonBar):
     def getConfigFunction( self, name ):
         return self.configurableFunctions.get(name,None)
 
+    def getConfigFunctions( self ):
+        return self.configurableFunctions.values()
+
     def removeConfigurableFunction(self, name ):        
         del self.configurableFunctions[name]
 
@@ -610,15 +614,18 @@ class ButtonBarWidget(ButtonBar):
         for configFunct in self.configurableFunctions.values():
             configFunct.applyParameter( **args  )
 
-    def updateSliderWidgets(self, value0, value1 ): 
-        for index, value in enumerate( ( value0, value1 ) ):
+    def updateSliderWidgets(self, values ):
+        print " Update Slider Widgets: values = ", str( values )
+        for index, value in enumerate( values ):
             if value <> None: self.setSliderValue( index, value )
+        self.render()
 
     def setSliderValue(self, index, value ):
         ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
         if swidget:
             srep = swidget.GetRepresentation( )   
             srep.SetValue( value  )
+            swidget.InvokeEvent("InteractionEvent")
             
     def initializeSliderPosition( self, index ):
         try:
@@ -662,6 +669,7 @@ class ButtonBarWidget(ButtonBar):
         sliderWidget.AddObserver("StartInteractionEvent", self.processStartInteractionEvent )
         sliderWidget.AddObserver("EndInteractionEvent", self.processEndInteractionEvent )
         sliderWidget.AddObserver("InteractionEvent", self.processInteractionEvent )
+
 #        sliderWidget.AddObserver("AnyEvent", self.processSliderEvent )
 #        eventTranslator = sliderWidget.GetEventTranslator()
 #        eventTranslator.SetTranslation (vtk.vtkCommand.RightButtonPressEvent, vtk.vtkWidgetEvent.ModifyEvent )
@@ -845,7 +853,8 @@ class ButtonBarWidget(ButtonBar):
 #         if config_state == None: 
 #             self.finalizeLeveling()
 #             self.endInteraction()   
-#         else:            
+#         else:
+        print " Update Interaction State: %s %s %s " % ( str(config_state), str(button_state), str(args) )
         configFunct = self.configurableFunctions.get( config_state, None )
         if self.InteractionState <> None: 
             prevConfigFunct = self.configurableFunctions[ self.InteractionState ]

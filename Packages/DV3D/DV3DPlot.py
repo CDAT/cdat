@@ -302,9 +302,14 @@ class DV3DPlot():
     def onClosing(self, cell ):
         print " ------> Closing!"
         self.stopAnimation()
-        self.cfgManager.parent.clear( cell )
-        self.terminate()
-        
+        if cell <> None:
+            self.cfgManager.parent.clear( cell )
+            self.terminate()
+            self.renderer.RemoveAllViewProps()
+            self.clearReferrents()
+            if self.renderWindowInteractor <> None:
+                self.renderWindowInteractor.TerminateApp()
+
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
 #         if pipeline == None: pipeline = self.getCurrentPipeline()
 #         if pipeline: UVCDATGuiConfigFunction.clearModules( pipeline )
@@ -314,10 +319,6 @@ class DV3DPlot():
 #        self.cellWidget = None 
 #        self.builtCellWidget = False    
  
-        self.renderer.RemoveAllViewProps()
-        self.clearReferrents()
-        if self.renderWindowInteractor <> None:
-            self.renderWindowInteractor.TerminateApp()
 
     def terminate( self ):
         pass
@@ -326,7 +327,7 @@ class DV3DPlot():
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.saveState()
-        self.onClosing()
+        self.onClosing(None)
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
@@ -958,7 +959,7 @@ class DV3DPlot():
          
     def onWindowExit( self, caller=None, event=None ):
         #print "Window Event: ", event
-        self.onClosing()
+        self.onClosing(None)
              
     def onAnyWindowEvent( self, caller=None, event=None ):
         pass
