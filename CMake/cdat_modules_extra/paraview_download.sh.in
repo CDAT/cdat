@@ -2,12 +2,10 @@
 
 cd @CMAKE_CURRENT_BINARY_DIR@/build/
 
-@GIT_EXECUTABLE@ clone @PARAVIEW_SOURCE@
+"@GIT_EXECUTABLE@" clone @PARAVIEW_SOURCE@
 cd ParaView
-@GIT_EXECUTABLE@ checkout @paraview_branch@ 
-
-
-@GIT_EXECUTABLE@ submodule init
+"@GIT_EXECUTABLE@" checkout @paraview_branch@
+"@GIT_EXECUTABLE@" submodule init
 
 SUBMODULES=`git submodule status | sed 's/.* //' | sed ':a;N;$!ba;s/\n/ /g'`
 
@@ -18,4 +16,4 @@ do
   git config "submodule.$SUBMODULE.url" $tmp
 done
 
-@GIT_EXECUTABLE@ submodule update --recursive
+"@GIT_EXECUTABLE@" submodule update --recursive
