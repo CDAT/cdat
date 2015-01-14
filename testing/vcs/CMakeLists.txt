@@ -209,6 +209,12 @@ add_test(vcs_test_taylor_2_quads
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.py
     "${BASELINE_DIR}/test_1D_with_manyDs.png"
     )
+  add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
+    ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
+    )
+
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)

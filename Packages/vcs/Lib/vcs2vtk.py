@@ -1120,7 +1120,7 @@ def prepMarker(renWin,marker,cmap=None):
       # Use the difference in x to scale the point, as later we'll use the
       # x range to correct the aspect ratio:
       dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
-      s *= float(dx)/500.
+      s *= abs(float(dx))/500.
     gs.SetScale(s)
     gs.Update()
 
