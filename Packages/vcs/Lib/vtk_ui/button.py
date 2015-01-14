@@ -218,7 +218,8 @@ class Button(Widget):
         self.place()
 
     def detach(self):
-        self.hide()
+        self.text_widget.detach()
+        super(Button, self).detach()
 
     def hide(self):
         self.text_widget.hide()
