@@ -1089,7 +1089,8 @@ def prepMarker(renWin,marker,cmap=None):
       apd.Update()
       g.SetSourceData(apd.GetOutput())
     elif t[:4] == "star":
-      points = starPoints(.01 * s, 0, 0)
+      np = 5
+      points = starPoints(.001 * s, 0, 0, np)
 
       pts = vtk.vtkPoints()
       # Add all perimeter points
@@ -1102,7 +1103,7 @@ def prepMarker(renWin,marker,cmap=None):
       pts.InsertNextPoint((0,0,0))
 
       polygons = vtk.vtkCellArray()
-      for ind in range(0, 10, 2):
+      for ind in range(0, np*2, 2):
         poly = vtk.vtkPolygon()
         pid = poly.GetPointIds()
         pid.SetNumberOfIds(4)
