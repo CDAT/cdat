@@ -194,6 +194,11 @@ add_test(vcs_test_taylor_2_quads
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.py
     "${BASELINE_DIR}/test_markers.png"
     )
+  add_test(vcs_test_star_triangle_markers
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_star_triangle_markers.py
+    "${BASELINE_DIR}/test_star_triangle_markers.png"
+    )
   add_test(vcs_test_boxfill_10x10_numpy
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
