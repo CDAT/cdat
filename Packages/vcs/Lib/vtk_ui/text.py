@@ -70,9 +70,13 @@ from widget import Widget
 
 class Label(Widget):
 
-    def __init__(self, interactor, string, action=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0):
+    def __init__(self, interactor, string, action=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
         widget = vtkTextWidget()
         self.actor = text_actor(string, fgcolor, size, font)
+
+        if textproperty is not None:
+            self.actor.SetTextProperty(textproperty)
+
         widget.SetTextActor(self.actor)
 
         super(Label, self).__init__(interactor, widget)
@@ -114,6 +118,7 @@ class Label(Widget):
         return bbox[0], bbox[1]
 
     def show(self):
+        self.place()
         self.widget.On()
 
     def hide(self):
