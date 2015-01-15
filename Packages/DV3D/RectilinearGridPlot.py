@@ -353,9 +353,15 @@ class RectGridPlot(StructuredGridPlot):
             plane_widget.beginSlicing()
         elif args and args[0] == "Init":
             primaryInput = self.input()
+            ispec = self.getInputSpec()
             slicePosition.setValue( 'count', 1 )
-            bounds = list( primaryInput.GetBounds() ) 
-            init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
+            if plane_index == 2:
+                lat = ispec.getMetadata('lev')
+                ordering = ispec.getMetadata('lev_ordering')
+                init_range = [ lat[0], lat[-1] ] if ( ordering == 'up' ) else [ lat[-1], lat[0] ]
+            else:
+                bounds = list( primaryInput.GetBounds() )
+                init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
             config_function.setRangeBounds( init_range ) 
             if config_function.initial_value == None:
                 config_function.initial_value = 0.0 if (plane_index == 2) else init_range 

@@ -617,7 +617,6 @@ class ButtonBarWidget(ButtonBar):
             configFunct.applyParameter( **args  )
 
     def updateSliderWidgets(self, values ):
-        print " Update Slider Widgets: values = ", str( values )
         for index, value in enumerate( values ):
             if value <> None: self.setSliderValue( index, value )
         self.render()
