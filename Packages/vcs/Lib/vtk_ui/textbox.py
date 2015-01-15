@@ -291,8 +291,9 @@ class Textbox(Label):
         c = self.cursor
         self.cursor = None
         self.editing = False
-        c.detach()
-        del c
+        if c:
+            c.detach()
+            del c
         self.interactor.GetRenderWindow().Render()
 
     def detach(self):
