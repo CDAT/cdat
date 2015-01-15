@@ -489,6 +489,7 @@ class ButtonBarWidget(ButtonBar):
         self.activeSliceIndex = 0  
         self.groups = {}
         self.configurableFunctions = collections.OrderedDict()
+        self.interaction_priority = 0
 
     def show( self, **args ):
         self.initializeChildren( **args )
@@ -624,11 +625,15 @@ class ButtonBarWidget(ButtonBar):
     def setSliderValue(self, index, value ):
         ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
         if swidget:
-            srep = swidget.GetRepresentation( )   
+            srep = swidget.GetRepresentation( )
+            self.setInteractionPriority( 1 )
             swidget.InvokeEvent("StartInteractionEvent")
             srep.SetValue( value  )
             swidget.InvokeEvent("InteractionEvent")
             swidget.InvokeEvent("EndInteractionEvent")
+
+    def setInteractionPriority( self, priority ):
+        self.interaction_priority = priority
             
     def initializeSliderPosition( self, index ):
         try:
@@ -768,7 +773,8 @@ class ButtonBarWidget(ButtonBar):
             srep = obj.GetRepresentation( ) 
             config_function = self.getConfigFunction( self.InteractionState )
             if config_function <> None:
-                config_function.processInteractionEvent( [ "UpdateConfig", self.getSliderIndex(obj), srep, event  ] )  
+                config_function.processInteractionEvent( [ "UpdateConfig", self.getSliderIndex(obj), srep, event, self.interaction_priority  ] )
+                self.interaction_priority = 0
             else:
                 print>>sys.stderr, " FAILED processInteractionEvent[%s]: ( %s %d )" % ( self.name, self.InteractionState, self.process_mode )
                                        
@@ -786,7 +792,7 @@ class ButtonBarWidget(ButtonBar):
             if config_function <> None:
                 shift_key = self.interactor.GetShiftKey()
                 if shift_key: self.processWidgetShiftCommand(  obj, slider_index, config_function )
-                config_function.processInteractionEvent( [ "StartConfig", slider_index ] )  
+                config_function.processInteractionEvent( [ "StartConfig", slider_index, self.interaction_priority ] )
             else:
                 print>>sys.stderr, " FAILED processStartInteractionEvent[%s]: ( %s %d )" % ( self.name, self.InteractionState, self.process_mode )
     
@@ -818,7 +824,7 @@ class ButtonBarWidget(ButtonBar):
         if ( self.InteractionState <> None ): 
             config_function = self.getConfigFunction( self.InteractionState )
             if config_function <> None:
-                config_function.processInteractionEvent( [ "EndConfig" ] )  
+                config_function.processInteractionEvent( [ "EndConfig" ] )
             else:
                 print>>sys.stderr, " FAILED processEndInteractionEvent[%s]: ( %s %d )" % ( self.name, self.InteractionState, self.process_mode )
 
