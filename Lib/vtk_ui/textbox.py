@@ -3,8 +3,8 @@ from button import Button
 from datetime import datetime, timedelta
 
 class Textbox(Label):
-    def __init__(self, interactor, string, fgcolor=(0, 0, 0), size=24, font="Arial", left=0, top=0, textproperty=None):
-        super(Textbox, self).__init__(interactor, string, fgcolor=fgcolor, size=size, font=font, left=left, top=top, textproperty=textproperty)
+    def __init__(self, interactor, string, fgcolor=(0, 0, 0), action=None, size=24, font="Arial", left=0, top=0, textproperty=None):
+        super(Textbox, self).__init__(interactor, string, fgcolor=fgcolor, action=action, size=size, font=font, left=left, top=top, textproperty=textproperty)
         self.editing = False
         self.edit_indicator = None
         self.column = 0
