@@ -62,13 +62,14 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
             if ind != index:
                 continue
 
-        # xcoord is the left side
-        # ycoord is the middle, vertically
         ycoord = text.y[ind]
-
         text_width, text_height = text_dimensions(text, ind, winsize)
 
-        if x > xcoord and x < xcoord + text_width and y < ycoord + text_height / 2.0 and y > ycoord - text_height / 2.0:
+
+        # ycoord is the middle, vertically, so let's adjust for that
+        ycoord -= text_height / 2.0
+        # xcoord is the left side
+        if x > xcoord and x < xcoord + text_width and y < ycoord + text_height and y > ycoord:
             return ind
 
     return None
