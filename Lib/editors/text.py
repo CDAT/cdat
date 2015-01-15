@@ -55,8 +55,26 @@ class TextEditor(ClickableMixin, DraggableMixin):
 
         self.handle_click(text_index, x, y)
 
-    def handle_click(self, text_index, x, y):
+    def double_release(self):
+        x, y = self.event_position()
 
+        text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
+
+        if text_index is None:
+
+            self.textboxes[self.index].stop_editing()
+            self.text.string[self.index] = self.textboxes[self.index].text
+
+            # Add a new text item to self.text, update, and start editing
+            new_index = len(self.text.x)
+            self.text.x.append(x)
+            self.text.y.append(y)
+            self.text.string.append("New Text")
+            self.update()
+            self.index = new_index
+            self.textboxes[self.index].start_editing((x, y))
+
+    def handle_click(self, text_index, x, y):
 
         if text_index == self.index:
             # Adjust cursor position
