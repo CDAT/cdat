@@ -3,8 +3,8 @@ from button import Button
 from datetime import datetime, timedelta
 
 class Textbox(Label):
-    def __init__(self, interactor, string, fgcolor=(0, 0, 0), size=24, font="Arial", left=0, top=0):
-        super(Textbox, self).__init__(interactor, string, action=self.clicked, fgcolor=fgcolor, size=size, font=font, left=left, top=top)
+    def __init__(self, interactor, string, fgcolor=(0, 0, 0), size=24, font="Arial", left=0, top=0, textproperty=None):
+        super(Textbox, self).__init__(interactor, string, fgcolor=fgcolor, size=size, font=font, left=left, top=top, textproperty=textproperty)
         self.editing = False
         self.edit_indicator = None
         self.column = 0
@@ -280,15 +280,8 @@ class Textbox(Label):
         # Return the very end of the box if we can't figure it out.
         return len(rows) - 1, len(rows[len(rows) - 1])
 
-
-    def clicked(self, point):
-        if self.editing:
-            self.stop_editing()
-        else:
-            self.row, self.column = self.row_col_at_point(*point)
-            self.start_editing()
-
-    def start_editing(self):
+    def start_editing(self, point):
+        self.row, self.column = self.row_col_at_point(*point)
         # Have to init the cursor before anything else
         self.place_cursor()
         self.editing = True
