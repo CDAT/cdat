@@ -77,7 +77,6 @@ class TextEditor(ClickableMixin, DraggableMixin):
         x, y = point
         winsize = self.interactor.GetRenderWindow().GetSize()
         clicked_on = inside_text(self.text, x, y, *winsize)
-        print clicked_on
         self.handle_click(clicked_on, x, y)
 
     def save(self):
