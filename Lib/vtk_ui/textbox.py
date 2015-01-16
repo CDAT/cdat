@@ -3,7 +3,7 @@ from button import Button
 from datetime import datetime, timedelta
 
 class Textbox(Label):
-    def __init__(self, interactor, string, **kwargs):
+    def __init__(self, interactor, string, on_editing_end=None, **kwargs):
 
         super(Textbox, self).__init__(interactor, string, **kwargs)
         self.editing = False
@@ -11,7 +11,7 @@ class Textbox(Label):
         self.column = 0
         self.row = 0
         self.text = string
-
+        self.on_editing_end = on_editing_end
         # This is a little hacky, but it'll work. We're going to use a button.
         self.cursor = None
 
@@ -299,6 +299,7 @@ class Textbox(Label):
         if c:
             c.detach()
             del c
+        self.on_editing_end(self)
         self.interactor.GetRenderWindow().Render()
 
     def place(self):
