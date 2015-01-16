@@ -1,4 +1,4 @@
-from vcs.vtk_ui import Textbox
+from vcs.vtk_ui import Textbox, Toolbar
 import vcs.vtk_ui.text
 from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
@@ -19,6 +19,9 @@ class TextEditor(ClickableMixin):
         configurator.save()
         self.textboxes = None
 
+        self.toolbar = Toolbar(self.interactor, "Text Options")
+        self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height, end=self.save_height)
+
         super(TextEditor, self).__init__()
         self.register()
         self.update()
@@ -26,6 +29,7 @@ class TextEditor(ClickableMixin):
     def update(self):
 
         if self.textboxes:
+
             for box in self.textboxes:
                 box.stop_editing()
                 box.detach()
@@ -118,11 +122,20 @@ class TextEditor(ClickableMixin):
         self.text.priority = self.old_priority
         self.configurator.deactivate(self)
 
+    def update_height(self, value):
+        self.text.height = value
+        self.update()
+
+    def save_height(self, value):
+        self.text.height = value
+        self.save()
+
     def detach(self):
         self.unregister()
         for box in self.textboxes:
             box.detach()
         del self.textboxes
+        self.toolbar.detach()
 
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
