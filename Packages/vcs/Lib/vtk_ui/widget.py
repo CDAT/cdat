@@ -9,6 +9,7 @@ class Widget(object):
         self.subscriptions = {}
         self.manager = get_manager(interactor)
         self.manager.add_widget(self)
+        super(Widget, self).__init__()
 
     def subscribe(self, event, action):
         if event in self.subscriptions:
