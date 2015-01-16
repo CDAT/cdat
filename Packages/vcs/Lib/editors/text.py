@@ -35,7 +35,9 @@ class TextEditor(ClickableMixin):
         self.bottom_align_button = valign_bar.add_toggle_button("Bottom Align", on=self.align_bottom, off=self.dealign_bottom)
 
         self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle, end=self.save_angle)
-
+        self.fonts = sorted(vcs.elements["font"].keys())
+        font_button = self.toolbar.add_button(self.fonts, action=self.change_font)
+        font_button.set_state(self.fonts.index(vcs.elements["fontNumber"][self.text.font]))
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
 
@@ -270,6 +272,10 @@ class TextEditor(ClickableMixin):
             box.show()
         self.text.priority = 0
         self.save()
+
+    def change_font(self, state):
+        self.text.font = self.fonts[state]
+        self.update()
 
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
