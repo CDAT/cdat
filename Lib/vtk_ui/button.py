@@ -38,7 +38,7 @@ class Button(Widget):
                  opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN):
         """
         @kwargs:
-            
+
             renderer: Which renderer to use from the interactor's RenderWindow
             action: A callback function that will receive the current state ID when the button is clicked.
             width: if width is None, use the size of the label to determine width
@@ -54,7 +54,7 @@ class Button(Widget):
             halign: If the button states have multiple widths (different labels/images), this will align them horizontally as specified
             valign: If the button states have multiple heights (labels with newlines, images), this will align them vertically as specified
         """
-        
+
         self.width = width
         self.height = height
         self.left = left
@@ -66,7 +66,7 @@ class Button(Widget):
         if halign not in (LEFT_ALIGN, RIGHT_ALIGN, CENTER_ALIGN):
             raise TypeError("halign must be one of LEFT_ALIGN, RIGHT_ALIGN, or CENTER_ALIGN")
         self.halign = halign
-        
+
         if valign not in (TOP_ALIGN, BOTTOM_ALIGN, CENTER_ALIGN):
             raise TypeError("valign must be one of TOP_ALIGN, BOTTOM_ALIGN, or CENTER_ALIGN")
         self.valign = valign
@@ -74,13 +74,13 @@ class Button(Widget):
             self.image = load_image(image)
         else:
             self.image = None
-        
+
         self.__placing__ = False
 
         text = states[0].label if states else label
         # Text widget will be placed over the button; clicks on it have to propogate down
-        self.text_widget = Label(interactor, text, action = self.__advance__, size=size)
-        
+        self.text_widget = Label(interactor, text, on_click = self.__advance__, size=size)
+
         self.label = label
         self.size = size
         self.opacity = opacity
@@ -91,12 +91,12 @@ class Button(Widget):
             self.states = states
         else:
             self.states = [ButtonState(label=label)]
-        
+
         widget = vtk.vtkButtonWidget()
         widget.SetRepresentation(vtk.vtkTexturedButtonRepresentation2D())
 
         super(Button, self).__init__(interactor, widget)
-        
+
         if self.renderer:
             self.repr.SetRenderer(self.renderer)
         self.update()
@@ -108,14 +108,14 @@ class Button(Widget):
     def place(self):
         width, height = self.get_dimensions()
         x, y = self.__get_position__()
-        
+
         bounds = (x, x + width, y - height, y, 0, 0)
-        
+
         self.repr.SetPlaceFactor(1)
         self.repr.PlaceWidget(bounds)
 
         text_width, text_height = self.text_widget.get_dimensions()
-        
+
         self.text_widget.left = self.left + (width - text_width) / 2.0
         self.text_widget.top = self.top + BUTTON_MARGIN
 
@@ -141,7 +141,7 @@ class Button(Widget):
         for index, state in enumerate(self.states):
             # Set up attributes with defaults if nothing is set
             label_text = state.label if state.label else self.label
-            
+
             if label_text:
                 l_w, l_h = text_dimensions(label_text, self.text_widget.actor.GetTextProperty())
 
@@ -182,7 +182,7 @@ class Button(Widget):
         default_texture = self.repr.GetButtonTexture(0)
         dwidth, dheight, _ = default_texture.GetDimensions()
         width, height = self.get_dimensions()
-        
+
         window = self.interactor.GetRenderWindow()
         size = window.GetSize()
 
@@ -196,15 +196,15 @@ class Button(Widget):
         if dheight == height or self.valign == TOP_ALIGN:
             top = self.top
         elif self.valign == CENTER_ALIGN:
-            top = (self.top - (height - dheight) / 2) 
+            top = (self.top - (height - dheight) / 2)
         elif self.valign == BOTTOM_ALIGN:
             top = (self.top - (height - dheight))
 
         return left, size[1] - top
-    
+
     def get_state(self):
         return self.repr.GetState()
-    
+
     def set_state(self, state):
         new_state = self.states[state]
         label = self.label if new_state.label is None else new_state.label
@@ -235,7 +235,7 @@ class Button(Widget):
         self.place()
         state = self.get_state()
         button_state = self.states[state]
-        
+
         self.text_widget.set_text( button_state.label if button_state.label else self.label )
         self.text_widget.set_font_color( button_state.fgcolor if button_state.fgcolor else self.fgcolor )
         self.place()
@@ -263,11 +263,11 @@ class ToggleButton(Button):
     def __init__(self, interactor, label, on=None, off=None, renderer=None, corner_radius=5, width=None,
                  height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, on_prefix="Enable", off_prefix="Disable"):
-        
+
         super(ToggleButton, self).__init__(interactor, renderer=renderer, action=self.toggle, corner_radius=corner_radius, width=width,
                  height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor,
                  opacity=opacity, size=size, states=states if states else [ButtonState(label="%s %s" % (on_prefix, label)), ButtonState(label="%s %s" % (off_prefix, label))], halign=halign, valign=valign)
-        
+
         self.on = on
         self.off = off
         self.label = label
@@ -278,14 +278,14 @@ class ToggleButton(Button):
             self.on()
         else:
             self.off()
-    
+
     def copy(self, interactor):
         b = ToggleButton(interactor, self.label, on=self.on, off=self.off, renderer=self.renderer, corner_radius=self.radius, width=self.width,
                  height=self.height, left=self.left, top=self.top, image=self.image, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
                  opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
-        
+
         state = self.repr.GetState()
-        
+
         if state != 0:
             b.set_state(state)
             b.on()
@@ -307,7 +307,7 @@ class SliderButton(ToggleButton):
         super(SliderButton, self).__init__(interactor, label, renderer=renderer, on=self.slider.show, off=self.slider.hide, corner_radius=corner_radius, width=width,
                  height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor,
                  opacity=opacity, size=size, states= states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
-    
+
     def get_value(self):
         return self.slider.repr.GetValue()
 
@@ -347,4 +347,4 @@ class SliderButton(ToggleButton):
             b.action(state)
 
         return b
-        
+

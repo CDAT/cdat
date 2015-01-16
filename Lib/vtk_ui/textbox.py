@@ -3,8 +3,9 @@ from button import Button
 from datetime import datetime, timedelta
 
 class Textbox(Label):
-    def __init__(self, interactor, string, fgcolor=(0, 0, 0), action=None, size=24, font="Arial", left=0, top=0, textproperty=None):
-        super(Textbox, self).__init__(interactor, string, fgcolor=fgcolor, action=action, size=size, font=font, left=left, top=top, textproperty=textproperty)
+    def __init__(self, interactor, string, **kwargs):
+
+        super(Textbox, self).__init__(interactor, string, **kwargs)
         self.editing = False
         self.edit_indicator = None
         self.column = 0
@@ -280,8 +281,13 @@ class Textbox(Label):
         # Return the very end of the box if we can't figure it out.
         return len(rows) - 1, len(rows[len(rows) - 1])
 
-    def start_editing(self, point):
-        self.row, self.column = self.row_col_at_point(*point)
+    def start_editing(self, point=None):
+        if point is not None:
+            self.row, self.column = self.row_col_at_point(*point)
+        else:
+            rows = self.text.split("\n")
+            self.row = len(rows) - 1
+            self.column = len(rows[-1])
         # Have to init the cursor before anything else
         self.place_cursor()
         self.editing = True
@@ -290,11 +296,14 @@ class Textbox(Label):
         self.editing = False
         c = self.cursor
         self.cursor = None
-        self.editing = False
         if c:
             c.detach()
             del c
         self.interactor.GetRenderWindow().Render()
+
+    def place(self):
+        super(Textbox, self).place()
+        self.place_cursor()
 
     def detach(self):
         if self.cursor is not None:
