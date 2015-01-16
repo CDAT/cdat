@@ -34,6 +34,8 @@ class TextEditor(ClickableMixin):
         self.half_align_button = valign_bar.add_toggle_button("Half Align", on=self.align_half, off=self.dealign_half)
         self.bottom_align_button = valign_bar.add_toggle_button("Bottom Align", on=self.align_bottom, off=self.dealign_bottom)
 
+        self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle, end=self.save_angle)
+
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
 
@@ -43,7 +45,6 @@ class TextEditor(ClickableMixin):
         self.toggle_valign_buttons()
 
     def update(self):
-
         if self.textboxes:
 
             for box in self.textboxes:
@@ -64,7 +65,7 @@ class TextEditor(ClickableMixin):
 
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
             x = x * w
-            y = h - y * h
+            y = h - y * h # mirror the y axis for widgets
             if self.text.valign in ("half", 2):
                 y -= text_height / 2.0
             elif self.text.valign in ("bottom", "base", 3, 4):
@@ -255,6 +256,20 @@ class TextEditor(ClickableMixin):
     def dealign_bottom(self):
         self.text.valign = "top"
         self.toggle_valign_buttons()
+
+    def update_angle(self, value):
+
+        for box in self.textboxes:
+            box.hide()
+        self.text.angle = int(value)
+        self.text.priority = self.old_priority
+        self.save()
+
+    def save_angle(self, value):
+        for box in self.textboxes:
+            box.show()
+        self.text.priority = 0
+        self.save()
 
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
