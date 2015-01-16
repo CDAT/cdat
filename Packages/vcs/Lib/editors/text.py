@@ -22,13 +22,25 @@ class TextEditor(ClickableMixin):
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
         self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height, end=self.save_height)
+        halign_bar = self.toolbar.add_toolbar("Horizontal Align")
+
+        self.left_align_button = halign_bar.add_toggle_button("Left Align", on=self.align_left, off=self.dealign_left)
+        self.center_align_button = halign_bar.add_toggle_button("Center Align", on=self.align_center, off=self.dealign_center)
+        self.right_align_button = halign_bar.add_toggle_button("Right Align", on=self.align_right, off=self.dealign_right)
+
+        valign_bar = self.toolbar.add_toolbar("Vertical Align")
+
+        self.top_align_button = valign_bar.add_toggle_button("Top Align", on=self.align_top, off=self.dealign_top)
+        self.half_align_button = valign_bar.add_toggle_button("Half Align", on=self.align_half, off=self.dealign_half)
+        self.bottom_align_button = valign_bar.add_toggle_button("Bottom Align", on=self.align_bottom, off=self.dealign_bottom)
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
 
         super(TextEditor, self).__init__()
         self.register()
-        self.update()
+        self.toggle_halign_buttons()
+        self.toggle_valign_buttons()
 
     def update(self):
 
@@ -42,22 +54,37 @@ class TextEditor(ClickableMixin):
         self.textboxes = []
         w, h = self.interactor.GetRenderWindow().GetSize()
         cmap = vcs.getcolormap()
+
+        prop = vtkTextProperty()
+        vcs.vcs2vtk.prepTextProperty(prop, (w, h), self.text, self.text, cmap)
+
         for ind, x in enumerate(self.text.x):
             y = self.text.y[ind]
             string = self.text.string[ind]
 
-            prop = vtkTextProperty()
-            vcs.vcs2vtk.prepTextProperty(prop, (w, h), self.text, self.text, cmap)
-
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
+            x = x * w
+            y = h - y * h
+            if self.text.valign in ("half", 2):
+                y -= text_height / 2.0
+            elif self.text.valign in ("bottom", "base", 3, 4):
+                y -= text_height
 
-            textbox = Textbox(self.interactor, string, left=int(x * w), top=int( h * (1 - y) - text_height / 2.0 ), movable=True, on_move=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
+            if self.text.halign in ("right", 2):
+                x -= text_width
+            elif self.text.halign in ("center", 1):
+                x -= text_width / 2.0
+
+            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_move=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
             textbox.show()
 
             if ind == self.index:
                 textbox.start_editing()
 
             self.textboxes.append(textbox)
+
+    def finished_editing(self, textbox):
+        self.text.string[self.textboxes.index(textbox)] = textbox.text
 
     def in_bounds(self, x, y):
         return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
@@ -76,7 +103,6 @@ class TextEditor(ClickableMixin):
         if text_index is None:
 
             self.textboxes[self.index].stop_editing()
-            self.text.string[self.index] = self.textboxes[self.index].text
 
             # Add a new text item to self.text, update, and start editing
             new_index = len(self.text.x)
@@ -102,7 +128,7 @@ class TextEditor(ClickableMixin):
             return
         else:
             self.textboxes[self.index].stop_editing()
-            self.text.string[self.index] = self.textboxes[self.index].text
+
             if text_index is None:
                 self.deactivate()
             else:
@@ -156,13 +182,89 @@ class TextEditor(ClickableMixin):
         del self.textboxes
         self.toolbar.detach()
 
+    def toggle_halign_buttons(self):
+        halign = self.text.halign
+        buttons = [self.left_align_button, self.right_align_button, self.center_align_button]
+
+        if halign in ("left", 0):
+            states = [1, 0, 0]
+        elif halign in ("right", 2):
+            states = [0, 1, 0]
+        else:
+            states = [0, 0, 1]
+
+        for state, button in zip(states, buttons):
+            button.set_state(state)
+
+        self.update()
+
+    def toggle_valign_buttons(self):
+        valign = self.text.valign
+        buttons = [self.top_align_button, self.bottom_align_button, self.half_align_button]
+
+        if valign in ("top", 0, 'cap', 1):
+            states = [1, 0, 0]
+        elif valign in ("bottom", 'base', 3, 4):
+            states = [0, 1, 0]
+        else:
+            states = [0, 0, 1]
+
+        for state, button in zip(states, buttons):
+            button.set_state(state)
+
+        self.update()
+
+
+    def align_left(self):
+        self.text.halign = "left"
+        self.toggle_halign_buttons()
+    def dealign_left(self):
+        self.toggle_halign_buttons()
+
+    def align_center(self):
+        self.text.halign = "center"
+        self.toggle_halign_buttons()
+
+    def dealign_center(self):
+        self.text.halign = "left"
+        self.toggle_halign_buttons()
+
+    def align_right(self):
+        self.text.halign = "right"
+        self.toggle_halign_buttons()
+    def dealign_right(self):
+        self.text.halign = "left"
+        self.toggle_halign_buttons()
+
+    def align_top(self):
+        self.text.valign = "top"
+        self.toggle_valign_buttons()
+    def dealign_top(self):
+        self.toggle_valign_buttons()
+
+    def align_half(self):
+        self.text.valign = "half"
+        self.toggle_valign_buttons()
+    def dealign_half(self):
+        self.text.valign = "top"
+        self.toggle_valign_buttons()
+
+    def align_bottom(self):
+        self.text.valign = "bottom"
+        self.toggle_valign_buttons()
+    def dealign_bottom(self):
+        self.text.valign = "top"
+        self.toggle_valign_buttons()
+
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
     vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop)
 
 def inside_text(text, x, y, screen_width, screen_height, index=None):
+
     winsize = (screen_width, screen_height)
+
     if x > 1:
         x = x / float(screen_width)
     if y > 1:
@@ -177,9 +279,18 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
         text_width, text_height = text_dimensions(text, ind, winsize)
         text_width = text_width / float(screen_width)
         text_height = text_height / float(screen_height)
-        # ycoord is the middle, vertically, so let's adjust for that
-        ycoord -= text_height / 2.0
-        # xcoord is the left side
+
+
+        if text.valign in ("half", 2):
+            ycoord -= text_height / 2.0
+        elif text.valign in ("top", 0):
+            ycoord -= text_height
+
+        if text.halign in ("right", 2):
+            xcoord -= text_width
+        elif text.halign in ("center", 1):
+            xcoord -= text_width / 2.0
+
         if x > xcoord and x < xcoord + text_width and y < ycoord + text_height and y > ycoord:
             return ind
 
