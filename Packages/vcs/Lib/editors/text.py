@@ -1,5 +1,6 @@
 from vcs.vtk_ui import Textbox, Toolbar
 import vcs.vtk_ui.text
+from vcs.colorpicker import ColorPicker
 from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
 import vcs
@@ -21,6 +22,9 @@ class TextEditor(ClickableMixin):
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
         self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height, end=self.save_height)
+
+        self.picker = None
+        self.toolbar.add_button(["Change Color"], action=self.change_color)
 
         super(TextEditor, self).__init__()
         self.register()
@@ -106,7 +110,6 @@ class TextEditor(ClickableMixin):
                 self.index = text_index
                 self.textboxes[self.index].start_editing((x, y))
 
-
     def textbox_clicked(self, point):
         x, y = point
 
@@ -129,6 +132,22 @@ class TextEditor(ClickableMixin):
     def save_height(self, value):
         self.text.height = value
         self.save()
+
+    def change_color(self, state):
+        if self.picker:
+            self.picker.make_current()
+        else:
+            self.picker = ColorPicker(500, 500, vcs.getcolormap(), self.text.color, on_save=self.set_color, on_cancel=self.cancel_color)
+
+    def set_color(self, cmap, color):
+        self.text.color = color
+        self.update()
+        self.picker = None
+        #text colormap is currently not in place, will be later.
+        #self.text.colormap = cmap
+
+    def cancel_color(self):
+        self.picker = None
 
     def detach(self):
         self.unregister()
