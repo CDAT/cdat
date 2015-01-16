@@ -1,10 +1,10 @@
 from vcs.vtk_ui import Textbox
 import vcs.vtk_ui.text
 from vtk import vtkTextProperty
-from vcs.vtk_ui.behaviors import DraggableMixin, ClickableMixin
+from vcs.vtk_ui.behaviors import ClickableMixin
 import vcs
 
-class TextEditor(ClickableMixin, DraggableMixin):
+class TextEditor(ClickableMixin):
     def __init__(self, interactor, text, index, configurator):
 
         self.interactor = interactor
@@ -24,10 +24,13 @@ class TextEditor(ClickableMixin, DraggableMixin):
         self.update()
 
     def update(self):
+
         if self.textboxes:
             for box in self.textboxes:
+                box.stop_editing()
                 box.detach()
             del self.textboxes
+
         self.textboxes = []
         w, h = self.interactor.GetRenderWindow().GetSize()
         cmap = vcs.getcolormap()
@@ -40,17 +43,19 @@ class TextEditor(ClickableMixin, DraggableMixin):
 
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
 
-            textbox = Textbox(self.interactor, string, left=int(x * w), top=int( h * (1 - y) - text_height / 2.0 ), action=self.textbox_clicked, textproperty=prop)
+            textbox = Textbox(self.interactor, string, left=int(x * w), top=int( h * (1 - y) - text_height / 2.0 ), movable=True, on_move=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
             textbox.show()
+
+            if ind == self.index:
+                textbox.start_editing()
+
             self.textboxes.append(textbox)
 
     def in_bounds(self, x, y):
         return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
 
     def click_release(self):
-
         x, y = self.event_position()
-
         text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
 
         self.handle_click(text_index, x, y)
@@ -67,12 +72,19 @@ class TextEditor(ClickableMixin, DraggableMixin):
 
             # Add a new text item to self.text, update, and start editing
             new_index = len(self.text.x)
+
             self.text.x.append(x)
             self.text.y.append(y)
             self.text.string.append("New Text")
-            self.update()
+
             self.index = new_index
-            self.textboxes[self.index].start_editing((x, y))
+            self.update()
+
+    def moved_textbox(self):
+        box = self.textboxes[self.index]
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        self.text.x[self.index] = box.left / float(w)
+        self.text.y[self.index] = (h - box.top - box.get_dimensions()[1] / 2.0) / float(h)
 
     def handle_click(self, text_index, x, y):
 
@@ -93,7 +105,9 @@ class TextEditor(ClickableMixin, DraggableMixin):
 
     def textbox_clicked(self, point):
         x, y = point
+
         winsize = self.interactor.GetRenderWindow().GetSize()
+
         clicked_on = inside_text(self.text, x, y, *winsize)
         self.handle_click(clicked_on, x, y)
 
