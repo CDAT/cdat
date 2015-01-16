@@ -1,6 +1,6 @@
 from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
-from vcs.color_picker import ColorPicker
+from vcs.colorpicker import ColorPicker
 
 class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     styles = ["solid", "dash", "dot", "dash-dot", "long-dash"]
