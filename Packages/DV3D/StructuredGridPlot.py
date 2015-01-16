@@ -110,7 +110,6 @@ class StructuredGridPlot(DV3DPlot):
             wbounds = ispec.getDataBounds( zscale=vscale )
             self.zscaleBoxWidget.PlaceWidget( wbounds )
 
-
 #     def onKeyEvent(self, eventArgs ):
 #         key = eventArgs[0]
 #         md = self.getInputSpec().getMetadata()

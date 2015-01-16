@@ -821,13 +821,15 @@ class ConfigurableFunction:
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
         
-    def updateInitialization( self, default_init_val=None ):
-        ival = self.value.getInitValue()
-        if ival <> None:
-            self.initial_value = ival
-        elif (self.initial_value == None):
-            self.initial_value = default_init_val          
-        return self.initial_value
+    # def updateInitialization( self, default_init_val=None ):
+    #     ival = self.value.getInitValue()
+    #     if ival <> None:
+    #         self.initial_value = ival
+    #     elif (self.initial_value == None):
+    #         self.initial_value = default_init_val
+    #     if self.name == 'ZSlider':
+    #         print 'updateInitialization: ', str( self.initial_value )
+    #     return self.initial_value
         
     def getState(self):
         return self.value.getValue('state')
@@ -926,20 +928,16 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
         self.UpdateSlidingSignal =SIGNAL('updateSliding')
         self.type = 'slider'
         self._range_bounds = args.get( 'range_bounds', None )
+        self._slider_bounds = None
+        self._slider_bounds_relative = True
         self._initial_range = None
         self.position = args.get( 'position', None )
         if self.initial_value <> None:
             for index, value in enumerate( self.initial_value ):
                 self.value.setValue( index, value )
-                
+
     def getPosition(self):
         return self.position[0] if self.position else None
-
-    def scaleRange( self, scale_factor ):
-        if self._initial_range == None: 
-            self._initial_range = self._range_bounds
-        if self._initial_range <> None:
-            self._range_bounds = [ irv * scale_factor for irv in self._initial_range ]
 
     def getValueLength(self):
         return len( self.sliderLabels )
@@ -949,7 +947,21 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
 
     def setRangeBounds(self, value):
         self._range_bounds = copy.copy( value )
-         
+
+    def getSliderBounds(self):
+        if self._slider_bounds == None:
+            self.setSliderBoundsToRange()
+        return copy.copy( self._slider_bounds )
+
+    def setSliderBoundsToRange( self ):
+        self._slider_bounds = copy.copy( self._range_bounds )
+        self._slider_bounds_relative = False
+
+    def setSliderBoundsToRelative( self ):
+        self._slider_bounds = [ 0.0, 1.0 ]
+        self._slider_bounds_relative = True
+
+
 def getTitle( dsid, name, attributes, showUnits=False ):
     long_name = attributes.get( 'long_name', attributes.get( 'standard_name', name ) )
     if not showUnits: return "%s:%s" % ( dsid, long_name )

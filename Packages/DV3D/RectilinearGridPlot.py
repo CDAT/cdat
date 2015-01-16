@@ -355,22 +355,27 @@ class RectGridPlot(StructuredGridPlot):
             primaryInput = self.input()
             ispec = self.getInputSpec()
             slicePosition.setValue( 'count', 1 )
+            bounds = list( primaryInput.GetBounds() )
             if plane_index == 2:
                 lat = ispec.getMetadata('lev')
                 ordering = ispec.getMetadata('lev_ordering')
                 init_range = [ lat[0], lat[-1] ] if ( ordering == 'up' ) else [ lat[-1], lat[0] ]
             else:
-                bounds = list( primaryInput.GetBounds() )
                 init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
-            config_function.setRangeBounds( init_range ) 
+            config_function.setRangeBounds( init_range )
             if config_function.initial_value == None:
                 config_function.initial_value = 0.0 if (plane_index == 2) else init_range 
             pos = config_function.initial_value[0] if hasattr( config_function.initial_value, '__getitem__' ) else config_function.initial_value
             if plane_index == 2:
-                slicePosition.setValue( 'relative',  pos ) 
-                pos = plane_widget.SetSlicePositionFromRelative( pos )
-            slicePosition.setValues( [ pos ] )  
-            plane_widget.SetSlicePosition( pos )           
+                stage_position = plane_widget.ConvertPositionFromRelative( pos )
+                plane_widget.SetSlicePosition( stage_position )
+                value = bounds[0] + pos * ( bounds[1] - bounds[0] )
+                slicePosition.setValues( [ value ] )
+                slicePosition.setValue( 'relative',  pos )
+                config_function.setSliderBoundsToRelative()
+            else:
+                plane_widget.SetSlicePosition( pos )
+            slicePosition.setValues( [ pos ] )
             state =  config_function.getState()
             if state <> None:            
                 bbar = self.getPlotButtonbar()
@@ -406,17 +411,25 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            priority = args[4]
-            count = 0 if (priority > 0) else slicePosition.incrementValue( 'count' )
-            if count % self.skipIndex == 0:
-                value = args[2].GetValue()
-#                if (plane_index == 2) and (value < 0.01): value = 0.01
-                print " Set slice position: ", str( value )
-                plane_widget.SetSlicePosition( value )
+            if (plane_index == 2):
+                relative_position = args[2].GetValue()
+                bounds = config_function.getRangeBounds()
+                position = plane_widget.ConvertPositionFromRelative( relative_position )
+                plane_widget.SetSlicePosition( position )
+                value = bounds[0] + relative_position * ( bounds[1] - bounds[0] )
                 slicePosition.setValues( [ value ] )
-                if (plane_index == 2) :
-                    slicePosition.setValue( 'relative',  plane_widget.ConvertPositionToRelative( value ) ) 
-                self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+                slicePosition.setValue( 'relative',  relative_position  )
+            else:
+                priority = args[4]
+                count = 0 if (priority > 0) else slicePosition.incrementValue( 'count' )
+                if count % self.skipIndex == 0:
+                    value = args[2].GetValue()
+                    print " Set slice position: ", str( value )
+                    plane_widget.SetSlicePosition( value )
+                    slicePosition.setValues( [ value ] )
+                    if (plane_index == 2) :
+                        slicePosition.setValue( 'relative',  plane_widget.ConvertPositionToRelative( value ) )
+            self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
  
     def resetCamera(self, **args):
         self.cropRegion = self.getVolumeBounds()
@@ -1416,13 +1429,10 @@ class RectGridPlot(StructuredGridPlot):
             bounds = list( primaryInput.GetBounds() ) 
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
-                self.planeWidgetY.PlaceWidget( bounds ) 
-        plotButtons = self.getPlotButtonbar()
-        if plotButtons <> None:
-            cf = plotButtons.getConfigFunction('ZSlider')
-            if cf: 
-                cf.scaleRange( zscale_data[0] )
-            self.render()               
+                self.planeWidgetY.PlaceWidget( bounds )
+                self.planeWidgetZ.UpdateDataBounds()
+                self.planeWidgetZ.PlaceWidget( bounds )
+            self.render()
 
     def setInputZScale( self, zscale_data, input_index, **args  ):
         input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )

@@ -292,7 +292,7 @@ class ButtonBarHandler:
                         position_index = configFunct.position[0] if configFunct.position else 0
                         tvals = configFunct.value.getValues() 
                         tval =  tvals[0] if ( len( tvals ) > 0 ) else 0.0             
-                        bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
+                        bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getSliderBounds(), tval  )
                         bbar.positionSlider( position_index, n_active_sliders )
                         self.current_configuration_mode = configFunct.label
     #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
@@ -719,7 +719,7 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-        #print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
         widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
@@ -735,7 +735,7 @@ class ButtonBarWidget(ButtonBar):
         else:   
             value = get_scalar_value( tvals )
             srep = swidget.GetRepresentation( )      
-            srep.SetTitleText( label )    
+            srep.SetTitleText( label )
             srep.SetMinimumValue( bounds[ 0 ] )
             srep.SetMaximumValue( bounds[ 1 ]  )
             srep.SetValue( value )
@@ -910,7 +910,7 @@ class ButtonBarWidget(ButtonBar):
                     if self.isSliderVisible( position_index ) or force_enable:
                         tval = tvals[0]  if len( tvals ) > 0 else 0.0
                         self.InteractionState = configFunct.cfg_state
-                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
+                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getSliderBounds(), tval  )
                         self.positionSlider( position_index, n_active_sliders )
                         self.setSliderVisibility( position_index, True )
                     else: self.releaseSlider( position_index )
@@ -919,7 +919,7 @@ class ButtonBarWidget(ButtonBar):
                     for slider_index in range(4): self.setSliderVisibility( slider_index, slider_index < n_active_sliders )
                     for slider_index in range(4):
                         if self.isSliderVisible( slider_index ) and ( len(tvals) > slider_index ):
-                            self.commandeerControl( slider_index, configFunct.sliderLabels[slider_index], configFunct.getRangeBounds(), tvals[slider_index]  )
+                            self.commandeerControl( slider_index, configFunct.sliderLabels[slider_index], configFunct.getSliderBounds(), tvals[slider_index]  )
                             self.positionSlider( slider_index, n_active_sliders )
                         else:
                             self.releaseSlider( slider_index )

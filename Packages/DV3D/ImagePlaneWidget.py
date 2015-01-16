@@ -806,17 +806,20 @@ class ImagePlaneWidget:
 #         except Exception, err:
 #            print " Error in getPlaneHeightCoord: %s " % str( err )
         return z, units
+
+    def UpdateDataBounds(self):
+        self.dataBounds = list( self.ImageData.GetBounds() )
             
-    def setZScale( self, zscale_data, **args ):
-        if self.setInputZScale( zscale_data ):
-            if self.planeWidget <> None:
-                self.dataBounds = list( self.input().GetBounds() )
-                dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0, (self.dataBounds[3]-self.dataBounds[2])/2.0, (self.dataBounds[5]-self.dataBounds[4])/2.0 )
-                self.planeWidget.PlaceWidget( self.dataBounds[0]-dataExtents[0], self.dataBounds[1]+dataExtents[0], self.dataBounds[2]-dataExtents[1], self.dataBounds[3]+dataExtents[1], self.dataBounds[4]-dataExtents[2], self.dataBounds[5]+dataExtents[2] )
-                centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0, (self.dataBounds[2]+self.dataBounds[3])/2.0, (self.dataBounds[4]+self.dataBounds[5])/2.0  )
-                self.planeWidget.SetOrigin( centroid[0], centroid[1], centroid[2]  )
-                self.planeWidget.SetNormal( ( 0.0, 0.0, 1.0 ) )
-#                print "PlaceWidget: Data bounds = %s, data extents = %s " % ( str( self.dataBounds ), str( dataExtents ) )  
+    # def SetZScale( self, zscale_data, **args ):
+    #     if self.setInputZScale( zscale_data ):
+    #         if self.planeWidget <> None:
+    #             self.dataBounds = list( self.input().GetBounds() )
+    #             dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0, (self.dataBounds[3]-self.dataBounds[2])/2.0, (self.dataBounds[5]-self.dataBounds[4])/2.0 )
+    #             self.planeWidget.PlaceWidget( self.dataBounds[0]-dataExtents[0], self.dataBounds[1]+dataExtents[0], self.dataBounds[2]-dataExtents[1], self.dataBounds[3]+dataExtents[1], self.dataBounds[4]-dataExtents[2], self.dataBounds[5]+dataExtents[2] )
+    #             centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0, (self.dataBounds[2]+self.dataBounds[3])/2.0, (self.dataBounds[4]+self.dataBounds[5])/2.0  )
+    #             self.planeWidget.SetOrigin( centroid[0], centroid[1], centroid[2]  )
+    #             self.planeWidget.SetNormal( ( 0.0, 0.0, 1.0 ) )
+    #             print "PlaceWidget: Data bounds = %s, data extents = %s " % ( str( self.dataBounds ), str( dataExtents ) )
                                                 
 
             
