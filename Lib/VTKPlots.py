@@ -54,6 +54,7 @@ class VTKVCSBackend(object):
         self.createDefaultInteractor()
     if sys.platform == "darwin":
         self.reRender = False
+    self.clickRenderer = None
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -172,9 +173,10 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def leftButtonReleaseEvent(self,obj,event):
-    self.clickRenderer.RemoveAllViewProps()
-    self.renWin.RemoveRenderer(self.clickRenderer)
-    self.renWin.Render()
+    if self.clickRenderer is not None:
+      self.clickRenderer.RemoveAllViewProps()
+      self.renWin.RemoveRenderer(self.clickRenderer)
+      self.renWin.Render()
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
@@ -727,7 +729,7 @@ class VTKVCSBackend(object):
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
     r,g,b = cmap.index[lcolor]
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
-    x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,data1.getAxis(-1),data1.getAxis(-2))
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
@@ -1059,7 +1061,10 @@ class VTKVCSBackend(object):
       else:
         mappers.insert(0,missingMapper)
 
-    x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    if isinstance(gm,meshfill.Gfm):
+        x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    else:
+        x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,data1.getAxis(-1),data1.getAxis(-2))
 
     # Add a second mapper for wireframe meshfill:
     if isinstance(gm, meshfill.Gfm) and gm.mesh:
