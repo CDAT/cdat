@@ -67,11 +67,13 @@ def baseline_offsets(origin, new_string, text_prop):
     return below_offset, above_offset
 
 from widget import Widget
+from behaviors import DraggableMixin
 
-class Label(Widget):
+class Label(Widget, DraggableMixin):
 
-    def __init__(self, interactor, string, action=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
+    def __init__(self, interactor, string, movable=False, on_move=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
         widget = vtkTextWidget()
+
         self.actor = text_actor(string, fgcolor, size, font)
 
         if textproperty is not None:
@@ -81,9 +83,12 @@ class Label(Widget):
 
         super(Label, self).__init__(interactor, widget)
 
-        self.widget.ResizableOff()
+        #self.widget.ResizableOff()
+        self.movable = movable
+        self.action = on_click
+        self.release_action = on_release
+        self.move_action = on_move
 
-        self.action = action
         self.left, self.top = left, top
         self.top_offset = 0
 
@@ -93,7 +98,15 @@ class Label(Widget):
         self.repr.SetShowBorderToOff()
 
         self.actor.SetTextScaleModeToNone()
-        self.subscribe("WidgetActivateEvent", self.click)
+
+        # Map events to draggable actions, because standard events aren't propagated
+        self.add_event_handler("StartInteractionEvent", self.drag_clicked)
+        self.add_event_handler("InteractionEvent", self.drag_moved)
+        self.add_event_handler("EndInteractionEvent", self.drag_released)
+        self.add_event_handler("StartInteractionEvent", self.click)
+        self.add_event_handler("EndInteractionEvent", self.release)
+
+        self.register()
 
     def set_text(self, string):
 
@@ -129,7 +142,30 @@ class Label(Widget):
         _, widget_h = self.get_dimensions()
         self.repr.SetPosition(self.left / float(w), (h - self.top - widget_h - self.top_offset ) / float(h))
 
+    def release(self, obj, event):
+        if self.release_action is not None:
+            self.release_action(self.interactor.GetEventPosition())
+
     def click(self, obj, event):
+        self.drag_origin = self.event_position()
+
         # Pass this to self.action
         if self.action is not None:
             self.action(self.interactor.GetEventPosition())
+
+    def in_bounds(self, x, y):
+        w, h = self.get_dimensions()
+        if x < self.left + w and x > self.left and y < self.top and y > self.top - h:
+            return True
+        return False
+    def drag_stop(self):
+        if self.movable and self.move_action:
+            self.move_action()
+
+    def drag_move(self, dx, dy):
+        if self.movable:
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            dx, dy = dx * w, dy * h
+            self.left += dx
+            self.top -= dy
+            self.place()
