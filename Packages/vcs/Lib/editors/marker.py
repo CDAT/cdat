@@ -1,5 +1,5 @@
 from vcs import vtk_ui
-from vcs.color_picker import ColorPicker
+from vcs.colorpicker import ColorPicker
 from vcs.vtk_ui import behaviors
 from vcs.VCS_validation_functions import checkMarker
 
