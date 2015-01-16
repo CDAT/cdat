@@ -303,7 +303,8 @@ class Textbox(Label):
 
     def place(self):
         super(Textbox, self).place()
-        self.place_cursor()
+        if self.editing:
+            self.place_cursor()
 
     def detach(self):
         if self.cursor is not None:
