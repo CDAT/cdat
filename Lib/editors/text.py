@@ -277,6 +277,7 @@ def text_dimensions(text, index, winsize):
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop)
 
 def inside_text(text, x, y, screen_width, screen_height, index=None):
+    import math
 
     winsize = (screen_width, screen_height)
 
@@ -295,7 +296,18 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
         text_width = text_width / float(screen_width)
         text_height = text_height / float(screen_height)
 
+        # Adjust X, Y for angle
+        if text.angle != 0:
+            # Translate to the origin
+            translated_x, translated_y = x - xcoord, y - ycoord
+            # Rotate about the origin
+            theta = math.radians(text.angle)
+            txrot = translated_x * math.cos(theta) - translated_y * math.sin(theta)
+            tyrot = translated_x * math.sin(theta) + translated_y * math.cos(theta)
+            # Translate back to the point
+            x, y = txrot + xcoord, tyrot + ycoord
 
+        # Adjust for alignments
         if text.valign in ("half", 2):
             ycoord -= text_height / 2.0
         elif text.valign in ("top", 0):
