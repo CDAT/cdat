@@ -74,10 +74,12 @@ class Label(Widget, DraggableMixin):
     def __init__(self, interactor, string, movable=False, on_move=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
         widget = vtkTextWidget()
 
-        self.actor = text_actor(string, fgcolor, size, font)
-
         if textproperty is not None:
+            self.actor = vtkTextActor()
+            self.actor.SetInput(string)
             self.actor.SetTextProperty(textproperty)
+        else:
+            self.actor = text_actor(string, fgcolor, size, font)
 
         widget.SetTextActor(self.actor)
 
