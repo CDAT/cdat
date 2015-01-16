@@ -195,7 +195,7 @@ add_test(vcs_test_taylor_2_quads
     "${BASELINE_DIR}/test_markers.png"
     )
   add_test(vcs_test_star_triangle_markers
-    ${CMAKE_INSTALL_PREFIX}/bin/python
+    "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_star_triangle_markers.py
     "${BASELINE_DIR}/test_star_triangle_markers.png"
     )
@@ -215,7 +215,7 @@ add_test(vcs_test_taylor_2_quads
     "${BASELINE_DIR}/test_1D_with_manyDs.png"
     )
   add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
-    ${CMAKE_INSTALL_PREFIX}/bin/python
+    "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
     ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
     )
@@ -441,7 +441,7 @@ add_test(vcs_test_taylor_2_quads
       "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
       )
     add_test(vcs_test_issue_960_labels
-      ${CMAKE_INSTALL_PREFIX}/bin/python
+      "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
