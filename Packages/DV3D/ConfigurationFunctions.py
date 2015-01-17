@@ -648,17 +648,15 @@ class ConfigParameter:
         return self.values.get( 'state', None )
 
     def getInitValue( self, default_value=None ):
-        ival = self.getValue( 'init' )
+        ival = self.getValue( 'relative' )
         if ival == None:
-            ival = self.getValue( 'relative' )
+            ival = self.getValue( 'init' )
         if ival == None:
             ival = self.getValues()
             if len( ival ) == 0:
                 ival = self.parent.getInitValue() if ( self.parent <> None ) else None
                 if ( ival == None ):
                     return default_value
-        if self.name == 'ZScale':
-            print 'get ZScale InitValue: ', str( ival ), ", vals = ", str( self.values )
         return ival
 
     def setInitValue( self, value, update = False ):
@@ -674,6 +672,8 @@ class ConfigParameter:
         else:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )
+        if self.name == 'ZSlider':
+            print 'set ZSlider InitValue: ', str( value )
 
     def setValue( self, key, val, update=False  ):
         if hasattr( key, 'id' ): key = key.id
@@ -810,6 +810,8 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
+        if self.name == 'ZSlider':
+            print "XXX"
         ival = self.value.getInitValue()
         if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
@@ -820,7 +822,7 @@ class ConfigurableFunction:
         self.group = args.get( 'group', None )
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
-        
+
     # def updateInitialization( self, default_init_val=None ):
     #     ival = self.value.getInitValue()
     #     if ival <> None:
