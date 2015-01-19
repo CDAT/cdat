@@ -9,7 +9,7 @@ x.drawlogooff()
 
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","ta_ncep_87-6-88-4.nc"))
+f=cdms2.open(os.path.join(vcs.prefix,"sample_data","ta_ncep_87-6-88-4.nc"))
 
 
 vr = "ta"

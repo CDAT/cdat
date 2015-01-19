@@ -14,6 +14,7 @@ Note: Writing data w/ a daily time axis does not work w/ IOAPI
 import ioapiTools as ioT
 from mx import DateTime as D
 import cdutil
+import cdat_info
 import sys, os
 
 ## Setup
@@ -22,7 +23,7 @@ import sys, os
 ## potential IOAPI files  of interest,
 ## can use regular expression syntex
 searchStr = "CCTM_ACONC.D1.*"
-searchStr = os.path.join (sys.prefix,'sample_data/' + searchStr)
+searchStr = os.path.join (cdat_info.get_prefix(),'sample_data/' + searchStr)
 
 ## dates of interest: (year, month, day, hour)
 ## should be have #hrs as a multiple of 24

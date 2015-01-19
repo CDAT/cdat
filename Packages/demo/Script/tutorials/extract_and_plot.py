@@ -12,7 +12,7 @@
 import vcs, cdms2 as cdms, cdutil, time, os, sys
 
 # Open data file:
-filepath = os.path.join(sys.prefix, 'sample_data/ts_da.nc')
+filepath = os.path.join(vcs.prefix, 'sample_data/ts_da.nc')
 cdmsfile = cdms.open( filepath )
 
 # Extract a 3 dimensional data set
@@ -49,7 +49,7 @@ v.clear()
 v.plot( dc )
 
 # Extract a 4 dimensional dataset
-filepath = os.path.join(sys.prefix, 'sample_data/ta_ncep_87-6-88-4.nc')
+filepath = os.path.join(vcs.prefix, 'sample_data/ta_ncep_87-6-88-4.nc')
 cdmsfile = cdms.open( filepath )
 data = cdmsfile('ta')
 

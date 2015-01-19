@@ -1,6 +1,6 @@
 import sys,cdms2,vcs
 x=vcs.init()
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+f=cdms2.open(vcs.prefix+"/sample_data/clt.nc")
 s=f("clt")#,time=slice(0,3))
 
 x.plot(s)

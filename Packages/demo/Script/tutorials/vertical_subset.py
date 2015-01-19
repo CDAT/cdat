@@ -15,11 +15,12 @@ Vertically subsets a variable
 import ioapiTools as ioT
 from mx import DateTime as D
 import sys, os
+import cdat_info
 
 ## Setup
 ## input file
 iFile = "CCTM_CONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 ## output files
 oFile1 = "var_vertsub1.nc"

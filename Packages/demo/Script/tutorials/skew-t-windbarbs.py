@@ -43,7 +43,7 @@ template.ylabel1.y=template.data.x1*.9
 
 ## Now open the sample dataset and reads in the data for temperature as a function of level
 ## Open the file, read the T
-f=cdms.open(os.path.join(sys.prefix,'sample_data','thermo.nc'))
+f=cdms.open(os.path.join(vcs.prefix,'sample_data','thermo.nc'))
 t=f('t')
 
 # In this example we need to redefine the the "level" axis on "ta" because it needs to be in Pa
@@ -71,7 +71,7 @@ template.xlabel1.y=template.data.y1*.9
 template.ylabel1.y=template.data.x1*.9
 
 ## Read winds from a file
-f=cdms.open(os.path.join(sys.prefix,'sample_data','thermo.nc'))
+f=cdms.open(os.path.join(vcs.prefix,'sample_data','thermo.nc'))
 u=f('ua',time=slice(0,1),longitude=0,latitude=0,squeeze=1)
 v=f('va',time=slice(0,1),longitude=0,latitude=0,squeeze=1)
 

@@ -9,8 +9,8 @@ MODULE USED: cdms,vcs,cdutil
 import os, sys
 import cdms2 as cdms,vcs
 
-f=cdms.open(os.path.join(sys.prefix, 'sample_data/tas_mo.nc'))
-f1=cdms.open(os.path.join(sys.prefix, 'sample_data/clt.nc'))
+f=cdms.open(os.path.join(vcs.prefix, 'sample_data/tas_mo.nc'))
+f1=cdms.open(os.path.join(vcs.prefix, 'sample_data/clt.nc'))
 
 ## Retrieve 2 years
 s=f('tas',time=('1980','1982','co'),longitude=(-180,180))

@@ -12,7 +12,7 @@
 import vcs, cdms2 as cdms, cdutil, time, os, sys
 
 # Open data file:
-filepath = os.path.join(sys.prefix, 'sample_data/clt.nc')
+filepath = os.path.join(vcs.prefix, 'sample_data/clt.nc')
 cdmsfile = cdms.open( filepath )
 
 # Extract a 3 dimensional data set

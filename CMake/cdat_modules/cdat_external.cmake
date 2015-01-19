@@ -16,7 +16,7 @@ if (CDAT_BUILD_VCS_LEGACY)
     set(qt_flags "--enable-qt-framework")
   endif()
 
-  set(cdat_xtra_flags "--enable-vcs-legacy ${qt_flags} --with-qt=${QT_ROOT} --with-qt-lib=${QT_LIB_DIR} --with-qt-inc=${QT_INC_DIR}" --with-qt-bin=${QT_BINARY_DIR})
+  set(cdat_xtra_flags "--enable-vcs-legacy ${qt_flags} --with-qt=${QT_ROOT} --with-qt-lib=${QT_LIB_DIR} --with-qt-inc=${QT_INC_DIR} --with-qt-bin=${QT_BINARY_DIR}")
 endif()
 
 if (CDAT_BUILD_WITH_LIBDRS)
@@ -25,6 +25,7 @@ endif()
 
 set(cdat_build_dir ${CMAKE_CURRENT_BINARY_DIR}/cdat-build)
 
+set(WORKING_DIR "${cdat_CMAKE_BINARY_DIR}")
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_python_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   @ONLY)
@@ -37,7 +38,7 @@ ExternalProject_Add(CDAT
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${CMAKE_COMMAND} -DPYTHON_INSTALL_ARGS=${cdat_xtra_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
+  INSTALL_COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" ${CMAKE_COMMAND} -DPYTHON_INSTALL_ARGS=${cdat_xtra_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   DEPENDS ${CDAT_deps}
 )
 

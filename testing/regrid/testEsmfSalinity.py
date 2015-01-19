@@ -8,6 +8,7 @@ Test interpolation on salinity datasets
 import time
 import re
 import numpy
+import cdat_info
 import cdms2
 import regrid2
 import unittest
@@ -274,11 +275,11 @@ class Test(unittest.TestCase):
 
 
     def XXtest1_esmf(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value), numpy.int32)
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0,...]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0,...]
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         dG = clt.getGrid().toCurveGrid()
         dstGrd = [dG.getLatitude()[:], dG.getLongitude()[:]]
@@ -356,11 +357,11 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMMax, so.max())
 
     def XXtest2_ESMFRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF['so']
         srcGridMask = numpy.array((so[0, 0,...] == so.missing_value) , numpy.int32)
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0, ...]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         srcBounds = cdms2.mvCdmsRegrid.getBoundList(srcGrd)
         dG = clt.getGrid().toCurveGrid()
@@ -425,11 +426,11 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMax, so[0,0,...].max())
 
     def XXtest3_genericRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value) , numpy.int32)
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         srcBounds = cdms2.mvCdmsRegrid.getBoundList(srcGrd)
         dG = clt.getGrid().toCurveGrid()
@@ -470,11 +471,11 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMax, so.max())
 
     def test4_cdmsRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value) , numpy.int32)
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         # create regrid object
         r = cdms2.CdmsRegrid(so.getGrid(), clt.getGrid(),
                              dtype=so.dtype,
@@ -501,10 +502,10 @@ class Test(unittest.TestCase):
 
 
     def XXtest5_regrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         dstData = so.regrid(clt.getGrid(), 
                             regridTool = 'esmf', 
                             regridMethod='conserve')

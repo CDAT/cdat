@@ -5,6 +5,7 @@ $Id: testSo2Tas.py 2356 2012-07-11 15:54:35Z pletzer $
 
 import re
 import numpy
+import cdat_info
 import cdms2
 import regrid2
 import unittest
@@ -21,12 +22,12 @@ class Test(unittest.TestCase):
 
     def setUp(self):
 
-        access = cdms2.open(sys.prefix + \
+        access = cdms2.open(cdat_info.get_prefix() + \
                                 '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.access = access('so')[0, 0, ...]
-        self.tasGood = cdms2.open(sys.prefix + \
+        self.tasGood = cdms2.open(cdat_info.get_prefix() + \
                                       '/sample_data/tas_Amon_HadGEM2-A_amip_r1i2p1_197809-200811_2timesteps.nc')('tas')
-        giss = cdms2.open(sys.prefix + \
+        giss = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_GISS-E2-R_historicalNat_r5i1p1_185001-187512_2timesteps.nc')
         self.giss = giss('so')[0,0,...]
 

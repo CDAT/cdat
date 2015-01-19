@@ -11,11 +11,12 @@ Change the starting date of variable
 import ioapiTools as ioT
 from mx import DateTime as D
 import sys, os
+import cdat_info
 
 ## Setup
 ## input file
 iFile = "CCTM_ACONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 oFile1 = "var_newdate.ioapi"
 
