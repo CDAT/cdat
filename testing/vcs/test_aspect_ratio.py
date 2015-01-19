@@ -1,3 +1,4 @@
+
 import vcs
 import cdms2
 import sys
@@ -5,7 +6,7 @@ import os
 import MV2
 import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
-pth0 = os.path.dirname(src)
+pth0 = os.path.dirname(_file__)
 pth = os.path.join(pth0,"..")
 sys.path.append(pth)
 import checkimage
@@ -17,6 +18,7 @@ gm=vcs.createisofill()
 def plot_a_ratio(s,gm,ratio):
     ret = 0
     x=vcs.init()
+x.drawlogooff()
     x.open()
     x.geometry(400,800)
     y=vcs.init()

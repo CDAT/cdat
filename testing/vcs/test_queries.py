@@ -1,5 +1,7 @@
+
 import vcs
 x=vcs.init()
+x.drawlogooff()
 gms = ["boxfill","isofill","isoline","meshfill","scatter","yxvsx","xvsy","xyvsy","vector"]
 for gm in gms:
   print "testing query work for:",gm

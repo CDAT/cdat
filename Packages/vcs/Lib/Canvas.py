@@ -247,7 +247,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector' ):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector', '3d_dual_scalar' ):
             if found_slabs != 2:
                 raise vcsError, "Graphics method %s requires 2 slabs." % arglist[igraphics_method]
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -564,7 +564,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.ndim
+        try:     rank = origv.ndim
+        except:  rank = len( origv.shape )
+            
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -667,11 +669,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                     # mesh array needs to be mutable, so make it a tv.
                     # Normally this is done up front in _determine_arg_list.
                     arglist[ARRAY_2] = cdms2.asVariable(mesh, 0)
-                    try:
-                        meshobj = self.getmeshfill('__d_meshobj')
-                    except:
-                        meshobj = self.createmeshfill('__d_meshobj')
-                        meshobj.wrap = [0.0, 360.0] # Wraparound
+                    meshobj = self.createmeshfill()
+                    meshobj.wrap = [0.0, 360.0] # Wraparound
                     arglist[GRAPHICS_OPTION] = '__d_meshobj'
 
         # IF Meshfill method and no mesh passed then try to get the mesh from the object
@@ -928,7 +927,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.worldcoordinate = [0,1,0,1]
         self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-        self.drawLogo = True
+        self.drawLogo = False
+        self.enableLogo = True
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
         elif isinstance(backend,vtk.vtkRenderWindow):
@@ -972,15 +972,18 @@ class Canvas(object,AutoAPI.AutoAPI):
     ## Functions to set/querie drawing of UV-CDAT logo
     def drawlogoon(self):
       """Turn on drawing of logo on pix"""
-      self.drawLogo = True
+      self.enableLogo = True
   
     def drawlogooff(self):
       """Turn off drawing of logo on pix"""
-      self.drawLogo = False
+      self.enableLogo = False
       
     def getdrawlogo(self):
       """Return value of draw logo"""
-      return self.drawLogo
+      return self.enableLogo
+
+    def initLogoDrawing(self):  
+        self.drawLogo = self.enableLogo
 
     #############################################################################
     #                                                                           #
@@ -1491,6 +1494,18 @@ Options:::
 
     def vector3d(self, *args, **parms):
         arglist=_determine_arg_list('3d_vector',args)            
+        return self.__plot(arglist, parms)
+
+    def create3d_dual_scalar(self,name=None,source='default'):
+      return vcs.create3d_dual_scalar(name,source)
+  
+    create3d_dual_scalar.__doc__ = vcs.manageElements.create3d_dual_scalar.__doc__
+    def get3d_dual_scalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_dual_scalar(Gfdv3d_name_src)
+    get3d_dual_scalar.__doc__ = vcs.manageElements.get3d_dual_scalar.__doc__
+
+    def dual_scalar3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_dual_scalar',args)            
         return self.__plot(arglist, parms)
 
     #############################################################################
@@ -2251,7 +2266,7 @@ Options:::
     # Set alias for the secondary createtextcombined.
     createtext = createtextcombined
 
-    def gettextcombined(self,Tt_name_src='default', To_name_src='default', string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+    def gettextcombined(self,Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
         return vcs.gettextcombined(Tt_name_src, To_name_src, string,
             font, spacing, expansion, color, priority, viewport, worldcoordinate,
             x, y, height, angle, path, halign, valign)
@@ -3430,24 +3445,25 @@ Options:::
                     arglist[2]=keyargs[k]
                     del(keyargs[k])
             # look through the available taylordiagram methods and use the plot function
-            for t in vcs.taylordiagrams:
-                if t.name==arglist[4]:
-                    t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
-                    result = self.getplot(self.return_display_names()[-1], arglist[2])
-                    result.g_type='taylordiagram'
-                    result.g_name=arglist[4]
-                    result.extradisplays=t.displays
+            t = vcs.elements["taylordiagram"].get(arglist[4],None)
+            if t is None:
+              raise ValueError("unknown taylordiagram graphic method: %s" % arglist[4])
+            t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
+            nm,src = self.check_name_source(None,"default","display")
+            dn = displayplot.Dp(nm)
+            dn.template = arglist[2]
+            dn.g_type = arglist[3]
+            dn.g_name = arglist[4]
+            dn.array = arglist[:2]
+            dn.extradisplays=t.displays
 ##                     dn.array=arglist[0]
-                    for p in slab_changed_attributes.keys():
-                        tmp = slab_changed_attributes[p]
-                        if tmp == (None,None):
-                            delattr(arglist[0],p)
-                        else:
-                            setattr(arglist[0],p,tmp)
-                            
-                    return result
-##                     return self.getplot(dn, template_origin)
-            raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
+            for p in slab_changed_attributes.keys():
+                tmp = slab_changed_attributes[p]
+                if tmp == (None,None):
+                    delattr(arglist[0],p)
+                else:
+                    setattr(arglist[0],p,tmp)
+            return dn
         else: #not taylor diagram
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 gm= arglist[3]
@@ -3466,15 +3482,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
-            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
+            if arglist[0] is not None or keyargs.has_key('variable'):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
-                # Check data's dimension size (VCS cannot take variables with
-                # with dimensions larger than 4D, below makes sure the variable
-                # has no more than 4 dimensions.
-                while (len(arglist[0].shape) > 4):
-                   # Scale the first dimension down to size 1, then squeeze it out.
-                   arglist[0]= (MV2.take(arglist[0],(0,),0)).subRegion( squeeze=1)
                 ## Now applies the attributes change
                 for p in slab_changed_attributes.keys():
                     if hasattr(arglist[0],p):
@@ -3641,7 +3650,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                self.backend.plot(*arglist,**keyargs)
+                returned_kargs = self.backend.plot(*arglist,**keyargs)
                 if not keyargs.get("donotstoredisplay",False):
                   nm,src = self.check_name_source(None,"default","display")
                   dn = displayplot.Dp(nm)
@@ -3649,6 +3658,7 @@ Options:::
                   dn.g_type = arglist[3]
                   dn.g_name = arglist[4]
                   dn.array = arglist[:2]
+                  dn.backend = returned_kargs
                 else:
                   dn = None
         
@@ -3686,7 +3696,7 @@ Options:::
 
         # Now executes output commands
         for cc in cmds.keys():
-            c=string.lower(cc)
+            c=cc.lower()
             if type(cmds[cc])!=type(''):
                 args=tuple(cmds[cc])
             else:
@@ -4422,13 +4432,8 @@ Options:::
     a=vcs.init()
     a.listelements()
 """
-        if args != () and args[0].lower() =='taylordiagram':
-            L = []
-            for t in vcs.taylordiagrams:
-                L.append(t.name)
-        else:
-            f = vcs.listelements
-            L = apply(f, args)
+        f = vcs.listelements
+        L = apply(f, args)
 
         L.sort()
 
@@ -4713,7 +4718,8 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = True, **args ):
+
         """
  Function: png
 
@@ -5516,7 +5522,7 @@ Options:::
 """ % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
-        g = string.split(geometry,'x')
+        g = geometry.split('x')
         f1 = f1=float(g[0]) / 1100.0 * 100.0
         f2 = f2=float(g[1]) / 849.85 * 100.0
         geometry = "%4.1fx%4.1f" % (f2,f1)
@@ -5565,7 +5571,7 @@ Options:::
 """ % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
-        r = string.split(resolution,'x')
+        r = resolution.split('x')
         f1 = f1=float(r[0]) / 1100.0 * 100.0
         f2 = f2=float(r[1]) / 849.85 * 100.0
         resolution = "%4.1fx%4.1f" % (f2,f1)

@@ -9,7 +9,7 @@ get_git_head_revision(refspec sha)
 string(REGEX REPLACE ".+/(.+)" "\\1" _branch "${refspec}")
 
 # Did we extract out the branch?
-if (NOT _branch STREQUAL refspec)
+if (NOT _branch STREQUAL "${refspec}")
     # Get the remote the branh if from
     get_git_remote_for_branch(${_branch} _remote)
 
@@ -52,6 +52,7 @@ endif()
 set(SOURCE_DIR "${CMAKE_INSTALL_PREFIX}/vistrails")
 set(BRANCH ${VISTRAILS_TAG_POINT})
 set(GIT_URL "${vistrails_url}")
+set(GIT_TARGET "vistrails")
 
 option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" OFF)
 option(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT "Delete GIT history of vistrails" ON)

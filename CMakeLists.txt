@@ -130,11 +130,19 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  message("[INFO] Select Either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
-  set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
+   set(temp_git_protocol "git://")
+   execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "git://github.com/UV-CDAT/uvcdat.git"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT res EQUAL 0)
+    set(temp_git_protocol "http://")
+  endif()
+
+  set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  return()
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
@@ -181,6 +189,27 @@ else()
  )
 endif()
 
+# Checkout the baseline repository.
+if(BUILD_TESTING)
+  set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
+    CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
+  set(REPO_URL "")
+  if(GIT_PROTOCOL MATCHES "http://")
+    set(REPO_URL "http://github.com/UV-CDAT/uvcdat-testdata.git")
+  else()
+    set(REPO_URL "git://github.com/UV-CDAT/uvcdat-testdata.git")
+  endif()
+  find_package(Git QUIET REQUIRED)
+  add_custom_target(update-testdata ALL
+    COMMAND "${CMAKE_COMMAND}"
+      "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+      "-DTESTDATA_URL=${REPO_URL}"
+      "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
+      -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
+    COMMENT "Updating uvcdat-testdata repo."
+  )
+endif()
+
 # Initialize submodules
 #-----------------------------------------------------------------------------
 # C. Doutriaux commented this out no submodules left at this time
@@ -221,6 +250,11 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
+# OSMesa/VTK aren't playing nicely on macs. Disabling for now.
+include(CMakeDependentOption)
+cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
+  "NOT APPLE" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
@@ -237,13 +271,16 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
-set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
-set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
+  if( (DEFINED CDAT_BUILD_MODE) AND (NOT "${CDAT_BUILD_MODE}" STREQUAL "LEAN") )
+    message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
+  endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
+set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -277,6 +314,12 @@ endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
+endif()
+
+# Don't build GUI if this is an offscreen-only build:
+if(CDAT_BUILD_OFFSCREEN AND CDAT_BUILD_GUI)
+  message("[INFO] Turning off CDAT_BUILD_GUI; incompatible with CDAT_BUILD_OFFSCREEN.")
   set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
 
@@ -435,6 +478,7 @@ include(netcdfplus_pkg)
 include(numexpr_pkg)
 include(numpy_pkg)
 include(mpi_pkg)
+include(osmesa_pkg)
 include(python_pkg)
 if (CDAT_BUILD_PARALLEL)
   include(paraview_pkg)
@@ -480,7 +524,7 @@ if (CDAT_BUILD_UVCMETRICSPKG)
   set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
   include(uvcmetrics_pkg)
 endif()
-include(visit_pkg)
+#include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)

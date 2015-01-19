@@ -1,3 +1,4 @@
+
 import sys,os
 import argparse
 
@@ -11,7 +12,7 @@ args = p.parse_args(sys.argv[1:])
 
 if not args.show:
   src = args.src
-  pth = os.path.join(os.path.dirname(src),"..")
+  pth = os.path.join(os.path.dirname(__file__),"..")
   sys.path.append(pth)
   import checkimage
 
@@ -27,6 +28,7 @@ import numpy
 bg = not args.show
 
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")

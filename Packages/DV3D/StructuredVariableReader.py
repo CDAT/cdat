@@ -103,7 +103,7 @@ class StructuredDataReader:
             self.vars =  args.get( 'vars', None )
             if self.vars <> None:
                 dfile = self.vars[0].parent
-                self.subSpace = args.get( 'axes', 'xyz' )
+                self.subSpace = get_scalar_value( args.get( 'axes', 'xyz' ) )
                 if dfile <> None:
                     self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
                     self.fileSpecs = dfile.id
@@ -119,7 +119,7 @@ class StructuredDataReader:
                             if self.fileSpecs <> None: break
                         try: self.df = cdms2.open( self.fileSpecs )  
                         except: 
-                            print>>sys.stderr, "Error, can't open data file '%s'" % self.fileSpecs
+                            print>>sys.stderr, "Warning, can't open data file '%s'" % self.fileSpecs
                             self.df = None                    
                     else:
                         self.datasetId = self.vars[0].name
@@ -511,8 +511,12 @@ class StructuredDataReader:
             if not lat_axis is None: vmd[ 'lat' ] =  lat_axis.getValue()  
             lon_axis= var.getLongitude()  
             if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
-            lev_axis= var.getLevel()  
-            if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
+            lev_axis= var.getLevel() 
+            if not lev_axis is None:
+                lev_ordering_downward =  self.levOrderingDownward( lev_axis )
+                lev_data = lev_axis.getValue()  
+                vmd[ 'lev' ] =  lev_data[::-1] if lev_ordering_downward else lev_data
+                vmd[ 'lev_ordering' ] = 'down' if lev_ordering_downward else 'up'
             vmd[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
              
             enc_mdata = encodeToString( vmd ) 
@@ -520,7 +524,14 @@ class StructuredDataReader:
                 fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) ) 
                 vars.append( varName )                   
         fieldData.AddArray( getStringDataArray( 'varlist',  vars  ) ) 
-        
+           
+    def levOrderingDownward( self, lev_axis ):
+        values = lev_axis.getValue()  
+        ascending_values = ( values[-1] > values[0] )
+        if   lev_axis.attributes.get( 'positive', '' ) == 'down' and ascending_values:   return True
+        elif lev_axis.attributes.get( 'positive', '' ) == 'up' and not ascending_values: return True
+        return False
+       
     def getFieldData( self ):
         if self.fieldData == None:
             self.initializeMetadata()
@@ -654,7 +665,11 @@ class StructuredDataReader:
                         axis = tvar.getLatitude()
                         if not axis is None: md[ 'lat' ] =  axis.getValue()
                         axis = tvar.getLevel()
-                        if not axis is None: md[ 'lev' ] =  axis.getValue()
+                        if not axis is None: 
+                            lev_ordering_downward = self.levOrderingDownward( axis )
+                            lev_data = axis.getValue() 
+                            md[ 'lev' ] =  lev_data[::-1] if lev_ordering_downward else lev_data
+                            md[ 'lev_ordering' ] = 'down' if lev_ordering_downward else 'up'
                         axis = tvar.getTime()
                         if not axis is None: md[ 'time' ] =  [ str(tc) for tc in axis.asComponentTime() ]
                         else: md[ 'time' ] =  md[ 'base_time' ] 
