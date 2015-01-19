@@ -888,7 +888,8 @@ class DV3DPlot():
                 config_function.setState( config_function.initial_value[0] )
 #            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
             state = config_function.getState()
-            if state: self.toggleVolumeVisibility( state )
+            state_val =  state[0] if hasattr(state, "__iter__") else state
+            if state_val: self.toggleVolumeVisibility( state_val )
         elif args and args[0] == "InitConfig":
             state = args[1]
             self.toggleVolumeVisibility( state )

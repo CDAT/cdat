@@ -348,7 +348,7 @@ class RectGridPlot(StructuredGridPlot):
         if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
-        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
+#        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
             plane_widget.beginSlicing()
         elif args and args[0] == "Init":
@@ -370,8 +370,9 @@ class RectGridPlot(StructuredGridPlot):
                 stage_position = plane_widget.ConvertPositionFromRelative( pos )
                 plane_widget.SetSlicePosition( stage_position )
                 value = bounds[0] + pos * ( bounds[1] - bounds[0] )
-                slicePosition.setValues( [ value ] )
+                slicePosition.setValues( [ pos ] )
                 slicePosition.setValue( 'relative',  pos )
+                slicePosition.setValue( 'absolute',  value )
                 config_function.setSliderBoundsToRelative()
             else:
                 plane_widget.SetSlicePosition( pos )
@@ -412,24 +413,25 @@ class RectGridPlot(StructuredGridPlot):
             pass
         elif args and args[0] == "UpdateConfig":
             if (plane_index == 2):
+#                primaryInput = self.input()
+#                bounds = list( primaryInput.GetBounds() )
                 relative_position = args[2].GetValue()
                 bounds = config_function.getRangeBounds()
                 position = plane_widget.ConvertPositionFromRelative( relative_position )
                 plane_widget.SetSlicePosition( position )
-                value = bounds[0] + relative_position * ( bounds[1] - bounds[0] )
-                slicePosition.setValues( [ value ] )
+                abs_position = bounds[0] + relative_position * ( bounds[1] - bounds[0] )
+                slicePosition.setValues( [ relative_position ] )
                 slicePosition.setValue( 'relative',  relative_position  )
+                slicePosition.setValue( 'absolute',  abs_position  )
             else:
                 priority = args[4]
                 count = 0 if (priority > 0) else slicePosition.incrementValue( 'count' )
                 if count % self.skipIndex == 0:
                     value = args[2].GetValue()
-                    print " Set slice position: ", str( value )
+#                    print " Set slice position: ", str( value )
                     plane_widget.SetSlicePosition( value )
                     slicePosition.setValues( [ value ] )
-                    if (plane_index == 2) :
-                        slicePosition.setValue( 'relative',  plane_widget.ConvertPositionToRelative( value ) )
-            self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+                self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
  
     def resetCamera(self, **args):
         self.cropRegion = self.getVolumeBounds()

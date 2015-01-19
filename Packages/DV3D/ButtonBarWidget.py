@@ -72,12 +72,12 @@ class Button:
         return self._state
 
     def setState(self, value):
+#        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
         self._state = value
         self.buttonRepresentation.Highlight( self._state )
         self.setToggleProps()
         self.PrivateStateChangedSignal( value )
-#        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
-        
+
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
 #         if value == 1:
@@ -719,7 +719,7 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+#        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
         widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
