@@ -8,21 +8,6 @@ endif()
 #-----------------------------------------------------------------------------
 project(cdat)
 
-# Disable in source build of any kind
-STRING(LENGTH "${cdat_SOURCE_DIR}/" source_len)
-STRING(LENGTH "${cdat_BINARY_DIR}/" bin_len)
-if ("${bin_len}" LESS "${source_len}")
-    set(BUILDINSOURCE FALSE)
-else()
-    STRING(SUBSTRING "${cdat_BINARY_DIR}/" 0 "${source_len}" source_match)
-    STRING(COMPARE EQUAL "${cdat_SOURCE_DIR}/" "${source_match}" BUILDINSOURCE)
-endif()
-if (BUILDINSOURCE)
-   set(msg "[ERROR] CDAT requires an out of source Build.")
-   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
-   message(FATAL_ERROR "${msg}")
-endif()
-
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
@@ -51,6 +36,17 @@ set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
 )
+
+# Disable in source build of any kind.
+#-----------------------------------------------------------------------------
+include(CheckBuildOutOfSource)
+check_build_out_of_source("${cdat_SOURCE_DIR}" "${cdat_BINARY_DIR}"
+                          BUILDINSOURCE)
+if(BUILDINSOURCE)
+   set(msg "[ERROR] CDAT requires an out of source Build.")
+   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
+   message(FATAL_ERROR "${msg}")
+endif()
 
 # Include useful cmake scripts
 #-----------------------------------------------------------------------------
