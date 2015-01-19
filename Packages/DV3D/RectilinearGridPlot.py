@@ -7,7 +7,7 @@ Created on Apr 29, 2014
 import sys, vtk, cdms2, traceback, os, cdtime, math 
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
-from ImagePlaneWidget import *  
+from ImagePlaneAxisAlignedWidget import *
 from StructuredGridPlot import  *
 from StructuredDataset import *
 from ConfigurationFunctions import get_scalar_value
@@ -424,14 +424,14 @@ class RectGridPlot(StructuredGridPlot):
                 slicePosition.setValue( 'relative',  relative_position  )
                 slicePosition.setValue( 'absolute',  abs_position  )
             else:
-                priority = args[4]
-                count = 0 if (priority > 0) else slicePosition.incrementValue( 'count' )
-                if count % self.skipIndex == 0:
-                    value = args[2].GetValue()
+#                priority = args[4]
+#                count = 0 if (priority > 0) else slicePosition.incrementValue( 'count' )
+#                if count % self.skipIndex == 0:
 #                    print " Set slice position: ", str( value )
-                    plane_widget.SetSlicePosition( value )
-                    slicePosition.setValues( [ value ] )
-                self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+                value = args[2].GetValue()
+                plane_widget.SetSlicePosition( value )
+                slicePosition.setValues( [ value ] )
+            self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
  
     def resetCamera(self, **args):
         self.cropRegion = self.getVolumeBounds()
