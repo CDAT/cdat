@@ -9,15 +9,15 @@ Plotting routine for tests in regrid2.ESMF using ginned up data
 import sys
 sys.path.append('../cdat_tests')
 
-import cdms2
+import cdms2,cdat_info
 import regrid2
 import os
 import numpy as np
 import ESMP
 
 home = os.getenv("HOME") + "/"
-install_prefix = sys.prefix + '/'
-sample_data_dir = sys.prefix + '/sample_data/' 
+install_prefix = cdat_info.get_prefix() + '/'
+sample_data_dir = cdat_info.get_prefix() + '/sample_data/'
 
 class dataNoPeri:
     def __init__(self, nx, ny, xCrdLimits, yCrdLimits):

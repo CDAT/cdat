@@ -1,3 +1,4 @@
+import cdat_info
 import cdms2
 import numpy
 import unittest
@@ -17,8 +18,8 @@ class TestTasRegrid(unittest.TestCase):
         pass
 
     def test1_regrid(self):
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0,...]
-        ta = cdms2.open(sys.prefix + '/sample_data/ta_ncep_87-6-88-4.nc')('ta')[0, 0,...]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0,...]
+        ta = cdms2.open(cdat_info.get_prefix() + '/sample_data/ta_ncep_87-6-88-4.nc')('ta')[0, 0,...]
         diag = {}
         cltInterp = clt.regrid( ta.getGrid(), 
                                 regridTool = 'libcf', 

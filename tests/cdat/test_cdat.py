@@ -233,7 +233,7 @@ def run_dir(test_dir,lst):
 
 def run_test(test):
     wd, test = os.path.split(test)
-    cmd = 'cd %s ; %s %s' % (wd , os.path.join(sys.prefix,'bin','python'),test)
+    cmd = 'cd %s ; %s %s' % (wd, sys.executable, test)
     if o.full_testing:
         cmd+=' --full --extended'
     if o.extended_testing:

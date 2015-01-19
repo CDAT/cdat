@@ -7,6 +7,7 @@ Test interpolation on salinity datasets
 
 import operator
 import numpy
+import cdat_info
 import cdms2
 import regrid2
 import unittest
@@ -24,10 +25,10 @@ class Test(unittest.TestCase):
         pass
 
     def Xtest1_gsRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         dstGrd = [clt.getGrid().getLatitude(), clt.getGrid().getLongitude()]
         # create regrid object
@@ -60,10 +61,10 @@ class Test(unittest.TestCase):
         self.assertLess(dstDataMax, so.max())
 
     def Xtest2_libCFRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         dstGrd = [clt.getGrid().getLatitude(), clt.getGrid().getLongitude()]
         # create regrid object
@@ -93,10 +94,10 @@ class Test(unittest.TestCase):
         
 
     def Xtest3_genericRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         srcGrd = [so.getGrid().getLatitude(), so.getGrid().getLongitude()]
         dstGrd = [clt.getGrid().getLatitude(), clt.getGrid().getLongitude()]
         # create regrid object
@@ -126,10 +127,10 @@ class Test(unittest.TestCase):
         self.assertLess(dstDataMax, so.max())
 
     def test4_cdmsRegrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         # create regrid object
         r = cdms2.CdmsRegrid(so.getGrid(), clt.getGrid(), so.dtype,
                              regridMethod='linear', regridTool='libcf',
@@ -153,10 +154,10 @@ class Test(unittest.TestCase):
 
 
     def test5_regrid(self):
-        srcF = cdms2.open(sys.prefix + \
+        srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
         dstData = so.regrid(clt.getGrid())
         dstDataMask = (dstData == so.missing_value)
         dstDataFltd = dstData * (1 - dstDataMask)

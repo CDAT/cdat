@@ -1,3 +1,4 @@
+import cdat_info
 import cdms2
 import ESMP
 import numpy
@@ -16,8 +17,8 @@ class TestGridTypes(unittest.TestCase):
         """
         2D gsRegrid
         """
-        u = cdms2.open(sys.prefix + '/sample_data/clt.nc')('u')[0, 0,...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0, ...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[0, 0,...]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
         ctlOnUGrid = clt.regrid( u.getGrid() )
         #print 'ctlOnUGrid.getGrid() = ', type(ctlOnUGrid.getGrid())
         self.assertRegexpMatches(str(type(ctlOnUGrid.getGrid())),
@@ -27,8 +28,8 @@ class TestGridTypes(unittest.TestCase):
         """
         2D ESMP
         """
-        u = cdms2.open(sys.prefix + '/sample_data/clt.nc')('u')[0, 0,...]
-        clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0, ...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[0, 0,...]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
         ctlOnUGrid = clt.regrid( u.getGrid(), regridTool = "ESMP" )
         #print 'ctlOnUGrid.getGrid() = ', type(ctlOnUGrid.getGrid())
         self.assertRegexpMatches(str(type(ctlOnUGrid.getGrid())),

@@ -4,7 +4,7 @@ import cdms2 as cdms, vcs
 import EzTemplate
 
 # Open file and retrieve data variable.
-fname = os.path.join(sys.prefix, 'sample_data/clt.nc')
+fname = os.path.join(vcs.prefix, 'sample_data/clt.nc')
 cfile = cdms.open(fname)
 data  = cfile('clt')
 

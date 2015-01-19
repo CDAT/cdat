@@ -6,7 +6,7 @@ import checkimage
 x=vcs.init()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.drawlogooff()
-fnm = os.path.join(sys.prefix,"sample_data",'clt.nc')
+fnm = os.path.join(vcs.prefix,"sample_data",'clt.nc')
 f=cdms2.open(fnm)
 
 s=f("clt")

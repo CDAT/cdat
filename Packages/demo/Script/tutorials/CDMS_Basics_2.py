@@ -1,6 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms,sys
-f=cdms.open(sys.prefix+'/sample_data/clt.nc')
+import cdat_info
+
+f=cdms.open(cdat_info.get_prefix()+'/sample_data/clt.nc')
 
 # Query "file" attributes
 print f.listglobal()

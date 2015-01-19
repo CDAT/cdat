@@ -33,7 +33,7 @@ model=['ccsr-95a', 'dnm-95a' ]
 model_description=''
 # loop over all models--similar to a fortran do loop
 for i in range(0,len(model)):
- file_xml = os.path.join(sys.prefix,'sample_data/'+var+'_'+model[i]+'.xml') 
+ file_xml = os.path.join(vcs.prefix,'sample_data/'+var+'_'+model[i]+'.xml')
  a=cdms2.open(file_xml)
  data=a[var]
  print '----  ', i, model[i],data.shape
@@ -59,7 +59,7 @@ glan=numpy.ma.zeros([len(model),time_len],numpy.float)
 #end_time   = cdtime.comptime(1984,12,1)
 #
 for i in range(0,len(model)):
- file_xml = os.path.join(sys.prefix,'sample_data/'+var+'_'+model[i]+'.xml')
+ file_xml = os.path.join(vcs.prefix,'sample_data/'+var+'_'+model[i]+'.xml')
  a=cdms2.open(file_xml)
  data=a(var,time=(start_time,end_time),squeeze=1)
  a.close()

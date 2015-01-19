@@ -5464,7 +5464,7 @@ Options:::
           self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_%s" % nms[value-1])
           if not os.path.exists(self._continents):
             #fallback on installed with system one
-            self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_%s" % nms[value-1])
+            self._continents = os.path.join(vcs.prefix,"share","vcs","data_continent_%s" % nms[value-1])
         else:
           raise Exception("Error continents value must be file or int < 12")
       elif isinstance(value,str):
@@ -5475,7 +5475,7 @@ Options:::
         warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
         self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
         if not  os.path.exists(self._continent):
-          self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_coarse")
+          self._continents = os.path.join(vcs.prefix,"share","vcs","data_continent_coarse")
         return
 
     #############################################################################
