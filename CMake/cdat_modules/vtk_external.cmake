@@ -11,6 +11,13 @@ foreach(_module ${_vtk_modules})
   list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
 endforeach()
 
+set(_vtk_web_option)
+if(CDAT_BUILD_VTKWEB)
+  set(_vtk_web_option
+    "-DVTK_Group_Web:BOOL=ON"
+  )
+endif()
+
 set(_osmesa_options)
 
 if (CDAT_BUILD_OFFSCREEN)
@@ -46,6 +53,7 @@ ExternalProject_Add(VTK
     -DVTK_Group_Rendering:BOOL=OFF
     -DVTK_Group_StandAlone:BOOL=OFF
     ${_vtk_module_options}
+    ${_vtk_web_option}
     ${_osmesa_options}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>

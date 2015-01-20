@@ -213,6 +213,9 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
+# Option to enable vtkweb for cdatweb
+option(CDAT_BUILD_VTKWEB "Build VTKWeb with VTK" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
