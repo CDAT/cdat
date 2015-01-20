@@ -1,6 +1,6 @@
 set(curses_source "${CMAKE_CURRENT_BINARY_DIR}/build/curses")
 set(curses_install "${cdat_EXTERNALS}")
-set(curses_conf_args)
+set(curses_conf_args --with-shared)
 
 ExternalProject_Add(Curses
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
