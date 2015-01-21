@@ -35,6 +35,10 @@ setup (name = "vcs",
                                    'Share/data_continent_fine',
                                    'Share/initial.attributes',
                                    'Share/uvcdat.png',
+                                   'Share/marker_icon.png',
+                                   'Share/text_icon.png',
+                                   'Share/fill_icon.png',
+                                   'Share/line_icon.png'
                                    )),],
        )
 
