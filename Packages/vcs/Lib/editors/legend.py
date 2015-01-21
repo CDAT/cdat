@@ -18,6 +18,10 @@ class LegendEditor(BoxEditor):
 
         self.toolbar.add_button(colormaps, action=self.change_map)
 
+    def place(self):
+        super(LegendEditor, self).place()
+        self.toolbar.place()
+
     def change_map(self, state):
         self.configurator.canvas.setcolormap(self.maps[state])
         self.save()

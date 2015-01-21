@@ -103,5 +103,11 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
         self.unregister()
 
+    def place(self):
+        self.top_left.place()
+        self.bottom_left.place()
+        self.top_right.place()
+        self.bottom_right.place()
+
 def bounds(value):
     return min(max(value, 0), 1)
