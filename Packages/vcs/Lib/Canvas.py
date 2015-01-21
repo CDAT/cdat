@@ -537,8 +537,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     def savecontinentstype(self,value):
       self._savedcontinentstype = value
 
-    def onClosing( self ):
-        self.backend.onClosing()
+    def onClosing( self, cell  ):
+        self.backend.onClosing( cell )
 
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.
@@ -2568,9 +2568,8 @@ Options:::
             sal = 1
 
         try:
-            actual_var = actual_args[0]
-            file_name = actual_var.parent.uri
-            keyargs['cdmsfile'] = file_name
+            pfile = actual_args[0].parent
+            keyargs['cdmsfile'] = pfile.uri if hasattr( pfile, 'uri' ) else pfile.id
         except:
             pass
         

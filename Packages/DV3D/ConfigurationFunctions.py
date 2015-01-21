@@ -222,6 +222,11 @@ def get_parameter_name( serialized_value ):
     namelist = deserialize_address( serialized_value )
     return namelist[0]
 
+def get_parameter_cell( serialized_value ):
+    namelist = deserialize_address( serialized_value )
+    if ( len( namelist ) < 2) or ( len(namelist[1]) < 3 ): return None
+    return eval( namelist[1] )
+
 class ConfigManager:
     
     
@@ -243,10 +248,17 @@ class ConfigManager:
                 self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
+    def clear( self, cell ):
+        for parm_address in self.parameters.keys():
+            pcell = get_parameter_cell( parm_address )
+            if (pcell == cell) or (pcell == None):
+                del self.parameters[ parm_address ]
+
     def getParameter( self, param_name, **args ):
         cell = args.get( 'cell', '' )
 #        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
-        if cell: param_name = serialize_address( cell, param_name )
+        if cell:
+            param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
         if cparm == None:
             if self.parent is None:
@@ -281,7 +293,7 @@ class ConfigManager:
                 except ValueError: pass
     #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
             param.setInitValue( data )
-    #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+#            print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -510,14 +522,16 @@ class ConfigManager:
 class ConfigParameter:
     
     def __init__(self, name, **args ):
-        self.name = name 
+        self.name = name
+#        print "Create ConfigParameter, name = ", name
         self.values = {}
         self.children = set()
         self.ValueChanged = SIGNAL( 'ValueChanged' )
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
-        self.parent = args.get( 'parent', None ) 
+        self.parent = args.get( 'parent', None )
         self.stateKeyList = []
+        self.debug = False
         if self.parent<> None: 
             self.parent.addChild( self )
             self.values.update( self.parent.values )
@@ -575,16 +589,19 @@ class ConfigParameter:
             print>>sys.stderr, " Error: parameter structure mismatch in %s ( %d vs %d )" % ( self.name,  len( value_strs ), len( self.values.keys() ) ); sys.stderr.flush()
         for ( key, str_val ) in zip( self.valueKeyList, value_strs ):
             self.values[key] = deserialize_value( str_val ) 
-#        print " && Unpack parameter %s: %s " % ( self.name, str( self.values ) ); sys.stdout.flush()
+        if self.debug: print " && Unpack parameter %s: %s " % ( self.name, str( self.values ) )
             
     def __len__(self):
         return len(self.values)
 
     def __getitem__(self, key):
+        if hasattr( key, 'id' ): key = key.id
         return self.values.get( key, None )
 
     def __setitem__(self, key, value ):
-        self.values[key] = value 
+        if hasattr( key, 'id' ): key = key.id
+        self.values[key] = value
+        if self.debug: print "Parameter[%s]: set value item[%s]: %s " % ( self.name, key, str(value))
         self.addValueKey( key )
         
     def childUpdate( self, source, key, val ): 
@@ -592,6 +609,7 @@ class ConfigParameter:
         
     def __call__(self, **args ):
         self.values.update( args )
+        if self.debug: print " && Update parameter %s: %s " % ( self.name, str( self.values ) )
         args1 = [ self.ptype ]
         for item in args.items():
             args1.extend( list(item) )
@@ -615,23 +633,31 @@ class ConfigParameter:
     
     def initialize( self, config_str ):
         self.values = eval( config_str )
+        if self.debug: print " && initialize parameter %s: %s " % ( self.name, str( self.values ) )
         self.sort()
 
     def serialize( self ):
         return str( self.values )
 
     def getValue( self, key=0, default_value=None ):
-        if key == None: return default_value
+        if key is None: return default_value
+        if hasattr( key, 'id' ): key = key.id
         return self.values.get( key, default_value )
 
     def getState( self ):
         return self.values.get( 'state', None )
 
     def getInitValue( self, default_value=None ):
-        ival = self.getValue( 'init' ) 
-        if ( ival == None ) and ( self.parent <> None ): 
-            ival = self.parent.getInitValue() 
-        return default_value if ( ival == None ) else ival
+        ival = self.getValue( 'relative' )
+        if ival == None:
+            ival = self.getValue( 'init' )
+        if ival == None:
+            ival = self.getValues()
+            if len( ival ) == 0:
+                ival = self.parent.getInitValue() if ( self.parent <> None ) else None
+                if ( ival == None ):
+                    return default_value
+        return ival
 
     def setInitValue( self, value, update = False ):
         if type( value ) == dict:
@@ -646,26 +672,51 @@ class ConfigParameter:
         else:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )
-
+        if self.name == 'ZSlider':
+            print 'set ZSlider InitValue: ', str( value )
 
     def setValue( self, key, val, update=False  ):
-        self.values[ key ] = val
-        self.addValueKey( key )
-        if update: 
-            args1 = [  self.ptype, key, val, self.name]
-            self.ValueChanged( args1 )
-        if self.parent <> None:
-            self.parent.childUpdate( self, key, val,  )
-            
+        if hasattr( key, 'id' ): key = key.id
+        tval = val[0] if isinstance( val, list ) else val
+        if isinstance( tval, str ) and ( tval[0] == '{' ): tval = eval(tval)
+        if isinstance( tval, dict ):
+            self.updateValues( tval, update )
+        else:
+            if self.debug:
+                print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
+            self.values[ key ] = val
+            self.addValueKey( key )
+            if update:
+                args1 = [  self.ptype, key, val, self.name]
+                self.ValueChanged( args1 )
+            if self.parent <> None:
+                self.parent.childUpdate( self, key, val,  )
+
+    def updateValues( self, value_map, update ):
+        for (key, val1) in value_map.items():
+            val0 = self.values.get( key, None )
+            if val0 <> val1:
+                self.setValue( key, val1, update )
+
     def signalUpdate( self ):
         args = [  self.ptype, self.getValues(), self.name]
         self.ValueChanged( args )
 
     def setValues( self, values, update=False  ):
         for key,value in enumerate( values ):
+            if hasattr( key, 'id' ): key = key.id
             self.setValue( key, value )
             if not self.parent is None:
                 self.parent.setValue( key, value )
+
+    def initValues( self, values, update=False  ):
+        for key,value in enumerate( values ):
+            if hasattr( key, 'id' ): key = key.id
+            val0 = self.values.get( key, None )
+            if val0 == None:
+                self.setValue( key, value )
+                if not self.parent is None:
+                    self.parent.setValue( key, value )
 
     def getValues( self ):
         vals = []
@@ -712,21 +763,46 @@ class ConfigParameter:
         
     def getRange( self ):
         return ( self.rmin, self.rmax )
-  
+
+class WrappedList:
+
+    def __init__(self,name):
+        self.name = name
+        self.list = []
+
+    def __get__(self):
+        return self.list
+
+    def __set__(self, value):
+        print "Set list %s: %s " % ( self.name, str( value ) )
+        self.list = value
+
+    def __len__(self):
+        return len( self.list )
+
+    def __getitem__( self, key ):
+        return self.list[key]
+
+    def __setitem__(self, key, value ):
+        print "Set list value %s[%s]: %s " % ( self.name, str(key), str( value ) )
+        self.list[key] = value
+
+
 class ConfigurableFunction:
 
     Default = 0
-    Slider = 1    
-    ConfigurableFunctions = {}    
-    
+    Slider = 1
+    ConfigurableFunctions = {}
+
     def __init__( self, manager, name, **args ):
         self.name = name
+        self.initial_value = []
         self.persist = args.get( 'persist', True )
         self.manager = manager
-#         if name == 'XSlider':
-#             print "."
+     #   if name == 'ScaleColormap':
+     #        print "."
         self.value = self.manager.addParameter( name, **args )
-        self.initial_value = []
+     #   print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None
@@ -734,6 +810,8 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
+        if self.name == 'ZSlider':
+            print "XXX"
         ival = self.value.getInitValue()
         if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
@@ -744,14 +822,16 @@ class ConfigurableFunction:
         self.group = args.get( 'group', None )
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
-        
-    def updateInitialization( self, default_init_val=None ):
-        ival = self.value.getInitValue()
-        if ival <> None:
-            self.initial_value = ival
-        elif (self.initial_value == None):
-            self.initial_value = default_init_val          
-        return self.initial_value
+
+    # def updateInitialization( self, default_init_val=None ):
+    #     ival = self.value.getInitValue()
+    #     if ival <> None:
+    #         self.initial_value = ival
+    #     elif (self.initial_value == None):
+    #         self.initial_value = default_init_val
+    #     if self.name == 'ZSlider':
+    #         print 'updateInitialization: ', str( self.initial_value )
+    #     return self.initial_value
         
     def getState(self):
         return self.value.getValue('state')
@@ -850,20 +930,16 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
         self.UpdateSlidingSignal =SIGNAL('updateSliding')
         self.type = 'slider'
         self._range_bounds = args.get( 'range_bounds', None )
+        self._slider_bounds = None
+        self._slider_bounds_relative = True
         self._initial_range = None
         self.position = args.get( 'position', None )
         if self.initial_value <> None:
             for index, value in enumerate( self.initial_value ):
                 self.value.setValue( index, value )
-                
+
     def getPosition(self):
         return self.position[0] if self.position else None
-
-    def scaleRange( self, scale_factor ):
-        if self._initial_range == None: 
-            self._initial_range = self._range_bounds
-        if self._initial_range <> None:
-            self._range_bounds = [ irv * scale_factor for irv in self._initial_range ]
 
     def getValueLength(self):
         return len( self.sliderLabels )
@@ -873,7 +949,21 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
 
     def setRangeBounds(self, value):
         self._range_bounds = copy.copy( value )
-         
+
+    def getSliderBounds(self):
+        if self._slider_bounds == None:
+            self.setSliderBoundsToRange()
+        return copy.copy( self._slider_bounds )
+
+    def setSliderBoundsToRange( self ):
+        self._slider_bounds = copy.copy( self._range_bounds )
+        self._slider_bounds_relative = False
+
+    def setSliderBoundsToRelative( self ):
+        self._slider_bounds = [ 0.0, 1.0 ]
+        self._slider_bounds_relative = True
+
+
 def getTitle( dsid, name, attributes, showUnits=False ):
     long_name = attributes.get( 'long_name', attributes.get( 'standard_name', name ) )
     if not showUnits: return "%s:%s" % ( dsid, long_name )
@@ -1256,7 +1346,8 @@ class InputSpecs:
         dataVector = self.fieldData.GetAbstractArray( 'metadata' ) 
         if dataVector == None:
             cname = getClassName( self ) 
-            if cname <> "InputSpecs": print " Can't get Metadata for class %s " % cname
+            if cname <> "InputSpecs":
+                print " Can't get Metadata for class %s " % cname
         else:
             enc_mdata = encodeToString( metadata )
             dataVector.InsertNextValue( enc_mdata  )

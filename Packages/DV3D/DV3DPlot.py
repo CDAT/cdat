@@ -261,41 +261,32 @@ class DV3DPlot():
         args[ 'toggle' ] = True
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ] ) 
-        return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        activations = [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ]
+        control_bar.changeButtonActivations( activations )
         return control_bar
 
     def getConstituentSelectionButton(self, config_function, build_args, position, **args ):    
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
         control_bar.reposition()
         return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] )  
-        return control_bar
-
-    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
-        control_bar.reposition()
-        return control_bar
     
     def processConfigParameterChange( self, parameter, val_key = None ):
-        values = parameter.getValue(val_key)
-        if values == None: values = parameter.getValues()
-        if not hasattr( values, '__iter__' ): values = [ values ]
-        state = parameter.getState()
-        if state <> None: addState( values, state )
-        argList = [ parameter.name, parameter.ptype, str(values) ] 
+#        values = parameter.getValue(val_key)
+#        if values == None: values = parameter.getValues()
+#        if not hasattr( values, '__iter__' ): values = [ values ]
+#        state = parameter.getState()
+#        if state <> None: addState( values, state )
+        values = parameter.values
+        active_constituents = self.getActiveConstituentNames()
+        argList = [ parameter.name, parameter.ptype, str(values), active_constituents ]
         self.ParameterValueChanged( argList )
+
+    def getActiveConstituentNames(self):
+        active_constituents = []
+        for cname in self.plotConstituents.keys():
+            if self.isConstituentConfigEnabled(cname):
+	            active_constituents.append( cname )
+        return active_constituents
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
@@ -308,11 +299,17 @@ class DV3DPlot():
     def refresh(self):
         self.onWindowModified()
         
-    def onClosing(self):
-        print "Closing!"
+    def onClosing(self, cell ):
+        print " ------> Closing!"
         self.stopAnimation()
-        self.terminate()
-        
+        if cell <> None:
+            self.cfgManager.parent.clear( cell )
+            self.terminate()
+            self.renderer.RemoveAllViewProps()
+            self.clearReferrents()
+            if self.renderWindowInteractor <> None:
+                self.renderWindowInteractor.TerminateApp()
+
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
 #         if pipeline == None: pipeline = self.getCurrentPipeline()
 #         if pipeline: UVCDATGuiConfigFunction.clearModules( pipeline )
@@ -322,10 +319,6 @@ class DV3DPlot():
 #        self.cellWidget = None 
 #        self.builtCellWidget = False    
  
-        self.renderer.RemoveAllViewProps()
-        self.clearReferrents()
-        if self.renderWindowInteractor <> None:
-            self.renderWindowInteractor.TerminateApp()
 
     def terminate( self ):
         pass
@@ -334,7 +327,7 @@ class DV3DPlot():
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.saveState()
-        self.onClosing()
+        self.onClosing(None)
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
@@ -392,7 +385,7 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
-#        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+        print " ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
@@ -400,6 +393,7 @@ class DV3DPlot():
             button.setToggleState( state )
             
     def changeButtonActivations(self, activation_list ):
+        print " ** Change Button Activations: ", str( activation_list )
         for activation_spec in activation_list:
             self.changeButtonActivation( *activation_spec )
                         
@@ -562,8 +556,11 @@ class DV3DPlot():
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue()
-            runSpeed.setValue( 0, value )
+            try:
+                value = args[2].GetValue()
+                runSpeed.setValue( 0, value )
+            except Exception, err:
+                print>>sys.stderr, "Error setting animation run speed: ", str( err )
                                    
     def processAnimationStateChange( self, button_id, key, state, force = False ):
 #        print " Process Animation State Change[%s], state = %d " % ( button_id, state )
@@ -875,21 +872,27 @@ class DV3DPlot():
             state = config_function.getState()
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-            if state: self.toggleIsosurfaceVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleIsosurfaceVisibility( args, config_function ) 
+                config_function.setState( config_function.initial_value[0] )
+            state = config_function.getState()
+            if state: self.toggleIsosurfaceVisibility( state )
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleIsosurfaceVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-            if state: self.toggleVolumeVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleVolumeVisibility( args, config_function )  
+                config_function.setState( config_function.initial_value[0] )
+#            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
+            state = config_function.getState()
+            state_val =  state[0] if hasattr(state, "__iter__") else state
+            if state_val: self.toggleVolumeVisibility( state_val )
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleVolumeVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     
@@ -957,7 +960,7 @@ class DV3DPlot():
          
     def onWindowExit( self, caller=None, event=None ):
         #print "Window Event: ", event
-        self.onClosing()
+        self.onClosing(None)
              
     def onAnyWindowEvent( self, caller=None, event=None ):
         pass

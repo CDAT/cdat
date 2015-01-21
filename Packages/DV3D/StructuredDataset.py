@@ -958,10 +958,10 @@ class StructuredFileReader:
         zscale = getItem( self.getInputValue( "zscale",   1.0  )  )
         
         serializedInputSpecs = getItem( self.getInputValue( "executionSpecs" ) )
+ #       print " ** serializedInputSpecs: ", str( serializedInputSpecs ) 
         if serializedInputSpecs:
             inputSpecs = SerializedInterfaceSpecs( serializedInputSpecs ) if serializedInputSpecs else None
-#            print " ** serializedInputSpecs: ", str( serializedInputSpecs ) 
-#            print " ** InputSpecs: ", str( inputSpecs ) 
+ #           print " ** InputSpecs: ", str( inputSpecs ) 
             self.idSpecs, self.fileSpecs, self.varSpecs, self.gridSpecs = [], [], [], []
             nInputs = inputSpecs.getNInputs() if inputSpecs else 0
             if nInputs: 
