@@ -682,12 +682,29 @@ class VTKVCSBackend(object):
             thresh.Update()
             vtk_backend_grid = thresh.GetOutput()
 
-    arrow = vtk.vtkGlyphSource2D()
-    arrow.SetGlyphTypeToArrow()
-    arrow.FilledOff()
+    arrow = vtk.vtkPolyData()
+    arrowPts = vtk.vtkPoints();
+    arrowLines = vtk.vtkCellArray();
+    arrowPolys = vtk.vtkCellArray();
+    arrow.SetPoints(arrowPts)
+    arrow.SetLines(arrowLines)
+    arrow.SetPolys(arrowPolys)
+
+    # Stem:
+    ptIds = []
+    ptIds.append(arrowPts.InsertNextPoint(-0.5, 0.0, 0.0))
+    ptIds.append(arrowPts.InsertNextPoint( 0.5, 0.0, 0.0))
+    arrowLines.InsertNextCell(2, ptIds)
+
+    # Head:
+    ptIds = []
+    ptIds.append(arrowPts.InsertNextPoint(0.1,  0.3, 0.0))
+    ptIds.append(arrowPts.InsertNextPoint(0.5,  0.0, 0.0))
+    ptIds.append(arrowPts.InsertNextPoint(0.1, -0.3, 0.0))
+    arrowLines.InsertNextCell(3, ptIds)
 
     glyphFilter = vtk.vtkGlyph2D()
-    glyphFilter.SetSourceConnection(arrow.GetOutputPort())
+    glyphFilter.SetSourceData(arrow)
     glyphFilter.SetVectorModeToUseVector()
 
     # Rotate arrows to match vector data:
