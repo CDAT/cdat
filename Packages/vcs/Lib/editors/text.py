@@ -46,6 +46,11 @@ class TextEditor(ClickableMixin):
         self.toggle_halign_buttons()
         self.toggle_valign_buttons()
 
+    def place(self):
+        self.toolbar.place()
+        for box in self.textboxes:
+            box.place()
+
     def update(self):
         if self.textboxes:
 
@@ -183,6 +188,7 @@ class TextEditor(ClickableMixin):
         for box in self.textboxes:
             box.detach()
         del self.textboxes
+        self.text.priority = self.old_priority
         self.toolbar.detach()
 
     def toggle_halign_buttons(self):

@@ -39,6 +39,11 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         # Register mixins' events
         self.register()
 
+    def place(self):
+        for h in self.handles:
+            h.place()
+        self.toolbar.place()
+
     def change_type(self, index):
         self.line.type[self.index] = index
 

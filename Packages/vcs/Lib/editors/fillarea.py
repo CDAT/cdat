@@ -34,6 +34,13 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         # Register mixins' events
         self.register()
 
+    def place(self):
+
+        for h in self.handles:
+            h.place()
+
+        self.toolbar.place()
+
     def change_style(self, state):
         if state == 0:
             self.fill.style[self.index] = "solid"
@@ -183,6 +190,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.unregister()
 
         self.toolbar.detach()
+
 
 def inside_fillarea(fillarea, x, y, index=None):
     """
