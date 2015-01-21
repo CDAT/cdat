@@ -25,7 +25,7 @@ def load_image(image):
     except (TypeError, AttributeError):
         # splitext will raise an AttributeError if it is used on something that isn't a string
         # Not a string; either a vtkImageData or the user did something dumb
-        if type(image) != type(vtkImageData()):
+        if type(image) != vtkImageData:
             raise TypeError("image should be an instance of vtk.vtkImageData, or a path to an image file.")
     except KeyError:
         raise ValueError("image should refer to an image of one of these types: %s; provided %s" % (readers.keys(), extension))
