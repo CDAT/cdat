@@ -106,7 +106,7 @@ class Button(Widget):
 
     def place(self):
         width, height = self.get_dimensions()
-        x, y = self.__get_position__()
+        x, y = self.get_position()
 
         bounds = (x, x + width, y - height, y, 0, 0)
 
@@ -183,7 +183,7 @@ class Button(Widget):
             # Should deal with opacity here-ish
             self.repr.SetButtonTexture(index, bg_image)
 
-    def __get_position__(self):
+    def get_position(self):
         default_texture = self.repr.GetButtonTexture(0)
         dwidth, dheight, _ = default_texture.GetDimensions()
         width, height = self.get_dimensions()
@@ -196,14 +196,14 @@ class Button(Widget):
         elif self.halign == CENTER_ALIGN:
             left = (self.left - (width - dwidth) / 2)
         elif self.halign == RIGHT_ALIGN:
-            left = (self.left - (width - dwidth))
+            left = size[0] - (self.left - (width - dwidth))
 
         if dheight == height or self.valign == TOP_ALIGN:
             top = self.top
         elif self.valign == CENTER_ALIGN:
             top = (self.top - (height - dheight) / 2)
         elif self.valign == BOTTOM_ALIGN:
-            top = (self.top - (height - dheight))
+            top = size[1] - (self.top - (height - dheight))
 
         return left, size[1] - top
 
