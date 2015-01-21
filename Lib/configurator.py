@@ -1,7 +1,7 @@
 import vcs
 import datetime
 from editors import box, fillarea, line, legend, marker, text
-from vtk_ui import Button, ButtonState
+import vtk_ui.button
 import os, sys
 
 CREATING_FILL = "fill"
@@ -32,8 +32,8 @@ class Configurator(object):
 
     def init_buttons(self):
         # An "off" and "on" state
-        states = [ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
-        self.fill_button = Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=300, action=self.fill_click)
+        states = [vtk_ui.button.ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
+        self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.fill_button.show()
 
     def fill_click(self, index):
