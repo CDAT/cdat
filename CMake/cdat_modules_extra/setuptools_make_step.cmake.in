@@ -2,7 +2,7 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 execute_process(
-  COMMAND env PYTHONPATH=@PYTHONPATH@ LD_LIBRARY_PATH=@LD_LIBRARY_PATH@ @PYTHON_EXECUTABLE@ setup.py build
+  COMMAND env PYTHONPATH=@PYTHONPATH@ LD_LIBRARY_PATH=@LD_LIBRARY_PATH@ "@PYTHON_EXECUTABLE@" setup.py build
   WORKING_DIRECTORY @setuptools_source@
   RESULT_VARIABLE res)
 

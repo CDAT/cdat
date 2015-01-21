@@ -2,7 +2,7 @@
 # import needed modules
 import cdms2, vcs, cdutil, genutil, cdtime, sys, os
 # get an xml file or just a netcdf file
-file = os.path.join(sys.prefix,'sample_data/tas_ccsr-95a.xml')
+file = os.path.join(vcs.prefix,'sample_data/tas_ccsr-95a.xml')
 a=cdms2.open(file)
 
 # get the data and print out it's shape

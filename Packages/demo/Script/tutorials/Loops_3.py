@@ -1,8 +1,9 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms, MV2 as MV, genutil
 import sys
+import cdat_info
 
-pth=sys.prefix+'/sample_data/'
+pth=cdat_info.get_prefix()+'/sample_data/'
 
 files = [ pth+'u_2000.nc',
           pth+'u_2001.nc',

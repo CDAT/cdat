@@ -1,10 +1,11 @@
+import cdat_info
 import cdms2
 import os
 import sys
 
-h = cdms2.open(sys.prefix + \
+h = cdms2.open(cdat_info.get_prefix() + \
                    '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
-f = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
 
 so = h('so')
 clt = f('clt')

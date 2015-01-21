@@ -2,6 +2,7 @@
 Testing CDAT regridding from curvilinear grid to rectangular grid
 """
 import unittest
+import cdat_info
 import cdms2
 import ESMP
 from cdms2.mvCdmsRegrid import CdmsRegrid
@@ -131,7 +132,7 @@ class Test(unittest.TestCase):
             'esmf': ['linear', 'patch', 'conserve'],
             }
     
-        f = cdms2.open(sys.prefix + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
         vari = f('HS')
         f.close()
         gridi = vari.getGrid()
@@ -204,7 +205,7 @@ class Test(unittest.TestCase):
             'esmf': ['conserve', 'patch', 'linear'],
             }
     
-        f = cdms2.open(sys.prefix + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
         vari = f('HS')
         gridi = vari.getGrid()
         lati = vari.getLatitude()
@@ -242,7 +243,7 @@ class Test(unittest.TestCase):
             'esmf': ['conserve', 'patch', 'linear'],
             }
     
-        f = cdms2.open(sys.prefix + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
         vari = f('HS')
         gridi = vari.getGrid()
         lati = vari.getLatitude()

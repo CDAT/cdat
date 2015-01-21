@@ -83,26 +83,28 @@ if (test ! -d $1/man) then
     mkdir --parents $1/man/man3
 fi
 PREFIX=$1;
+echo "argv[1] = $1"
+echo "argv[2] = $2"
 if (test "$2" = "" ) then
-  PYPREFIX=${PREFIX}
+  PYTHON_EXECUTABLE="${PREFIX}/bin/python"
 else
-  PYPREFIX=`(cd $2;pwd)`
+  PYTHON_EXECUTABLE="$2"
 fi
 echo "prefix" ${PREFIX}
-echo "pyprefix" ${PYPREFIX}
+echo "PYTHON_EXECUTABLE" ${PYTHON_EXECUTABLE}
 /bin/rm -fr ${PREFIX}/lib/libcdms.a ${PREFIX}/include/cdms
-CDMS_INCLUDE_DRS=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_DRS,"`
-CDMS_INCLUDE_HDF=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_HDF,"`
-#CDMS_LIBRARY_HDF5=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_LIBRARY_HDF5,"`
-CDMS_INCLUDE_PP=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_PP,"`
-CDMS_INCLUDE_QL=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_QL,"`
-drs_file=`${PYPREFIX}/bin/python -c "import cdat_info;print cdat_info.drs_file,"`
-#CDMS_INCLUDE_DAP=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_DAP,"`
-#CDMS_DAP_DIR=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_DAP_DIR,"`
-CDMS_HDF_DIR=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_HDF_DIR,"`
-CDMS_GRIB2LIB_DIR=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_GRIB2LIB_DIR,"`
-netcdf_directory=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_directory,"`
-netcdf_include_directory=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_include_directory,"`
+CDMS_INCLUDE_DRS=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_DRS,"`
+CDMS_INCLUDE_HDF=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_HDF,"`
+#CDMS_LIBRARY_HDF5=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_LIBRARY_HDF5,"`
+CDMS_INCLUDE_PP=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_PP,"`
+CDMS_INCLUDE_QL=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_QL,"`
+drs_file=`${PYTHON_EXECUTABLE} -c "import cdat_info;print cdat_info.drs_file,"`
+#CDMS_INCLUDE_DAP=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_DAP,"`
+#CDMS_DAP_DIR=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_DAP_DIR,"`
+CDMS_HDF_DIR=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_HDF_DIR,"`
+CDMS_GRIB2LIB_DIR=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_GRIB2LIB_DIR,"`
+netcdf_directory=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_directory,"`
+netcdf_include_directory=`${PYTHON_EXECUTABLE} -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_include_directory,"`
 netcdf_library_directory=${netcdf_directory}/lib
 echo "${libcdms_dir}/configure  --srcdir=${libcdms_dir} --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-ncinc=${netcdf_include_directory} --with-daplib=${CDMS_DAP_DIR}/lib --with-dapinc=${CDMS_DAP_DIR}/include --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib --with-hdf5lib=${CDMS_LIBRARY_HDF5} --with-grib2lib=${CDMS_GRIB2LIB_DIR}/lib --with-jasperlib=${CDMS_GRIB2LIB_DIR}/lib --with-grib2inc=${CDMS_GRIB2LIB_DIR}/include --enable-grib2 " 
 #./configure  --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-ncinc=${netcdf_include_directory} --with-daplib=${CDMS_DAP_DIR}/lib --with-dapinc=${CDMS_DAP_DIR}/include --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib --with-hdf5lib=${CDMS_LIBRARY_HDF5} --with-grib2lib=${CDMS_GRIB2LIB_DIR}/lib --with-jasperlib=${CDMS_GRIB2LIB_DIR}/lib --with-grib2inc=${CDMS_GRIB2LIB_DIR}/include --enable-grib2 || exit 1

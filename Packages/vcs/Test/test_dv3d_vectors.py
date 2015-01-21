@@ -33,7 +33,7 @@ if data_type == DataType.UNSTRUCTURED:
     
 else:
     
-    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
+    f = cdms2.open( os.path.join( vcs.prefix, "sample_data", "geos5-sample.nc") )
     u = f["uwnd"] 
     v = f["vwnd"] 
 

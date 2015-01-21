@@ -1,9 +1,9 @@
-import genutil,sys
+import genutil,sys,cdat_info
 
 ## Test reading of ascii file organized in columns
 print 'Testing genutil.ASCII.read_col'
 try:
-    vars = genutil.ASCII.read_col(sys.prefix+'/sample_data/test_col.asc',header=4,cskip=1,idrow=True,axis=True)
+    vars = genutil.ASCII.read_col(cdat_info.get_prefix()+'/sample_data/test_col.asc',header=4,cskip=1,idrow=True,axis=True)
 except Exception,err:
     print 'genutil.ASCII: Data reading failed!\nCheck genutil.ASCII\nError message: %s' % err
     sys.exit(1)
@@ -31,7 +31,7 @@ print 'genutil.ASCII.read_col tested ok'
 
 print 'Testing genutil.ASCII.readAscii'
 try:
-    vars = genutil.ASCII.readAscii(sys.prefix+'/sample_data/testASCII.asc',header=5)
+    vars = genutil.ASCII.readAscii(cdat_info.get_prefix()+'/sample_data/testASCII.asc',header=5)
 except:
     print 'genutil.ASCII.readAscii error: could not read in data test, check headr keyword?'
     sys.exit(1)
@@ -47,7 +47,7 @@ for i in range(4):
 shapes = [(46,72),(1,2, 80, 97),(46,),(72,)]
 ids = ['clt','u','latitude','longitude']
 try:
-    vars = genutil.ASCII.readAscii(sys.prefix+'/sample_data/testASCII.asc',header=5,shape=shapes,ids=ids)
+    vars = genutil.ASCII.readAscii(cdat_info.get_prefix()+'/sample_data/testASCII.asc',header=5,shape=shapes,ids=ids)
 except Exception,err:
     print 'genutil.ASCII.readAscii error: could not read in data test\nCheck shape or ids options\nError message was: %s' % err
     sys.exit(1)
