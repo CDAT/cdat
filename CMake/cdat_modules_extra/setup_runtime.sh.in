@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Everything beyond this point will be determined relatively
 # from this path.
 install_prefix="@CMAKE_INSTALL_PREFIX@"
