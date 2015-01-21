@@ -84,6 +84,8 @@ class Configurator(object):
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
             self.init_buttons()
 
+        self.place()
+
         self.displays = [vcs.elements["display"][display] for display in displays]
 
     def click(self, object, event):
@@ -123,6 +125,11 @@ class Configurator(object):
     def delete(self, obj, index):
         obj.priority = 0
         self.save()
+
+    def place(self):
+        self.fill_button.place()
+        if self.target:
+            self.target.place()
 
     def activate(self, obj, display):
         if display.g_type == "fillarea":
