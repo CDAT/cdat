@@ -11,7 +11,7 @@ def __kwargs_to_dict__(**kwargs):
     return kwargs
 
 class ButtonState(object):
-    def __init__(self, label = None, image = None, bgcolor = None, fgcolor = None, opacity = None):
+    def __init__(self, label = '', image = None, bgcolor = None, fgcolor = None, opacity = None):
         self.label = label
         self.image = image
         self.bgcolor = bgcolor
@@ -38,14 +38,13 @@ class Button(Widget):
                  opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN):
         """
         @kwargs:
-
             renderer: Which renderer to use from the interactor's RenderWindow
             action: A callback function that will receive the current state ID when the button is clicked.
             width: if width is None, use the size of the label to determine width
             height: if height is None, use the size of the label to determine height
             left: Distance from the left of the window to place the button
             top: Distance from the top of the window to place the button
-            image: Path to a default background image to use for the button; if not provided, will generate a rounded rect background image.
+            image: Icon to place on top of the background
             label: Default label to use for all states (if no states are provided, creates a state using defaults)
             bgcolor: Default background color of the button (if states do not provide a bgcolor, this one is used)
             fgcolor: Default font color of the label (if states do not provide an fgcolor, this one is used)
@@ -141,8 +140,16 @@ class Button(Widget):
         for index, state in enumerate(self.states):
             # Set up attributes with defaults if nothing is set
             label_text = state.label if state.label else self.label
+            image = state.image if state.image else self.image
 
-            if label_text:
+            if image:
+                # Image supersedes label
+                w, h, _ = image.GetDimensions()
+                # Use a 3 px padding for now
+                max_height = max(max_height, h)
+                max_width = max(max_width, w)
+
+            elif label_text:
                 l_w, l_h = text_dimensions(label_text, self.text_widget.actor.GetTextProperty())
 
                 max_height = max(max_height, l_h)
@@ -167,16 +174,14 @@ class Button(Widget):
                 width = self.width if self.width else int(max_width)
                 height = self.height if self.height else int(max_height)
 
+            # Optimization can be done here; can use the same image for everything with same bgcolor + h/w
+            bg_image = rounded_rect(width, height, self.radius, bgcolor)
             if image is not None:
-                bg_image = image
-            else:
-                # Optimization can be done here; can use the same image for everything with same bgcolor + h/w
-                bg_image = rounded_rect(width, height, self.radius, bgcolor)
-
-            image_data = bg_image
+                image = pad_image(image, max_width, max_height)
+                bg_image = combine_images(bg_image, image)
 
             # Should deal with opacity here-ish
-            self.repr.SetButtonTexture(index, image_data)
+            self.repr.SetButtonTexture(index, bg_image)
 
     def __get_position__(self):
         default_texture = self.repr.GetButtonTexture(0)
