@@ -770,6 +770,16 @@ class RectGridPlot(StructuredGridPlot):
             self.levelSetFilter.ComputeScalarsOn()
 
 
+    def buildGlyphVolumePipeline(self):
+        from GlyphVolume import GlyphVolumeWidget
+        primaryInput = self.input()
+        self.glyphVolume = GlyphVolumeWidget( )
+        self.glyphVolume.SetInput( primaryInput )
+        lut = self.getLut('GlyphVolume')
+        self.glyphVolume.SetRenderer( self.renderer )
+        self.glyphVolume.SetUserControlledLookupTable(1)
+        self.glyphVolume.SetLookupTable( lut )
+
     def buildIsosurfacePipeline(self):
         """ execute() -> None
         Dispatch the vtkRenderer to the actual rendering widget
@@ -1012,7 +1022,7 @@ class RectGridPlot(StructuredGridPlot):
             else:
                 self.planeWidgetZ = ScalarSliceWidget( self, picker, 0 )
             self.planeWidgetZ.SetRenderer( self.renderer )
-            self.planeWidgetZ.SetRenderer( self.renderer )
+#            self.planeWidgetZ.SetRenderer( self.renderer )
 #            self.observerTargets.add( self.planeWidgetZ )
             prop3 = self.planeWidgetZ.GetPlaneProperty()
             prop3.SetColor(0, 0, 1)
