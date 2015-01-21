@@ -1,6 +1,20 @@
 import vcs
 import datetime
 from editors import box, fillarea, line, legend, marker, text
+from vtk_ui import Button, ButtonState
+import os, sys
+
+CREATING_FILL = "fill"
+CREATING_LINE = "line"
+CREATING_MARKER = "marker"
+CREATING_TEXT = "text"
+
+CLICKS_TO_CREATE = {
+    CREATING_FILL: 3,
+    CREATING_LINE: 2,
+    CREATING_MARKER: 1,
+    CREATING_TEXT: 1,
+}
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -11,11 +25,64 @@ class Configurator(object):
         self.clicked = None
         self.clicked_info = None
         self.target = None
+        self.fill_button = None
+
+        self.creating = False
+        self.click_locations = None
+
+    def init_buttons(self):
+        # An "off" and "on" state
+        states = [ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
+        self.fill_button = Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=300, action=self.fill_click)
+        self.fill_button.show()
+
+    def fill_click(self, index):
+        if self.target is not None:
+            self.deactivate(self.target)
+
+        if index == 1:
+            self.creating = CREATING_FILL
+            self.click_locations = []
+        else:
+            self.click_locations = None
+            self.creating = None
+
+    def create(self):
+        w, h = self.interactor.GetRenderWindow().GetSize()
+
+        x = []
+        y = []
+
+        for point in self.click_locations:
+            x.append(point[0] / float(w))
+            y.append(point[1] / float(h))
+
+        created = None
+
+        if self.creating == CREATING_FILL:
+            fill = self.canvas.createfillarea()
+            fill.x = x
+            fill.y = y
+            created = fill
+            self.fill_button.set_state(0)
+        elif self.creating == CREATING_TEXT:
+            pass
+        elif self.creating == CREATING_MARKER:
+            pass
+        elif self.creating == CREATING_LINE:
+            pass
+
+        self.canvas.plot(created)
+
+        self.creating = False
+        self.click_locations = None
+
 
     def update(self, displays):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
+            self.init_buttons()
 
         self.displays = [vcs.elements["display"][display] for display in displays]
 
@@ -24,9 +91,15 @@ class Configurator(object):
             # Target should register for own events; don't want to step on toes
             return
 
-        now = datetime.datetime.now()
-
         point = self.interactor.GetEventPosition()
+
+        if self.creating:
+            self.click_locations.append(point)
+            if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
+                self.create()
+            return
+
+        now = datetime.datetime.now()
 
         for display in self.displays:
             obj = self.in_display_plot(point, display)
