@@ -255,7 +255,7 @@ class VTKVCSBackend(object):
       self.renWin.SetAlphaBitPlanes(1)
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
-      self.renWin.SetMultiSamples(0)
+      self.renWin.SetMultiSamples(8)
       self.initialSize()
       
     if self.renderer == None:
