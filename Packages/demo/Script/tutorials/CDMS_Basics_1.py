@@ -1,9 +1,10 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 # Import the cdms module and the sys module
 import cdms2 as cdms,sys
+import cdat_info
 
 # Construct the string containing the path to the data_file
-file_name=sys.prefix+'/sample_data/clt.nc'
+file_name=cdat_info.get_prefix()+'/sample_data/clt.nc'
 
 # open the file with the cdms interface
 file=cdms.open(file_name)

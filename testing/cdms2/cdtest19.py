@@ -5,6 +5,7 @@ import sys
 import cdms2, os, numpy
 import cdms2.forecast
 import cdms2.tvariable
+import cdat_info
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError
 clearError()
 
@@ -42,7 +43,7 @@ f1.close()
 f2.close()
 f3.close()
 
-os.system(sys.prefix+"/bin/cdscan -q --forecast -x 'test_fc.xml' test_fc?")
+os.system(cdat_info.get_prefix()+"/bin/cdscan -q --forecast -x 'test_fc.xml' test_fc?")
 
 # Read in the data.
 

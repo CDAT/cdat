@@ -257,6 +257,7 @@ set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
@@ -491,7 +492,9 @@ include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
-include(pip_pkg)
+if (NOT CDAT_USE_SYSTEM_PYTHON)
+  include(pip_pkg)
+endif()
 include(shapely_pkg)
 include(pygments_pkg)
 include(markupsafe_pkg)
@@ -538,8 +541,10 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 

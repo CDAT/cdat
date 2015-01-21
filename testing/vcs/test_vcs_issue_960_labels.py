@@ -8,7 +8,7 @@ import checkimage
 x=vcs.init()
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
 s=f("clt",time=slice(0,1),latitude=(-7,5),squeeze=1)
 x.plot(s,bg=1)
 fnm = "test_vcs_issue_960_labels_1.png"

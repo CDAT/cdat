@@ -111,7 +111,7 @@ e.list()
 
 
 import sys,cdms2
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+f=cdms2.open(vcs.prefix+"/sample_data/clt.nc")
 s=f("clt")
 iso=x.createisofill()
 x.plot(s,iso)

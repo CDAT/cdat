@@ -5,9 +5,9 @@ except:
     print 'This test requires cdms2 for I/O'
     sys.exit()
     
-import cmor,numpy
+import cmor,numpy,cdat_info
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data/clt.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data/clt.nc'))
 
 pth = os.path.split(os.path.realpath(os.curdir))
 if pth[-1]=='Test':
