@@ -356,10 +356,15 @@ class RectGridPlot(StructuredGridPlot):
             ispec = self.getInputSpec()
             slicePosition.setValue( 'count', 1 )
             bounds = list( primaryInput.GetBounds() )
+            plot_type = ispec.getMetadata('plotType')
             if plane_index == 2:
-                lat = ispec.getMetadata('lev')
-                ordering = ispec.getMetadata('lev_ordering')
-                init_range = [ lat[0], lat[-1] ] if ( ordering == 'up' ) else [ lat[-1], lat[0] ]
+                if plot_type == 'xyt':
+                    time = ispec.getMetadata('time')
+                    init_range = [ 0, len(time)-1 ]
+                else:
+                    lev = ispec.getMetadata('lev')
+                    ordering = ispec.getMetadata('lev_ordering')
+                    init_range = [ lev[0], lev[-1] ] if ( ordering == 'up' ) else [ lev[-1], lev[0] ]
             else:
                 init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
             config_function.setRangeBounds( init_range )
