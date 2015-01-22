@@ -46,6 +46,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def change_type(self, index):
         self.line.type[self.index] = index
+        self.save()
 
     def change_color(self, state):
         if self.picker:
