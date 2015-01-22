@@ -235,6 +235,9 @@ class Textbox(Label):
             else:
                 row_at_point = rows.index(row)
 
+        if row_at_point is None:
+            row_at_point = len(rows) - 1
+
         # List was assembled backwards
         row_bounds.reverse()
 
