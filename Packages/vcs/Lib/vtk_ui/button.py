@@ -193,7 +193,7 @@ class Button(Widget):
         elif self.halign == CENTER_ALIGN:
             left = (self.left - (width - dwidth) / 2)
         elif self.halign == RIGHT_ALIGN:
-            left = size[0] - (self.left - (width - dwidth))
+            left = size[0] - self.left - width
 
         if dheight == height or self.valign == TOP_ALIGN:
             top = self.top
