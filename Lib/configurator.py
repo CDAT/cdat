@@ -36,11 +36,29 @@ class Configurator(object):
         self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.fill_button.show()
 
+        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=58, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
+        self.text_button.show()
+
+    def text_click(self, index):
+        if self.target is not None:
+            self.deactivate(self.target)
+
+        if index == 1:
+            if self.creating:
+                self.fill_button.set_state(0)
+            self.creating = CREATING_TEXT
+            self.click_locations = []
+        else:
+            self.click_locations = None
+            self.creating = None
+
     def fill_click(self, index):
         if self.target is not None:
             self.deactivate(self.target)
 
         if index == 1:
+            if self.creating:
+                self.text_button.set_state(0)
             self.creating = CREATING_FILL
             self.click_locations = []
         else:
@@ -66,13 +84,20 @@ class Configurator(object):
             created = fill
             self.fill_button.set_state(0)
         elif self.creating == CREATING_TEXT:
-            pass
+            t = self.canvas.createtextcombined()
+            t.x = x
+            t.y = y
+            t.string = ["New Text"]
+            created = t
+            self.text_button.set_state(0)
         elif self.creating == CREATING_MARKER:
             pass
         elif self.creating == CREATING_LINE:
             pass
 
-        self.canvas.plot(created)
+        dp = self.canvas.plot(created)
+        self.clicked_info = 0
+        self.activate(created, dp)
 
         self.creating = False
         self.click_locations = None
