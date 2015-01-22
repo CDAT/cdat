@@ -114,20 +114,17 @@ class Button(Widget):
         self.repr.PlaceWidget(bounds)
 
         text_width, text_height = self.text_widget.get_dimensions()
+        swidth, sheight = self.interactor.GetRenderWindow().GetSize()
 
-        self.text_widget.left = self.left + (width - text_width) / 2.0
-        self.text_widget.top = self.top + BUTTON_MARGIN
+        self.text_widget.left = x + (width - text_width) / 2.0
+        self.text_widget.top = sheight - y + BUTTON_MARGIN
 
         self.text_widget.place()
 
 
     def get_dimensions(self):
-        # Save some effort
-        if self.image is not None:
-            width, height, _ = self.image.GetDimensions()
-        else:
-            image = self.repr.GetButtonTexture(self.repr.GetState())
-            width, height, _ = image.GetDimensions()
+        image = self.repr.GetButtonTexture(self.repr.GetState())
+        width, height, _ = image.GetDimensions()
 
         return width, height
 
@@ -191,7 +188,7 @@ class Button(Widget):
         window = self.interactor.GetRenderWindow()
         size = window.GetSize()
 
-        if dwidth == width or self.halign == LEFT_ALIGN:
+        if self.halign == LEFT_ALIGN:
             left = self.left
         elif self.halign == CENTER_ALIGN:
             left = (self.left - (width - dwidth) / 2)
