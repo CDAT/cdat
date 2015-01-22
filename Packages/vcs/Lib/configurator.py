@@ -36,7 +36,7 @@ class Configurator(object):
         self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.fill_button.show()
 
-        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=58, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
+        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
         self.text_button.show()
 
     def text_click(self, index):
