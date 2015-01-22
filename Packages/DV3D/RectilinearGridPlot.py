@@ -7,7 +7,8 @@ Created on Apr 29, 2014
 import sys, vtk, cdms2, traceback, os, cdtime, math 
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
-from ImagePlaneAxisAlignedWidget import *
+#from ImagePlaneAxisAlignedWidget import *
+from ImagePlaneWidget import *
 from StructuredGridPlot import  *
 from StructuredDataset import *
 from ConfigurationFunctions import get_scalar_value
@@ -363,8 +364,11 @@ class RectGridPlot(StructuredGridPlot):
                     init_range = [ 0, len(time)-1 ]
                 else:
                     lev = ispec.getMetadata('lev')
-                    ordering = ispec.getMetadata('lev_ordering')
-                    init_range = [ lev[0], lev[-1] ] if ( ordering == 'up' ) else [ lev[-1], lev[0] ]
+                    if (lev is None) or (len(lev) == 0):
+                        init_range = [ 0.0, 1.0 ]
+                    else:
+                        ordering = ispec.getMetadata('lev_ordering')
+                        init_range = [ lev[0], lev[-1] ] if ( ordering == 'up' ) else [ lev[-1], lev[0] ]
             else:
                 init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
             config_function.setRangeBounds( init_range )

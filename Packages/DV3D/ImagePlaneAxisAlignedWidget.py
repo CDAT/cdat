@@ -1714,7 +1714,9 @@ class VectorSliceWidget(ImagePlaneWidget):
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue() 
+            mapper_input = self.cutter.GetOutput()
+            cutter_input = self.resample.GetOutput()
+            value = args[2].GetValue()
             glyphScale.setValue( 0, value )
             self.glyphScale = abs( value )
             if self.isActiveUpdate():

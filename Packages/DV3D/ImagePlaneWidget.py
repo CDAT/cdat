@@ -1804,22 +1804,21 @@ class VectorSliceWidget(ImagePlaneWidget):
 
     def ApplyGlyphDecimationFactor(self):
         sampleRate =  int( round( abs( self.glyphDecimationFactor ) )  )
-#        print "Sample rate: %s " % str( sampleRate )
+        print "Sample rate: %s " % str( sampleRate )
         self.resample.SetSampleRate( sampleRate, sampleRate, 1 )
         
-#        spacing = [ self.initialSpacing[i]*self.glyphDecimationFactor for i in range(3) ]
-#        extent = [ int( (self.dataBounds[i] - self.initialOrigin[i/2]) / spacing[i/2] ) for i in range( 6 )  ]
-#        self.resample.SetOutputExtent( extent )
-#        self.resample.SetOutputSpacing( spacing )
-#        resampleOutput = self.resample.GetOutput()
-#        resampleOutput.Update()
-#        ptData = resampleOutput.GetPointData()
-#        ptScalars = ptData.GetScalars()
-#        np = resampleOutput.GetNumberOfPoints()
-#        print " decimated ImageData: npoints= %d, vectors: ncomp=%d, ntup=%d " % ( np, ptScalars.GetNumberOfComponents(), ptScalars.GetNumberOfTuples() )
-        
-#        ncells = resampleOutput.GetNumberOfCells()
-        self.UpdateCut()  
+        # spacing = [ self.initialSpacing[i]*self.glyphDecimationFactor for i in range(3) ]
+        # extent = [ int( (self.dataBounds[i] - self.initialOrigin[i/2]) / spacing[i/2] ) for i in range( 6 )  ]
+        # self.resample.SetOutputExtent( extent )
+        # self.resample.SetOutputSpacing( spacing )
+        # resampleOutput = self.resample.GetOutput()
+        # resampleOutput.Update()
+        # ptData = resampleOutput.GetPointData()
+        # ptScalars = ptData.GetScalars()
+        # np = resampleOutput.GetNumberOfPoints()
+        # print " Decimated ImageData: npoints= %d, vectors: ncomp=%d, ntup=%d " % ( np, ptScalars.GetNumberOfComponents(), ptScalars.GetNumberOfTuples() )
+
+        self.UpdateCut()
 
     def processGlyphScaleCommand( self, args, config_function = None ):
         glyphScale = config_function.value
