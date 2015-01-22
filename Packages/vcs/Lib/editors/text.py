@@ -125,8 +125,24 @@ class TextEditor(ClickableMixin):
     def moved_textbox(self):
         box = self.textboxes[self.index]
         w, h = self.interactor.GetRenderWindow().GetSize()
-        self.text.x[self.index] = box.left / float(w)
-        self.text.y[self.index] = (h - box.top - box.get_dimensions()[1] / 2.0) / float(h)
+
+        xcoord, ycoord = box.left, box.top
+
+        text_width, text_height = box.get_dimensions()
+
+        # Adjust for the origin of the textbox
+        if self.text.valign in ("half", 2):
+            ycoord += text_height / 2.0
+        elif self.text.valign in ("bottom", 4):
+            ycoord += text_height
+
+        if self.text.halign in ("right", 2):
+            xcoord += text_width
+        elif self.text.halign in ("center", 1):
+            xcoord += text_width / 2.0
+
+        self.text.x[self.index] = xcoord / float(w)
+        self.text.y[self.index] = (h - ycoord) / float(h)
 
     def handle_click(self, text_index, x, y):
 
