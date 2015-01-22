@@ -29,6 +29,7 @@ class Configurator(object):
         self.fill_button = None
         self.text_button = None
         self.line_button = None
+        self.marker_button = None
 
         self.creating = False
         self.click_locations = None
@@ -36,6 +37,7 @@ class Configurator(object):
     def init_buttons(self):
         # An "off" and "on" state
         states = [vtk_ui.button.ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
+
         self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.fill_button.show()
 
@@ -45,12 +47,15 @@ class Configurator(object):
         self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
         self.line_button.show()
 
+        self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=169, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click)
+        self.marker_button.show()
+
 
     def creator_enabled(self, button):
         if self.target is not None:
             self.deactivate(self.target)
 
-        buttons = [self.fill_button, self.text_button, self.line_button]
+        buttons = [self.fill_button, self.text_button, self.line_button, self.marker_button]
         buttons.remove(button)
 
         if self.creating:
@@ -65,6 +70,8 @@ class Configurator(object):
             self.creating = CREATING_TEXT
         elif button == self.line_button:
             self.creating = CREATING_LINE
+        elif button == self.marker_button:
+            self.creating = CREATING_MARKER
 
     def creator_disabled(self, button):
         if self.target is not None:
@@ -72,6 +79,12 @@ class Configurator(object):
 
         self.click_locations = None
         self.creating = None
+
+    def marker_click(self, index):
+        if index == 1:
+            self.creator_enabled(self.marker_button)
+        else:
+            self.creator_disabled(self.marker_button)
 
     def line_click(self, index):
         if index == 1:
@@ -117,7 +130,12 @@ class Configurator(object):
             created = t
             self.text_button.set_state(0)
         elif self.creating == CREATING_MARKER:
-            pass
+            m = self.canvas.createmarker()
+            m.x = x
+            m.y = y
+            m.size = [10]
+            created = m
+            self.marker_button.set_state(0)
         elif self.creating == CREATING_LINE:
             l = self.canvas.createline()
             l.x = x
