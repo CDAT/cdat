@@ -25,7 +25,10 @@ class Configurator(object):
         self.clicked = None
         self.clicked_info = None
         self.target = None
+
         self.fill_button = None
+        self.text_button = None
+        self.line_button = None
 
         self.creating = False
         self.click_locations = None
@@ -39,31 +42,54 @@ class Configurator(object):
         self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
         self.text_button.show()
 
-    def text_click(self, index):
+        self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
+        self.line_button.show()
+
+
+    def creator_enabled(self, button):
         if self.target is not None:
             self.deactivate(self.target)
 
-        if index == 1:
-            if self.creating:
-                self.fill_button.set_state(0)
+        buttons = [self.fill_button, self.text_button, self.line_button]
+        buttons.remove(button)
+
+        if self.creating:
+            for button in buttons:
+                button.set_state(0)
+
+        self.click_locations = []
+
+        if button == self.fill_button:
+            self.creating = CREATING_FILL
+        elif button == self.text_button:
             self.creating = CREATING_TEXT
-            self.click_locations = []
+        elif button == self.line_button:
+            self.creating = CREATING_LINE
+
+    def creator_disabled(self, button):
+        if self.target is not None:
+            self.deactivate(self.target)
+
+        self.click_locations = None
+        self.creating = None
+
+    def line_click(self, index):
+        if index == 1:
+            self.creator_enabled(self.line_button)
         else:
-            self.click_locations = None
-            self.creating = None
+            self.creator_disabled(self.line_button)
+
+    def text_click(self, index):
+        if index == 1:
+            self.creator_enabled(self.text_button)
+        else:
+            self.creator_disabled(self.text_button)
 
     def fill_click(self, index):
-        if self.target is not None:
-            self.deactivate(self.target)
-
         if index == 1:
-            if self.creating:
-                self.text_button.set_state(0)
-            self.creating = CREATING_FILL
-            self.click_locations = []
+            self.creator_enabled(self.fill_button)
         else:
-            self.click_locations = None
-            self.creating = None
+            self.creator_disabled(self.fill_button)
 
     def create(self):
         w, h = self.interactor.GetRenderWindow().GetSize()
@@ -93,9 +119,15 @@ class Configurator(object):
         elif self.creating == CREATING_MARKER:
             pass
         elif self.creating == CREATING_LINE:
-            pass
+            l = self.canvas.createline()
+            l.x = x
+            l.y = y
+            created = l
+            self.line_button.set_state(0)
 
         dp = self.canvas.plot(created)
+
+        # Activate an editor for the new object
         self.clicked_info = 0
         self.activate(created, dp)
 
