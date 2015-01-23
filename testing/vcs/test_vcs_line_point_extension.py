@@ -1,10 +1,12 @@
 import vcs, os, sys
 
 x = vcs.init()
+
 line = x.createline()
 line.x = [[0, .1], [.2, .3], [.4, .5], [.6, .7]]
 line.y = [[0, .1], [.2, .3, .4], [.5], [.6, .7]]
-x.plot(line)
+
+x.plot(line, bg=1)
 
 if line.x[0] != [0, .1]:
   print "line.x[0] should be [0, .1]; is %s" % line.x[0]
