@@ -57,6 +57,7 @@ class VTKVCSBackend(object):
         self.reRender = False
         self.oldCursor = None
 
+    self.clickRenderer = None
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -175,9 +176,10 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def leftButtonReleaseEvent(self,obj,event):
-    self.clickRenderer.RemoveAllViewProps()
-    self.renWin.RemoveRenderer(self.clickRenderer)
-    self.renWin.Render()
+    if self.clickRenderer is not None:
+      self.clickRenderer.RemoveAllViewProps()
+      self.renWin.RemoveRenderer(self.clickRenderer)
+      self.renWin.Render()
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()

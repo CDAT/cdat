@@ -6,6 +6,9 @@ language: c++
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo add-apt-repository ppa:kubuntu-ppa/beta -y; sudo apt-get update; sudo apt-get install -y cmake; sudo apt-get install -y gfortran; fi
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then pushd $HOME && mkdir cmake3.1 && cd cmake3.1 && (curl "http://www.cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz" | gunzip -c | tar x) && cd cmake-*/bin && export PATH="${PWD}:${PATH}"; popd; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew outdated cmake || brew upgrade cmake ; fi
+    - cmake --version
 
 script:
     - git submodule init

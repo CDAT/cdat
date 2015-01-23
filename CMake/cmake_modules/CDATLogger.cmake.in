@@ -1,5 +1,5 @@
 execute_process(
-  COMMAND @GIT_EXECUTABLE@ log -n 1 --pretty=format:%H
+  COMMAND "@GIT_EXECUTABLE@" log -n 1 --pretty=format:%H
   WORKING_DIRECTORY @cdat_SOURCE_DIR@
   OUTPUT_VARIABLE git_log_output
   OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -9,7 +9,7 @@ include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 
 execute_process(
-  COMMAND @PYTHON_EXECUTABLE@ -c "import cdat_info;cdat_info.pingPCMDIdb('CMAKE','install','${git_log_output}')"
+  COMMAND "@PYTHON_EXECUTABLE@" -c "import cdat_info;cdat_info.pingPCMDIdb('CMAKE','install','${git_log_output}')"
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 

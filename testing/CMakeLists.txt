@@ -18,3 +18,11 @@ endif()
 #if (CDAT_BUILD_PARAVIEW)
 #  add_subdirectory(paraview)
 #endif()
+
+# CMake module tests:
+# Test that out-of-source build detection is working:
+add_test(cmake_checkBuildOutOfSource
+  "${CMAKE_COMMAND}"
+    -DTEST_check_build_out_of_source=ON
+    -P "${cdat_SOURCE_DIR}/CMake/cmake_modules/CheckBuildOutOfSource.cmake"
+)
