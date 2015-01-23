@@ -178,18 +178,21 @@ class Configurator(object):
 
         now = datetime.datetime.now()
 
+        clicked = None
+        display_clicked = None
         for display in self.displays:
             obj = self.in_display_plot(point, display)
-            if obj is not None:
-                break
+            if obj is not None and (clicked is None or obj.priority >= clicked.priority):
+                clicked = obj
+                display_clicked = display
 
-        if obj:
-            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == obj:
-                self.activate(obj, display)
+        if clicked:
+            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == clicked:
+                self.activate(clicked, display_clicked)
                 self.clicked = None
                 self.clicked_info = None
             else:
-                self.clicked = (now, obj)
+                self.clicked = (now, clicked)
 
     def deactivate(self, obj):
         if self.target == obj:
