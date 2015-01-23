@@ -1,6 +1,6 @@
 import vcs
 import datetime
-from editors import box, fillarea, line, legend, marker, text
+from editors import box, fillarea, line, legend, marker, text, data
 import vtk_ui.button
 import os, sys
 
@@ -212,24 +212,21 @@ class Configurator(object):
     def activate(self, obj, display):
         if display.g_type == "fillarea":
             editor = fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
-            self.target = editor
         elif display.g_type == "line":
             editor = line.LineEditor(self.interactor, obj, self.clicked_info, self)
-            self.target = editor
         elif display.g_type == "marker":
             editor = marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
-            self.target = editor
         elif display.g_type == "text":
             editor = text.TextEditor(self.interactor, obj, self.clicked_info, self)
-            self.target = editor
         else:
             if is_box(obj):
                 if obj.member == "legend":
                     editor = legend.LegendEditor(self.interactor, t(display.template), self)
-                    self.target = editor
+                elif obj.member == "data":
+                    editor = data.DataEditor(self.interactor, vcs.getgraphicsmethod(display.g_type, display.g_name), t(display.template), self)
                 else:
                     editor = box.BoxEditor(self.interactor, obj, self)
-                    self.target = editor
+        self.target = editor
 
 
     def in_display_plot(self, point, dp):
