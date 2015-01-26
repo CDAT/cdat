@@ -1325,10 +1325,21 @@ class VTKVCSBackend(object):
     self.renWin.Render()
     return
 
+  def get3DPlot(self):
+    from dv3d import Gfdv3d
+    plot = None
+    for key in self.plotApps.keys():
+        if isinstance( key, Gfdv3d ):
+            plot = self.plotApps[key]
+            break
+    return plot
+
   def vectorGraphics(self, output_type, file, width=None, height=None, units=None):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
+    plot = self.get3DPlot()
+    if plot: plot.hideWidgets()
     gl  = vtk.vtkGL2PSExporter()
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
@@ -1342,6 +1353,7 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    if plot: plot.showWidgets()
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1377,6 +1389,8 @@ class VTKVCSBackend(object):
         except:
           pass
 
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
@@ -1393,6 +1407,7 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if plot: plot.showWidgets()
 
   def cgm(self,file):
         if self.renWin is None:
@@ -1405,6 +1420,9 @@ class VTKVCSBackend(object):
           os.remove(file)
         except:
           pass
+
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
 
         writer = vtk.vtkIOCGM.vtkCGMWriter()
         writer.SetFileName(file)
@@ -1419,6 +1437,9 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
+
+        if plot: plot.showWidgets()
+
   def Animate(self,*args,**kargs):
     return VTKAnimate(*args,**kargs)
 

@@ -229,7 +229,8 @@ class DV3DPlot():
         self.isAltMode = False
         self.createColormap = True
         self.colormapManagers= {}
-        self.colormapWidget = None 
+        self.colormapWidget = None
+        self.widgetsVisible = True
         self.colormapWindowSize = None
         self.keyPressHandlers = {}
         interactionButtons = self.getInteractionButtons()
@@ -245,7 +246,18 @@ class DV3DPlot():
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
         self.addKeyPressHandler( 'p',  self.printParameterValues )
-        
+        self.addKeyPressHandler( 'w',  self.toggleWidgetVisibility )
+        self.addKeyPressHandler( 't',  self.createTest )
+
+    def toggleWidgetVisibility( self, **args ):
+        print " Toggle Widget Visibility: ", str( args )
+        self.widgetsVisible = not self.widgetsVisible
+        if self.widgetsVisible:  self.showWidgets()
+        else:                    self.hideWidgets()
+
+    def createTest(self, **args ):
+        print " Create CTest: ", str( args )
+
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
         
@@ -917,7 +929,13 @@ class DV3DPlot():
             if bbar:
                 if isVisible: bbar.show()
                 else: bbar.hide()
-    
+
+    def hideWidgets(self ):
+        self.buttonBarHandler.hideWidgets()
+
+    def showWidgets(self ):
+        self.buttonBarHandler.showWidgets()
+
     def processConfigurationToggle( self, args, config_function = None ):
         if args and args[0] == "Init":
 #             name = config_function.name

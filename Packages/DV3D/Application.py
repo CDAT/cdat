@@ -85,5 +85,11 @@ class DV3DApp:
     
     def start(self): 
         iren = self.plot.renderWindow.GetInteractor() 
-        iren.Start()        
-        
+        iren.Start()
+
+    def hideWidgets(self):
+        self.plot.hideWidgets(self)
+
+    def showWidgets(self):
+        self.plot.showWidgets(self)
+

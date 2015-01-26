@@ -220,7 +220,15 @@ class ButtonBarHandler:
         self.button_bars = {}
         self.DefaultGroup = None
         self.cfgManager = cfgMgr             
-        
+
+    def hideWidgets(self ):
+        for bbar in self.button_bars.values():
+            bbar.setVisibility(False)
+
+    def showWidgets(self ):
+        for bbar in self.button_bars.values():
+            bbar.setVisibility(True)
+
     def createButtonBarWidget( self, name, interactor, **args  ):
         bbar = self.getButtonBar( name )
         if bbar == None:
@@ -401,7 +409,15 @@ class ButtonBar:
     def show( self, **args ):
         self.visible = True
         for button in self.buttons: button.On()
-        
+
+    def setVisibility( self, isVisible ):
+        for button in self.buttons:
+            if isVisible:
+                button.buttonRepresentation.SetVisibility(1)
+                if button.getState(): button.setState(1)
+            else:
+                button.buttonRepresentation.SetVisibility(0)
+
     def processKeyEvent( self, key, ctrl = 0 ):
         processed = False
         for button in self.buttons: 
@@ -490,6 +506,12 @@ class ButtonBarWidget(ButtonBar):
         self.groups = {}
         self.configurableFunctions = collections.OrderedDict()
         self.interaction_priority = 0
+
+    def setVisibility( self, isVisible ):
+        ButtonBar.setVisibility( self, isVisible )
+        for ( process_mode, interaction_state, swidget ) in self.currentControls.values():
+            if not isVisible: swidget.GetRepresentation().VisibilityOff()
+            else:             swidget.GetRepresentation().VisibilityOn()
 
     def show( self, **args ):
         self.initializeChildren( **args )
