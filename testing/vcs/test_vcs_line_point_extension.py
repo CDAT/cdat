@@ -13,7 +13,7 @@ if line.x[0] != [0, .1]:
   sys.exit(-1)
 
 if line.x[1] != [.2, .3, .3]:
-  print 'line.x[1] should be [.2, .3]; is %s' % line.x[1]
+  print 'line.x[1] should be [.2, .3, .3]; is %s' % line.x[1]
   sys.exit(-1)
 
 if line.y[2] != [.5, .5]:
