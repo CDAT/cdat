@@ -964,7 +964,7 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
         self._slider_bounds_relative = False
 
     def setSliderBoundsToRelative( self ):
-        self._slider_bounds = [ 0.0, 1.0 ]
+        self._slider_bounds = [ 0.01, 1.0 ]
         self._slider_bounds_relative = True
 
 

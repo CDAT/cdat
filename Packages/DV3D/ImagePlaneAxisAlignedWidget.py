@@ -876,12 +876,12 @@ class ImagePlaneWidget:
     def ConvertPositionToRelative( self, position ):
         bounds = self.dataBounds[ self.PlaneOrientation*2:]
         bsize = ( bounds[1] - bounds[0] )
-        rpos = 0.0 if ( bsize == 0.0 ) else ( position - bounds[0] ) / bsize
+        rpos = 0.01 if ( bsize == 0.0 ) else ( ( position - bounds[0] ) / bsize ) + 0.01
         return rpos
 
     def ConvertPositionFromRelative( self, relative_position ):
         bounds = self.dataBounds[ self.PlaneOrientation*2:]
-        pos =  bounds[0]  +  relative_position * ( bounds[1] - bounds[0] )
+        pos =  bounds[0] + relative_position * ( bounds[1] - bounds[0] )
         return pos
 
     def SetSlicePositionFromRelative( self, rel_position ):

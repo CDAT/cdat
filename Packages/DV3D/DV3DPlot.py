@@ -435,23 +435,40 @@ class DV3DPlot():
 #                                  'YSlider': ( 20.0,  vcs.on ),
 #                                  }  )
 
+
+#    plot = self.canvas.backend.plotApps[ self.gm ]
+
     def createCTestFunction( self, **args ):
-        cTestStrs = []
-        mdataStrs = [ '"ctest1"' ]
-        roi = self.cfgManager.getMetadata('roi')
-        if roi: mdataStrs.append( ' roi=%s' % str( roi ) )
-        cdmsfile = self.cfgManager.getMetadata('cdmsfile')
-        mdataStrs.append( ' file="%s"' % str( cdmsfile ) )
-        mdataStrs.append( ' vars=["%s",]' % 'test' )
-        cTestStrs.append( 'test1 =  vcsTest( %s,' % ( ','.join(mdataStrs) ) )
-        self.recordCamera()
-        parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
-        cTestStrs.append(  '\t\t\t\tparameters = {' )
-        for param_name in parameter_names:
-            pval = self.cfgManager.getParameterValue( param_name )
-            if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
-        cTestStrs.append( '\t\t\t\t\t} )' )
-        return '\n'.join( cTestStrs )
+        try:
+            cTestStrs = []
+            lt = time.localtime(time.time())
+            mdataStrs = [ '"ctest"' ]
+            roi = self.cfgManager.getMetadata('roi')
+            if roi: mdataStrs.append( ' roi=%s' % str( roi ) )
+            cdmsfile = self.cfgManager.getMetadata('cdmsfile')
+            filename = os.path.basename(cdmsfile)
+            mdataStrs.append( ' file="%s"' % filename )
+            var_list = []
+            for input_index in range(0,5):
+                input_ispec = self.getInputSpec( input_index )
+                if input_ispec == None: break
+                else:
+                    pname = input_ispec.getMetadata( 'scalars' )
+                    var_list.append( pname )
+            mdataStrs.append( ' vars=%s' % str(var_list) )
+            cTestStrs.append( 'test_%d_%d_%d_%d =  vcsTest( %s,' % ( lt.tm_year, lt.tm_yday, lt.tm_hour, lt.tm_min, ','.join(mdataStrs) ) )
+            self.recordCamera()
+            parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
+            cTestStrs.append(  '\t\t\t\tparameters = {' )
+            for param_name in parameter_names:
+                pval = self.cfgManager.getParameterValue( param_name )
+                if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
+            cTestStrs.append( '\t\t\t\t\t} )' )
+            return '\n'.join( cTestStrs )
+        except Exception, err:
+            print "Error generating CTestFunction: ", str( err )
+            traceback.print_exc()
+            return ""
 
     def printParameterValues( self, **args ):
         self.recordCamera()

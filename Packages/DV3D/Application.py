@@ -88,8 +88,8 @@ class DV3DApp:
         iren.Start()
 
     def hideWidgets(self):
-        self.plot.hideWidgets(self)
+        self.plot.hideWidgets()
 
     def showWidgets(self):
-        self.plot.showWidgets(self)
+        self.plot.showWidgets()
 
