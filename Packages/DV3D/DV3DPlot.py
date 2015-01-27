@@ -256,7 +256,8 @@ class DV3DPlot():
         else:                    self.hideWidgets()
 
     def createTest(self, **args ):
-        print " Create CTest: ", str( args )
+        ctestFunction = self.createCTestFunction()
+        print " Create CTest: \n", ctestFunction
 
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
@@ -422,11 +423,42 @@ class DV3DPlot():
     def getConfigurationParms(self, **args): 
         return self.cfgManager.getConfigurationParms( **args )
 
+# test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
+#                      parameters={'VerticalScaling': 3.0,
+#                                  'ToggleVolumePlot': vcs.off,
+#                                  'ScaleOpacity': [1.0, 1.0],
+#                                  'ToggleSurfacePlot': vcs.off,
+#                                  'ScaleColormap': [-10.0, 10.0, 1],
+#                                  'BasemapOpacity': [0.5],
+#                                  'XSlider': ( -50.0, vcs.on ),
+#                                  'ZSlider': ( 0.0,  vcs.on ),
+#                                  'YSlider': ( 20.0,  vcs.on ),
+#                                  }  )
+
+    def createCTestFunction( self, **args ):
+        cTestStrs = []
+        mdataStrs = [ '"ctest1"' ]
+        roi = self.cfgManager.getMetadata('roi')
+        if roi: mdataStrs.append( ' roi=%s' % str( roi ) )
+        cdmsfile = self.cfgManager.getMetadata('cdmsfile')
+        mdataStrs.append( ' file="%s"' % str( cdmsfile ) )
+        mdataStrs.append( ' vars=["%s",]' % 'test' )
+        cTestStrs.append( 'test1 =  vcsTest( %s,' % ( ','.join(mdataStrs) ) )
+        self.recordCamera()
+        parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
+        cTestStrs.append(  '\t\t\t\tparameters = {' )
+        for param_name in parameter_names:
+            pval = self.cfgManager.getParameterValue( param_name )
+            if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
+        cTestStrs.append( '\t\t\t\t\t} )' )
+        return '\n'.join( cTestStrs )
+
     def printParameterValues( self, **args ):
         self.recordCamera()
         parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
         for param_name in parameter_names:
-            print '%s = %s' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
+            pval = self.cfgManager.getParameterValue( param_name )
+            if pval: print '%s = %s' % ( param_name, pval )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
