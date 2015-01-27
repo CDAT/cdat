@@ -1,6 +1,6 @@
 import vcs
 import datetime
-from editors import box, fillarea, line, legend, marker, text, data
+import editors
 import vtk_ui.button
 import os, sys
 
@@ -33,6 +33,140 @@ class Configurator(object):
 
         self.creating = False
         self.click_locations = None
+
+
+    def update(self, displays):
+        if self.backend.renWin and self.interactor is None:
+            self.interactor = self.backend.renWin.GetInteractor()
+            self.interactor.AddObserver("LeftButtonPressEvent", self.click)
+            self.init_buttons()
+
+        self.place()
+
+        self.displays = [vcs.elements["display"][display] for display in displays]
+
+    def click(self, object, event):
+        if self.target is not None:
+            # Target should register for own events; don't want to step on toes
+            return
+
+        point = self.interactor.GetEventPosition()
+
+        if self.creating:
+            self.click_locations.append(point)
+            if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
+                self.create()
+            return
+
+        now = datetime.datetime.now()
+
+        clicked = None
+        display_clicked = None
+        for display in self.displays:
+            obj = self.in_display_plot(point, display)
+            if obj is not None and (clicked is None or obj.priority >= clicked.priority):
+                clicked = obj
+                display_clicked = display
+        print "Clicked", datetime.datetime.now() - now
+
+        if clicked:
+            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == clicked:
+                self.activate(clicked, display_clicked)
+                self.clicked = None
+                self.clicked_info = None
+            else:
+                self.clicked = (now, clicked)
+
+
+    def deactivate(self, obj):
+        if self.target == obj:
+            self.target.detach()
+            self.target = None
+        self.save()
+
+    def delete(self, obj, index):
+        obj.priority = 0
+        self.save()
+
+    def place(self):
+        self.fill_button.place()
+        self.line_button.place()
+        self.marker_button.place()
+        self.text_button.place()
+        if self.target:
+            self.target.place()
+
+    def activate(self, obj, display):
+        if display.g_type == "fillarea":
+            editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
+        elif display.g_type == "line":
+            editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
+        elif display.g_type == "marker":
+            editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
+        elif display.g_type == "text":
+            editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, self)
+        else:
+            if is_box(obj):
+                if obj.member == "legend":
+                    editor = editors.legend.LegendEditor(self.interactor, t(display.template), self)
+                elif obj.member == "data":
+                    editor = editors.data.DataEditor(self.interactor, vcs.getgraphicsmethod(display.g_type, display.g_name), t(display.template), self)
+                else:
+                    editor = editors.box.BoxEditor(self.interactor, obj, self)
+            else:
+                if is_label(obj):
+                    editor = editors.label.LabelEditor(self.interactor, obj, display, self)
+                else:
+                    print obj.member
+                    editor = editors.point.PointEditor(self.interactor, obj, self)
+        self.target = editor
+
+
+    def in_display_plot(self, point, dp):
+        t1 = datetime.datetime.now()
+        #Normalize the point
+        x, y = point
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        if x > 1 or y > 1:
+            point = (x / float(w), y / float(h))
+            x, y = point
+
+        if dp.g_type == "fillarea":
+            fill = vcs.getfillarea(dp.g_name)
+            info = editors.fillarea.inside_fillarea(fill, *point)
+            if info is not None:
+                self.clicked_info = info
+                print "Fill:", datetime.datetime.now() - t1
+                return fill
+        elif dp.g_type == "line":
+            l = vcs.getline(dp.g_name)
+            # Uses screen_height to determine how much buffer space there is around the line
+            info = editors.line.inside_line(l, *point, screen_height=h)
+            if info is not None:
+                self.clicked_info = info
+                print "Line:", datetime.datetime.now() - t1
+                return l
+        elif dp.g_type == "marker":
+            m = vcs.getmarker(dp.g_name)
+            info = editors.marker.inside_marker(m, point[0], point[1], w, h)
+            if info is not None:
+                self.clicked_info = info
+                print "Marker:", datetime.datetime.now() - t1
+                return m
+        elif dp.g_type == "text":
+            tc = vcs.gettextcombined(dp.g_name)
+            info = editors.text.inside_text(tc, point[0], point[1], w, h)
+            if info is not None:
+                self.clicked_info = info
+                print "Text:", datetime.datetime.now() - t1
+                return tc
+        else:
+            fudge = 5 / float(w)
+            print "Template:", datetime.datetime.now() - t1
+            return in_template(point, t(dp.template), dp, (w, h), fudge=fudge)
+
+    def save(self):
+        self.canvas.update()
 
     def init_buttons(self):
         # An "off" and "on" state
@@ -153,128 +287,15 @@ class Configurator(object):
         self.click_locations = None
 
 
-    def update(self, displays):
-        if self.backend.renWin and self.interactor is None:
-            self.interactor = self.backend.renWin.GetInteractor()
-            self.interactor.AddObserver("LeftButtonPressEvent", self.click)
-            self.init_buttons()
-
-        self.place()
-
-        self.displays = [vcs.elements["display"][display] for display in displays]
-
-    def click(self, object, event):
-        if self.target is not None:
-            # Target should register for own events; don't want to step on toes
-            return
-
-        point = self.interactor.GetEventPosition()
-
-        if self.creating:
-            self.click_locations.append(point)
-            if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
-                self.create()
-            return
-
-        now = datetime.datetime.now()
-
-        clicked = None
-        display_clicked = None
-        for display in self.displays:
-            obj = self.in_display_plot(point, display)
-            if obj is not None and (clicked is None or obj.priority >= clicked.priority):
-                clicked = obj
-                display_clicked = display
-
-        if clicked:
-            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == clicked:
-                self.activate(clicked, display_clicked)
-                self.clicked = None
-                self.clicked_info = None
-            else:
-                self.clicked = (now, clicked)
-
-    def deactivate(self, obj):
-        if self.target == obj:
-            self.target.detach()
-            self.target = None
-        self.save()
-
-    def delete(self, obj, index):
-        obj.priority = 0
-        self.save()
-
-    def place(self):
-        self.fill_button.place()
-        if self.target:
-            self.target.place()
-
-    def activate(self, obj, display):
-        if display.g_type == "fillarea":
-            editor = fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "line":
-            editor = line.LineEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "marker":
-            editor = marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "text":
-            editor = text.TextEditor(self.interactor, obj, self.clicked_info, self)
-        else:
-            if is_box(obj):
-                if obj.member == "legend":
-                    editor = legend.LegendEditor(self.interactor, t(display.template), self)
-                elif obj.member == "data":
-                    editor = data.DataEditor(self.interactor, vcs.getgraphicsmethod(display.g_type, display.g_name), t(display.template), self)
-                else:
-                    editor = box.BoxEditor(self.interactor, obj, self)
-        self.target = editor
-
-
-    def in_display_plot(self, point, dp):
-        #Normalize the point
-        x, y = point
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        if x > 1 or y > 1:
-            point = (x / float(w), y / float(h))
-            x, y = point
-
-        if dp.g_type == "fillarea":
-            fill = vcs.getfillarea(dp.g_name)
-            info = fillarea.inside_fillarea(fill, *point)
-            if info is not None:
-                self.clicked_info = info
-                return fill
-        elif dp.g_type == "line":
-            l = vcs.getline(dp.g_name)
-            # Uses screen_height to determine how much buffer space there is around the line
-            info = line.inside_line(l, *point, screen_height=h)
-            if info is not None:
-                self.clicked_info = info
-                return l
-        elif dp.g_type == "marker":
-            m = vcs.getmarker(dp.g_name)
-            info = marker.inside_marker(m, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return m
-        elif dp.g_type == "text":
-            tc = vcs.gettextcombined(dp.g_name)
-            info = text.inside_text(tc, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return tc
-        else:
-            fudge = 5 / float(w)
-            return in_template(point, t(dp.template), fudge=fudge)
-
-    def save(self):
-        self.canvas.update()
-
 def t(name):
     return vcs.gettemplate(name)
 
-def in_template(point, template, fudge=None):
-    x, y = point
+def is_label(obj):
+    return type(obj) in (vcs.Pformat.Pf, vcs.Ptext.Pt)
 
+def in_template(point, template, dp, window_size, fudge=None):
+    x, y = point
+    t1 = datetime.datetime.now()
     attrs = [
         "file",
         "function",
@@ -342,8 +363,14 @@ def in_template(point, template, fudge=None):
         if t_x is not None or t_y is not None:
             if t_x is not None and t_y is not None:
                 # It's probably a text blob
-                if is_point_in_box((x, y), ((t_x - fudge, t_y - fudge), (t_x + fudge, t_y + fudge))):
+                t3 = datetime.datetime.now()
+                if is_label(attribute):
+                    text = editors.label.get_label_text(attribute, dp)
+                    if editors.label.inside_label(attribute, text, x, y, *window_size):
+                        intersecting = attribute
+                elif is_point_in_box((x, y), ((t_x - fudge, t_y - fudge), (t_x + fudge, t_y + fudge))):
                     intersecting = attribute
+                print "Text check", datetime.datetime.now() - t3
             else:
                 # It's probably the labels for an axis
                 if t_x is not None and t_x < x + fudge and t_x > x - fudge:
@@ -361,7 +388,8 @@ def in_template(point, template, fudge=None):
             else:
                 if is_point_in_box((x, y), ((min(x1, x2), min(y1, y2)), (max(x1, x2), max(y1, y2)))):
                     intersecting = attribute
-
+    t2 = datetime.datetime.now()
+    print t2 - t1
     return intersecting
 
 def is_box(member):

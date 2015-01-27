@@ -8,6 +8,9 @@ import image_utils as image
 from text import Label
 from textbox import Textbox
 import vtk
+
+import text
+
 class NoInteractionStyle(vtk.vtkInteractorStyle):
     def __init__(self, parent=None):
         pass
