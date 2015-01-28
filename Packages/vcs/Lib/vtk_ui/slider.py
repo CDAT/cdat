@@ -58,6 +58,9 @@ class Slider(Widget):
     def hide(self):
         self.widget.Off()
 
+    def is_showing(self):
+        return self.widget.GetEnabled() == 1
+
     def end_slide(self, obj, event):
         value = self.repr.GetValue()
 
