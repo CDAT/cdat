@@ -547,7 +547,7 @@ class ButtonBarWidget(ButtonBar):
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
-        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
+#        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
@@ -561,7 +561,7 @@ class ButtonBarWidget(ButtonBar):
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             b.setState(state)
             if state > 0: 
                 self.updateInteractionState( button_id, state  ) 
@@ -884,7 +884,7 @@ class ButtonBarWidget(ButtonBar):
 #             self.finalizeLeveling()
 #             self.endInteraction()   
 #         else:
-        print " Update Interaction State: %s %s %s " % ( str(config_state), str(button_state), str(args) )
+#        print " Update Interaction State: %s %s %s " % ( str(config_state), str(button_state), str(args) )
         configFunct = self.configurableFunctions.get( config_state, None )
         if self.InteractionState <> None: 
             prevConfigFunct = self.configurableFunctions[ self.InteractionState ]

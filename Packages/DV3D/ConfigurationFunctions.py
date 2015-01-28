@@ -676,8 +676,6 @@ class ConfigParameter:
         else:
             self.setValue( 'init', value, update )
             self.setValues( [ value ]  )
-        if self.name == 'ZSlider':
-            print 'set ZSlider InitValue: ', str( value )
 
     def setValue( self, key, val, update=False  ):
         if hasattr( key, 'id' ): key = key.id
@@ -803,8 +801,6 @@ class ConfigurableFunction:
         self.initial_value = []
         self.persist = args.get( 'persist', True )
         self.manager = manager
-     #   if name == 'ScaleColormap':
-     #        print "."
         self.value = self.manager.addParameter( name, **args )
      #   print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
         self.type = 'generic'
@@ -814,8 +810,6 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
-        if self.name == 'ZSlider':
-            print "XXX"
         ival = self.value.getInitValue()
         if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]

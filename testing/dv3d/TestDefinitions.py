@@ -70,8 +70,6 @@ test5 =  vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], templa
                                  'YSlider': ( 49.0,   vcs.on ),
                                  'Camera': {'Position': (-300, -409, 400), 'ViewUp': (0.156, 0.64, 0.75), 'FocalPoint': (-23.2, 14.2, -20)}
                                  }  )
-    
-if __name__ == '__main__':
-    
-    testManager.reviewTests()
+
+
     
