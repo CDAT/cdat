@@ -264,6 +264,14 @@ class Toolbar(object):
             
             if self.save:
                 self.save()
+
+        _on_show = kwargs.get("on_show_slider", None)
+        def on_show():
+            self.hide_sliders()
+            if _on_show:
+                _on_show()
+
+        kwargs["on_show_slider"] = on_show
         kwargs["end"] = end
 
         if self.vertical:
@@ -274,7 +282,7 @@ class Toolbar(object):
             kwargs["top"] = self.top
         
         b = SliderButton(self.interactor, value, min_val, max_val, label, **kwargs)
-        
+
         if self.open:
             b.show()
 
@@ -285,3 +293,12 @@ class Toolbar(object):
 
         self.widgets.append(b)
         return b
+
+    def hide_sliders(self):
+        for w in self.widgets:
+            if type(w) == SliderButton:
+                if w.slider.is_showing():
+                    w.set_state(0)
+                    w.off()
+            if type(w) == Toolbar:
+                w.hide_sliders()
