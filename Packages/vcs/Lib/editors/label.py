@@ -10,7 +10,7 @@ class LabelEditor(point.PointEditor):
         super(LabelEditor, self).__init__(interactor, label, configurator)
 
     def get_text(self):
-        return get_label_text(self.label, self.display)
+        return get_label_text(self.label, self.display.array[0])
 
     def place(self):
         pass
@@ -21,15 +21,11 @@ class LabelEditor(point.PointEditor):
         return inside_label(self.label, t, x, y, swidth, sheight)
 
 
-def get_label_text(label, display):
+def get_label_text(label, array):
     s = label.member
 
-    smn, smx = vcs.minmax(display.array)
-    try:
-        display.array.mean
-        array = display.array
-    except AttributeError:
-        array = display.array[0]
+    smn, smx = vcs.minmax(array)
+
     if s == 'min':
         t = 'Min %g' % (smn)
     elif s == 'max':
