@@ -300,13 +300,18 @@ class SliderButton(ToggleButton):
     Displays a button that will show a slider when toggled on, and hide it when toggled off.
     Provides a callback to receive the value of the slider, and one for when the sliding has stopped.
     """
-    def __init__(self, interactor, value, min_val, max_val, label, update=None, end=None, renderer=None, corner_radius=5, width=None,
+    def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, renderer=None, corner_radius=5, width=None,
                  height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, point1=(0,.1), point2=(1,.1)):
 
         self.slider = Slider(interactor, update=update, end=end, title= label, value=value, min_val=min_val, max_val=max_val, point1=point1, point2=point2)
 
-        super(SliderButton, self).__init__(interactor, label, renderer=renderer, on=self.slider.show, off=self.slider.hide, corner_radius=corner_radius, width=width,
+        def _show_slider():
+            if on_show_slider:
+                on_show_slider()
+            self.slider.show()
+
+        super(SliderButton, self).__init__(interactor, label, renderer=renderer, on=_show_slider, off=self.slider.hide, corner_radius=corner_radius, width=width,
                  height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor,
                  opacity=opacity, size=size, states= states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
 
