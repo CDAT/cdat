@@ -34,6 +34,9 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         # Register mixins' events
         self.register()
 
+    def is_object(self, fill):
+        return fill == self.fill
+
     def place(self):
 
         for h in self.handles:

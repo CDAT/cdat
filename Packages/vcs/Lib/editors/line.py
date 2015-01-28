@@ -39,6 +39,9 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         # Register mixins' events
         self.register()
 
+    def is_object(self, line):
+        return self.line == line
+
     def place(self):
         for h in self.handles:
             h.place()

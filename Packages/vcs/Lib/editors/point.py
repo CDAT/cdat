@@ -13,6 +13,9 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         if self.in_bounds(x, y):
             self.deactivate()
 
+    def is_object(self, point):
+        return point == self.point
+
     def click_release(self):
         x, y = self.event_position()
         if not self.in_bounds(x, y):
