@@ -46,6 +46,9 @@ class TextEditor(ClickableMixin):
         self.toggle_halign_buttons()
         self.toggle_valign_buttons()
 
+    def is_object(self, text):
+        return self.text == text
+
     def place(self):
         self.toolbar.place()
         for box in self.textboxes:
