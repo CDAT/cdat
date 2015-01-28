@@ -20,6 +20,9 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         super(BoxEditor, self).__init__()
         self.register()
 
+    def is_object(self, b):
+        return b == self.box
+
     def in_bounds(self, x, y):
         x1, y1, x2, y2 = min(self.box.x1, self.box.x2), min(self.box.y1, self.box.y2), max(self.box.x1, self.box.x2), max(self.box.y1, self.box.y2)
         return x > x1 and x < x2 and y > y1 and y < y2
@@ -94,6 +97,7 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def save(self):
         self.configurator.save()
+        self.place()
 
     def detach(self):
         self.top_left.detach()

@@ -136,11 +136,7 @@ class Configurator(object):
         for array in to_remove:
             del self.display_strings[array]
 
-
     def click(self, object, event):
-        if self.target is not None:
-            # Target should register for own events; don't want to step on toes
-            return
 
         point = self.interactor.GetEventPosition()
 
@@ -150,7 +146,6 @@ class Configurator(object):
                 self.create()
             return
 
-        now = datetime.datetime.now()
 
         clicked = None
         display_clicked = None
@@ -161,12 +156,8 @@ class Configurator(object):
                 display_clicked = display
 
         if clicked:
-            if self.clicked and now - self.clicked[0] < datetime.timedelta(0, .5) and self.clicked[1] == clicked:
+            if self.target is None or self.target.is_object(clicked) == False:
                 self.activate(clicked, display_clicked)
-                self.clicked = None
-                self.clicked_info = None
-            else:
-                self.clicked = (now, clicked)
 
 
     def deactivate(self, obj):
@@ -188,6 +179,9 @@ class Configurator(object):
             self.target.place()
 
     def activate(self, obj, display):
+        if self.target is not None:
+            self.deactivate(self.target)
+
         if display.g_type == "fillarea":
             editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
         elif display.g_type == "line":
