@@ -47,6 +47,9 @@ class MarkerEditor(behaviors.ClickableMixin):
         super(MarkerEditor, self).__init__()
         self.register()
 
+    def is_object(self, marker):
+        return self.marker == marker
+
     def place(self):
         for h in self.handles:
             h.place()

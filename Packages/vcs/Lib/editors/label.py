@@ -15,6 +15,9 @@ class LabelEditor(point.PointEditor):
     def place(self):
         pass
 
+    def is_object(self, label):
+        return self.label == label
+
     def in_bounds(self, x, y):
         t = self.get_text()
         swidth, sheight = self.interactor.GetRenderWindow().GetSize()
