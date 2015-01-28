@@ -1677,9 +1677,9 @@ class VectorSliceWidget(ImagePlaneWidget):
     def __init__( self, actionHandler, picker, planeIndex, **args ): 
         self.glyphMapper = None
         ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
-        self.glyphDecimationFactorBounds = [ 1.0, 20.0 ] 
-        self.glyphDecimationFactor = 3.0
-        self.lowResGlyphDecimationFactor = 10.0
+        self.glyphDecimationFactorBounds = [ 5.0, 20.0 ]
+        self.glyphDecimationFactor = 6.0
+        self.lowResGlyphDecimationFactor = 12.0
         self.hiResGlyphDecimationFactor = self.glyphDecimationFactor 
         self.hiResGlyphScale = None
         self.nSkipCount = 4
