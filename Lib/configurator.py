@@ -119,9 +119,12 @@ class Configurator(object):
         matched = set()
         for d in self.displays:
             for a in d.array:
-                if a is not None and a.id not in self.display_strings:
-                    self.display_strings[a.id] = array_strings(d.template, a)
-                    matched.add(a.id)
+                if a is not None:
+                    if a.id not in self.display_strings:
+                        self.display_strings[a.id] = array_strings(d.template, a)
+                        matched.add(a.id)
+                    elif a.id in self.display_strings:
+                        matched.add(a.id)
 
         # Figure out which arrays to remove
         to_remove = set()
@@ -132,6 +135,7 @@ class Configurator(object):
         # Remove the missing arrays
         for array in to_remove:
             del self.display_strings[array]
+        print self.display_strings
 
 
     def click(self, object, event):
