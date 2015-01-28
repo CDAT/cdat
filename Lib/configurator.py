@@ -113,7 +113,7 @@ class Configurator(object):
 
         self.place()
 
-        self.displays = [vcs.elements["display"][display] for display in displays]
+        self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
 
         # Add new arrays
         matched = set()
@@ -135,7 +135,6 @@ class Configurator(object):
         # Remove the missing arrays
         for array in to_remove:
             del self.display_strings[array]
-        print self.display_strings
 
 
     def click(self, object, event):
