@@ -1,4 +1,5 @@
 #!/bin/sh
 
 cd "@CMAKE_INSTALL_PREFIX@"
-"@GIT_EXECUTABLE@" clone --depth 1 -b @BRANCH@ @GIT_URL@ "@GIT_TARGET@"
+"@GIT_EXECUTABLE@" clone --no-checkout --depth 1 -b @BRANCH@ @GIT_URL@ "@GIT_TARGET@"
+"@GIT_EXECUTABLE@" checkout origin/@BRANCH@

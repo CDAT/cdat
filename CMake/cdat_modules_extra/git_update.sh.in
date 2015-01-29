@@ -1,8 +1,4 @@
 #!/bin/sh
 cd "@SOURCE_DIR@"
 "@GIT_EXECUTABLE@" fetch origin --prune
-branch_name=$("@GIT_EXECUTABLE@" symbolic-ref HEAD | sed -e 's,.*\/\(.*\),\1,')
-if [ $? = 0 -a "${branch_name}" != "@BRANCH@" ]; then
-  "@GIT_EXECUTABLE@" checkout -f @BRANCH@
-fi
-"@GIT_EXECUTABLE@" reset --hard origin/@BRANCH@
+"@GIT_EXECUTABLE@" checkout -f origin/@BRANCH@
