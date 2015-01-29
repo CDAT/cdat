@@ -135,6 +135,15 @@ if(NOT GIT_PROTOCOL)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(NOT res EQUAL 0)
     set(temp_git_protocol "http://")
+    execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "http://github.com/UV-CDAT/uvcdat.git"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      RESULT_VARIABLE res
+      OUTPUT_VARIABLE out
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if (NOT res EQUAL 0)
+        set(temp_git_protocol "https://")
+      endif()
   endif()
 
   set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
