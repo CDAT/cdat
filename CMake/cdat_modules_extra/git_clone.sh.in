@@ -2,4 +2,9 @@
 
 cd "@CMAKE_INSTALL_PREFIX@"
 "@GIT_EXECUTABLE@" clone --no-checkout --depth 1 -b @BRANCH@ @GIT_URL@ "@GIT_TARGET@"
-"@GIT_EXECUTABLE@" checkout origin/@BRANCH@
+cd "@GIT_TARGET@"
+if [ "$("@GIT_EXECUTABLE@" cat-file -t @BRANCH@)" = tag ]; then
+    "@GIT_EXECUTABLE@" checkout @BRANCH@
+else
+    "@GIT_EXECUTABLE@" checkout origin/@BRANCH@
+fi

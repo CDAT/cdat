@@ -1,4 +1,8 @@
 #!/bin/sh
 cd "@SOURCE_DIR@"
 "@GIT_EXECUTABLE@" fetch origin --prune
-"@GIT_EXECUTABLE@" checkout -f origin/@BRANCH@
+if [ "$("@GIT_EXECUTABLE@" cat-file -t @BRANCH@)" = tag ]; then
+    "@GIT_EXECUTABLE@" checkout -f @BRANCH@
+else
+    "@GIT_EXECUTABLE@" checkout -f origin/@BRANCH@
+fi
