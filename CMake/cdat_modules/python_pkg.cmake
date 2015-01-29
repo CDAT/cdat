@@ -14,10 +14,10 @@ add_cdat_package(Python ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_S
 set(CDAT_OS_XTRA_PATH "")
 
 set(PYTHON_SITE_PACKAGES_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/lib/python${PYVER}/site-packages)
 if (APPLE)
-  set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/lib/python${PYVER}/site-packages)
+  set(PYTHON_SITE_PACKAGES_PREFIX ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
 endif()
+set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/lib/python${PYVER}/site-packages)
 set(PYTHONPATH ${PYTHON_SITE_PACKAGES})
 
 if (CDAT_USE_SYSTEM_PYTHON)
