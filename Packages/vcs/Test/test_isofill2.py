@@ -1,7 +1,7 @@
 import vcs
 import cdms2
 import sys
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+f=cdms2.open(vcs.prefix+"/sample_data/clt.nc")
 s=f("clt",time=slice(0,1),squeeze=1)
 x=vcs.init()
 x.scriptrun("Test/isoleg.scr")

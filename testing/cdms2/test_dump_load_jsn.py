@@ -1,5 +1,5 @@
-import cdms2,sys,numpy
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+import cdms2,sys,numpy,cdat_info
+f=cdms2.open(cdat_info.get_prefix()+"/sample_data/clt.nc")
 s=f("clt")
 
 jsn = s.dumps()

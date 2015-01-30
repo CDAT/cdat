@@ -3,6 +3,7 @@ Test mvGenericRegrid class
 $Id: testMvGenericRegrid.py 2354 2012-07-11 15:28:14Z pletzer $
 """
 
+import cdat_info
 import cdms2
 import numpy
 import unittest
@@ -30,7 +31,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         Set up the grids to pass to mvGenericRegrid
         """
         self.doPlots = False
-        self.clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0, ...]
+        self.clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
         # Convert to curvilinear
         cds, cds_forBounds = [], []
         cds.append(self.clt.getLatitude())
@@ -42,7 +43,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         self.cltInterpInterp = numpy.array(self.clt) * 0.0 + self.clt.missing_value
 
         # Salinity check
-        f = cdms2.open(sys.prefix + \
+        f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.so = f('so')
         soGrid = []
@@ -297,7 +298,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         """
         Interpolate over one level/time
         """
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
         clt = f('clt')
         v = f('v')
         
@@ -341,7 +342,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         """
         Interpolate over level/time in addition to lat-lon
         """
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
         clt = f('clt')
         v = f('v')
         

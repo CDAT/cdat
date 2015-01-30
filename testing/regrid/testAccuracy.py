@@ -6,6 +6,7 @@ import unittest
 import cdms2
 import numpy
 import sys
+import vcs
 
 PLOT = False
 if PLOT:
@@ -20,7 +21,7 @@ class Test(unittest.TestCase):
         """
         One way interpolation
         """
-        fnm = sys.prefix + '/sample_data/clt.nc'
+        fnm = vcs.prefix + '/sample_data/clt.nc'
         f = cdms2.open(fnm)
 
         s=f("clt")
@@ -65,7 +66,7 @@ class Test(unittest.TestCase):
         Forward/backward interpolation
         """
 
-        fnm=sys.prefix+'/sample_data/clt.nc'
+        fnm=vcs.prefix+'/sample_data/clt.nc'
         f=cdms2.open(fnm)
 
         s=f("clt")

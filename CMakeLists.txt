@@ -8,14 +8,6 @@ endif()
 #-----------------------------------------------------------------------------
 project(cdat)
 
-# Disable in source build of any kind
-STRING(REGEX MATCH "^${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
-if (BUILDINSOURCE)
-   set(msg "[ERROR] CDAT requires an out of source Build.")
-   set(msg "${msg} Run 'git clean -dfx' to restore source dir.")
-   message(FATAL_ERROR "${msg}")
-endif()
-
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
@@ -44,6 +36,17 @@ set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
 )
+
+# Disable in source build of any kind.
+#-----------------------------------------------------------------------------
+include(CheckBuildOutOfSource)
+check_build_out_of_source("${cdat_SOURCE_DIR}" "${cdat_BINARY_DIR}"
+                          BUILDINSOURCE)
+if(BUILDINSOURCE)
+   set(msg "[ERROR] CDAT requires an out of source Build.")
+   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
+   message(FATAL_ERROR "${msg}")
+endif()
 
 # Include useful cmake scripts
 #-----------------------------------------------------------------------------
@@ -132,6 +135,15 @@ if(NOT GIT_PROTOCOL)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(NOT res EQUAL 0)
     set(temp_git_protocol "http://")
+    execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "http://github.com/UV-CDAT/uvcdat.git"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      RESULT_VARIABLE res
+      OUTPUT_VARIABLE out
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if (NOT res EQUAL 0)
+        set(temp_git_protocol "https://")
+      endif()
   endif()
 
   set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
@@ -254,6 +266,7 @@ set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
@@ -488,7 +501,9 @@ include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
-include(pip_pkg)
+if (NOT CDAT_USE_SYSTEM_PYTHON)
+  include(pip_pkg)
+endif()
 include(shapely_pkg)
 include(pygments_pkg)
 include(markupsafe_pkg)
@@ -535,8 +550,10 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 

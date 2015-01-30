@@ -4,6 +4,7 @@ CNRM grid
 
 $Id: testCNRMGrid.py 2472 2012-10-12 13:10:52Z pletzer $
 """
+import cdat_info
 import cdms2
 import numpy
 import ESMP
@@ -49,7 +50,7 @@ def _getCorners(coordBounds):
 class TestGrid(unittest.TestCase):
 
   def setUp(self):
-    filename = sys.prefix + \
+    filename = cdat_info.get_prefix() + \
         "/sample_data/so_Omon_CNRM-CM5_decadal2004_r9i1p1_200501-201412_2timesteps.nc"
     g = cdms2.open(filename)
     self.so = g('so')[0,0,...]
@@ -73,7 +74,7 @@ class TestGrid(unittest.TestCase):
     Using the native ESMP interface
     """
     import scipy.io.netcdf
-    filename = (sys.prefix + \
+    filename = (cdat_info.get_prefix() + \
                 "/sample_data/so_Omon_CNRM-CM5_decadal2004_r9i1p1_200501-201412_2timesteps.nc")
     srcF = scipy.io.netcdf.netcdf_file(filename)
     so = srcF.variables['so'][0, 0,...]

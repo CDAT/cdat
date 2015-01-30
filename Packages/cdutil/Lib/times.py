@@ -1356,7 +1356,7 @@ class Seasons(ASeason):
         '''
         cdat_info.pingPCMDIdb("cdat","cdutil.times.Seasons.climatology -%s-" % self.seasons)
         u=self.month_fix(slab)
-        if criteriaargclim is None: criteriaargclim=criteriaarg
+        #if criteriaargclim is None: criteriaargclim=criteriaarg
         order=slab.getOrder(ids=1)
         initialgrid = slab.getGrid()
 

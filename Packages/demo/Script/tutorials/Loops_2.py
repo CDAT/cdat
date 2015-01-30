@@ -1,9 +1,10 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms, MV2 as MV
 import sys
+import cdat_info
 
 # Creates string for path to data
-pth=sys.prefix+'/sample_data/'
+pth=cdat_info.get_prefix()+'/sample_data/'
 
 # Creates list containg path to files
 files = [ pth+'u_2000.nc',
