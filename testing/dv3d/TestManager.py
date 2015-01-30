@@ -45,10 +45,17 @@ class TestManager:
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
-        print "Running test %s %s %s" % ( testName, str(interactive), str(baselinedir) )
         if baselinedir is not None:
-            test.test_dir = baselinedir
-            test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
+            text_file = open(".baseline_path", "w")
+            text_file.write( baselinedir )
+            text_file.close()
+        else:
+            text_file = open(".baseline_path", "r")
+            baselinedir = text_file.read()
+            text_file.close()
+        test.test_dir = baselinedir
+        print "Running test %s %s, baselinedir= %s" % ( testName, str(interactive), str(baselinedir) )
+        test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
         test.test( interactive )
 
     def showTest(self, testName ):

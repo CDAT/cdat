@@ -39,12 +39,3 @@ add_test(dv3d_hovmoller_test
   '${BASELINE_DIR}'
 )
 
-
-add_test(dv3d_hovmoller_test_1
-  ${CMAKE_INSTALL_PREFIX}/bin/python
-  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py
-  'dv3d_hovmoller_test_1'
-  '${BASELINE_DIR}'
-)
-
-
