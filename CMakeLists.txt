@@ -698,6 +698,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/cdat
+  @ONLY
+)
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
@@ -706,6 +711,38 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Where to install the wrapper scripts
+set(WRAPPER_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX}/wrappers
+    CACHE PATH
+    "Install wrapper scripts 'cdat', 'uvcdat' and 'loadcdat' in that directory")
+
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/uvcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
+        ${WRAPPER_INSTALL_LOCATION}/uvcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/cdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/cdat
+        ${WRAPPER_INSTALL_LOCATION}/cdat)
+
+add_custom_target(wrappers ALL DEPENDS
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+                  ${WRAPPER_INSTALL_LOCATION}/uvcdat
+                  ${WRAPPER_INSTALL_LOCATION}/cdat)
 
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
