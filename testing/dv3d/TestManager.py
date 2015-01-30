@@ -5,9 +5,10 @@ Created on Aug 28, 2014
 '''
 
 
-import cdms2, cdutil, genutil
+import cdms2, cdutil, genutil, ast
 import vcs, os, sys, shutil, collections
-pth = os.path.join(os.path.dirname(__file__),"..")
+TestingDir=os.path.dirname(__file__)
+pth = os.path.join(TestingDir,"..")
 sys.path.append(pth)
 import checkimage
 
@@ -40,28 +41,31 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
         
-    def runTest(self, testName, interactive=False, baselinedir=None ):
+    def runTest(self, testName, interactive='True', baselinedir=None ):
+        print "Running test '%s' '%s', baselinedir= '%s'" % ( testName, interactive, baselinedir )
         test = TestManager.DefinedTests.get( testName, None )
-        if test == None:
-            print>>sys.stderr, "Can't find test named %s" % testName
+        if test is None:
+            print>>sys.stderr, "Can't find test named '%s'" % testName
+            print>>sys.stderr, " Defined Tests = %s " % str( TestManager.DefinedTests.items() )
             return -1
+        baseline_file_path = os.path.join(TestingDir,".baseline_path")
         if baselinedir is not None:
-            text_file = open(".baseline_path", "w")
+            text_file = open(baseline_file_path, "w")
             text_file.write( baselinedir )
             text_file.close()
         else:
-            text_file = open(".baseline_path", "r")
+            text_file = open(baseline_file_path, "r")
             baselinedir = text_file.read()
             text_file.close()
         test.test_dir = baselinedir
-        print "Running test %s %s, baselinedir= %s" % ( testName, str(interactive), str(baselinedir) )
         test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
-        test.test( interactive )
+        test.test( ast.literal_eval(interactive) )
 
     def showTest(self, testName ):
         test = TestManager.DefinedTests.get( testName, None )
-        if test == None:
+        if test is None:
             print>>sys.stderr, "Can't find test named %s" % testName
+            print>>sys.stderr, " Defined Tests = %s " % str( TestManager.DefinedTests.items() )
             return -1
         test.show()
         line = sys.stdin.readline()
@@ -150,8 +154,9 @@ class vcsTest:
         f.write( "add_test(%s\n" % self.name )
         f.write( "  \"${PYTHON_EXECUTABLE}\"\n"  )
         f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py\n" )
-        f.write( "  '%s'\n" % self.name )
-        f.write( "  '${BASELINE_DIR}'\n" )
+        f.write( "  %s\n" % self.name )
+        f.write( "  False\n" )
+        f.write( "  ${BASELINE_DIR}\n" )
         f.write( ")\n\n\n")
 #        source_file = os.path.join( self.test_dir, "%s.py" % self.name )
 #         f1 = open( source_file, 'w' )
