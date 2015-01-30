@@ -252,7 +252,7 @@ cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering.
   "NOT APPLE" OFF)
 
 # Option to enable vtkweb for cdatweb
-option(CDAT_BUILD_VTKWEB "Build VTKWeb with VTK" OFF)
+option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")

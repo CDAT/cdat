@@ -73,7 +73,7 @@ if(CDAT_BUILD_OFFSCREEN)
   )
 endif()
 
-if(CDAT_BUILD_VTKWEB)
+if(CDAT_BUILD_WEB)
   list(APPEND vtk_build_args
     "-DVTK_Group_Web:BOOL=ON"
   )
