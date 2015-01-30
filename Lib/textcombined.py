@@ -561,7 +561,6 @@ class Tc(object):
         print "path =", self.path
         print "halign =", self.halign
         print "valign =", self.valign
-        print "colormap =", self.colormap
 
     #############################################################################
     #                                                                           #
@@ -658,7 +657,6 @@ class Tc(object):
            fp.write("%s.path = '%s'\n" % (unique_name, self.path))
            fp.write("%s.halign = '%s'\n" % (unique_name, self.halign))
            fp.write("%s.valign = '%s'\n\n" % (unique_name, self.valign))
-           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
            fp.close()
         else:
           #Json type

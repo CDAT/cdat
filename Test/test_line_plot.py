@@ -1,6 +1,7 @@
 import cdms2
 import sys
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+import cdat_info
+f=cdms2.open(cdat_info.get_prefix()+"/sample_data/clt.nc")
 s=f("clt",latitude=(45,45,'cob'),longitude=(10,10,'cob'),squeeze=1)
 print s.shape
 
