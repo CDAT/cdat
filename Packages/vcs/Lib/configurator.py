@@ -3,6 +3,7 @@ import datetime
 import editors
 import vtk_ui.button
 import os, sys
+import vtk
 
 CREATING_FILL = "fill"
 CREATING_LINE = "line"
@@ -92,7 +93,7 @@ class Configurator(object):
         self.interactor = None
         self.display_strings = {}
         self.displays = []
-        self.clicked = None
+        self.clicking = False
         self.clicked_info = None
         self.target = None
 
@@ -109,6 +110,8 @@ class Configurator(object):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
+            self.interactor.AddObserver("MouseMoveEvent", self.hover, 10.0)
+            self.interactor.AddObserver("LeftButtonReleaseEvent", self.release)
             self.init_buttons()
 
         self.place()
@@ -135,9 +138,28 @@ class Configurator(object):
         # Remove the missing arrays
         for array in to_remove:
             del self.display_strings[array]
+    def release(self, object, event):
+        self.clicking = False
+
+    def hover(self, object,event):
+        if self.clicking:
+            return
+
+        point = self.interactor.GetEventPosition()
+
+        for display in self.displays:
+            obj = self.in_display_plot(point, display)
+            if obj is not None:
+                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                return
+
+
+        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
+
+
 
     def click(self, object, event):
-
+        self.clicking = True
         point = self.interactor.GetEventPosition()
 
         if self.creating:
@@ -201,8 +223,10 @@ class Configurator(object):
             else:
                 if is_label(obj):
                     editor = editors.label.LabelEditor(self.interactor, obj, display, self)
-                else:
+                elif is_point(obj):
                     editor = editors.point.PointEditor(self.interactor, obj, self)
+                else:
+                    editor = None
         self.target = editor
 
 
@@ -475,6 +499,14 @@ def is_box(member):
     y2 = safe_get(member, "y2")
 
     if None in (x1, y1, x2, y2):
+        return False
+    else:
+        return True
+
+def is_point(member):
+    x = safe_get(member, "x")
+    y = safe_get(member, "y")
+    if None in (x, y):
         return False
     else:
         return True
