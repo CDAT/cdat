@@ -10,9 +10,9 @@ if interact:
   i = vtk.vtkRenderWindowInteractor()
   i.SetRenderWindow(renWin)
   i.Initialize()
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 s=f("clt")[:3]
-#f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
+#f=cdms2.open(os.path.join(vcs.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
 tmpl = x.createtemplate()

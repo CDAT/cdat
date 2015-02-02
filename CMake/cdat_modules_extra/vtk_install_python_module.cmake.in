@@ -12,7 +12,7 @@ set(ENV{CXXFLAGS} "@cdat_osx_cxxflags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERN
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
 execute_process(
-  COMMAND env PYTHONPATH=@PYTHONPATH@ @PYTHON_EXECUTABLE@ setup.py install @PYTHON_EXTRA_PREFIX@
+  COMMAND env PYTHONPATH=@PYTHONPATH@ "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
   WORKING_DIRECTORY @cdat_BINARY_DIR@/build/ParaView-build/VTK/Wrapping/Python
   RESULT_VARIABLE res)
 
@@ -24,7 +24,7 @@ endif()
 if (APPLE)
  message("We are on a Mac, need to relink all libraries")
  execute_process(
-  COMMAND env PYTHONPATH=@PYTHONPATH@ @PYTHON_EXECUTABLE@ @cdat_CMAKE_SOURCE_DIR@/fixlink.py
+  COMMAND env PYTHONPATH=@PYTHONPATH@ "@PYTHON_EXECUTABLE@" @cdat_CMAKE_SOURCE_DIR@/fixlink.py
   WORKING_DIRECTORY @cdat_BINARY_DIR@
   OUTPUT_VARIABLE out
   ERROR_VARIABLE err

@@ -2,6 +2,7 @@
 Testing CDAT regridding from curvilinear grid to rectangular grid
 """
 import unittest
+import cdat_info
 import cdms2
 import ESMP
 from cdms2.mvCdmsRegrid import CdmsRegrid
@@ -35,7 +36,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = sys.prefix + '/sample_data/clt.nc'
+        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -99,7 +100,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = sys.prefix + '/sample_data/clt.nc'
+        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -153,7 +154,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = sys.prefix + '/sample_data/clt.nc'
+        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -190,7 +191,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = sys.prefix + '/sample_data/clt.nc'
+        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -219,7 +220,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = sys.prefix + '/sample_data/clt.nc'
+        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 

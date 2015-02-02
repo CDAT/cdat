@@ -25,6 +25,11 @@ defaultMapCut = -180
 SLIDER_MAX_VALUE = 100
 MAX_IMAGE_SIZE = 1000000
 
+def get_scalar_value( tvals ):
+    if hasattr( tvals, '__iter__' ):
+        return get_scalar_value( tvals[0] )
+    else: return tvals
+
 def isNumerical( vals ):
     for val in vals:
         if type( val ) not in [ int, float ]: return False  
@@ -616,6 +621,7 @@ class ConfigParameter:
         return str( self.values )
 
     def getValue( self, key=0, default_value=None ):
+        if key == None: return default_value
         return self.values.get( key, default_value )
 
     def getState( self ):

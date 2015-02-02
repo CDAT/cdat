@@ -1,3 +1,4 @@
+import cdat_info
 import cdms2
 from distarray.mvCubeDecomp import CubeDecomp
 import numpy
@@ -19,7 +20,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Test size, rank etc.
         """
-        da = cdms2.open(sys.prefix + '/sample_data/clt.nc', 'r')('clt')
+        da = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')('clt')
         rk = da.getMPIRank()
         sz = da.getMPISize()
         # make the data rank dependent
@@ -47,7 +48,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Test case with domain decomposition
         """
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc', 'r')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')
         cltVar = f['clt']
 
         # global sizes
@@ -146,7 +147,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Apply the laplacian finite difference operator to clt
         """
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc', 'r')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')
         cltVar = f['clt']
 
         # global sizes

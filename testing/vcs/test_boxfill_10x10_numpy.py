@@ -1,3 +1,4 @@
+
 import vcs,numpy,os,sys
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -7,6 +8,7 @@ import checkimage
 s= numpy.sin(numpy.arange(100))
 s=numpy.reshape(s,(10,10))
 x=vcs.init()
+x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.plot(s,bg=1)
 fnm= "test_vcs_boxfill_10x10_numpy.png"

@@ -1,3 +1,4 @@
+
 import sys,os
 src = sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
@@ -8,13 +9,14 @@ import vcs
 import vcsaddons
 import cdms2
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 s=f("clt",time=slice(0,1),squeeze=1)
 
 bg = True
 
 M=vcsaddons.EzTemplate.Multi(rows=2,columns=2)
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 for i in range(4):

@@ -1,5 +1,7 @@
+
 import vcs
 x=vcs.init()
+x.drawlogooff()
 x.open()
 
 ## test it is off by default

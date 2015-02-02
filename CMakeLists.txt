@@ -8,14 +8,6 @@ endif()
 #-----------------------------------------------------------------------------
 project(cdat)
 
-# Disable in source build of any kind
-STRING(REGEX MATCH "^${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
-if (BUILDINSOURCE)
-   set(msg "[ERROR] CDAT requires an out of source Build.")
-   set(msg "${msg} Run 'git clean -dfx' to restore source dir.")
-   message(FATAL_ERROR "${msg}")
-endif()
-
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
@@ -44,6 +36,17 @@ set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
 )
+
+# Disable in source build of any kind.
+#-----------------------------------------------------------------------------
+include(CheckBuildOutOfSource)
+check_build_out_of_source("${cdat_SOURCE_DIR}" "${cdat_BINARY_DIR}"
+                          BUILDINSOURCE)
+if(BUILDINSOURCE)
+   set(msg "[ERROR] CDAT requires an out of source Build.")
+   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
+   message(FATAL_ERROR "${msg}")
+endif()
 
 # Include useful cmake scripts
 #-----------------------------------------------------------------------------
@@ -123,10 +126,19 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
+   set(temp_git_protocol "git://")
+   execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "git://github.com/UV-CDAT/uvcdat.git"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT res EQUAL 0)
+    set(temp_git_protocol "http://")
+  endif()
+
+  set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  message(FATAL_ERROR "[ERROR] Select either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
@@ -234,12 +246,18 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
+# OSMesa/VTK aren't playing nicely on macs. Disabling for now.
+include(CMakeDependentOption)
+cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
+  "NOT APPLE" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
@@ -250,13 +268,16 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
-set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
-set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
+  if( (DEFINED CDAT_BUILD_MODE) AND (NOT "${CDAT_BUILD_MODE}" STREQUAL "LEAN") )
+    message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
+  endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
+set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -290,6 +311,12 @@ endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
+endif()
+
+# Don't build GUI if this is an offscreen-only build:
+if(CDAT_BUILD_OFFSCREEN AND CDAT_BUILD_GUI)
+  message("[INFO] Turning off CDAT_BUILD_GUI; incompatible with CDAT_BUILD_OFFSCREEN.")
   set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
 
@@ -448,6 +475,7 @@ include(netcdfplus_pkg)
 include(numexpr_pkg)
 include(numpy_pkg)
 include(mpi_pkg)
+include(osmesa_pkg)
 include(python_pkg)
 if (CDAT_BUILD_PARALLEL)
   include(paraview_pkg)
@@ -464,7 +492,9 @@ include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
-include(pip_pkg)
+if (NOT CDAT_USE_SYSTEM_PYTHON)
+  include(pip_pkg)
+endif()
 include(shapely_pkg)
 include(pygments_pkg)
 include(markupsafe_pkg)
@@ -511,8 +541,10 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 

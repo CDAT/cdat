@@ -24,13 +24,14 @@ subsets should be done in the native coordinates.
 
 import ioapiTools as ioT
 import cdms2 as cdms
+import cdat_info
 import cdtime
 import os, sys
 
 ## Setup
 ## input file
 iFile = "CCTM_ACONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 ## variable of interest
 varName = "o3"

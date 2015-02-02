@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 
-import cdms2,cdutil,os,sys
+import cdms2,cdutil,os,sys,cdat_info
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','tas_mo.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_mo.nc'))
 s=f('tas')
 tc=s.getTime().asComponentTime()
 

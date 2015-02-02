@@ -4,7 +4,7 @@ import string, numpy, time, MV2, sys, os
 from regrid2 import Regridder
 
 # Open data file
-file1 = os.path.join(sys.prefix, 'sample_data/hadcrut2_sample.nc')
+file1 = os.path.join(vcs.prefix, 'sample_data/hadcrut2_sample.nc')
 a = cdms2.open(file1) 
 print a.listvariable()
 
@@ -36,7 +36,7 @@ a.close()
 # Get the ERA40 data for both 2-meter temperature (tas) and ssts (sst)
 # on original grid
 
-file2 = os.path.join(sys.prefix, 'sample_data/era40_tas_sample.nc')
+file2 = os.path.join(vcs.prefix, 'sample_data/era40_tas_sample.nc')
 b = cdms2.open(file2) 
 # get data
 print "reading 'tas' data, please wait..."
@@ -45,7 +45,7 @@ print tas.shape
 # close the file
 b.close()
 # now get the 'sst' data
-file3 = os.path.join(sys.prefix, 'sample_data/era40_sst_sample.nc')
+file3 = os.path.join(vcs.prefix, 'sample_data/era40_sst_sample.nc')
 b = cdms2.open(file3)
 # get data
 print "reading 'sst' data, please wait..."
@@ -78,7 +78,7 @@ y.plot(tas_new)
 
 # extract a land/sea mask and regrid it to our desired 5 degree grid
 # (these data are percent land coverage [0-100])
-file4 = os.path.join(sys.prefix, 'sample_data/geo.1deg.ctl')
+file4 = os.path.join(vcs.prefix, 'sample_data/geo.1deg.ctl')
 c = cdms2.open(file4) 
 fraction=c('sftlf',squeeze=1)
 c.close() 

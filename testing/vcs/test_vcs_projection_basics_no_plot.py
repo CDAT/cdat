@@ -1,3 +1,4 @@
+
 import vcs
 import numpy
 import cdtime
@@ -5,6 +6,7 @@ import cdtime
 from vcs_test_common import *
 
 x=vcs.init()
+x.drawlogooff()
 
 p=x.createprojection()
 assert(p.type == "linear")
