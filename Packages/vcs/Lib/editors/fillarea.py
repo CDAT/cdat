@@ -132,10 +132,15 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             h.place()
 
     def drag_stop(self):
+        changed = False
         for ind, h in enumerate(self.handles):
+            if self.fill.x[self.index][ind] != h.x or self.fill.y[self.index][ind] != h.y:
+                changed = True
             self.fill.x[self.index][ind] = h.x
             self.fill.y[self.index][ind] = h.y
-        self.save()
+
+        if changed:
+            self.save()
 
     def click_release(self):
         x, y = self.event_position()
@@ -228,15 +233,21 @@ def inside_fillarea(fillarea, x, y, index=None):
         # Every side that we intersect will get added here.
         # If intersected is even, we're outside the shape.
         # If intersected is odd, we're inside the shape.
-        intersected = 0
-        for side in sides:
+        intersected = []
+        for side_ind, side in enumerate(sides):
             x1, y1 = side[0]
             x2, y2 = side[1]
 
-            if (x1 > x or x2 > x) and min(y1, y2) < y and max(y1, y2) > y:
-                intersected += 1
+            if (x > x1 and x > x2) or (y < min(y1, y2) or y > max(y1, y2)):
+                continue
 
-        if intersected % 2 == 1:
+            m = (y1 - y2) / float(x1 - x2)
+            b = y1 - m * x1
+
+            if (y - b) / float(m) > x:
+                intersected.append(side_ind)
+
+        if len(intersected) % 2 == 1:
             return ind
 
     return None
