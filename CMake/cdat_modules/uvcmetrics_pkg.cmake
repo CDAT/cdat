@@ -11,5 +11,5 @@ set(UVCMETRICS_MD5)
 set(UVCMETRICS_BRANCH uvcdat-2.1.0)
 #set(GIT_TAG 1808453d1cac69e54761521a3e1519b099f34c35)
 
-add_cdat_package_dependent(UVCMETRICS "" "" ON "CDAT_BUILD_GUI" OFF)
+add_cdat_package(UVCMETRICS "" "" ON)
 
