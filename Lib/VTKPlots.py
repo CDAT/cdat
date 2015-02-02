@@ -823,7 +823,7 @@ class VTKVCSBackend(object):
       else:
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
-      returned["vtk_backend_filter"]=c2p
+      returned["vtk_backend_filter"]=sFilter
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
@@ -1112,9 +1112,9 @@ class VTKVCSBackend(object):
             prop = act.GetProperty()
             # Makes wireframed
             prop.SetRepresentationToWireframe()
-        #if geo is None:
+        if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
-        #  act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
