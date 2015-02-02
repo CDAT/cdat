@@ -34,6 +34,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             b.set_state(3)
         elif style == "long-dash":
             b.set_state(4)
+        self.slider_button = self.toolbar.add_slider_button(self.line.width[self.index], 1, 300, "Width", update=self.set_width)
 
         super(LineEditor, self).__init__()
         # Register mixins' events
@@ -41,6 +42,11 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def is_object(self, line):
         return self.line == line
+
+    def set_width(self, width):
+        self.line.width[self.index] = int(width)
+        self.slider_button.set_value(int(width))
+        self.save()
 
     def place(self):
         for h in self.handles:
@@ -167,7 +173,7 @@ def inside_line(line, x, y, screen_height, index=None):
 
         points = zip(line.x[ind], line.y[ind])
         width = line.width[ind]
-        offset = width / float(screen_height)
+        offset = width / float(screen_height) * 2
         for p_ind, point in enumerate(points):
             if p_ind + 1 == len(points):
                 break
