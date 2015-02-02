@@ -1,5 +1,5 @@
 from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer
-
+import datetime
 def __set_font(font, text_props):
     """
     Font selection logic for text properties
@@ -150,7 +150,7 @@ class Label(Widget, DraggableMixin):
 
     def click(self, obj, event):
         self.drag_origin = self.event_position()
-
+        self.drag_started = datetime.datetime.now()
         # Pass this to self.action
         if self.action is not None:
             self.action(self.interactor.GetEventPosition())
