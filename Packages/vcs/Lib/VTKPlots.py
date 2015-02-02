@@ -1112,9 +1112,9 @@ class VTKVCSBackend(object):
             prop = act.GetProperty()
             # Makes wireframed
             prop.SetRepresentationToWireframe()
-        if geo is None:
+        #if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
-          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+          #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
@@ -1176,8 +1176,8 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
-      contMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
-      contMapper.SetResolveCoincidentTopologyToPolygonOffset()
+      #contMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
+      #contMapper.SetResolveCoincidentTopologyToPolygonOffset()
 
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
