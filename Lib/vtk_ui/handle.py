@@ -66,6 +66,7 @@ class Handle(Widget):
             w, h = 1, 1
 
         self.repr.SetDisplayPosition((int(x), int(y), 0))
+        self.render()
 
     def click(self, object, event):
         
@@ -74,6 +75,9 @@ class Handle(Widget):
 
         if self.clicked:
             self.clicked(self)
+
+    def render(self):
+        self.widget.Render()
 
     def release(self, object, event):
         
