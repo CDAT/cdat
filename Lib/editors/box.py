@@ -49,6 +49,9 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.box.x2, self.box.y2 = self.bottom_right.x, self.bottom_right.y
         self.save()
 
+    def drag_stop(self):
+        self.save()
+
     def drag_move(self, d_x, d_y):
 
         self.top_left.x += d_x
@@ -83,7 +86,6 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.box.y1 = self.top_left.y
         self.box.x2 = self.bottom_right.x
         self.box.y2 = self.bottom_right.y
-        self.save()
 
     def click_release(self):
         x, y = self.event_position()
