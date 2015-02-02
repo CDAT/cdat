@@ -6,9 +6,10 @@ Created on Aug 28, 2014
 from TestManager import TestManager, vcsTest
 import vcs, sys, os
 
-testManager = TestManager()   
+testManager = TestManager()
 
-test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+
+vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
                      parameters={'VerticalScaling': 3.0,
                                  'ToggleVolumePlot': vcs.off, 
                                  'ScaleOpacity': [1.0, 1.0], 
@@ -20,7 +21,7 @@ test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="ge
                                  'YSlider': ( 20.0,  vcs.on ), 
                                  }  )       
      
-test2 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
                      parameters={'VerticalScaling': 3.0, 
                                  'ToggleVolumePlot': vcs.on,
                                  'ToggleSurfacePlot': vcs.off, 
@@ -34,7 +35,7 @@ test2 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="ge
                                  }  )       
 
 
-test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
                      parameters={'VerticalScaling': 3.0,
                                  'ToggleVolumePlot': vcs.off,  
                                  'ToggleSurfacePlot': vcs.on,
@@ -47,7 +48,7 @@ test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="g
                                  'YSlider': ( vcs.off ), 
                                  }  )       
 
-test4 =  vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ],
+vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ],
                      parameters={'VerticalScaling': 5.0,
                                  'ToggleClipping': ( 40, 360, -28, 90 ),
                                  'ToggleVolumePlot': vcs.on,  
@@ -63,7 +64,7 @@ test4 =  vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uw
                                  'Camera': { 'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)  }
                                  }  )       
 
-test5 =  vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], template = 'Hovmoller3D',
+vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], template = 'Hovmoller3D',
                      parameters={'BasemapOpacity': 0.5,
                                  'XSlider': ( 77.8, vcs.on ),
                                  'ZSlider': ( 0.1,   vcs.on ),
@@ -72,4 +73,3 @@ test5 =  vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], templa
                                  }  )
 
 
-    

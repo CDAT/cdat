@@ -158,15 +158,3 @@ class vcsTest:
         f.write( "  False\n" )
         f.write( "  ${BASELINE_DIR}\n" )
         f.write( ")\n\n\n")
-#        source_file = os.path.join( self.test_dir, "%s.py" % self.name )
-#         f1 = open( source_file, 'w' )
-#         f1.write( "import sys\n")
-#         f1.write( "from TestDefinitions import testManager\n"  )
-#         f1.write( "interactive = ( len(sys.argv) > 1 ) and ( sys.argv[1] == '-i' )\n")
-#         f1.write( "testManager.runTest( '%s', interactive )\n" % self.name )
-#         f1.close()
-        
-        
-if __name__ == '__main__':
-    from TestDefinitions import testManager    
-    testManager.runTest( 'dv3d_hovmoller_test' )

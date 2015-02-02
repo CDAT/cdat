@@ -295,12 +295,13 @@ class ButtonBarHandler:
                                 print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
                                 return
                         bbar.InteractionState = configFunct.name 
-                        #print " ---> Set Plot bbar interaction State: ", configFunct.name
+#                        print " ---> Set Plot bbar interaction State: ", configFunct.name
                         n_active_sliders = configFunct.position[1] if configFunct.position else 1
                         position_index = configFunct.position[0] if configFunct.position else 0
                         tvals = configFunct.value.getValues() 
-                        tval =  tvals[0] if ( len( tvals ) > 0 ) else 0.0             
-                        bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getSliderBounds(), tval  )
+                        tval =  tvals[0] if ( len( tvals ) > 0 ) else 0.0
+                        sliderLabel = configFunct.sliderLabels[0] if ( len(configFunct.sliderLabels) > 0 ) else ''
+                        bbar.commandeerControl( position_index, sliderLabel, configFunct.getSliderBounds(), tval  )
                         bbar.positionSlider( position_index, n_active_sliders )
                         self.current_configuration_mode = configFunct.label
     #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label

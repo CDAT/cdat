@@ -456,7 +456,7 @@ class DV3DPlot():
                     pname = input_ispec.getMetadata( 'scalars' )
                     var_list.append( pname )
             mdataStrs.append( ' vars=%s' % str(var_list) )
-            cTestStrs.append( 'test_%d_%d_%d_%d =  vcsTest( %s,' % ( lt.tm_year, lt.tm_yday, lt.tm_hour, lt.tm_min, ','.join(mdataStrs) ) )
+            cTestStrs.append( 'vcsTest( %s,' % ( ','.join(mdataStrs) ) )
             self.recordCamera()
             parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
             cTestStrs.append(  '\t\t\t\tparameters = {' )
