@@ -1,5 +1,3 @@
-#!/bin/csh
-
 # Main install prefix set by user or post install script:
 # UVCDAT_INSTALL_PREFIX
 
