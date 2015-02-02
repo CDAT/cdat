@@ -25,6 +25,7 @@
 _doValidation = True
 next_canvas_id = 1
 import cdat_info
+prefix = cdat_info.get_prefix()
 cdat_info.pingPCMDIdb("cdat","vcs")
 import thread
 import time

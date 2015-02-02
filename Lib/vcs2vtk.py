@@ -11,7 +11,7 @@ import cdms2
 import warnings
 import cdtime
 
-f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
+f = open(os.path.join(vcs.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
 def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
@@ -1033,6 +1033,7 @@ def prepMarker(renWin,marker,cmap=None):
       gs.FilledOff()
     elif t[:8]=='triangle':
       gs.SetGlyphTypeToTriangle()
+      gs.FilledOff()
       if t[9]=="d":
         gs.SetRotationAngle(180)
       elif t[9]=="l":
@@ -1089,6 +1090,37 @@ def prepMarker(renWin,marker,cmap=None):
       apd.AddInputData(pd)
       apd.Update()
       g.SetSourceData(apd.GetOutput())
+    elif t[:4] == "star":
+      np = 5
+      points = starPoints(.001 * s, 0, 0, np)
+
+      pts = vtk.vtkPoints()
+      # Add all perimeter points
+      for point in points:
+        pts.InsertNextPoint((point[0], point[1], 0))
+
+      center_id = len(points)
+
+      # Add center point
+      pts.InsertNextPoint((0,0,0))
+
+      polygons = vtk.vtkCellArray()
+      for ind in range(0, np*2, 2):
+        poly = vtk.vtkPolygon()
+        pid = poly.GetPointIds()
+        pid.SetNumberOfIds(4)
+        pid.SetId(0, ind)
+        pid.SetId(1, (ind - 1) % len(points))
+        pid.SetId(2, center_id)
+        pid.SetId(3, (ind + 1) % len(points))
+        polygons.InsertNextCell(poly)
+
+      pd = vtk.vtkPolyData()
+
+      pd.SetPoints(pts)
+      pd.SetPolys(polygons)
+
+      g.SetSourceData(pd)
     elif t in ["w%.2i" % x for x in range(203)]:
       ## WMO marker
       params = wmo[t]
@@ -1122,7 +1154,7 @@ def prepMarker(renWin,marker,cmap=None):
       # Use the difference in x to scale the point, as later we'll use the
       # x range to correct the aspect ratio:
       dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
-      s *= float(dx)/500.
+      s *= abs(float(dx))/500.
     gs.SetScale(s)
     gs.Update()
 
@@ -1255,3 +1287,30 @@ def checkProjParameters(self,name,value):
   return value
 def getProjType(value):
   return vtkProjections[value-200]
+
+def starPoints(radius_outer, x, y, number_points = 5):
+  """Defines coordinate points for an arbitrary star"""
+  # Point at the top of the star
+  theta = numpy.pi / 2.0
+
+  # Angular distance from one point to the next
+  delta_theta = 2 * numpy.pi / float(number_points)
+
+  # Size of the interior circle
+  radius_inner = radius_outer / 2.0
+
+  points = []
+  for point_index in range(number_points * 2):
+    # Outer point
+    dx = radius_outer * numpy.cos(theta)
+    dy = radius_outer * numpy.sin(theta)
+
+    points.append((x + dx, y + dy))
+
+    # Inner point
+    dx = radius_inner * numpy.cos(theta + delta_theta / 2.0)
+    dy = radius_inner * numpy.sin(theta + delta_theta / 2.0)
+    points.append((x + dx, y + dy))
+
+    theta += delta_theta
+  return points
