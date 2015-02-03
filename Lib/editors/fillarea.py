@@ -51,6 +51,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             self.fill.style[self.index] = "hatch"
         elif state == 2:
             self.fill.style[self.index] = "pattern"
+        self.configurator.changed = True
         self.save()
 
     def change_color(self, state):
@@ -62,6 +63,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def set_color(self, colormap, color):
         self.fill.colormap = colormap
         self.fill.color[self.index] = color
+        self.configurator.changed = True
         self.picker = None
         self.save()
 
@@ -112,7 +114,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
                         del self.fill.x[self.index]
                         del self.fill.y[self.index]
                         del self.fill.color[self.index]
-
+                        self.configurator.changed = True
                         if len(self.fill.x) == 0:
                             self.delete()
 
@@ -132,25 +134,25 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             h.place()
 
     def drag_stop(self):
-        changed = False
         for ind, h in enumerate(self.handles):
             if self.fill.x[self.index][ind] != h.x or self.fill.y[self.index][ind] != h.y:
-                changed = True
+                self.configurator.changed = True
             self.fill.x[self.index][ind] = h.x
             self.fill.y[self.index][ind] = h.y
 
-        if changed:
-            self.save()
+
+        self.save()
 
     def click_release(self):
+
         x, y = self.event_position()
 
-        if self.drag_origin == (x, y) or self.drag_position is None:
-            self.click()
-        else:
+        if self.drag_origin != (x, y) and self.drag_position is not None:
             # Update vertex positions
             for ind, h in enumerate(self.handles):
                 self.fill.x[self.index][ind], self.fill.y[self.index][ind] = h.x, h.y
+
+            self.configurator.changed = True
             self.save()
         self.drag_position = None
         self.drag_origin = None
@@ -164,6 +166,7 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         if line_click is not None:
             self.fill.x[self.index].insert(line_click, x)
             self.fill.y[self.index].insert(line_click, y)
+            self.configurator.changed = True
             self.rebuild()
             self.save()
         else:
@@ -171,16 +174,10 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.drag_position = None
         self.drag_origin = None
 
-    def click(self):
-        point = self.event_position()
-        x, y = point
-
-        if inside_fillarea(self.fill, x, y, self.index) is None:
-            self.configurator.deactivate(self)
-
     def adjust(self, handle):
         ind = self.handles.index(handle)
         self.fill.x[self.index][ind], self.fill.y[self.index][ind] = handle.x, handle.y
+        self.configurator.changed = True
         self.save()
 
     def save(self):
@@ -190,6 +187,10 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def in_bounds(self, x, y):
         return inside_fillarea(self.fill, x, y, self.index) is not None
+
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
 
     def detach(self):
         for h in self.handles:

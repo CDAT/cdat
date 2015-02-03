@@ -47,6 +47,10 @@ class MarkerEditor(behaviors.ClickableMixin):
         super(MarkerEditor, self).__init__()
         self.register()
 
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+
     def is_object(self, marker):
         return self.marker == marker
 
@@ -55,17 +59,10 @@ class MarkerEditor(behaviors.ClickableMixin):
             h.place()
         self.toolbar.place()
 
-    def click_release(self):
-        x, y = self.event_position()
-
-        if self.in_bounds(x, y):
-            pass
-        else:
-            self.configurator.deactivate(self)
-
     def change_shape(self, index):
         if index != 0:
             self.marker.type[self.index] = marker_shapes()[index - 1]
+            self.configurator.changed = True
             self.wmo_button.set_state(0)
             self.save()
         else:
@@ -74,6 +71,7 @@ class MarkerEditor(behaviors.ClickableMixin):
     def change_wmo(self, index):
         if index != 0:
             self.marker.type[self.index] = wmo_shapes()[index - 1]
+            self.configurator.changed = True
             self.shape_button.set_state(0)
             self.save()
         else:
@@ -81,6 +79,7 @@ class MarkerEditor(behaviors.ClickableMixin):
 
     def set_size(self, size):
         self.marker.size[self.index] = size
+        self.configurator.changed = True
         self.save()
 
     def change_color(self, state):
@@ -93,6 +92,7 @@ class MarkerEditor(behaviors.ClickableMixin):
         self.marker.colormap = colormap
         self.marker.color[self.index] = color
         del self.picker
+        self.configurator.changed = True
         self.picker = None
         self.save()
 
@@ -111,12 +111,14 @@ class MarkerEditor(behaviors.ClickableMixin):
             self.handles.append(h)
             self.marker.x[self.index].append(x)
             self.marker.y[self.index].append(y)
+            self.configurator.changed = True
             self.save()
 
     def adjust(self, handle):
         ind = self.handles.index(handle)
         self.marker.x[self.index][ind] = handle.x
         self.marker.y[self.index][ind] = handle.y
+        self.configurator.changed = True
         self.save()
 
     def in_bounds(self, x, y):
@@ -141,6 +143,7 @@ class MarkerEditor(behaviors.ClickableMixin):
 
             del self.marker.x[self.index][ind]
             del self.marker.y[self.index][ind]
+            self.configurator.changed = True
             self.handles[ind].detach()
             del self.handles[ind]
 
