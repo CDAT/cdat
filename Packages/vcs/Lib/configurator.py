@@ -96,6 +96,7 @@ class Configurator(object):
         self.clicking = None
         self.clicked_info = None
         self.target = None
+        self.changed = False
 
         self.fill_button = None
         self.text_button = None
@@ -110,7 +111,7 @@ class Configurator(object):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
-            self.interactor.AddObserver("MouseMoveEvent", self.hover, 10.0)
+            self.interactor.AddObserver("MouseMoveEvent", self.hover)
             self.interactor.AddObserver("LeftButtonReleaseEvent", self.release)
             self.init_buttons()
 
@@ -154,6 +155,9 @@ class Configurator(object):
                 self.clicking = None
                 return
 
+            if self.target and self.target.handle_click(point):
+                return
+
             clicked = None
             display_clicked = None
             for display in self.displays:
@@ -164,6 +168,8 @@ class Configurator(object):
             if clicked:
                 if self.target is None or self.target.is_object(clicked) == False:
                     self.activate(clicked, display_clicked)
+            elif self.target is not None:
+                self.deactivate(self.target)
         else:
             # Let other people handle this event.
             pass
@@ -181,7 +187,6 @@ class Configurator(object):
             if obj is not None:
                 self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
-
 
         self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
 
@@ -275,7 +280,9 @@ class Configurator(object):
             return in_template(point, t(dp.template), dp, (w, h), self.display_strings[dp.array[0].id], fudge=fudge)
 
     def save(self):
-        self.canvas.update()
+        if self.changed:
+            self.canvas.update()
+            self.changed = False
 
     def init_buttons(self):
         # An "off" and "on" state

@@ -13,11 +13,13 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def adjust(self, handle):
         self.point.x = self.handle.x
         self.point.y = self.handle.y
+        self.configurator.changed = True
         self.save()
 
     def drag_handle(self, handle, x, y):
         self.point.x = x
         self.point.y = y
+        self.configurator.changed = True
 
     def drag_stop(self):
         self.handle.place()
@@ -31,10 +33,9 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def is_object(self, point):
         return point == self.point
 
-    def click_release(self):
-        x, y = self.event_position()
-        if not self.in_bounds(x, y):
-            self.deactivate()
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
 
     def drag_move(self, d_x, d_y):
         self.point.x += d_x
@@ -42,6 +43,7 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.handle.x = self.point.x
         self.handle.y = self.point.y
         self.handle.place()
+        self.configurator.changed = True
 
     def in_bounds(self, x, y):
         return in_point(self.point, x, y)

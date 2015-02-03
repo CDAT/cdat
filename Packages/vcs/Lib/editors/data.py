@@ -26,3 +26,8 @@ class DataEditor(BoxEditor):
     def detach(self):
         self.toolbar.detach()
         super(DataEditor, self).detach()
+
+    def handle_click(self, point):
+        handled = super(DataEditor, self).handle_click(point)
+        x, y = point
+        return handled or self.toolbar.in_toolbar(x, y)

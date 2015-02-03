@@ -29,3 +29,7 @@ class LegendEditor(BoxEditor):
     def detach(self):
         self.toolbar.detach()
         super(LegendEditor, self).detach()
+
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)

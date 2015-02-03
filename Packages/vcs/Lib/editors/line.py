@@ -40,12 +40,17 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         # Register mixins' events
         self.register()
 
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+
     def is_object(self, line):
         return self.line == line
 
     def set_width(self, width):
         self.line.width[self.index] = int(width)
         self.slider_button.set_value(int(width))
+        self.configurator.changed = True
         self.save()
 
     def place(self):
@@ -55,6 +60,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
     def change_type(self, index):
         self.line.type[self.index] = index
+        self.configurator.changed = True
         self.save()
 
     def change_color(self, state):
@@ -66,6 +72,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def set_color(self, colormap, color):
         self.line.colormap = colormap
         self.line.color[self.index] = color
+        self.configurator.changed = True
         self.save()
 
     def right_release(self):
@@ -78,6 +85,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
                 if y1 - .01 < y and y1 + .01 > y:
                     del self.line.x[self.index][ind]
                     del self.line.y[self.index][ind]
+                    self.configurator.changed = True
                     self.rebuild()
                     self.save()
                     break
@@ -101,6 +109,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
     def adjust(self, handle):
         ind = self.handles.index(handle)
         self.line.x[self.index][ind], self.line.y[self.index][ind] = handle.x, handle.y
+        self.configurator.changed = True
         self.save()
 
     def drag_move(self, delta_x, delta_y):
@@ -110,14 +119,13 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             h.place()
 
     def drag_stop(self):
-        changed = False
         for ind, h in enumerate(self.handles):
             if self.line.x[self.index][ind] != h.x and self.line.y[self.index][ind] != h.y:
-                changed = True
+                self.configurator.changed = True
             self.line.x[self.index][ind] = h.x
             self.line.y[self.index][ind] = h.y
-        if changed:
-            self.save()
+
+        self.save()
 
     def save(self):
         self.configurator.save()
@@ -133,11 +141,6 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.toolbar.detach()
 
         self.unregister()
-
-    def click_release(self):
-        x, y = self.event_position()
-        if not self.in_bounds(x, y):
-            self.configurator.deactivate(self)
 
     def double_release(self):
         x, y = self.event_position()
@@ -158,6 +161,7 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
             self.line.x[self.index].insert(ind + 1, x)
             self.line.y[self.index].insert(ind + 1, y)
             self.rebuild()
+            self.configurator.changed = True
             self.save()
         else:
             self.configurator.deactivate(self)

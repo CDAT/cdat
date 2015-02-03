@@ -17,6 +17,7 @@ class TextEditor(ClickableMixin):
         # That way we can edit the text.
         self.old_priority = text.priority
         text.priority = 0
+        configurator.changed = True
         configurator.save()
         self.textboxes = None
 
@@ -99,6 +100,7 @@ class TextEditor(ClickableMixin):
 
     def finished_editing(self, textbox):
         self.text.string[self.textboxes.index(textbox)] = textbox.text
+        self.configurator.changed = True
 
     def in_bounds(self, x, y):
         return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
@@ -107,7 +109,7 @@ class TextEditor(ClickableMixin):
         x, y = self.event_position()
         text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
 
-        self.handle_click(text_index, x, y)
+        self.process_click(text_index, x, y)
 
     def double_release(self):
         x, y = self.event_position()
@@ -149,8 +151,13 @@ class TextEditor(ClickableMixin):
 
         self.text.x[self.index] = xcoord / float(w)
         self.text.y[self.index] = (h - ycoord) / float(h)
+        self.configurator.changed = True
 
-    def handle_click(self, text_index, x, y):
+    def handle_click(self, point):
+        x, y = point
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+
+    def process_click(self, text_index, x, y):
 
         if text_index == self.index:
             # Adjust cursor position
@@ -159,9 +166,7 @@ class TextEditor(ClickableMixin):
         else:
             self.textboxes[self.index].stop_editing()
 
-            if text_index is None:
-                self.deactivate()
-            else:
+            if text_index is not None:
                 # Change which one we're editing
                 self.index = text_index
                 self.textboxes[self.index].start_editing((x, y))
@@ -172,7 +177,7 @@ class TextEditor(ClickableMixin):
         winsize = self.interactor.GetRenderWindow().GetSize()
 
         clicked_on = inside_text(self.text, x, y, *winsize)
-        self.handle_click(clicked_on, x, y)
+        self.process_click(clicked_on, x, y)
 
     def save(self):
         self.configurator.save()
@@ -183,6 +188,7 @@ class TextEditor(ClickableMixin):
 
     def update_height(self, value):
         self.text.height = value
+        self.configurator.changed = True
         self.update()
 
     def change_color(self, state):
@@ -193,6 +199,7 @@ class TextEditor(ClickableMixin):
 
     def set_color(self, cmap, color):
         self.text.color = color
+        self.configurator.changed = True
         self.update()
         self.picker = None
         #text colormap is currently not in place, will be later.
@@ -223,6 +230,7 @@ class TextEditor(ClickableMixin):
         for state, button in zip(states, buttons):
             button.set_state(state)
 
+        self.configurator.changed = True
         self.update()
 
     def toggle_valign_buttons(self):
@@ -238,7 +246,7 @@ class TextEditor(ClickableMixin):
 
         for state, button in zip(states, buttons):
             button.set_state(state)
-
+        self.configurator.changed = True
         self.update()
 
 
@@ -292,6 +300,7 @@ class TextEditor(ClickableMixin):
 
     def change_font(self, state):
         self.text.font = self.fonts[state]
+        self.configurator.changed = True
         self.update()
 
 def text_dimensions(text, index, winsize):
@@ -309,8 +318,6 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
     if y > 1:
         y = y / float(screen_height)
 
-    original_x, original_y = x, y
-
     for ind, xcoord in enumerate(text.x):
         if index is not None:
             if ind != index:
@@ -321,6 +328,7 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
         text_width = text_width / float(screen_width)
         text_height = text_height / float(screen_height)
 
+        local_x, local_y = x, y
         # Adjust X, Y for angle
         if text.angle != 0:
             # Translate to the origin
@@ -330,7 +338,7 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
             txrot = translated_x * math.cos(theta) - translated_y * math.sin(theta)
             tyrot = translated_x * math.sin(theta) + translated_y * math.cos(theta)
             # Translate back to the point
-            x, y = txrot + xcoord, tyrot + ycoord
+            local_x, local_y = txrot + xcoord, tyrot + ycoord
 
         # Adjust for alignments
         if text.valign in ("half", 2):
@@ -343,9 +351,7 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
         elif text.halign in ("center", 1):
             xcoord -= text_width / 2.0
 
-        if x > xcoord and x < xcoord + text_width and y < ycoord + text_height and y > ycoord:
+        if local_x > xcoord and local_x < xcoord + text_width and local_y < ycoord + text_height and local_y > ycoord:
             return ind
-        else:
-            x, y = original_x, original_y
 
     return None
