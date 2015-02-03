@@ -28,6 +28,13 @@ class Toolbar(object):
         self.parent = parent
 
         self.__placing__ = False
+
+    def in_toolbar(self, x, y):
+        width, top = self.interactor.GetRenderWindow().GetSize()
+        if x > self.left and x < self.left + self.width and y < top and y > top - self.height:
+            return True
+        else:
+            return False
     
     # Left property definition
     def __getleft(self):
