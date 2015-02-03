@@ -21,7 +21,7 @@ class TextEditor(ClickableMixin):
         self.textboxes = None
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
-        self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height, end=self.save_height)
+        self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height)
         halign_bar = self.toolbar.add_toolbar("Horizontal Align")
 
         self.left_align_button = halign_bar.add_toggle_button("Left Align", on=self.align_left, off=self.dealign_left)
@@ -34,7 +34,7 @@ class TextEditor(ClickableMixin):
         self.half_align_button = valign_bar.add_toggle_button("Half Align", on=self.align_half, off=self.dealign_half)
         self.bottom_align_button = valign_bar.add_toggle_button("Bottom Align", on=self.align_bottom, off=self.dealign_bottom)
 
-        self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle, end=self.save_angle)
+        self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle)
         self.fonts = sorted(vcs.elements["font"].keys())
         font_button = self.toolbar.add_button(self.fonts, action=self.change_font)
         font_button.set_state(self.fonts.index(vcs.elements["fontNumber"][self.text.font]))
@@ -68,6 +68,9 @@ class TextEditor(ClickableMixin):
 
         prop = vtkTextProperty()
         vcs.vcs2vtk.prepTextProperty(prop, (w, h), self.text, self.text, cmap)
+
+        # need to subtract text.angle from 360
+        prop.SetOrientation(360 - self.text.angle)
 
         for ind, x in enumerate(self.text.x):
             y = self.text.y[ind]
@@ -182,10 +185,6 @@ class TextEditor(ClickableMixin):
         self.text.height = value
         self.update()
 
-    def save_height(self, value):
-        self.text.height = value
-        self.save()
-
     def change_color(self, state):
         if self.picker:
             self.picker.make_current()
@@ -285,18 +284,11 @@ class TextEditor(ClickableMixin):
         self.toggle_valign_buttons()
 
     def update_angle(self, value):
-
-        for box in self.textboxes:
-            box.hide()
         self.text.angle = int(value)
-        self.text.priority = self.old_priority
-        self.save()
-
-    def save_angle(self, value):
         for box in self.textboxes:
-            box.show()
-        self.text.priority = 0
-        self.save()
+            box.repr.GetTextActor().GetTextProperty().SetOrientation(360 - self.text.angle)
+            box.place()
+            box.render()
 
     def change_font(self, state):
         self.text.font = self.fonts[state]
@@ -316,6 +308,8 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
         x = x / float(screen_width)
     if y > 1:
         y = y / float(screen_height)
+
+    original_x, original_y = x, y
 
     for ind, xcoord in enumerate(text.x):
         if index is not None:
@@ -351,5 +345,7 @@ def inside_text(text, x, y, screen_width, screen_height, index=None):
 
         if x > xcoord and x < xcoord + text_width and y < ycoord + text_height and y > ycoord:
             return ind
+        else:
+            x, y = original_x, original_y
 
     return None
