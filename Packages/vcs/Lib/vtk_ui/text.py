@@ -148,6 +148,9 @@ class Label(Widget, DraggableMixin):
         if self.release_action is not None:
             self.release_action(self.interactor.GetEventPosition())
 
+    def render(self):
+        self.widget.Render()
+
     def click(self, obj, event):
         self.drag_origin = self.event_position()
         self.drag_started = datetime.datetime.now()
