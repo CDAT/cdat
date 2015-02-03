@@ -93,7 +93,7 @@ class Configurator(object):
         self.interactor = None
         self.display_strings = {}
         self.displays = []
-        self.clicking = False
+        self.clicking = None
         self.clicked_info = None
         self.target = None
 
@@ -138,11 +138,40 @@ class Configurator(object):
         # Remove the missing arrays
         for array in to_remove:
             del self.display_strings[array]
+
     def release(self, object, event):
-        self.clicking = False
+        if self.clicking is None:
+            return
+
+        if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
+
+            point = self.clicking[0]
+
+            if self.creating:
+                self.click_locations.append(point)
+                if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
+                    self.create()
+                self.clicking = None
+                return
+
+            clicked = None
+            display_clicked = None
+            for display in self.displays:
+                obj = self.in_display_plot(point, display)
+                if obj is not None and (clicked is None or obj.priority >= clicked.priority):
+                    clicked = obj
+                    display_clicked = display
+            if clicked:
+                if self.target is None or self.target.is_object(clicked) == False:
+                    self.activate(clicked, display_clicked)
+        else:
+            # Let other people handle this event.
+            pass
+
+        self.clicking = None
 
     def hover(self, object,event):
-        if self.clicking:
+        if self.clicking is not None:
             return
 
         point = self.interactor.GetEventPosition()
@@ -157,30 +186,8 @@ class Configurator(object):
         self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
 
 
-
     def click(self, object, event):
-        self.clicking = True
-        point = self.interactor.GetEventPosition()
-
-        if self.creating:
-            self.click_locations.append(point)
-            if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
-                self.create()
-            return
-
-
-        clicked = None
-        display_clicked = None
-        for display in self.displays:
-            obj = self.in_display_plot(point, display)
-            if obj is not None and (clicked is None or obj.priority >= clicked.priority):
-                clicked = obj
-                display_clicked = display
-
-        if clicked:
-            if self.target is None or self.target.is_object(clicked) == False:
-                self.activate(clicked, display_clicked)
-
+        self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def deactivate(self, obj):
         if self.target == obj:
