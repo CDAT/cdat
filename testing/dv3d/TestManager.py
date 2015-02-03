@@ -6,7 +6,7 @@ Created on Aug 28, 2014
 
 
 import cdms2, cdutil, genutil, ast
-import vcs, os, sys, shutil, collections
+import vcs, os, sys, shutil, collections, subprocess
 TestingDir=os.path.dirname(__file__)
 pth = os.path.join(TestingDir,"..")
 sys.path.append(pth)
@@ -14,6 +14,7 @@ import checkimage
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
+
 
 class TestManager:
     
@@ -60,6 +61,7 @@ class TestManager:
         test.test_dir = baselinedir
         test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
         test.test( ast.literal_eval(interactive) )
+
 
     def showTest(self, testName ):
         test = TestManager.DefinedTests.get( testName, None )
@@ -143,13 +145,37 @@ class vcsTest:
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
             sys.stdout.flush()
             line = sys.stdin.readline()
-            if line[0] <> 'n':  self.update_image() 
+            if line[0] <> 'n':
+                self.update_image()
         sys.exit(ret)
         
     def update_image(self):
-        print "Saving reference image to %s " % self.image_name       
+        self.update_baseline_repo()
         self.canvas.png( self.image_name )
-        
+        baseline_dir = os.path.dirname( self.image_name  )
+        ref_image =os.path.basename( self.image_name  )
+        git_cmd = " cd %s; git add %s; git commit -a -m 'Adding ref image %s'; git push origin HEAD" %  ( baseline_dir, ref_image, ref_image )
+        print "Saving reference image to %s, git cmd = '%s' " % ( self.image_name, git_cmd )
+#        subprocess.call( git_cmd )
+
+    def update_baseline_repo(self):
+        repo_dir = os.path.dirname( os.path.dirname( self.test_dir ) )
+        config_file = os.path.join( repo_dir, '.git', 'config' )
+        cfile = open( config_file, 'r')
+        redefine_repo = False
+        for line in cfile:
+            toks =  line.split('=')
+            if (len(toks) > 1) and toks[0].find('url') != -1:
+               print "  **** processing line: ", toks[1]
+               if toks[1].find('git://') != -1:
+                    redefine_repo = True
+               break
+        print " update_baseline_repo, redefine_repo = ", str(redefine_repo)
+        if redefine_repo:
+            redef_cmd = 'Redef command: "cd %s; rm -rf uvcdat-testdata; git clone https://github.com/UV-CDAT/uvcdat-testdata.git uvcdat-testdata"' % os.path.dirname( repo_dir )
+            print redef_cmd
+            subprocess.call( redef_cmd )
+
     def writeCMakeDef( self, f ):
         f.write( "add_test(%s\n" % self.name )
         f.write( "  \"${PYTHON_EXECUTABLE}\"\n"  )
