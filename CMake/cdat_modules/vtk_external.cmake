@@ -90,7 +90,7 @@ ExternalProject_Add(VTK
   BINARY_DIR ${vtk_binary}
   INSTALL_DIR ${vtk_install}
   ${GIT_CMD_STR}
-  GIT_TAG ${VTK_MD5}
+  GIT_TAG ${VTK_BRANCH}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
