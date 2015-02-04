@@ -166,15 +166,13 @@ class vcsTest:
         for line in cfile:
             toks =  line.split('=')
             if (len(toks) > 1) and toks[0].find('url') != -1:
-               print "  **** processing line: ", toks[1]
                if toks[1].find('git://') != -1:
                     redefine_repo = True
                break
-        print " update_baseline_repo, redefine_repo = ", str(redefine_repo)
         if redefine_repo:
-            redef_cmd = 'Redef command: "cd %s; rm -rf uvcdat-testdata; git clone https://github.com/UV-CDAT/uvcdat-testdata.git uvcdat-testdata"' % os.path.dirname( repo_dir )
-            print redef_cmd
-            subprocess.call( redef_cmd )
+            redef_cmd = "cd %s; rm -rf uvcdat-testdata; git clone https://github.com/UV-CDAT/uvcdat-testdata.git uvcdat-testdata" % os.path.dirname( repo_dir )
+            print 'Executing: ', redef_cmd
+            os.system( redef_cmd )
 
     def writeCMakeDef( self, f ):
         f.write( "add_test(%s\n" % self.name )
@@ -184,3 +182,5 @@ class vcsTest:
         f.write( "  False\n" )
         f.write( "  ${BASELINE_DIR}\n" )
         f.write( ")\n\n\n")
+
+
