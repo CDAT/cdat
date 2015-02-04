@@ -35,7 +35,7 @@ library_paths=( @SETUP_LIBRARY_PATHS@ )
 python_paths=( @SETUP_PYTHON_PATHS@ )
 executable_paths=( @SETUP_EXECUTABLE_PATHS@ )
 
-if [ -z "$UVCDAT_IN_PROMPT" ] ; then
+if [ "$UVCDAT_IN_PROMPT" ] ; then
     export PS1="(uvcdat)$PS1"
 fi
 
