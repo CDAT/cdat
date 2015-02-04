@@ -1,6 +1,10 @@
 # Main install prefix set by user or post install script:
 # UVCDAT_INSTALL_PREFIX
 
+if ( $?UVCDAT_IN_PROMPT ) then
+  set prompt = "(uvcdat)"${prompt}
+endif
+
 # If unset, use the value configured by cmake by default.
 # Everything beyond this point will be determined relatively
 # from this path.
