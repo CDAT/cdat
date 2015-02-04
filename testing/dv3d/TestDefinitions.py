@@ -8,6 +8,43 @@ import vcs, sys, os
 
 testManager = TestManager()
 
+vcsTest( "Hovmoller_volume_test", file="clt.nc", vars=['clt'], type="3d_scalar", template="Hovmoller3D",
+				parameters = {
+					"ScaleColormap": {0: 89.13197640956652, 1: 100.0, 2: 1, 'Slice': [17.27143292788585, 100.0, 1], 'Surface': [17.27143292788585, 100.0, 1], 'Volume': [89.13197640956652, 100.0, 1], 'state': 0},
+					"ChooseColormap": {'state': 0},
+					"ScaleOpacity": {0: 1.0, 1: 1.0, 'Slice': [1.0, 1.0], 'Surface': [1.0, 1.0], 'Volume': [1.0, 1.0], 'state': 0},
+					"BasemapOpacity": {0: 0.5, 'state': 0},
+					"Animation": {0: 0.0, 'state': 0},
+					"ZSlider": {'relative': 0.2833581758795678, 0: 0.2833581758795678, 'state': 1, 'absolute': -79.40784756275343},
+					"YSlider": {0: -90.0},
+					"ScaleTransferFunction": {0: 88.42048588004492, 1: 100.0, 2: 1, 'state': 1},
+					"Colorbar": {'state': 0},
+					"ToggleVolumePlot": {0: [1], 'init': [1], 'state': 1},
+					"XSlider": {0: -180.0},
+					"ToggleClipping": {'state': 0},
+					"Camera": {'Position': (-510.89793108644596, -99.49403616328722, 499.57693223045857), 'ViewUp': (0.6679428060896573, 0.18703087988580122, 0.7203276044705059), 'FocalPoint': (0.0, 0.0, 0.0)},
+					"IsosurfaceValue": {0: 50.0, 'state': 0},
+					"VerticalScaling": {0: 1.0, 'state': 0},
+					} )
+
+vcsTest( "dv3d_vector_test", file="geos5-sample.nc", vars=['uwnd', 'vwnd'], type="3d_vector", template="default",
+				parameters = {
+					"GlyphDensity": {0: 6.0, 'state': 0},
+					"ScaleColormap": {0: -45.960629, 1: 76.746857, 2: 1, 'Slice': [-45.960629, 76.746857, 1], 'Surface': [-45.960629, 76.746857, 1], 'Volume': [-45.960629, 76.746857, 1], 'state': 0},
+					"ChooseColormap": {'state': 0},
+					"GlyphSize": {0: 0.3, 'state': 0},
+					"ScaleOpacity": {0: 1.0, 1: 1.0, 'Slice': [1.0, 1.0], 'Surface': [1.0, 1.0], 'Volume': [1.0, 1.0], 'state': 0},
+					"BasemapOpacity": {0: 0.5, 'state': 0},
+					"Camera": {'Position': (180.0, 0.0, 540.0), 'ViewUp': (0.0, 1.0, 0.0), 'FocalPoint': (180.0, 0.0, 0.0)},
+					"ZSlider": {'relative': 0.6755583954359683, 0: 0.6755583954359683, 'state': 1, 'absolute': 242.52546396151263},
+					"ScaleTransferFunction": {0: -45.960629, 1: 76.746857, 2: 1, 'state': 0},
+					"Colorbar": {'state': 0},
+					"ToggleClipping": {'state': 0},
+					"Animation": {0: 0.0, 'state': 0},
+					"IsosurfaceValue": {0: 15.39311408996582, 'state': 0},
+					"VerticalScaling": {0: 1.0, 'state': 0},
+					} )
+
 
 vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
                      parameters={'VerticalScaling': 3.0,

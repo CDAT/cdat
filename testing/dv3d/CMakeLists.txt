@@ -1,5 +1,23 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/dv3d")
 
+add_test(Hovmoller_volume_test
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py
+  Hovmoller_volume_test
+  False
+  ${BASELINE_DIR}
+)
+
+
+add_test(dv3d_vector_test
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py
+  dv3d_vector_test
+  False
+  ${BASELINE_DIR}
+)
+
+
 add_test(dv3d_slider_test
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/dv3d/dv3d_execute_test.py

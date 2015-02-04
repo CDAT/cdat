@@ -89,7 +89,7 @@ class vcsTest:
         self.file_path = os.path.join( vcs.prefix, "sample_data", filename )
         self.file = cdms2.open( self.file_path )
         self.roi =  args.get( 'roi', None )
-        self.ptype = args.get( 'type', 'scalar' )
+        self.ptype = args.get( 'type', '3d_scalar' )
         self.template = args.get( 'template', 'default' )
         self.parameters = args.get( 'parameters', {} )
         self.actions = args.get( 'actions', [ 'test' ] )
@@ -105,7 +105,7 @@ class vcsTest:
             
         self.canvas = vcs.init()
         self.canvas.drawlogooff()
-        self.gm = vcs.get3d_scalar( self.template ) if ( self.ptype == 'scalar' ) else vcs.get3d_vector( self.template )        
+        self.gm = vcs.get3d_scalar( self.template ) if ( self.ptype == '3d_scalar' ) else vcs.get3d_vector( self.template )
         for pitem in self.parameters.items():
             self.gm.setParameter( pitem[0], pitem[1] )
         plot_args.append( self.gm )

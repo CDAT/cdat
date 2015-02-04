@@ -453,16 +453,28 @@ class DV3DPlot():
                 input_ispec = self.getInputSpec( input_index )
                 if input_ispec == None: break
                 else:
-                    pname = input_ispec.getMetadata( 'scalars' )
-                    var_list.append( pname )
+                    plist = input_ispec.getMetadata( 'inputVarList' )
+                    if not plist:
+                        pname = input_ispec.getMetadata( 'scalars' )
+                        var_list.append( pname )
+                    else:
+                        for pname in plist:
+                            if ( pname <> '__zeros__' ):
+                                var_list.append( pname )
             mdataStrs.append( ' vars=%s' % str(var_list) )
+            mdataStrs.append( ' type="%s"' % str(self.type) )
+            template = self.plot_attributes.get( 'template', None )
+            if template <> None: mdataStrs.append( ' template="%s"' % template )
             cTestStrs.append( 'vcsTest( %s,' % ( ','.join(mdataStrs) ) )
             self.recordCamera()
-            parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
+            parameter_names = set( self.cfgManager.getParameterList() )
+            parameter_names.update( PlotButtonNames )
             cTestStrs.append(  '\t\t\t\tparameters = {' )
+            ignorable_parms = [ 'axes', 'Configure', 'SliceRoundRobin' ]
             for param_name in parameter_names:
-                pval = self.cfgManager.getParameterValue( param_name )
-                if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
+                if not param_name in ignorable_parms:
+                    pval = self.cfgManager.getParameterDescription( param_name, ignorable=['cell','count'] )
+                    if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
             cTestStrs.append( '\t\t\t\t\t} )' )
             return '\n'.join( cTestStrs )
         except Exception, err:

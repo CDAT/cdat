@@ -309,6 +309,16 @@ class ConfigManager:
                 if param.getState(): value = "( %s, vcs.on )" % value
         return value
 
+    def getParameterDescription(self, param_name, **args ):
+        param = self.getParameter( param_name, **args )
+        if ( param == None ): return None
+        rv = {}
+        ignorable = args.get( 'ignorable', [] )
+        for key in param.values:
+            if not key in ignorable:
+                rv[key] = param.values[key]
+        return str( rv ) if ( len(rv) > 0 ) else None
+
     def getConfigurableFunction(self, name, **args ):
         rv = self.configurableFunctions.get( name, None )
         if rv == None:
