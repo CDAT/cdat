@@ -13,10 +13,10 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     self.controller = controller
 
   def run(self):
-    self.describe()
+    #self.describe()
     self.controller.animation_created = True
     self.controller._unique_prefix=hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
-    print "NFRAMES:",self.controller.number_of_frames()
+    #print "NFRAMES:",self.controller.number_of_frames()
 
   def describe(self):
     for info in self.controller.animate_info:
@@ -39,9 +39,10 @@ class VTKAnimate(animate_helper.AnimationController):
         animate_helper.AnimationController.__init__(self,vcs_self)
         self.AnimationCreate = VTKAnimationCreate
         self.AnimationPlayback = VTKAnimationPlayback
-    pass
+        import atexit
+        atexit.register(self.close)
     def draw_frame(self):
-      print "Drawing frame:",self.frame_num
+      #print "Drawing frame:",self.frame_num,self._unique_prefix
       png_name=os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_%.10i" % self.frame_num)
       if os.path.exists(png_name) and self.playback_params.zoom_factor!=1:
         ## Ok we have the pngs and we need to zoom, need to use png
@@ -66,11 +67,13 @@ class VTKAnimate(animate_helper.AnimationController):
              N*=len(a)
              args.append(slice(n,n+1))
           args=args[::-1]
-          if self.frame_num  == 0:
-            print "NFrame <-> args: %i <-> %s" % (self.frame_num,args)
-            print "BE ANIM:",disp.backend
+          #if self.frame_num  == 0:
+            #print "NFrame <-> args: %i <-> %s" % (self.frame_num,args)
+            #print "BE ANIM:",disp.backend
           self.vcs_self.backend.update_input(disp.backend,slab(*args),update=True)
-          self.vcs_self.png("tmp_png")
         self.vcs_self.backend.renWin.Render()
+        if not os.path.exists(os.path.dirname(png_name)):
+            os.makedirs(os.path.dirname(png_name))
+        self.vcs_self.png(png_name)
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)
