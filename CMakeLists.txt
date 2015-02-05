@@ -11,7 +11,6 @@ project(cdat)
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
-
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
@@ -684,7 +683,8 @@ set(SETUP_PYTHON_PATHS
   "lib/python${PYVER}/site-packages "
 )
 string(REPLACE ";" " " SETUP_PYTHON_PATHS ${SETUP_PYTHON_PATHS})
-
+include(GetGitRevisionDescription)
+git_describe(UVCDAT_PROMPT_STRING)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
     ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY
