@@ -4,6 +4,7 @@ import os
 import time
 import thread
 import threading
+import glob
 
 def showerror(msg):
   raise Exception,msg
@@ -35,6 +36,8 @@ class animate_obj_old(object):
    ##############################################################################
    # Initialize the animation flags						#
    ##############################################################################
+   def __del__(self):
+       print "Deleting the animation"
    def __init__(self, vcs_self):
       self.vcs_self = vcs_self
       self.gui_popup = 0
@@ -554,6 +557,10 @@ class animate_obj_old(object):
 
       # Now that the animation is completed, restore the graphics methods min and max values.
       self.restore_min_max()
+      png_names=glob.glob(os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png"))
+      for f in png_names:
+          os.remove(f)
+      os.rmdir(os.path.dirname(f))
 
    ##############################################################################
    # Pop up the animation GUI                                              	#
@@ -578,13 +585,14 @@ class RT:
     self.running = False
 
 # Adapted from http://stackoverflow.com/questions/323972/is-there-any-way-to-kill-a-thread-in-python
-class StoppableThread(threading.Thread):
+class StoppableThread(threading.Thread,object):
   def __init__(self):
     threading.Thread.__init__(self)
     self._stop = threading.Event()
     self._running = threading.Event()
     self._running.set()
-
+  def __del__(self):
+      print "IN DEL"
   def stop(self):
     self._stop.set()
     
@@ -638,7 +646,7 @@ class AnimationCreate(StoppableThread):
 
       # this is how you allow the GUI to process events during
       # animation creation
-      time.sleep(0.001)
+      #time.sleep(0.001)
     self.controller.restore_min_max()
 
     self.controller.animation_created = True
@@ -659,7 +667,7 @@ class AnimationPlaybackParams(object):
 
     """
     if value is not None:
-      value = max(value, 0.5)
+      #value = max(value, 0.5)
       self.frames_per_second = value
       return self
     return self.frames_per_second
@@ -767,10 +775,10 @@ class AnimationController(animate_obj_old):
     return self.playback_running
 
   def playback(self):
-    print "CREATED:",self.created()
+    #print "CREATED:",self.created()
     if (self.created() and 
         (self.playback_thread is None or not self.playback_thread.is_alive())):
-      print "Starting playback"
+      #print "Starting playback"
       self.playback_thread = self.AnimationPlayback(self)
       self.playback_thread.start()
 
@@ -877,12 +885,12 @@ class AnimationController(animate_obj_old):
       if slabs[0] is None:
         ## Nothing to do
         continue
-      print "SLAB:",slabs[0].shape
+      #print "SLAB:",slabs[0].shape
       if disp.g_type == "meshfill":
         try:
           g=slabs[0].getGrid()
           NXY=len(g.shape)
-          print "GRID NX:",NXY
+          #print "GRID NX:",NXY
         except:
           ## No grid so slab1 rnk will tell us
           NXY=slabs[1].ndim-2 # lat/lon/vertices
@@ -895,7 +903,7 @@ class AnimationController(animate_obj_old):
       n=1
       for a in slabs[0].getAxisList()[:NXtraDims]:
         n*=len(a)
-      print "This plot defines:",n,"frames"
+      #print "This plot defines:",n,"frames"
       # We truncate to mininum number of common frames
       NFrames = min(n,NFrames)
     self._number_of_frames = NFrames
@@ -972,7 +980,7 @@ class AnimationController(animate_obj_old):
     # and prevents segfaults when running multiple animations
     #self.vcs_self.replot()
 
-    print "*************************************************************"
+    #print "*************************************************************"
     self.create_canvas.clear()
     displays = []
     #checks = ["template","marker","texttable","textorientation","boxfill","isofill","isoline","line","textcombined"]
@@ -996,7 +1004,7 @@ class AnimationController(animate_obj_old):
     return displays
 
   def draw_frame(self):
-    print "drawing frame:",frame_num
+    #print "drawing frame:",frame_num
     if frame_num is not None:
       self.frame_num = frame_num
     self.vcs_self.backend.clear()

@@ -1451,7 +1451,7 @@ class VTKVCSBackend(object):
           writer.Write()
           a=A.GetNextActor()
   def Animate(self,*args,**kargs):
-    return VTKAnimate.VTKAnimate(*args,**kargs)
+     return VTKAnimate.VTKAnimate(*args,**kargs)
 
   def gettextextent(self,textorientation,texttable):
       warnings.warn("Please implement gettextextent for VTK Backend")
@@ -1628,23 +1628,23 @@ class VTKVCSBackend(object):
       return Renderer
   def update_input(self,vtkobjects,array1,array2=None,update=True):
       if vtkobjects.has_key("vtk_backend_grid"):
-          print "ok?"
+          #print "ok?"
           ## Ok ths is where we update the input data
           vg=vtkobjects["vtk_backend_grid"]
           data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
           pData= vg.GetPointData().GetScalars()
           if pData is not None:
-              print "OK HERE"
+              #print "OK HERE"
               vg.GetPointData().SetScalars(data)
           else:
-              print "OK HERE 2",array1.shape
+              #print "OK HERE 2",array1.shape
               vg.GetCellData().SetScalars(data)
           if vtkobjects.has_key("vtk_backend_filter"):
-            print "FILTER"
+            #print "FILTER"
             vtkobjects["vtk_backend_filter"].Update()
           if vtkobjects.has_key("vtk_backend_contours"):
             for c in vtkobjects["vtk_backend_contours"]:
-              print "UPING"
+              #print "UPING"
               c.Update()
       taxis = array1.getTime()
       if taxis is not None:

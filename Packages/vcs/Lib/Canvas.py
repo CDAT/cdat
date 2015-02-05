@@ -3807,7 +3807,8 @@ Options:::
     a.clear()
 
 """
-        self.animate.close()
+        if self.animate.created():
+            self.animate.close()
         self.animate_info=[]
         self.animate.update_animate_display_list( )
         self.backend.clear(*args,**kargs)
