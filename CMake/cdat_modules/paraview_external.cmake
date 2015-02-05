@@ -153,7 +153,7 @@ if(CDAT_BUILD_OFFSCREEN)
 endif()
 
 include(GetGitRevisionDescription)
-set(paraview_branch ${PARAVIEW_MD5})
+set(paraview_branch ${PARAVIEW_BRANCH})
 
 get_git_head_revision(refspec sha)
 #if("${refspec}" STREQUAL "refs/heads/devel-master")
