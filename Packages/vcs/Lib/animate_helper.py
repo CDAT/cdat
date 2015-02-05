@@ -444,8 +444,7 @@ class animate_obj_old(object):
    # Return the number of animate frames                                    	#
    ##############################################################################
    def number_of_frames( self ):
-      if self.create_flg == 1:
-         return self.vcs_self.canvas.animate_number_of_frames( )
+     return self._number_of_frames
 
    ##############################################################################
    # Pause the animation loop                                               	#
@@ -729,6 +728,9 @@ class AnimationController(animate_obj_old):
     self.playback_params = AnimationPlaybackParams()
     # GUI will set these if available
     self.signals = None
+    self.AnimationCreate = AnimationCreate
+    self.AnimationPlayback = AnimationPlayback
+    self._number_of_frames = None
 
   def set_signals(self, signals):
     self.signals = signals
@@ -737,14 +739,17 @@ class AnimationController(animate_obj_old):
     return self.animation_created
 
   def create(self, thread_it=True, min=None, max=None):
+    self.generate_number_of_frames()
     if thread_it == 0:
       thread_it = False
     if self.create_thread is None or not self.create_thread.is_alive():
       self.canvas_info = self.vcs_self.canvasinfo()
       self.animate_info = self.vcs_self.animate_info
-      self.create_params.a_min = min
-      self.create_params.a_max = max
-      self.create_thread = AnimationCreate(self)
+      if min is not None or max is not None:
+        warnings.warn(warnings.DeprecationWarning,"Animation min/max autoset has been deprecated, use graphic method to set them")
+      self.create_params.a_min = None
+      self.create_params.a_max = None
+      self.create_thread = self.AnimationCreate(self)
       self.create_thread.start()
     if not thread_it:
       self.create_thread.join()
@@ -762,9 +767,11 @@ class AnimationController(animate_obj_old):
     return self.playback_running
 
   def playback(self):
+    print "CREATED:",self.created()
     if (self.created() and 
         (self.playback_thread is None or not self.playback_thread.is_alive())):
-      self.playback_thread = AnimationPlayback(self)
+      print "Starting playback"
+      self.playback_thread = self.AnimationPlayback(self)
       self.playback_thread.start()
 
   # alias run to playback for command-line compatibility
@@ -794,7 +801,7 @@ class AnimationController(animate_obj_old):
     self.playback_resume()
 
   def number_of_frames(self):
-    return len(self.animation_files)
+    return self._number_of_frames
 
   def initialize_create_canvas(self):
     # create a new canvas for each frame
@@ -860,6 +867,40 @@ class AnimationController(animate_obj_old):
                self.set_animation_min_max( minv[i], maxv[i], i )
             except Exception,err:
                pass # if it is default, then you cannot set the min and max, so pass.
+
+  def generate_number_of_frames(self):
+    if self._number_of_frames is not None:
+      return self._number_of_frames
+    NFrames = 1.e8
+    for info in self.vcs_self.animate_info:
+      disp,slabs = info
+      if slabs[0] is None:
+        ## Nothing to do
+        continue
+      print "SLAB:",slabs[0].shape
+      if disp.g_type == "meshfill":
+        try:
+          g=slabs[0].getGrid()
+          NXY=len(g.shape)
+          print "GRID NX:",NXY
+        except:
+          ## No grid so slab1 rnk will tell us
+          NXY=slabs[1].ndim-2 # lat/lon/vertices
+      elif disp.g_type in ["G1D"]:
+        NXY=1
+      else:
+        NXY=2
+      ## Now we can do the math and figure how many frames
+      NXtraDims = slabs[0].ndim-NXY
+      n=1
+      for a in slabs[0].getAxisList()[:NXtraDims]:
+        n*=len(a)
+      print "This plot defines:",n,"frames"
+      # We truncate to mininum number of common frames
+      NFrames = min(n,NFrames)
+    self._number_of_frames = NFrames
+    self._number_of_dims_used_for_plot = NXY
+    return self._number_of_frames
 
   def get_all_frame_args(self):
     alen = None
@@ -931,6 +972,7 @@ class AnimationController(animate_obj_old):
     # and prevents segfaults when running multiple animations
     #self.vcs_self.replot()
 
+    print "*************************************************************"
     self.create_canvas.clear()
     displays = []
     #checks = ["template","marker","texttable","textorientation","boxfill","isofill","isoline","line","textcombined"]
@@ -953,7 +995,8 @@ class AnimationController(animate_obj_old):
     self.create_canvas.png(fn,draw_white_background=1)
     return displays
 
-  def draw_frame(self, frame_num=None):
+  def draw_frame(self):
+    print "drawing frame:",frame_num
     if frame_num is not None:
       self.frame_num = frame_num
     self.vcs_self.backend.clear()
