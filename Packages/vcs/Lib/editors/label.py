@@ -3,11 +3,102 @@ import vcs
 import inspect
 import text
 
+__valign_map__ = {
+    0: 0,
+    1: 0,
+    2: 1,
+    3: 2,
+    4: 2,
+}
+
 class LabelEditor(point.PointEditor):
     def __init__(self, interactor, label, dp, configurator):
         self.label = label
         self.display = dp
         super(LabelEditor, self).__init__(interactor, label, configurator)
+
+        self.toolbar = vcs.vtk_ui.Toolbar(self.interactor, "Label Options")
+        template = vcs.gettemplate(dp.template)
+
+        text_types_name = template.name + "_" + label.member
+
+        try:
+            self.tt = vcs.gettexttable(text_types_name)
+            self.to = vcs.gettextorientation(text_types_name)
+        except ValueError:
+            self.tt = vcs.createtexttable(text_types_name, label.texttable)
+            self.to = vcs.createtextorientation(text_types_name, label.textorientation)
+
+        self.height_button = self.toolbar.add_slider_button(self.to.height, 1, 100, "Height", update=self.update_height)
+
+        halign = self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
+        valign = self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+
+        halign.set_state(self.to.halign)
+        valign.set_state(__valign_map__[self.to.valign])
+
+        self.angle_button = self.toolbar.add_slider_button(self.to.angle, 0, 360, "Angle", update=self.update_angle)
+        self.fonts = sorted(vcs.elements["font"].keys())
+
+        font_button = self.toolbar.add_button(self.fonts, action=self.change_font)
+        font_button.set_state(self.fonts.index(vcs.elements["fontNumber"][self.tt.font]))
+
+        self.picker = None
+        self.toolbar.add_button(["Change Color"], action=self.change_color)
+
+        self.label.texttable = self.tt.name
+        self.label.textorientation = self.to.name
+
+    def halign(self, state):
+        self.to.halign = state
+        self.configurator.changed = True
+        self.save()
+
+    def valign(self, state):
+        if state == 0:
+            self.to.valign = 0
+        elif state == 1:
+            self.to.valign = 2
+        elif state == 2:
+            self.to.valign = 3
+
+        self.configurator.changed = True
+        self.save()
+
+    def update_height(self, value):
+        self.to.height = int(value)
+        self.height_button.set_value(int(value))
+        self.configurator.changed = True
+        self.save()
+
+    def update_angle(self, value):
+        self.to.angle = int(value)
+        self.angle_button.set_value(int(value))
+        self.configurator.changed = True
+        self.save()
+
+    def change_font(self, state):
+        self.tt.font = self.fonts[state]
+        self.configurator.changed = True
+        self.save()
+
+    def change_color(self, state):
+        if self.picker:
+            self.picker.make_current()
+        else:
+            self.picker = vcs.colorpicker.ColorPicker(500, 500, vcs.getcolormap(), self.tt.color, on_save=self.set_color, on_cancel=self.cancel_color)
+
+    def set_color(self, cmap, color):
+        self.tt.color = color
+        self.configurator.changed = True
+        self.picker = None
+        self.save()
+        #text colormap is currently not in place, will be later.
+        #self.text.colormap = cmap
+
+    def cancel_color(self):
+        self.picker = None
+
 
     def get_text(self):
         return get_label_text(self.label, self.display.array[0])
@@ -22,6 +113,10 @@ class LabelEditor(point.PointEditor):
         t = self.get_text()
         swidth, sheight = self.interactor.GetRenderWindow().GetSize()
         return inside_label(self.label, t, x, y, swidth, sheight)
+
+    def detach(self):
+        super(LabelEditor, self).detach()
+        self.toolbar.detach()
 
 
 def get_label_text(label, array):
