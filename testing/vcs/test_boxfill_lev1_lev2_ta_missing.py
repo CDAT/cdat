@@ -1,11 +1,13 @@
+
 import cdms2,sys,vcs,sys,os
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 x=vcs.init()
+x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
-f=cdms2.open(sys.prefix+"/sample_data/ta_ncep_87-6-88-4.nc")
+f=cdms2.open(vcs.prefix+"/sample_data/ta_ncep_87-6-88-4.nc")
 s=f("ta",slice(0,1),longitude=slice(34,35),squeeze=1)-273.15
 s=cdms2.MV2.masked_less(s,-45.)
 b=x.createboxfill()

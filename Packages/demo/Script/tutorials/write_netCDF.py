@@ -10,13 +10,13 @@ netCDF files.
 
 import ioapiTools as ioT
 import sys, os
-
+import cdat_info
 
 ## Setup
 
 ## input file
 iFile = "CCTM_ACONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 ## output files
 oFile1 = "var1.nc"

@@ -927,7 +927,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.worldcoordinate = [0,1,0,1]
         self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-        self.drawLogo = True
+        self.drawLogo = False
+        self.enableLogo = True
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
         elif isinstance(backend,vtk.vtkRenderWindow):
@@ -971,15 +972,18 @@ class Canvas(object,AutoAPI.AutoAPI):
     ## Functions to set/querie drawing of UV-CDAT logo
     def drawlogoon(self):
       """Turn on drawing of logo on pix"""
-      self.drawLogo = True
+      self.enableLogo = True
   
     def drawlogooff(self):
       """Turn off drawing of logo on pix"""
-      self.drawLogo = False
+      self.enableLogo = False
       
     def getdrawlogo(self):
       """Return value of draw logo"""
-      return self.drawLogo
+      return self.enableLogo
+
+    def initLogoDrawing(self):  
+        self.drawLogo = self.enableLogo
 
     #############################################################################
     #                                                                           #
@@ -5460,7 +5464,7 @@ Options:::
           self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_%s" % nms[value-1])
           if not os.path.exists(self._continents):
             #fallback on installed with system one
-            self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_%s" % nms[value-1])
+            self._continents = os.path.join(vcs.prefix,"share","vcs","data_continent_%s" % nms[value-1])
         else:
           raise Exception("Error continents value must be file or int < 12")
       elif isinstance(value,str):
@@ -5471,7 +5475,7 @@ Options:::
         warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
         self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
         if not  os.path.exists(self._continent):
-          self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_coarse")
+          self._continents = os.path.join(vcs.prefix,"share","vcs","data_continent_coarse")
         return
 
     #############################################################################

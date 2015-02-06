@@ -71,7 +71,7 @@ action = {}
 action['setup.py'] = 'PATH=%s/bin:$PATH  %s setup.py install --prefix=%s ; ' \
     % (sys.exec_prefix, sys.executable, target_prefix)
 install_script_path = os.path.join(libcdms_dir, 'install_script')
-action['install_script'] = install_script_path + ' %s %s ; ' % (target_prefix, sys.exec_prefix)
+action['install_script'] = install_script_path + ' %s %s ; ' % (target_prefix, sys.executable)
 for k in ['makefile','Makefile','MAKEFILE']:
     action[k] = make_code + " PYPREFIX='%s' PREFIX='%s' install ; " % (sys.exec_prefix,target_prefix)
 action['autogen.sh'] = "autogen.sh ; ./configure --prefix=%s  --with-python=%s ; make -j1 ; make -j1 install ;" % (os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')), os.path.join(sys.exec_prefix,'bin','python'))

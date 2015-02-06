@@ -119,7 +119,7 @@ class RectGridPlot(StructuredGridPlot):
         self.cs_bbar = None
         self.probeFilter = None
         self.cursorActor     = vtk.vtkActor()
-        self.clipPlanes = vtk.vtkPlanes() 
+        self.clipPlanes = vtk.vtkPlanes()
         
         self.pipelineDebug = False
         
@@ -429,12 +429,12 @@ class RectGridPlot(StructuredGridPlot):
         if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():      
 #            print " Update planeWidgetZ "
             self.planeWidgetZ.UpdateInputs()
-            
+
     def initializeClipper(self):
-        if( self.cropRegion == None ): 
+        if( self.cropRegion == None ):
             self.cropRegion = self.getVolumeBounds()
         if self.clipper:
-            if ( self.renderWindowInteractor <> None ): 
+            if ( self.renderWindowInteractor <> None ):
                 self.clipper.SetInteractor( self.renderWindowInteractor )
             self.clipper.PlaceWidget( self.cropRegion )
             self.clipper.GetPlanes( self.clipPlanes )

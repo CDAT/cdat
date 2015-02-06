@@ -59,7 +59,7 @@ packages = [
     "Packages/esg", 
     "Packages/ncml",
     "Packages/DV3D",
-    "Packages/vcs", 
+    "Packages/vcs",
     "Packages/vcsaddons",
     "Packages/cdutil",
     "Packages/unidata",

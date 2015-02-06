@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2,cdutil,numpy.ma, MV2, os, sys
+import cdms2,cdutil,numpy.ma, MV2, os, sys, cdat_info
 cdms2.setAutoBounds('on')
 
 # centroid test
@@ -25,7 +25,7 @@ ax.setBounds(bounds)
 print 'Centroid Normal:',cdutil.times.centroid(a,[0,365]) 
 print 'Centroid Cyclic:',cdutil.times.cyclicalcentroid(a,[0,365]) 
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','tas_mo.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_mo.nc'))
 s=f('tas')
 
 cdutil.setTimeBoundsMonthly(s)

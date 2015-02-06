@@ -1,3 +1,4 @@
+
 import sys,os
 import argparse
 
@@ -33,6 +34,7 @@ import numpy
 bg = not args.show
 
 x=vcs.init()
+x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")

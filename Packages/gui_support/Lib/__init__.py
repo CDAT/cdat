@@ -15,10 +15,10 @@ sys.path.append(fn)
 
 def buildDate():
     """ Returns the date python was built, and the date VCDAT was built """
-    fnm = os.path.join(sys.prefix,'bin','python')
+    fnm = os.path.join(cdat_info.get_prefix(),'bin','python')
     a=os.stat(fnm)[8]
     p=time.asctime(time.localtime(a))
-    fnm = os.path.join(sys.prefix,'bin','cdat')
+    fnm = os.path.join(cdat_info.get_prefix(),'bin','cdat')
     a=os.stat(fnm)[8]
     return p, time.asctime(time.localtime(a))
 
