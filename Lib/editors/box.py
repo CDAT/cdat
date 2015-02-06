@@ -1,7 +1,8 @@
 from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
+import priority
 
-class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
+class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     def __init__(self, interactor, box, configurator):
         self.box = box
         self.interactor = interactor
@@ -19,6 +20,9 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
 
         super(BoxEditor, self).__init__()
         self.register()
+
+    def get_object(self):
+        return self.box
 
     def is_object(self, b):
         return b == self.box
