@@ -1338,6 +1338,7 @@ class VTKVCSBackend(object):
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
     gl.SetFilePrefix(".".join(file.split(".")[:-1]))
+    gl.TextAsPathOn()
     if output_type=="svg":
         gl.SetFileFormatToSVG()
     elif output_type == "ps":
