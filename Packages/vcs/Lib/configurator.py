@@ -1,7 +1,7 @@
 import vcs
 import datetime
 import editors
-import vtk_ui.button
+import vtk_ui
 import os, sys
 import vtk
 
@@ -97,7 +97,7 @@ class Configurator(object):
         self.clicked_info = None
         self.target = None
         self.changed = False
-
+        self.toolbar = None
         self.fill_button = None
         self.text_button = None
         self.line_button = None
@@ -114,6 +114,7 @@ class Configurator(object):
             self.interactor.AddObserver("MouseMoveEvent", self.hover)
             self.interactor.AddObserver("LeftButtonReleaseEvent", self.release)
             self.init_buttons()
+            self.init_toolbar()
 
         self.place()
 
@@ -198,6 +199,7 @@ class Configurator(object):
         if self.target == obj:
             self.target.detach()
             self.target = None
+            self.toolbar.show()
         self.save()
 
     def delete(self, obj, index):
@@ -215,6 +217,7 @@ class Configurator(object):
     def activate(self, obj, display):
         if self.target is not None:
             self.deactivate(self.target)
+        self.toolbar.hide()
 
         if display.g_type == "fillarea":
             editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
@@ -283,6 +286,48 @@ class Configurator(object):
         if self.changed:
             self.canvas.update()
             self.changed = False
+
+    def init_toolbar(self):
+        self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure")
+
+        # Canvas background color
+        color_toolbar = self.toolbar.add_toolbar("Background Color")
+        red, green, blue = self.canvas.backgroundcolor
+
+        color_toolbar.add_slider_button(red, 0, 255, "Red", update=self.set_background_red)
+        color_toolbar.add_slider_button(green, 0, 255, "Green", update=self.set_background_green)
+        color_toolbar.add_slider_button(blue, 0, 255, "Blue", update=self.set_background_blue)
+        self.toolbar.show()
+
+    def set_background_red(self, value):
+        _, g, b = self.canvas.backgroundcolor
+        self.canvas.backgroundcolor = int(value), g, b
+
+        self.changed = True
+        self.save()
+        # Returning a value will update the slider to that value
+        return int(value)
+
+    def set_background_green(self, value):
+        r, _, b = self.canvas.backgroundcolor
+        self.canvas.backgroundcolor = r, int(value), b
+
+        self.changed = True
+        self.save()
+        # Returning a value will update the slider to that value
+        return int(value)
+
+    def set_background_blue(self, value):
+        r, g, _ = self.canvas.backgroundcolor
+        self.canvas.backgroundcolor = r, g, int(value)
+
+        self.changed = True
+        self.save()
+        # Returning a value will update the slider to that value
+        return int(value)
+
+
+
 
     def init_buttons(self):
         # An "off" and "on" state
