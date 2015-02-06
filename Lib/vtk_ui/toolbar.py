@@ -121,6 +121,7 @@ class Toolbar(object):
         """
         Widget shim; makes this behave the same as a button with regards to being layed out.
         """
+        self.place()
         self.label.show()
         if self.open:
             self.show_widgets()
