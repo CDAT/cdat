@@ -11,7 +11,6 @@ project(cdat)
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
-
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
@@ -259,6 +258,9 @@ option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 include(CMakeDependentOption)
 cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
   "NOT APPLE" OFF)
+
+# Option to enable vtkweb for cdatweb
+option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
@@ -620,7 +622,12 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
       message("[INFO] Package --- ${package}/${uc_package}/${${uc_package}_VERSION} --- will be built")
-    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ")
+    if (${uc_package}_MD5)
+      list(APPEND packages_info "${${uc_package}_MD5}\n")
+    else()
+      list(APPEND packages_info "${${uc_package}_BRANCH}\n")
+    endif()
     include("${lc_package}_external")
   endif()
 endforeach()
@@ -676,7 +683,8 @@ set(SETUP_PYTHON_PATHS
   "lib/python${PYVER}/site-packages "
 )
 string(REPLACE ";" " " SETUP_PYTHON_PATHS ${SETUP_PYTHON_PATHS})
-
+include(GetGitRevisionDescription)
+git_describe(UVCDAT_PROMPT_STRING)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
     ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY
@@ -712,6 +720,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/cdat
+  @ONLY
+)
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
@@ -720,6 +733,38 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Where to install the wrapper scripts
+set(WRAPPER_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX}/wrappers
+    CACHE PATH
+    "Install wrapper scripts 'cdat', 'uvcdat' and 'loadcdat' in that directory")
+
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/uvcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
+        ${WRAPPER_INSTALL_LOCATION}/uvcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/cdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/cdat
+        ${WRAPPER_INSTALL_LOCATION}/cdat)
+
+add_custom_target(wrappers ALL DEPENDS
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+                  ${WRAPPER_INSTALL_LOCATION}/uvcdat
+                  ${WRAPPER_INSTALL_LOCATION}/cdat)
 
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
