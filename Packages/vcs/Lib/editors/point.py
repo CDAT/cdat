@@ -1,6 +1,7 @@
 from vcs.vtk_ui import behaviors, Handle
+import priority
 
-class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
+class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     def __init__(self, interactor, point, configurator):
         self.point = point
         self.interactor = interactor
@@ -9,6 +10,9 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         self.configurator = configurator
         super(PointEditor, self).__init__()
         self.register()
+
+    def get_object(self):
+        return self.point
 
     def adjust(self, handle):
         self.point.x = self.handle.x
