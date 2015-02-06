@@ -30,6 +30,6 @@ class KeyableMixin(Behavior):
 
     def fetch_pressed(self):
         code = self.interactor.GetKeyCode()
-        if code == 0 or ord(code) > 127:
+        if len(code) == 0 or ord(code) > 127:
             code = self.interactor.GetKeySym()
         return code
