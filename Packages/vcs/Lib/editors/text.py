@@ -3,9 +3,10 @@ import vcs.vtk_ui.text
 from vcs.colorpicker import ColorPicker
 from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
+import priority
 import vcs
 
-class TextEditor(ClickableMixin):
+class TextEditor(ClickableMixin, priority.PriorityEditor):
     def __init__(self, interactor, text, index, configurator):
 
         self.interactor = interactor
@@ -46,6 +47,9 @@ class TextEditor(ClickableMixin):
         self.register()
         self.toggle_halign_buttons()
         self.toggle_valign_buttons()
+
+    def get_object(self):
+        return self.text
 
     def is_object(self, text):
         return self.text == text

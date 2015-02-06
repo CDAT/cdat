@@ -1,8 +1,9 @@
 from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
 from vcs.colorpicker import ColorPicker
+import priority
 
-class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
+class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     def __init__(self, interactor, fillarea, index, configurator):
         self.index = index
         self.fill = fillarea
@@ -33,6 +34,9 @@ class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         super(FillEditor, self).__init__()
         # Register mixins' events
         self.register()
+
+    def get_object(self):
+        return self.fill
 
     def is_object(self, fill):
         return fill == self.fill

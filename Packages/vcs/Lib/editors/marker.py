@@ -2,8 +2,9 @@ from vcs import vtk_ui
 from vcs.colorpicker import ColorPicker
 from vcs.vtk_ui import behaviors
 from vcs.VCS_validation_functions import checkMarker
+import priority
 
-class MarkerEditor(behaviors.ClickableMixin):
+class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
     def __init__(self, interactor, marker, index, configurator):
         self.interactor = interactor
         self.marker = marker
@@ -46,6 +47,9 @@ class MarkerEditor(behaviors.ClickableMixin):
 
         super(MarkerEditor, self).__init__()
         self.register()
+
+    def get_object(self):
+        return self.marker
 
     def handle_click(self, point):
         x, y = point

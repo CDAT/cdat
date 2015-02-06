@@ -1,8 +1,9 @@
 from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
 from vcs.colorpicker import ColorPicker
+import priority
 
-class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
+class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     styles = ["solid", "dash", "dot", "dash-dot", "long-dash"]
     def __init__(self, interactor, line, index, configurator):
         self.index = index
@@ -39,6 +40,9 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin):
         super(LineEditor, self).__init__()
         # Register mixins' events
         self.register()
+
+    def get_object(self):
+        return self.line
 
     def handle_click(self, point):
         x, y = point
