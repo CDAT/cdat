@@ -199,6 +199,16 @@ add_test(vcs_test_taylor_2_quads
     ${cdat_SOURCE_DIR}/testing/vcs/test_star_triangle_markers.py
     "${BASELINE_DIR}/test_star_triangle_markers.png"
     )
+  add_test(vcs_test_canvas_background
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_canvas_background.py
+    "${BASELINE_DIR}/test_canvas_background.png"
+    )
+  add_test(vcs_test_canvas_background_update
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_canvas_background_update.py
+    "${BASELINE_DIR}/test_canvas_background_update.png"
+    )
   add_test(vcs_test_boxfill_10x10_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
