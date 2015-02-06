@@ -71,4 +71,6 @@ class Slider(Widget):
         value = self.repr.GetValue()
 
         if self.update_callback:
-            self.update_callback(value)
+            new_value = self.update_callback(value)
+            if new_value is not None:
+                self.repr.SetValue(new_value)
