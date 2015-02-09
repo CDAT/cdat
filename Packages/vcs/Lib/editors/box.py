@@ -47,12 +47,10 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pri
 
         for h in handles:
             h.place()
-        self.configurator.changed = True
 
     def adjust(self, handle):
         self.box.x1, self.box.y1 = self.top_left.x, self.top_left.y
         self.box.x2, self.box.y2 = self.bottom_right.x, self.bottom_right.y
-        self.configurator.changed = True
         self.save()
 
     def drag_stop(self):
@@ -93,12 +91,12 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pri
         self.box.x2 = self.bottom_right.x
         self.box.y2 = self.bottom_right.y
 
-        self.configurator.changed = True
 
     def double_release(self):
         self.configurator.deactivate(self)
 
     def save(self):
+        self.configurator.changed = True
         self.configurator.save()
         self.place()
 
