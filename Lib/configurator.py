@@ -297,6 +297,20 @@ class Configurator(object):
         color_toolbar.add_slider_button(red, 0, 255, "Red", update=self.set_background_red)
         color_toolbar.add_slider_button(green, 0, 255, "Green", update=self.set_background_green)
         color_toolbar.add_slider_button(blue, 0, 255, "Blue", update=self.set_background_blue)
+
+        def logo_on():
+          self.canvas.drawlogoon()
+          self.canvas.update()
+        def logo_off():
+          self.canvas.drawlogooff()
+          self.canvas.update()
+
+        # Toggle UV-CDAT logo
+        logo_button = self.toolbar.add_toggle_button("Logo", on_prefix="Show", off_prefix="Hide", on=logo_on, off=logo_off)
+
+        if self.canvas.getdrawlogo():
+          logo_button.set_state(1)
+
         self.toolbar.show()
 
     def set_background_red(self, value):
