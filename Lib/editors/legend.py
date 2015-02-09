@@ -24,7 +24,6 @@ class LegendEditor(BoxEditor):
 
     def change_map(self, state):
         self.configurator.canvas.setcolormap(self.maps[state])
-        self.save()
 
     def detach(self):
         self.toolbar.detach()
