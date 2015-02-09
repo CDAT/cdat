@@ -1335,6 +1335,13 @@ class VTKVCSBackend(object):
       raise Exception("Nothing on Canvas to dump to file")
 
     gl  = vtk.vtkGL2PSExporter()
+
+    # This is the size of the initial memory buffer that holds the transformed
+    # vertices produced by OpenGL. If you start seeing a lot of warnings:
+    # GL2PS info: OpenGL feedback buffer overflow
+    # increase it to save some time.
+    gl.SetBufferSize(50*1024*1024) # 50MB
+
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
     gl.SetFilePrefix(".".join(file.split(".")[:-1]))
