@@ -62,7 +62,7 @@ def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions=
     
     Notes:
     -----
-    - More detailed information, including a region map and tabulated region numbers is available from http://www-pcmdi.llnl.gov/publications/pdf/34.pdf
+    - More detailed information, including a region map and tabulated region numbers are available from http://www-pcmdi.llnl.gov/publications/pdf/34.pdf
     """
     
     cdat_info.pingPCMDIdb("cdat","cdutil.generateSurfaceTypeByRegionMask")
