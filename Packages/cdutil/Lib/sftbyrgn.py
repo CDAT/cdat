@@ -39,7 +39,7 @@ def loop(potential,potential_reg,c2,w3,region):
 
 def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions=range(201,223),maximum_regions_per_cell=4,extend_up_to=3,verbose=True):
     """
-    Maps a "regions" dataset onto a user provided land/sea mask
+    Maps a "regions" dataset onto a user provided land/sea mask or grid
     
     Usage:
     -----
@@ -49,7 +49,7 @@ def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions=
     -----
     mask                        User provided land/sea mask (100/0) or grid (the land/sea mask will be generated automagically) which will be mapped using the "sftbyrgn" internal dataset (will generate a land/sea mask for you)
     sftbyrgn                    Mask you wish to map onto your grid (if None uses internal "sftbyrgn" dataset (old ezget type))
-    sftbyrgnmask                Land/sea mask for sftbyrgn (or a number specifying value limits for sftbyrgn which indicates land/sea threshold (greater values are land))
+    sftbyrgnmask                Land/sea mask for sftbyrgn (or a number specifying value limits for sftbyrgn which indicates land/sea threshold (greater values are land) - see URL below for integer region map)
     regions                     Numbers from sftbyrgn array that you want to map onto mask (integers from 201-222)
     maximum_regions_per_cell    Maximum number of regions considered for a single cell
     extend_up_to                How many grid cells around a cell can we extend to identify a guess
