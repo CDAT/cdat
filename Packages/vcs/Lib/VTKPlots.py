@@ -1342,6 +1342,10 @@ class VTKVCSBackend(object):
     # increase it to save some time.
     gl.SetBufferSize(50*1024*1024) # 50MB
 
+    # Since the vcs layer stacks renderers to manually order primitives, sorting
+    # is not needed and will only slow things down and introduce artifacts.
+    gl.SetSortToOff()
+
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
     gl.SetFilePrefix(".".join(file.split(".")[:-1]))
