@@ -37,28 +37,28 @@ def loop(potential,potential_reg,c2,w3,region):
     return
 
 
-def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions = range(201,223), maximum_regions_per_cell=4,extend_up_to=3,verbose=True):
+def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions=range(201,223),maximum_regions_per_cell=4,extend_up_to=3,verbose=True):
     """
     Maps a "regions" dataset onto a user provided land/sea mask
     
     Usage:
     -----
-    mapped,found = generateSurfaceTypeByRegionMask(mask,sftbyrgn,sftbyrgnmask=None,regions=None,maximum_regions_per_cell=4,extend_up_to=3,verbose=True)
+    mapped,found = generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=None,regions=None,maximum_regions_per_cell=4,extend_up_to=3,verbose=True)
 
     Input:
     -----
-    mask                        User provided land/sea mask (100/0) which will be mapped using the "sftbyrgn" internal dataset (will generate a land/sea mask for you)
-    sftbyrgn                    Mask you wish to map (if None uses internal "sftbyrgn" dataset (old ezget type))
+    mask                        User provided land/sea mask (100/0) or grid (the land/sea mask will be generated automagically) which will be mapped using the "sftbyrgn" internal dataset (will generate a land/sea mask for you)
+    sftbyrgn                    Mask you wish to map onto your grid (if None uses internal "sftbyrgn" dataset (old ezget type))
     sftbyrgnmask                Land/sea mask for sftbyrgn (or a number specifying value limits for sftbyrgn which indicates land/sea threshold (greater values are land))
-    regions                     Numbers from sftbyrgn array that you want to map onto mask
-    maximum_regions_per_cell    Maximum number f regions considered in a cell
+    regions                     Numbers from sftbyrgn array that you want to map onto mask (integers from 201-222)
+    maximum_regions_per_cell    Maximum number of regions considered for a single cell
     extend_up_to                How many grid cells around a cell can we extend to identify a guess
     verbose                     Prints to the screen what's going on (default is True)
 
     Output:
     -----
-    mapped                      Mapped input mask
-    found                       Matrix containing the mapped regions
+    mapped                      Mapped input grid/mask using provided (or default) regions - sftbyrgn -> user provided grid/mask
+    found                       Matrix containing number of regions matched for each output cell
     
     Notes:
     -----
