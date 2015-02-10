@@ -8,29 +8,30 @@ import cdat_info
 
 
 def sumregions(potential_reg,potential):
-    out=potential_reg[0]*1.
-    wts=potential[0]*1.
+    out = potential_reg[0]*1.
+    wts = potential[0]*1.
     for i in range(1,potential.shape[0]):
-        c=MV2.greater(potential[i]-wts,0)
-        out=MV2.where(c,potential_reg[i],out)
-        wts=MV2.where(c,potential[i],wts)
+        c   = MV2.greater(potential[i]-wts,0)
+        out = MV2.where(c,potential_reg[i],out)
+        wts = MV2.where(c,potential[i],wts)
     return out
 
+
 def loop(potential,potential_reg,c2,w3,region):
-    nmax=potential.shape[0]
-    c3=MV2.not_equal(w3,0.)
-    c=MV2.logical_and(c2,c3)
-    thisturn=MV2.ones(c.shape)
+    nmax        = potential.shape[0]
+    c3          = MV2.not_equal(w3,0.)
+    c           = MV2.logical_and(c2,c3)
+    thisturn    = MV2.ones(c.shape)
     for i in range(nmax):
-        c1=MV2.logical_or(MV2.equal(potential_reg[i],region),MV2.equal(potential[i],-999))
-        c2=MV2.logical_and(c,c1)
-        c2=MV2.logical_and(c2,thisturn)
-        potential_reg[i]=MV2.where(c2,region,potential_reg[i])
-        thisturn=MV2.where(c2,0,thisturn)
-        c1=MV2.logical_and(c2,MV2.equal(potential[i],-999))
-        c2=MV2.logical_and(c2,MV2.not_equal(potential[i],-999))
-        potential[i]=MV2.where(c1,w3,potential[i])
-        potential[i]=MV2.where(c2,potential[i]+w3,potential[i])
+        c1                  = MV2.logical_or(MV2.equal(potential_reg[i],region),MV2.equal(potential[i],-999))
+        c2                  = MV2.logical_and(c,c1)
+        c2                  = MV2.logical_and(c2,thisturn)
+        potential_reg[i]    = MV2.where(c2,region,potential_reg[i])
+        thisturn            = MV2.where(c2,0,thisturn)
+        c1                  = MV2.logical_and(c2,MV2.equal(potential[i],-999))
+        c2                  = MV2.logical_and(c2,MV2.not_equal(potential[i],-999))
+        potential[i]        = MV2.where(c1,w3,potential[i])
+        potential[i]        = MV2.where(c2,potential[i]+w3,potential[i])
     ## Ultimate test to see if more would be needed !
     if not MV2.allequal(MV2.logical_and(c,thisturn),0):
         raise 'OOOPS WE COULD USE MORE REGIONS BUDDY !'
