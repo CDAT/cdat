@@ -49,6 +49,9 @@ if(CDAT_DOWNLOAD_SAMPLE_DATA)
   add_test("test_years"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdutil/test_years.py)
+  add_test("test_djf_criteria"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdutil/test_djf_criteria.py)
 endif()
 
 # Tests which should fail
