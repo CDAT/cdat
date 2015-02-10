@@ -292,6 +292,9 @@ class Textbox(Label):
             self.row = len(rows) - 1
             self.column = len(rows[-1])
         # Have to init the cursor before anything else
+        prop = self.actor.GetTextProperty()
+        prop.SetBackgroundOpacity(.5)
+
         self.place_cursor()
         self.editing = True
 
@@ -302,6 +305,10 @@ class Textbox(Label):
         if c:
             c.detach()
             del c
+
+        prop = self.actor.GetTextProperty()
+        prop.SetBackgroundOpacity(0)
+
         self.on_editing_end(self)
         self.interactor.GetRenderWindow().Render()
 

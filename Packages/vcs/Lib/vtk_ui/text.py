@@ -20,6 +20,11 @@ def __set_font(font, text_props):
             # Ugly default!
             text_props.SetFontFamilyToCourier()
 
+def white_or_black(red, green, blue):
+    """ Returns white or black to choose most contrasting color for provided color """
+    # Convert to YIQ colorspace
+    yiq = (red * 255 * 299 + green * 255 * 587 + blue * 255 * 114) / 1000
+    return (0,0,0) if yiq >= 128 else (1, 1, 1)
 
 def text_actor(string, fgcolor, size, font):
     """
@@ -33,6 +38,8 @@ def text_actor(string, fgcolor, size, font):
     __set_font(font, props)
     props.SetFontSize(size)
     props.SetColor(*fgcolor)
+    props.SetBackgroundColor(white_or_black(*fgcolor))
+    props.SetBackgroundOpacity(0)
 
     # Sane defaults.
     props.SetJustificationToCentered()
@@ -77,6 +84,8 @@ class Label(Widget, DraggableMixin):
         if textproperty is not None:
             self.actor = vtkTextActor()
             self.actor.SetInput(string)
+            textproperty.SetBackgroundColor(white_or_black(*textproperty.GetColor()))
+            textproperty.SetBackgroundOpacity(0)
             self.actor.SetTextProperty(textproperty)
         else:
             self.actor = text_actor(string, fgcolor, size, font)
@@ -126,6 +135,7 @@ class Label(Widget, DraggableMixin):
     def set_font_color(self, color):
         prop = self.actor.GetTextProperty()
         prop.SetColor(*color)
+        prop.SetBackgroundColor(white_or_black(*color))
 
     def get_dimensions(self):
         bbox = [0,0]
