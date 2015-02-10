@@ -34,6 +34,7 @@ from Plegend import *
 from Pdata import *
 from types import *
 import inspect
+import cdutil
 
 ## Following for class properties
 def _getgen(self,name):
@@ -1239,9 +1240,16 @@ class P(object):
                   tt.string='Max %g' % smx
                 elif s=='mean':
                     if not inspect.ismethod(getattr(slab,'mean')):
-                         tt.string='Mean '+str(getattr(slab,s))
+                         meanstring='Mean '+str(getattr(slab,s))
                     else:
-                         tt.string='Mean %f'%slab.mean()
+                        try:
+                         #slices = [slice(0,1),] * (slab.ndim -2 )
+                         meanstring='Mean %.4g'% float(cdutil.averager(slab,
+                                 axis = " ".join(["(%s)" % S for S in slab.getAxisIds()])))
+                        except Exception,err:
+                         meanstring='Mean %.4g'%slab.mean()
+                    tt.string=meanstring
+                    print tt.list()
                 else :
                     tt.string=str(getattr(slab,s))
                 tt.x=[sub.x]
