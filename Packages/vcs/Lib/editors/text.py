@@ -307,6 +307,13 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.configurator.changed = True
         self.update()
 
+    def delete(self):
+        """Overriding PriorityEditor.delete to make this behave intelligently"""
+        if not self.textboxes[self.index].editing:
+            self.text.priority = 0
+            self.configurator.changed = True
+            self.configurator.deactivate(self)
+
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
     vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
