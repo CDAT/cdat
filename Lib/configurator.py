@@ -211,6 +211,7 @@ class Configurator(object):
         self.line_button.place()
         self.marker_button.place()
         self.text_button.place()
+        self.toolbar.place()
         if self.target:
             self.target.place()
 
