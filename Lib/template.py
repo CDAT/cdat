@@ -1249,7 +1249,6 @@ class P(object):
                         except Exception,err:
                          meanstring='Mean %.4g'%slab.mean()
                     tt.string=meanstring
-                    print tt.list()
                 else :
                     tt.string=str(getattr(slab,s))
                 tt.x=[sub.x]
