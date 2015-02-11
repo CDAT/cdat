@@ -73,6 +73,12 @@ if(CDAT_BUILD_OFFSCREEN)
   )
 endif()
 
+if(CDAT_BUILD_WEB)
+  list(APPEND vtk_build_args
+    "-DVTK_Group_Web:BOOL=ON"
+  )
+endif()
+
 set(_vtk_module_options)
 foreach(_module ${_vtk_modules})
   list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
@@ -84,7 +90,7 @@ ExternalProject_Add(VTK
   BINARY_DIR ${vtk_binary}
   INSTALL_DIR ${vtk_install}
   ${GIT_CMD_STR}
-  GIT_TAG ${VTK_MD5}
+  GIT_TAG ${VTK_BRANCH}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS

@@ -3,7 +3,7 @@
 import vcs, cdms2 as cdms, cdutil, time, os, sys
 
 # Open data file:
-filepath = os.path.join(sys.prefix, 'sample_data/clt.nc')
+filepath = os.path.join(vcs.prefix, 'sample_data/clt.nc')
 cdmsfile = cdms.open( filepath )
 
 # Extract two 3 dimensional data sets and get a subset of the time dimension

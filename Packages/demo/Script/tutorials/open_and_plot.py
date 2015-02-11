@@ -9,7 +9,7 @@
 import cdms2 as cdms, vcs, os, sys
 
 # Open data file:
-filepath = os.path.join(sys.prefix, 'sample_data/clt.nc')
+filepath = os.path.join(vcs.prefix, 'sample_data/clt.nc')
 cdmsfile = cdms.open( filepath )
 cdmsfile.listvariables()
 data = cdmsfile('clt')

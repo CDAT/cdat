@@ -5,7 +5,7 @@ from regrid2 import Regridder
 from genutil import statistics
 
 
-file1 = os.path.join(sys.prefix, 'sample_data/era40_tas_sample.nc')
+file1 = os.path.join(vcs.prefix, 'sample_data/era40_tas_sample.nc')
 f1 = cdms2.open( file1 )
 
 f1.showvariable()
@@ -16,7 +16,7 @@ print  f1.getAxis('time').asComponentTime()[0]
 print  f1.getAxis('time').asComponentTime()[-1]
 # 1993-12-1 0:0:0.0
 
-file2 = os.path.join(sys.prefix, 'sample_data/era15_tas_sample.nc')
+file2 = os.path.join(vcs.prefix, 'sample_data/era15_tas_sample.nc')
 f2 = cdms2.open( file2 )
 
 f2.showvariable()

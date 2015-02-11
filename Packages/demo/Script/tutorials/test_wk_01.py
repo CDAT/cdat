@@ -2,16 +2,17 @@
 import sys
 import cdms2 as cdms,WK,MV2 as MV
 import vcs.test.support
+import vcs
 bg = 0 # vcs.test.support.bg
 
 nmonths = 5
 ## Getting about nmonths months worth of data
 
 W = WK.WK()
-f=cdms.open(sys.prefix + "/bin/tutorials/WK/data.nc")
+f=cdms.open(vcs.prefix + "/bin/tutorials/WK/data.nc")
 s=f("rlut",time=slice(0,nmonths*30),latitude=(-15,15))
 f.close()
-f=cdms.open(sys.prefix + "/bin/tutorials/WK/results.nc")
+f=cdms.open(vcs.prefix + "/bin/tutorials/WK/results.nc")
 
 ## Process the data, i.e compute spectral wave number and frequencies
 power = W.process(s)
@@ -31,7 +32,7 @@ if not MV.allclose(A,ok):
 
 ## Now tries to do plot this...
 WP = WK.WKPlot()
-WP.x.scriptrun(sys.prefix + "/bin/tutorials/WK/colormap.scr")
+WP.x.scriptrun(vcs.prefix + "/bin/tutorials/WK/colormap.scr")
 WP.x.setcolormap("cmap")
 print 'Plotting 1'
 WP.plot_figure1(S,A,bg=bg)

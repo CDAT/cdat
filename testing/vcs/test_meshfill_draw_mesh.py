@@ -6,7 +6,7 @@ import checkimage
 x=vcs.init()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.drawlogooff()
-fnmcurv = os.path.join(sys.prefix,"sample_data",'sampleCurveGrid4.nc')
+fnmcurv = os.path.join(vcs.prefix,"sample_data",'sampleCurveGrid4.nc')
 f=cdms2.open(fnmcurv)
 
 s=f("sample")

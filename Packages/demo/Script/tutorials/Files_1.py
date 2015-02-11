@@ -1,7 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms, sys
+import cdat_info
 
-file=sys.prefix+'/sample_data/clt.nc'
+file=cdat_info.get_prefix()+'/sample_data/clt.nc'
 
 # Open the file via cdms
 f=cdms.open(file)

@@ -11,7 +11,7 @@ import cdms2
 import warnings
 import cdtime
 
-f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
+f = open(os.path.join(vcs.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
 def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
@@ -863,6 +863,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
       a.append(a[-1])
 
   sz = renderer.GetRenderWindow().GetSize()
+  actors=[]
   for i in range(n):
     t = vtk.vtkTextActor()
     t.SetOrientation(-to.angle)
@@ -876,7 +877,8 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     #T.RotateY(to.angle)
     #t.SetUserTransform(T)
     renderer.AddActor(t)
-  return
+    actors.append(t)
+  return actors
 
 def prepPrimitive(prim):
   if prim.x is None or prim.y is None:

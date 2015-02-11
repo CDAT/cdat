@@ -1,7 +1,7 @@
 def simpleanimation():
     import vcs, cdms2, sys
     x = vcs.init()
-    f = cdms2.open(sys.prefix+"/sample_data/clt.nc")   
+    f = cdms2.open(vcs.prefix+"/sample_data/clt.nc")
     v = f["clt"] 
     dv3d = vcs.get3d_scalar()
     x.plot( v, dv3d )
@@ -10,7 +10,7 @@ def simpleanimation():
 def simplevector():
     import vcs, cdms2, sys
     x = vcs.init()
-    f = cdms2.open(sys.prefix+"/sample_data/clt.nc")  
+    f = cdms2.open(vcs.prefix+"/sample_data/clt.nc")
     v = f["v"]
     u = f["u"]  
     dv3d = vcs.get3d_vector()
@@ -21,7 +21,7 @@ def simplevector():
 def simplevolume():
     import vcs, cdms2, sys
     x = vcs.init()
-    f = cdms2.open(sys.prefix+"/sample_data/geos5-sample.nc")  
+    f = cdms2.open(vcs.prefix+"/sample_data/geos5-sample.nc")
     u = f["uwnd"]  
     dv3d = vcs.get3d_scalar() 
     dv3d.VerticalScaling = 3.0 

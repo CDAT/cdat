@@ -14,12 +14,13 @@ to either a cdms object or a simple Numeric array.
 
 import ioapiTools as ioT
 import numpy
+import cdat_info
 import sys, os
 
 ## Setup
 ## input file
 iFile = "CCTM_ACONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 ## variable of interest
 varName = "o3"

@@ -9,7 +9,7 @@ import vcs
 import vcsaddons
 import cdms2
 
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 s=f("clt",time=slice(0,1),squeeze=1)
 
 bg = True

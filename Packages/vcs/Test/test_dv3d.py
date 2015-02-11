@@ -38,7 +38,7 @@ else:
     
 # print "Reading variable %s in dataset %s " % ( varname, datasetPath )
     
-#    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
+#    f = cdms2.open( os.path.join( vcs.prefix, "sample_data", "geos5-sample.nc") )
 #    u = f["uwnd"] 
 
 # dv3d = vcs.create3d_scalar('hoffmuller','xyt')
