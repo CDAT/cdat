@@ -1429,6 +1429,11 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
+    from vtk_ui.manager import get_manager
+    manager = get_manager(self.renWin.GetInteractor())
+    if manager:
+      self.renWin.RemoveRenderer(manager.renderer)
+
     gl  = vtk.vtkGL2PSExporter()
 
     # This is the size of the initial memory buffer that holds the transformed
@@ -1459,6 +1464,8 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    if manager:
+      self.renWin.AddRenderer(manager.renderer)
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1485,7 +1492,10 @@ class VTKVCSBackend(object):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
-
+        from vtk_ui.manager import get_manager
+        manager = get_manager(self.renWin.GetInteractor())
+        if manager:
+          self.renWin.RemoveRenderer(manager.renderer)
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1497,6 +1507,7 @@ class VTKVCSBackend(object):
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
+
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
@@ -1510,10 +1521,17 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if manager:
+          self.renWin.AddRenderer(manager.renderer)
 
   def cgm(self,file):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
+
+        from vtk_ui.manager import get_manager
+        manager = get_manager(self.renWin.GetInteractor())
+        if manager:
+          self.renWin.RemoveRenderer(manager.renderer)
 
         if not file.split('.')[-1].lower() in ['cgm']:
             file+='.cgm'
@@ -1536,6 +1554,8 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
+        if manager:
+          self.renWin.AddRenderer(manager.renderer)
   def Animate(self,*args,**kargs):
      return VTKAnimate.VTKAnimate(*args,**kargs)
 
