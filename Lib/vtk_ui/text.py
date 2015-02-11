@@ -13,12 +13,9 @@ def __set_font(font, text_props):
     elif font == "Times":
         text_props.SetFontFamilyToTimes()
     else:
-        # Guess that it's a font file
+        # Assume it's a font file
+        text_props.SetFontFamily(VTK_FONT_FILE)
         text_props.SetFontFile(font)
-        # If GetFontFamily returns VTK_FONT_FILE, then it worked
-        if text_props.GetFontFamily() != VTK_FONT_FILE:
-            # Ugly default!
-            text_props.SetFontFamilyToCourier()
 
 def white_or_black(red, green, blue):
     """ Returns white or black to choose most contrasting color for provided color """
