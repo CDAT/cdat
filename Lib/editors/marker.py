@@ -53,7 +53,8 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
 
     def handle_click(self, point):
         x, y = point
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+        # Alt drops a new instance
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["alt"]
 
     def is_object(self, marker):
         return self.marker == marker
@@ -104,12 +105,10 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
         del self.picker
         self.picker = None
 
-    def double_release(self):
+    def click_release(self):
         x, y = self.event_position()
 
-        if self.in_bounds(x, y):
-            self.configurator.deactivate(self)
-        else:
+        if self.current_modifiers()["alt"]:
             h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
             h.show()
             self.handles.append(h)
@@ -117,6 +116,8 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
             self.marker.y[self.index].append(y)
             self.configurator.changed = True
             self.save()
+        else:
+            self.deactivate()
 
     def adjust(self, handle):
         ind = self.handles.index(handle)

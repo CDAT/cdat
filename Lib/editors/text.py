@@ -143,25 +143,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         self.process_click(text_index, x, y)
 
-    def double_release(self):
-        x, y = self.event_position()
-
-        text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
-
-        if text_index is None:
-
-            self.textboxes[self.index].stop_editing()
-
-            # Add a new text item to self.text, update, and start editing
-            new_index = len(self.text.x)
-
-            self.text.x.append(x)
-            self.text.y.append(y)
-            self.text.string.append("New Text")
-
-            self.index = new_index
-            self.update()
-
     def moved_textbox(self):
         box = self.textboxes[self.index]
         w, h = self.interactor.GetRenderWindow().GetSize()
@@ -187,7 +168,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def handle_click(self, point):
         x, y = point
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["alt"]
 
     def process_click(self, text_index, x, y):
 
@@ -202,6 +183,20 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                 # Change which one we're editing
                 self.index = text_index
                 self.textboxes[self.index].start_editing((x, y))
+            else:
+                if self.current_modifiers()["alt"]:
+
+                    self.textboxes[self.index].stop_editing()
+
+                    # Add a new text item to self.text, update, and start editing
+                    new_index = len(self.text.x)
+
+                    self.text.x.append(x)
+                    self.text.y.append(y)
+                    self.text.string.append("New Text")
+
+                    self.index = new_index
+                    self.update()
 
     def textbox_clicked(self, point):
         x, y = point
