@@ -769,6 +769,7 @@ class VTKVCSBackend(object):
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
+    returned["vtk_backend_wrap"]=wrap
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -1116,9 +1117,11 @@ class VTKVCSBackend(object):
             prop = act.GetProperty()
             # Makes wireframed
             prop.SetRepresentationToWireframe()
-        #if geo is None:
+        if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
-          #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+          returned["vtk_backend_wrapped_actor"] = act
+          returned["vtk_backend_wrap_wc"] = [x1,x2,y1,y2]
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
@@ -1650,6 +1653,10 @@ class VTKVCSBackend(object):
             for c in vtkobjects["vtk_backend_contours"]:
               #print "UPING"
               c.Update()
+          if vtkobjects.has_key("vtk_backend_wrapped_actor"):
+              act = vcs2vtk.doWrap(vtkobjects["vtk_backend_wrapped_actor"],vtkobjects["vtk_backend_wrap_wc"])
+              vtkobjects["vtk_backend_wrapped_actor"].SetMapper(act.GetMapper())
+              #vtkobjects["vtk_backend_wrapped_actor"].Update()
       taxis = array1.getTime()
       if taxis is not None:
           tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
