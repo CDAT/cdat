@@ -1170,7 +1170,7 @@ class VTKVCSBackend(object):
           if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
             levs.append(1.e20)
 
-      #returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
+      returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
     if self.canvas._continents is None:
       continents = False
     if continents:
