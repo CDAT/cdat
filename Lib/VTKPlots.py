@@ -933,13 +933,14 @@ class VTKVCSBackend(object):
         INDX.append(I)
 
 
+        luts=[]
+        cots=[]
+        geos =[]
         for i,l in enumerate(LEVS):
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
 
-          luts=[]
           if isinstance(gm,isofill.Gfi):
-              cots=[]
               mapper = vtk.vtkPolyDataMapper()
               lut = vtk.vtkLookupTable()
               cot = vtk.vtkBandedPolyDataContourFilter()
@@ -961,9 +962,7 @@ class VTKVCSBackend(object):
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
-              returned["vtk_backend_contours"]=cots
           else:
-              geos =[]
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
@@ -981,9 +980,7 @@ class VTKVCSBackend(object):
                   mapper.SetScalarRange(l[j],l[j+1])
                   luts.append([lut,[l[j],l[j+1],False]])
                   mappers.append([mapper,])
-              returned["vtk_backend_geofilters"]=geos
 
-          returned["vtk_backend_luts"]=luts
 
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
@@ -991,6 +988,11 @@ class VTKVCSBackend(object):
           #T.SetInputConnection(png.GetOutputPort())
           if isinstance(gm,isofill.Gfi):
               mappers.append([mapper,])
+        returned["vtk_backend_luts"]=luts
+        if len(cots)>0:
+           returned["vtk_backend_contours"]=cots
+        if len(geos)>0:
+           returned["vtk_backend_geofilters"]=geos
 
     else: #Boxfill (non custom)/Meshfill
       if isinstance(gm,boxfill.Gfb):
@@ -1168,7 +1170,7 @@ class VTKVCSBackend(object):
           if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
             levs.append(1.e20)
 
-      returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
+      #returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
     if self.canvas._continents is None:
       continents = False
     if continents:
@@ -1216,14 +1218,15 @@ class VTKVCSBackend(object):
     for d in displays:
         if d is None:
           continue
-        texts=d.backend.get("vtk_backend_text_actors",None)
-        if texts is not None:
-          for t in texts:
-            ## ok we had a text actor, let's see if it's min/max/mean
-            txt = t.GetInput()
-            s0=txt.split()[0]
-            if s0 in ["Min","Max","Mean"]:
-                returned["vtk_backend_%s_text_actor" % s0] = t
+        texts=d.backend.get("vtk_backend_text_actors",[])
+        for t in texts:
+          ## ok we had a text actor, let's see if it's min/max/mean
+          txt = t.GetInput()
+          s0=txt.split()[0]
+          if s0 in ["Min","Max","Mean"]:
+              returned["vtk_backend_%s_text_actor" % s0] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
@@ -1699,9 +1702,14 @@ class VTKVCSBackend(object):
                   t.SetInput("Max %g" % array1.max())
               elif att == "Mean":
                 if not inspect.ismethod(getattr(array1,'mean')):
-                     t.SetInput('Mean '+str(getattr(array1,"mean")))
+                    meanstring = "Mean: %s" % getattr(array1,"mean")
                 else:
-                     t.SetInput('Mean %f'%array1.mean())
+                    try:
+                     meanstring='Mean %.4g'% float(cdutil.averager(array1,
+                             axis = " ".join(["(%s)" % S for S in array1.getAxisIds()])))
+                    except Exception,err:
+                     meanstring='Mean %.4g'%array1.mean()
+                t.SetInput(meanstring)
               elif att=="crdate" and tstr is not None:
                   t.SetInput(tstr.split()[0].replace("-","/"))
               elif att=="crtime" and tstr is not None:
