@@ -557,11 +557,12 @@ class animate_obj_old(object):
 
       # Now that the animation is completed, restore the graphics methods min and max values.
       self.restore_min_max()
-      png_names=glob.glob(os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png"))
-      for f in png_names:
-          os.remove(f)
-      if len(png_names)>0:
-          os.rmdir(os.path.dirname(png_names[-1]))
+      if hasattr(self,"_unique_prefix"):
+          png_names=glob.glob(os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png"))
+          for f in png_names:
+              os.remove(f)
+          if len(png_names)>0:
+              os.rmdir(os.path.dirname(png_names[-1]))
 
    ##############################################################################
    # Pop up the animation GUI                                              	#

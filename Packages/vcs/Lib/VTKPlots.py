@@ -893,6 +893,7 @@ class VTKVCSBackend(object):
         cot.Update()
         mapper.SetInputConnection(cot.GetOutputPort())
         mappers = []
+        returned["vtk_backend_contours"]=[cot,]
       else:
         mappers = []
         LEVS = []
@@ -937,6 +938,7 @@ class VTKVCSBackend(object):
           # next set of levels contnues where one left off AND pattern is identical
 
           cots=[]
+          luts=[]
           if isinstance(gm,isofill.Gfi):
               mapper = vtk.vtkPolyDataMapper()
               lut = vtk.vtkLookupTable()
@@ -955,11 +957,14 @@ class VTKVCSBackend(object):
               for j,color in enumerate(COLS[i]):
                   r,g,b = cmap.index[color]
                   lut.SetTableValue(j,r/100.,g/100.,b/100.)
+              luts.append([lut,[0,len(l)-1,True]])
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
               returned["vtk_backend_contours"]=cots
+              returned["vtk_backend_luts"]=luts
           else:
+              print "IN ELSE!!!"
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
@@ -1043,8 +1048,10 @@ class VTKVCSBackend(object):
       geoFilter2.SetInputConnection(thr.GetOutputPort())
       if gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
           mapper.SetInputConnection(geoFilter.GetOutputPort())
+          returned["vtk_backend_geofilter"]=geoFilter
       else:
           mapper.SetInputConnection(geoFilter2.GetOutputPort())
+          returned["vtk_backend_geofilter"]=geoFilter2
 
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
@@ -1068,6 +1075,7 @@ class VTKVCSBackend(object):
       else:
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
+      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,False]],]
 
     if missingMapper is not None:
       if isinstance(gm,meshfill.Gfm):
@@ -1650,12 +1658,34 @@ class VTKVCSBackend(object):
             #print "FILTER"
             vtkobjects["vtk_backend_filter"].Update()
           if vtkobjects.has_key("vtk_backend_contours"):
-            for c in vtkobjects["vtk_backend_contours"]:
+            for i,c in enumerate(vtkobjects["vtk_backend_contours"]):
               #print "UPING"
               c.Update()
-          if vtkobjects.has_key("vtk_backend_wrapped_actor"):
+              if vtkobjects.has_key("vtk_backend_wrapped_actor"):
+                  mapper = vtk.vtkPolyDataMapper()
+                  mapper.SetInputConnection(c.GetOutputPort())
+                  lut,rg = vtkobjects["vtk_backend_luts"][i]
+                  mapper.SetLookupTable(lut)
+                  if rg[2]:
+                      mapper.SetScalarModeToUseCellData()
+                  mapper.SetScalarRange(rg[0],rg[1])
+                  act = vtkobjects["vtk_backend_wrapped_actor"]
+                  act.SetMapper(mapper)
+                  act = vcs2vtk.doWrap(vtkobjects["vtk_backend_wrapped_actor"],vtkobjects["vtk_backend_wrap_wc"])
+                  vtkobjects["vtk_backend_wrapped_actor"].SetMapper(act.GetMapper())
+          elif vtkobjects.has_key("vtk_backend_wrapped_actor"):
+              mapper = vtk.vtkPolyDataMapper()
+              mapper.SetInputConnection(vtkobjects["vtk_backend_geofilter"].GetOutputPort())
+              lut,rg = vtkobjects["vtk_backend_luts"][0]
+              mapper.SetLookupTable(lut)
+              if rg[2]:
+                  mapper.SetScalarModeToUseCellData()
+              mapper.SetScalarRange(rg[0],rg[1])
+              act = vtkobjects["vtk_backend_wrapped_actor"]
+              act.SetMapper(mapper)
               act = vcs2vtk.doWrap(vtkobjects["vtk_backend_wrapped_actor"],vtkobjects["vtk_backend_wrap_wc"])
               vtkobjects["vtk_backend_wrapped_actor"].SetMapper(act.GetMapper())
+
               #vtkobjects["vtk_backend_wrapped_actor"].Update()
       taxis = array1.getTime()
       if taxis is not None:
