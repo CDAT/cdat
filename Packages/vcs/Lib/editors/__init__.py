@@ -7,3 +7,4 @@ import line
 import marker
 import point
 import text
+import group

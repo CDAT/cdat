@@ -106,6 +106,8 @@ class Configurator(object):
         self.creating = False
         self.click_locations = None
 
+    def shift(self):
+        return self.interactor.GetShiftKey() == 1
 
     def update(self, displays):
         if self.backend.renWin and self.interactor is None:
@@ -156,8 +158,11 @@ class Configurator(object):
                 self.clicking = None
                 return
 
-            if self.target and self.target.handle_click(point):
+            if self.target and self.shift() == False and self.target.handle_click(point):
                 return
+
+            if self.shift() and type(self.target) != editors.group.GroupEditor:
+                self.target = editors.group.GroupEditor(self.interactor, (self.target,))
 
             clicked = None
             display_clicked = None
@@ -169,6 +174,11 @@ class Configurator(object):
             if clicked:
                 if self.target is None or self.target.is_object(clicked) == False:
                     self.activate(clicked, display_clicked)
+                elif self.shift() and self.target.contains_object(clicked):
+                    self.target.remove_object(clicked)
+                    if len(self.target.targets) == 0:
+                        self.target = None
+                        self.save()
             elif self.target is not None:
                 self.deactivate(self.target)
         else:
@@ -196,10 +206,15 @@ class Configurator(object):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def deactivate(self, obj):
-        if self.target == obj:
-            self.target.detach()
-            self.target = None
-            self.toolbar.show()
+        try:
+            if self.target == obj:
+                self.target.detach()
+                self.target = None
+                self.toolbar.show()
+            elif obj in self.target.targets:
+                self.target.remove_target(obj)
+        except AttributeError:
+            pass
         self.save()
 
     def delete(self, obj, index):
@@ -216,8 +231,9 @@ class Configurator(object):
             self.target.place()
 
     def activate(self, obj, display):
-        if self.target is not None:
+        if self.target is not None and self.shift() == False:
             self.deactivate(self.target)
+
         self.toolbar.hide()
 
         if display.g_type == "fillarea":
@@ -243,7 +259,12 @@ class Configurator(object):
                     editor = editors.point.PointEditor(self.interactor, obj, self)
                 else:
                     editor = None
-        self.target = editor
+
+        if self.target:
+            self.target.add_target(editor)
+        else:
+            self.target = editor
+
 
 
     def in_display_plot(self, point, dp):
