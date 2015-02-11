@@ -197,7 +197,7 @@ class DV3DPlot():
         self.inputSpecs = {}
         self.logoActor = None
         self.logoVisible = True
-        self.logoRepresentation = None 
+        self.logoRepresentation = None
         self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
         self.resizingWindow = False
@@ -560,8 +560,9 @@ class DV3DPlot():
                 self.colormapWidget.StateChangedSignal.connect( bbar.processInteractionEvent )
             if len( args ) == 1:    self.colormapWidget.toggleVisibility()
             else:                   self.colormapWidget.toggleVisibility( state = args[1] )
-            if state: self.logoWidget.Off()
-            else: self.logoWidget.On()
+            if self.logoRepresentation is not None:
+                if state: self.logoWidget.Off()
+                else: self.logoWidget.On()
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -1075,7 +1076,8 @@ class DV3DPlot():
                 bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
                 button = bbar.getButton( 'ChooseColormap' )
                 button.setToggleState( 0 )
-                self.logoWidget.On()
+                if self.logoRepresentation is not None:
+                    self.logoWidget.On()
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
             self.renderWindow.Modified()
@@ -1097,14 +1099,14 @@ class DV3DPlot():
         print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ) 
 
     def toggleLogoVisibility( self ):
-        if self.logoRepresentation:
+        if self.logoRepresentation is not None:
             self.logoVisible = not self.logoVisible
             if self.logoVisible: self.logoWidget.On()
             else: self.logoWidget.Off()
             self.renderWindow.Render() 
 
     def addLogo(self):
-        if self.logoRepresentation == None:
+        if self.logoRepresentation is None:
             import cdat_info
             defaultLogoFile = os.path.join(cdat_info.get_prefix(),"share","vcs","uvcdat.png")
             reader = vtk.vtkPNGReader()
