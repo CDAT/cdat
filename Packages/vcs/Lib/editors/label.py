@@ -40,8 +40,33 @@ class LabelEditor(point.PointEditor):
         self.angle_button = self.toolbar.add_slider_button(self.to.angle, 0, 360, "Angle", update=self.update_angle)
         self.fonts = sorted(vcs.elements["font"].keys())
 
-        font_button = self.toolbar.add_button(self.fonts, action=self.change_font)
-        font_button.set_state(self.fonts.index(vcs.elements["fontNumber"][self.tt.font]))
+        font_toolbar = self.toolbar.add_toolbar("Fonts")
+
+        font_buttons = {}
+
+        def font_setter(font):
+            def set_font():
+                current_font = vcs.getfontname(self.tt.font)
+                if font != current_font:
+                    font_buttons[current_font].set_state(0)
+                self.tt.font = font
+                font_buttons[font].set_state(1)
+                self.configurator.changed = True
+                self.save()
+            return set_font
+
+        deactivate = font_setter("default")
+
+        for ind, font in enumerate(self.fonts):
+
+            if font[:4] != "Math":
+                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
+            else:
+                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
+
+            if vcs.elements["fontNumber"][self.tt.font] == font:
+                button.set_state(1)
+            font_buttons[font] = button
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -74,11 +99,6 @@ class LabelEditor(point.PointEditor):
     def update_angle(self, value):
         self.to.angle = int(value)
         self.angle_button.set_value(int(value))
-        self.configurator.changed = True
-        self.save()
-
-    def change_font(self, state):
-        self.tt.font = self.fonts[state]
         self.configurator.changed = True
         self.save()
 
