@@ -33,7 +33,7 @@ TOP_ALIGN = "TOP"
 BOTTOM_ALIGN = "BOTTOM"
 
 class Button(Widget):
-    def __init__(self, interactor, renderer=None, action=None, corner_radius=5, width=None,
+    def __init__(self, interactor, renderer=None, action=None, corner_radius=5, width=None, font="Arial",
                  height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
                  opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN):
         """
@@ -78,7 +78,7 @@ class Button(Widget):
 
         text = states[0].label if states else label
         # Text widget will be placed over the button; clicks on it have to propogate down
-        self.text_widget = Label(interactor, text, on_click = self.__advance__, size=size)
+        self.text_widget = Label(interactor, text, on_click = self.__advance__, size=size, font=font)
 
         self.label = label
         self.size = size
@@ -263,11 +263,11 @@ class ToggleButton(Button):
     Displays a button with 2 states, that will call different callbacks when clicked based on current state.
     """
     def __init__(self, interactor, label, on=None, off=None, renderer=None, corner_radius=5, width=None,
-                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
+                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, on_prefix="Enable", off_prefix="Disable"):
 
         super(ToggleButton, self).__init__(interactor, renderer=renderer, action=self.toggle, corner_radius=corner_radius, width=width,
-                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor,
+                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
                  opacity=opacity, size=size, states=states if states else [ButtonState(label="%s %s" % (on_prefix, label)), ButtonState(label="%s %s" % (off_prefix, label))], halign=halign, valign=valign)
 
         self.on = on
@@ -301,7 +301,7 @@ class SliderButton(ToggleButton):
     Provides a callback to receive the value of the slider, and one for when the sliding has stopped.
     """
     def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, renderer=None, corner_radius=5, width=None,
-                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
+                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, point1=(0,.1), point2=(1,.1)):
 
         self.slider = Slider(interactor, update=update, end=end, title= label, value=value, min_val=min_val, max_val=max_val, point1=point1, point2=point2)
@@ -312,7 +312,7 @@ class SliderButton(ToggleButton):
             self.slider.show()
 
         super(SliderButton, self).__init__(interactor, label, renderer=renderer, on=_show_slider, off=self.slider.hide, corner_radius=corner_radius, width=width,
-                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor,
+                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
                  opacity=opacity, size=size, states= states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
 
     def get_value(self):
