@@ -2,7 +2,8 @@ import point
 import vcs
 import inspect
 import text
-import vtk
+#import vtk
+import vcs.vcs2vtk
 
 __valign_map__ = {
     0: 0,
@@ -67,13 +68,7 @@ class LabelEditor(point.PointEditor):
                 self.tt.font = font
                 font_buttons[font].set_state(1)
 
-                if self.actor is not None:
-                    prop = self.actor.GetTextProperty()
-                    prop.SetFontFamily(vtk.VTK_FONT_FILE)
-                    prop.SetFontFile(vcs.elements["font"][font])
-                else:
-                    self.configurator.changed = True
-                    self.save()
+                self.save()
 
             return set_font
 
@@ -96,9 +91,21 @@ class LabelEditor(point.PointEditor):
         self.label.texttable = self.tt.name
         self.label.textorientation = self.to.name
 
+    def save(self):
+        if self.actor:
+            self.sync_actor()
+        else:
+            self.configurator.changed = True
+            self.configurator.save()
+
+    def sync_actor(self):
+        if self.actor:
+            p = self.actor.GetTextProperty()
+            winSize = self.interactor.GetRenderWindow().GetSize()
+            vcs.vcs2vtk.prepTextProperty(p,winSize,to=self.to,tt=self.tt,cmap=None)
+
     def halign(self, state):
         self.to.halign = state
-        self.configurator.changed = True
         self.save()
 
     def valign(self, state):
@@ -109,19 +116,16 @@ class LabelEditor(point.PointEditor):
         elif state == 2:
             self.to.valign = 3
 
-        self.configurator.changed = True
         self.save()
 
     def update_height(self, value):
         self.to.height = int(value)
         self.height_button.set_value(int(value))
-        self.configurator.changed = True
         self.save()
 
     def update_angle(self, value):
         self.to.angle = int(value)
         self.angle_button.set_value(int(value))
-        self.configurator.changed = True
         self.save()
 
     def change_color(self, state):
@@ -132,7 +136,6 @@ class LabelEditor(point.PointEditor):
 
     def set_color(self, cmap, color):
         self.tt.color = color
-        self.configurator.changed = True
         self.picker = None
         self.save()
         #text colormap is currently not in place, will be later.
