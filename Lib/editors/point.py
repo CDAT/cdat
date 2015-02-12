@@ -17,13 +17,21 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
     def adjust(self, handle):
         self.point.x = self.handle.x
         self.point.y = self.handle.y
-        self.configurator.changed = True
+        try:
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            self.actor.SetPosition(w * self.handle.x, h * self.handle.y)
+        except AttributeError:
+            self.configurator.changed = True
         self.save()
 
     def drag_handle(self, handle, x, y):
         self.point.x = x
         self.point.y = y
-        self.configurator.changed = True
+        try:
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            self.actor.SetPosition(w * x, h * y)
+        except AttributeError:
+            self.configurator.changed = True
 
     def drag_stop(self):
         self.handle.place()
@@ -41,13 +49,28 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
         x, y = point
         return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
 
+    def drag_start(self):
+        return
+        """
+        try:
+            print self.actor
+        except AttributeError:
+            pass
+        """
+
     def drag_move(self, d_x, d_y):
         self.point.x += d_x
         self.point.y += d_y
         self.handle.x = self.point.x
         self.handle.y = self.point.y
         self.handle.place()
-        self.configurator.changed = True
+        try:
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            x, y = self.actor.GetPosition()
+            self.actor.SetPosition(x + w * d_x, y + h * d_y)
+            self.actor.GetMapper().Update()
+        except AttributeError:
+            self.configurator.changed = True
 
     def in_bounds(self, x, y):
         return in_point(self.point, x, y)
