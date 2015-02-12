@@ -138,7 +138,7 @@ class animate_obj_old(object):
                pass # if it is default, then you cannot set the min and max, so pass.
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
-          if thread_it == 1:
+          if thread_it:
               thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
               self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
               self.mythread.start()
@@ -1021,11 +1021,21 @@ class AnimationController(animate_obj_old):
   def save(self,movie,bitrate=1024, rate=None, options=''):
     """Save animation to a file"""
     if self.created():
-        fnms = os.path.join(os.environ["HOME"],".uvcdat",
-                            "__uvcdat_%i_%%d.png" % (self.animation_seed))
+        started = False
+        while len(self.animation_files)!=self.number_of_frames():
+            print len(self.animation_files),self.number_of_frames()
+            if not self.playback_running:
+                # if not runnnig getting it going so we can use the pngs
+                self.run()
+                started = True
+        if started:
+            # ok we can stop it nw
+            self.stop()
         if rate is None:
             rate = self.playback_params.fps()
-        self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
+        files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
+        print files
+        self.vcs_self.ffmpeg(movie, files, bitrate, rate, options)
 
   def fps(self, value=None):
     """Animation desired number of frame per seconds (might not be
