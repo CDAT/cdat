@@ -2,6 +2,7 @@ import point
 import vcs
 import inspect
 import text
+import vtk
 
 __valign_map__ = {
     0: 0,
@@ -9,6 +10,15 @@ __valign_map__ = {
     2: 1,
     3: 2,
     4: 2,
+}
+
+__backend_actor_names__ = {
+    "mean": "vtk_backend_Mean_text_actor",
+    "min": "vtk_backend_Min_text_actor",
+    "max": "vtk_backend_Max_text_actor",
+    "zvalue": "vtk_backend_zvalue_text_actor",
+    "crtime": "vtk_backend_crtime_text_actor",
+    "crdate": "vtk_backend_crdate_text_actor",
 }
 
 class LabelEditor(point.PointEditor):
@@ -19,6 +29,11 @@ class LabelEditor(point.PointEditor):
 
         self.toolbar = vcs.vtk_ui.Toolbar(self.interactor, "Label Options")
         template = vcs.gettemplate(dp.template)
+
+
+        self.actor = None
+        if self.label.member in __backend_actor_names__:
+            self.actor = dp.backend[__backend_actor_names__[self.label.member]]
 
         text_types_name = template.name + "_" + label.member
 
@@ -51,8 +66,15 @@ class LabelEditor(point.PointEditor):
                     font_buttons[current_font].set_state(0)
                 self.tt.font = font
                 font_buttons[font].set_state(1)
-                self.configurator.changed = True
-                self.save()
+
+                if self.actor is not None:
+                    prop = self.actor.GetTextProperty()
+                    prop.SetFontFamily(vtk.VTK_FONT_FILE)
+                    prop.SetFontFile(vcs.elements["font"][font])
+                else:
+                    self.configurator.changed = True
+                    self.save()
+
             return set_font
 
         deactivate = font_setter("default")
