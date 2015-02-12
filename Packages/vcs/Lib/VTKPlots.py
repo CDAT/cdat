@@ -788,7 +788,7 @@ class VTKVCSBackend(object):
     if color is not None:
         color = cmap.index[color]
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,color,cellData,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    returned["vtk_backend_missing_mapper"]=missingMapper,color,cellData
     lut = vtk.vtkLookupTable()
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
@@ -1120,7 +1120,7 @@ class VTKVCSBackend(object):
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
-      wrapped = []
+      actors = []
       for mapper in mappers:
         act = vtk.vtkActor()
         if isinstance(mapper,list):
@@ -1135,7 +1135,10 @@ class VTKVCSBackend(object):
         if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
           act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-          wrapped.append([act,[x1,x2,y1,y2]])
+        if mapper is missingMapper:
+            actors.append([act,missingMapper,[x1,x2,y1,y2]])
+        else:
+            actors.append([act,[x1,x2,y1,y2]])
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
@@ -1147,7 +1150,7 @@ class VTKVCSBackend(object):
         if tmpl.data.priority>0:
             ren.AddActor(act)
             self.setLayer(ren,tmpl.data.priority)
-      returned["vtk_backend_wrapped_actor"] = wrapped
+      returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,
@@ -1672,19 +1675,32 @@ class VTKVCSBackend(object):
             ports=vtkobjects["vtk_backend_contours"]
           else:
             ports=vtkobjects["vtk_backend_geofilters"]
-          if vtkobjects.has_key("vtk_backend_wrapped_actor"):
-              for i,a in enumerate(vtkobjects["vtk_backend_wrapped_actor"]):
-                  mapper = vtk.vtkPolyDataMapper()
-                  mapper.SetInputConnection(ports[i].GetOutputPort())
-                  lut,rg = vtkobjects["vtk_backend_luts"][i]
-                  mapper.SetLookupTable(lut)
-                  if rg[2]:
-                      mapper.SetScalarModeToUseCellData()
-                  mapper.SetScalarRange(rg[0],rg[1])
+          if vtkobjects.has_key("vtk_backend_missing_mapper"):
+              missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
+              missingMapper2 = vcs2vtk.putMaskOnVTKGrid(array1,vg,color,cellData,deep=False)
+          else:
+              missingMapper = None
+          if vtkobjects.has_key("vtk_backend_actors"):
+              i=0
+              for a in vtkobjects["vtk_backend_actors"]:
                   act = a[0]
+                  wrp = a[1]
+                  if a[1] is missingMapper:
+                      i-=1
+                      mapper = missingMapper2
+                      wrp = a[2]
+                  else:
+                      mapper = vtk.vtkPolyDataMapper()
+                      mapper.SetInputConnection(ports[i].GetOutputPort())
+                      lut,rg = vtkobjects["vtk_backend_luts"][i]
+                      mapper.SetLookupTable(lut)
+                      if rg[2]:
+                          mapper.SetScalarModeToUseCellData()
+                      mapper.SetScalarRange(rg[0],rg[1])
                   act.SetMapper(mapper)
-                  act = vcs2vtk.doWrap(a[0],a[1])
+                  act = vcs2vtk.doWrap(a[0],wrp)
                   a[0].SetMapper(act.GetMapper())
+                  i+=1
 
               #vtkobjects["vtk_backend_wrapped_actor"].Update()
       taxis = array1.getTime()
