@@ -1244,7 +1244,6 @@ class P(object):
                          meanstring='Mean '+str(getattr(slab,s))
                     else:
                         try:
-                         #slices = [slice(0,1),] * (slab.ndim -2 )
                          meanstring='Mean %.4g'% float(cdutil.averager(slab,
                                  axis = " ".join(["(%s)" % S for S in slab.getAxisIds()])))
                         except Exception,err:

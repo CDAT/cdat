@@ -652,35 +652,10 @@ class VTKVCSBackend(object):
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,None,False,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    returned["vtk_backend_missing_mapper"]=missingMapper,None,False
 
-    u=numpy.ma.ravel(data1)
-    v=numpy.ma.ravel(data2)
-    sh = list(u.shape)
-    sh.append(1)
-    u = numpy.reshape(u,sh)
-    v = numpy.reshape(v,sh)
-    z = numpy.zeros(u.shape)
-    w = numpy.concatenate((u,v),axis=1)
-    w = numpy.concatenate((w,z),axis=1)
+    w=vcs2vtk.generateVectorArray(data1,data2,vtk_backend_grid)
 
-    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
-    # data array. I'm not sure where the issue is...for now let's just zero-pad
-    # data array so that we can at least test rendering until Charles gets
-    # back from vacation:
-    wLen = len(w)
-    numPts = vtk_backend_grid.GetNumberOfPoints()
-    if wLen != numPts:
-        warnings.warn("!!! Warning during vector plotting: Number of points does not "\
-              "match the number of vectors to be glyphed (%s points vs %s "\
-              "vectors). The vectors will be padded/truncated to match for "\
-              "rendering purposes, but the resulting image should not be "\
-              "trusted."%(numPts, wLen))
-        newShape = (numPts,) + w.shape[1:]
-        w = numpy.ma.resize(w, newShape)
-
-    w = vcs2vtk.numpy_to_vtk_wrapper(w,deep=False)
-    w.SetName("vectors")
     vtk_backend_grid.GetPointData().AddArray(w)
 
     ## Vector attempt
@@ -701,32 +676,7 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
-    # Strip out masked points.
-    if vtk_backend_grid.IsA("vtkStructuredGrid"):
-        if vtk_backend_grid.GetCellBlanking():
-            visArray = vtk_backend_grid.GetCellVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetCellData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.ThresholdByUpper(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
-        elif vtk_backend_grid.GetPointBlanking():
-            visArray = vtk_backend_grid.GetPointVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetPointData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.SetUpperThreshold(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
+    vtk_backend_grid = vcs2vtk.stripGrid(vtk_backend_grid)
 
     arrow = vtk.vtkGlyphSource2D()
     arrow.SetGlyphTypeToArrow()
@@ -777,6 +727,9 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
+    returned["vtk_backend_actors"] = [[act,[x1,x2,y1,y2]],]
+    returned["vtk_backend_glyphfilters"]=[glyphFilter,]
+    returned["vtk_backend_luts"]=[[None,None],]
     return returned
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
@@ -787,6 +740,7 @@ class VTKVCSBackend(object):
         z = data1.getAxis(-3)
     else:
         z = None
+    wmn,wmx = vcs.minmax(data1)
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
@@ -814,7 +768,7 @@ class VTKVCSBackend(object):
     if color is not None:
         color = cmap.index[color]
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,color,cellData,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    returned["vtk_backend_missing_mapper"]=missingMapper,color,cellData
     lut = vtk.vtkLookupTable()
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
@@ -959,13 +913,14 @@ class VTKVCSBackend(object):
         INDX.append(I)
 
 
+        luts=[]
+        cots=[]
+        geos =[]
         for i,l in enumerate(LEVS):
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
 
-          luts=[]
           if isinstance(gm,isofill.Gfi):
-              cots=[]
               mapper = vtk.vtkPolyDataMapper()
               lut = vtk.vtkLookupTable()
               cot = vtk.vtkBandedPolyDataContourFilter()
@@ -987,9 +942,7 @@ class VTKVCSBackend(object):
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
-              returned["vtk_backend_contours"]=cots
           else:
-              geos =[]
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
@@ -1006,10 +959,11 @@ class VTKVCSBackend(object):
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
                   luts.append([lut,[l[j],l[j+1],False]])
-                  mappers.append([mapper,])
-              returned["vtk_backend_geofilters"]=geos
+                  ## Store the mapper only if it's worth it?
+                  ## Need to do it with the whole slab min/max for animation purposes
+                  if not(l[j+1]<wmn or l[j]>wmx):
+                      mappers.append([mapper,])
 
-          returned["vtk_backend_luts"]=luts
 
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
@@ -1017,6 +971,11 @@ class VTKVCSBackend(object):
           #T.SetInputConnection(png.GetOutputPort())
           if isinstance(gm,isofill.Gfi):
               mappers.append([mapper,])
+        returned["vtk_backend_luts"]=luts
+        if len(cots)>0:
+           returned["vtk_backend_contours"]=cots
+        if len(geos)>0:
+           returned["vtk_backend_geofilters"]=geos
 
     else: #Boxfill (non custom)/Meshfill
       if isinstance(gm,boxfill.Gfb):
@@ -1144,7 +1103,7 @@ class VTKVCSBackend(object):
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
-      wrapped = []
+      actors = []
       for mapper in mappers:
         act = vtk.vtkActor()
         if isinstance(mapper,list):
@@ -1159,7 +1118,10 @@ class VTKVCSBackend(object):
         if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
           act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-          wrapped.append([act,[x1,x2,y1,y2]])
+        if mapper is missingMapper:
+            actors.append([act,missingMapper,[x1,x2,y1,y2]])
+        else:
+            actors.append([act,[x1,x2,y1,y2]])
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
@@ -1171,7 +1133,7 @@ class VTKVCSBackend(object):
         if tmpl.data.priority>0:
             ren.AddActor(act)
             self.setLayer(ren,tmpl.data.priority)
-      returned["vtk_backend_wrapped_actor"] = wrapped
+      returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,
@@ -1242,14 +1204,15 @@ class VTKVCSBackend(object):
     for d in displays:
         if d is None:
           continue
-        texts=d.backend.get("vtk_backend_text_actors",None)
-        if texts is not None:
-          for t in texts:
-            ## ok we had a text actor, let's see if it's min/max/mean
-            txt = t.GetInput()
-            s0=txt.split()[0]
-            if s0 in ["Min","Max","Mean"]:
-                returned["vtk_backend_%s_text_actor" % s0] = t
+        texts=d.backend.get("vtk_backend_text_actors",[])
+        for t in texts:
+          ## ok we had a text actor, let's see if it's min/max/mean
+          txt = t.GetInput()
+          s0=txt.split()[0]
+          if s0 in ["Min","Max","Mean"]:
+              returned["vtk_backend_%s_text_actor" % s0] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
@@ -1688,26 +1651,48 @@ class VTKVCSBackend(object):
           if vtkobjects.has_key("vtk_backend_filter"):
             #print "FILTER"
             vtkobjects["vtk_backend_filter"].Update()
+          if vtkobjects.has_key("vtk_backend_missing_mapper"):
+              missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
+              missingMapper2 = vcs2vtk.putMaskOnVTKGrid(array1,vg,color,cellData,deep=False)
+          else:
+              missingMapper = None
           if vtkobjects.has_key("vtk_backend_contours"):
             for i,c in enumerate(vtkobjects["vtk_backend_contours"]):
               #print "UPING"
               c.Update()
             ports=vtkobjects["vtk_backend_contours"]
-          else:
+          elif vtkobjects.has_key("vtk_backend_geofilters"):
             ports=vtkobjects["vtk_backend_geofilters"]
-          if vtkobjects.has_key("vtk_backend_wrapped_actor"):
-              for i,a in enumerate(vtkobjects["vtk_backend_wrapped_actor"]):
-                  mapper = vtk.vtkPolyDataMapper()
-                  mapper.SetInputConnection(ports[i].GetOutputPort())
-                  lut,rg = vtkobjects["vtk_backend_luts"][i]
-                  mapper.SetLookupTable(lut)
-                  if rg[2]:
-                      mapper.SetScalarModeToUseCellData()
-                  mapper.SetScalarRange(rg[0],rg[1])
+          else:
+            # Vector plot
+            ports=vtkobjects["vtk_backend_glyphfilters"]
+            w = vcs2vtk.generateVectorArray(array1,array2,vg)
+            vg.GetPointData().AddArray(w)
+            vg = vcs2vtk.stripGrid(vg)
+            ports[0].SetInputData(vg)
+
+          if vtkobjects.has_key("vtk_backend_actors"):
+              i=0
+              for a in vtkobjects["vtk_backend_actors"]:
                   act = a[0]
+                  wrp = a[1]
+                  if a[1] is missingMapper:
+                      i-=1
+                      mapper = missingMapper2
+                      wrp = a[2]
+                  else:
+                      mapper = vtk.vtkPolyDataMapper()
+                      mapper.SetInputConnection(ports[i].GetOutputPort())
+                      lut,rg = vtkobjects["vtk_backend_luts"][i]
+                      if lut is not None:
+                          mapper.SetLookupTable(lut)
+                          if rg[2]:
+                              mapper.SetScalarModeToUseCellData()
+                          mapper.SetScalarRange(rg[0],rg[1])
                   act.SetMapper(mapper)
-                  act = vcs2vtk.doWrap(a[0],a[1])
+                  act = vcs2vtk.doWrap(a[0],wrp)
                   a[0].SetMapper(act.GetMapper())
+                  i+=1
 
               #vtkobjects["vtk_backend_wrapped_actor"].Update()
       taxis = array1.getTime()
@@ -1725,9 +1710,14 @@ class VTKVCSBackend(object):
                   t.SetInput("Max %g" % array1.max())
               elif att == "Mean":
                 if not inspect.ismethod(getattr(array1,'mean')):
-                     t.SetInput('Mean '+str(getattr(array1,"mean")))
+                    meanstring = "Mean: %s" % getattr(array1,"mean")
                 else:
-                     t.SetInput('Mean %f'%array1.mean())
+                    try:
+                     meanstring='Mean %.4g'% float(cdutil.averager(array1,
+                             axis = " ".join(["(%s)" % S for S in array1.getAxisIds()])))
+                    except Exception,err:
+                     meanstring='Mean %.4g'%array1.mean()
+                t.SetInput(meanstring)
               elif att=="crdate" and tstr is not None:
                   t.SetInput(tstr.split()[0].replace("-","/"))
               elif att=="crtime" and tstr is not None:
