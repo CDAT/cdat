@@ -1350,6 +1350,22 @@ class VTKVCSBackend(object):
     plot = self.get3DPlot()
     if plot: plot.hideWidgets()
     gl  = vtk.vtkGL2PSExporter()
+
+    # This is the size of the initial memory buffer that holds the transformed
+    # vertices produced by OpenGL. If you start seeing a lot of warnings:
+    # GL2PS info: OpenGL feedback buffer overflow
+    # increase it to save some time.
+    # ParaView lags so we need a try/except around this
+    # in case it is a ParaView build
+    try:
+      gl.SetBufferSize(50*1024*1024) # 50MB
+    except:
+      pass
+
+    # Since the vcs layer stacks renderers to manually order primitives, sorting
+    # is not needed and will only slow things down and introduce artifacts.
+    gl.SetSortToOff()
+
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
     gl.SetFilePrefix(".".join(file.split(".")[:-1]))
