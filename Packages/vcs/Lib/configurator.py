@@ -177,10 +177,12 @@ class Configurator(object):
                 elif self.shift() and self.target.contains_object(clicked):
                     self.target.remove_object(clicked)
                     if len(self.target.targets) == 0:
+                        self.target.detach()
                         self.target = None
                         self.save()
-            elif self.target is not None:
+            elif self.target is not None and self.shift() == False:
                 self.deactivate(self.target)
+            self.interactor.GetRenderWindow().Render()
         else:
             # Let other people handle this event.
             pass
@@ -213,6 +215,11 @@ class Configurator(object):
                 self.toolbar.show()
             elif obj in self.target.targets:
                 self.target.remove_target(obj)
+            else:
+                # Deactivate the whole group
+                self.target.detach()
+                self.target = None
+                self.toolbar.show()
         except AttributeError:
             pass
         self.save()
