@@ -48,7 +48,8 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           r,g,b = actorColor
           lut.SetNumberOfTableValues(2)
           if not cellData:
-              grid2.SetPointVisibilityArray(nomsk)
+              if grid2.IsA("vtkStructuredGrid"):
+                  grid2.SetPointVisibilityArray(nomsk)
               grid2.GetPointData().SetScalars(imsk)
               #grid2.SetCellVisibilityArray(imsk)
               p2c = vtk.vtkPointDataToCellData()
@@ -57,7 +58,8 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
               #lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
               #lut.SetTableValue(1,r/100.,g/100.,b/100.,0.)
           else:
-              grid2.SetCellVisibilityArray(nomsk)
+              if grid2.IsA("vtkStructuredGrid"):
+                  grid2.SetCellVisibilityArray(nomsk)
               grid2.GetCellData().SetScalars(imsk)
               geoFilter.SetInputData(grid2)
           lut.SetTableValue(0,r/100.,g/100.,b/100.,0.)
