@@ -62,6 +62,10 @@ class Handle(Widget):
         self.place()
 
         self.subscribe("StartInteractionEvent", self.click)
+        self.subscribe("EndInteractionEvent", self.release)
+        self.subscribe("InteractionEvent", self.drag)
+
+        self.clicking = False
         """
         vtkHandleWidget supports these events:
             vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
@@ -99,10 +103,7 @@ class Handle(Widget):
         self.render()
 
     def click(self, object, event):
-        
-        self.subscribe("EndInteractionEvent", self.release)
-        self.subscribe("InteractionEvent", self.drag)
-
+        self.clicking = True
         if self.clicked:
             self.clicked(self)
 
@@ -114,25 +115,24 @@ class Handle(Widget):
 
     def release(self, object, event):
         
-        self.unsubscribe("EndInteractionEvent", "InteractionEvent")
-
-        if self.released:
-            self.released(self)
+        if self.clicking:
+            if self.released:
+                self.released(self)
 
     def drag(self, object, event):
+        if self.clicking:
+            if self.normalize:
+                w, h = self.interactor.GetRenderWindow().GetSize()
+            else:
+                w, h = 1, 1
+            self.x, self.y, _ = self.repr.GetDisplayPosition()
 
-        if self.normalize:
-            w, h = self.interactor.GetRenderWindow().GetSize()
-        else:
-            w, h = 1, 1
-        self.x, self.y, _ = self.repr.GetDisplayPosition()
-        
-        self.x = self.x / float(w)
-        self.y = self.y / float(h)
+            self.x = self.x / float(w)
+            self.y = self.y / float(h)
 
-        if self.dragged:
-            # Need to get the point that we're dragged to here
-            self.dragged(self, self.x, self.y)
+            if self.dragged:
+                # Need to get the point that we're dragged to here
+                self.dragged(self, self.x, self.y)
 
 def quad_poly_data(width, height):
     from vtk import vtkPoints, vtkQuad, vtkCellArray, vtkPolyData
