@@ -829,6 +829,8 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   elif to.halign in [1,'center']:
     p.SetJustificationToCentered()
 
+  p.SetOrientation(-to.angle)
+
   if to.valign in [0,'top']:
     p.SetVerticalJustificationToTop()
   elif to.valign in [2, 'half']:
@@ -871,7 +873,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   actors=[]
   for i in range(n):
     t = vtk.vtkTextActor()
-    t.SetOrientation(-to.angle)
+    #t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
