@@ -228,6 +228,10 @@ class VTKVCSBackend(object):
             ren.RemoveAllViewProps()
             if not ren.GetLayer()==0:
               self.renWin.RemoveRenderer(ren)
+            else:
+              #Update background color
+              r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
+              ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
@@ -1338,6 +1342,7 @@ class VTKVCSBackend(object):
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
     gl.SetFilePrefix(".".join(file.split(".")[:-1]))
+    gl.TextAsPathOn()
     if output_type=="svg":
         gl.SetFileFormatToSVG()
     elif output_type == "ps":
