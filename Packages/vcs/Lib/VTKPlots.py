@@ -714,6 +714,7 @@ class VTKVCSBackend(object):
         z = data1.getAxis(-3)
     else:
         z = None
+    wmn,wmx = vcs.minmax(data1)
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
@@ -932,7 +933,10 @@ class VTKVCSBackend(object):
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
                   luts.append([lut,[l[j],l[j+1],False]])
-                  mappers.append([mapper,])
+                  ## Store the mapper only if it's worth it?
+                  ## Need to do it with the whole slab min/max for animation purposes
+                  if not(l[j+1]<wmn or l[j]>wmx):
+                      mappers.append([mapper,])
 
 
           #png = vtk.vtkPNGReader()
