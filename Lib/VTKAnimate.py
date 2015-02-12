@@ -6,6 +6,7 @@ import time
 import random
 import hashlib
 import os
+import glob
 
 class VTKAnimationCreate(animate_helper.StoppableThread):
   def __init__(self, controller):
@@ -39,14 +40,18 @@ class VTKAnimate(animate_helper.AnimationController):
         animate_helper.AnimationController.__init__(self,vcs_self)
         self.AnimationCreate = VTKAnimationCreate
         self.AnimationPlayback = VTKAnimationPlayback
+        self.cleared = False
         import atexit
         atexit.register(self.close)
     def draw_frame(self):
       #print "Drawing frame:",self.frame_num,self._unique_prefix
-      png_name=os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_%.10i" % self.frame_num)
-      if os.path.exists(png_name) and self.playback_params.zoom_factor!=1:
+      png_name=os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_%i.png" % self.frame_num)
+      if os.path.exists(png_name):# and self.playback_params.zoom_factor!=1:
         ## Ok we have the pngs and we need to zoom, need to use png
         ## maybe the zoom factor thing can be taken off, not sure what's faster
+        if not self.cleared:
+            self.vcs_self.backend.clear()
+            self.cleared = True
         self.vcs_self.put_png_on_canvas(
           png_name,
           self.playback_params.zoom_factor,
@@ -79,5 +84,6 @@ class VTKAnimate(animate_helper.AnimationController):
             if not os.path.exists(os.path.dirname(png_name)):
                 os.makedirs(os.path.dirname(png_name))
             self.vcs_self.png(png_name)
+            self.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)
