@@ -13,15 +13,22 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
         self.interactor = interactor
         super(GroupEditor, self).__init__()
+        self.register()
 
     def is_object(self, obj):
         return self.contains_object(obj)
 
     def in_bounds(self, x, y):
-        return True
+        for target in self.targets:
+            if target.in_bounds(x, y):
+                return True
+        return False
 
     def handle_click(self, point):
-        return True
+        for target in self.targets:
+            if target.handle_click(point):
+                return True
+        return False
 
     def add_target(self, target):
         target.unregister()
@@ -50,8 +57,22 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
                 return True
         return False
 
+    def detach(self):
+        self.multiplex("detach")
+        self.targets = None
+        self.unregister()
+
     def place(self):
         self.multiplex("place")
+
+    def raise_priority(self):
+        self.multiplex("raise_priority")
+
+    def lower_priority(self):
+        self.multiplex("lower_priority")
+
+    def delete(self):
+        self.multiplex("delete")
 
     def deactivate(self):
         self.multiplex("deactivate")
