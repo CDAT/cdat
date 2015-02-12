@@ -1340,7 +1340,12 @@ class VTKVCSBackend(object):
     # vertices produced by OpenGL. If you start seeing a lot of warnings:
     # GL2PS info: OpenGL feedback buffer overflow
     # increase it to save some time.
-    gl.SetBufferSize(50*1024*1024) # 50MB
+    # ParaView lags so we need a try/except around this
+    # in case it is a ParaView build
+    try:
+      gl.SetBufferSize(50*1024*1024) # 50MB
+    except:
+      pass
 
     # Since the vcs layer stacks renderers to manually order primitives, sorting
     # is not needed and will only slow things down and introduce artifacts.
