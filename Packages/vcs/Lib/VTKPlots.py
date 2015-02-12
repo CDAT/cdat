@@ -90,7 +90,7 @@ class VTKVCSBackend(object):
     if self.renWin is not None:
       if self.reRender:
         self.reRender = False
-        self._lastSize = None
+        #self._lastSize = None
         self.renWin.Render()
 
   def renderEvent(self,caller,evt):
