@@ -184,6 +184,11 @@ class VTKVCSBackend(object):
       self.renWin.Render()
 
   def configureEvent(self,obj,ev):
+    cursor = self.renWin.GetCurrentCursor()
+    if ev == "ModifiedEvent" and cursor != self.oldCursor:
+      self.oldCursor = cursor
+      return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -234,15 +239,9 @@ class VTKVCSBackend(object):
       self.renWin.Render()
     if sys.platform == "darwin":
         ## On mac somehow we need to issue an extra Render after resize
-        # Every time the cursor is changed, there's a ModifiedEvent
-        # This makes it so it doesn't spam rerenders
-        new_cursor = self.renWin.GetCurrentCursor()
         # If ev is None, then the update() was called, and we only need to render once.
-        if ev is not None and self.oldCursor is not None and new_cursor == self.oldCursor:
+        if ev is not None:
           self.reRender = True
-        else:
-          self.reRender = False
-          self.oldCursor = new_cursor
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
