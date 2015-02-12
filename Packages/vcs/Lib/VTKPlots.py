@@ -626,35 +626,10 @@ class VTKVCSBackend(object):
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,None,False,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    returned["vtk_backend_missing_mapper"]=missingMapper,None,False
 
-    u=numpy.ma.ravel(data1)
-    v=numpy.ma.ravel(data2)
-    sh = list(u.shape)
-    sh.append(1)
-    u = numpy.reshape(u,sh)
-    v = numpy.reshape(v,sh)
-    z = numpy.zeros(u.shape)
-    w = numpy.concatenate((u,v),axis=1)
-    w = numpy.concatenate((w,z),axis=1)
+    w=vcs2vtk.generateVectorArray(data1,data2,vtk_backend_grid)
 
-    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
-    # data array. I'm not sure where the issue is...for now let's just zero-pad
-    # data array so that we can at least test rendering until Charles gets
-    # back from vacation:
-    wLen = len(w)
-    numPts = vtk_backend_grid.GetNumberOfPoints()
-    if wLen != numPts:
-        warnings.warn("!!! Warning during vector plotting: Number of points does not "\
-              "match the number of vectors to be glyphed (%s points vs %s "\
-              "vectors). The vectors will be padded/truncated to match for "\
-              "rendering purposes, but the resulting image should not be "\
-              "trusted."%(numPts, wLen))
-        newShape = (numPts,) + w.shape[1:]
-        w = numpy.ma.resize(w, newShape)
-
-    w = vcs2vtk.numpy_to_vtk_wrapper(w,deep=False)
-    w.SetName("vectors")
     vtk_backend_grid.GetPointData().AddArray(w)
 
     ## Vector attempt
@@ -675,32 +650,7 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
-    # Strip out masked points.
-    if vtk_backend_grid.IsA("vtkStructuredGrid"):
-        if vtk_backend_grid.GetCellBlanking():
-            visArray = vtk_backend_grid.GetCellVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetCellData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.ThresholdByUpper(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
-        elif vtk_backend_grid.GetPointBlanking():
-            visArray = vtk_backend_grid.GetPointVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetPointData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.SetUpperThreshold(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
+    vtk_backend_grid = vcs2vtk.stripGrid(vtk_backend_grid)
 
     arrow = vtk.vtkGlyphSource2D()
     arrow.SetGlyphTypeToArrow()
@@ -751,6 +701,9 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
+    returned["vtk_backend_actors"] = [[act,[x1,x2,y1,y2]],]
+    returned["vtk_backend_glyphfilters"]=[glyphFilter,]
+    returned["vtk_backend_luts"]=[[None,None],]
     return returned
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
@@ -1668,18 +1621,26 @@ class VTKVCSBackend(object):
           if vtkobjects.has_key("vtk_backend_filter"):
             #print "FILTER"
             vtkobjects["vtk_backend_filter"].Update()
-          if vtkobjects.has_key("vtk_backend_contours"):
-            for i,c in enumerate(vtkobjects["vtk_backend_contours"]):
-              #print "UPING"
-              c.Update()
-            ports=vtkobjects["vtk_backend_contours"]
-          else:
-            ports=vtkobjects["vtk_backend_geofilters"]
           if vtkobjects.has_key("vtk_backend_missing_mapper"):
               missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
               missingMapper2 = vcs2vtk.putMaskOnVTKGrid(array1,vg,color,cellData,deep=False)
           else:
               missingMapper = None
+          if vtkobjects.has_key("vtk_backend_contours"):
+            for i,c in enumerate(vtkobjects["vtk_backend_contours"]):
+              #print "UPING"
+              c.Update()
+            ports=vtkobjects["vtk_backend_contours"]
+          elif vtkobjects.has_key("vtk_backend_geofilters"):
+            ports=vtkobjects["vtk_backend_geofilters"]
+          else:
+            # Vector plot
+            ports=vtkobjects["vtk_backend_glyphfilters"]
+            w = vcs2vtk.generateVectorArray(array1,array2,vg)
+            vg.GetPointData().AddArray(w)
+            vg = vcs2vtk.stripGrid(vg)
+            ports[0].SetInputData(vg)
+
           if vtkobjects.has_key("vtk_backend_actors"):
               i=0
               for a in vtkobjects["vtk_backend_actors"]:
@@ -1693,10 +1654,11 @@ class VTKVCSBackend(object):
                       mapper = vtk.vtkPolyDataMapper()
                       mapper.SetInputConnection(ports[i].GetOutputPort())
                       lut,rg = vtkobjects["vtk_backend_luts"][i]
-                      mapper.SetLookupTable(lut)
-                      if rg[2]:
-                          mapper.SetScalarModeToUseCellData()
-                      mapper.SetScalarRange(rg[0],rg[1])
+                      if lut is not None:
+                          mapper.SetLookupTable(lut)
+                          if rg[2]:
+                              mapper.SetScalarModeToUseCellData()
+                          mapper.SetScalarRange(rg[0],rg[1])
                   act.SetMapper(mapper)
                   act = vcs2vtk.doWrap(a[0],wrp)
                   a[0].SetMapper(act.GetMapper())

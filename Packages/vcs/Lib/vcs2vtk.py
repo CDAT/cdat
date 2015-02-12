@@ -1317,3 +1317,60 @@ def starPoints(radius_outer, x, y, number_points = 5):
 
     theta += delta_theta
   return points
+def generateVectorArray(data1,data2,vtk_grid):
+    u=numpy.ma.ravel(data1)
+    v=numpy.ma.ravel(data2)
+    sh = list(u.shape)
+    sh.append(1)
+    u = numpy.reshape(u,sh)
+    v = numpy.reshape(v,sh)
+    z = numpy.zeros(u.shape)
+    w = numpy.concatenate((u,v),axis=1)
+    w = numpy.concatenate((w,z),axis=1)
+
+    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
+    # data array. I'm not sure where the issue is...for now let's just zero-pad
+    # data array so that we can at least test rendering until Charles gets
+    # back from vacation:
+    wLen = len(w)
+    numPts = vtk_grid.GetNumberOfPoints()
+    if wLen != numPts:
+        warnings.warn("!!! Warning during vector plotting: Number of points does not "\
+              "match the number of vectors to be glyphed (%s points vs %s "\
+              "vectors). The vectors will be padded/truncated to match for "\
+              "rendering purposes, but the resulting image should not be "\
+              "trusted."%(numPts, wLen))
+        newShape = (numPts,) + w.shape[1:]
+        w = numpy.ma.resize(w, newShape)
+
+    w = numpy_to_vtk_wrapper(w,deep=False)
+    w.SetName("vectors")
+    return w
+def stripGrid(vtk_grid):
+    # Strip out masked points.
+    if vtk_grid.IsA("vtkStructuredGrid"):
+        if vtk_grid.GetCellBlanking():
+            visArray = vtk_grid.GetCellVisibilityArray()
+            visArray.SetName("BlankingArray")
+            vtk_grid.GetCellData().AddArray(visArray)
+            thresh = vtk.vtkThreshold()
+            thresh.SetInputData(vtk_grid)
+            thresh.ThresholdByUpper(0.5)
+            thresh.SetInputArrayToProcess(0, 0, 0,
+                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
+                                          "BlankingArray")
+            thresh.Update()
+            vtk_grid = thresh.GetOutput()
+        elif vtk_grid.GetPointBlanking():
+            visArray = vtk_grid.GetPointVisibilityArray()
+            visArray.SetName("BlankingArray")
+            vtk_grid.GetPointData().AddArray(visArray)
+            thresh = vtk.vtkThreshold()
+            thresh.SetInputData(vtk_grid)
+            thresh.SetUpperThreshold(0.5)
+            thresh.SetInputArrayToProcess(0, 0, 0,
+                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
+                                          "BlankingArray")
+            thresh.Update()
+            vtk_grid = thresh.GetOutput()
+    return vtk_grid
