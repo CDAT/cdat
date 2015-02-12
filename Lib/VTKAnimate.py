@@ -75,8 +75,9 @@ class VTKAnimate(animate_helper.AnimationController):
           else:
               self.vcs_self.backend.update_input(disp.backend,slab(*args),slabs[1](*args),update=True)
         self.vcs_self.backend.renWin.Render()
-        if not os.path.exists(os.path.dirname(png_name)):
-            os.makedirs(os.path.dirname(png_name))
-        #self.vcs_self.png(png_name)
+        if not os.path.exists(png_name):
+            if not os.path.exists(os.path.dirname(png_name)):
+                os.makedirs(os.path.dirname(png_name))
+            self.vcs_self.png(png_name)
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)
