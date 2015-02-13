@@ -17,75 +17,6 @@ CLICKS_TO_CREATE = {
     CREATING_TEXT: 1,
 }
 
-def array_strings(template, array):
-    attrs = [
-        "file",
-        "function",
-        "logicalmask",
-        "transformation",
-        "source",
-        "dataname",
-        "title",
-        "units",
-        "crdate",
-        "crtime",
-        "comment1",
-        "comment2",
-        "comment3",
-        "comment4",
-        "xname",
-        "yname",
-        "zname",
-        "tname",
-        "xunits",
-        "yunits",
-        "zunits",
-        "tunits",
-        "xvalue",
-        "yvalue",
-        "zvalue",
-        "tvalue",
-        "mean",
-        "min",
-        "max",
-        "xtic1",
-        "xtic2",
-        "xmintic1",
-        "xmintic2",
-        "ytic1",
-        "ytic2",
-        "ymintic1",
-        "ymintic2",
-        "xlabel1",
-        "xlabel2",
-        "ylabel1",
-        "ylabel2",
-        "box1",
-        "box2",
-        "box3",
-        "box4",
-        "line1",
-        "line2",
-        "line3",
-        "line4",
-        "legend",
-        "data",
-    ]
-
-    template = t(template)
-
-    strings = {}
-    for attr in attrs:
-        try:
-            attribute = getattr(template, attr)
-
-            if is_label(attribute):
-                strings[attr] = editors.label.get_label_text(attribute, array)
-        except AttributeError:
-            pass
-
-    return strings
-
 class Configurator(object):
     def __init__(self, canvas):
         self.canvas = canvas
@@ -121,27 +52,6 @@ class Configurator(object):
         self.place()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
-
-        # Add new arrays
-        matched = set()
-        for d in self.displays:
-            for a in d.array:
-                if a is not None:
-                    if a.id not in self.display_strings:
-                        self.display_strings[a.id] = array_strings(d.template, a)
-                        matched.add(a.id)
-                    elif a.id in self.display_strings:
-                        matched.add(a.id)
-
-        # Figure out which arrays to remove
-        to_remove = set()
-        for array in self.display_strings:
-            if array not in matched:
-                to_remove.add(array)
-
-        # Remove the missing arrays
-        for array in to_remove:
-            del self.display_strings[array]
 
     def release(self, object, event):
         if self.clicking is None:
@@ -309,7 +219,7 @@ class Configurator(object):
                 return tc
         else:
             fudge = 5 / float(w)
-            return in_template(point, t(dp.template), dp, (w, h), self.display_strings[dp.array[0].id], fudge=fudge)
+            return in_template(point, t(dp.template), dp, (w, h), fudge=fudge)
 
     def save(self):
         if self.changed:
@@ -494,7 +404,7 @@ def t(name):
 def is_label(obj):
     return type(obj) in (vcs.Pformat.Pf, vcs.Ptext.Pt)
 
-def in_template(point, template, dp, window_size, strings, fudge=None):
+def in_template(point, template, dp, window_size, fudge=None):
     x, y = point
 
     attrs = [
@@ -565,7 +475,7 @@ def in_template(point, template, dp, window_size, strings, fudge=None):
             if t_x is not None and t_y is not None:
                 # It's probably a text blob
                 if is_label(attribute):
-                    text = strings[attr]
+                    text = editors.label.get_label_text(attribute, dp)
                     if text == '':
                         continue
                     if editors.label.inside_label(attribute, text, x, y, *window_size):

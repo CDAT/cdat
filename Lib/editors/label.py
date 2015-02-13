@@ -17,10 +17,16 @@ __backend_actor_names__ = {
     "mean": "vtk_backend_Mean_text_actor",
     "min": "vtk_backend_Min_text_actor",
     "max": "vtk_backend_Max_text_actor",
-    "zvalue": "vtk_backend_zvalue_text_actor",
-    "crtime": "vtk_backend_crtime_text_actor",
-    "crdate": "vtk_backend_crdate_text_actor",
 }
+
+def get_actor(member, dp):
+    if member.member in __backend_actor_names__:
+        actor = dp.backend[__backend_actor_names__[member.member]]
+    elif "vtk_backend_%s_text_actor" % member.member in dp.backend:
+        actor = dp.backend["vtk_backend_%s_text_actor" % member.member]
+    else:
+        actor = None
+    return actor
 
 class LabelEditor(point.PointEditor):
     def __init__(self, interactor, label, dp, configurator):
@@ -32,9 +38,8 @@ class LabelEditor(point.PointEditor):
         template = vcs.gettemplate(dp.template)
 
 
-        self.actor = None
-        if self.label.member in __backend_actor_names__:
-            self.actor = dp.backend[__backend_actor_names__[self.label.member]]
+        self.actor = get_actor(self.label, self.display)
+
 
         text_types_name = template.name + "_" + label.member
 
@@ -146,7 +151,7 @@ class LabelEditor(point.PointEditor):
 
 
     def get_text(self):
-        return get_label_text(self.label, self.display.array[0])
+        return get_label_text(self.label, self.display)
 
     def place(self):
         pass
@@ -164,29 +169,21 @@ class LabelEditor(point.PointEditor):
         self.toolbar.detach()
 
 
-def get_label_text(label, array):
-    s = label.member
+def get_label_text(label, display):
+    actor = get_actor(label, display)
 
-    smn, smx = vcs.minmax(array)
-
-    if s == 'min':
-        t = 'Min %g' % (smn)
-    elif s == 'max':
-        t = 'Max %g' % smx
-    elif s == 'mean':
-        if not inspect.ismethod(getattr(array,'mean')):
-            t = float(getattr(array,s))
-        else:
-            t = array.mean()
-
-        t = "Mean %f" % t
+    if actor is not None:
+        return actor.GetInput()
     else:
-        # General slab attributes
+        s = label.member
+
+        array = display.array[0]
+
         try:
             t = getattr(array, s)
         except AttributeError:
             t = ''
-    return t
+        return t
 
 def inside_label(label, t, x, y, screen_width, screen_height):
     tt = label.texttable
