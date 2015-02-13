@@ -49,15 +49,6 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
         x, y = point
         return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
 
-    def drag_start(self):
-        return
-        """
-        try:
-            print self.actor
-        except AttributeError:
-            pass
-        """
-
     def drag_move(self, d_x, d_y):
         self.point.x += d_x
         self.point.y += d_y
