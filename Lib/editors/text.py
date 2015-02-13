@@ -5,21 +5,23 @@ from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
+from vcs.vcs2vtk import genTextActor
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
-    def __init__(self, interactor, text, index, configurator):
+    def __init__(self, interactor, text, index, dp, configurator):
 
         self.interactor = interactor
         self.text = text
+
+        self.display = dp
+        self.actors = dp.backend["vtk_backend_text_actors"]
+
         self.index = index
         self.configurator = configurator
 
-        # We're going to insert textboxes at each of the locations
-        # That way we can edit the text.
-        self.old_priority = text.priority
-        text.priority = 0
-        configurator.changed = True
-        configurator.save()
+        for actor in self.actors:
+            actor.SetVisibility(0)
+
         self.textboxes = None
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
@@ -102,10 +104,12 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop = vtkTextProperty()
         vcs.vcs2vtk.prepTextProperty(prop, (w, h), self.text, self.text, cmap)
 
-        # need to subtract text.angle from 360
-        prop.SetOrientation(360 - self.text.angle)
+        prop.SetOrientation(-1 * self.text.angle)
 
         for ind, x in enumerate(self.text.x):
+
+            self.actors[ind].SetTextProperty(prop)
+
             y = self.text.y[ind]
             string = self.text.string[ind]
 
@@ -132,7 +136,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def finished_editing(self, textbox):
         self.text.string[self.textboxes.index(textbox)] = textbox.text
-        self.configurator.changed = True
 
     def in_bounds(self, x, y):
         return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
@@ -164,7 +167,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         self.text.x[self.index] = xcoord / float(w)
         self.text.y[self.index] = (h - ycoord) / float(h)
-        self.configurator.changed = True
+        self.actors[self.index].SetPosition(xcoord, h - ycoord)
 
     def handle_click(self, point):
         x, y = point
@@ -188,14 +191,19 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
                     self.textboxes[self.index].stop_editing()
 
+
                     # Add a new text item to self.text, update, and start editing
-                    new_index = len(self.text.x)
+                    new_index = max(len(self.text.x), len(self.text.y), len(self.text.string))
 
                     self.text.x.append(x)
                     self.text.y.append(y)
                     self.text.string.append("New Text")
 
+                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["New Text"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
+                    new_actor.SetVisibility(0)
+                    self.actors.append(new_actor)
                     self.index = new_index
+
                     self.update()
 
     def textbox_clicked(self, point):
@@ -206,16 +214,12 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         clicked_on = inside_text(self.text, x, y, *winsize)
         self.process_click(clicked_on, x, y)
 
-    def save(self):
-        self.configurator.save()
-
     def deactivate(self):
-        self.text.priority = self.old_priority
+
         self.configurator.deactivate(self)
 
     def update_height(self, value):
         self.text.height = value
-        self.configurator.changed = True
         self.update()
 
     def change_color(self, state):
@@ -226,7 +230,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def set_color(self, cmap, color):
         self.text.color = color
-        self.configurator.changed = True
         self.update()
         self.picker = None
         #text colormap is currently not in place, will be later.
@@ -240,7 +243,10 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         for box in self.textboxes:
             box.detach()
         del self.textboxes
-        self.text.priority = self.old_priority
+
+        for actor in self.actors:
+            actor.SetVisibility(1)
+
         self.toolbar.detach()
 
     def toggle_halign_buttons(self):
@@ -257,7 +263,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         for state, button in zip(states, buttons):
             button.set_state(state)
 
-        self.configurator.changed = True
         self.update()
 
     def toggle_valign_buttons(self):
@@ -273,7 +278,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         for state, button in zip(states, buttons):
             button.set_state(state)
-        self.configurator.changed = True
         self.update()
 
 
@@ -321,20 +325,18 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
     def update_angle(self, value):
         self.text.angle = int(value)
         for box in self.textboxes:
-            box.repr.GetTextActor().GetTextProperty().SetOrientation(360 - self.text.angle)
+            box.repr.GetTextActor().GetTextProperty().SetOrientation(-1 * self.text.angle)
             box.place()
             box.render()
 
     def change_font(self, state):
         self.text.font = self.fonts[state]
-        self.configurator.changed = True
         self.update()
 
     def delete(self):
         """Overriding PriorityEditor.delete to make this behave intelligently"""
         if not self.textboxes[self.index].editing:
             self.text.priority = 0
-            self.configurator.changed = True
             self.configurator.deactivate(self)
 
 def text_dimensions(text, index, winsize):
