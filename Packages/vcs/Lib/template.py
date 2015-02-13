@@ -1257,7 +1257,10 @@ class P(object):
                 tt.priority=sub.priority
                 dp = x.text(tt,bg=bg,**kargs)
                 if dp is not None:
-                  dp.backend["vtk_backend_template_attribute"] = s
+                  if s != "id":
+                    dp.backend["vtk_backend_template_attribute"] = s
+                  else:
+                    dp.backend["vtk_backend_template_attribute"] = "dataname"
                   displays.append(dp)
                 sp = tt.name.split(":::")
                 del(vcs.elements["texttable"][sp[0]])
