@@ -1272,6 +1272,10 @@ class VTKVCSBackend(object):
               returned["vtk_backend_%s_text_actor" % s0] = t
               self.canvas.display_names.remove(d.name)
               del(vcs.elements["display"][d.name])
+          else:
+              returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
