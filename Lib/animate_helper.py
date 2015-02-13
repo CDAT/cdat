@@ -544,7 +544,7 @@ class animate_obj_old(object):
    ##############################################################################
    # Close the animate session                                              	#
    ##############################################################################
-   def close( self ):
+   def close( self, preserve_pngs = False ):
       if self.create_flg == 1:
          self.vcs_self.canvas.animate_close()
          self.gui_popup = 0
@@ -558,11 +558,16 @@ class animate_obj_old(object):
       # Now that the animation is completed, restore the graphics methods min and max values.
       self.restore_min_max()
       if hasattr(self,"_unique_prefix"):
-          png_names=glob.glob(os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png"))
+        png_names=glob.glob(
+            os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png")
+            )
+        if not preserve_pngs:
           for f in png_names:
               os.remove(f)
           if len(png_names)>0:
               os.rmdir(os.path.dirname(png_names[-1]))
+        else:
+          return png_names
 
    ##############################################################################
    # Pop up the animation GUI                                              	#
@@ -756,7 +761,7 @@ class AnimationController(animate_obj_old):
       self.canvas_info = self.vcs_self.canvasinfo()
       self.animate_info = self.vcs_self.animate_info
       if min is not None or max is not None:
-        warnings.warn(warnings.DeprecationWarning,"Animation min/max autoset has been deprecated, use graphic method to set them")
+        raise RuntimeError("Animation min/max autoset has been deprecated, use graphic method to set them")
       self.create_params.a_min = None
       self.create_params.a_max = None
       self.create_thread = self.AnimationCreate(self)
