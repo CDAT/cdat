@@ -82,7 +82,6 @@ else:
                 caxis.units = "indexed"
             caxes.append( caxis )
 
-
 v = cdms2.createVariable( data_array, var.dtype, 0, 0, data_array.mask, fillval, tcgrid, caxes, hfile.attrs, varname, 0 )
 
 hfile.close()
