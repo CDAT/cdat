@@ -160,7 +160,7 @@ class Configurator(object):
         elif display.g_type == "marker":
             editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
         elif display.g_type == "text":
-            editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, self)
+            editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, display, self)
         else:
             if is_box(obj):
                 if obj.member == "legend":
@@ -367,6 +367,7 @@ class Configurator(object):
             fill.y = y
             created = fill
             self.fill_button.set_state(0)
+            dp = self.canvas.fillarea(fill)
         elif self.creating == CREATING_TEXT:
             t = self.canvas.createtextcombined()
             t.x = x
@@ -374,6 +375,7 @@ class Configurator(object):
             t.string = ["New Text"]
             created = t
             self.text_button.set_state(0)
+            dp = self.canvas.text(t)
         elif self.creating == CREATING_MARKER:
             m = self.canvas.createmarker()
             m.x = x
@@ -381,14 +383,14 @@ class Configurator(object):
             m.size = [10]
             created = m
             self.marker_button.set_state(0)
+            dp = self.canvas.marker(m)
         elif self.creating == CREATING_LINE:
             l = self.canvas.createline()
             l.x = x
             l.y = y
             created = l
             self.line_button.set_state(0)
-
-        dp = self.canvas.plot(created)
+            dp = self.canvas.line(l)
 
         # Activate an editor for the new object
         self.clicked_info = 0
