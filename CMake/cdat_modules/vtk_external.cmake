@@ -26,21 +26,21 @@ list(APPEND vtk_build_args
 )
 
 # Use cdat zlib
-if(NOT CDAT_USE_SYSTEM_ZLIB)
-  list(APPEND vtk_build_args
-    -DZLIB_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
-    -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
-  )
-endif()
+#if(NOT CDAT_USE_SYSTEM_ZLIB)
+#  list(APPEND vtk_build_args
+#    -DZLIB_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+#       -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+#  )
+#endif()
 
 # Use cdat libxml
-if(NOT CDAT_USE_SYSTEM_LIBXML2)
-  list(APPEND vtk_build_args
-    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
-    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
-    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
-  )
-endif()
+#if(NOT CDAT_USE_SYSTEM_LIBXML2)
+#  list(APPEND vtk_build_args
+#    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
+#    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
+#    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
+#  )
+#endif()
 
 # Use cdat hdf5
 if(NOT CDAT_USE_SYSTEM_HDF5)
@@ -53,12 +53,12 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
     -DHDF5_hdf5_LIBRARY_RELEASE:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
   )
 
-  if(NOT CDAT_USE_SYSTEM_ZLIB)
-    list(APPEND vtk_build_args
-      -DHDF5_z_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
-      -DHDF5_z_LIBRARY_RELEASE:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
-    )
-  endif()
+#  if(NOT CDAT_USE_SYSTEM_ZLIB)
+#    list(APPEND vtk_build_args
+#      -DHDF5_z_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+#      -DHDF5_z_LIBRARY_RELEASE:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+#    )
+#  endif()
 endif()
 
 if(CDAT_BUILD_OFFSCREEN)
