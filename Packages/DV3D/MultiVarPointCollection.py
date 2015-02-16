@@ -284,8 +284,8 @@ class MultiVarPointCollection():
     def computePoints( self, **args ):
         nz = len( self.lev ) if self.lev else 1
         if self.point_layout == PlotType.List:
-            self.point_data_arrays['x'] = numpy.tile( self.lon_data.astype( numpy.float32 ), nz ) 
-            self.point_data_arrays['y'] = numpy.tile( self.lat_data.astype( numpy.float32 ), nz )  
+            self.point_data_arrays['x'] = numpy.tile( self.lon_data.flatten().astype( numpy.float32 ), nz )
+            self.point_data_arrays['y'] = numpy.tile( self.lat_data.flatten().astype( numpy.float32 ), nz )
         elif self.point_layout == PlotType.Grid: 
             grid_data_x = numpy.tile( self.lon_data, self.lat_data.shape[0] )  
             grid_data_y = numpy.repeat( self.lat_data, self.lon_data.shape[0] )  
