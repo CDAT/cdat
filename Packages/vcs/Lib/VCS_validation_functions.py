@@ -670,8 +670,7 @@ def checkTicks(self,name,value):
       return value.strip()
     if not value in vcs.elements["list"]:
       checkedRaise(self,value,ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value)
-  else:
-    return value
+  return value
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)
      if isinstance(value,unicode):

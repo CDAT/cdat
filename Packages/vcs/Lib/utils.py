@@ -1235,7 +1235,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
-          ticks="lon30"
+          ticks="Lon30"
         else:
           ticks=vcs.mkscale(datawc_x1,datawc_x2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
@@ -1268,7 +1268,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
-          ticks="lon30"
+          ticks="Lon30"
         else:
           ticks=vcs.mkscale(datawc_x1,datawc_x2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
@@ -1302,7 +1302,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
-          ticks="lat20"
+          ticks="Lat20"
         else:
           ticks=vcs.mkscale(datawc_y1,datawc_y2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
@@ -1335,7 +1335,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
-          ticks="lat20"
+          ticks="Lat20"
         else:
           ticks=vcs.mkscale(datawc_y1,datawc_y2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
