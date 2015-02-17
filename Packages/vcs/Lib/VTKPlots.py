@@ -1186,6 +1186,7 @@ class VTKVCSBackend(object):
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
     if taxis is not None:
+      try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
         crdate = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crdate")
@@ -1215,7 +1216,10 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
+      except:
+          pass
     if zaxis is not None:
+      try:
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
@@ -1258,6 +1262,8 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zvalue.name])
+      except:
+          pass
     return {}
 
 
