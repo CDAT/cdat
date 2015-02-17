@@ -8,6 +8,22 @@ import vcs, sys, os
 
 testManager = TestManager()
 
+vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ],
+                     parameters={'VerticalScaling': 5.0,
+                                 'ToggleClipping': ( 40, 360, -28, 90 ),
+                                 'ToggleVolumePlot': vcs.on,
+                                 'ToggleSurfacePlot': vcs.on,
+                                 'ScaleOpacity': { 'Volume': [0.0, 0.3] },
+                                 'IsosurfaceValue': [ 31.0 ],
+                                 'ScaleColormap': ( [ -46.0, 48.0 ], { 'Volume': [ 16.0, 30.0 ], 'Surface': [ 30.0, 35.0 ] } ),
+                                 'BasemapOpacity': 0.5,
+                                 'ScaleTransferFunction':   [ 12.0, 77.0 ],
+                                 'XSlider': ( 180.0, vcs.on ),
+                                 'ZSlider': ( 0.0,   vcs.on ),
+                                 'YSlider': ( 0.0,   vcs.off ),
+                                 'Camera': { 'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)  }
+                                 }  )
+
 vcsTest( "Hovmoller_volume_test", file="clt.nc", vars=['clt'], type="3d_scalar", template="Hovmoller3D",
 				parameters = {
 					"ScaleColormap": {0: 89.13197640956652, 1: 100.0, 2: 1, 'Slice': [17.27143292788585, 100.0, 1], 'Surface': [17.27143292788585, 100.0, 1], 'Volume': [89.13197640956652, 100.0, 1], 'state': 0},
@@ -83,23 +99,7 @@ vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-samp
                                  'XSlider': ( vcs.off ),
                                  'ZSlider': ( vcs.off ),
                                  'YSlider': ( vcs.off ), 
-                                 }  )       
-
-vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ],
-                     parameters={'VerticalScaling': 5.0,
-                                 'ToggleClipping': ( 40, 360, -28, 90 ),
-                                 'ToggleVolumePlot': vcs.on,  
-                                 'ToggleSurfacePlot': vcs.on,
-                                 'ScaleOpacity': { 'Volume': [0.0, 0.3] },
-                                 'IsosurfaceValue': [ 31.0 ],
-                                 'ScaleColormap': ( [ -46.0, 48.0 ], { 'Volume': [ 16.0, 30.0 ], 'Surface': [ 30.0, 35.0 ] } ), 
-                                 'BasemapOpacity': 0.5,
-                                 'ScaleTransferFunction':   [ 12.0, 77.0 ], 
-                                 'XSlider': ( 180.0, vcs.on ),
-                                 'ZSlider': ( 0.0,   vcs.on ),
-                                 'YSlider': ( 0.0,   vcs.off ), 
-                                 'Camera': { 'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)  }
-                                 }  )       
+                                 }  )
 
 vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], template = 'Hovmoller3D',
                      parameters={'BasemapOpacity': 0.5,

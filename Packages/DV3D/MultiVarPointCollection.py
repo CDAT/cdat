@@ -170,9 +170,11 @@ class MultiVarPointCollection():
         nz = len( self.lev ) if self.lev else 1
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
         if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
+        lat = lat.flatten()
+        lon = lon.flatten()
         if lon.__class__.__name__ == "TransientVariable":
-            self.lat_data = lat.flatten()[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat.flatten()[::]
-            self.lon_data = lon.flatten()[self.istart::self.istep] 
+            self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
+            self.lon_data = lon[self.istart::self.istep]
         else:
             self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
             self.lon_data = lon[self.istart::self.istep] 
@@ -193,8 +195,8 @@ class MultiVarPointCollection():
         else: 
             self.roi_mask = None
         if self.lat_data.__class__.__name__ == "TransientVariable":
-            self.lat_data = self.lat_data.data
-            self.lon_data = self.lon_data.data        
+            self.lat_data = self.lat_data.data.flatten()
+            self.lon_data = self.lon_data.data.flatten()
         try:
             if lat.units == "radians":
                 radian_conversion_factor = ( 180.0 / math.pi )
@@ -550,8 +552,14 @@ class MultiVarPointCollection():
             print>>sys.stderr, "Exception Unpacking thresholding data: %s " % str( args )
             return None, None, None
         vmin = None
-        var_data_id = self.var.id if ( threshold_target == 'vardata' ) else threshold_target
-        var_data = self.point_data_arrays.get( var_data_id, None) 
+
+        if ( isinstance(threshold_target, str ) ):
+            var_data_id = self.var.id if ( threshold_target == 'vardata' ) else threshold_target
+            var_data = self.point_data_arrays.get( var_data_id, None )
+        else:
+            var_data = threshold_target
+            var_data_id = threshold_target.id
+
         if not isNone(var_data):           
             arange = self.axis_bounds.get( threshold_target )
             try:
@@ -559,7 +567,8 @@ class MultiVarPointCollection():
                     dv = arange[1] - arange[0]
                     vmin = arange[0] + rmin * dv
                     vmax = arange[0] + rmax * dv  
-                elif ( threshold_target == 'vardata' ) or ( threshold_target in self.vars.keys() ):
+#                elif ( threshold_target == 'vardata' ) or ( threshold_target in self.vars.keys() ):
+                else:
                     vrng = self.vrange[ var_data_id ]
                     if normalized:
                         dv = vrng[1] - vrng[0]
@@ -572,7 +581,7 @@ class MultiVarPointCollection():
                         vmin = rmin
                         vmax = rmax                  
                 if not vmin is None:
-                    if ( threshold_target == 'z' ):
+                    if ( var_data_id == 'z' ):
                         nLev = len( self.lev )
                         rave = (rmin + rmax)/2
                         iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  ) 
@@ -581,22 +590,22 @@ class MultiVarPointCollection():
     #                    print "Z threshold Range: %d %f " % ( iLev, lev_val )
                     else:
                         self.thresholded_range[var_data_id] = [ vmin, vmax ]
-                    return var_data.flatten(), vmin, vmax
+                    return var_data.flatten(), vmin, vmax, var_data_id
             except TypeError:
                 print>>sys.stderr, "Range Error Computing Threshold: ", str(arange )
-        return None, None, None
+        return None, None, None, None
                     
     def execute( self, args, **kwargs ): 
         op = args[0] 
         if op == 'indices': 
             threshold_mask = None
             for var_op in args[1:]:  
-                var_data, vmin, vmax = self.computeThresholdRange( var_op )               
+                var_data, vmin, vmax, var_data_id = self.computeThresholdRange( var_op )
                 if not isNone(var_data):
                     var_mask = numpy.logical_and( numpy.greater_equal( var_data, vmin ), numpy.less_equal( var_data, vmax ) )  
 #                    print "MultiVarPointCollection.execute: %s, mask range = %s  " % ( str( args ), str( (vmin, vmax) ) ); sys.stdout.flush()
                     if isNone(threshold_mask):                       
-                        self.thresholdTargetType = 'coords' if var_op[0] in [ 'lat', 'lon', 'lev', 'x', 'y', 'z' ] else 'vardata' 
+                        self.thresholdTargetType = 'coords' if var_data_id in [ 'lat', 'lon', 'lev', 'x', 'y', 'z' ] else 'vardata'
                         threshold_mask = var_mask
                     else:
                         threshold_mask = numpy.logical_and( threshold_mask, var_mask )

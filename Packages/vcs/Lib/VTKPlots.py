@@ -588,7 +588,7 @@ class VTKVCSBackend(object):
       g = self.plotApps.get( gm, None )
       if g == None:
           g = DV3DApp( self.canvas, self.cell_coordinates )
-          n_overview_points = 500000
+          n_overview_points = kargs.get( 'maxNumSerialPoints', 500000 )
           grid_coords = ( None, None, None, None )
           var_proc_op = None
           interface = None
