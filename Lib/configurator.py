@@ -33,6 +33,8 @@ class Configurator(object):
         self.text_button = None
         self.line_button = None
         self.marker_button = None
+        
+        self.templates = []
 
         self.creating = False
         self.click_locations = None
@@ -52,6 +54,38 @@ class Configurator(object):
         self.place()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
+
+        for display in self.displays:
+            if display.template in self.templates:
+                # It already has a template we created
+                continue
+            # Manufacture a placeholder template to use for updates
+            new_template = vcs.createtemplate(source=display.template)
+            self.templates.append(new_template.name)
+            display.template = new_template.name
+            # This is an attribute used internally; might break
+            display._template_origin = new_template.name
+
+        # Add new arrays
+        matched = set()
+        for d in self.displays:
+            for a in d.array:
+                if a is not None:
+                    if a.id not in self.display_strings:
+                        self.display_strings[a.id] = array_strings(d.template, a)
+                        matched.add(a.id)
+                    elif a.id in self.display_strings:
+                        matched.add(a.id)
+
+        # Figure out which arrays to remove
+        to_remove = set()
+        for array in self.display_strings:
+            if array not in matched:
+                to_remove.add(array)
+
+        # Remove the missing arrays
+        for array in to_remove:
+            del self.display_strings[array]
 
     def release(self, object, event):
         if self.clicking is None:
