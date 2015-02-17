@@ -259,7 +259,10 @@ add_test(vcs_test_taylor_2_quads
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
         )
     ENDFOREACH(gm)
-
+    add_test(vcs_test_show
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
+      )
     FOREACH(gm boxfill isofill isoline vector meshfill )
      FOREACH(ptype 0 -3 aeqd)
       add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
