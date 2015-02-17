@@ -102,6 +102,8 @@ class Configurator(object):
         self.text_button = None
         self.line_button = None
         self.marker_button = None
+        
+        self.templates = []
 
         self.creating = False
         self.click_locations = None
@@ -119,6 +121,17 @@ class Configurator(object):
         self.place()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
+
+        for display in self.displays:
+            if display.template in self.templates:
+                # It already has a template we created
+                continue
+            # Manufacture a placeholder template to use for updates
+            new_template = vcs.createtemplate(source=display.template)
+            self.templates.append(new_template.name)
+            display.template = new_template.name
+            # This is an attribute used internally; might break
+            display._template_origin = new_template.name
 
         # Add new arrays
         matched = set()
