@@ -1,5 +1,4 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-# PJD  7 Jan 2013 - Edits to 'get' function as non-string type missing_value attributes are causing problems (Aquarius data)
 
 import MV2,os,numpy
 
@@ -102,20 +101,20 @@ class HDF5_Variable:
       """ retrieves the variable data """
       cmd = '%s -y -d %s %s' % (self.h5dump, self._header, self.file.file)
       att = os.popen(cmd).read()
-      i0=att.find('DATA {')
-      att=att[i0:]
+      i0  = att.find('DATA {')
+      att = att[i0:]
       att = inbetween(att,'{','}') # remove garbage HDF5 file and add trailing comma
-      size=1
+      size = 1
       for l in self.shape:
          size*=l
          
       data = numpy.ones(size,'f')
-      ielement=0
+      ielement = 0
       for v in att.split(','):
-           data[ielement]=float(v)
-           ielement+=1
+           data[ielement] = float(v)
+           ielement += 1
 
-      if ielement!=size:
+      if ielement != size:
          raise RuntimeError, 'got wrong number of data %s, expected %s' % (ielement,size)
 
       # In case of quirky missing_value attribute - AQUARIUS data (Paul Durack - 130107)
@@ -133,12 +132,18 @@ class HDF5_Variable:
 
       # And sets the attributes back on
       for a in self._attributes:
-	  # Catch instance where type of missing_value attribute is not string
-          if 'missing_value' in a and type(self._attributes['missing_value']) is not str:
-              setattr(data,a,str(self._attributes['missing_value']))
-	  # Else process attributes as string
+	  # Catch instance where type of missing_value attribute is numpy.ndarray or not string
+          #print 'type: ',type(self._attributes['missing_value'])
+          # Deal with Aquarius data with numpy.ndarray type missing_value attribute (Paul Durack - 150211)
+          if 'missing_value' in a and type(self._attributes['missing_value']) is numpy.ndarray:
+              setattr(data,a,float(self._attributes['missing_value']))
+          # Old fix - push through string type
+          elif 'missing_value' in a and type(self._attributes['missing_value']) is not str:
+	      setattr(data,a,str(self._attributes['missing_value']))
+          # Else process attributes as string
           else:
               setattr(data,a,getattr(self,a))
+
       data.id = self.variable
       
       return data
