@@ -633,15 +633,22 @@ def loadVCSItem(typ,nm,json_dict = {}):
     exec(cmd)
   for a,v in json_dict.iteritems():
     if isinstance(v,dict):
-      for k in v.keys():
-        try:
-          v[eval(k)]=v[k]
-          del(v[k])
-        except:
-          pass
+      if a=="Marker" and tp=="taylordiagram":
+        gm.addMarker()
+        for k in v.keys():
+            cmd = "gm.Marker.%s = %s" % (k,v[k])
+            exec(cmd)
+      else:
+        for k in v.keys():
+          try:
+            v[eval(k)]=v[k]
+            del(v[k])
+          except:
+            pass
     elif isinstance(v,unicode):
       v=str(v)
-    setattr(gm,a,v)
+    if not(a=="Marker" and tp=="taylordiagram"):
+      setattr(gm,a,v)
   return gm
 
 def return_display_names():
