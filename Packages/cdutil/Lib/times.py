@@ -524,16 +524,16 @@ class TimeSlicer:
                     msk[j]=msk[j]*(1.-m.astype(MV2.float))*w
                 else:
                     msk[j]=msk[j]*w
-                if len(sub)>1:
-                    out[i]=numpy.ma.sum(msk*slab[sub[0]:sub[-1]+1].asma(),axis=0)
-                    wout[i]=numpy.ma.sum(msk,axis=0)
-                    if sum is False : out[i]=out[i]/wout[i]
-##                     print 'case long:',wout[i,0,0]
-                else:
-##                     print 'case 1:',out.shape,msk.shape,slab[sub[0]].asma().shape
-                    out[i] = MV2.array(slab[sub[0]]).asma()
-##                     if sum is False:
-##                         out[i] = out[i]/msk
+            if len(sub)>1:
+                out[i]=numpy.ma.sum(msk*slab[sub[0]:sub[-1]+1].asma(),axis=0)
+                wout[i]=numpy.ma.sum(msk,axis=0)
+                if sum is False : out[i]=out[i]/wout[i]
+##                 print 'case long:',wout[i,0,0]
+            else:
+##                 print 'case 1:',out.shape,msk.shape,slab[sub[0]].asma().shape
+                out[i] = MV2.array(slab[sub[0]]).asma()
+##                 if sum is False:
+##                     out[i] = out[i]/msk
 
             if criteriaarg is not None:
                 msk=cdms2.asVariable(msk)
