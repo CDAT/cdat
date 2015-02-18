@@ -158,7 +158,7 @@ class Configurator(object):
         elif display.g_type == "line":
             editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
         elif display.g_type == "marker":
-            editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, self)
+            editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, display, self)
         elif display.g_type == "text":
             editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, display, self)
         else:

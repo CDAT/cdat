@@ -2,20 +2,25 @@ from vcs import vtk_ui
 from vcs.colorpicker import ColorPicker
 from vcs.vtk_ui import behaviors
 from vcs.VCS_validation_functions import checkMarker
+import vtk
 import priority
 
-class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
-    def __init__(self, interactor, marker, index, configurator):
+class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+    def __init__(self, interactor, marker, index, display, configurator):
         self.interactor = interactor
         self.marker = marker
         self.index = index
         self.configurator = configurator
 
+        actors = display.backend["vtk_backend_marker_actors"][index]
+
+        self.glyph, self.glyph_source, self.polydata, self.actor, self.geo = actors
+
         self.handles = []
 
         for ind, x in enumerate(marker.x[index]):
             y = marker.y[index][ind]
-            h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
             h.show()
             self.handles.append(h)
 
@@ -67,7 +72,6 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
     def change_shape(self, index):
         if index != 0:
             self.marker.type[self.index] = marker_shapes()[index - 1]
-            self.configurator.changed = True
             self.wmo_button.set_state(0)
             self.save()
         else:
@@ -76,7 +80,6 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
     def change_wmo(self, index):
         if index != 0:
             self.marker.type[self.index] = wmo_shapes()[index - 1]
-            self.configurator.changed = True
             self.shape_button.set_state(0)
             self.save()
         else:
@@ -109,7 +112,7 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
         x, y = self.event_position()
 
         if self.current_modifiers()["alt"]:
-            h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
             h.show()
             self.handles.append(h)
             self.marker.x[self.index].append(x)
@@ -119,11 +122,10 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
         else:
             self.deactivate()
 
-    def adjust(self, handle):
+    def adjust(self, handle, x, y):
         ind = self.handles.index(handle)
-        self.marker.x[self.index][ind] = handle.x
-        self.marker.y[self.index][ind] = handle.y
-        self.configurator.changed = True
+        self.marker.x[self.index][ind] = x
+        self.marker.y[self.index][ind] = y
         self.save()
 
     def in_bounds(self, x, y):
@@ -180,7 +182,13 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
         self.configurator.deactivate(self)
 
     def save(self):
-        self.configurator.save()
+        # Sync all points
+        points = vtk.vtkPoints()
+        for x, y in zip(self.marker.x[self.index], self.marker.y[self.index]):
+            points.InsertNextPoint(x, y, 0)
+        self.glyph.GetInput().SetPoints(points)
+        self.interactor.GetRenderWindow().Render()
+
 
 def marker_shapes():
     # Returns all shapes that are supported (skips star for now), indexed numerically

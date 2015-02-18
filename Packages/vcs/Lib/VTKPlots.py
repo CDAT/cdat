@@ -459,26 +459,10 @@ class VTKVCSBackend(object):
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
-            # Add a transform to correct the glyph's aspect ratio:
             if pd is None and act.GetUserTransform():
-              # Invert the scale of the actor's transform.
-              glyphTransform = vtk.vtkTransform()
-              scale = act.GetUserTransform().GetScale()
-              xComp = scale[0]
-              scale = [xComp / float(val) for val in scale]
-              glyphTransform.Scale(scale)
+              vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
+            self.setLayer(ren,gm.priority)
 
-              glyphFixer = vtk.vtkTransformPolyDataFilter()
-              glyphFixer.SetTransform(glyphTransform)
-
-              if pd is None:
-                glyphFixer.SetInputConnection(gs.GetOutputPort())
-              else:
-                glyphFixer.SetInputData(pd)
-                g.SetSourceData(None)
-
-              g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
