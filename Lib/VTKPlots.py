@@ -626,6 +626,7 @@ class VTKVCSBackend(object):
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,None,False,deep=False)
+    #None/False are for color and cellData (sent to vcs2vtk.putMaskOnVTKGrid)
     returned["vtk_backend_missing_mapper"]=missingMapper,None,False
 
     w=vcs2vtk.generateVectorArray(data1,data2,vtk_backend_grid)
@@ -1158,8 +1159,6 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
-      #contMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
-      #contMapper.SetResolveCoincidentTopologyToPolygonOffset()
 
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
@@ -1626,21 +1625,18 @@ class VTKVCSBackend(object):
           if flipX:
             cam.Azimuth(180.)
       return Renderer
+
   def update_input(self,vtkobjects,array1,array2=None,update=True):
       if vtkobjects.has_key("vtk_backend_grid"):
-          #print "ok?"
           ## Ok ths is where we update the input data
           vg=vtkobjects["vtk_backend_grid"]
           data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
           pData= vg.GetPointData().GetScalars()
           if pData is not None:
-              #print "OK HERE"
               vg.GetPointData().SetScalars(data)
           else:
-              #print "OK HERE 2",array1.shape
               vg.GetCellData().SetScalars(data)
           if vtkobjects.has_key("vtk_backend_filter"):
-            #print "FILTER"
             vtkobjects["vtk_backend_filter"].Update()
           if vtkobjects.has_key("vtk_backend_missing_mapper"):
               missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
@@ -1648,8 +1644,7 @@ class VTKVCSBackend(object):
           else:
               missingMapper = None
           if vtkobjects.has_key("vtk_backend_contours"):
-            for i,c in enumerate(vtkobjects["vtk_backend_contours"]):
-              #print "UPING"
+            for c in vtkobjects["vtk_backend_contours"]:
               c.Update()
             ports=vtkobjects["vtk_backend_contours"]
           elif vtkobjects.has_key("vtk_backend_geofilters"):
@@ -1685,7 +1680,6 @@ class VTKVCSBackend(object):
                   a[0].SetMapper(act.GetMapper())
                   i+=1
 
-              #vtkobjects["vtk_backend_wrapped_actor"].Update()
       taxis = array1.getTime()
       if taxis is not None:
           tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
