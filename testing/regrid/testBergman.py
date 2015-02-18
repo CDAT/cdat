@@ -1,6 +1,6 @@
 import unittest
 import cdms2 as cdms
-import cdutil, string, os
+import cdutil, string, os, cdat_info
 from genutil import statistics
 import numpy
 import ESMP
@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
            obs_pathi = string.replace(obs_path,'VAR',var)
            print obs_pathi
            ref = getRef(var)
-           obs_path_full = sys.prefix + '/sample_data/' + \
+           obs_path_full = cdat_info.get_prefix() + '/sample_data/' + \
                var + '_' + ref  + '_000001-000012_ac.nc'
            print obs_path_full
            fobs = cdms.open(obs_path_full)
@@ -46,7 +46,7 @@ class Test(unittest.TestCase):
            mods = ('mpi_echam5',)       
 
            for mod in mods:
-             mod_path = sys.prefix + '/sample_data/' + \
+             mod_path = cdat_info.get_prefix() + '/sample_data/' + \
                  var + '_' + mod + '_1980-1999_ac.nc'
              fmod = cdms.open(mod_path)
              dmod = fmod(var)

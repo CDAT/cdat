@@ -13,14 +13,15 @@ script uses the landuse data to mask out o3 over water.
 import ioapiTools as ioT
 import numpy
 import sys, os
+import cdat_info
 
 ## Setup
 ## input file
 iFile = "CCTM_CONC.D1.001"
-iFile = os.path.join (sys.prefix,'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
 
 gridFile = "GRIDCRO2D_D1.001"
-gridFile = os.path.join (sys.prefix,'sample_data/' + gridFile)
+gridFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + gridFile)
 
 ## output file
 oFile1 = "o3_masked.nc"

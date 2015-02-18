@@ -1,9 +1,8 @@
 #!/bin/sh
-cd @SOURCE_DIR@
-git fetch origin --prune
-branch_name=$(git symbolic-ref HEAD | sed -e 's,.*\/\(.*\),\1,')
-if [ "${branch_name}" != "@BRANCH@" ]; then
-  git checkout -f @BRANCH@
+cd "@SOURCE_DIR@"
+"@GIT_EXECUTABLE@" fetch origin --prune
+if [ "$("@GIT_EXECUTABLE@" cat-file -t @BRANCH@)" = tag ]; then
+    "@GIT_EXECUTABLE@" checkout -f @BRANCH@
+else
+    "@GIT_EXECUTABLE@" checkout -f origin/@BRANCH@
 fi
-git reset --hard origin/@BRANCH@
-

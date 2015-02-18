@@ -1,3 +1,4 @@
+
 def test_values_setting(gm,attributes,good_values=[],bad_values=[]):
   if isinstance(attributes,str):
     attributes=[attributes,]

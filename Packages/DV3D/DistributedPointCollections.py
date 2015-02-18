@@ -4,7 +4,7 @@ Created on Sep 18, 2013
 @author: tpmaxwel
 '''
 
-import sys, os
+import sys, os, traceback
 import numpy
 from cdms2.error import CDMSError
 import vtk,  time,  math, threading
@@ -83,6 +83,7 @@ class PointCollectionExecutionTarget:
             self.execute( args )
                 
     def initialize( self ):
+#        print "initialize PointCollectionExecutionTarget[%s]" % str(self.init_args); sys.stdout.flush()
         self.point_collection.initialize( self.init_args, **self.cfg_args )
         self.point_collection.setDataSlice( self.collection_index, istep=self.ncollections )
         self.results.put( self.packPointsData() )
@@ -99,27 +100,27 @@ class PointCollectionExecutionTarget:
                 data_packet = self.packVarData()
             elif args[0] == 'ROI':
                 data_packet = self.packPointsData()
-            data_packet[ 'args' ] = args
-            
+            data_packet[ 'args' ] = args           
+            #print "execute PointCollectionExecutionTarget(%s): init_args=[%s], result-> queue " % ( str(args), str(self.init_args) ); sys.stdout.flush()
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
 
     def packVarData(self):
-#        print "Pack VARDATA"; sys.stdout.flush()
         vardata = self.point_collection.getVarData() 
-        data_packet = ExecutionDataPacket( ExecutionDataPacket.VARDATA, self.collection_index, vardata.data )
+        data_packet = ExecutionDataPacket( ExecutionDataPacket.VARDATA, self.collection_index, vardata )
         try:    data_packet[ 'fill_value' ] = vardata.fill_value
         except: data_packet[ 'fill_value' ] = None
         data_packet[ 'vrange' ] = self.point_collection.getVarDataRange() 
         data_packet[ 'grid' ] = self.point_collection.getGridType()  
         data_packet[ 'nlevels' ] = self.point_collection.getNLevels()
         data_packet[ 'bounds' ] = self.point_collection.getBounds()
+#        print "Done Packing VARDATA[%d]: %s\n" % ( self.collection_index, str(vardata.__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointsData( self ):
-#        print "Pack POINTS"; sys.stdout.flush()
         data_packet = ExecutionDataPacket( ExecutionDataPacket.POINTS, self.collection_index, self.point_collection.getPoints() )
+#        print "Done Packing POINTS[%d]: %s\n" % ( self.collection_index, str(self.point_collection.getPoints().__class__) ); sys.stdout.flush()
         return data_packet
 
     def packPointHeightsData( self ):
@@ -134,7 +135,7 @@ class PointCollectionExecutionTarget:
 #        range_type = 'trange' if ( target == "vardata" ) else "crange"
 #        data_packet[ target ] = self.point_collection.getThresholdTargetType() 
         data_packet[ 'target' ] = target
-        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange()
+        data_packet[ 'trange' ] = self.point_collection.getThresholdedRange() 
         return data_packet
 
 class vtkPointCloud():
@@ -266,6 +267,7 @@ class vtkPointCloud():
         return ( vmin, vmax )
                                              
     def updateScalars( self, **args ):
+#        print " ---> Update Scalars[%d]" % self.pcIndex
         if isNone(self.vardata):
             wait = args.get( 'wait', True ) 
             if wait: self.waitForData( ExecutionDataPacket.VARDATA )
@@ -508,8 +510,8 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.arg_queue = Queue() # JoinableQueue() 
         self.result_queue = Queue() # JoinableQueue()
         self.parameter_cache = {}
-            
-    def runProcess(self, procType, **args):
+
+    def runProcess(self, procType, **args): 
         if   procType == PCProc.Subset:    self.generateSubset( **args )
         elif procType == PCProc.ZScaling:  self.generateZScaling( **args )
         elif procType == PCProc.Timestep:  self.stepTime( **args )
@@ -521,7 +523,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-#        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) )
+#        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) ); sys.stdout.flush()
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
@@ -541,7 +543,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         if cached_zscale_value <> zscale_value:
             self.clearQueues()
             op_specs = [ 'points' ] + list(z_subset_spec)
-#             print " Generate Z Scaling [P-%d]: %s " % ( self.pcIndex, str( args ) )
+            #print " Generate Z Scaling [P-%d]: %s, zscale_value = %s, op_specs = (%s)" % ( self.pcIndex, str( args ), str( zscale_value ), str(op_specs) )
             self.arg_queue.put( op_specs,  False )
             self.parameter_cache['zscale'] = zscale_value
 
@@ -550,12 +552,14 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         self.arg_queue.put( op_specs,  False ) 
         
     def getResults( self, block = False ):
+#        print " ---> getResults[%d]" % self.pcIndex
         try:
             result = self.result_queue.get( block )
-        except Exception:
+        except Exception, err:
+#            print " ---> Exception: ", str( err )
             return False
         if result.type == ExecutionDataPacket.VARDATA:
-#            print "Got VARDATA"
+#            print " ---> Got VARDATA"
             self.vardata = result.data 
             self.vrange = result['vrange']
             self.grid = result['grid']
@@ -572,7 +576,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #             if self.pcIndex == 1: 
 #                 self.printLogMessage(  " vtkSubProcPointCloud --->> Get Results, Args: %s " % str(result['args']) )
         elif result.type == ExecutionDataPacket.POINTS:
-#            print "Got POINTS"
+            #print " ---> Got POINTS"
             self.np_points_data = result.data
         return True
     
@@ -589,7 +593,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
             self.nlevels = result['nlevels']
             self.grid_bounds = result['bounds']
             self.updateScalars()   
-#            print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
+            #print " processResults[ %d ] : VARDATA" % self.pcIndex; sys.stdout.flush()
         elif result.type == ExecutionDataPacket.INDICES:
             self.np_index_seq = result.data 
 #            self.threshold_target = result['target']
@@ -600,16 +604,16 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #             if self.pcIndex == 1:
 #                 self.printLogMessage(  " vtkSubProcPointCloud --->> Process Results, Args: %s " % str(result['args']) )
             self.updateVertices()  
-#            print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
+            #print " processResults[ %d ] : INDICES, metadata = %s " % ( self.pcIndex, str(result.metadata)); sys.stdout.flush()
         elif result.type == ExecutionDataPacket.HEIGHTS:
-#            print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
+            #print " processResults[ %d ] : POINTS" % self.pcIndex; sys.stdout.flush()
             self.setPointHeights( result.data )
             self.grid_bounds = result['bounds']
-#            print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
+            #print "processResults: Set grid bounds: %s " % str( self.grid_bounds )
         return True
         
     def waitForData( self, dtype ):
-#        self.printLogMessage( " waitForData type %d" % ( dtype ) )   
+#        self.printLogMessage( " waitForData type %d" % ( dtype ) )
         while( id(self.getData( dtype ) ) == id( None ) ):
             self.getResults(True)
             time.sleep(0.05)
@@ -655,7 +659,7 @@ class vtkLocalPointCloud( vtkPointCloud ):
         self.point_collection.execute( op_specs ) 
         self.setPointHeights( self.point_collection.getPointHeights()  )   
         self.grid_bounds = self.point_collection.getAxisBounds()
-#        print "generateZScaling: Set grid bounds: %s " % str( self.grid_bounds )
+#        print "generateZScaling: op_specs = %s " % str( op_specs )
         self.polydata.Modified()
         self.mapper.Modified()
         self.actor.Modified()
@@ -788,7 +792,7 @@ class vtkPartitionedPointCloud:
     def checkProcQueues(self):
         pc_item, rv = self.processProcQueue()
         if rv:
-#            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
+            #print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
             self.NewDataAvailable( pc_item[0], rv )
             self.subproc_responses = self.subproc_responses + 1
             if self.subproc_responses == len( self.point_clouds ): 
@@ -947,8 +951,3 @@ def kill_all_zombies():
             if pid <> os.getpid():
                 os.kill( pid, signal.SIGKILL )
                 print "Killing proc: ", proc_spec
-
-    
-        
-        
-            

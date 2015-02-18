@@ -27,6 +27,9 @@ list(APPEND ParaView_tpl_args
   -DModule_vtkIOCGM:BOOL=ON
   )
 
+if(NOT CDAT_BUILD_LEAN)
+  list(APPEND ParaView_tpl_args -DPARAVIEW_ENABLE_FFMPEG:BOOL=ON)
+endif()
 
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
@@ -137,8 +140,20 @@ if(UVCDAT_TESTDATA_LOCATION)
     -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION})
 endif()
 
+if(CDAT_BUILD_OFFSCREEN)
+  list(APPEND ParaView_tpl_args
+    "-DVTK_USE_X:BOOL=OFF"
+    "-DVTK_OPENGL_HAS_OSMESA:BOOL=ON"
+    "-DOPENGL_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOPENGL_gl_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa${_LINK_LIBRARY_SUFFIX}"
+    "-DOPENGL_glu_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libGLU${_LINK_LIBRARY_SUFFIX}"
+    "-DOSMESA_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include"
+    "-DOSMESA_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libOSMesa${_LINK_LIBRARY_SUFFIX}"
+  )
+endif()
+
 include(GetGitRevisionDescription)
-set(paraview_branch ${PARAVIEW_MD5})
+set(paraview_branch ${PARAVIEW_BRANCH})
 
 get_git_head_revision(refspec sha)
 #if("${refspec}" STREQUAL "refs/heads/devel-master")

@@ -8,6 +8,7 @@ Test interpolation on salinity datasets
 import time
 import re
 import numpy
+import cdat_info
 import cdms2
 import regrid2
 import unittest
@@ -82,7 +83,7 @@ class Test(unittest.TestCase):
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG # ESMP.ESMP_COORDSYS_CART fails
 
-        inFile = sys.prefix + \
+        inFile = cdat_info.get_prefix() + \
             '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
         srcF = scipy.io.netcdf.netcdf_file(inFile)
         #so = srcF.variables['so'][0, 0,...]
@@ -291,7 +292,7 @@ class Test(unittest.TestCase):
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG # ESMP.ESMP_COORDSYS_CART fails
 
-        inFile = sys.prefix + \
+        inFile = cdat_info.get_prefix() + \
             '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
         # dtype of a numpy 'float64' in scipy is '>f4' ...
         # switching to cdms2

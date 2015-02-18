@@ -25,20 +25,20 @@ if data_type == DataType.UNSTRUCTURED:
                 os.kill( pid, signal.SIGKILL )
                 print "Killing proc: ", proc_spec
 
-    testDataDir = '/Users/tpmaxwel/Data'
+    testDataDir = '/Users/tpmaxwel/data'
     datasetPath = os.path.join( testDataDir, 'WRF', 'wrfout_d03_2013-07-02_02-00-00.nc' )
     f = cdms2.open( datasetPath )
     varname = "U"
    
 else:
-    dataDir1 = "/Developer/Data/AConaty/comp-ECMWF"
+    dataDir1 = "/Users/tpmaxwell/data/AConaty/comp-ECMWF"
     datasetPath = os.path.join( dataDir1, "geos5.xml")
     f = cdms2.open( datasetPath )
     varname = "uwnd"
     
 # print "Reading variable %s in dataset %s " % ( varname, datasetPath )
     
-#    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
+#    f = cdms2.open( os.path.join( vcs.prefix, "sample_data", "geos5-sample.nc") )
 #    u = f["uwnd"] 
 
 # dv3d = vcs.create3d_scalar('hoffmuller','xyt')

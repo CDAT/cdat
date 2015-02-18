@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2,cdutil,os,sys,numpy
+import cdms2,cdutil,os,sys,numpy,cdat_info
 
 ## Test 6h data
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','psl_6h.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','psl_6h.nc'))
 s=f('psl')
 
 t=s.getTime()
@@ -22,7 +22,7 @@ assert(numpy.allclose(t.getBounds()[:8],numpy.array([[  0.,   6.],
          [ 42.,  48.]])))
 
 ## test daily
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','ts_da.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','ts_da.nc'))
 s=f('ts')
 t=s.getTime()
 print 'daily data, before:'

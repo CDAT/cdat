@@ -195,11 +195,11 @@ class CPCPlot( DV3DPlot ):
 #        self.addConfigurableLevelingFunction( 'map_opacity', 'M', label='Base Map Opacity', rangeBounds=[ 0.0, 1.0 ],  setLevel=self.setMapOpacity, activeBound='min',  getLevel=self.getMapOpacity, isDataValue=False, layerDependent=True, group=ConfigGroup.BaseMap, bound = False )
 
                  
-    def toggleProjection( self, args, config_function  ):
+    def toggleProjection( self, args, config_function, **kwargs  ):
 #         if len( args ) > 1: 
 #             self.toggleTopo( state = args[1] ) 
 #         else: 
-        self.toggleTopo() 
+        self.toggleTopo(**kwargs)
         
     def processTimerEvent(self, caller, event):
 #        print " ***************** processTimerEvent, caller = ", caller.__class__.__name__
@@ -320,7 +320,7 @@ class CPCPlot( DV3DPlot ):
             if iPt >= 0:
                 if self.partitioned_point_cloud and self.partitioned_point_cloud.hasActiveCollections():                
                     pick_pos, dval = self.partitioned_point_cloud.getPoint( actor, iPt ) 
-                    color = self.getColormapManager().getColor( dval )
+                    color = self.getColormapManager('Slice').getColor( dval )
                     self.configSphere( pick_pos, color )
                 else:
                     pick_pos, dval = self.point_cloud_overview.getPoint( iPt ) 
@@ -339,10 +339,11 @@ class CPCPlot( DV3DPlot ):
     def toggleTopo( self, **args ):
         state = args.get( 'state', None )
         self.topo = ( self.topo + 1 ) % 2 if (state == None) else state
-        self.updateProjection()
+        self.updateProjection(**args)
         
-    def updateProjection(self):
-        self.recordCamera()
+    def updateProjection( self, **args ):
+        record = args.get( 'record', True )
+        if record: self.recordCamera()
         pts =  [  self.partitioned_point_cloud.setTopo( self.topo ) if self.partitioned_point_cloud else False,
                   self.point_cloud_overview.setTopo( self.topo)    ] 
         if pts[self.render_mode]:
@@ -619,7 +620,7 @@ class CPCPlot( DV3DPlot ):
             ivalue = init_range if init_value is None else init_value
             config_function.initial_value = ivalue
             self.point_cloud_overview.setScalarRange( ivalue ) 
-            self.setColorbarRange( ivalue ) 
+            self.setColorbarRange( 'Slice', ivalue ) 
             scalarRange.setValues( ivalue )            
         elif  args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
@@ -643,7 +644,7 @@ class CPCPlot( DV3DPlot ):
             scalarRange.setValue( args[1], value )
             srange = scalarRange.getValues()        
             self.point_cloud_overview.setScalarRange( srange ) 
-            self.setColorbarRange( srange ) 
+            self.setColorbarRange( 'Slice', srange ) 
         self.render()
 
                      
@@ -792,9 +793,11 @@ class CPCPlot( DV3DPlot ):
                 pc = self.getPointCloud(resolution)
                 pc.setPointSize( config_function.initial_value[resolution] )
         elif arg and arg[0] == "InitConfig":
-                self.updateTextDisplay( config_function.label )
+            #print "InitConfig: ", str( arg )
+            self.updateTextDisplay( config_function.label )
         elif arg[0] == 'StartConfig':
             render_mode = arg[1]
+            #print "StartConfig: ", str( arg )
             if self.setRenderMode( render_mode ):
                 if render_mode == ProcessMode.HighRes: 
                     if self.partitioned_point_cloud:
@@ -862,8 +865,8 @@ class CPCPlot( DV3DPlot ):
                 self.execCurrentSlice()
                 self.render( mode=resolution )
                                         
-    def setColorbarRange( self, cbar_range, cmap_index=0 ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def setColorbarRange( self, constituent, cbar_range, cmap_index=0 ):
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setDisplayRange( cbar_range )   
 
     def processsInitParameter( self, parameter_key, config_param ):
@@ -952,7 +955,7 @@ class CPCPlot( DV3DPlot ):
             default_val = config_function.initial_value
             init_value = oscale.getInitValue()
             ivalue = default_val if init_value is None else init_value           
-            colormapManager = self.getColormapManager()
+            colormapManager = self.getColormapManager('Slice')
             colormapManager.setAlphaRange( ivalue )
                  
 
@@ -963,7 +966,7 @@ class CPCPlot( DV3DPlot ):
             if ( self.cmdSkipIndex % self.cmdSkipFactor ) == 0:
                 oval[ args[1] ] = args[2].GetValue()
                 oscale.setValues( oval )       
-                colormapManager = self.getColormapManager()
+                colormapManager = self.getColormapManager('Slice')
                 alpha_range = colormapManager.getAlphaRange()
                 if ( abs( oval[0] - alpha_range[0] ) > 0.1 ) or ( abs( oval[1] - alpha_range[0] ) > 0.1 ):
                     colormapManager.setAlphaRange( oval )
@@ -982,7 +985,7 @@ class CPCPlot( DV3DPlot ):
             self.processConfigParameterChange( oscale )
             
     def processOpacityGraphCommand(self, args=None ):
-        colormapManager = self.getColormapManager()
+        colormapManager = self.getColormapManager('Slice')
         colormapManager.setAlphaGraph( args[0] )
         self.render()
 
@@ -1027,9 +1030,15 @@ class CPCPlot( DV3DPlot ):
             vscale_val = ( xwidth + ywidth )/500.0
             config_function.setRangeBounds( [ vscale_val/5.0, vscale_val*5.0 ] )
             init_value = vscale.getInitValue()
-            vscale_ival = vscale_val if  ( init_value is None ) else init_value
+            vscale_ival = vscale_val if  ( init_value is None ) else init_value[0] if isinstance( init_value, (list, tuple) ) else init_value
             vscale.setValues( [ vscale_ival ] ) 
             self.scaling_spec = ( self.vertVar, vscale_ival )
+#             if self.partitioned_point_cloud:
+#                  self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+#                  print "Init zscale: ", str( self.scaling_spec )
+#                  self.setRenderMode( ProcessMode.HighRes )
+#                 self.render()
+#             self.processConfigParameterChange( vscale )
             self.skipIndex = 5
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )                      
@@ -1093,8 +1102,14 @@ class CPCPlot( DV3DPlot ):
         self.render() 
 
     def processProjectionCommand( self, args, config_function  ): 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.cfgManager.initialized = True
+            if config_function.initial_value <> None:
+                config_function.setState( config_function.initial_value[0] )
+            if state: self.toggleProjection( args, config_function, record=False )
         if args and (args[0] == "InitConfig") and args[1]: 
-            self.toggleProjection( args, config_function )
+            self.toggleProjection( args, config_function, record=False )
             self.setRenderMode( ProcessMode.HighRes )
             self.render() 
                 
@@ -1340,25 +1355,29 @@ class CPCPlot( DV3DPlot ):
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None
-        grid_file = None  
-        ROI = None       
-        return [ grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace ] 
+        grid_file = args.get( 'grid_file', None )
+        ROI = None  
+        zscale_parm = self.cfgManager.getParameterValue( 'VerticalScaling' )
+        zscale = float(zscale_parm.strip('[]')) if ( zscale_parm <> None ) else 0.5       
+        return [ grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace, zscale ] 
 
     def gminit(self, var1, var2, **args  ):
         init_args = self.getInitArgs( var1, var2, **args )
         self.init( init=init_args, **args )
 
     def init(self, **args ):
+        from DistributedPointCollections import kill_all_zombies
+        kill_all_zombies()
         init_args = args.get( 'init', None )                  
         n_overview_points = args.get( 'n_overview_points', 500000 )    
         n_subproc_points = args.get( 'n_subproc_points', 500000 )  
         n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )    
         self.point_cloud_overview = vtkLocalPointCloud( 0, max_points=n_overview_points ) 
-        lut = self.getLUT()
+        lut = self.getLUT('Slice')
         self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         nInputPoints = self.point_cloud_overview.getNumberOfInputPoints()
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
-        nPartitions = int( round( min( nInputPoints / n_subproc_points, 10  ) ) )
+        nPartitions = min( nInputPoints / n_subproc_points, 10  )
         nCollections = min( nPartitions, n_cores-1 )
         print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
@@ -1368,7 +1387,6 @@ class CPCPlot( DV3DPlot ):
         self.initializeConfiguration()       
         self.cfgManager.initParameters()
         self.initializePlots()
-        self.setCameraPos()
              
 #             pc = self.point_cloud_overview.getPointCollection()
 #             cfgInterface = ConfigurationInterface( metadata=pc.getMetadata(), defvar=pc.var.id, callback=self.processConfigCmd  )
@@ -1380,9 +1398,9 @@ class CPCPlot( DV3DPlot ):
     def initializePlots(self):         
         DV3DPlot.initializePlots(self)
         self.setRenderMode( ProcessMode.HighRes )               
-#        self.updateThresholding()        
+        self.setCameraPos()
 #        self.updateVerticalScaling() 
-#        self.render()  
+#        self.updateThresholding()        
                          
     def setCameraPos(self):
         ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()

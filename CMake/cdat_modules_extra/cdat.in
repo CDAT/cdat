@@ -1,0 +1,4 @@
+#!/bin/bash
+# source is not portable whereas . is
+. "@CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh"
+python@PYVER@ "$@"

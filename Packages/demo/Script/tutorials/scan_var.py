@@ -10,6 +10,7 @@ Reads in data from multiple files and writes out a single variable.
 import ioapiTools as ioT
 from mx import DateTime as D
 import sys, os
+import cdat_info
 
 ## Setup
 
@@ -17,7 +18,7 @@ import sys, os
 ## potential IOAPI files  of interest,
 ## can use regular expression syntex
 searchStr = "CCTM_ACONC.D1.*"
-searchStr = os.path.join (sys.prefix,'sample_data/' + searchStr)
+searchStr = os.path.join (cdat_info.get_prefix(),'sample_data/' + searchStr)
 
 ## dates of interest: (year, month, day, hour)
 date1 = D.DateTime(2001,6,1,6)

@@ -10,7 +10,7 @@
 . @CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh
 
 # play back the requested vistrail and make an image
-@PYTHON_EXECUTABLE@ \
+"@PYTHON_EXECUTABLE@" \
   @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py \
  -R \
  -S $1\
@@ -19,8 +19,8 @@
  -e @CMAKE_BINARY_DIR@/Testing/Temporary
 
 # compare that image with the baseline(s) for it
-@PYTHON_EXECUTABLE@ \
+"@PYTHON_EXECUTABLE@" \
  @cdat_SOURCE_DIR@/testing/checkimage.py \
  @CMAKE_BINARY_DIR@/Testing/Temporary/$4 \
- @cdat_SOURCE_DIR@/testing/$5/$4 \
+ $5/$4 \
  $6

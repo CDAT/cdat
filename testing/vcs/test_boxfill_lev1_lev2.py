@@ -1,14 +1,16 @@
+
 import cdms2,sys,vcs,sys,os
 src=sys.argv[1]
-pth = os.path.join(os.path.dirname(src),"..")
+pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 x=vcs.init()
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+x.drawlogooff()
+f=cdms2.open(vcs.prefix+"/sample_data/clt.nc")
 s=f("clt",slice(0,1),squeeze=1)
 b=x.createboxfill()
-b.level_1=20
-b.level_2=80
+b.level_1=.5
+b.level_2=14.5
 x.plot(s,b,bg=1)
 
 fnm= "test_boxfill_lev1_lev2.png"

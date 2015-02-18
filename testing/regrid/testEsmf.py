@@ -4,6 +4,7 @@ $Id: testEsmf.py 2389 2012-07-26 15:51:43Z dkindig $
 Unit tests for regrid2.ESMP using file data
 """
 
+import cdat_info
 import cdms2
 import regrid2
 from regrid2.mvGenericRegrid import GenericRegrid
@@ -17,7 +18,7 @@ import sys
 class TestESMPRegridding(unittest.TestCase):
 
     def setUp(self):
-        filename = sys.prefix + \
+        filename = cdat_info.get_prefix() + \
             "/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc"
         h=cdms2.open(filename)
         self.hso = h('so')[0, 0, ...]
@@ -25,14 +26,14 @@ class TestESMPRegridding(unittest.TestCase):
         h2D = self.hso.getGrid()
         self.hGrid2D = [h2D.getLatitude(), h2D.getLongitude()]
 
-        filename = sys.prefix + "/sample_data/clt.nc"
+        filename = cdat_info.get_prefix() + "/sample_data/clt.nc"
         f=cdms2.open(filename)
         self.fclt = f('clt')
         self.fGrid = [self.fclt.getLatitude(), self.fclt.getLongitude()]
         g2D = self.fclt.getGrid().toCurveGrid()
         self.fGrid2D = [g2D.getLatitude()[:], g2D.getLongitude()[:]]
 
-        filename = sys.prefix + "/sample_data/era40_tas_sample.nc"
+        filename = cdat_info.get_prefix() + "/sample_data/era40_tas_sample.nc"
         g=cdms2.open(filename)
         self.gtas = g('tas')
         self.gGrid = [self.gtas.getLatitude(), self.gtas.getLongitude()]

@@ -103,10 +103,10 @@ def checkLine(self,name,value):
 def isNumber(value,min=None,max=None):
      """ Checks if value is a Number, optionaly can check if min<value<max
      """
-     try:
-          value=value.tolist() # converts MA/MV/numpy
-     except:
-          pass
+    # try:
+    #      value=value.tolist() # converts MA/MV/numpy
+    # except:
+    #      pass
      if not isinstance(value,(int,long,float,numpy.floating)):
           return False
      if min is not None and value<min:
@@ -117,10 +117,10 @@ def isNumber(value,min=None,max=None):
 
 def checkNumber(self,name,value,minvalue=None,maxvalue=None):
      checkName(self,name,value)
-     try:
-          value=value.tolist() # converts MA/MV/numpy
-     except:
-          pass
+     #try:
+     #     value=value.tolist() # converts MA/MV/numpy
+     #except:
+     #     pass
      n=isNumber(value,min=minvalue,max=maxvalue)
      if n is False:
           checkedRaise(self,value, ValueError, name+' must be a number')
@@ -555,7 +555,7 @@ def checkTextOrientation(self,name,value):
        value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("textorientation"):
-               checkedRaise(self,value,ValueError,"Error : not a valid textorientation")
+               checkedRaise(self,value,ValueError,"Error: %s not a valid textorientation" % value)
      elif not isinstance(value,vcs.textorientation.To):
           checkedRaise(self,value,ValueError,"Error you must pass a textorientation objector a textorientation name")
      else:
@@ -1391,3 +1391,17 @@ def _setext_2(self,value):
      else:
         self._ext_2=value
 ext_2=property(_getext_2,_setext_2)
+
+def _getwc(self):
+     return self._worldcoordinate
+def _setwc(self,value):
+     value = checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
+     self._worldcoordinate = value
+worldcoordinate=property(_getwc,_setwc)
+
+def _getvp(self):
+     return self._viewport
+def _setvp(self,value):
+     value = checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
+     self._viewport = value
+viewport=property(_getvp,_setvp)

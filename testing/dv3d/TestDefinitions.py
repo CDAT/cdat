@@ -16,7 +16,7 @@ test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="ge
                                  'ScaleColormap': [-10.0, 10.0, 1], 
                                  'BasemapOpacity': [0.5],
                                  'XSlider': ( -50.0, vcs.on ),
-                                 'ZSlider': ( 10.0,  vcs.on ),
+                                 'ZSlider': ( 0.0,  vcs.on ),
                                  'YSlider': ( 20.0,  vcs.on ), 
                                  }  )       
      
@@ -46,6 +46,30 @@ test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="g
                                  'ZSlider': ( vcs.off ),
                                  'YSlider': ( vcs.off ), 
                                  }  )       
+
+test4 =  vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ],
+                     parameters={'VerticalScaling': 5.0,
+                                 'ToggleClipping': ( 40, 360, -28, 90 ),
+                                 'ToggleVolumePlot': vcs.on,  
+                                 'ToggleSurfacePlot': vcs.on,
+                                 'ScaleOpacity': { 'Volume': [0.0, 0.3] },
+                                 'IsosurfaceValue': [ 31.0 ],
+                                 'ScaleColormap': ( [ -46.0, 48.0 ], { 'Volume': [ 16.0, 30.0 ], 'Surface': [ 30.0, 35.0 ] } ), 
+                                 'BasemapOpacity': 0.5,
+                                 'ScaleTransferFunction':   [ 12.0, 77.0 ], 
+                                 'XSlider': ( 180.0, vcs.on ),
+                                 'ZSlider': ( 0.0,   vcs.on ),
+                                 'YSlider': ( 0.0,   vcs.off ), 
+                                 'Camera': { 'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)  }
+                                 }  )       
+
+test5 =  vcsTest( 'dv3d_hovmoller_test', file="clt.nc", vars = [ 'clt' ], template = 'Hovmoller3D',
+                     parameters={'BasemapOpacity': 0.5,
+                                 'XSlider': ( 77.8, vcs.on ),
+                                 'ZSlider': ( 0.1,   vcs.on ),
+                                 'YSlider': ( 49.0,   vcs.on ),
+                                 'Camera': {'Position': (-300, -409, 400), 'ViewUp': (0.156, 0.64, 0.75), 'FocalPoint': (-23.2, 14.2, -20)}
+                                 }  )
     
 if __name__ == '__main__':
     

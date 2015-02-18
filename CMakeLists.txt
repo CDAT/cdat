@@ -8,18 +8,9 @@ endif()
 #-----------------------------------------------------------------------------
 project(cdat)
 
-# Disable in source build of any kind
-STRING(REGEX MATCH "^${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
-if (BUILDINSOURCE)
-   set(msg "[ERROR] CDAT requires an out of source Build.")
-   set(msg "${msg} Run 'git clean -dfx' to restore source dir.")
-   message(FATAL_ERROR "${msg}")
-endif()
-
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
-
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
@@ -44,6 +35,17 @@ set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
 )
+
+# Disable in source build of any kind.
+#-----------------------------------------------------------------------------
+include(CheckBuildOutOfSource)
+check_build_out_of_source("${cdat_SOURCE_DIR}" "${cdat_BINARY_DIR}"
+                          BUILDINSOURCE)
+if(BUILDINSOURCE)
+   set(msg "[ERROR] CDAT requires an out of source Build.")
+   set(msg "${msg}\nRun 'git clean -dfx' to restore source dir.")
+   message(FATAL_ERROR "${msg}")
+endif()
 
 # Include useful cmake scripts
 #-----------------------------------------------------------------------------
@@ -123,11 +125,28 @@ endif()
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
-  message("[INFO] Select Either git:// or http:// for checking out git submodules.
-           If you are behind a firewall then likely you need to choose http:// instead.")
-  set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git" FORCE)
+   set(temp_git_protocol "git://")
+   execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "git://github.com/UV-CDAT/uvcdat.git"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT res EQUAL 0)
+    set(temp_git_protocol "http://")
+    execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "http://github.com/UV-CDAT/uvcdat.git"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      RESULT_VARIABLE res
+      OUTPUT_VARIABLE out
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if (NOT res EQUAL 0)
+        set(temp_git_protocol "https://")
+      endif()
+  endif()
+
+  set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
   set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
-  return()
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
@@ -174,6 +193,27 @@ else()
  )
 endif()
 
+# Checkout the baseline repository.
+if(BUILD_TESTING)
+  set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
+    CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
+  set(REPO_URL "")
+  if(GIT_PROTOCOL MATCHES "http://")
+    set(REPO_URL "http://github.com/UV-CDAT/uvcdat-testdata.git")
+  else()
+    set(REPO_URL "git://github.com/UV-CDAT/uvcdat-testdata.git")
+  endif()
+  find_package(Git QUIET REQUIRED)
+  add_custom_target(update-testdata ALL
+    COMMAND "${CMAKE_COMMAND}"
+      "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+      "-DTESTDATA_URL=${REPO_URL}"
+      "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
+      -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
+    COMMENT "Updating uvcdat-testdata repo."
+  )
+endif()
+
 # Initialize submodules
 #-----------------------------------------------------------------------------
 # C. Doutriaux commented this out no submodules left at this time
@@ -214,12 +254,21 @@ option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
+# OSMesa/VTK aren't playing nicely on macs. Disabling for now.
+include(CMakeDependentOption)
+cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
+  "NOT APPLE" OFF)
+
+# Option to enable vtkweb for cdatweb
+option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
@@ -230,13 +279,16 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
-set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
-set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
+  if( (DEFINED CDAT_BUILD_MODE) AND (NOT "${CDAT_BUILD_MODE}" STREQUAL "LEAN") )
+    message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
+  endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
+set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -270,6 +322,12 @@ endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
+endif()
+
+# Don't build GUI if this is an offscreen-only build:
+if(CDAT_BUILD_OFFSCREEN AND CDAT_BUILD_GUI)
+  message("[INFO] Turning off CDAT_BUILD_GUI; incompatible with CDAT_BUILD_OFFSCREEN.")
   set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
 
@@ -394,7 +452,6 @@ set(found_system_libraries)
 include(basemap_pkg)
 include(cdat_pkg)
 include(clapack_pkg)
-include(cmor_pkg)
 include(curl_pkg)
 include(cython_pkg)
 include(data_pkg)
@@ -429,6 +486,7 @@ include(netcdfplus_pkg)
 include(numexpr_pkg)
 include(numpy_pkg)
 include(mpi_pkg)
+include(osmesa_pkg)
 include(python_pkg)
 if (CDAT_BUILD_PARALLEL)
   include(paraview_pkg)
@@ -445,7 +503,9 @@ include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
-include(pip_pkg)
+if (NOT CDAT_USE_SYSTEM_PYTHON)
+  include(pip_pkg)
+endif()
 include(shapely_pkg)
 include(pygments_pkg)
 include(markupsafe_pkg)
@@ -466,6 +526,7 @@ else()
   include(tiff_pkg)
   include(curses_pkg)
 endif()
+include(cmor_pkg)
 include(udunits2_pkg)
 include(uuid_pkg)
 # IF we build the UVCDAT Metrics package
@@ -473,7 +534,7 @@ if (CDAT_BUILD_UVCMETRICSPKG)
   set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
   include(uvcmetrics_pkg)
 endif()
-include(visit_pkg)
+#include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
@@ -491,8 +552,10 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 
@@ -559,7 +622,12 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
       message("[INFO] Package --- ${package}/${uc_package}/${${uc_package}_VERSION} --- will be built")
-    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ")
+    if (${uc_package}_MD5)
+      list(APPEND packages_info "${${uc_package}_MD5}\n")
+    else()
+      list(APPEND packages_info "${${uc_package}_BRANCH}\n")
+    endif()
     include("${lc_package}_external")
   endif()
 endforeach()
@@ -615,7 +683,8 @@ set(SETUP_PYTHON_PATHS
   "lib/python${PYVER}/site-packages "
 )
 string(REPLACE ";" " " SETUP_PYTHON_PATHS ${SETUP_PYTHON_PATHS})
-
+include(GetGitRevisionDescription)
+git_describe(UVCDAT_PROMPT_STRING)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
     ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY
@@ -651,6 +720,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/cdat
+  @ONLY
+)
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
@@ -659,6 +733,38 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Where to install the wrapper scripts
+set(WRAPPER_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX}/wrappers
+    CACHE PATH
+    "Install wrapper scripts 'cdat', 'uvcdat' and 'loadcdat' in that directory")
+
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/uvcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
+        ${WRAPPER_INSTALL_LOCATION}/uvcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/cdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/cdat
+        ${WRAPPER_INSTALL_LOCATION}/cdat)
+
+add_custom_target(wrappers ALL DEPENDS
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+                  ${WRAPPER_INSTALL_LOCATION}/uvcdat
+                  ${WRAPPER_INSTALL_LOCATION}/cdat)
 
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)

@@ -25,6 +25,7 @@
 _doValidation = True
 next_canvas_id = 1
 import cdat_info
+prefix = cdat_info.get_prefix()
 cdat_info.pingPCMDIdb("cdat","vcs")
 import thread
 import time
@@ -110,6 +111,7 @@ elements = { "boxfill" : {},
              "isoline" : {},
              "meshfill" : {},
              "3d_scalar" : {},
+             "3d_dual_scalar" : {},
              "3d_vector" : {},
              "outfill": {},
              "outline" : {},
@@ -199,6 +201,10 @@ to = textorientation.To("defup")
 to.angle = -90
 to.valign="half"
 to.halign="center"
+to = textorientation.To("defcentup")
+to.angle = -90
+to.valign="half"
+to.halign = "center"
 to = textorientation.To("defright")
 to.halign = "right"
 boxfill.Gfb("default")
@@ -222,7 +228,9 @@ colormap.Cp("default")
 displayplot.Dp("default")
 dv3d.Gf3Dvector("default")
 dv3d.Gf3Dscalar("default")
-dv3d.Gf3Dscalar("xyt")
+dv3d.Gf3Dscalar("Hovmoller3D")  
+dv3d.Gf3DDualScalar("default")
+
 on = { 'state' : 1 }
 off = { 'state' : 0 }
 
@@ -237,7 +245,8 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 fillarea.Tf("default")
 template.P("default")
   
-taylordiagrams=[taylor.Gtd()]
+t=taylor.Gtd("default")
+
 
 canvaslist = []
 #meshfills=[meshfill.Gfm()]
