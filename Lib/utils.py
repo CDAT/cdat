@@ -34,6 +34,8 @@ def dumpToDict(obj,skipped=[],must=[]):
               "colormap":set(),
               "projection":set(),
               }
+  if isinstance(obj,(vcs.taylor.TDMarker,vcs.taylor.Gtd)):
+    del(associated["line"])
   associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
