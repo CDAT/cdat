@@ -98,6 +98,7 @@ else:
             if   caxis_name == lev_axis_name:
                 caxis.designateLevel()
                 caxis.units = "indexed"
+                caxis.top_to_bottom = True
             elif caxis_name == time_axis_name:
                 caxis.designateTime()
                 caxis.units = "indexed"
@@ -119,5 +120,8 @@ hfile.close()
 x=vcs.init()
 dv3d = vcs.get3d_scalar()
 dv3d.NumCores = 1
-x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0 ) #, level_range=[0,176] )
+dv3d.VerticalScaling = 0.05
+dv3d.ToggleVolumePlot = vcs.on
+dv3d.ToggleSphericalProj = vcs.off
+x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0, level_range=[76,176] )
 x.interact()

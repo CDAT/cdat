@@ -295,7 +295,7 @@ class CPCPlot( DV3DPlot ):
         sphere.SetCenter( center )        
         self.sphere_actor.GetProperty().SetColor(color)
 
-    def createSphere(self, center=(0,0,0), radius=0.2 ):
+    def createSphere(self, center=(0,0,0), radius=0.1 ):
         self.sphere_source = vtk.vtkSphereSource()
         self.sphere_source.SetCenter(center)
         self.sphere_source.SetRadius(radius)        
@@ -311,30 +311,39 @@ class CPCPlot( DV3DPlot ):
         shift = caller.GetShiftKey()
         if not shift: return
         x, y = caller.GetEventPosition()
-        print "Executing pick."
+        print "Executing pick:"
         picker = caller.GetPicker()
         picker.Pick( x, y, 0, self.renderer )
         actor = picker.GetActor()
-        if actor:
-            iPt = picker.GetPointId()
+        iPt = picker.GetPointId()
+        print "PointId: ", str( iPt )
+        if actor is not None:
             if iPt >= 0:
                 if self.partitioned_point_cloud and self.partitioned_point_cloud.hasActiveCollections():                
                     pick_pos, dval = self.partitioned_point_cloud.getPoint( actor, iPt ) 
-                    color = self.getColormapManager('Slice').getColor( dval )
-                    self.configSphere( pick_pos, color )
                 else:
-                    pick_pos, dval = self.point_cloud_overview.getPoint( iPt ) 
+                    pick_pos, dval = self.point_cloud_overview.getPoint( iPt )
+
+                color = self.getColormapManager('Slice').getColor( dval )
+                self.configSphere( pick_pos, color )
+
 #                 if self.topo == PlotType.Spherical:
 #                     pick_pos = glev.vtk_points_data.GetPoint( iPt )
 #                 else:
 #                     pick_pos = picker.GetPickPosition()                                     
-                if pick_pos:        text = " Point[%d] ( %.2f, %.2f ): %s " % ( iPt, pick_pos[0], pick_pos[1], dval )
+                if pick_pos:
+                    text = " Point[%d] ( %.2f, %.2f ): %s " % ( iPt, pick_pos[0], pick_pos[1], dval )
+                    nz = self.level_range[1] - self.level_range[0]
+                    iXY = iPt / nz
+                    iZ = iPt % nz
+                    print " ----> iz = %d, iXY = %d " % ( iZ, iXY )
                 else:               text = "No Pick"
                 self.updateTextDisplay( text )
                 
 #                 if self.configDialog.plotting():
 #                     tseries = self.partitioned_point_cloud.getTimeseries( actor, iPt ) 
-#                     self.configDialog.pointPicked( tseries, pick_pos )       
+#                     self.configDialog.pointPicked( tseries, pick_pos )
+        else: print>>sys.stderr, "No actor found! "
             
     def toggleTopo( self, **args ):
         state = args.get( 'state', None )
@@ -1275,7 +1284,7 @@ class CPCPlot( DV3DPlot ):
         self.createRenderer()
         self.low_res_actor = self.point_cloud_overview.actor
         self.renderer.AddActor( self.low_res_actor )
-#        self.pointPicker.AddPickList( self.low_res_actor )
+        self.pointPicker.AddPickList( self.low_res_actor )
         
         if self.partitioned_point_cloud:
             for point_cloud in  self.partitioned_point_cloud.values():     

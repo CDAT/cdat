@@ -445,9 +445,12 @@ class DV3DPlot():
             mdataStrs = [ '"ctest"' ]
             roi = self.cfgManager.getMetadata('roi')
             if roi: mdataStrs.append( ' roi=%s' % str( roi ) )
-            cdmsfile = self.cfgManager.getMetadata('cdmsfile')
-            filename = os.path.basename(cdmsfile)
-            mdataStrs.append( ' file="%s"' % filename )
+            try:
+                cdmsfile = self.cfgManager.getMetadata('cdmsfile')
+                filename = os.path.basename(cdmsfile)
+                mdataStrs.append( ' file="%s"' % filename )
+            except: print>>sys.stderr, "No file defined for this cdms variable"
+
             var_list = []
             for input_index in range(0,5):
                 input_ispec = self.getInputSpec( input_index )
@@ -804,8 +807,10 @@ class DV3DPlot():
             self.renderWindow.SetSize( self.renderWindowInitSize )                             
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
-        try:        self.pointPicker.SetUseCells(True)  
-        except:     print>>sys.stderr,  "Warning, vtkPointPicker patch not installed, picking will not work properly."
+        try:
+             self.pointPicker.SetUseCells(True)
+        except:
+             print>>sys.stderr,  "Warning, vtkPointPicker patch not installed, picking will not work properly."
         self.pointPicker.InitializePickList()             
         self.renderWindowInteractor.SetPicker(self.pointPicker) 
         self.addObserver( self.renderer, 'ModifiedEvent', self.activateEvent )

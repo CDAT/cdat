@@ -23,9 +23,6 @@ class StructuredGridPlot(DV3DPlot):
         self.isValid = True
         self.configDialog = None
         self.stereoEnabled = 0
-        self.inputSpecs = {}
-
-
         self.pipelineBuilt = False
         self.baseMapActor = None
         self.enableBasemap = True

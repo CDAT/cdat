@@ -110,7 +110,6 @@ class MultiVarPointCollection():
         return None
        
     def applyVariableValueMask(self, var_data ):
-        print dir(var_data)
         var_data = numpy.ma.MaskedArray( var_data.data, var_data._mask )
 
         if self.missing_value:
@@ -138,7 +137,8 @@ class MultiVarPointCollection():
             print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
         else:
             iLevIndex = self.getCoordIndex( var, 'z' )
-            var = numpy.ma.MaskedArray( var.data, var.mask )
+            try: var = numpy.ma.MaskedArray( var.data, var.mask )
+            except: pass
             if self.lev is None:
                 if len( var.shape ) == 2:
                     np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ]
@@ -162,10 +162,15 @@ class MultiVarPointCollection():
                         if not isNone( self.roi_mask ):
                             np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
                 elif len( var.shape ) == 4:
+                    try:    top_to_bottom = self.lev.top_to_bottom
+                    except: top_to_bottom = False
                     lev_data_arrays = []
                     for ilev in range( *self.level_range ):
-                        data_z_slice = var[ self.iTimeStep, ilev ].flatten()
-                        lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
+                        if   iLevIndex == 1: data_z_slice = var[ self.iTimeStep, ilev, :, :  ].flatten()
+                        elif iLevIndex == 2: data_z_slice = var[ self.iTimeStep, :, ilev, :  ].flatten()
+                        elif iLevIndex == 3: data_z_slice = var[ self.iTimeStep, :, :, ilev  ].flatten()
+                        if top_to_bottom:   lev_data_arrays.insert( 0, data_z_slice[self.istart::self.istep] )
+                        else:               lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                     np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )     
 #            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s, type = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape), np_var_data_block.__class__.__name__ )
                         
