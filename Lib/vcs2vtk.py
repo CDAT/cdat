@@ -407,6 +407,20 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+
+  # The dataset has some duplicate lines that extend outside of x=[-180, 180],
+  # which will cause wrapping artifacts for certain projections (e.g.
+  # Robinson). Clip out the duplicate data:
+  box = vtk.vtkBox()
+  box.SetXMin(-180., -90., 0.)
+  box.SetXMax(180., 90., 1.)
+  clipper = vtk.vtkClipPolyData()
+  clipper.SetInputData(poly)
+  clipper.InsideOutOn()
+  clipper.SetClipFunction(box)
+  clipper.Update()
+  poly = clipper.GetOutput()
+
   vcsContinents[fnm]=poly
   return poly
 
