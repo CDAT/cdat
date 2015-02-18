@@ -570,17 +570,21 @@ def checkTextsList(self,name,value):
      for v in value:
           if v in range(1,10):
                hvalue.append(v)
-          elif ((queries.istexttable(v)==1) and
-                (queries.istextorientation(v)==0)):
-               name='__Tt__.'+ v.name
-               hvalue.append(name)
-          elif ((queries.istexttable(v)==0) and
-                (queries.istextorientation(v)==1)):
-               name='__To__.'+ v.name
-               hvalue.append(name)
-          elif (queries.istextcombined(v)==1):
-               name=v.Tt_name + '__' + v.To_name
-               hvalue.append(name)
+          elif queries.istexttable(v):
+               hvalue.append(v)
+          elif queries.istextorientation(v):
+               hvalue.append(v)
+          elif queries.istextcombined(v):
+               hvalue.append(v)
+          elif isinstance(v,str):
+              if v in vcs.listelements("textcombined"):
+                  hvalue.append(vcs.gettextcombined(v))
+              elif v in vcs.listelements("texttable"):
+                  hvalue.append(vcs.gettexttable(v))
+              elif v in vcs.listelements("textorientation"):
+                  hvalue.append(vcs.gettextorientation(v))
+              else:
+                  checkedRaise(self,value,ValueError,"text attributes can be either a textcombined object, a texttable object a textorientation object or a string of the name on one such objects (checked in that order)")
      return hvalue
 
 def checkLegend(self,name,value):
