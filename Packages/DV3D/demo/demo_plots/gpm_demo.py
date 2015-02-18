@@ -119,5 +119,5 @@ hfile.close()
 x=vcs.init()
 dv3d = vcs.get3d_scalar()
 dv3d.NumCores = 1
-x.plot( v, dv3d, maxNumSerialPoints=50000000 )
+x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0 ) #, level_range=[0,176] )
 x.interact()

@@ -83,6 +83,7 @@ class MultiVarPointCollection():
         self.vars = {} 
         self.thresholdTargetType = None
         self.selected_index_array = None
+        self.value_bounds = None
 
     def setROI( self, ROI ):
         self.roi = ROI
@@ -91,6 +92,8 @@ class MultiVarPointCollection():
     def configure(self, **args ):
         self.maxStageHeight = args.get('maxStageHeight', self.maxStageHeight )
         self.roi = args.get('roi', None )
+        self.value_bounds = args.get('vthresh', None )
+        self.level_range = args.get('level_range', None )
         
     def getGridType(self):
         return self.point_layout
@@ -106,59 +109,87 @@ class MultiVarPointCollection():
     def getCoordDataBlock( self, var ):
         return None
        
+    def applyVariableValueMask(self, var_data ):
+        print dir(var_data)
+        var_data = numpy.ma.MaskedArray( var_data.data, var_data._mask )
+
+        if self.missing_value:
+            var_data = numpy.ma.masked_values( var_data, self.missing_value, 0.0, 1e-08, False )
+
+        if (self.value_bounds is not None):
+            if hasattr( self.value_bounds, '__iter__' ) and len( self.value_bounds ) > 1:
+                if self.value_bounds[0] is None:
+                    value_mask = numpy.less_equal( var_data, self.value_bounds[1] )
+                else:
+                    value_mask = numpy.logical_and( numpy.greater_equal( var_data, self.value_bounds[0] ), numpy.less_equal( var_data, self.value_bounds[1] ) )
+            else:
+                if hasattr( self.value_bounds, '__iter__' ):
+                    if len( self.value_bounds ) == 0: return None
+                    self.value_bounds = self.value_bounds[0]
+                value_mask = numpy.less_equal( var_data, self.value_bounds )
+            var_data = numpy.ma.MaskedArray( var_data, value_mask )
+
+        return var_data
+
     def getDataBlock( self, var ):
         np_var_data_block = None
         iTimeIndex = self.getCoordIndex( var, 't' )
-        if iTimeIndex <> 0:  
+        if iTimeIndex <> 0:
             print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
         else:
-            if self.lev == None:
+            iLevIndex = self.getCoordIndex( var, 'z' )
+            var = numpy.ma.MaskedArray( var.data, var.mask )
+            if self.lev is None:
                 if len( var.shape ) == 2:
-                    np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ].data
+                    np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ]
                     if self.roi_mask <> None:
                         np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
                 elif len( var.shape ) == 3:
-                    np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
+                    np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ]
                     np_var_data_block = np_var_data_block.reshape( [ np_var_data_block.shape[0] * np_var_data_block.shape[1], ] )
                 self.nLevels = 1
             else:
-                iLevIndex = self.getCoordIndex( var, 'z' )
-                if len( var.shape ) == 3: 
-                    if iLevIndex == 1:              
-                        np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
-                    elif iLevIndex == 2:     
-                        np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, : ].data
+                if self.level_range is None: self.level_range = [ 0, len( self.lev ) ]
+                if len( var.shape ) == 3:
+                    if iLevIndex == 1:
+                        np_var_data_block = var[ self.iTimeStep, self.level_range[0]:self.level_range[1], self.istart::self.istep ]
+                    elif iLevIndex == 2:
+                        np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, self.level_range[0]:self.level_range[1] ]
                         np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                     else:
                         print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
                     if not isNone( np_var_data_block ):
-                        if not isNone( self.roi_mask ): 
+                        if not isNone( self.roi_mask ):
                             np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
                 elif len( var.shape ) == 4:
                     lev_data_arrays = []
-                    for ilev in range( var.shape[1] ):                       
+                    for ilev in range( *self.level_range ):
                         data_z_slice = var[ self.iTimeStep, ilev ].flatten()
                         lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                     np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )     
 #            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s, type = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape), np_var_data_block.__class__.__name__ )
                         
-            if not isNone( np_var_data_block ):                
-                if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
-                else:                   np_var_data_block = np_var_data_block.flatten()
-                
+            if not isNone( np_var_data_block ):
+                np_var_data_block = self.applyVariableValueMask( np_var_data_block )
+                np_var_data_block = np_var_data_block.flatten()
+                min_val = np_var_data_block.min()
+                max_val = np_var_data_block.max()
+                print "@@@@@@@@@@@@@ Var data block, range = ", str( [min_val,max_val] )
+
         return np_var_data_block
 
     def getTimeseries( self, var, pointIndex, iLevel = -1 ):
         np_var_data_block = None
+        var = numpy.ma.MaskedArray( var.data, var.mask )
         if self.lev == None:
-            np_var_data_block = var[ :, pointIndex ].data
+            np_var_data_block = var[ :, pointIndex ]
         else:
             iLevIndex = self.getCoordIndex( var, 'z' )
             if len( var.shape ) == 3: 
                 if iLevIndex == 1:              
-                    np_var_data_block = var[ :, iLevIndex, pointIndex ].data
+                    np_var_data_block = var[ :, iLevIndex, pointIndex ]
                 elif iLevIndex == 2:     
-                    np_var_data_block = var[ :, pointIndex, iLevIndex ].data
+                    np_var_data_block = var[ :, pointIndex, iLevIndex ]
                     np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                 else:
                     print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
@@ -167,33 +198,36 @@ class MultiVarPointCollection():
     
     def processCoordinates( self, lat, lon ):
 #        print "Process Coordinates, lat = %s%s, lon = %s%s " % ( lat.id, str(lat.shape), lon.id, str(lon.shape)  )
-        nz = len( self.lev ) if self.lev else 1
+        nz = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
         if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
         lat = lat.flatten()
         lon = lon.flatten()
+        self.roi_mask = None
         if lon.__class__.__name__ == "TransientVariable":
             self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
             self.lon_data = lon[self.istart::self.istep]
         else:
             self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
             self.lon_data = lon[self.istart::self.istep] 
-        if ( self.point_layout == PlotType.List ) and ( self.roi <> None ):
-            if ( self.roi[2] <= 0.0 ) and ( self.lon_data.data.min() >= 0.0 ):
-                self.roi = [ self.roi[0]+360.0, self.roi[1], self.roi[2]+360.0, self.roi[3] ]
-            if ( self.roi[0] > 180.0 ) and ( self.lon_data.data.max() <= 180.0 ):
-                self.roi = [ self.roi[0]-360.0, self.roi[1], self.roi[2]-360.0, self.roi[3] ]
-            lat_roi_mask = numpy.logical_and( self.lat_data > self.roi[1], self.lat_data < self.roi[3] )
-            lon_roi_mask = numpy.logical_and( self.lon_data > self.roi[0], self.lon_data < self.roi[2] )
-            self.roi_mask = numpy.logical_and( lat_roi_mask, lon_roi_mask )
-            if self.roi_mask.any():
-                self.lat_data = numpy.compress( self.roi_mask, self.lat_data )
-                self.lon_data = numpy.compress( self.roi_mask, self.lon_data )
-            else:
-                print>>sys.stderr, "Ignoring empty ROI"
-                self.roi_mask = None
-        else: 
-            self.roi_mask = None
+        if ( self.point_layout == PlotType.List ) :
+
+            if ( self.roi <> None ):
+                if ( self.roi[2] <= 0.0 ) and ( self.lon_data.data.min() >= 0.0 ):
+                    self.roi = [ self.roi[0]+360.0, self.roi[1], self.roi[2]+360.0, self.roi[3] ]
+                if ( self.roi[0] > 180.0 ) and ( self.lon_data.data.max() <= 180.0 ):
+                    self.roi = [ self.roi[0]-360.0, self.roi[1], self.roi[2]-360.0, self.roi[3] ]
+                lat_roi_mask = numpy.logical_and( self.lat_data > self.roi[1], self.lat_data < self.roi[3] )
+                lon_roi_mask = numpy.logical_and( self.lon_data > self.roi[0], self.lon_data < self.roi[2] )
+                self.roi_mask = numpy.logical_and( lat_roi_mask, lon_roi_mask )
+
+                if self.roi_mask.any():
+                    self.lat_data = numpy.compress( self.roi_mask, self.lat_data )
+                    self.lon_data = numpy.compress( self.roi_mask, self.lon_data )
+                else:
+                    print>>sys.stderr, "Ignoring empty ROI"
+                    self.roi_mask = None
+
         if self.lat_data.__class__.__name__ == "TransientVariable":
             self.lat_data = self.lat_data.data.flatten()
             self.lon_data = self.lon_data.data.flatten()
@@ -246,7 +280,7 @@ class MultiVarPointCollection():
             ascending = self.levelsAreAscending()
             stage_height = ( self.maxStageHeight * z_scaling )
             
-            nz = len( self.lev ) if self.lev else 1
+            nz = self.level_range[1] - self.level_range[0]
             if height_varname and (height_varname <> self.hgt_var) and (height_varname <> 'Levels' ):
                 hgt_var = self.getProcessedVariable( height_varname )
                 if hgt_var:
@@ -284,7 +318,7 @@ class MultiVarPointCollection():
         return self.getBounds() if ( axis == None ) else self.axis_bounds[ axis ]                 
 
     def computePoints( self, **args ):
-        nz = len( self.lev ) if self.lev else 1
+        nz = self.level_range[1] - self.level_range[0]
         if self.point_layout == PlotType.List:
             self.point_data_arrays['x'] = numpy.tile( self.lon_data.flatten().astype( numpy.float32 ), nz )
             self.point_data_arrays['y'] = numpy.tile( self.lat_data.flatten().astype( numpy.float32 ), nz )
@@ -493,7 +527,9 @@ class MultiVarPointCollection():
                         break 
             if self.lev <> None: 
                 self.vars[ 'lev' ] = self.lev
-            self.computePoints() 
+            var_data = self.getDataBlock( self.var )
+
+            self.computePoints()
             self.point_data_arrays[ 'lon' ] = self.point_data_arrays['x']                                
             self.point_data_arrays[ 'lat' ] = self.point_data_arrays['y']                            
             self.setPointHeights( height_var=self.grid_coords[3], z_scale=z_scale )
@@ -502,8 +538,7 @@ class MultiVarPointCollection():
                 self.point_data_arrays[ 'lev' ] = self.point_data_arrays['z'] 
 
             self.vars[ varname ] = self.var
-            var_data = self.getDataBlock( self.var )
-            if not isNone( var_data ):  
+            if not isNone( var_data ):
                 self.point_data_arrays[ varname ] = var_data
                 vrng = ( var_data.min(), var_data.max() )
                 self.vrange[ varname ] = vrng 
@@ -539,7 +574,7 @@ class MultiVarPointCollection():
         return self.thresholdTargetType
         
     def getNLevels(self):
-        return len( self.lev ) if self.lev else 1
+        return (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
     
     def computeThresholdRange( self, args ):
 #        print " computeThresholdRange: ", str( args )
@@ -582,7 +617,7 @@ class MultiVarPointCollection():
                         vmax = rmax                  
                 if not vmin is None:
                     if ( var_data_id == 'z' ):
-                        nLev = len( self.lev )
+                        nLev = self.level_range[1]-self.level_range[0]
                         rave = (rmin + rmax)/2
                         iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  ) 
                         lev_val = self.lev[ iLev ]

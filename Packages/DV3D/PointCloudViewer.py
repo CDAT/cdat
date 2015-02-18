@@ -1364,17 +1364,19 @@ class CPCPlot( DV3DPlot ):
         init_args = args.get( 'init', None )                  
         n_overview_points = args.get( 'n_overview_points', 500000 )    
         n_subproc_points = args.get( 'n_subproc_points', 500000 )  
-        n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )    
+        n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )
+        vthresh = args.get( 'vthresh', None )
+        level_range =  args.get( 'level_range', None )
         self.point_cloud_overview = vtkLocalPointCloud( 0, max_points=n_overview_points ) 
         lut = self.getLUT('Slice')
-        self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
+        self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight, vthresh=vthresh, level_range=level_range  )
         nInputPoints = self.point_cloud_overview.getNumberOfInputPoints()
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
         nPartitions = min( nInputPoints / n_subproc_points, 10  )
         nCollections = min( nPartitions, n_cores-1 )
-        print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
-        self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
-        self.defvar =  init_args[3]
+        # print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
+        self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight, vthresh=vthresh, level_range=level_range  )
+        self.setDefvar( init_args[3] )
         self.vertVar = None
         self.fetchPlotButtons()
         self.initializeConfiguration()       
@@ -1387,6 +1389,10 @@ class CPCPlot( DV3DPlot ):
 #             cfgInterface.activate()
             
         self.start()
+
+    def setDefvar( self, target ):
+        if isinstance(target,(list,tuple)): target = target[0]
+        self.defvar =  target if ( isinstance(target, str ) ) else target.id
 
     def initializePlots(self):         
         DV3DPlot.initializePlots(self)

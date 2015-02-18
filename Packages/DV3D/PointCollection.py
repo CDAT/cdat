@@ -94,7 +94,7 @@ class PointCollection():
     def processCoordinates( self, lat, lon ):
 #        print "Process Coordinates, lat = %s%s, lon = %s%s " % ( lat.id, str(lat.shape), lon.id, str(lon.shape)  )
         self.point_layout = self.getPointsLayout()
-        nz = len( self.lev ) if self.lev else 1
+        nz = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
         if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
         if lon.__class__.__name__ == "TransientVariable":
@@ -153,7 +153,7 @@ class PointCollection():
             ascending = self.levelsAreAscending()
             stage_height = ( self.maxStageHeight * z_scaling )
             
-            nz = len( self.lev ) if self.lev else 1
+            nz = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
             if height_varname and (height_varname <> self.hgt_var) and (height_varname <> 'Levels' ):
                 hgt_var = self.df[ height_varname ]
                 if hgt_var:
@@ -192,7 +192,7 @@ class PointCollection():
         return self.var.id       
 
     def computePoints( self, **args ):
-        nz = len( self.lev ) if self.lev else 1
+        nz = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
         if self.point_layout == PlotType.List:
             self.point_data_arrays['x'] = numpy.tile( self.lon_data.astype( numpy.float32 ), nz ) 
             self.point_data_arrays['y'] = numpy.tile( self.lat_data.astype( numpy.float32 ), nz )  
@@ -413,7 +413,7 @@ class PointCollection():
         return self.threshold_target
     
     def getNLevels(self):
-        return len( self.lev ) if self.lev else 1
+        return (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
     
     def computeThresholdRange( self, args ):
         try:
@@ -438,7 +438,7 @@ class PointCollection():
                     pass
             if vmin <> None:
                 if ( self.threshold_target == 'z' ):
-                    nLev = len( self.lev )
+                    nLev = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
                     rave = (rmin + rmax)/2
                     iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  ) 
                     lev_val = self.lev[ iLev ]
