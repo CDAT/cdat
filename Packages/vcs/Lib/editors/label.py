@@ -2,6 +2,7 @@ import point
 import vcs
 import inspect
 import text
+from functools import partial
 
 __valign_map__ = {
     0: 0,
@@ -42,18 +43,10 @@ class LabelEditor(point.PointEditor):
 
         font_toolbar = self.toolbar.add_toolbar("Fonts")
 
-        font_buttons = {}
+        self.font_buttons = {}
 
         def font_setter(font):
-            def set_font():
-                current_font = vcs.getfontname(self.tt.font)
-                if font != current_font:
-                    font_buttons[current_font].set_state(0)
-                self.tt.font = font
-                font_buttons[font].set_state(1)
-                self.configurator.changed = True
-                self.save()
-            return set_font
+            return partial(self.set_font, font)
 
         deactivate = font_setter("default")
 
@@ -66,13 +59,22 @@ class LabelEditor(point.PointEditor):
 
             if vcs.elements["fontNumber"][self.tt.font] == font:
                 button.set_state(1)
-            font_buttons[font] = button
+            self.font_buttons[font] = button
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
 
         self.label.texttable = self.tt.name
         self.label.textorientation = self.to.name
+
+    def set_font(self, font):
+        current_font = vcs.getfontname(self.tt.font)
+        if font != current_font:
+            self.font_buttons[current_font].set_state(0)
+        self.tt.font = font
+        self.font_buttons[font].set_state(1)
+        self.configurator.changed = True
+        self.save()
 
     def halign(self, state):
         self.to.halign = state

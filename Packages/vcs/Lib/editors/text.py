@@ -5,6 +5,15 @@ from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
+from functools import partial
+
+__valign_map__ = {
+    0: 0,
+    1: 0,
+    2: 1,
+    3: 2,
+    4: 2,
+}
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
     def __init__(self, interactor, text, index, configurator):
@@ -24,39 +33,26 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
         self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height)
-        halign_bar = self.toolbar.add_toolbar("Horizontal Align")
 
-        self.left_align_button = halign_bar.add_toggle_button("Left Align", on=self.align_left, off=self.dealign_left)
-        self.center_align_button = halign_bar.add_toggle_button("Center Align", on=self.align_center, off=self.dealign_center)
-        self.right_align_button = halign_bar.add_toggle_button("Right Align", on=self.align_right, off=self.dealign_right)
-
-        valign_bar = self.toolbar.add_toolbar("Vertical Align")
-
-        self.top_align_button = valign_bar.add_toggle_button("Top Align", on=self.align_top, off=self.dealign_top)
-        self.half_align_button = valign_bar.add_toggle_button("Half Align", on=self.align_half, off=self.dealign_half)
-        self.bottom_align_button = valign_bar.add_toggle_button("Bottom Align", on=self.align_bottom, off=self.dealign_bottom)
+        halign = self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
+        valign = self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+        halign.set_state(self.text.halign)
+        valign.set_state(__valign_map__[self.text.valign])
 
         self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle)
         self.fonts = sorted(vcs.elements["font"].keys())
 
         font_toolbar = self.toolbar.add_toolbar("Fonts")
 
-        font_buttons = {}
+        self.font_buttons = {}
 
         def font_setter(font):
-            def set_font():
-                current_font = vcs.getfontname(self.text.font)
-                if font != current_font:
-                    font_buttons[current_font].set_state(0)
-                self.text.font = font
-                font_buttons[font].set_state(1)
-                self.update()
-            return set_font
+            return partial(self.set_font, font)
 
         deactivate = font_setter("default")
 
         for ind, font in enumerate(self.fonts):
-            # Math fonts render unintelligbly
+
             if font[:4] != "Math":
                 button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
             else:
@@ -64,17 +60,23 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
             if vcs.elements["fontNumber"][self.text.font] == font:
                 button.set_state(1)
-            font_buttons[font] = button
+            self.font_buttons[font] = button
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
 
-
-
         super(TextEditor, self).__init__()
         self.register()
-        self.toggle_halign_buttons()
-        self.toggle_valign_buttons()
+        self.update()
+
+    def set_font(self, font):
+        current_font = vcs.getfontname(self.text.font)
+        if font != current_font:
+            self.font_buttons[current_font].set_state(0)
+        self.text.font = font
+        self.font_buttons[font].set_state(1)
+        self.configurator.changed = True
+        self.save()
 
     def get_object(self):
         return self.text
@@ -243,80 +245,21 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.text.priority = self.old_priority
         self.toolbar.detach()
 
-    def toggle_halign_buttons(self):
-        halign = self.text.halign
-        buttons = [self.left_align_button, self.right_align_button, self.center_align_button]
+    def halign(self, state):
+        self.to.halign = state
+        self.configurator.changed = True
+        self.save()
 
-        if halign in ("left", 0):
-            states = [1, 0, 0]
-        elif halign in ("right", 2):
-            states = [0, 1, 0]
-        else:
-            states = [0, 0, 1]
-
-        for state, button in zip(states, buttons):
-            button.set_state(state)
+    def valign(self, state):
+        if state == 0:
+            self.to.valign = 0
+        elif state == 1:
+            self.to.valign = 2
+        elif state == 2:
+            self.to.valign = 3
 
         self.configurator.changed = True
-        self.update()
-
-    def toggle_valign_buttons(self):
-        valign = self.text.valign
-        buttons = [self.top_align_button, self.bottom_align_button, self.half_align_button]
-
-        if valign in ("top", 0, 'cap', 1):
-            states = [1, 0, 0]
-        elif valign in ("bottom", 'base', 3, 4):
-            states = [0, 1, 0]
-        else:
-            states = [0, 0, 1]
-
-        for state, button in zip(states, buttons):
-            button.set_state(state)
-        self.configurator.changed = True
-        self.update()
-
-
-    def align_left(self):
-        self.text.halign = "left"
-        self.toggle_halign_buttons()
-    def dealign_left(self):
-        self.toggle_halign_buttons()
-
-    def align_center(self):
-        self.text.halign = "center"
-        self.toggle_halign_buttons()
-
-    def dealign_center(self):
-        self.text.halign = "left"
-        self.toggle_halign_buttons()
-
-    def align_right(self):
-        self.text.halign = "right"
-        self.toggle_halign_buttons()
-    def dealign_right(self):
-        self.text.halign = "left"
-        self.toggle_halign_buttons()
-
-    def align_top(self):
-        self.text.valign = "top"
-        self.toggle_valign_buttons()
-    def dealign_top(self):
-        self.toggle_valign_buttons()
-
-    def align_half(self):
-        self.text.valign = "half"
-        self.toggle_valign_buttons()
-    def dealign_half(self):
-        self.text.valign = "top"
-        self.toggle_valign_buttons()
-
-    def align_bottom(self):
-        self.text.valign = "bottom"
-        self.toggle_valign_buttons()
-    def dealign_bottom(self):
-        self.text.valign = "top"
-        self.toggle_valign_buttons()
+        self.save()
 
     def update_angle(self, value):
         self.text.angle = int(value)
