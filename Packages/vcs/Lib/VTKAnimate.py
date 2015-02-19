@@ -85,4 +85,4 @@ class VTKAnimate(animate_helper.AnimationController):
         self.vcs_self.png(png_name)
         self.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
       if self.signals is not None:
-        self.signals.drawn.emit(frame_num)
+        self.signals.drawn.emit(self.frame_num)
