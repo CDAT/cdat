@@ -2,7 +2,7 @@ from button import ToggleButton, SliderButton, ButtonState, Button
 
 class Toolbar(object):
 
-    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", close_label="Close", button_margin=5, parent=None, save=None):
+    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", on_open=None, close_label="Close", button_margin=5, parent=None, save=None):
         
         self.save = save
         self.interactor = interactor
@@ -11,7 +11,7 @@ class Toolbar(object):
         self.left = left
         self.top = top
         self.label = ToggleButton(self.interactor, label, on=self.__on__, off=self.__off__, on_prefix=open_label, off_prefix=close_label, left=self.left - self.margin, top=self.top)
-        
+        self.on_open = on_open
         self.vertical = vertical
 
         if parent is None:
@@ -47,6 +47,8 @@ class Toolbar(object):
 
     def __on__(self):
         self.open = True
+        if self.on_open is not None:
+            self.on_open()
         self.show_widgets()
 
     def __off__(self):
