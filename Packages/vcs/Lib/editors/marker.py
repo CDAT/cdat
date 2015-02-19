@@ -31,7 +31,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.toolbar.show()
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
-        self.toolbar.add_slider_button(marker.size[index], 1, 300, "Marker Size", end=self.set_size)
+        self.toolbar.add_slider_button(marker.size[index], 1, 300, "Marker Size", update=self.set_size)
 
         self.type_bar = self.toolbar.add_toolbar("Marker Type", open_label="Change")
 
@@ -75,7 +75,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
     def update_shape(self):
         # Update the glyph for the marker to reflect the new shape
         self.glyph_source, self.polydata = vcs.vcs2vtk.prepGlyph(self.glyph, self.marker, self.index)
-        self.display.backend["vtk_backend_marker_actors"] = (self.glyph, self.glyph_source, self.polydata, self.actor, self.geo)
+        self.display.backend["vtk_backend_marker_actors"][self.index] = (self.glyph, self.glyph_source, self.polydata, self.actor, self.geo)
         # Have to rescale the glyph now... work that out later with charles
         self.interactor.GetRenderWindow().Render()
 
@@ -97,8 +97,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def set_size(self, size):
         self.marker.size[self.index] = size
-        self.configurator.changed = True
-        self.save()
+        self.update_shape()
 
     def change_color(self, state):
         if self.picker:
@@ -110,9 +109,9 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.marker.colormap = colormap
         self.marker.color[self.index] = color
         del self.picker
-        self.configurator.changed = True
         self.picker = None
-        self.save()
+        vcs.vcs2vtk.setMarkerColor(self.actor.GetProperty(), self.marker, self.marker.color[self.index])
+        self.interactor.GetRenderWindow().Render()
 
     def cancel_color(self):
         del self.picker
@@ -128,9 +127,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             self.marker.x[self.index].append(x)
             self.marker.y[self.index].append(y)
             self.configurator.changed = True
-            self.save_points()
-        else:
-            self.deactivate()
+            self.sync_positions()
 
     def adjust(self, handle, x, y):
         ind = self.handles.index(handle)
@@ -174,7 +171,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
                 self.delete()
                 return
 
-            self.save()
+            self.sync_positions()
 
     def detach(self):
         self.unregister()
@@ -191,6 +188,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.configurator.delete(self.marker, self.index)
         self.configurator.deactivate(self)
 
+
     def sync_positions(self):
         # Sync all points
         points = vtk.vtkPoints()
@@ -199,30 +197,36 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.glyph.GetInput().SetPoints(points)
         self.interactor.GetRenderWindow().Render()
 
+__shape_cache = {}
 
 def marker_shapes():
     # Returns all shapes that are supported (skips star for now), indexed numerically
     shapes = []
     for i in xrange(1, 20):
-        try:
-            val = checkMarker(None, "type", i)
-            # Star is busted right now, add it back in once it's fixed
-            shapes.append(val)
-        except ValueError:
-            pass
+        if i in __shape_cache:
+            shapes.append(__shape_cache[i])
+        else:
+            try:
+                val = checkMarker(None, "type", i)
+                shapes.append(val)
+                __shape_cache[i] = val
+            except ValueError:
+                pass
     return shapes
 
 def wmo_shapes():
     wmo = []
     for i in xrange(100, 203):
-        try:
-            val = checkMarker(None, "type", i)
-            wmo.append(val)
-        except ValueError:
-            pass
+        if i in __shape_cache:
+            wmo.append(__shape_cache[i])
+        else:
+            try:
+                val = checkMarker(None, "type", i)
+                wmo.append(val)
+                __shape_cache[i] = val
+            except ValueError:
+                pass
     return wmo
-
-
 
 def inside_marker(marker, x, y, screen_width, screen_height, index=None):
     if index is None:
