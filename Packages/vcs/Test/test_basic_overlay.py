@@ -10,10 +10,10 @@ if interact:
   i = vtk.vtkRenderWindowInteractor()
   i.SetRenderWindow(renWin)
   i.Initialize()
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
 s=f("clt")
 s2 = f("u")
-#f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
+#f=cdms2.open(os.path.join(vcs.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
 x.backgroundcolor = 65*2.55,65*2.55,65*2.55

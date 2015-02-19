@@ -1,7 +1,4 @@
 #!/bin/bash
-# source is not portable where as . is
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-INSTALL_PREFIX=`dirname ${DIR}`
-. $DIR/setup_runtime.sh
-python@PYVER@ $INSTALL_PREFIX/vistrails/vistrails/uvcdat.py $@
-
+# source is not portable whereas . is
+. "@CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh"
+python@PYVER@ "@CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py" "$@"

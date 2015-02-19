@@ -1,7 +1,13 @@
-#!/bin/csh
-
 # Main install prefix set by user or post install script:
 # UVCDAT_INSTALL_PREFIX
+
+setenv UVCDAT_PROMPT_STRING @UVCDAT_PROMPT_STRING@
+if ( $?UVCDAT_PROMPT_BEGINNING ) then
+  set prompt = "[@UVCDAT_PROMPT_STRING@]${prompt}"
+endif
+if ( $?UVCDAT_PROMPT_END ) then
+  set prompt = "${prompt}[@UVCDAT_PROMPT_STRING@]"
+endif
 
 # If unset, use the value configured by cmake by default.
 # Everything beyond this point will be determined relatively

@@ -1,3 +1,4 @@
+import cdat_info
 import cdms2
 import numpy
 import unittest
@@ -19,7 +20,7 @@ class TestCltRegrid(unittest.TestCase):
         """
         2D
         """
-        u = cdms2.open(sys.prefix + '/sample_data/clt.nc')('u')[0, 0,...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[0, 0,...]
         uInterp = u.regrid( u.getGrid() )
         n = reduce(lambda x,y: x*y, uInterp.shape)
         diff = abs(numpy.sum(u - uInterp))/float(n)
@@ -33,7 +34,7 @@ class TestCltRegrid(unittest.TestCase):
         """
         2D + time
         """
-        u = cdms2.open(sys.prefix + '/sample_data/clt.nc')('u')[:, 0,...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[:, 0,...]
         uInterp = u.regrid( u.getGrid() )
         self.assertEqual(numpy.isnan(u).sum(), 0)
         self.assertEqual(numpy.isnan(uInterp).sum(), 0)
@@ -47,7 +48,7 @@ class TestCltRegrid(unittest.TestCase):
         2D + level
         """
         print 'This is a known failure for now. ESMF are looking into the error'
-        u = cdms2.open(sys.prefix + '/sample_data/clt.nc')('u')[0, :,...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[0, :,...]
         uCart = u.regrid( u.getGrid(),
                           regridTool='esmf', regridMethod='linear',
                           coordSys = 'cart',
@@ -104,7 +105,7 @@ class TestCltRegrid(unittest.TestCase):
         """
         2D + level + time
         """
-        u = cdms2.open(sys.prefix + 'sample_data/clt.nc')('u')[:, :,...]
+        u = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('u')[:, :,...]
         uInterp = u.regrid( u.getGrid(),
                             regridTool='esmf', regridMethod='linear',
                             coordSys = 'cart',

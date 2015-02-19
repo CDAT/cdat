@@ -1,4 +1,5 @@
 import unittest
+import cdat_info
 import cdms2
 import regrid2
 import numpy
@@ -6,13 +7,13 @@ import sys
 
 class TestLevelRegridLibCfAndESMP(unittest.TestCase):
     def setUp(self):
-        fso = cdms2.open(sys.prefix + \
+        fso = cdms2.open(cdat_info.get_prefix() + \
                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.soLevel = fso('so')[0,0:5,...]
         self.soTime = fso('so')[:,0,...]
         self.so = fso('so')[:,0:5,...]
 
-        fclt = cdms2.open(sys.prefix + "/sample_data/clt.nc")
+        fclt = cdms2.open(cdat_info.get_prefix() + "/sample_data/clt.nc")
         self.clt = fclt('clt')
 
     def test_gsRegridTimeLevel2D(self):

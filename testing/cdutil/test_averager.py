@@ -1,9 +1,9 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 """This is a set of tests for averager - which can be used to calculate area weighted averages."""
-import cdms2, MV2, numpy, numpy.ma, cdtime, os, sys
+import cdms2, MV2, numpy, numpy.ma, cdtime, os, sys, cdat_info
 from cdutil import area_weights, averager, AveragerError
 cdms2.setAutoBounds('on')
-f=cdms2.open(os.path.join(sys.prefix,'sample_data','tas_ukmo_con.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_ukmo_con.nc'))
 x = f('tas')
 ans = averager(x, axis='yt', weights = ['weighted','equal'], combinewts=1)
 ans = averager(x, axis='yt', weights = ['weighted','equal'], combinewts=1)
@@ -163,7 +163,7 @@ result = averager(x, axis=0)
 #
 # The values in this file were calculated using old routines in CDAT2.4
 #
-fcheck = cdms2.open(os.path.join(sys.prefix,'sample_data','tas_gavg_rnl_ecm.nc'))
+fcheck = cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_gavg_rnl_ecm.nc'))
 start = cdtime.componenttime(1979, 1, 1)
 end =  cdtime.componenttime(1979, 12, 1)
 correct = fcheck('tas', time=(start, end))
@@ -172,7 +172,7 @@ correct = fcheck('tas', time=(start, end))
 # The source for the averages in the above file is the raw data in the file below.
 # The difference in units (degrees C and degrees K) should be the obvious answer.
 #
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','tas_ecm_1979.nc'))
+f = cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_ecm_1979.nc'))
 
 #
 # I can invoke averager by passing the f('tas') as the variable instead of first extracting
@@ -230,7 +230,7 @@ assert MV2.allclose(result2, result3)
 #
 # This test is to verify the action='sum' option
 #
-tasm_file = os.path.join(sys.prefix,'sample_data','tas_cru_1979.nc')
+tasm_file = os.path.join(cdat_info.get_prefix(),'sample_data','tas_cru_1979.nc')
 
 ftasm = cdms2.open(tasm_file)
 xtasm = ftasm('tas')
@@ -250,7 +250,7 @@ assert MV2.allclose(xavg_1, xavg_2)
 #
 # Real world Averager Test #2
 #
-newf = cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
+newf = cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','clt.nc'))
 u = newf('u')
 u2 = averager(u, axis='1')
 u3 = averager(u, axis='(plev)')

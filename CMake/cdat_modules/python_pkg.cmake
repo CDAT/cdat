@@ -13,36 +13,37 @@ add_cdat_package(Python ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_S
 # FIXME: Name style
 set(CDAT_OS_XTRA_PATH "")
 
-set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX})
+set(PYTHON_SITE_PACKAGES_PREFIX ${CMAKE_INSTALL_PREFIX})
 if (APPLE)
-  set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
+  set(PYTHON_SITE_PACKAGES_PREFIX ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
 endif()
-set(PYTHONPATH ${PYTHON_SITE_PACKAGES}/lib/python${PYVER}/site-packages:${PYTHON_SITE_PACKAGES}/lib/python/site-packages)
+set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/lib/python${PYVER}/site-packages)
+set(PYTHONPATH ${PYTHON_SITE_PACKAGES})
 
 if (CDAT_USE_SYSTEM_PYTHON)
-   include(FindPythonInterp)
+   find_package(PythonInterp)
    set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
    # \NOTE This is required or else FindPythonLibs may find whatever version is
    # listed first internally and if that version exists on the system. For example
    # a system might have python version 2.6 and 2.7 both installed.
    set(Python_ADDITIONAL_VERSIONS ${PYVER})
-   include(FindPythonLibs)
+   find_package(PythonLibs)
+   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
    message("[INFO] Using system python ${PYTHON_EXECUTABLE}")
    message("[INFO] Putting packages in directory ${PYTHON_SITE_PACKAGES}")
    set(PYTHON_EXTRA_PREFIX "--prefix=${CMAKE_INSTALL_PREFIX}")
    message("[INFO] Setting up prefix for installing python packages into: ${PYTHON_EXTRA_PREFIX}")
    set(ENV{LD_LIBRARY_PATH} $ENV{LD_LIBRARY_PATH})
    set(PYTHONPATH "${PYTHON_SITE_PACKAGES}:$ENV{PYTHONPATH}")
+   set(ENV{PYTHONPATH} "${PYTHONPATH}")
    message("[INFO] Set PYTHONPATH to $ENV{PYTHONPATH}")
    get_filename_component(PYTHON_EXECUTABLE_PATH ${PYTHON_EXECUTABLE} PATH)
    set(PYTHON_LIBRARY ${PYTHON_LIBRARIES})
    message("[INFO] set PYTHON_LIBRARY TO" ${PYTHON_LIBRARY})
    set(PYTHON_INCLUDE ${PYTHON_INCLUDE_DIRS})
-
    if(APPLE)
      set(CDAT_OS_XTRA_PATH ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
    endif()
-
 else ()
    set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
    message("[INFO] Building python at ${PYTHON_EXECUTABLE}")

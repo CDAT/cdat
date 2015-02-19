@@ -3,6 +3,7 @@ Test mvGenericRegrid class
 $Id: testMvCdmsRegrid.py 2354 2012-07-11 15:28:14Z pletzer $
 """
 
+import cdat_info
 import cdms2
 import numpy
 import unittest
@@ -22,11 +23,11 @@ class Test(unittest.TestCase):
         """
         Set up the grids to pass to mvGenericRegrid
         """
-        f = cdms2.open(sys.prefix + \
+        f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.so = f('so')
 
-        g = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+        g = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
         self.clt = g('clt')
 
     def testSingleTimeSingleElev(self):
@@ -34,7 +35,7 @@ class Test(unittest.TestCase):
         Interpolate over one level/time
         """
     
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
         clt = f('clt')
         v = f('v')[0,0,...]
         
@@ -60,7 +61,7 @@ class Test(unittest.TestCase):
         Interpolate over time and elevation axes
         """
     
-        f = cdms2.open(sys.prefix + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
         clt = f('clt')
         v = f('v')
         

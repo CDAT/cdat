@@ -38,6 +38,8 @@ print statistics.covariance.__doc__
 # First of all let us define our 2 periods of interest
 #
 import cdtime
+import cdat_info
+
 #
 # Period 1 with start at 1980 and end at 1985
 #
@@ -56,7 +58,7 @@ b2 = cdtime.comptime(1995)
 # Let us retrieve data for surface air temperature (tas)
 # for each of these 2 periods we just defined.
 #
-ncep = os.path.join(sys.prefix, 'sample_data', 'tas_mo.nc')
+ncep = os.path.join(cdat_info.get_prefix(), 'sample_data', 'tas_mo.nc')
 f = cdms2.open(ncep)
 
 ncep1 = f('tas', time = (a1, b1, 'co'))
