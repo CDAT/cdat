@@ -895,8 +895,33 @@ class VTKVCSBackend(object):
           mapper.SetLabelVisibility(1)
         else:
           mapper.SetLabelVisibility(0)
-        mapper.GetTextProperty().SetFontSize(12);
-        mapper.GetTextProperty().SetColor(0, 0, 0)
+
+        # Create text properties.
+        if gm.text:
+          colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
+          tprops = vtk.vtkTextPropertyCollection()
+          for tc,colorOverride in zip(gm.text, colorOverrides):
+              # HACK this really needs to be replaced with a standard vcs function
+              # that interprets the many possible forms the isoline.text attribute
+              # supports. This assumes that isoline.text contains a list of tc
+              # objects. If isoline.text contains any other specifications, this
+              # method will fail.
+              # See discussion on issue 926 -- this code should be replaced with
+              # something more flexible as soon as possible.
+              assert isinstance(tc, vcs.textcombined.Tc), \
+                     "isoline.text does not contain solely textcombined objects."
+              tt,to = tuple(tc.name.split(":::"))
+              tprop = vtk.vtkTextProperty()
+              vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
+              tprops.AddItem(tprop)
+
+              mapper.SetTextProperties(tprops)
+        else:
+            # No text properties specified. Use the default:
+            tprop = vtk.vtkTextProperty()
+            vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
+            mapper.SetTextProperty(tprop)
+
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
         mapper.SetInputConnection(stripper.GetOutputPort())

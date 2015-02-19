@@ -792,7 +792,8 @@ def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
 #     clp.Update()
 #     return clp.GetOutput()
 
-def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
+def prepTextProperty(p,winSize,to="default",tt="default",cmap=None,
+                     overrideColorIndex = None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
@@ -805,7 +806,8 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
       cmap = 'default'
   if isinstance(cmap,str):
     cmap = vcs.elements["colormap"][cmap]
-  c=cmap.index[tt.color]
+  colorIndex = overrideColorIndex if overrideColorIndex else tt.color
+  c=cmap.index[colorIndex]
   p.SetColor([C/100. for C in c])
   if to.halign in [0, 'left']:
     p.SetJustificationToLeft()
