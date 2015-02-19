@@ -135,7 +135,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             self.textboxes.append(textbox)
 
     def finished_editing(self, textbox):
-        self.text.string[self.textboxes.index(textbox)] = textbox.text
+        index = self.textboxes.index(textbox)
+        self.text.string[index] = textbox.text
+        self.actors[index].SetInput(textbox.text)
 
     def in_bounds(self, x, y):
         return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
@@ -215,7 +217,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.process_click(clicked_on, x, y)
 
     def deactivate(self):
-
         self.configurator.deactivate(self)
 
     def update_height(self, value):
