@@ -116,6 +116,9 @@ class Label(Widget, DraggableMixin):
 
         self.register()
 
+    def get_text(self):
+        return self.repr.GetText()
+
     def set_text(self, string):
 
         below, above = baseline_offsets(self.actor.GetInput(), string, self.actor.GetTextProperty())

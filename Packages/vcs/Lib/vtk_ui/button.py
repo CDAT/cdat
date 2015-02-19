@@ -101,6 +101,9 @@ class Button(Widget):
         self.update()
         self.subscribe( 'StateChangedEvent', self.clicked)
 
+    def get_text(self):
+        return self.text_widget.get_text()
+
     def add_state(self, label=None, image=None, bgcolor=None, fgcolor=None, opacity=None):
         self.states.append(ButtonState(label=label, image=image, bgcolor=bgcolor, fgcolor=fgcolor, opacity=opacity))
 
@@ -274,6 +277,11 @@ class ToggleButton(Button):
         self.off = off
         self.label = label
 
+    def get_text(self):
+        if self.get_state() == 0:
+            return self.label.get_text()[len(on_prefix):]
+        else:
+            return self.label.get_text()[len(off_prefix):]
 
     def toggle(self, state):
         if state == 1:
