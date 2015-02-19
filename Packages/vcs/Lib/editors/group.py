@@ -1,19 +1,72 @@
 import priority
-import vcs.vtk_ui
+import vcs
+from vcs.colorpicker import ColorPicker
+import text, label, marker
 
 class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, vcs.vtk_ui.behaviors.DraggableMixin):
     def __init__(self, interactor, targets):
 
         self.targets = []
+        types = set()
         for target in targets:
             if target is None:
                 continue
-            target.unregister()
-            self.targets.append(target)
+            self.add_target(target)
+            if type(target) not in types:
+                types.add(type(target))
+
+        self.toolbar = vcs.vtk_ui.Toolbar(interactor, "Group Options")
+        self.picker = None
+        self.toolbar.add_button(["Change Color"], action=self.change_color)
+
+        if len(types) == 1:
+            t = types.pop()
+            if t in (text.TextEditor, label.LabelEditor):
+                self.toolbar.add_slider_button(12, 1, 100, "Height", update=self.update_height)
+                self.toolbar.add_slider_button(0, 0, 360, "Angle", update=self.update_angle)
+                self.fonts = sorted(vcs.elements["font"].keys())
+
+                self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
+                self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+
+                font_toolbar = self.toolbar.add_toolbar("Fonts")
+
+                font_buttons = {}
+
+                def font_setter(font):
+                    def set_font():
+                        self.multiplex("set_font", font)
+                    return set_font
+
+                deactivate = font_setter("default")
+
+                for ind, font in enumerate(self.fonts):
+                    # Math fonts render unintelligbly
+                    if font[:4] != "Math":
+                        button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
+                    else:
+                        button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
+
+                    font_buttons[font] = button
+            elif t == marker.MarkerEditor:
+                pass
 
         self.interactor = interactor
         super(GroupEditor, self).__init__()
         self.register()
+
+    def change_color(self, state):
+        if self.picker:
+            self.picker.make_current()
+        else:
+            self.picker = ColorPicker(500, 500, vcs.getcolormap(), 0, on_save=self.set_color, on_cancel=self.cancel_color)
+
+    def set_color(self, colormap, color):
+        self.multiplex("set_color", colormap, color)
+        self.picker = None
+
+    def cancel_color(self):
+        self.picker = None
 
     def is_object(self, obj):
         return self.contains_object(obj)
@@ -32,6 +85,7 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
     def add_target(self, target):
         target.unregister()
+        target.toolbar.detach()
         self.targets.append(target)
 
     def remove_target(self, target):
@@ -59,6 +113,7 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
     def detach(self):
         self.multiplex("detach")
+        self.toolbar.detach()
         self.targets = None
         self.unregister()
 
@@ -109,3 +164,13 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
     def drag_stop(self):
         self.multiplex("drag_stop")
+
+    # Text toolbar multiplexed methods
+    def update_height(self, value):
+        self.multiplex("update_height", value)
+    def update_angle(self, value):
+        self.multiplex("update_angle", value)
+    def halign(self, value):
+        self.multiplex("halign", value)
+    def valign(self, value):
+        self.multiplex("valign", value)
