@@ -506,12 +506,15 @@ class CPCPlot( DV3DPlot ):
             self.execCurrentSlice()   
             self.low_res_actor.VisibilityOn()                        
         elif args and args[0] == "Init":
+            self.sliceAxisIndex = config_function.position[0]
             axis_bounds = self.point_cloud_overview.getAxisBounds()
+            axis_bounds_list = [ [ axis_bounds[0], axis_bounds[1] ], [ axis_bounds[2], axis_bounds[3] ], [ axis_bounds[4], axis_bounds[5] ] ]
             config_function.initial_value = axis_bounds
-            config_function.setRangeBounds( axis_bounds )
-            sliceParam.setValue( 'bounds', [ [ axis_bounds[0], axis_bounds[1] ], [ axis_bounds[2], axis_bounds[3] ], [ axis_bounds[4], axis_bounds[5] ] ] )
+            config_function.setRangeBounds( axis_bounds_list[self.sliceAxisIndex]  )
+            config_function.setSliderBoundsToRange()
+            sliceParam.setValue( 'bounds', axis_bounds_list )
             sliceParam.setValue( 'spos', [ axis_bounds[0], axis_bounds[2], axis_bounds[4] ] )
-            sliceParam.setValue( 0, axis_bounds[0] )
+            sliceParam.setValue( 0, axis_bounds[self.sliceAxisIndex] )
             state = config_function.getState()
             if state: self.cfgManager.initialized = True
         elif args and args[0] == "EndConfig":
@@ -542,7 +545,7 @@ class CPCPlot( DV3DPlot ):
         elif args and args[0] == "UpdateConfig":
             self.sliceAxisIndex = args[1]
             value = args[2].GetValue()
-#            print "Set slice value: ", float( value )
+            print "Set slice value: ", float( value )
             sliceParam.setValue( 0, value )
             self.execCurrentSlice(spos=value)
             self.updateTextDisplay( " Slice Position: %s " % str( value ) )

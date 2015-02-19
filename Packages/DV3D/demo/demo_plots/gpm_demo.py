@@ -5,6 +5,7 @@ import numpy as np
 import numpy.ma as ma
 eps = 0.0001
 time_units = "days since 1996-1-1"
+singleCore = False
 
 def print_attributes( grp ):
     print "\n ----> %s attributes:" % grp.name
@@ -119,9 +120,14 @@ hfile.close()
 
 x=vcs.init()
 dv3d = vcs.get3d_scalar()
-dv3d.NumCores = 1
 dv3d.VerticalScaling = 0.05
 dv3d.ToggleVolumePlot = vcs.on
 dv3d.ToggleSphericalProj = vcs.off
-x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0, level_range=[76,176] )
+
+if singleCore:
+    dv3d.NumCores = 1
+    x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0, level_range=[76,176] )
+else:
+    x.plot( v, dv3d, vthresh=0.0, level_range=[76,176] )
+
 x.interact()
