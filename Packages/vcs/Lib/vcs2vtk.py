@@ -1342,6 +1342,7 @@ def starPoints(radius_outer, x, y, number_points = 5):
 
     theta += delta_theta
   return points
+
 def generateVectorArray(data1,data2,vtk_grid):
     u=numpy.ma.ravel(data1)
     v=numpy.ma.ravel(data2)
@@ -1371,6 +1372,7 @@ def generateVectorArray(data1,data2,vtk_grid):
     w = numpy_to_vtk_wrapper(w,deep=False)
     w.SetName("vectors")
     return w
+
 def stripGrid(vtk_grid):
     # Strip out masked points.
     if vtk_grid.IsA("vtkStructuredGrid"):
