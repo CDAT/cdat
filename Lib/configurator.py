@@ -192,27 +192,6 @@ class Configurator(object):
             # This is an attribute used internally; might break
             display._template_origin = new_template.name
 
-        # Add new arrays
-        matched = set()
-        for d in self.displays:
-            for a in d.array:
-                if a is not None:
-                    if a.id not in self.display_strings:
-                        self.display_strings[a.id] = array_strings(d.template, a)
-                        matched.add(a.id)
-                    elif a.id in self.display_strings:
-                        matched.add(a.id)
-
-        # Figure out which arrays to remove
-        to_remove = set()
-        for array in self.display_strings:
-            if array not in matched:
-                to_remove.add(array)
-
-        # Remove the missing arrays
-        for array in to_remove:
-            del self.display_strings[array]
-
     def release(self, object, event):
         if self.clicking is None:
             return
@@ -387,7 +366,7 @@ class Configurator(object):
             self.changed = False
 
     def init_toolbar(self):
-        self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure")
+        self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)
 
         # Canvas background color
         color_toolbar = self.toolbar.add_toolbar("Background Color")
@@ -434,6 +413,17 @@ class Configurator(object):
           logo_button.set_state(1)
 
         self.toolbar.show()
+
+    def setup_animation(self):
+        self.canvas.animate.create()
+        # This doesn't work super well.
+        # self.toolbar.add_toggle_button("Animation", on=self.canvas.animate.run, off=self.canvas.animate.stop, on_prefix="Run", off_prefix="Stop")
+        self.toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+
+    def set_animation_frame(self, value):
+        value = int(value)
+        self.canvas.animate.draw_frame(value)
+        return value
 
     def set_background_red(self, value):
         _, g, b = self.canvas.backgroundcolor
