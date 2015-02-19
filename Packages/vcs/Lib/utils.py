@@ -47,7 +47,7 @@ def dumpToDict(obj,skipped=[],must=[]):
         if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
           continue
         associated[a].add(val)
-      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
+      if not isinstance(val,(unicode,str,tuple,list,int,long,float,dict)) and val is not None:
         val,asso = dumpToDict(val,skipped,must)
         for k in associated_keys:
           for v in asso[k]:
@@ -636,7 +636,7 @@ def loadVCSItem(typ,nm,json_dict = {}):
       if a=="Marker" and tp=="taylordiagram":
         gm.addMarker()
         for k in v.keys():
-            cmd = "gm.Marker.%s = %s" % (k,v[k])
+            cmd = "gm.Marker.%s = %s" % (k,repr(v[k]))
             exec(cmd)
       else:
         for k in v.keys():

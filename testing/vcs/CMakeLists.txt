@@ -81,6 +81,11 @@ add_test(vcs_test_dump_taylordiagram
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_py.py.good
   )
+add_test(vcs_test_reload_taylor_from_json
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_reload_taylor_from_json.py
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
+  )
 add_test(vcs_test_dump_json
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_dump_json.py
