@@ -17,6 +17,62 @@ CLICKS_TO_CREATE = {
     CREATING_TEXT: 1,
 }
 
+import copy
+
+def sync_template(src, target):
+    target.orientation=src.orientation
+    target.file=copy.copy(src.file)
+    target.function=copy.copy(src.function)
+    target.logicalmask=copy.copy(src.logicalmask)
+    target.transformation=copy.copy(src.transformation)
+    target.source=copy.copy(src.source)
+    target.dataname=copy.copy(src.dataname)
+    target.title=copy.copy(src.title)
+    target.units=copy.copy(src.units)
+    target.crdate=copy.copy(src.crdate)
+    target.crtime=copy.copy(src.crtime)
+    target.comment1=copy.copy(src.comment1)
+    target.comment2=copy.copy(src.comment2)
+    target.comment3=copy.copy(src.comment3)
+    target.comment4=copy.copy(src.comment4)
+    target.xname=copy.copy(src.xname)
+    target.yname=copy.copy(src.yname)
+    target.zname=copy.copy(src.zname)
+    target.tname=copy.copy(src.tname)
+    target.xunits=copy.copy(src.xunits)
+    target.yunits=copy.copy(src.yunits)
+    target.zunits=copy.copy(src.zunits)
+    target.tunits=copy.copy(src.tunits)
+    target.xvalue=copy.copy(src.xvalue)
+    target.yvalue=copy.copy(src.yvalue)
+    target.zvalue=copy.copy(src.zvalue)
+    target.tvalue=copy.copy(src.tvalue)
+    target.mean=copy.copy(src.mean)
+    target.min=copy.copy(src.min)
+    target.max=copy.copy(src.max)
+    target.xtic1=copy.copy(src.xtic1)
+    target.xtic2=copy.copy(src.xtic2)
+    target.xmintic1=copy.copy(src.xmintic1)
+    target.xmintic2=copy.copy(src.xmintic2)
+    target.ytic1=copy.copy(src.ytic1)
+    target.ytic2=copy.copy(src.ytic2)
+    target.ymintic1=copy.copy(src.ymintic1)
+    target.ymintic2=copy.copy(src.ymintic2)
+    target.xlabel1=copy.copy(src.xlabel1)
+    target.xlabel2=copy.copy(src.xlabel2)
+    target.ylabel1=copy.copy(src.ylabel1)
+    target.ylabel2=copy.copy(src.ylabel2)
+    target.box1=copy.copy(src.box1)
+    target.box2=copy.copy(src.box2)
+    target.box3=copy.copy(src.box3)
+    target.box4=copy.copy(src.box4)
+    target.line1=copy.copy(src.line1)
+    target.line2=copy.copy(src.line2)
+    target.line3=copy.copy(src.line3)
+    target.line4=copy.copy(src.line4)
+    target.legend=copy.copy(src.legend)
+    target.data=copy.copy(src.data)
+
 def array_strings(template, array):
     attrs = [
         "file",
@@ -102,6 +158,9 @@ class Configurator(object):
         self.text_button = None
         self.line_button = None
         self.marker_button = None
+        
+        # Map custom templates to their source template
+        self.templates = {}
 
         self.creating = False
         self.click_locations = None
@@ -121,6 +180,17 @@ class Configurator(object):
         self.place()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
+
+        for display in self.displays:
+            if display.template in self.templates:
+                # It already has a template we created
+                continue
+            # Manufacture a placeholder template to use for updates
+            new_template = vcs.createtemplate(source=display.template)
+            self.templates[new_template.name] = display.template
+            display.template = new_template.name
+            # This is an attribute used internally; might break
+            display._template_origin = new_template.name
 
         # Add new arrays
         matched = set()
@@ -334,8 +404,31 @@ class Configurator(object):
           self.canvas.drawlogooff()
           self.canvas.update()
 
+        def save_template_changes(state):
+            for new, source in self.templates.iteritems():
+                if source != "default":
+                    sync_template(vcs.gettemplate(new), vcs.gettemplate(source))
+            
+            for display in self.displays:
+                if display.g_type not in ("fillarea", "text", "marker", "line"):
+                    # Remove the dummy template now that changes are synced
+                    new, source = display.template, self.templates[display.template]
+                    display.template = source
+                    display._template_origin = source
+
+            self.canvas.saveinitialfile()
+            self.canvas.update()
+
+        def reset_template_changes(state):
+            for new, source in self.templates.iteritems():
+                sync_template(vcs.gettemplate(source), vcs.gettemplate(new))
+            self.canvas.update()
+
         # Toggle UV-CDAT logo
         logo_button = self.toolbar.add_toggle_button("Logo", on_prefix="Show", off_prefix="Hide", on=logo_on, off=logo_off)
+
+        self.toolbar.add_button(["Save Templates"], action=save_template_changes)
+        self.toolbar.add_button(["Reset Templates"], action=reset_template_changes)
 
         if self.canvas.getdrawlogo():
           logo_button.set_state(1)
