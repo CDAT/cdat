@@ -29,6 +29,9 @@ class Toolbar(object):
 
         self.__placing__ = False
 
+    def get_text(self):
+        return self.label.get_text()
+
     def in_toolbar(self, x, y):
         width, top = self.interactor.GetRenderWindow().GetSize()
         if x > self.left and x < self.left + self.width and y < top and y > top - self.height:
