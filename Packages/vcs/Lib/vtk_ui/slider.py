@@ -32,9 +32,9 @@ class Slider(Widget):
         cprop.SetColor( 0.0, 0.0, 1.0 )
         cprop.SetOpacity( 0.5 )
 
-        self.repr.SetMinimumValue(min_val)
-        self.repr.SetMaximumValue(max_val)
-        self.repr.SetValue(value)
+        self.repr.SetMinimumValue(float(min_val))
+        self.repr.SetMaximumValue(float(max_val))
+        self.repr.SetValue(float(value))
 
         self.repr.SetSliderLength(0.05)
         self.repr.SetSliderWidth(0.02)
