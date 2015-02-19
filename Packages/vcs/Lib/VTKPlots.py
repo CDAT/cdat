@@ -210,6 +210,10 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
+
+    if self.canvas.animate.created():
+      self.canvas.animate.draw_frame()
+
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":

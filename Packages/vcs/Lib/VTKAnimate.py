@@ -40,9 +40,16 @@ class VTKAnimate(animate_helper.AnimationController):
         self.cleared = False
         import atexit
         atexit.register(self.close)
-    def draw_frame(self):
+
+    def draw_frame(self, frame_num = None):
+      if frame_num is None:
+        frame_num = self.frame_num
+      else:
+        self.frame_num = frame_num
+      #print "Drawing frame:",self.frame_num,self._unique_prefix
       png_name=os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_%i.png" % self.frame_num)
       if os.path.exists(png_name) and len(self.animation_files)==self.number_of_frames():
+
         ## Ok we have the pngs and we need to zoom, need to use png
         ## maybe the zoom factor thing can be taken off, not sure what's faster
         if not self.cleared:
