@@ -179,7 +179,7 @@ class MultiVarPointCollection():
                 np_var_data_block = np_var_data_block.flatten()
                 min_val = np_var_data_block.min()
                 max_val = np_var_data_block.max()
-                print "@@@@@@@@@@@@@ Var data block, range = ", str( [min_val,max_val] )
+       #         print "@@@@@@@@@@@@@ Var data block, range = ", str( [min_val,max_val] )
 
         return np_var_data_block
 

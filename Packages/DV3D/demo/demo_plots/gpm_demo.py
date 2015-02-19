@@ -33,7 +33,8 @@ data_file="/Users/tpmaxwel/Dropbox/Data/GPM/2A.GPM.Ku.V520140829.20150201-S01112
 point_coord_var_names=[ "Latitude", "Longitude" ]
 lev_axis_name='nbin'
 time_axis_name=None
-varname = "/NS/SLV/precipRate"
+# varname = "/NS/SLV/precipRate"
+varname = "/NS/DSD/phase"
 slice = None
 
 hfile = h5py.File( data_file, 'r' )

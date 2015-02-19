@@ -311,12 +311,12 @@ class CPCPlot( DV3DPlot ):
         shift = caller.GetShiftKey()
         if not shift: return
         x, y = caller.GetEventPosition()
-        print "Executing pick:"
+#        print "Executing pick:"
         picker = caller.GetPicker()
         picker.Pick( x, y, 0, self.renderer )
         actor = picker.GetActor()
         iPt = picker.GetPointId()
-        print "PointId: ", str( iPt )
+#        print "PointId: ", str( iPt )
         if actor is not None:
             if iPt >= 0:
                 if self.partitioned_point_cloud and self.partitioned_point_cloud.hasActiveCollections():                
@@ -333,10 +333,10 @@ class CPCPlot( DV3DPlot ):
 #                     pick_pos = picker.GetPickPosition()                                     
                 if pick_pos:
                     text = " Point[%d] ( %.2f, %.2f ): %s " % ( iPt, pick_pos[0], pick_pos[1], dval )
-                    nz = self.level_range[1] - self.level_range[0]
-                    iXY = iPt / nz
-                    iZ = iPt % nz
-                    print " ----> iz = %d, iXY = %d " % ( iZ, iXY )
+#                    nz = self.level_range[1] - self.level_range[0]
+#                    iXY = iPt / nz
+#                    iZ = iPt % nz
+#                    print " ----> iz = %d, iXY = %d " % ( iZ, iXY )
                 else:               text = "No Pick"
                 self.updateTextDisplay( text )
                 
@@ -545,7 +545,7 @@ class CPCPlot( DV3DPlot ):
         elif args and args[0] == "UpdateConfig":
             self.sliceAxisIndex = args[1]
             value = args[2].GetValue()
-            print "Set slice value: ", float( value )
+            #print "Set slice value: ", float( value )
             sliceParam.setValue( 0, value )
             self.execCurrentSlice(spos=value)
             self.updateTextDisplay( " Slice Position: %s " % str( value ) )
