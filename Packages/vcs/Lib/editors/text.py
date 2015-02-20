@@ -77,8 +77,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             self.font_buttons[current_font].set_state(0)
         self.text.font = font
         self.font_buttons[font].set_state(1)
-        self.configurator.changed = True
-        self.save()
+        self.update()
 
     def get_object(self):
         return self.text
@@ -153,7 +152,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
     def moved_textbox(self, box, dx, dy):
         self.text.x[self.index] += dx
         self.text.y[self.index] += dy
-        self.actors[self.index].SetPosition(self.text.x[self.index], self.text.y[self.index])
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        self.actors[self.index].SetPosition(w * self.text.x[self.index], h * self.text.y[self.index])
 
 
     def handle_click(self, point):
