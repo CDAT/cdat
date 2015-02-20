@@ -101,14 +101,13 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.textboxes = []
         w, h = self.interactor.GetRenderWindow().GetSize()
         cmap = vcs.getcolormap()
-
+        
         prop = vtkTextProperty()
-        vcs.vcs2vtk.prepTextProperty(prop, (w, h), self.text, self.text, cmap)
-
+        vcs.vcs2vtk.prepTextProperty(prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
         prop.SetOrientation(-1 * self.text.angle)
 
         for ind, x in enumerate(self.text.x):
-
+            
             self.actors[ind].SetTextProperty(prop)
 
             y = self.text.y[ind]
@@ -117,17 +116,22 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
             x = x * w
             y = h - y * h # mirror the y axis for widgets
-            if self.text.valign in ("half", 2):
-                y -= text_height / 2.0
-            elif self.text.valign in ("bottom", "base", 3, 4):
-                y -= text_height
 
             if self.text.halign in ("right", 2):
                 x -= text_width
             elif self.text.halign in ("center", 1):
                 x -= text_width / 2.0
 
-            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
+            if self.text.valign in ("half", 2):
+                y -= text_height / 2.0
+            elif self.text.valign in ("top", 0):
+                y -= text_height
+
+            box_prop = vtkTextProperty()
+            vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
+            box_prop.SetOrientation(-1 * self.text.angle)
+
+            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
             textbox.show()
 
             if ind == self.index:
@@ -236,17 +240,16 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.toolbar.detach()
 
     def halign(self, state):
-        self.to.halign = state
-	self.update()
+        self.text.halign = state
+        self.update()
 
     def valign(self, state):
         if state == 0:
-            self.to.valign = 0
+            self.text.valign = 0
         elif state == 1:
-            self.to.valign = 2
+            self.text.valign = 2
         elif state == 2:
-            self.to.valign = 3
-
+            self.text.valign = 3
         self.update()
 
     def update_angle(self, value):
