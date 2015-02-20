@@ -377,6 +377,11 @@ add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
+    add_test(vcs_test_isoline_labels_multi_label_input_types
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
+      "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
+      )
     add_test(vcs_test_isoline_labels
       "${PYTHON_EXECUTABLE}"
       "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"

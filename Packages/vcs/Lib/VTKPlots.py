@@ -901,24 +901,35 @@ class VTKVCSBackend(object):
 
         # Create text properties.
         if gm.label=="y":
-         if gm.text:
+         if gm.text or gm.textcolors:
           colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
+          texts = gm.text if gm.text else [None] * len(gm.textcolors)
+          while len(texts)<Nlevs:
+              texts.append(texts[-1])
+          while len(colorOverrides)<Nlevs:
+              colorOverrides.append(colorOverrides[-1])
           tprops = vtk.vtkTextPropertyCollection()
-          for tc,colorOverride in zip(gm.text, colorOverrides):
-              print tc,colorOverride
-              # HACK this really needs to be replaced with a standard vcs function
-              # that interprets the many possible forms the isoline.text attribute
-              # supports. This assumes that isoline.text contains a list of tc
-              # objects. If isoline.text contains any other specifications, this
-              # method will fail.
-              # See discussion on issue 926 -- this code should be replaced with
-              # something more flexible as soon as possible.
-              assert isinstance(tc, vcs.textcombined.Tc), \
-                     "isoline.text does not contain solely textcombined objects."
-              tt,to = tuple(tc.name.split(":::"))
+          for tc,colorOverride in zip(texts, colorOverrides):
+              if vcs.queries.istextcombined(tc):
+                  tt,to = tuple(tc.name.split(":::"))
+              elif tc is None:
+                  tt="default"
+                  to="default"
+              elif vcs.queries.istexttable(tc):
+                  tt=tc.name
+                  to="default"
+              elif vcs.queries.istextorientation(tc):
+                  to=tc.name
+                  tt="default"
+              if colorOverride is not None:
+                  tt=vcs.createtexttable(None,tt)
+                  tt.color = colorOverride
+                  tt=tt.name
               tprop = vtk.vtkTextProperty()
               vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
               tprops.AddItem(tprop)
+              if colorOverride is not None:
+                  del(vcs.elements["texttable"][tt])
 
               mapper.SetTextProperties(tprops)
          else:
