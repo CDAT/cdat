@@ -364,6 +364,8 @@ class Configurator(object):
         if self.changed:
             self.canvas.update()
             self.changed = False
+        else:
+            self.interactor.GetRenderWindow().Render()
 
     def init_toolbar(self):
         self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)

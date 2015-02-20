@@ -15,18 +15,12 @@ class PriorityEditor(KeyableMixin):
     def raise_priority(self):
         obj = self.get_object()
         obj.priority += 1
-        self.configurator.changed = True
-        self.save()
 
     def lower_priority(self):
         obj = self.get_object()
         if obj.priority > 1:
             obj.priority -= 1
-            self.configurator.changed = True
-            self.save()
 
     def delete(self):
         obj = self.get_object()
         obj.priority = 0
-        self.configurator.changed = True
-        self.configurator.deactivate(self)

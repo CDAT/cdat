@@ -163,6 +163,11 @@ class LabelEditor(point.PointEditor):
         t = self.get_text()
         swidth, sheight = self.interactor.GetRenderWindow().GetSize()
         return inside_label(self.label, t, x, y, swidth, sheight)
+    
+    def delete(self):
+        super(LabelEditor, self).delete()
+        self.actor.SetVisibility(0)
+        self.configurator.deactivate(self)
 
     def detach(self):
         super(LabelEditor, self).detach()
