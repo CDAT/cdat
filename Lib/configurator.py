@@ -158,7 +158,7 @@ class Configurator(object):
         self.text_button = None
         self.line_button = None
         self.marker_button = None
-        
+
         # Map custom templates to their source template
         self.templates = {}
 
@@ -387,7 +387,7 @@ class Configurator(object):
             for new, source in self.templates.iteritems():
                 if source != "default":
                     sync_template(vcs.gettemplate(new), vcs.gettemplate(source))
-            
+
             for display in self.displays:
                 if display.g_type not in ("fillarea", "text", "marker", "line"):
                     # Remove the dummy template now that changes are synced
