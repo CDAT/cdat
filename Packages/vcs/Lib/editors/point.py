@@ -5,8 +5,6 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
     def __init__(self, interactor, point, configurator):
         self.point = point
         self.interactor = interactor
-        self.handle = Handle(self.interactor, (point.x, point.y), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
-        self.handle.show()
         self.configurator = configurator
         super(PointEditor, self).__init__()
         self.register()
@@ -14,19 +12,7 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
     def get_object(self):
         return self.point
 
-    def adjust(self, handle):
-        self.point.x = self.handle.x
-        self.point.y = self.handle.y
-        self.configurator.changed = True
-        self.save()
-
-    def drag_handle(self, handle, dx, dy):
-        self.point.x += dx
-        self.point.y += dy
-        self.configurator.changed = True
-
     def drag_stop(self):
-        self.handle.place()
         self.save()
 
     def double_release(self):
@@ -39,14 +25,14 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
 
     def handle_click(self, point):
         x, y = point
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+        try:
+            return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+        except AttributeError:
+            return self.in_bounds(x, y)
 
     def drag_move(self, d_x, d_y):
         self.point.x += d_x
         self.point.y += d_y
-        self.handle.x = self.point.x
-        self.handle.y = self.point.y
-        self.handle.place()
         self.configurator.changed = True
 
     def in_bounds(self, x, y):
@@ -56,8 +42,6 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
         self.configurator.save()
 
     def detach(self):
-        self.handle.hide()
-        self.handle.detach()
         self.unregister()
 
     def deactivate(self):
