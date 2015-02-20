@@ -38,6 +38,7 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
             x, y = self.actor.GetPosition()
             self.actor.SetPosition(x + w * d_x, y + h * d_y)
             self.actor.GetMapper().Update()
+            self.interactor.GetRenderWindow().Render()
         except AttributeError:
             self.configurator.changed = True
 
