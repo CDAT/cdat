@@ -116,8 +116,6 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
             self.marker.y[self.index].append(y)
             self.configurator.changed = True
             self.save()
-        else:
-            self.deactivate()
 
     def adjust(self, handle):
         ind = self.handles.index(handle)
