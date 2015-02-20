@@ -233,8 +233,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             box.detach()
         del self.textboxes
 
-        for actor in self.actors:
-            actor.SetVisibility(1)
+        if self.text.priority > 0:
+            for actor in self.actors:
+                actor.SetVisibility(1)
 
         self.toolbar.detach()
 
@@ -264,6 +265,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         if not self.textboxes[self.index].editing:
             self.text.priority = 0
             self.configurator.deactivate(self)
+            
+
 
 def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
