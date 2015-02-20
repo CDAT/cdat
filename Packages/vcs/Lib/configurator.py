@@ -158,7 +158,7 @@ class Configurator(object):
         self.text_button = None
         self.line_button = None
         self.marker_button = None
-
+        self.initialized = False
         # Map custom templates to their source template
         self.templates = {}
 
@@ -416,9 +416,9 @@ class Configurator(object):
 
     def setup_animation(self):
         self.canvas.animate.create()
-        # This doesn't work super well.
-        # self.toolbar.add_toggle_button("Animation", on=self.canvas.animate.run, off=self.canvas.animate.stop, on_prefix="Run", off_prefix="Stop")
-        self.toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+        if self.initialized == False:
+            self.toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            self.initialized = True
 
     def set_animation_frame(self, value):
         value = int(value)
