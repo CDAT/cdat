@@ -49,7 +49,19 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
                     font_buttons[font] = button
             elif t == marker.MarkerEditor:
-                pass
+                self.toolbar.add_slider_button(10, 1, 300, "Marker Size", update=self.set_size)
+
+                type_bar = self.toolbar.add_toolbar("Marker Type", open_label="Change")
+
+                shapes = marker.marker_shapes()
+
+                shapes.insert(0, "Select Shape")
+                self.shape_button = type_bar.add_button(shapes, action=self.change_shape)
+
+                wmos = marker.wmo_shapes()
+                wmos.insert(0, "Select WMO Marker")
+
+                self.wmo_button = type_bar.add_button(wmos, action=self.change_wmo)
 
         self.interactor = interactor
         super(GroupEditor, self).__init__()
@@ -174,3 +186,18 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         self.multiplex("halign", value)
     def valign(self, value):
         self.multiplex("valign", value)
+    # Marker toolbar multiplexed methods
+    def change_shape(self, state):
+        self.multiplex("change_shape", state)
+        if state == 0:
+            self.wmo_button.set_state(1)
+        else:
+            self.wmo_button.set_state(0)
+    def change_wmo(self, state):
+        self.multiplex("change_wmo", state)
+        if state == 0:
+            self.shape_button.set_state(1)
+        else:
+            self.shape_button.set_state(0)
+    def set_size(self, size):
+        self.multiplex("set_size", size)
