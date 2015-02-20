@@ -107,7 +107,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop.SetOrientation(-1 * self.text.angle)
 
         for ind, x in enumerate(self.text.x):
-            
             self.actors[ind].SetTextProperty(prop)
 
             y = self.text.y[ind]
@@ -231,6 +230,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
     def detach(self):
         self.unregister()
         for box in self.textboxes:
+            if box.editing:
+                box.stop_editing()
             box.detach()
         del self.textboxes
 
@@ -266,7 +267,17 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         if not self.textboxes[self.index].editing:
             self.text.priority = 0
             self.configurator.deactivate(self)
-            
+    
+    def update_priority(self):
+        maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
+        new_layer = self.marker.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        if new_layer + 1 > maxLayers:
+            self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
+        
+        for actor in self.actors:
+            actor.SetLayerNumber(new_layer)
+
+        self.interactor.GetRenderWindow().Render()
 
 
 def text_dimensions(text, index, winsize):

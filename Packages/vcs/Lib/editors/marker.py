@@ -190,6 +190,16 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.actor.SetVisibility(0)
         self.configurator.deactivate(self)
 
+    def update_priority(self):
+        maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
+        new_layer = self.marker.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        if new_layer + 1 > maxLayers:
+            self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
+
+        self.actor.SetLayerNumber(new_layer)
+
+        self.interactor.GetRenderWindow().Render()
+
     def sync_positions(self):
         # Sync all points
         points = self.glyph.GetInput().GetPoints()
