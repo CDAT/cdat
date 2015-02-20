@@ -432,12 +432,14 @@ def checkListTuple(self,name,value):
      else:
           checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either a list or a tuple.')
      
-def checkColor(self,name,value):
+def checkColor(self,name,value,NoneOk=False):
      checkName(self,name,value)
      if isinstance(value,unicode):
        value = str(value)
      if isinstance(value,str):
           value = color2vcs(value)
+     if value is None and NoneOk:
+         return value
      if isinstance(value,int) and value in range(0,256):
           return value
      else:
@@ -446,7 +448,7 @@ def checkColor(self,name,value):
 def checkColorList(self,name,value):
      checkName(self,name,value)
      value=checkListTuple(self,name,value)
-     for v in value:checkColor(self,name+'_list_value',v)
+     for v in value:checkColor(self,name+'_list_value',v,NoneOk=True)
      return value
      
 def checkIsolineLevels(self,name,value):
