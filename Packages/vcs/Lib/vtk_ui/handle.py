@@ -125,14 +125,17 @@ class Handle(Widget):
                 w, h = self.interactor.GetRenderWindow().GetSize()
             else:
                 w, h = 1, 1
-            self.x, self.y, _ = self.repr.GetDisplayPosition()
 
-            self.x = self.x / float(w)
-            self.y = self.y / float(h)
+            x, y, _ = self.repr.GetDisplayPosition()
+            x, y = x / float(w), y / float(h)
+            dx, dy = x - self.x, y - self.y
+
+            self.x = x
+            self.y = y
 
             if self.dragged:
                 # Need to get the point that we're dragged to here
-                self.dragged(self, self.x, self.y)
+                self.dragged(self, dx, dy)
 
 def quad_poly_data(width, height):
     from vtk import vtkPoints, vtkQuad, vtkCellArray, vtkPolyData
