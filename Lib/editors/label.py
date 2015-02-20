@@ -107,7 +107,6 @@ class LabelEditor(point.PointEditor):
             self.font_buttons[current_font].set_state(0)
         self.tt.font = font
         self.font_buttons[font].set_state(1)
-        self.configurator.changed = True
         self.save()
 
     def halign(self, state):
