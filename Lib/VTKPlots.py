@@ -886,21 +886,26 @@ class VTKVCSBackend(object):
         cot.SetValue(Nlevs,levs[-1])
         cot.Update()
         mappers = []
-        mapper = vtk.vtkLabeledContourMapper()
+        if gm.label=="y":
+            mapper = vtk.vtkLabeledContourMapper()
+        else:
+            mapper = vtk.vtkPolyDataMapper()
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(1)
         lut.SetTableValue(0, 0, 0, 0)
-        mapper.GetPolyDataMapper().SetLookupTable(lut)
-        if (gm.label):
-          mapper.SetLabelVisibility(1)
+        if gm.label=="y":
+            mapper.GetPolyDataMapper().SetLookupTable(lut)
+            mapper.SetLabelVisibility(1)
         else:
-          mapper.SetLabelVisibility(0)
+            mapper.SetLookupTable(lut)
 
         # Create text properties.
-        if gm.text:
+        if gm.label=="y":
+         if gm.text:
           colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
           tprops = vtk.vtkTextPropertyCollection()
           for tc,colorOverride in zip(gm.text, colorOverrides):
+              print tc,colorOverride
               # HACK this really needs to be replaced with a standard vcs function
               # that interprets the many possible forms the isoline.text attribute
               # supports. This assumes that isoline.text contains a list of tc
@@ -916,7 +921,7 @@ class VTKVCSBackend(object):
               tprops.AddItem(tprop)
 
               mapper.SetTextProperties(tprops)
-        else:
+         else:
             # No text properties specified. Use the default:
             tprop = vtk.vtkTextProperty()
             vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
