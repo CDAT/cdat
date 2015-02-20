@@ -6,6 +6,7 @@ import numpy.ma as ma
 eps = 0.0001
 time_units = "days since 1996-1-1"
 singleCore = False
+plotType = 'precip' # 'precip' # 'phase'
 
 def print_attributes( grp ):
     print "\n ----> %s attributes:" % grp.name
@@ -33,8 +34,7 @@ data_file="/Users/tpmaxwel/Dropbox/Data/GPM/2A.GPM.Ku.V520140829.20150201-S01112
 point_coord_var_names=[ "Latitude", "Longitude" ]
 lev_axis_name='nbin'
 time_axis_name=None
-# varname = "/NS/SLV/precipRate"
-varname = "/NS/DSD/phase"
+varname = "/NS/DSD/phase" if plotType == 'phase' else "/NS/SLV/precipRate"
 slice = None
 
 hfile = h5py.File( data_file, 'r' )
@@ -124,11 +124,12 @@ dv3d = vcs.get3d_scalar()
 dv3d.VerticalScaling = 0.05
 dv3d.ToggleVolumePlot = vcs.on
 dv3d.ToggleSphericalProj = vcs.off
+vthresh = [0,255] if plotType == 'phase' else 0
 
 if singleCore:
     dv3d.NumCores = 1
-    x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=0.0, level_range=[76,176] )
+    x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=vthresh, level_range=[76,176] )
 else:
-    x.plot( v, dv3d, vthresh=0.0, level_range=[76,176] )
+    x.plot( v, dv3d, vthresh=vthresh, level_range=[76,176] )
 
 x.interact()

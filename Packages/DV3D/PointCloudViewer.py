@@ -194,7 +194,31 @@ class CPCPlot( DV3DPlot ):
 #        self.addConfigurableSliderFunction( 'slicing', 'C', label='Colormap Scale', interactionHandler=self.processColorScaleCommand )
 #        self.addConfigurableLevelingFunction( 'map_opacity', 'M', label='Base Map Opacity', rangeBounds=[ 0.0, 1.0 ],  setLevel=self.setMapOpacity, activeBound='min',  getLevel=self.getMapOpacity, isDataValue=False, layerDependent=True, group=ConfigGroup.BaseMap, bound = False )
 
-                 
+
+    def processBasemapOpacityCommand( self, args, config_function ):
+        opacity = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            oval = config_function.initial_value
+            self.mapManager.setMapOpacity( oval )
+            self.render()
+        elif args and args[0] == "EndConfig":
+            self.processConfigParameterChange( opacity )
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue()
+            oscale = opacity.getValues()
+            oscale[ args[1] ] = value
+            self.mapManager.setMapOpacity(  oscale )
+            opacity.setValues( oscale )
+            self.render()
+
     def toggleProjection( self, args, config_function, **kwargs  ):
 #         if len( args ) > 1: 
 #             self.toggleTopo( state = args[1] ) 
@@ -296,6 +320,9 @@ class CPCPlot( DV3DPlot ):
         self.sphere_actor.GetProperty().SetColor(color)
 
     def createSphere(self, center=(0,0,0), radius=0.1 ):
+        tres = self.sphere_source.GetThetaResolution()
+        pres = self.sphere_source.GetPhiResolution()
+        print "\n\n ****************************************>  Sphere res: ", str( [ tres, pres ] )
         self.sphere_source = vtk.vtkSphereSource()
         self.sphere_source.SetCenter(center)
         self.sphere_source.SetRadius(radius)        
@@ -1297,8 +1324,9 @@ class CPCPlot( DV3DPlot ):
             self.updateZRange( self.point_cloud_overview )
             
         self.mapManager = MapManager( roi = self.point_cloud_overview.getBounds() )
-        self.renderer.AddActor( self.mapManager.getBaseMapActor() )
+#        self.renderer.AddActor( self.mapManager.getBaseMapActor() )
         self.renderer.AddActor( self.mapManager.getSphericalMap() )
+        self.renderer.AddActor( self.mapManager.getPlaneMap() )
         
     def reset( self, pcIndex ):
         if not self.isValid and ( self.partitioned_point_cloud <> None ):

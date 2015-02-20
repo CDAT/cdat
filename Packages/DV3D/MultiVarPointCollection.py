@@ -120,7 +120,7 @@ class MultiVarPointCollection():
                 if self.value_bounds[0] is None:
                     value_mask = numpy.less_equal( var_data, self.value_bounds[1] )
                 else:
-                    value_mask = numpy.logical_and( numpy.greater_equal( var_data, self.value_bounds[0] ), numpy.less_equal( var_data, self.value_bounds[1] ) )
+                    value_mask = numpy.logical_or( numpy.less_equal( var_data, self.value_bounds[0] ), numpy.greater_equal( var_data, self.value_bounds[1] ) )
             else:
                 if hasattr( self.value_bounds, '__iter__' ):
                     if len( self.value_bounds ) == 0: return None

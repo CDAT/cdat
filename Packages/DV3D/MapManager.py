@@ -22,8 +22,10 @@ def NormalizeLon( lon ):
 class MapManager:
     
     def __init__(self, **args ):
-        self.baseMapActor = None
         self.sphereActor = None
+        self.planeActor = None
+        self.sphericalBaseImage = None
+        self.baseImage = None
         self.map_opacity = args.get('opacity',0.5)
         self.map_border_size = args.get( "map_border_size", 20  ) 
         self.roi = args.get( "roi", [ 0.0, 360.0, -90.0, 90.0 ] )
@@ -43,13 +45,36 @@ class MapManager:
     def setMapOpacity(self, opacity_vals, **args ):
         self.map_opacity = opacity_vals[0]
         self.updateMapOpacity() 
-        
+
+    def getPlaneMap( self, **args ):
+       # print " @@@ MapManager: getPlaneMap "
+        if self.planeActor == None:
+            if self.baseImage == None: self.build()
+            self.plane = vtk.vtkPlaneSource()
+            self.plane.SetXResolution( 1 )
+            self.plane.SetYResolution( 1 )
+            self.plane.SetOrigin( self.x0, self.y0, 0.05 )
+            self.plane.SetPoint1(  self.x0 + self.map_cut_size[0], self.y0, 0.05  )
+            self.plane.SetPoint2(  self.x0, self.y0 + self.map_cut_size[1], 0.05  )
+            planeMapper  = vtk.vtkPolyDataMapper()
+            planeMapper.SetInputConnection( self.plane.GetOutputPort() )
+            planeTexture = vtk.vtkTexture()
+            planeTexture.SetInputData(self.baseImage)
+
+            self.planeActor = vtk.vtkActor()
+            self.planeActor.SetMapper( planeMapper )
+            self.planeActor.SetTexture( planeTexture )
+            self.planeActor.GetProperty().SetOpacity( self.map_opacity )
+            self.planeActor.SetVisibility( True )
+        return self.planeActor
+
     def getSphericalMap( self, **args ):
 #        print " @@@ MapManager: getSphericalMap "
         thetaResolution = args.get( "thetaRes", 32 )
         phiResolution = args.get( "phiRes", 32 )
         radius = args.get( "radius", 100 )
-        if self.sphereActor == None: 
+        if self.sphereActor == None:
+            if self.sphericalBaseImage == None: self.build()
             self.sphere = vtk.vtkSphereSource()
             self.sphere.SetThetaResolution( thetaResolution )
             self.sphere.SetPhiResolution( phiResolution )
@@ -83,8 +108,8 @@ class MapManager:
         return self.sphereActor
   
     def updateMapOpacity(self, cmap_index=0 ):
-        if self.baseMapActor:
-            self.baseMapActor.SetOpacity( self.map_opacity )
+        if self.planeActor:
+            self.planeActor.GetProperty().SetOpacity( self.map_opacity )
 #         if self.sphereActor:
 #             self.sphereActor.GetProperty().SetOpacity( self.map_opacity )
         
@@ -129,36 +154,36 @@ class MapManager:
                 scale = [ self.map_cut_size[0]/new_dims[0], self.map_cut_size[1]/new_dims[1], 1 ]
                 self.width = self.map_cut_size[0]          
                               
-            self.baseMapActor = vtk.vtkImageActor()
-            self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
-            self.baseMapActor.SetScale( scale )
-            self.baseMapActor.SetOrientation( 0.0, 0.0, 0.0 )
-            self.baseMapActor.SetOpacity( self.map_opacity )
-            mapCorner = [ self.x0, self.y0 ]
-            self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.05 )
-            extent = self.baseImage.GetExtent()
-#             print " @@@ baseImage.GetExtent: ", str( extent )
-#             print " @@@ baseImage.Position: ", str( self.x0 )
-#             print " @@@ baseImage.Size: ", str( self.map_cut_size )
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(self.baseImage)
-            else:                           self.baseMapActor.SetInputData(self.baseImage)        
+#             self.baseMapActor = vtk.vtkImageActor()
+#             self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
+#             self.baseMapActor.SetScale( scale )
+#             self.baseMapActor.SetOrientation( 0.0, 0.0, 0.0 )
+#             self.baseMapActor.SetOpacity( self.map_opacity )
+#             mapCorner = [ self.x0, self.y0 ]
+#             self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.05 )
+#             extent = self.baseImage.GetExtent()
+# #             print " @@@ baseImage.GetExtent: ", str( extent )
+# #             print " @@@ baseImage.Position: ", str( self.x0 )
+# #             print " @@@ baseImage.Size: ", str( self.map_cut_size )
+#             if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(self.baseImage)
+#             else:                           self.baseMapActor.SetInputData(self.baseImage)
             self.mapCenter = [ self.x0 + self.map_cut_size[0]/2.0, self.y0 + self.map_cut_size[1]/2.0 ]  
             
-    def getBaseMapActor(self):
-#        print " <<--------------------------------------->> GetBaseMapActor <<--------------------------------------->>  <<--------------------------------------->>"
-        if self.baseMapActor == None: self.build()  
-        return self.baseMapActor 
+#     def getBaseMapActor(self):
+# #        print " <<--------------------------------------->> GetBaseMapActor <<--------------------------------------->>  <<--------------------------------------->>"
+#         if self.baseMapActor == None: self.build()
+#         return self.baseMapActor
     
     def setMapVisibility( self  ):
-        mapCorner = [ self.x0, self.y0 ]
-        self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
-        self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.05 )
-        self.baseMapActor.SetVisibility( True )  
+        # mapCorner = [ self.x0, self.y0 ]
+        # self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
+        # self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.05 )
+        self.planeActor.SetVisibility( True )
         self.sphereActor.SetVisibility( False )  
         print "Positioning map at location %s" % ( str( ( self.x0, self.y0) )  ) 
 
     def setSphereVisibility( self ):
-        self.baseMapActor.SetVisibility( False )  
+        self.planeActor.SetVisibility( False )
         self.sphereActor.SetVisibility( True )  
             
     def ComputeCornerPosition( self ):
