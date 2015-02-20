@@ -254,10 +254,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def update_angle(self, value):
         self.text.angle = int(value)
-        for box in self.textboxes:
-            box.repr.GetTextActor().GetTextProperty().SetOrientation(-1 * self.text.angle)
-            box.place()
-            box.render()
+        self.update()
 
     def change_font(self, state):
         self.text.font = self.fonts[state]
