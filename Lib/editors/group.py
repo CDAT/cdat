@@ -3,6 +3,20 @@ import vcs
 from vcs.colorpicker import ColorPicker
 import text, label, marker
 
+
+def extract_widgets(editor):
+    try:
+        widgets = editor.handles
+    except AttributeError:
+        try:
+            widgets = [editor.handle]
+        except AttributeError:
+            try:
+                widgets = editor.textboxes
+            except AttributeError:
+                widgets = []
+    return widgets
+
 class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, vcs.vtk_ui.behaviors.DraggableMixin):
     def __init__(self, interactor, targets):
 
@@ -12,6 +26,9 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         self.toolbar = vcs.vtk_ui.Toolbar(interactor, "Group Options")
         self.picker = None
         self.color_button = self.toolbar.add_button(["Change Color"], action=self.change_color)
+        
+        self.widgets = []
+        self.widget_dragged_methods = {}
 
         for target in targets:
             if target is None:
@@ -102,6 +119,13 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
     def add_target(self, target):
         target.unregister()
         
+        # Extract all handles and textboxes, swap out their drag methods with something that multiplexes
+        new_widgets = extract_widgets(target)
+        for widget in new_widgets:
+            self.widget_dragged_methods[widget] = widget.dragged
+            widget.dragged = self.dragged
+        self.widgets.extend(new_widgets)
+
         if type(target) not in self.types:
             self.types.add(type(target))
             self.set_up_toolbar()
@@ -111,6 +135,11 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
     def remove_target(self, target):
         self.targets.remove(target)
+
+        widgets = extract_widgets(target)
+        for w in widgets:
+            self.widgets.remove(w)
+
         for t in self.targets:
             if type(t) == type(target):
                 break
@@ -188,9 +217,23 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
     def drag_move(self, delta_x, delta_y):
         self.multiplex("drag_move", delta_x, delta_y)
+        self.dragged(None, delta_x, delta_y)
 
     def drag_stop(self):
         self.multiplex("drag_stop")
+
+    def dragged(self, obj, dx, dy):
+        for widget in self.widgets:
+            if widget != obj:
+                try:
+                    widget.x += dx
+                    widget.y += dy
+                except AttributeError:
+                    w, h = self.interactor.GetRenderWindow().GetSize()
+                    widget.left += w * dx
+                    widget.top -= h * dy
+                widget.place()
+            self.widget_dragged_methods[widget](widget, dx, dy)
 
     # Text toolbar multiplexed methods
     def update_height(self, value):
