@@ -128,7 +128,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             elif self.text.halign in ("center", 1):
                 x -= text_width / 2.0
 
-            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_move=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
+            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=prop, on_click=self.textbox_clicked)
             textbox.show()
 
             if ind == self.index:
@@ -150,28 +150,10 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         self.process_click(text_index, x, y)
 
-    def moved_textbox(self):
-        box = self.textboxes[self.index]
-        w, h = self.interactor.GetRenderWindow().GetSize()
-
-        xcoord, ycoord = box.left, box.top
-
-        text_width, text_height = box.get_dimensions()
-
-        # Adjust for the origin of the textbox
-        if self.text.valign in ("half", 2):
-            ycoord += text_height / 2.0
-        elif self.text.valign in ("bottom", 4):
-            ycoord += text_height
-
-        if self.text.halign in ("right", 2):
-            xcoord += text_width
-        elif self.text.halign in ("center", 1):
-            xcoord += text_width / 2.0
-
-        self.text.x[self.index] = xcoord / float(w)
-        self.text.y[self.index] = (h - ycoord) / float(h)
-        self.actors[self.index].SetPosition(xcoord, h - ycoord)
+    def moved_textbox(self, box, dx, dy):
+        self.text.x[self.index] += dx
+        self.text.y[self.index] += dy
+        self.configurator.changed = True
 
     def handle_click(self, point):
         x, y = point
