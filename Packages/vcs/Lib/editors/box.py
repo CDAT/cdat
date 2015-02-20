@@ -31,7 +31,7 @@ class BoxEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pri
         x1, y1, x2, y2 = min(self.box.x1, self.box.x2), min(self.box.y1, self.box.y2), max(self.box.x1, self.box.x2), max(self.box.y1, self.box.y2)
         return x > x1 and x < x2 and y > y1 and y < y2
 
-    def drag_handle(self, handle, x, y):
+    def drag_handle(self, handle, dx, dy):
         if handle in (self.top_left, self.top_right):
             self.top_left.y, self.top_right.y = handle.y, handle.y
         else:

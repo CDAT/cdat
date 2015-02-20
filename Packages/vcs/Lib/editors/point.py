@@ -20,9 +20,9 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
         self.configurator.changed = True
         self.save()
 
-    def drag_handle(self, handle, x, y):
-        self.point.x = x
-        self.point.y = y
+    def drag_handle(self, handle, dx, dy):
+        self.point.x += dx
+        self.point.y += dy
         self.configurator.changed = True
 
     def drag_stop(self):

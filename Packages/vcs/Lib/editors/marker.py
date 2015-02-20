@@ -15,7 +15,7 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
 
         for ind, x in enumerate(marker.x[index]):
             y = marker.y[index][ind]
-            h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
             h.show()
             self.handles.append(h)
 
@@ -109,7 +109,7 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
         x, y = self.event_position()
 
         if self.current_modifiers()["alt"]:
-            h = vtk_ui.Handle(self.interactor, (x, y), released=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
             h.show()
             self.handles.append(h)
             self.marker.x[self.index].append(x)
@@ -117,10 +117,10 @@ class MarkerEditor(behaviors.ClickableMixin, priority.PriorityEditor):
             self.configurator.changed = True
             self.save()
 
-    def adjust(self, handle):
+    def adjust(self, handle, dx, dy):
         ind = self.handles.index(handle)
-        self.marker.x[self.index][ind] = handle.x
-        self.marker.y[self.index][ind] = handle.y
+        self.marker.x[self.index][ind] += dx
+        self.marker.y[self.index][ind] += dy
         self.configurator.changed = True
         self.save()
 
