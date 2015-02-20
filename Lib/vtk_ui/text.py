@@ -75,7 +75,7 @@ from behaviors import DraggableMixin
 
 class Label(Widget, DraggableMixin):
 
-    def __init__(self, interactor, string, movable=False, on_move=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
+    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
         widget = vtkTextWidget()
 
         if textproperty is not None:
@@ -96,6 +96,7 @@ class Label(Widget, DraggableMixin):
         self.action = on_click
         self.release_action = on_release
         self.move_action = on_move
+        self.drag_action = on_drag
 
         self.left, self.top = left, top
         self.top_offset = 0
@@ -173,6 +174,7 @@ class Label(Widget, DraggableMixin):
         if x < self.left + w and x > self.left and y < self.top and y > self.top - h:
             return True
         return False
+
     def drag_stop(self):
         if self.movable and self.move_action:
             self.move_action()
@@ -183,4 +185,5 @@ class Label(Widget, DraggableMixin):
             dx, dy = dx * w, dy * h
             self.left += dx
             self.top -= dy
+            self.drag_action(dx, dy)
             self.place()
