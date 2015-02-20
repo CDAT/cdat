@@ -173,6 +173,16 @@ class LabelEditor(point.PointEditor):
         super(LabelEditor, self).detach()
         self.toolbar.detach()
 
+    def update_priority(self):
+        maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
+        new_layer = self.label.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        if new_layer + 1 > maxLayers:
+            self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
+
+        self.actor.SetLayerNumber(new_layer)
+
+        self.interactor.GetRenderWindow().Render()
+
 
 def get_label_text(label, display):
     actor = get_actor(label, display)
