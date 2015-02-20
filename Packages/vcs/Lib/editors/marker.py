@@ -126,13 +126,12 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             self.handles.append(h)
             self.marker.x[self.index].append(x)
             self.marker.y[self.index].append(y)
-            self.configurator.changed = True
             self.sync_positions()
 
     def adjust(self, handle, x, y):
         ind = self.handles.index(handle)
-        self.marker.x[self.index][ind] = x
-        self.marker.y[self.index][ind] = y
+        self.marker.x[self.index][ind] += x
+        self.marker.y[self.index][ind] += y
         self.sync_positions()
 
     def in_bounds(self, x, y):
@@ -157,7 +156,6 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
             del self.marker.x[self.index][ind]
             del self.marker.y[self.index][ind]
-            self.configurator.changed = True
             self.handles[ind].detach()
             del self.handles[ind]
 
@@ -185,9 +183,12 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             h.detach()
 
     def delete(self):
-        self.configurator.delete(self.marker, self.index)
+        del self.marker.x[self.index]
+        del self.marker.y[self.index]
+        del self.marker.type[self.index]
+        del self.marker.color[self.index]
+        self.actor.SetVisibility(0)
         self.configurator.deactivate(self)
-
 
     def sync_positions(self):
         # Sync all points
