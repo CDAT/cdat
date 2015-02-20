@@ -191,10 +191,13 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def sync_positions(self):
         # Sync all points
-        points = vtk.vtkPoints()
-        for x, y in zip(self.marker.x[self.index], self.marker.y[self.index]):
-            points.InsertNextPoint(x, y, 0)
-        self.glyph.GetInput().SetPoints(points)
+        points = self.glyph.GetInput().GetPoints()
+        for i, (x, y) in enumerate(zip(self.marker.x[self.index], self.marker.y[self.index])):
+            if i == points.GetNumberOfPoints():
+                points.InsertNextPoint(x, y, 0)
+            else:
+                points.SetPoint(i, x, y, 0)
+        self.glyph.GetInput().Modified()
         self.interactor.GetRenderWindow().Render()
 
 __shape_cache = {}
