@@ -24,14 +24,10 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
             self.configurator.changed = True
         self.save()
 
-    def drag_handle(self, handle, x, y):
-        self.point.x = x
-        self.point.y = y
-        try:
-            w, h = self.interactor.GetRenderWindow().GetSize()
-            self.actor.SetPosition(w * x, h * y)
-        except AttributeError:
-            self.configurator.changed = True
+    def drag_handle(self, handle, dx, dy):
+        self.point.x += dx
+        self.point.y += dy
+        self.configurator.changed = True
 
     def drag_stop(self):
         self.handle.place()

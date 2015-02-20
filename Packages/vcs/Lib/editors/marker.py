@@ -129,11 +129,12 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             self.configurator.changed = True
             self.sync_positions()
 
-    def adjust(self, handle, x, y):
+    def adjust(self, handle, dx, dy):
         ind = self.handles.index(handle)
-        self.marker.x[self.index][ind] = x
-        self.marker.y[self.index][ind] = y
-        self.sync_positions()
+        self.marker.x[self.index][ind] += dx
+        self.marker.y[self.index][ind] += dy
+        self.configurator.changed = True
+        self.save()
 
     def in_bounds(self, x, y):
         w, h = self.interactor.GetRenderWindow().GetSize()
