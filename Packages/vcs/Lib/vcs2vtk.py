@@ -734,18 +734,8 @@ def doWrap(Act,wc,wrap=[0.,360], fastClip=True):
   clipper.SetInputConnection(appendFilter.GetOutputPort())
   clipper.Update()
 
-  Actor = vtk.vtkActor()
-  Actor.SetProperty(Act.GetProperty())
-  #Mapper2 = vtk.vtkDataSetMapper()
-  #Mapper2 = vtk.vtkCompositePolyDataMapper()
-  Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(clipper.GetOutput())
-  Mapper2.SetLookupTable(Mapper.GetLookupTable())
-  Mapper2.SetScalarRange(Mapper.GetScalarRange())
-  Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  Mapper2.Update()
-  Actor.SetMapper(Mapper2)
-  return Actor
+  Mapper.SetInputData(clipper.GetOutput())
+  return Act
 
 def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
     clipPlaneCollection = vtk.vtkPlaneCollection()
@@ -807,7 +797,8 @@ def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
 #     clp.Update()
 #     return clp.GetOutput()
 
-def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
+def prepTextProperty(p,winSize,to="default",tt="default",cmap=None,
+                     overrideColorIndex = None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
@@ -820,7 +811,8 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
       cmap = 'default'
   if isinstance(cmap,str):
     cmap = vcs.elements["colormap"][cmap]
-  c=cmap.index[tt.color]
+  colorIndex = overrideColorIndex if overrideColorIndex else tt.color
+  c=cmap.index[colorIndex]
   p.SetColor([C/100. for C in c])
   if to.halign in [0, 'left']:
     p.SetJustificationToLeft()
