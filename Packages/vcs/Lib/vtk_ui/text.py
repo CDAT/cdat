@@ -96,7 +96,7 @@ class Label(Widget, DraggableMixin):
         self.action = on_click
         self.release_action = on_release
         self.move_action = on_move
-        self.drag_action = on_drag
+        self.dragged = on_drag
 
         self.left, self.top = left, top
         self.top_offset = 0
@@ -185,5 +185,5 @@ class Label(Widget, DraggableMixin):
             dx, dy = dx * w, dy * h
             self.left += dx
             self.top -= dy
-            self.drag_action(dx, dy)
+            self.dragged(self, dx/w, dy/h)
             self.place()
