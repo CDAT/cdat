@@ -34,6 +34,8 @@ def dumpToDict(obj,skipped=[],must=[]):
               "colormap":set(),
               "projection":set(),
               }
+  if isinstance(obj,(vcs.taylor.TDMarker,vcs.taylor.Gtd)):
+    del(associated["line"])
   associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
@@ -45,7 +47,7 @@ def dumpToDict(obj,skipped=[],must=[]):
         if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
           continue
         associated[a].add(val)
-      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
+      if not isinstance(val,(unicode,str,tuple,list,int,long,float,dict)) and val is not None:
         val,asso = dumpToDict(val,skipped,must)
         for k in associated_keys:
           for v in asso[k]:
@@ -617,15 +619,22 @@ def loadVCSItem(typ,nm,json_dict = {}):
     exec(cmd)
   for a,v in json_dict.iteritems():
     if isinstance(v,dict):
-      for k in v.keys():
-        try:
-          v[eval(k)]=v[k]
-          del(v[k])
-        except:
-          pass
+      if a=="Marker" and tp=="taylordiagram":
+        gm.addMarker()
+        for k in v.keys():
+            cmd = "gm.Marker.%s = %s" % (k,repr(v[k]))
+            exec(cmd)
+      else:
+        for k in v.keys():
+          try:
+            v[eval(k)]=v[k]
+            del(v[k])
+          except:
+            pass
     elif isinstance(v,unicode):
       v=str(v)
-    setattr(gm,a,v)
+    if not(a=="Marker" and tp=="taylordiagram"):
+      setattr(gm,a,v)
   return gm
 
 def return_display_names():
