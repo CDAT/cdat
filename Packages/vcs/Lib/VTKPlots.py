@@ -11,6 +11,8 @@ import cdms2
 import DV3D
 import MV2
 import cdtime
+import inspect
+import VTKAnimate
 
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -208,6 +210,10 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
+
+    if self.canvas.animate.created():
+      self.canvas.animate.draw_frame()
+
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
@@ -263,7 +269,7 @@ class VTKVCSBackend(object):
       ## mostly so that pngs are same accross platforms
       self.renWin.SetMultiSamples(0)
       self.initialSize()
-      
+
     if self.renderer == None:
       self.renderer = self.createRenderer()
       if self.bg is False:
@@ -417,11 +423,12 @@ class VTKVCSBackend(object):
             self._renderers[(None,None,None)]=ren
         else:
             ren = self._renderers[(None,None,None)]
-        vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(ren,to=to,tt=tt)
         self.setLayer(ren,tt.priority)
     elif gtype=="line":
       if gm.priority!=0:
         actors = vcs2vtk.prepLine(self.renWin,gm)
+        returned["vtk_backend_line_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -429,6 +436,7 @@ class VTKVCSBackend(object):
     elif gtype=="marker":
       if gm.priority!=0:
         actors = vcs2vtk.prepMarker(self.renWin,gm)
+        returned["vtk_backend_marker_actors"]=actors
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -455,6 +463,7 @@ class VTKVCSBackend(object):
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
+        returned["vtk_backend_fillarea_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
@@ -623,35 +632,11 @@ class VTKVCSBackend(object):
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,None,False,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    #None/False are for color and cellData (sent to vcs2vtk.putMaskOnVTKGrid)
+    returned["vtk_backend_missing_mapper"]=missingMapper,None,False
 
-    u=numpy.ma.ravel(data1)
-    v=numpy.ma.ravel(data2)
-    sh = list(u.shape)
-    sh.append(1)
-    u = numpy.reshape(u,sh)
-    v = numpy.reshape(v,sh)
-    z = numpy.zeros(u.shape)
-    w = numpy.concatenate((u,v),axis=1)
-    w = numpy.concatenate((w,z),axis=1)
+    w=vcs2vtk.generateVectorArray(data1,data2,vtk_backend_grid)
 
-    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
-    # data array. I'm not sure where the issue is...for now let's just zero-pad
-    # data array so that we can at least test rendering until Charles gets
-    # back from vacation:
-    wLen = len(w)
-    numPts = vtk_backend_grid.GetNumberOfPoints()
-    if wLen != numPts:
-        warnings.warn("!!! Warning during vector plotting: Number of points does not "\
-              "match the number of vectors to be glyphed (%s points vs %s "\
-              "vectors). The vectors will be padded/truncated to match for "\
-              "rendering purposes, but the resulting image should not be "\
-              "trusted."%(numPts, wLen))
-        newShape = (numPts,) + w.shape[1:]
-        w = numpy.ma.resize(w, newShape)
-
-    w = vcs2vtk.numpy_to_vtk_wrapper(w,deep=False)
-    w.SetName("vectors")
     vtk_backend_grid.GetPointData().AddArray(w)
 
     ## Vector attempt
@@ -672,32 +657,7 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
-    # Strip out masked points.
-    if vtk_backend_grid.IsA("vtkStructuredGrid"):
-        if vtk_backend_grid.GetCellBlanking():
-            visArray = vtk_backend_grid.GetCellVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetCellData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.ThresholdByUpper(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
-        elif vtk_backend_grid.GetPointBlanking():
-            visArray = vtk_backend_grid.GetPointVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_backend_grid.GetPointData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_backend_grid)
-            thresh.SetUpperThreshold(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_backend_grid = thresh.GetOutput()
+    vtk_backend_grid = vcs2vtk.stripGrid(vtk_backend_grid)
 
     arrow = vtk.vtkGlyphSource2D()
     arrow.SetGlyphTypeToArrow()
@@ -748,6 +708,9 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
+    returned["vtk_backend_actors"] = [[act,[x1,x2,y1,y2]],]
+    returned["vtk_backend_glyphfilters"]=[glyphFilter,]
+    returned["vtk_backend_luts"]=[[None,None],]
     return returned
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
@@ -758,6 +721,7 @@ class VTKVCSBackend(object):
         z = data1.getAxis(-3)
     else:
         z = None
+    wmn,wmx = vcs.minmax(data1)
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
@@ -766,6 +730,7 @@ class VTKVCSBackend(object):
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
+    returned["vtk_backend_wrap"]=wrap
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -784,7 +749,7 @@ class VTKVCSBackend(object):
     if color is not None:
         color = cmap.index[color]
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,vtk_backend_grid,color,cellData,deep=False)
-    returned["vtk_backend_missing_mapper"]=missingMapper
+    returned["vtk_backend_missing_mapper"]=missingMapper,color,cellData
     lut = vtk.vtkLookupTable()
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
@@ -824,6 +789,7 @@ class VTKVCSBackend(object):
       else:
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
+      returned["vtk_backend_filter"]=sFilter
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
@@ -943,6 +909,7 @@ class VTKVCSBackend(object):
         mapper.SetInputConnection(stripper.GetOutputPort())
         stripper.Update()
         mappers.append([mapper,])
+        returned["vtk_backend_contours"]=[cot,]
       else:
         mappers = []
         LEVS = []
@@ -982,6 +949,9 @@ class VTKVCSBackend(object):
         INDX.append(I)
 
 
+        luts=[]
+        cots=[]
+        geos =[]
         for i,l in enumerate(LEVS):
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
@@ -998,11 +968,13 @@ class VTKVCSBackend(object):
                 cot.SetValue(j,v)
               #cot.SetScalarModeToIndex()
               cot.Update()
+              cots.append(cot)
               mapper.SetInputConnection(cot.GetOutputPort())
               lut.SetNumberOfTableValues(len(COLS[i]))
               for j,color in enumerate(COLS[i]):
                   r,g,b = cmap.index[color]
                   lut.SetTableValue(j,r/100.,g/100.,b/100.)
+              luts.append([lut,[0,len(l)-1,True]])
               mapper.SetLookupTable(lut)
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
@@ -1016,13 +988,19 @@ class VTKVCSBackend(object):
                   th.SetInputConnection(geoFilter.GetOutputPort())
                   geoFilter2 = vtk.vtkDataSetSurfaceFilter()
                   geoFilter2.SetInputConnection(th.GetOutputPort())
+                  geos.append(geoFilter2)
                   mapper.SetInputConnection(geoFilter2.GetOutputPort())
                   lut.SetNumberOfTableValues(1)
                   r,g,b = cmap.index[color]
                   lut.SetTableValue(0,r/100.,g/100.,b/100.)
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
-                  mappers.append([mapper,])
+                  luts.append([lut,[l[j],l[j+1],False]])
+                  ## Store the mapper only if it's worth it?
+                  ## Need to do it with the whole slab min/max for animation purposes
+                  if not(l[j+1]<wmn or l[j]>wmx):
+                      mappers.append([mapper,])
+
 
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
@@ -1030,6 +1008,11 @@ class VTKVCSBackend(object):
           #T.SetInputConnection(png.GetOutputPort())
           if isinstance(gm,isofill.Gfi):
               mappers.append([mapper,])
+        returned["vtk_backend_luts"]=luts
+        if len(cots)>0:
+           returned["vtk_backend_contours"]=cots
+        if len(geos)>0:
+           returned["vtk_backend_geofilters"]=geos
 
     else: #Boxfill (non custom)/Meshfill
       if isinstance(gm,boxfill.Gfb):
@@ -1091,8 +1074,10 @@ class VTKVCSBackend(object):
       geoFilter2.SetInputConnection(thr.GetOutputPort())
       if gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
           mapper.SetInputConnection(geoFilter.GetOutputPort())
+          returned["vtk_backend_geofilters"]=[geoFilter,]
       else:
           mapper.SetInputConnection(geoFilter2.GetOutputPort())
+          returned["vtk_backend_geofilters"]=[geoFilter2,]
 
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
@@ -1116,6 +1101,7 @@ class VTKVCSBackend(object):
       else:
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
+      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,False]],]
 
     if missingMapper is not None:
       if isinstance(gm,meshfill.Gfm):
@@ -1154,6 +1140,7 @@ class VTKVCSBackend(object):
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
+      actors = []
       for mapper in mappers:
         act = vtk.vtkActor()
         if isinstance(mapper,list):
@@ -1168,6 +1155,10 @@ class VTKVCSBackend(object):
         if geo is None:
           #If using geofilter on wireframed does not get wrppaed not sure why so sticking to many mappers
           act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        if mapper is missingMapper:
+            actors.append([act,missingMapper,[x1,x2,y1,y2]])
+        else:
+            actors.append([act,[x1,x2,y1,y2]])
         if isinstance(mapper,list):
           ## This is the sport to add patterns
           #act.GetMapper().ScalarVisibilityOff()
@@ -1179,6 +1170,7 @@ class VTKVCSBackend(object):
         if tmpl.data.priority>0:
             ren.AddActor(act)
             self.setLayer(ren,tmpl.data.priority)
+      returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,
@@ -1229,8 +1221,6 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
-      contMapper.SetResolveCoincidentTopologyPolygonOffsetParameters(1, 1)
-      contMapper.SetResolveCoincidentTopologyToPolygonOffset()
 
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
@@ -1242,7 +1232,22 @@ class VTKVCSBackend(object):
       return {}
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
-    tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    ## ok first basic template stuff, let's store the displays
+    ## because we need to return actors for min/max/mean
+    displays = tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    returned = {}
+    for d in displays:
+        if d is None:
+          continue
+        texts=d.backend.get("vtk_backend_text_actors",[])
+        for t in texts:
+          ## ok we had a text actor, let's see if it's min/max/mean
+          txt = t.GetInput()
+          s0=txt.split()[0]
+          if s0 in ["Min","Max","Mean"]:
+              returned["vtk_backend_%s_text_actor" % s0] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
@@ -1261,7 +1266,8 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if crdate.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_crdate_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crdate.name])
@@ -1269,7 +1275,8 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if crtime.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_crtime_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
@@ -1312,11 +1319,12 @@ class VTKVCSBackend(object):
         tt = vcs.elements["texttable"][tt]
         to = vcs.elements["textorientation"][to]
         if zvalue.priority>0:
-            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            actors = vcs2vtk.genTextActor(ren,to=to,tt=tt)
+            returned["vtk_backend_zvalue_text_actor"]=actors[0]
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zvalue.name])
-    return {}
+    return returned
 
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
@@ -1504,7 +1512,7 @@ class VTKVCSBackend(object):
           writer.Write()
           a=A.GetNextActor()
   def Animate(self,*args,**kargs):
-    return VTKAnimate(*args,**kargs)
+     return VTKAnimate.VTKAnimate(*args,**kargs)
 
   def gettextextent(self,textorientation,texttable):
       warnings.warn("Please implement gettextextent for VTK Backend")
@@ -1680,24 +1688,112 @@ class VTKVCSBackend(object):
             cam.Azimuth(180.)
       return Renderer
 
-class VTKAnimate(animate_helper.AnimationController):
-   pass
+  def update_input(self,vtkobjects,array1,array2=None,update=True):
+      if vtkobjects.has_key("vtk_backend_grid"):
+          ## Ok ths is where we update the input data
+          vg=vtkobjects["vtk_backend_grid"]
+          data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
+          pData= vg.GetPointData().GetScalars()
+          if pData is not None:
+              vg.GetPointData().SetScalars(data)
+          else:
+              vg.GetCellData().SetScalars(data)
+          if vtkobjects.has_key("vtk_backend_filter"):
+            vtkobjects["vtk_backend_filter"].Update()
+          if vtkobjects.has_key("vtk_backend_missing_mapper"):
+              missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
+              missingMapper2 = vcs2vtk.putMaskOnVTKGrid(array1,vg,color,cellData,deep=False)
+          else:
+              missingMapper = None
+          if vtkobjects.has_key("vtk_backend_contours"):
+            for c in vtkobjects["vtk_backend_contours"]:
+              c.Update()
+            ports=vtkobjects["vtk_backend_contours"]
+          elif vtkobjects.has_key("vtk_backend_geofilters"):
+            ports=vtkobjects["vtk_backend_geofilters"]
+          else:
+            # Vector plot
+            ports=vtkobjects["vtk_backend_glyphfilters"]
+            w = vcs2vtk.generateVectorArray(array1,array2,vg)
+            vg.GetPointData().AddArray(w)
+            vg = vcs2vtk.stripGrid(vg)
+            ports[0].SetInputData(vg)
 
-# class VTKAnimate(animate_helper.animate_obj):
-#   def __init__(self,*args,**kargs):
-#     animate_helper.animate_obj.__init__(self,*args,**kargs)
-#     self._initial_blink_done = False
-#   def draw2(self,frame):
-#     if self.create_flg == 1:
-#         self.current_frame = frame
-#         kargs = {}
-#         if self._initial_blink_done:
-#           kargs["noblink"]=True
-#         else:
-#           self._initial_blink_done = True
-#         self.vcs_self.backend.clear()
-#         self.vcs_self.put_png_on_canvas(self.animation_files[frame],
-#                 self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
-#         if animate_helper.hasPyQt:
-#           self.signals.drew.emit()
+          if vtkobjects.has_key("vtk_backend_actors"):
+              i=0
+              for a in vtkobjects["vtk_backend_actors"]:
+                  act = a[0]
+                  wrp = a[1]
+                  if a[1] is missingMapper:
+                      i-=1
+                      mapper = missingMapper2
+                      wrp = a[2]
+                  else:
+                      mapper = vtk.vtkPolyDataMapper()
+                      mapper.SetInputConnection(ports[i].GetOutputPort())
+                      lut,rg = vtkobjects["vtk_backend_luts"][i]
+                      if lut is not None:
+                          mapper.SetLookupTable(lut)
+                          if rg[2]:
+                              mapper.SetScalarModeToUseCellData()
+                          mapper.SetScalarRange(rg[0],rg[1])
+                  act.SetMapper(mapper)
+                  act = vcs2vtk.doWrap(a[0],wrp)
+                  a[0].SetMapper(act.GetMapper())
+                  i+=1
 
+      taxis = array1.getTime()
+      if taxis is not None:
+          tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
+      else:
+          tstr = None
+      ## Min/Max/Mean
+      for att in ["Min","Max","Mean","crtime","crdate","zvalue"]:
+          if vtkobjects.has_key("vtk_backend_%s_text_actor" % att):
+              t = vtkobjects["vtk_backend_%s_text_actor" % att]
+              if att == "Min":
+                  t.SetInput("Min %g" % array1.min())
+              elif att == "Max":
+                  t.SetInput("Max %g" % array1.max())
+              elif att == "Mean":
+                if not inspect.ismethod(getattr(array1,'mean')):
+                    meanstring = "Mean: %s" % getattr(array1,"mean")
+                else:
+                    try:
+                     meanstring='Mean %.4g'% float(cdutil.averager(array1,
+                             axis = " ".join(["(%s)" % S for S in array1.getAxisIds()])))
+                    except Exception,err:
+                     meanstring='Mean %.4g'%array1.mean()
+                t.SetInput(meanstring)
+              elif att=="crdate" and tstr is not None:
+                  t.SetInput(tstr.split()[0].replace("-","/"))
+              elif att=="crtime" and tstr is not None:
+                  t.SetInput(tstr.split()[1])
+              elif att=="zvalue":
+                  if len(array1.shape)>2:
+                      l=array1.getAxis(-3)
+                      if l.isTime():
+                          t.SetInput(str(l.asComponentTime()[0]))
+                      else:
+                          t.SetInput("%g" % l[0])
+
+      if update:
+        ##Ok let's go thru all renderers
+        renderers = self.renWin.GetRenderers()
+        renderers.InitTraversal()
+        ren = renderers.GetNextItem()
+        i=0
+        while ren:
+          i+=1
+          actors = ren.GetActors()
+          actors.InitTraversal()
+          actor = actors.GetNextItem()
+          j=0
+          while actor:
+            j+=1
+            #print "renderer:",i,"actor",j
+            m = actor.GetMapper()
+            m.Update()
+            actor=actors.GetNextItem()
+          ren=renderers.GetNextItem()
+        self.renWin.Render()
