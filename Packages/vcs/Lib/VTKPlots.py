@@ -862,7 +862,6 @@ class VTKVCSBackend(object):
         cot.SetValue(Nlevs,levs[-1])
         cot.Update()
         mappers = []
-        returned["vtk_backend_contours"]=[cot,]
         if gm.label=="y":
             mapper = vtk.vtkLabeledContourMapper()
         else:
@@ -920,6 +919,7 @@ class VTKVCSBackend(object):
         mapper.SetInputConnection(stripper.GetOutputPort())
         stripper.Update()
         mappers.append([mapper,])
+        returned["vtk_backend_contours"]=[cot,]
       else:
         mappers = []
         LEVS = []
