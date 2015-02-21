@@ -183,34 +183,20 @@ a.show('line')
 a.show('marker')
 a.show('text')
 """
-    if args != () and args[0].lower() == 'taylordiagram':
-        ln=[]
-        ln.append('*******************Taylor Diagrams Names List**********************')
-        nms=[]
-        i=0
-        ln.append('')
-        for t in vcs.taylordiagrams:
-            if i%3==0 :
-               ln[-1]=ln[-1]+'(%4s):' % str(i+1)
-            ln[-1]=ln[-1]+'%20s' % t.name
-            i=i+1
-            if i%3==0 : ln.append('')
-        if ln[-1]=='' : ln.pop(-1)
-        ln.append('*****************End Taylor Diagrams Names List********************')
-        for l in ln:
-            print l
-        return None
-    elif args == ():
+    if args == ():
        return vcs.listelements()
     else:
       elts = vcs.listelements(args[0])
-      m = max([len(e) for e in elts])+1
+      try:
+          m = max([len(e) for e in elts])+1
+      except:
+          m = 4
       print "*******************%s Names List**********************" % args[0].capitalize()
       for i,e in enumerate(elts):
-        print e.ljust(m),
+        print ("%s" % e).ljust(m),
         if (i+1)%3==0:
           print
-      if (i+1)%3!=0:
+      if len(elts)>0 and (i+1)%3!=0:
         print
       print "*******************End %s Names List**********************" % args[0].capitalize()
       return 
