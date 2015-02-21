@@ -270,7 +270,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
     
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
-        new_layer = self.marker.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        new_layer = self.text.priority * 10000 + 1 + self.configurator.displays.index(self.display)
         if new_layer + 1 > maxLayers:
             self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
         
