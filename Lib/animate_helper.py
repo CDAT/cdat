@@ -4,6 +4,7 @@ import os
 import time
 import thread
 import threading
+import glob
 
 def showerror(msg):
   raise Exception,msg
@@ -135,7 +136,7 @@ class animate_obj_old(object):
                pass # if it is default, then you cannot set the min and max, so pass.
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
-          if thread_it == 1:
+          if thread_it:
               thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
               self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
               self.mythread.start()
@@ -444,8 +445,7 @@ class animate_obj_old(object):
    # Return the number of animate frames                                    	#
    ##############################################################################
    def number_of_frames( self ):
-      if self.create_flg == 1:
-         return self.vcs_self.canvas.animate_number_of_frames( )
+     return self._number_of_frames
 
    ##############################################################################
    # Pause the animation loop                                               	#
@@ -542,7 +542,7 @@ class animate_obj_old(object):
    ##############################################################################
    # Close the animate session                                              	#
    ##############################################################################
-   def close( self ):
+   def close( self, preserve_pngs = False ):
       if self.create_flg == 1:
          self.vcs_self.canvas.animate_close()
          self.gui_popup = 0
@@ -555,6 +555,17 @@ class animate_obj_old(object):
 
       # Now that the animation is completed, restore the graphics methods min and max values.
       self.restore_min_max()
+      if hasattr(self,"_unique_prefix"):
+        png_names=glob.glob(
+            os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png")
+            )
+        if not preserve_pngs:
+          for f in png_names:
+              os.remove(f)
+          if len(png_names)>0:
+              os.rmdir(os.path.dirname(png_names[-1]))
+        else:
+          return png_names
 
    ##############################################################################
    # Pop up the animation GUI                                              	#
@@ -579,13 +590,12 @@ class RT:
     self.running = False
 
 # Adapted from http://stackoverflow.com/questions/323972/is-there-any-way-to-kill-a-thread-in-python
-class StoppableThread(threading.Thread):
+class StoppableThread(threading.Thread,object):
   def __init__(self):
     threading.Thread.__init__(self)
     self._stop = threading.Event()
     self._running = threading.Event()
     self._running.set()
-
   def stop(self):
     self._stop.set()
     
@@ -624,7 +634,6 @@ class AnimationCreate(StoppableThread):
       if self.is_stopped():
         break
       self.wait_if_paused()
-      # print "RENDERING FRAME", i, "OF", len(all_args)
       if self._really_used!=[]:
         for j,a in enumerate(args):
           args[j]=a[:-3]+self._really_used[j]
@@ -639,7 +648,7 @@ class AnimationCreate(StoppableThread):
 
       # this is how you allow the GUI to process events during
       # animation creation
-      time.sleep(0.001)
+      #time.sleep(0.001)
     self.controller.restore_min_max()
 
     self.controller.animation_created = True
@@ -729,6 +738,9 @@ class AnimationController(animate_obj_old):
     self.playback_params = AnimationPlaybackParams()
     # GUI will set these if available
     self.signals = None
+    self.AnimationCreate = AnimationCreate
+    self.AnimationPlayback = AnimationPlayback
+    self._number_of_frames = None
 
   def set_signals(self, signals):
     self.signals = signals
@@ -737,14 +749,17 @@ class AnimationController(animate_obj_old):
     return self.animation_created
 
   def create(self, thread_it=True, min=None, max=None):
+    self.generate_number_of_frames()
     if thread_it == 0:
       thread_it = False
     if self.create_thread is None or not self.create_thread.is_alive():
       self.canvas_info = self.vcs_self.canvasinfo()
       self.animate_info = self.vcs_self.animate_info
-      self.create_params.a_min = min
-      self.create_params.a_max = max
-      self.create_thread = AnimationCreate(self)
+      if min is not None or max is not None:
+        raise RuntimeError("Animation min/max autoset has been deprecated, use graphic method to set them")
+      self.create_params.a_min = None
+      self.create_params.a_max = None
+      self.create_thread = self.AnimationCreate(self)
       self.create_thread.start()
     if not thread_it:
       self.create_thread.join()
@@ -764,7 +779,7 @@ class AnimationController(animate_obj_old):
   def playback(self):
     if (self.created() and 
         (self.playback_thread is None or not self.playback_thread.is_alive())):
-      self.playback_thread = AnimationPlayback(self)
+      self.playback_thread = self.AnimationPlayback(self)
       self.playback_thread.start()
 
   # alias run to playback for command-line compatibility
@@ -794,7 +809,7 @@ class AnimationController(animate_obj_old):
     self.playback_resume()
 
   def number_of_frames(self):
-    return len(self.animation_files)
+    return self._number_of_frames
 
   def initialize_create_canvas(self):
     # create a new canvas for each frame
@@ -861,6 +876,37 @@ class AnimationController(animate_obj_old):
             except Exception,err:
                pass # if it is default, then you cannot set the min and max, so pass.
 
+  def generate_number_of_frames(self):
+    if self._number_of_frames is not None:
+      return self._number_of_frames
+    NFrames = 1.e8
+    for info in self.vcs_self.animate_info:
+      disp,slabs = info
+      if slabs[0] is None:
+        ## Nothing to do
+        continue
+      if disp.g_type == "meshfill":
+        try:
+          g=slabs[0].getGrid()
+          NXY=len(g.shape)
+        except:
+          ## No grid so slab1 rnk will tell us
+          NXY=slabs[1].ndim-2 # lat/lon/vertices
+      elif disp.g_type in ["G1D"]:
+        NXY=1
+      else:
+        NXY=2
+      ## Now we can do the math and figure how many frames
+      NXtraDims = slabs[0].ndim-NXY
+      n=1
+      for a in slabs[0].getAxisList()[:NXtraDims]:
+        n*=len(a)
+      # We truncate to mininum number of common frames
+      NFrames = min(n,NFrames)
+    self._number_of_frames = NFrames
+    self._number_of_dims_used_for_plot = NXY
+    return self._number_of_frames
+
   def get_all_frame_args(self):
     alen = None
     truncated = False
@@ -906,8 +952,6 @@ class AnimationController(animate_obj_old):
                         break
                 args.append(I[1][1](**kw))
             args += [d.template,d.g_type,d.g_name]
-            #b=y.getboxfill(d.g_name)
-            #y.plot(*args,bg=1)
             frameArgs.append(args)
         all_args.append(frameArgs)
     return all_args
@@ -953,7 +997,7 @@ class AnimationController(animate_obj_old):
     self.create_canvas.png(fn,draw_white_background=1)
     return displays
 
-  def draw_frame(self, frame_num=None):
+  def draw_frame(self):
     if frame_num is not None:
       self.frame_num = frame_num
     self.vcs_self.backend.clear()
@@ -968,11 +1012,20 @@ class AnimationController(animate_obj_old):
   def save(self,movie,bitrate=1024, rate=None, options=''):
     """Save animation to a file"""
     if self.created():
-        fnms = os.path.join(os.environ["HOME"],".uvcdat",
-                            "__uvcdat_%i_%%d.png" % (self.animation_seed))
+        started = False
+        while len(self.animation_files)!=self.number_of_frames():
+            print len(self.animation_files),self.number_of_frames()
+            if not self.playback_running:
+                # if not runnnig getting it going so we can use the pngs
+                self.run()
+                started = True
+        if started:
+            # ok we can stop it nw
+            self.stop()
         if rate is None:
             rate = self.playback_params.fps()
-        self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
+        files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
+        self.vcs_self.ffmpeg(movie, files, bitrate, rate, options)
 
   def fps(self, value=None):
     """Animation desired number of frame per seconds (might not be
