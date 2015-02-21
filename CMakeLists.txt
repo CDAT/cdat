@@ -660,7 +660,6 @@ message("[INFO] WGET EXEC: ${WGET_EXECUTABLE}")
 
 # set candidate paths for setup_runtime scripts
 # will be added to environment variables in reverse order
-message("PARAVIEW VALS:${PARAVIEW_MAJOR}")
 set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
