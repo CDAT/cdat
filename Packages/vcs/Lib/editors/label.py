@@ -83,7 +83,7 @@ class LabelEditor(point.PointEditor):
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
-
+        self.toolbar.show()
         self.label.texttable = self.tt.name
         self.label.textorientation = self.to.name
 
