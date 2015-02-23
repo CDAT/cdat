@@ -66,7 +66,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
-
+        self.toolbar.show()
         super(TextEditor, self).__init__()
         self.register()
         self.update()
