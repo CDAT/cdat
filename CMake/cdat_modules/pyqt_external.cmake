@@ -1,7 +1,4 @@
-# PyQt
-#
 set(PyQt_source "${CMAKE_CURRENT_BINARY_DIR}/build/PyQt")
-message("[INFO] Using environment PYTHONPATH \"$ENV{PYTHONPATH}\"")
 set(PyQt_configure_command
   env PYTHONPATH=${PYTHONPATH}
   "${PYTHON_EXECUTABLE}" configure.py

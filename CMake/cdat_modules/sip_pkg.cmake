@@ -1,4 +1,3 @@
-message("SIPPING ...")
 set(SIP_MAJOR 4)
 set(SIP_MINOR 12)
 set(SIP_PATCH 1)
@@ -12,6 +11,4 @@ set(SIP_GZ sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz)
 set(SIP_MD5 a9840670a064dbf8f63a8f653776fec9 )
 set(SIP_SOURCE ${SIP_URL}/${SIP_GZ})
 
-
 add_cdat_package_dependent(SIP "" "" OFF "CDAT_BUILD_GUI" OFF)
-message("name: ${sip_pkg}")
