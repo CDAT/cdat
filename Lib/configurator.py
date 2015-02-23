@@ -256,6 +256,13 @@ class Configurator(object):
     def click(self, object, event):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
+    def show(self):
+        self.toolbar.show()
+        self.marker_button.show()
+        self.text_button.show()
+        #self.fill_button.show()
+        #self.line_button.show()
+
     def deactivate(self, obj):
         try:
             if self.target == obj:
@@ -414,8 +421,6 @@ class Configurator(object):
         if self.canvas.getdrawlogo():
           logo_button.set_state(1)
 
-        self.toolbar.show()
-
     def setup_animation(self):
         self.canvas.animate.create()
         if self.initialized == False:
@@ -459,16 +464,11 @@ class Configurator(object):
         states = [vtk_ui.button.ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
 
         #self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
-        #self.fill_button.show()
-
         self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
-        self.text_button.show()
 
         #self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
-        #self.line_button.show()
 
         self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click)
-        self.marker_button.show()
 
 
     def creator_enabled(self, button):

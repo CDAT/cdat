@@ -468,6 +468,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
+      self.configurator.show()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
