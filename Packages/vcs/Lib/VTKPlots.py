@@ -185,7 +185,7 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     cursor = self.renWin.GetCurrentCursor()
-    if ev == "ModifiedEvent" and cursor != self.oldCursor:
+    if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
       self.oldCursor = cursor
       return
 
