@@ -1,0 +1,10 @@
+import vcs
+x=vcs.init()
+x.show("taylordiagram")
+assert(not "outfill" in x.show())
+assert(not "outline" in x.show())
+x.show("fontNumber")
+x.show("textcombined")
+x.listelements("textcombined")
+t=x.createtext()
+x.show("textcombined")

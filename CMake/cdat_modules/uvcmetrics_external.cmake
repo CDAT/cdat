@@ -12,7 +12,7 @@ execute_process(
     )
 
 if (NOT ${res} EQUAL 0)
-  message("Couldn't fetch test files for uvcmetrics package, tests will fail")
+  message("[INFO] Failed to fetch test data for uvcmetrics, tests will fail")
 endif()
 
 set(GIT_CMD_STR GIT_REPOSITORY "${UVCMETRICS_SOURCE}")

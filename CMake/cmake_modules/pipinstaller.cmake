@@ -11,19 +11,17 @@ else()
 endif()
 
 if(DEFINED GIT_CMD_STR )
-    message([INFO] getting ${nm} from git repo: ${GIT_CMD_STR})
+    message("[INFO] [PIP] Installing ${nm} from ${GIT_CMD_STR}")
     include(GetGitRevisionDescription)
     set(URL_STR )
     set(URL_MD5_STR )
 else()
-    message([INFO] getting ${nm} from tarball)
+    message("[INFO] [PIP] Installing ${nm} from tarball")
     set(URL_STR URL ${${uc_nm}_SOURCE})
     set(URL_MD5_STR URL_MD5 ${${uc_nm}_MD5})
     set(GIT_CMD_STR )
     set(GIT_TAG )
 endif()
-
-message([INFO] URL STRING IS: ${URL_STR})
 
 ExternalProject_Add(${nm}
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
