@@ -2,6 +2,7 @@
 Testing units creation
 """
 import unittest
+import cdat_info
 import cdms2
 import cdutil
 import ESMP
@@ -17,7 +18,7 @@ class Test(unittest.TestCase):
         """
         Test cdutil.generateLandSeaMask
         """
-        f = cdms2.open(sys.prefix + \
+        f = cdms2.open(cdat_info.get_prefix() + \
                            "/sample_data/so_Omon_GISS-E2-R_historicalNat_r5i1p1_185001-187512_2timesteps.nc")
         s = f("so")
         print s.shape
@@ -29,7 +30,7 @@ class Test(unittest.TestCase):
         """
         Test cdutil.generateLandSeaMask, using a smaller dataset
         """
-        f = cdms2.open(sys.prefix + "/sample_data/clt.nc")
+        f = cdms2.open(cdat_info.get_prefix() + "/sample_data/clt.nc")
         s = f("clt")
         print s.shape
         print dir(cdutil.create_landsea_mask)

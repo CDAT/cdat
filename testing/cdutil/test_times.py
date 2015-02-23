@@ -8,8 +8,8 @@ import MV2
 
 cdms2.setAutoBounds('on')
 
-f   = cdms2.open(os.path.join(sys.prefix,'sample_data','tas_mo.nc'))
-fsc = cdms2.open(os.path.join(sys.prefix,'sample_data','tas_mo_clim.nc'))
+f   = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_mo.nc'))
+fsc = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_mo_clim.nc'))
 
 print "Step #0 : Reading data"
 s=f(var,longitude=(0,360,'co'))
@@ -28,7 +28,7 @@ fsc.close()
 a=cdtime.comptime(1980)
 b=cdtime.comptime(1980,5)
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','tas_6h.nc'))
+f = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_6h.nc'))
 s=f(var,time=(a,b,'co'),squeeze=1)
 
 print "Test #2 : 6hourly AND get"

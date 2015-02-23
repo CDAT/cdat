@@ -7,6 +7,7 @@ Unit test for src/dst AreaFractions return nan. It only fails in tripolar grids.
 
 import operator
 import numpy
+import cdat_info
 import cdms2
 import regrid2.esmf
 import regrid2
@@ -28,11 +29,11 @@ class Test(unittest.TestCase):
 
         mype = MPI.COMM_WORLD.Get_rank()
 
-        f = cdms2.open(sys.prefix + \
+        f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
 
-        h = cdms2.open(sys.prefix + \
+        h = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_HadGEM2-CC_historical_r1i1p1_185912-186911_2timesteps.nc')
         hadGEM2Model = h('so')[0,0,...]
 
@@ -54,7 +55,7 @@ class Test(unittest.TestCase):
         srcCells = [so.getLatitude(), so.getLongitude()]
         srcNodes = [srcLatCorner, srcLonCorner]
 
-        clt = cdms2.open(sys.prefix + 'sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
         cltBounds = clt.getGrid().getBounds()
 
         ny, nx = clt.shape

@@ -148,7 +148,7 @@ class Gcf:
 
 if __name__ == '__main__':
     import os,sys,cdutil,vcs,cdms2 as cdms
-    fnm=os.path.join(sys.prefix,'sample_data','clt.nc')
+    fnm=os.path.join(vcs.prefix,'sample_data','clt.nc')
     f=cdms.open(fnm)
     s=f('clt',0,longitude=(-180.,180.))
     x=vcs.init()

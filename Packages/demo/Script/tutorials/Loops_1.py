@@ -1,7 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms,sys,os
+import cdat_info
 
-path=sys.prefix+'/sample_data/'
+path=cdat_info.get_prefix()+'/sample_data/'
 
 # List files in sample_data directory
 my_files=os.listdir(path)

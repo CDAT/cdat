@@ -7,6 +7,7 @@ Test diagnostics
 
 import re
 import numpy
+import cdat_info
 import cdms2
 import regrid2
 import unittest
@@ -20,11 +21,11 @@ class Test(unittest.TestCase):
 
     def setUp(self):
 
-        self.so = cdms2.open(sys.prefix + \
+        self.so = cdms2.open(cdat_info.get_prefix() + \
                                  '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')('so')
-        self.tasGood = cdms2.open(sys.prefix + \
+        self.tasGood = cdms2.open(cdat_info.get_prefix() + \
                                       '/sample_data/tas_Amon_HadGEM2-A_amip_r1i2p1_197809-200811_2timesteps.nc')('tas')
-        self.tasBad = cdms2.open(sys.prefix + \
+        self.tasBad = cdms2.open(cdat_info.get_prefix() + \
                                      '/sample_data/tas_Amon_ACCESS1-0_historical_r1i1p1_185001-189912_2timesteps.nc')('tas')
 
     def test1_esmf_conserve_bad(self):

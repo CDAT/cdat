@@ -993,6 +993,10 @@ class AbstractVariable(CdmsObj, Slab):
             if fromgrid.getBounds() is not None and hasattr(regrid2,"ESMFRegrid"):
                 regridTool = 'esmf'
                 regridMethod = 'linear'
+                # Hum ok if only 1 longitude regrid fails, let's check
+                if len(togrid.getLongitude())==1:
+                  # esmf can't deal with this
+                  regridTool   = "regrid2"
 
             # let user override
             userSpecifiesMethod = False

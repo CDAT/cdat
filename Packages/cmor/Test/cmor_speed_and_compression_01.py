@@ -1,4 +1,4 @@
-import cmor,numpy,sys,os
+import cmor,numpy,sys,os,cdat_info
 try:
     import cdms2
     cdms2.setNetcdfShuffleFlag(0)
@@ -56,7 +56,7 @@ print 'Tables ids:',tables
 
 
 ## read in data, just one slice
-f=cdms2.open(sys.prefix+'/sample_data/tas_ccsr-95a.xml')
+f=cdms2.open(cdat_info.get_prefix()+'/sample_data/tas_ccsr-95a.xml')
 s=f("tas",time=slice(0,12),squeeze=1)
 
 ntimes = 12

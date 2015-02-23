@@ -1058,11 +1058,14 @@ def main(argv):
 
         varnames = f.variables.keys()
 
-        # try to force all axes to be included...
+        # Try to force all axes to be included, but only small ones, length<100.
+        # This section was motivated by a need to preserve the cloud axes isccp_prs,isccp_tau.
+        # If we ever need to preserve longer axes as well, we could create one variable per axis...
         crude_var_axes = [ [ ax[0] for ax in var.getDomain() ] for var in f.variables.values() ]
         var_axes = set().union( *crude_var_axes )
         other_axes = list( set(f.axes.values()) - var_axes )
         if len(other_axes)>0:
+            other_axes = [ax for ax in other_axes if len(ax)<100]
             other_axes.sort( key=(lambda ax:ax.id) )
             axisvar = cdms2.createVariable( numpy.ones([len(ax) for ax in other_axes]),
                                             axes=other_axes, id='allaxesdummy')
@@ -1160,7 +1163,7 @@ def main(argv):
             else:
                 currentdomain, attrs, tcode = vardict[var.id]
                 if comparedomains(currentdomain, tempdomain):
-                    sepname = disambig(var.id, vardict, var.size, compareVarDictValues, (tempdomain, None))
+                    sepname = disambig(var.id, vardict, var.size(), compareVarDictValues, (tempdomain, None))
                     saveid = var.id
                     varname  = var.id = sepname
                     varattrs = copyDict(var.attributes)

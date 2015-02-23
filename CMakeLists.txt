@@ -1,3 +1,4 @@
+#=============================================================================
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
 if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
@@ -5,13 +6,12 @@ if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
 endif()
 
 # Project name and initial checks
-#-----------------------------------------------------------------------------
+#=============================================================================
 project(cdat)
 
-# Set cdat and cmake variables
-#-----------------------------------------------------------------------------
+# Set various variables
+#=============================================================================
 set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
-
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
@@ -37,8 +37,21 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
 )
 
+if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
+  if (($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "True") OR
+      ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "False"))
+    message("[INFO] Using UVCDAT_ANONYMOUS_LOG found in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
+  else()
+    message("[INFO] Found UVCDAT_ANONYMOUS_LOG in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
+    message("[INFO] Valid values are 'True' or 'False' resetting to: 'True'")
+    set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
+  endif()
+else()
+  set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
+endif()
+
 # Disable in source build of any kind.
-#-----------------------------------------------------------------------------
+#=============================================================================
 include(CheckBuildOutOfSource)
 check_build_out_of_source("${cdat_SOURCE_DIR}" "${cdat_BINARY_DIR}"
                           BUILDINSOURCE)
@@ -49,7 +62,7 @@ if(BUILDINSOURCE)
 endif()
 
 # Include useful cmake scripts
-#-----------------------------------------------------------------------------
+#=============================================================================
 include(cmake_utils)
 include(check_fortran)
 include(CTest)
@@ -57,7 +70,7 @@ include(CTest)
 # Set up the test data. If UVCDAT_USE_SYSTEM_TESTDATA is ON and UVCDAT_TESTDATA
 # is not set then we won't use it for testing. Otherwise we'll test either
 # with the system test data or download it ourselves.
-#-----------------------------------------------------------------------------
+#=============================================================================
 if (BUILD_TESTING)
   set(UVCDAT_USE_SYSTEM_TESTDATA ON CACHE BOOL "Use UV-CDAT's test data from the system")
   if(UVCDAT_USE_SYSTEM_TESTDATA)
@@ -122,7 +135,7 @@ if(APPLE)
 endif()
 
 # Setup git and related options
-#-----------------------------------------------------------------------------
+#=============================================================================
 find_package(Git)
 
 if(NOT GIT_PROTOCOL)
@@ -135,10 +148,19 @@ if(NOT GIT_PROTOCOL)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(NOT res EQUAL 0)
     set(temp_git_protocol "http://")
+    execute_process(COMMAND "${GIT_EXECUTABLE}" ls-remote "http://github.com/UV-CDAT/uvcdat.git"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      RESULT_VARIABLE res
+      OUTPUT_VARIABLE out
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if (NOT res EQUAL 0)
+        set(temp_git_protocol "https://")
+      endif()
   endif()
 
   set(GIT_PROTOCOL ${temp_git_protocol} CACHE STRING "Choose protocol to be used by git" FORCE)
-  set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
+  set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://" "https://")
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
@@ -186,6 +208,7 @@ else()
 endif()
 
 # Checkout the baseline repository.
+#=============================================================================
 if(BUILD_TESTING)
   set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
     CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
@@ -206,44 +229,25 @@ if(BUILD_TESTING)
   )
 endif()
 
-# Initialize submodules
-#-----------------------------------------------------------------------------
-# C. Doutriaux commented this out no submodules left at this time
-#if(GIT_FOUND)
-#  message("[INFO] Updating git submodules")
-#  execute_process(
-#    COMMAND ${GIT_EXECUTABLE} submodule init
-#    OUTPUT_VARIABLE subinit_out
-#    ERROR_VARIABLE subinit_err
-#    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-#  )
-#  execute_process(
-#    COMMAND ${GIT_EXECUTABLE} submodule update
-#    OUTPUT_VARIABLE subup_out
-#    ERROR_VARIABLE subup_err
-#    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-#  )
-#endif()
-
 # Check if system has fortran compiler and act accordingly
-#-----------------------------------------------------------------------------
+#=============================================================================
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
   set(CONFIG_SUMMARY ${cdat_BINARY_DIR}/logs/config.summary)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 
-
 # Set build related properties
-#-----------------------------------------------------------------------------
+#=============================================================================
 set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
 
-## The following is to know if we are prepring for an offline installation
-## ON is the default means we can download as we build
-## PREP means with are using this machine as a proxy to download all needed files in order to move them (somehow) to the OFFLINE machine where build will happen
-## OFF the machine has no internet access all files are suppposed to be here, pre-downloaded
-option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
+# The following is to know if we are prepring for an offline installation
+# ON is the default means we can download as we build
+# PREP means with are using this machine as a proxy to download all needed
+# files in order to move them (somehow) to the OFFLINE machine where build will happen
+# OFF the machine has no internet access all files are suppposed to be here, pre-downloaded
 
+option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 
 # OSMesa/VTK aren't playing nicely on macs. Disabling for now.
@@ -251,18 +255,22 @@ include(CMakeDependentOption)
 cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
   "NOT APPLE" OFF)
 
+# Option to enable vtkweb for cdatweb
+option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 
 # Default state
 set(CDAT_BUILD_LEAN OFF)
 set(CDAT_BUILD_ALL OFF)
 
-# Options
+# Some more options
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
@@ -344,6 +352,8 @@ set(ep_log_options
 )
 endif()
 
+# Set compiler arguments
+#=============================================================================
 set(cdat_compiler_args
   -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
   -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -407,7 +417,7 @@ endif()
 # Include external project now (we have our own modifications) and create
 # required directories as often third party install systems do bad things
 # when left to create them.
-#-----------------------------------------------------------------------------
+#=============================================================================
 set(CDAT_PACKAGE_CACHE_DIR
 #  ${CMAKE_CURRENT_BINARY_DIR}/../cdat_dependencies"
   "${CMAKE_CURRENT_BINARY_DIR}"
@@ -426,13 +436,13 @@ file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
 
 # Configure cdat command files
-#-----------------------------------------------------------------------------
+#=============================================================================
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
 set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake)
 
 # Include essential packages
-#-----------------------------------------------------------------------------
+#=============================================================================
 set(external_packages)
 set(found_system_include_dirs)
 set(found_system_libraries)
@@ -449,6 +459,7 @@ include(g2clib_pkg)
 include(gdal_pkg)
 include(geos_pkg)
 include(gui_support_pkg)
+include(h5py_pkg)
 include(hdf5_pkg)
 include(zmq_pkg)
 include(pyzmq_pkg)
@@ -491,7 +502,9 @@ include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
-include(pip_pkg)
+if (NOT CDAT_USE_SYSTEM_PYTHON)
+  include(pip_pkg)
+endif()
 include(shapely_pkg)
 include(pygments_pkg)
 include(markupsafe_pkg)
@@ -538,13 +551,15 @@ endif()
 
 if (CDAT_BUILD_GUI)
   include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
+  if (NOT CDAT_USE_SYSTEM_PYTHON)
+    include(sip_pkg)
+    include(pyqt_pkg)
+  endif()
   include(spyder_pkg)
 endif()
 
 # Configure custom configure/build/install step files
-#-----------------------------------------------------------------------------
+#=============================================================================
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_common_environment.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake
     @ONLY
@@ -586,9 +601,9 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/fix_install_name.py.in
 )
 
 # Now sort and include external packages
-#-----------------------------------------------------------------------------
+#=============================================================================
 include(TopologicalSort)
-message("[DEBUG] packages ${external_packages}")
+message("[INFO] These are the packages that we will try to build: ${external_packages}")
 foreach(package ${external_packages})
   string(TOLOWER ${package} lc_package)
   include("${lc_package}_deps")
@@ -606,13 +621,19 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
       message("[INFO] Package --- ${package}/${uc_package}/${${uc_package}_VERSION} --- will be built")
-    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ")
+    if (${uc_package}_MD5)
+      list(APPEND packages_info "${${uc_package}_MD5}\n")
+    else()
+      list(APPEND packages_info "${${uc_package}_BRANCH}\n")
+    endif()
     include("${lc_package}_external")
   endif()
 endforeach()
 file(WRITE ${PARTS_BUILT_INFO} ${packages_info})
+
 # Construct Include and Link variables
-#-----------------------------------------------------------------------------
+#=============================================================================
 if(found_system_include_dirs)
   list(REMOVE_DUPLICATES found_system_include_dirs)
   list(REMOVE_ITEM found_system_include_dirs ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES})
@@ -636,11 +657,10 @@ message("[INFO] CDAT external link directories: ${cdat_external_link_directories
 message("[INFO] WGET EXEC: ${WGET_EXECUTABLE}")
 
 # Configure remaining files
-#-----------------------------------------------------------------------------
+#=============================================================================
 
 # set candidate paths for setup_runtime scripts
 # will be added to environment variables in reverse order
-message("PARAVIEW VALS:${PARAVIEW_MAJOR}")
 set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
@@ -662,7 +682,8 @@ set(SETUP_PYTHON_PATHS
   "lib/python${PYVER}/site-packages "
 )
 string(REPLACE ";" " " SETUP_PYTHON_PATHS ${SETUP_PYTHON_PATHS})
-
+include(GetGitRevisionDescription)
+git_describe(UVCDAT_PROMPT_STRING)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
     ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY
@@ -698,6 +719,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/cdat
+  @ONLY
+)
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
@@ -706,6 +732,38 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Where to install the wrapper scripts
+set(WRAPPER_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX}/wrappers
+    CACHE PATH
+    "Install wrapper scripts 'cdat', 'uvcdat' and 'loadcdat' in that directory")
+
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+        ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/uvcdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
+        ${WRAPPER_INSTALL_LOCATION}/uvcdat)
+add_custom_command(
+        OUTPUT ${WRAPPER_INSTALL_LOCATION}/cdat
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/bin/cdat
+        ${WRAPPER_INSTALL_LOCATION}/cdat)
+
+add_custom_target(wrappers ALL DEPENDS
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat
+                  ${WRAPPER_INSTALL_LOCATION}/loadcdat.csh
+                  ${WRAPPER_INSTALL_LOCATION}/uvcdat
+                  ${WRAPPER_INSTALL_LOCATION}/cdat)
 
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)

@@ -9,7 +9,7 @@ th=thermo.Gth(x=x,name='test')
 
 ## Now open the sample dataset and reads in the data for temperature as a function of level
 ## Open the file, read the T
-f=cdms.open(os.path.join(sys.prefix,'sample_data','thermo.nc'))
+f=cdms.open(os.path.join(vcs.prefix,'sample_data','thermo.nc'))
 t=f('t')
 
 # In this example we need to redefine the the "level" axis on "ta" because it needs to be in Pa

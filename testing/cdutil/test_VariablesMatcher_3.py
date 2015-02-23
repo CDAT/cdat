@@ -10,12 +10,13 @@ Also a 'selector' for Northern Hemisphere is applied (see cdutil.region document
 """
 
 import cdutil, MV2 as MV, os,sys
+import cdat_info
 # First let's create the mask (it is the same for NCEP and ECMWF since they are on the same grid)
-refmsk = os.path.join(sys.prefix,'sample_data','sftlf_dnm.nc')
+refmsk = os.path.join(cdat_info.get_prefix(),'sample_data','sftlf_dnm.nc')
 M=cdutil.WeightsMaker(refmsk, var='sftlf_dnm', values=[1.])
 
 # Reference
-ref = os.path.join(sys.prefix,'sample_data','tas_dnm-95a.xml')
+ref = os.path.join(cdat_info.get_prefix(),'sample_data','tas_dnm-95a.xml')
 Ref=cdutil.VariableConditioner(ref, weightsMaker=M)
 Ref.var='tas'
 Ref.id='ECMWF'
@@ -33,7 +34,7 @@ ECMWFGrid.weightsMaker=ECMWFinalMask
 Ref.weightedGridMaker=ECMWFGrid
 
 # Test
-tstmsk = os.path.join(sys.prefix,'sample_data','sftlf_ccsr.nc')
+tstmsk = os.path.join(cdat_info.get_prefix(),'sample_data','sftlf_ccsr.nc')
 M=cdutil.WeightsMaker(tstmsk, var='sftlf_ccsr', values=[1.])
 tst = os.path.join(cdutil.__path__[0],'..','..','..','..','sample_data','tas_ccsr-95a.xml')
 Tst=cdutil.VariableConditioner(tst, weightsMaker=M)
@@ -69,7 +70,7 @@ ED.id='JONES'
 
 # Final Grid
 # We need a mask for the final grid
-fgmask=os.path.join(sys.prefix,'sample_data','sftlf_10x10.nc')
+fgmask=os.path.join(cdat_info.get_prefix(),'sample_data','sftlf_10x10.nc')
 M2=cdutil.WeightsMaker(source=fgmask, var='sftlf', values=[100.])
 FG=cdutil.WeightedGridMaker(weightsMaker=M2)
 FG.longitude.n=36

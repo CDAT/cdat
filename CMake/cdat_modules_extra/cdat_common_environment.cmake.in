@@ -17,28 +17,16 @@ set(ENV{FLIBS} "")
 set(ENV{LD_X11} "") # for xgks
 set(ENV{PYTHONPATH} @PYTHONPATH@)
 
-if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
-  if (($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "True") OR ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "False"))
-    message("[INFO] Using UVCDAT_ANONYMOUS_LOG found in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
-  else()
-    message("[INFO] Found UVCDAT_ANONYMOUS_LOG in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
-    message("[INFO] Valid values are 'True' or 'False' resetting to: 'True'")
-    set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
-  endif()
-else()
-  set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
-endif()
-
 if(APPLE)
   set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
 endif()
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
-set(PYTHONUSERBASE @PYTHON_SITE_PACKAGES@)
+set(PYTHONUSERBASE @PYTHON_SITE_PACKAGES_PREFIX@)
 #if ("@EGG_INSTALLER@" STREQUAL "PIP")
 #    # Set python userbase so that pip install packages locally
-#    set(PYTHONUSERBASE @PYTHON_SITE_PACKAGES@)
+#    set(PYTHONUSERBASE @CMAKE_INSTALL_PREFIX@)
 #    set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} PYTHONUSERBASE=${PYTHONUSERBASE} @PIP_BINARY@ install --user -v --download-cache @CDAT_PACKAGE_CACHE_DIR@ )
 #    if (NOT "${PIP_CERTIFICATE}" STREQUAL "")
 #        set(EGG_CMD ${EGG_CMD} --cert=${PIP_CERTIFICATE})
