@@ -14,9 +14,6 @@ class Toolbar(object):
         self.on_open = on_open
         self.vertical = vertical
 
-        if parent is None:
-            self.label.show()
-            
         self.open = False
 
         # Increment this as widgets are added
