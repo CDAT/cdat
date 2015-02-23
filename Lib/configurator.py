@@ -244,6 +244,17 @@ class Configurator(object):
 
         point = self.interactor.GetEventPosition()
 
+        if self.target:
+            if self.target.handle_click(point):
+                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                return
+        else:
+            if self.toolbar.in_toolbar(*point):
+                return
+
+        if self.marker_button.in_bounds(*point) or self.text_button.in_bounds(*point):
+            return
+
         for display in self.displays:
             obj = self.in_display_plot(point, display)
             if obj is not None:
@@ -424,6 +435,7 @@ class Configurator(object):
     def setup_animation(self):
         self.canvas.animate.create()
         if self.initialized == False:
+            self.toolbar.add_toggle_button("Animation", on=self.canvas.animate.run, off=self.canvas.animate.stop, on_prefix="Run", off_prefix="Stop")
             self.toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
             self.initialized = True
 
