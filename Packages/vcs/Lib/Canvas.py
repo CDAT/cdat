@@ -3363,6 +3363,9 @@ Options:::
               copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
               check_mthd = copy_mthd
               set_convert_labels(copy_mthd)
+        if copy_mthd is None:
+          copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+          check_mthd = copy_mthd
 
         x=None
         y=None
