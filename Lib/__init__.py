@@ -113,8 +113,6 @@ elements = { "boxfill" : {},
              "3d_scalar" : {},
              "3d_dual_scalar" : {},
              "3d_vector" : {},
-             "outfill": {},
-             "outline" : {},
              "template" : {},
              "taylordiagram" :{},
              "1d":{},
@@ -138,15 +136,15 @@ elements = { "boxfill" : {},
              }
 
 dic  = {}
-for i in range(5):
-  for j in range(-170,181,30):
+for i in range(-5,5):
+  for j in range(-180,181,30):
     if j<0:
       dic[i*360+j]="%iW" % (-j)
     elif j > 0:
       dic[i*360+j] = "%iE" % j
     else:
       dic[i*360] = "0"
-vcs.elements["list"]["lon30"]=dic
+vcs.elements["list"]["Lon30"]=dic
 
 dic={}
 for j in range(-80,81,20):
@@ -156,7 +154,9 @@ for j in range(-80,81,20):
     dic[j] = "%iN" % j
   else:
     dic[0] = "Eq"
-vcs.elements["list"]["lat20"]=dic
+dic[-90]="90S"
+dic[90]="90N"
+vcs.elements["list"]["Lat20"]=dic
 
 d,e = vcs.getdotdirectory()
 i=0
