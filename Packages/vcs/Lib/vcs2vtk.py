@@ -1181,29 +1181,38 @@ def prepMarker(renWin,marker,cmap=None):
   return actors
 
 def prepLine(renWin,line,cmap=None):
-  n = prepPrimitive(line)
-  if n==0:
+  number_lines = prepPrimitive(line)
+
+  if number_lines == 0:
     return
+
   actors = []
-  for i in range(n):
+
+  for i in range(number_lines):
     l = vtk.vtkLine()
     lines = vtk.vtkCellArray()
     x = line.x[i]
-    y=line.y[i]
-    c=line.color[i]
-    w=line.width[i]
-    t=line.type[i]
-    N = max(len(x),len(y))
+    y = line.y[i]
+    c = line.color[i]
+    w = line.width[i]
+    t = line.type[i]
+    number_points = max(len(x),len(y))
+
+    # Extend x or y to the length of the other by duplicating the last coord.
     for a in [x,y]:
-      while len(a)<n:
+      while len(a)<number_points:
         a.append(a[-1])
+
     pts = vtk.vtkPoints()
-    for j in range(N):
+
+    for j in range(number_points):
       pts.InsertNextPoint(x[j],y[j],0.)
-    for j in range(N-1):
+
+    for j in range(number_points - 1):
       l.GetPointIds().SetId(0,j)
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
+
     linesPoly = vtk.vtkPolyData()
     geo,pts=project(pts,line.projection,line.worldcoordinate)
     linesPoly.SetPoints(pts)
