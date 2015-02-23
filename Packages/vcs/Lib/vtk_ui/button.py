@@ -230,8 +230,12 @@ class Button(Widget):
         self.text_widget.hide()
         self.widget.Off()
 
+    def in_bounds(self, x, y):
+        w, h = self.get_dimensions()
+        box_x, box_y = self.get_position()
+        return x < box_x + w and x > box_x and y > box_y - h and y < box_y
+
     def __advance__(self, point):
-        x, y = point
         state = self.repr.GetState()
         self.set_state( (state + 1) % len(self.states) )
         #self.clicked(self.widget, "StateChangedEvent") Do we need to call this? I bet we don't.
