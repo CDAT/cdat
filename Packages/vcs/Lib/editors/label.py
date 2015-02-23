@@ -35,9 +35,8 @@ class LabelEditor(point.PointEditor):
         self.display = dp
         super(LabelEditor, self).__init__(interactor, label, configurator)
 
-        self.toolbar = vcs.vtk_ui.Toolbar(self.interactor, "Label Options")
+        self.toolbar = vcs.vtk_ui.Toolbar(self.interactor, "%s Options" % label.member)
         template = vcs.gettemplate(dp.template)
-
 
         self.actor = get_actor(self.label, self.display)
 
