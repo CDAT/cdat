@@ -1234,6 +1234,7 @@ class P(object):
                 tt=x.createtext(None,sub.texttable,None,sub.textorientation)
 
                 # Now for the min/max/mean add the name in front
+                kargs["donotstoredisplay"]=False
                 if s=='min':
                   tt.string='Min %g' % (smn)
                 elif s=='max':
@@ -1243,7 +1244,6 @@ class P(object):
                          meanstring='Mean '+str(getattr(slab,s))
                     else:
                         try:
-                         #slices = [slice(0,1),] * (slab.ndim -2 )
                          meanstring='Mean %.4g'% float(cdutil.averager(slab,
                                  axis = " ".join(["(%s)" % S for S in slab.getAxisIds()])))
                         except Exception,err:
@@ -1251,6 +1251,7 @@ class P(object):
                     tt.string=meanstring
                 else :
                     tt.string=str(getattr(slab,s))
+                    kargs["donotstoredisplay"]=True
                 tt.x=[sub.x]
                 tt.y=[sub.y]
                 tt.priority=sub.priority
@@ -1261,6 +1262,7 @@ class P(object):
                 del(vcs.elements["textcombined"][tt.name])
                 
 
+        kargs["donotstoredisplay"]=True
         if not isinstance(gm,vcs.taylor.Gtd):
           nms = ["x","y","z","t"]
           for i,ax in enumerate(slab.getAxisList()[::-1]):
