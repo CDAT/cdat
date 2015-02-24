@@ -10,7 +10,3 @@ from textbox import Textbox
 import vtk
 
 import text
-
-class NoInteractionStyle(vtk.vtkInteractorStyle):
-    def __init__(self, parent=None):
-        pass

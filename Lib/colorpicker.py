@@ -1,14 +1,15 @@
 import vtk
 import vcs
-from vcs.vtk_ui import Button, ButtonState, NoInteractionStyle
+from vcs.vtk_ui import Button, ButtonState
 
 class ColorPicker(object):
-    def __init__(self, width, height, colormap, color, on_save=None, on_cancel=None):
+    def __init__(self, width, height, colormap, color, parent_interactor=None, on_save=None, on_cancel=None):
         self.render_window = vtk.vtkRenderWindow()
         self.render_window.SetWindowName("Color Picker")
         self.render_window.SetNumberOfLayers(3)
         self.render_window.SetSize(width, height)
         self.color_renderer = vtk.vtkRenderer()
+        self.parent_interactor = parent_interactor
 
         if colormap is None:
             colormap = "default"
@@ -34,7 +35,7 @@ class ColorPicker(object):
         self.render_window.AddRenderer(self.color_renderer)
         inter = vtk.vtkRenderWindowInteractor()
 
-        self.style = NoInteractionStyle()
+        self.style = vtk.vtkInteractorStyleUser()
         inter.SetInteractorStyle(self.style)
         inter.SetRenderWindow(self.render_window)
 
@@ -76,9 +77,10 @@ class ColorPicker(object):
         # Make sure the current color is selected
         self.selectCell(color)
         self.color_renderer.AddActor(self.selectedActor)
-        self.click_handler = inter.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
-
-        inter.Start()
+        self.click_handler = inter.AddObserver(vtk.vtkCommand.LeftButtonReleaseEvent, self.clickEvent)
+        def noop(obj, event):
+            pass
+        self.char_handler = inter.AddObserver(vtk.vtkCommand.CharEvent, noop)
 
     def make_current(self):
         self.render_window.MakeCurrent()
@@ -142,7 +144,7 @@ class ColorPicker(object):
         self.selectedMapper.SetInputData(selected);
         self.selectedMapper.Update()
 
-    def leftButtonPressEvent(self, obj, event):
+    def clickEvent(self, obj, event):
         inter = self.render_window.GetInteractor()
 
         x, y = inter.GetEventPosition()
@@ -166,13 +168,13 @@ class ColorPicker(object):
         self.save_button.detach()
         self.cancel_button.detach()
         self.colormap_button.detach()
-        self.render_window.RemoveObserver(self.click_handler)
+        self.render_window.GetInteractor().RemoveObserver(self.click_handler)
+        self.render_window.GetInteractor().RemoveObserver(self.char_handler)
         self.render_window.Finalize()
         inter = self.render_window.GetInteractor()
-        inter.SetRenderWindow(None)
-        self.render_window.SetInteractor(None)
-        del inter
-        del self.render_window
+        inter.TerminateApp()
+        if self.parent_interactor:
+            self.parent_interactor.Start()
 
 
 def make_color_plane(x, y, colors):
