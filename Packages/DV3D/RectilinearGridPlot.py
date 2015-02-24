@@ -1151,7 +1151,7 @@ class RectGridPlot(StructuredGridPlot):
         self.renderer.ResetCameraClippingRange() 
         
     def toggleVolumeVisibility( self, state ):
-        if self.volume == None:
+        if (self.volume == None):
             self.buildVolumePipeline()
         if state: self.volume.VisibilityOn()
         else: self.volume.VisibilityOff()
@@ -1162,7 +1162,7 @@ class RectGridPlot(StructuredGridPlot):
         self.render()
 
     def toggleIsosurfaceVisibility( self, state ):
-        if self.levelSetActor == None:
+        if ( self.levelSetActor == None ):
             self.buildIsosurfacePipeline()
         if state:
             self.levelSetActor.VisibilityOn() 

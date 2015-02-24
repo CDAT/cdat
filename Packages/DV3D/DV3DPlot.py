@@ -190,6 +190,7 @@ class DV3DPlot():
         self.type = args.get( 'gmname', 'default').lower()
         self.activate_display=args.get('display',True)
         self.renderer = None
+        self.parameter_initializing = False
         self.useDepthPeeling = False
         self.record_animation = False
         self.animation_frames = []
@@ -548,8 +549,10 @@ class DV3DPlot():
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
+            self.parameter_initializing = True
             for plotItem in self.plotConstituents.items():
                 self.setColormap( plotItem[0], config_function.initial_value )
+            self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
@@ -943,12 +946,14 @@ class DV3DPlot():
 
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
+            self.parameter_initializing = True
             state = config_function.getState()
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
                 config_function.setState( config_function.initial_value[0] )
             state = config_function.getState()
             if state: self.toggleIsosurfaceVisibility( state )
+            self.parameter_initializing = False
         elif args and args[0] == "InitConfig":
             state = args[1]
             self.toggleIsosurfaceVisibility( state )
@@ -956,6 +961,7 @@ class DV3DPlot():
 
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
+            self.parameter_initializing = True
             state = config_function.getState()
             if state: self.cfgManager.initialized = True
             if config_function.initial_value <> None:
@@ -964,6 +970,7 @@ class DV3DPlot():
             state = config_function.getState()
             state_val =  state[0] if hasattr(state, "__iter__") else state
             if state_val: self.toggleVolumeVisibility( state_val )
+            self.parameter_initializing = False
         elif args and args[0] == "InitConfig":
             state = args[1]
             self.toggleVolumeVisibility( state )
@@ -1168,7 +1175,7 @@ class DV3DPlot():
         pass
     
     def enableRender(self, **args ):
-        return True
+        return not self.parameter_initializing
 
     def render( self, **args ):
         if self.enableRender( **args ):
@@ -1237,7 +1244,7 @@ class DV3DPlot():
                 self.renderer.AddActor( colormapManager.createActor( pos=cmap_pos, title=cm_title ) )
     #        colormapManager.setColorbarVisibility( show_colorBar )
             self.updatingColormap( cmap_index, colormapManager )
-            self.render() 
+            self.render()
             return True
         except Exception, err:
             print>>sys.stderr, "Error setting colormap: ", str(err)
