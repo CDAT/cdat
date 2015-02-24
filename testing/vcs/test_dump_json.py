@@ -1,5 +1,5 @@
 
-import vcs,os,filecmp
+import filecmp
 import vcs,numpy,os,sys
 src=sys.argv[1]
 if os.path.exists("test_vcs_dump_json.json"):

@@ -74,7 +74,7 @@ import vcsaddons
 import vcs.manageElements
 
 class SIGNAL(object):
-    
+
     def __init__( self, name = None ):
         self._functions = WeakSet()
         self._methods = WeakKeyDictionary()
@@ -120,7 +120,7 @@ def dictionarytovcslist(dictionary,name):
     return None
 
 def _determine_arg_list(g_name, actual_args):
-    "Determine what is in the argument list for plotting graphics methods" 
+    "Determine what is in the argument list for plotting graphics methods"
 
     itemplate_name = 2
     igraphics_method = 3
@@ -133,8 +133,8 @@ def _determine_arg_list(g_name, actual_args):
     #
     ## Xtrargs - {} - added by C.Doutriaux, needed for projection object passed
     ## Need to be passed as keyword later
-    arglist = [None, None, 'default', 'default', 'default',{}]   
-    arghold = []   
+    arglist = [None, None, 'default', 'default', 'default',{}]
+    arghold = []
     argstring=[]
     args = actual_args
     found_slabs = 0
@@ -215,7 +215,7 @@ def _determine_arg_list(g_name, actual_args):
                 raise vcsError,'You can only specify one graphics method.'
             arglist[igraphics_method] = graphicsmethodtype(args[i])
             arglist[igraphics_option] = args[i].name
-            found_graphics_method = found_graphics_method + 1            
+            found_graphics_method = found_graphics_method + 1
         else:
             raise vcsError, "Unknown type %s of argument to plotting command." %\
                                         type(args[i])
@@ -242,7 +242,7 @@ def _determine_arg_list(g_name, actual_args):
             raise vcsError, "Error in argument list for vcs plot command."
         else:
             raise vcsError, "Error in argument list for vcs %s  command." % g_name
-           
+
     if isinstance(arglist[igraphics_method],vcsaddons.core.VCSaddon):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
@@ -256,7 +256,7 @@ def _determine_arg_list(g_name, actual_args):
             elif found_slabs == 1:
                 g=arglist[0].getGrid()
                 if not isinstance(g, (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid,cdms2.grid.TransientRectGrid)):
-                    raise vcsError, "Meshfill requires 2 slab if first slab doesn't have a Rectilinear, Curvilinear or Generic Grid type"                
+                    raise vcsError, "Meshfill requires 2 slab if first slab doesn't have a Rectilinear, Curvilinear or Generic Grid type"
         elif ((arglist[igraphics_method] == 'continents') or
               (arglist[igraphics_method] == 'line') or
               (arglist[igraphics_method] == 'marker') or
@@ -288,7 +288,7 @@ def _process_keyword(obj, target, source, keyargs, default=None):
     return arg
 
 def finish_queued_X_server_requests( self ):
-    """ Wait for the X server to execute all pending events. 
+    """ Wait for the X server to execute all pending events.
 
         If working with C routines, then use BLOCK_X_SERVER
         found in the VCS module routine to stop the X server
@@ -305,7 +305,7 @@ def finish_queued_X_server_requests( self ):
         # this point on in the queue.
         if count > 1000:
            self.canvas.xsync_discard()
-           break 
+           break
 
 class Canvas(object,AutoAPI.AutoAPI):
     """
@@ -314,7 +314,7 @@ class Canvas(object,AutoAPI.AutoAPI):
  Description of Function:
     Construct the VCS Canas object. There can only be at most 8 VCS
     Canvases open at any given time.
-    
+
  Example of Use:
     a=vcs.Canvas()                    # This examples constructs a VCS Canvas
 """
@@ -356,10 +356,10 @@ class Canvas(object,AutoAPI.AutoAPI):
         'size',
         'canvas_guianimate_info',
         ]
-        
+
 #     def applicationFocusChanged(self, old, current ):
 #         self.backend.applicationFocusChanged()
-        
+
     def _set_user_actions_names(self,value):
         value=VCS_validation_functions.checkListElements(self,'user_actions_names',value,VCS_validation_functions.checkString)
         self._user_actions_names = value
@@ -410,7 +410,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getcanvas(self):
         return self._canvas
     canvas = property(_getcanvas,_setcanvas)
-    
+
     def _setanimate(self,value):
         raise vcsError, "Error, animate is not an attribute you can set"
     def _getanimate(self):
@@ -434,7 +434,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getviewport(self):
         return self._viewport
     viewport = property(_getviewport,_setviewport)
-    
+
     def _setworldcoordinate(self,value):
         if not isinstance(value,list) and not len(value)==4:
             raise vcsError,  "worldcoordinate must be of type list and have four values ranging between [0,1]."
@@ -448,7 +448,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getcanvas_template_editor(self):
         return self._canvas_template_editor
     canvas_template_editor =property(_getcanvas_template_editor,_setcanvas_template_editor)
-    
+
     def _setisplottinggridded(self,value):
         if not isinstance(value,bool):
             raise vcsError,  "isplottinggridded must be boolean"
@@ -456,23 +456,23 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getisplottinggridded(self):
         return self._isplottinggridded
     isplottinggridded =property(_getisplottinggridded,_setisplottinggridded)
-    
+
     def _setanimate_info(self,value):
         self._animate_info=value # No check on this!
     def _getanimate_info(self):
         return self._animate_info
     animate_info =property(_getanimate_info,_setanimate_info)
 
-    def start(self,*args,**kargs): 
-        self.interact(*args,**kargs)   
-        
+    def start(self,*args,**kargs):
+        self.interact(*args,**kargs)
+
     def interact(self,*args,**kargs):
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
         """The graphics method's data world coordinates (i.e., datawc_x1, datawc_x2,
         datawc_y1, and datawc_y2) will override the incoming variable's coordinates.
-        tv equals arglist[0] and assumed to be the first Variable. arglist[1] is 
+        tv equals arglist[0] and assumed to be the first Variable. arglist[1] is
         assumed to be the second variable."""
 
         # Determine the type of graphics method
@@ -566,7 +566,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         # Map keywords to dimension indices
         try:     rank = origv.ndim
         except:  rank = len( origv.shape )
-            
+
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -602,7 +602,7 @@ class Canvas(object,AutoAPI.AutoAPI):
                 axis = cdms2.createAxis(arg,id=axis.id)
                 axis.setBounds(None)
                 axislist[dimmap[c]]=axis
-                
+
         # Process bounds keywords
         for c in ['x','y']:
             if dimmap[c]<0:
@@ -634,7 +634,7 @@ class Canvas(object,AutoAPI.AutoAPI):
                 m=grid.getMesh()
             except:
                 nomesh=1
-                
+
             if grid is None:
                 if tv.ndim==1:
                     arglist[GRAPHICS_METHOD] = 'yxvsx1'
@@ -715,7 +715,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         #        raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
         #else:
         if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
-                self.isplottinggridded=True 
+                self.isplottinggridded=True
 
         # Process variable attributes
         _process_keyword(tv, 'comment1', 'comment1', keyargs)
@@ -741,7 +741,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         contout = keyargs.get('continents',None)
         if contout is None:
             #            if xdim>=0 and ydim>=0 and isgridded:
-            ## Charles put back the self.isplottinggridded in addition for meshfill, 
+            ## Charles put back the self.isplottinggridded in addition for meshfill,
             if (xdim>=0 and ydim>=0 and tv.getAxis(xdim).isLongitude() and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
                 contout = 1
             else:
@@ -757,7 +757,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         xrev = keyargs.get('xrev',0)
         if xrev==1 and xdim>=0:
             tv = tv[... , ::-1]
-   
+
         # By default, latitudes on the y-axis are plotted S-N
         # levels on the y-axis are plotted with decreasing pressure
         if ydim>=0:
@@ -777,14 +777,14 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##                 yaxis[:] = yarray[::-1]
 ##                 yaxis.setBounds(ybounds[::-1,::-1])
                 tv = tv[..., ::-1, :].clone()
-                
+
 
 #  -- This s no longer needed since we are making a copy of the data.
 #     We now apply the axes changes below in __plot. Dean and Charles keep
 #     an eye opened for the errors concerning datawc in the VCS module.
 #        tv = self._datawc_tv( tv, arglist )
         return tv
-        
+
     #############################################################################
     #                                                                           #
     # Print out the object's doc string.                                        #
@@ -796,7 +796,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
  Description of Function:
     Print out information on the VCS object. See example below on its use.
-    
+
  Example of Use:
     a=vcs.init()
 
@@ -968,21 +968,21 @@ class Canvas(object,AutoAPI.AutoAPI):
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
-        
+
     ## Functions to set/querie drawing of UV-CDAT logo
     def drawlogoon(self):
       """Turn on drawing of logo on pix"""
       self.enableLogo = True
-  
+
     def drawlogooff(self):
       """Turn off drawing of logo on pix"""
       self.enableLogo = False
-      
+
     def getdrawlogo(self):
       """Return value of draw logo"""
       return self.enableLogo
 
-    def initLogoDrawing(self):  
+    def initLogoDrawing(self):
         self.drawLogo = self.enableLogo
 
     #############################################################################
@@ -990,14 +990,14 @@ class Canvas(object,AutoAPI.AutoAPI):
     # Update wrapper function for VCS.                                          #
     #                                                                           #
     #############################################################################
-                   
+
     def update(self, *args, **kargs):
         """
  Function: update                   # Update the VCS Canvas.
 
  Description of Function:
-    If a series of commands are given to VCS and the Canvas Mode is 
-    set to manual, then use this function to update the plot(s) 
+    If a series of commands are given to VCS and the Canvas Mode is
+    set to manual, then use this function to update the plot(s)
     manually.
 
  Example of Use:
@@ -1016,7 +1016,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     a.update()                             # Update the changes manually
 """
 
-        
+
         return self.backend.update(*args,**kargs)
 
     #############################################################################
@@ -1131,9 +1131,9 @@ class Canvas(object,AutoAPI.AutoAPI):
  Function: remove
 
  Description of Function:
-    The user has the ability to create primary and secondary class 
+    The user has the ability to create primary and secondary class
     objects. The function allows the user to remove these objects
-    from the appropriate class list. 
+    from the appropriate class list.
 
     Note, To remove the object completely from Python, remember to
     use the "del" function.
@@ -1240,7 +1240,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 ## if we want to raise an exception here?
 ##         if msg[:7]!='Removed':
 ##             print msg
-            
+
     def syncP(self, *args):
         return apply(self.canvas.syncP, args)
 
@@ -1256,7 +1256,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         x.clean_auto_generated_objects() # cleans everything
         x.clean_auto_generated_objects('template') # cleans template objects
         """
-        
+
         if type is None:
             type = self.listelements()
             type.remove("fontNumber")
@@ -1288,12 +1288,12 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##                         print 'Error for:',o.name,err
 ##                         raise vcsError,err
                         pass
-                        
+
         return
-    
+
     def check_name_source(self,name,source,typ):
         return vcs.check_name_source(name,source,typ)
-    
+
     #############################################################################
     #                                                                           #
     # Template functions for VCS.                                               #
@@ -1333,7 +1333,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     def getboxfill(self,Gfb_name_src='default'):
         return vcs.getboxfill(Gfb_name_src)
     getboxfill.__doc__ = vcs.manageElements.getboxfill
-   
+
 
     def boxfill(self, *args, **parms):
         """
@@ -1352,7 +1352,7 @@ Options:::
  Function: boxfill                        # Generate a boxfill plot
 
  Description of Function:
-    Generate a boxfill plot given the data, boxfill graphics method, and 
+    Generate a boxfill plot given the data, boxfill graphics method, and
     template. If no boxfill class object is given, then the 'default' boxfill
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
@@ -1361,7 +1361,7 @@ Options:::
     a=vcs.init()
     a.show('boxfill')                        # Show all the existing boxfill graphics methods
     box=a.getboxfill('quick')                # Create instance of 'quick'
-    a.boxfill(array,box)                # Plot array using specified box and default 
+    a.boxfill(array,box)                # Plot array using specified box and default
                                         #         template
     templt=a.gettemplate('AMIP')        # Create an instance of template 'AMIP'
     a.clear()                           # Clear VCS canvas
@@ -1382,7 +1382,7 @@ Options:::
 """
         arglist=_determine_arg_list('boxfill',args)
         return self.__plot(arglist, parms)
-    boxfill.__doc__ = boxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output) 
+    boxfill.__doc__ = boxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
     #############################################################################
     #                                                                           #
@@ -1396,7 +1396,7 @@ Options:::
     def gettaylordiagram(self,Gtd_name_src='default'):
         return vcs.gettaylordiagram(Gtd_name_src)
     gettaylordiagram.__doc__ = vcs.manageElements.gettaylordiagram.__doc__
-    
+
     def taylordiagram(self, *args, **parms):
         """
  Function: taylordiagram                        # Generate an taylordiagram plot
@@ -1411,7 +1411,7 @@ Options:::
     a=vcs.init()
     a.show('taylordiagram')                   # Show all the existing taylordiagram graphics methods
     td=a.gettaylordiagram()                   # Create instance of 'default'
-    a.taylordiagram(array,td)                 # Plot array using specified iso and default 
+    a.taylordiagram(array,td)                 # Plot array using specified iso and default
                                               #       template
     a.clear()                                 # Clear VCS canvas
     a.taylordiagram(array,td,template)        # Plot array using specified iso and template
@@ -1419,13 +1419,13 @@ Options:::
         arglist=_determine_arg_list('taylordiagram',args)
         return self.__plot(arglist, parms)
 
-    
+
     #############################################################################
     #                                                                           #
     # Meshfill functions for VCS.                                               #
     #                                                                           #
     #############################################################################
-    
+
     def createmeshfill(self,name=None, source='default'):
         return vcs.createmeshfill(name, source)
     createmeshfill.__doc__ = vcs.manageElements.createmeshfill.__doc__
@@ -1453,12 +1453,12 @@ Options:::
     In brief you'd have:
     data.shape=(10000,)
     mesh.shape=(10000,2,4)
-    
+
  Example of Use:
     a=vcs.init()
     a.show('meshfill')                   # Show all the existing meshfill graphics methods
     mesh=a.getmeshfill()                 # Create instance of 'default'
-    a.meshfill(array,mesh)               # Plot array using specified mesh and default 
+    a.meshfill(array,mesh)               # Plot array using specified mesh and default
                                          #       template
     a.clear()                            # Clear VCS canvas
     a.meshfill(array,mesh,mesh_graphic_method,template) # Plot array using specified mesh mesh graphic method and template
@@ -1474,38 +1474,38 @@ Options:::
 
     def create3d_scalar(self,name=None,source='default'):
       return vcs.create3d_scalar(name,source)
-  
+
     create3d_scalar.__doc__ = vcs.manageElements.create3d_scalar.__doc__
     def get3d_scalar(self,Gfdv3d_name_src='default'):
       return vcs.get3d_scalar(Gfdv3d_name_src)
     get3d_scalar.__doc__ = vcs.manageElements.get3d_scalar.__doc__
 
     def scalar3d(self, *args, **parms):
-        arglist=_determine_arg_list('3d_scalar',args)            
+        arglist=_determine_arg_list('3d_scalar',args)
         return self.__plot(arglist, parms)
-    
+
     def create3d_vector(self,name=None,source='default'):
       return vcs.create3d_vector(name,source)
-  
+
     create3d_vector.__doc__ = vcs.manageElements.create3d_vector.__doc__
     def get3d_vector(self,Gfdv3d_name_src='default'):
       return vcs.get3d_vector(Gfdv3d_name_src)
     get3d_vector.__doc__ = vcs.manageElements.get3d_vector.__doc__
 
     def vector3d(self, *args, **parms):
-        arglist=_determine_arg_list('3d_vector',args)            
+        arglist=_determine_arg_list('3d_vector',args)
         return self.__plot(arglist, parms)
 
     def create3d_dual_scalar(self,name=None,source='default'):
       return vcs.create3d_dual_scalar(name,source)
-  
+
     create3d_dual_scalar.__doc__ = vcs.manageElements.create3d_dual_scalar.__doc__
     def get3d_dual_scalar(self,Gfdv3d_name_src='default'):
       return vcs.get3d_dual_scalar(Gfdv3d_name_src)
     get3d_dual_scalar.__doc__ = vcs.manageElements.get3d_dual_scalar.__doc__
 
     def dual_scalar3d(self, *args, **parms):
-        arglist=_determine_arg_list('3d_dual_scalar',args)            
+        arglist=_determine_arg_list('3d_dual_scalar',args)
         return self.__plot(arglist, parms)
 
     #############################################################################
@@ -1547,7 +1547,7 @@ Options:::
     a=vcs.init()
     a.show('isofill')                   # Show all the existing isofill graphics methods
     iso=a.getisofill('quick')           # Create instance of 'quick'
-    a.isofill(array,iso)                # Plot array using specified iso and default 
+    a.isofill(array,iso)                # Plot array using specified iso and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.isofill(array,iso,template)       # Plot array using specified iso and template
@@ -1559,7 +1559,7 @@ Options:::
 ###################################################################################################################
 
 """
-        arglist=_determine_arg_list('isofill',args)            
+        arglist=_determine_arg_list('isofill',args)
         return self.__plot(arglist, parms)
     isofill.__doc__ = isofill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
@@ -1603,7 +1603,7 @@ Options:::
     a=vcs.init()
     a.show('isoline')                   # Show all the existing isoline graphics methods
     iso=a.getisoline('quick')           # Create instance of 'quick'
-    a.isoline(array,iso)                # Plot array using specified iso and default 
+    a.isoline(array,iso)                # Plot array using specified iso and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.isoline(array,iso,template)       # Plot array using specified iso and template
@@ -1627,7 +1627,7 @@ Options:::
         return vcs.get1d(name)
     create1d.__doc__ = vcs.manageElements.create1d.__doc__
 
-    
+
     #############################################################################
     #                                                                           #
     # Xyvsy functions for VCS.                                                  #
@@ -1667,7 +1667,7 @@ Options:::
     a=vcs.init()
     a.show('xyvsy')                   # Show all the existing Xyvsy graphics methods
     xyy=a.getxyvsy('quick')           # Create instance of 'quick'
-    a.xyvsy(array,xyy)                # Plot array using specified xyy and default 
+    a.xyvsy(array,xyy)                # Plot array using specified xyy and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.xyvsy(array,xyy,template)       # Plot array using specified xyy and template
@@ -1690,11 +1690,11 @@ Options:::
     #############################################################################
     def createyxvsx(self, name=None, source='default'):
         return vcs.createyxvsx(name,source)
-    createyxvsx.__doc__ = vcs.manageElements.createyxvsx.__doc__ 
+    createyxvsx.__doc__ = vcs.manageElements.createyxvsx.__doc__
 
     def getyxvsx(self,GYx_name_src='default'):
         return vcs.getyxvsx(GYx_name_src)
-    getyxvsx.__doc__ = vcs.manageElements.getyxvsx.__doc__ 
+    getyxvsx.__doc__ = vcs.manageElements.getyxvsx.__doc__
 
     def yxvsx(self, *args, **parms):
         """
@@ -1709,7 +1709,7 @@ Options:::
  Output:::
 %s
     :::
- 
+
  Function: yxvsx                        # Generate a Yxvsx plot
 
  Description of Function:
@@ -1736,7 +1736,7 @@ Options:::
 """
         arglist=_determine_arg_list('yxvsx',args)
         return self.__plot(arglist, parms)
-    yxvsx.__doc__ = yxvsx.__doc__ % (plot_keywords_doc,graphics_method_core,xaxisconvert,plot_1D_input, plot_output) 
+    yxvsx.__doc__ = yxvsx.__doc__ % (plot_keywords_doc,graphics_method_core,xaxisconvert,plot_1D_input, plot_output)
 
     #############################################################################
     #                                                                           #
@@ -1745,11 +1745,11 @@ Options:::
     #############################################################################
     def createxvsy(self, name=None, source='default'):
         return vcs.createxvsy(name,source)
-    createxvsy.__doc__ = vcs.manageElements.createxvsy.__doc__ 
+    createxvsy.__doc__ = vcs.manageElements.createxvsy.__doc__
 
     def getxvsy(self,GXY_name_src='default'):
         return vcs.getxvsy(GXY_name_src)
-    getxvsy.__doc__ = vcs.manageElements.getxvsy.__doc__ 
+    getxvsy.__doc__ = vcs.manageElements.getxvsy.__doc__
 
     def xvsy(self, *args, **parms):
         """
@@ -1775,7 +1775,7 @@ Options:::
     a=vcs.init()
     a.show('xvsy')                   # Show all the existing XvsY graphics methods
     xy=a.getxvsy('quick')            # Create instance of 'quick'
-    a.xvsy(array,xy)                 # Plot array using specified xy and default 
+    a.xvsy(array,xy)                 # Plot array using specified xy and default
                                      #       template
     a.clear()                        # Clear VCS canvas
     a.xvsy(array,xy,template)        # Plot array using specified xy and template
@@ -1803,7 +1803,7 @@ Options:::
     def getvector(self,Gv_name_src='default'):
         return vcs.getvector(Gv_name_src)
     getvector.__doc__=vcs.manageElements.getvector.__doc__
- 
+
     def vector(self, *args, **parms):
         """
  Function: vector                      # Generate a vector plot
@@ -1818,7 +1818,7 @@ Options:::
     a=vcs.init()
     a.show('vector')                   # Show all the existing vector graphics methods
     vec=a.getvector('quick')           # Create instance of 'quick'
-    a.vector(array,vec)                # Plot array using specified vec and default 
+    a.vector(array,vec)                # Plot array using specified vec and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.vector(array,vec,template)       # Plot array using specified vec and template
@@ -1863,7 +1863,7 @@ Options:::
     a=vcs.init()
     a.show('scatter')                   # Show all the existing scatter graphics methods
     sct=a.getscatter('quick')           # Create instance of 'quick'
-    a.scatter(array,sct)                # Plot array using specified sct and default 
+    a.scatter(array,sct)                # Plot array using specified sct and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.scatter(array,sct,template)       # Plot array using specified sct and template
@@ -1958,7 +1958,7 @@ Options:::
     a.show('continents')                # Show all the existing continents graphics
                                         # methods
     con=a.getcontinents('quick')        # Create instance of 'quick'
-    a.continents(array,con)             # Plot array using specified con and default 
+    a.continents(array,con)             # Plot array using specified con and default
                                         #       template
     a.clear()                           # Clear VCS canvas
     a.continents(array,con,template)    # Plot array using specified con and template
@@ -1971,7 +1971,7 @@ Options:::
     # Line  functions for VCS.                                                  #
     #                                                                           #
     #############################################################################
-    def createline(self,name=None, source='default', ltype=None, 
+    def createline(self,name=None, source='default', ltype=None,
                  width=None, color=None, priority=1,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None, projection='default'):
@@ -1990,7 +1990,7 @@ Options:::
  Function: line                           # Generate a line plot
 
  Description of Function:
-    Plot a line segment on the Vcs Canvas. If no line class 
+    Plot a line segment on the Vcs Canvas. If no line class
     object is given, then an error will be returned.
 
  Example of Use:
@@ -2238,7 +2238,7 @@ Options:::
       return vcs.gettexttable(name,font,spacing,expansion,color,priority,
                                  viewport,worldcoordinate,x,y)
     gettexttable.__doc__=vcs.manageElements.gettexttable.__doc__
-    
+
     #############################################################################
     #                                                                           #
     # Text Orientation  functions for VCS.                                      #
@@ -2278,11 +2278,11 @@ Options:::
     def textcombined(self, *args, **parms):
         """
         Function: text or textcombined         # Generate a textcombined plot
-        
+
         Description of Function:
         Plot a textcombined segment on the Vcs Canvas. If no textcombined class
         object is given, then an error will be returned.
-        
+
         Example of Use:
         a=vcs.init()
         a.show('texttable')                 # Show all the existing texttable objects
@@ -2304,7 +2304,7 @@ Options:::
         if 'color' in parms.keys():
             if type(parms['color'])==type(''):
                 parms['color']=self.match_color(parms['color'])
-                
+
         if not isinstance(args[0],vcs.textcombined.Tc):
             args=list(args)
             ## Ok we have a user passed text object let's first create a random text combined
@@ -2350,7 +2350,7 @@ Options:::
 
     def match_color(self,color,colormap=None):
         return vcs.match_color(color,colormap)
-        
+
     def drawtextcombined(self, Tt_name=None, To_name=None, string=None,
                  font=1, spacing=2, expansion=100, color=241,
                  height = 14, angle=0, path='right', halign = 'left',
@@ -2452,14 +2452,14 @@ Options:::
 
  Description of plot:
     Plot an array(s) of data given a template and graphics method. The VCS template is
-    used to define where the data and variable attributes will be displayed on the VCS 
+    used to define where the data and variable attributes will be displayed on the VCS
     Canvas. The VCS graphics method is used to define how the array(s) will be shown
     on the VCS Canvas.
 
  The form of the call is:
     plot(array1=None, array2=None, template_name=None, graphics_method=None,
             graphics_name=None, [key=value [, key=value [, ...]]])
-    
+
             where array1 and array2 are NumPy arrays.
 
     Plot keywords:
@@ -2469,7 +2469,7 @@ Options:::
             'auto': computes an automatic ratio
             '3',3: y dim will be 3 times bigger than x dim (restricted to original tempalte.data area
             Adding a 't' at the end of the ratio, makes the tickmarks and boxes move along.
-            
+
     Variable attribute keys:
        comment1         = string   #Comment plotted above file_comment
        comment2         = string   #Comment plotted above comment1
@@ -2483,7 +2483,7 @@ Options:::
                                     cdtime, reltime or abstime value
        units            = string   #Variable units
        ymd              = string (yy/mm/dd) #Year, month, day
-    
+
     Dimension attribute keys (dimension length=n):
        [x|y|z|t|w]array = NumPy array of length n    # x or y Dimension values
        [x|y|z|t|w]array = NumPy array of length n    # x or y Dimension values
@@ -2492,12 +2492,12 @@ Options:::
        [x|y|z|t|w]units  = string                     # x or y Dimension units
        [x|y]weights      = NumPy array of length n    # x or y Dimension weights (used to
                                                         calculate area-weighted mean)
-    
+
     CDMS object:
        [x|y|z|t|w]axis   = CDMS axis object           # x or y Axis
        grid              = CDMS grid object           # Grid object (e.g. grid=var.getGrid()
        variable          = CDMS variable object       # Variable object
-    
+
     Other:
        [x|y]rev         = 0|1                         # if ==1, reverse the direction of the x
     							     or y axis
@@ -2507,28 +2507,28 @@ Options:::
     							     xname is 'longitude' and yname is
     							     'latitude'
                                                       # The continents-type values are integers
-						      # ranging from 0 to 11, where: 
-						      #    0 signifies "No Continents" 
-						      #    1 signifies "Fine Continents" 
-						      #    2 signifies "Coarse Continents" 
+						      # ranging from 0 to 11, where:
+						      #    0 signifies "No Continents"
+						      #    1 signifies "Fine Continents"
+						      #    2 signifies "Coarse Continents"
 						      #    3 signifies "United States"
 						      #    4 signifies "Political Borders"
 						      #    5 signifies "Rivers"
 
 						      # Values 6 through 11 signify the line type
                                                       # defined by the files data_continent_other7
-                                                      # through data_continent_other12. 
+                                                      # through data_continent_other12.
 
     Graphics Output in Background Mode:
        bg                 = 0|1   # if ==1, create images in the background
                                                              (Don't display the VCS Canvas)
-    
+
  Note:
     More specific attributes take precedence over general attributes. In particular,
     specifie attributes override variable object attributes, dimension attributes and
     arrays override axis objects, which override grid objects, which override variable
     objects.
-    
+
     For example, if both 'file_comment' and 'variable' keywords are specified, the value of
     'file_comment' is used instead of the file comment in the parent of variable. Similarly,
     if both 'xaxis' and 'grid' keywords are specified, the value of 'xaxis' takes precedence
@@ -2537,7 +2537,7 @@ Options:::
  Example of Use:
     x=vcs.init()        # x is an instance of the VCS class object (constructor)
     x.plot(array)       # this call will use default settings for template and boxfill
-    x.plot(array, 'AMIP', 'isofill','AMIP_psl') # this is specifying the template and 
+    x.plot(array, 'AMIP', 'isofill','AMIP_psl') # this is specifying the template and
                                                   graphics method
     t=x.gettemplate('AMIP')        # get a predefined the template 'AMIP'
     vec=x.getvector('quick')       # get a predefined the vector graphics method 'quick'
@@ -2560,8 +2560,8 @@ Options:::
         if passed_var is not None:
             arglist[0] = cdms2.asVariable(passed_var)
 
-        # Prevent the varglist from duplicating its contents if the GUI Canvas is in use  
-        try:  
+        # Prevent the varglist from duplicating its contents if the GUI Canvas is in use
+        try:
             sal = keyargs['sal']
             if (keyargs['sal'] == 0): del keyargs['sal']
         except:
@@ -2573,11 +2573,11 @@ Options:::
             keyargs['cdmsfile'] = file_name
         except:
             pass
-        
+
     #    try:
     #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
     #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
-    #    except: 
+    #    except:
     #        # Connect the VCS Canvas to the GUI
     #        if (self.canvas_gui is not None) and (sal == 1):
     #           #####################################################################################################
@@ -2657,12 +2657,12 @@ Options:::
         ##reset animation
         self.animate.create_flg = 0
 
-        # Store the origin template. The template used to plot may be changed below by the 
+        # Store the origin template. The template used to plot may be changed below by the
         # _create_random_template function, which copies templates for modifications.
         template_origin = arglist[2]
         tmptmpl = self.gettemplate(arglist[2])
         tmptmpl.data._ratio=-999
-        
+
         copy_mthd=None
         copy_tmpl=None
         if arglist[2] in ['default','default_dud']:
@@ -2680,7 +2680,7 @@ Options:::
         doratio=str(keyargs.get('ratio',self.ratio)).strip().lower()
         if doratio[-1]=='t' and doratio[0]=='0' :
             if float(doratio[:-1])==0.: doratio='0'
-        
+
         ## Check for curvilinear grids, and wrap options !
         if arglist[0] is not None and arglist[1] is None and arglist[3]=="meshfill":
             g=arglist[0].getGrid()
@@ -2740,9 +2740,9 @@ Options:::
                 #tmp.list()
             except Exception,err:
                 arglist[4]='default'
-            
+
 ##                         arglist[4]=copy_mthd.name
-                        
+
         # preprocessing for extra keyword (at-plotting-time options)
         cmds={}
         # First of all a little preprocessing for legend !
@@ -2771,16 +2771,16 @@ Options:::
                         if k[i]>1. or k[i]<0. : isboxfilllegend=1
                     if isboxfilllegend==0: raise vcsError, "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:"+repr(k)
 
-            # ok it is for the boxfill let's do it        
+            # ok it is for the boxfill let's do it
             if isboxfilllegend:
                 if copy_mthd is None:
                     copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                 copy_mthd.legend=k
                 del(keyargs['legend'])
                 check_mthd = copy_mthd
-            
 
-        # There is no way of knowing if the template has been called prior to this plot command. 
+
+        # There is no way of knowing if the template has been called prior to this plot command.
         # So it is done here to make sure that the template coordinates are normalized. If already
         # normalized, then no change will to the template.
         try: self.gettemplate( template_origin )
@@ -2793,7 +2793,7 @@ Options:::
         axes_changed={}
         axes_changed2={}
 
-        
+
         for p in keyargs.keys(): # loops through possible keywords for graphic method
             if p in [
                 'projection',
@@ -2856,12 +2856,12 @@ Options:::
                 ]:
                 #if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
                 if not p in ['worldcoordinate',]: # not a special keywords
-                    if copy_mthd is None: 
+                    if copy_mthd is None:
                       copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                       check_mthd = copy_mthd
                     setattr(copy_mthd,p,keyargs[p])
                 elif p=='worldcoordinate':
-                    if copy_mthd is None: 
+                    if copy_mthd is None:
                       copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                       check_mthd = copy_mthd
                     setattr(copy_mthd,'datawc_x1',keyargs[p][0])
@@ -2893,7 +2893,7 @@ Options:::
                         setattr(getattr(copy_tmpl,p),'priority',k)
                     elif type(k)==type({}):
                         for kk in k.keys():
-                            setattr(getattr(copy_tmpl,p),kk,k[kk])                        
+                            setattr(getattr(copy_tmpl,p),kk,k[kk])
                 else:
                     if p[0]=='x':
                         setattr(getattr(copy_tmpl,p),'y',k[0])
@@ -2902,7 +2902,7 @@ Options:::
                     if type(k[-1])==type({}):
                         for kk in k[-1].keys():
                             setattr(getattr(copy_tmpl,p),kk,k[-1][kk])
-                        
+
                 del(keyargs[p])
             # Now template and x1 and x2/y1 and y2 related stuff (1 dir only)
             elif p[1:] in [
@@ -2921,7 +2921,7 @@ Options:::
                         setattr(getattr(copy_tmpl,p),'priority',k)
                     elif type(k)==type({}):
                         for kk in k.keys():
-                            setattr(getattr(copy_tmpl,p),kk,k[kk])                        
+                            setattr(getattr(copy_tmpl,p),kk,k[kk])
                 else:
                     if p[0]=='x':
                         setattr(getattr(copy_tmpl,p),'y1',k[0])
@@ -2932,7 +2932,7 @@ Options:::
                     if type(k[-1])==type({}):
                         for kk in k[-1].keys():
                             setattr(getattr(copy_tmpl,p),kk,k[-1][kk])
-                        
+
                 del(keyargs[p])
             # Now template with x1, x2, x3, x4, x5
             elif p in [
@@ -2949,7 +2949,7 @@ Options:::
                         setattr(getattr(copy_tmpl,p),'priority',k)
                     elif type(k)==type({}):
                         for kk in k.keys():
-                            setattr(getattr(copy_tmpl,p),kk,k[kk])                        
+                            setattr(getattr(copy_tmpl,p),kk,k[kk])
                 else:
                     setattr(getattr(copy_tmpl,p),'x1',k[0])
                     setattr(getattr(copy_tmpl,p),'x2',k[1])
@@ -2958,7 +2958,7 @@ Options:::
                     if type(k[-1])==type({}):
                         for kk in k[-1].keys():
                             setattr(getattr(copy_tmpl,p),kk,k[-1][kk])
-                        
+
                 del(keyargs[p])
             # Now MV2 related keywords
             ## Charles note: It's here that we need to remember what changed so i can unset it later
@@ -2987,8 +2987,8 @@ Options:::
                 if not isinstance(k,list):# not a list means only priority set
                     if isinstance(k,dict):
                         for kk in k.keys():
-                            setattr(getattr(copy_tmpl,p),kk,k[kk])                        
-                    elif isinstance(k,int): 
+                            setattr(getattr(copy_tmpl,p),kk,k[kk])
+                    elif isinstance(k,int):
                         setattr(getattr(copy_tmpl,p),'priority',k)
                     elif isinstance(k,str):
                         slab_changed_attributes[p]=k
@@ -3009,7 +3009,7 @@ Options:::
                     if type(k[-1])==type({}):
                         for kk in k[-1].keys():
                             setattr(getattr(copy_tmpl,p),kk,k[-1][kk])
-                        
+
                 del(keyargs[p])
             # Now Axis related keywords
             elif p[1:] in [
@@ -3067,7 +3067,7 @@ Options:::
                 if type(k)!=type([]):# not a list means only priority set
                     if type(k)==type({}):
                         for kk in k.keys():
-                            setattr(getattr(copy_tmpl,p),kk,k[kk])                        
+                            setattr(getattr(copy_tmpl,p),kk,k[kk])
                     elif type(k)==type(0):
                         setattr(getattr(copy_tmpl,p),'priority',k)
                     elif isinstance(k,str):
@@ -3084,7 +3084,7 @@ Options:::
                             setattr(ax,p[1:],'')
                         else:
                             setattr(ax,'id','')
-                       
+
                 else:
                     if p[1:]!='name':
                         setattr(ax,p[1:],k[0])
@@ -3095,7 +3095,7 @@ Options:::
                     if type(k[-1])==type({}):
                         for kk in k[-1].keys():
                             setattr(getattr(copy_tmpl,p),kk,k[-1][kk])
-                        
+
                 del(keyargs[p])
             # Finally take care of commands
             elif p in [
@@ -3165,12 +3165,12 @@ Options:::
                             copy_mthd.datawc_x2 = cdtime.reltime(oax[-1],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                         else:
                             copy_mthd.datawc_x2 = cdtime.reltime(copy_mthd.datawc_x2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels1=='*' : 
+                if copy_mthd.xticlabels1=='*' :
                   if copy_mthd is None:
                     copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                     check_mthd = copy_mthd
                   copy_mthd.xticlabels1=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels2=='*' : 
+                if copy_mthd.xticlabels2=='*' :
                   if copy_mthd is None:
                     copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                     check_mthd = copy_mthd
@@ -3292,7 +3292,7 @@ Options:::
                 k=10.
             v=int(value/numpy.power(k,j))*numpy.power(k,j)
             return v*sign
-        
+
         def mkdic(method,values):
             if method=='area_wt':
                 func=numpy.sin
@@ -3310,7 +3310,7 @@ Options:::
                 if method=='area_wt':
                     vals.append(func(v*numpy.pi/180.))
                 else:
-                    vals.append(func(v))                    
+                    vals.append(func(v))
             min,max=vcs.minmax(vals)
             levs=vcs.mkscale(min,max)
 ##             levs=vcs.mkevenlevels(min,max)
@@ -3334,7 +3334,7 @@ Options:::
                 except:
                     pass
             return dic2
-        
+
         def set_convert_labels(copy_mthd,test=0):
             did_something = False
             for axc in ['x','y']:
@@ -3359,6 +3359,9 @@ Options:::
               copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
               check_mthd = copy_mthd
               set_convert_labels(copy_mthd)
+        if copy_mthd is None:
+          copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+          check_mthd = copy_mthd
 
         x=None
         y=None
@@ -3371,7 +3374,7 @@ Options:::
                 datawc_x1=MV2.minimum(arglist[0])
                 datawc_x2=MV2.maximum(arglist[0])
                 x=None
-            else:            
+            else:
               try:
                 if arglist[0].getAxis(-1).isCircularAxis():
                   datawc_x1=arglist[0].getAxis(-1)[0]
@@ -3390,7 +3393,7 @@ Options:::
                 y="longitude"
             elif arglist[0].getAxis(-2).isLatitude():
                 y="latitude"
-            
+
             if check_mthd.g_name=="G1d" and not check_mthd.flip and arglist[1] is None: # in ["GYx",]:
                 datawc_y1=MV2.minimum(arglist[0])
                 datawc_y2=MV2.maximum(arglist[0])
@@ -3422,7 +3425,7 @@ Options:::
         if not copy_tmpl is None: arglist[2]=copy_tmpl.name
 
         ## End of preprocessing !
-        
+
         # get the background value
         bg = keyargs.get('bg', 0)
 
@@ -3440,7 +3443,7 @@ Options:::
             # first look at the extra arguments and make sure there is no duplicate
             for k in keyargs.keys():
                 if not k in ['template','skill','bg']:
-                    del(keyargs[k])                    
+                    del(keyargs[k])
                 if k=='template':
                     arglist[2]=keyargs[k]
                     del(keyargs[k])
@@ -3522,7 +3525,7 @@ Options:::
                 t.data.x2 = p.viewport[1]
                 t.data.y1 = p.viewport[2]
                 t.data.y2 = p.viewport[3]
-                
+
                 proj = self.getprojection(p.projection)
                 if proj.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
@@ -3625,8 +3628,8 @@ Options:::
                     copy_tmpl=vcs.createtemplate(source=arglist[2])
                     arglist[2]=copy_tmpl.name
                 copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
-                            
-                            
+
+
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
             # Get the continents for animation generation
             self.animate.continents_value = self.getcontinentstype()
@@ -3661,12 +3664,12 @@ Options:::
                   dn.backend = returned_kargs
                 else:
                   dn = None
-        
+
             if dn is not None:
               dn._template_origin = template_origin
               dn.ratio=Doratio
 
-            if self.mode!=0 : 
+            if self.mode!=0 :
               #self.update()
               pass
             #if not bg: pause(self.pause_time)
@@ -3681,13 +3684,13 @@ Options:::
             #warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
 #            result = self.getplot(dn, template_origin)
             #self.canvas.setcontinentstype(hold_cont_type)
-            # Pointer to the plotted slab of data and the VCS Canas display infomation. 
-            # This is needed to find the animation min and max values and the number of 
+            # Pointer to the plotted slab of data and the VCS Canas display infomation.
+            # This is needed to find the animation min and max values and the number of
             # displays on the VCS Canvas.
             if dn is not None:
               self.animate_info.append( (result, arglist[:2]) )
 #            self.animate.update_animate_display_list( )
-            
+
 
         # Make sure xmainloop is started. This is needed to check for X events
         # (such as, Canvas Exposer, button or key press and release, etc.)
@@ -3713,7 +3716,7 @@ Options:::
                 apply(self.cgm,args)
             elif c=='ras':
                 apply(self.ras,args)
-        
+
         #self.clean_auto_generated_objects("template")
         for p in slab_changed_attributes.keys():
             tmp = slab_changed_attributes[p]
@@ -3738,7 +3741,7 @@ Options:::
     #############################################################################
     def return_display_ON_num(self, *args):
         return apply(self.canvas.return_display_ON_num, args)
-    
+
     #############################################################################
     #                                                                           #
     # VCS utility wrapper to return the current display names.                  #
@@ -3774,7 +3777,7 @@ Options:::
     for saving a cgm file: `Append' mode (a) appends cgm output to an existing cgm
     file; `Replace' (r) mode overwrites an existing cgm file with new cgm output.
     The default mode is to overwrite an existing cgm file (i.e. mode (r)).
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -3800,21 +3803,22 @@ Options:::
  Description of Function:
     In VCS it is necessary to clear all the plots from a page. This routine
     will clear all the VCS displays on a page (i.e., the VCS Canvas object).
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.clear()
 
 """
-        self.animate.close()
+        if self.animate.created():
+            self.animate.close()
         self.animate_info=[]
         self.animate.update_animate_display_list( )
         self.backend.clear(*args,**kargs)
         for nm in self.display_names:
           del(vcs.elements["display"][nm])
         self.display_names=[]
-        return 
+        return
 
     #############################################################################
     #                                                                           #
@@ -3890,7 +3894,7 @@ Options:::
 #        except:
 #           pass
 
-    
+
 
     #############################################################################
     #                                                                           #
@@ -4281,35 +4285,35 @@ Options:::
     def pstogif(self, filename, *opt):
         """
   Function: pstogif
- 
+
   Description of Function:
      In some cases, the user may want to save the plot out as a gif image. This
      routine allows the user to convert a postscript file to a gif file.
- 
+
   Example of Use:
      a=vcs.init()
      a.plot(array)
      a.pstogif('filename.ps')       # convert the postscript file to a gif file (l=landscape)
      a.pstogif('filename.ps','l')   # convert the postscript file to a gif file (l=landscape)
      a.pstogif('filename.ps','p')   # convert the postscript file to a gif file (p=portrait)
- """ 
+ """
         from os import popen
- 
+
         # Generate the VCS postscript file
         if (filename[-3:] != '.ps'):
            filename = filename + '.ps'
- 
+
         # Set the default orientation to landscape'
         if len(opt) == 0:
             orientation = 'l'
         else:
             orientation = opt[0]
         # end of if len(orientation) == 0:
-     
+
         cmd1 = 'gs -r72x72 -q -sDEVICE=ppmraw -sOutputFile=- '
         cmd2flip = ' | pnmflip -cw '
         cmd3 = '| pnmcrop | ppmtogif > '
-     
+
         if orientation == 'l':
             cmd = cmd1 + filename + cmd2flip + cmd3 + filename[:-2] + 'gif\n'
         elif orientation == 'p':
@@ -4320,7 +4324,7 @@ Options:::
         f=popen(cmd, 'w')
         f.close()
         return
- 
+
     #############################################################################
     #                                                                           #
     # Grid wrapper for VCS.                                                     #
@@ -4329,17 +4333,17 @@ Options:::
     def grid(self, *args):
         """
  Function: grid
-    
+
  Description of Function:
     Set the default plotting region for variables that have more dimension values
     than the graphics method. This will also be used for animating plots over the
     third and fourth dimensions.
- 
- 
+
+
  Example of Use:
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
-""" 
+"""
         finish_queued_X_server_requests( self )
         self.canvas.BLOCK_X_SERVER()
 
@@ -4390,7 +4394,7 @@ Options:::
            raise ValueError, 'If specified, width, height, x, and y must be integer values greater than or equal to 0.'
         if ( ((not isinstance(clear, IntType))) and (clear not in [0,1])):
            raise ValueError, "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'."
-           
+
         if ( (width==-99) and (height==-99) and (x==-99) and (y==-99) and (clear==0) ):
             cargs = ()
             try: dict = apply(self.canvas.canvasinfo, cargs)
@@ -4425,7 +4429,7 @@ Options:::
 
    The list that will be returned:
    ['template', 'boxfill', 'continent', 'isofill', 'isoline', 'outfill', 'outline',
-    'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'colormap', 'fillarea', 'format', 
+    'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'colormap', 'fillarea', 'format',
     'line', 'list', 'marker', 'text']
 
  Example of Use:
@@ -4473,7 +4477,7 @@ Options:::
 
  Example of Use:
     a=vcs.init()
-    a.open()    
+    a.open()
 """
 
         a = self.backend.open(*args,**kargs)
@@ -4574,11 +4578,11 @@ Options:::
     a.portrait(width = 337, height = 400) # Change to portrait and set the window size
     a.portrait(x=100, y = 200) # Change to portrait and set the x and y screen position
     a.portrait(width = 337, height = 400, x=100, y = 200, clear=1) # Chagne to portrait and give specifications
-""" 
+"""
         if (self.orientation() == 'portrait'): return
 
         if ( ((not isinstance(width, int))) or ((not isinstance(height, int))) or
-             ((not isinstance(x, int))) or ((not isinstance(y, int)))  or 
+             ((not isinstance(x, int))) or ((not isinstance(y, int)))  or
              ((width != -99) and (width < 0)) or ( (height != -99) and (height < 0)) or
               ((x != -99) and  (x < 0)) or ((y != -99) and (y <0)) ):
            raise ValueError, 'If specified, width, height, x, and y must be integer values greater than or equal to 0.'
@@ -4651,7 +4655,7 @@ Options:::
         if rate is not None:
             cmd+=' -r %s ' % rate
         if bitrate is not None:
-            cmd+=' -b:v %sk' % bitrate  
+            cmd+=' -b:v %sk' % bitrate
         cmd+=' '+options
         cmd+=' '+movie
         o = os.popen(cmd).read()
@@ -4708,7 +4712,7 @@ Options:::
         #in pixels?
         self.bgX = W
         self.bgY = H
-        return 
+        return
     # display ping
     def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
       self.backend.put_png_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
@@ -4768,7 +4772,7 @@ Options:::
         W = int(width*dpi*sfactor)
         H = int(height*dpi*sfactor)
 
-            
+
         if not file.split('.')[-1].lower() in ['pdf']:
             file+='.pdf'
         return self.backend.pdf(file,W,H)
@@ -4812,7 +4816,7 @@ Options:::
             tmp = W
             W= H
             H = tmp
-           
+
         if not file.split('.')[-1].lower() in ['svg']:
             file+='.svg'
         return self.backend.svg(file,W,H)
@@ -4971,7 +4975,7 @@ Options:::
         ##     else:
         ##         height=width/ratio
         return width,height,sfactor
-    
+
     def postscript(self, file,mode='r',orientation=None,width=None,height=None,units='inches',left_margin=None,right_margin=None,top_margin=None,bottom_margin=None):
         """
  Function: postscript
@@ -4979,9 +4983,9 @@ Options:::
  Description of Function:
     Postscript output is another form of vector graphics. It is larger than its CGM output
     counter part, because it is stored out in ASCII format.
-    
+
     There are two modes for saving a postscript file: `Append' (a) mode appends postscript
-    output to an existing postscript file; and `Replace' (r) mode overwrites an existing 
+    output to an existing postscript file; and `Replace' (r) mode overwrites an existing
     postscript file with new postscript output. The default mode is to overwrite an existing
     postscript file (i.e. mode (r)).
 
@@ -5017,7 +5021,7 @@ Options:::
 
 ##         print "will usE:",W,H,float(W)/H
         # figures out margins
-            
+
         top_margin,bottom_margin,right_margin,left_margin = self._compute_margins(W,H,top_margin,bottom_margin,right_margin,left_margin,dpi)
 
         R = int(right_margin*dpi)
@@ -5066,13 +5070,13 @@ Options:::
     chosen.
 
     There are two modes for saving a postscript file: `Append' (a) mode appends postscript
-    output to an existing postscript file; and `Replace' (r) mode overwrites an existing 
+    output to an existing postscript file; and `Replace' (r) mode overwrites an existing
     postscript file with new postscript output. The default mode is to overwrite an existing
     postscript file (i.e. mode (r)).
 
     The POSTSCRIPT command is used to create a postscript file. Orientation is 'l' = landscape,
     or 'p' = portrait. The default is the current orientation of your canvas.
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array)
@@ -5105,7 +5109,7 @@ Options:::
 
     The pdf command is used to create a pdf file. Orientation is 'l' = landscape,
     or 'p' = portrait. The default is landscape.
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array)
@@ -5123,7 +5127,7 @@ Options:::
         os.popen('ps2pdf14 '+options+' '+psnm+' '+file).readlines()
         os.remove(psnm)
         return a
-    
+
 
     #############################################################################
     #                                                                           #
@@ -5144,7 +5148,7 @@ Options:::
 
     Note: VCS graphical displays can be printed only if the user customizes a HARD_COPY
     file (included with the VCS software) for the home system. The path to the HARD_COPY
-    file must be: 
+    file must be:
 
               /$HOME/%s/HARD_COPY
 
@@ -5163,7 +5167,7 @@ Options:::
 """ % (self._dotdir,self._dotdir)
         if printer is None:
             printer = (os.environ.get('PRINTER'),)
-            
+
         if not units in ['inches','in','cm','mm','pixel','pixels','dot','dots']:
             raise Exception,"units must be on of inches, in, cm, mm, pixel(s) or dot(s)"
 
@@ -5181,7 +5185,7 @@ Options:::
         W = int(width*dpi*sfactor)
         H = int(height*dpi*sfactor)
         top_margin,bottom_margin,right_margin,left_margin = self._compute_margins(W,H,top_margin,bottom_margin,right_margin,left_margin,dpi)
-        
+
         R = int(right_margin*dpi)
         L = int(left_margin*dpi)
         T = int(top_margin*dpi)
@@ -5191,7 +5195,7 @@ Options:::
             tmp = H
             H = W
             W = tmp
-            
+
         return apply(self.canvas.printer, (printer,W,H,R,L,T,B))
 
     #############################################################################
@@ -5266,7 +5270,7 @@ Options:::
     def raster(self, file, mode='a'):
         """
  Function: raster
- 
+
  Description of Function:
     In some cases, the user may want to save the plot out as an raster image. This
     routine allows the user to save the VCS canvas output as a SUN raster file.
@@ -5280,7 +5284,7 @@ Options:::
 
     will be used for storing raster images. However, if a previously created raster
     file is designated, that file will be used for raster output.
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array)
@@ -5301,10 +5305,10 @@ Options:::
 
  Description of Function:
     Set the plotting region to default values.
-    
+
  Example of Use:
     Not Working!
-"""     
+"""
         return apply(self.canvas.resetgrid, args)
 
     #############################################################################
@@ -5365,7 +5369,7 @@ Options:::
 
  Description of Function:
     It is necessary to change the colormap. This routine will change the VCS
-    color map. 
+    color map.
 
     If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
     of the VCS Canvas is made evertime the colormap is changed.
@@ -5435,18 +5439,18 @@ Options:::
     One has the option of using continental maps that are predefined or that
     are user-defined. Predefined continental maps are either internal to VCS
     or are specified by external files. User-defined continental maps are
-    specified by additional external files that must be read as input. 
+    specified by additional external files that must be read as input.
 
-    The continents-type values are integers ranging from 0 to 11, where: 
-        0 signifies "No Continents" 
-        1 signifies "Fine Continents" 
-        2 signifies "Coarse Continents" 
-        3 signifies "United States" (with "Fine Continents") 
-        4 signifies "Political Borders" (with "Fine Continents") 
-        5 signifies "Rivers" (with "Fine Continents") 
+    The continents-type values are integers ranging from 0 to 11, where:
+        0 signifies "No Continents"
+        1 signifies "Fine Continents"
+        2 signifies "Coarse Continents"
+        3 signifies "United States" (with "Fine Continents")
+        4 signifies "Political Borders" (with "Fine Continents")
+        5 signifies "Rivers" (with "Fine Continents")
 
     Values 6 through 11 signify the line type defined by the files
-    data_continent_other7 through data_continent_other12. 
+    data_continent_other7 through data_continent_other12.
 
     You can also pass a file
 
@@ -5498,7 +5502,7 @@ Options:::
 
         /$HOME/%s/default.gif
 
-    will be used for storing gif images. However, if a previously created gif 
+    will be used for storing gif images. However, if a previously created gif
     file is designated, that file will be used for gif output.
 
     By default, the page orientation is in Landscape mode (l). To translate the page
@@ -5506,7 +5510,7 @@ Options:::
 
     The GIF command is used to create or append to a gif file. There are two modes
     for saving a gif file: `Append' mode (a) appends gif output to an existing gif
-    file; `Replace' (r) mode overwrites an existing gif file with new gif output. 
+    file; `Replace' (r) mode overwrites an existing gif file with new gif output.
     The default mode is to overwrite an existing gif file (i.e. mode (r)).
 
  Example of Use:
@@ -5540,10 +5544,10 @@ Options:::
 
  Description of Function:
     This routine allows the user to save the VCS canvas in one of the many
-    GhostScript (gs) file types (also known as devices). To view other 
-    GhostScript devices, issue the command "gs --help" at the terminal 
-    prompt. Device names include: bmp256, epswrite, jpeg, jpeggray, 
-    pdfwrite, png256, png16m, sgirgb, tiffpack, and tifflzw. By default 
+    GhostScript (gs) file types (also known as devices). To view other
+    GhostScript devices, issue the command "gs --help" at the terminal
+    prompt. Device names include: bmp256, epswrite, jpeg, jpeggray,
+    pdfwrite, png256, png16m, sgirgb, tiffpack, and tifflzw. By default
     the device = 'png256'.
 
     If no path/file name is given and no previously created gs file has been
@@ -5551,7 +5555,7 @@ Options:::
 
         /$HOME/%s/default.gs
 
-    will be used for storing gs images. However, if a previously created gs 
+    will be used for storing gs images. However, if a previously created gs
     file exist, then this output file will be used for storage.
 
     By default, the page orientation is the canvas' orientation.
@@ -5586,15 +5590,15 @@ Options:::
     def eps(self, file, mode='r',orientation=None,width=None,height=None,units='inches',left_margin=None,right_margin=None,top_margin=None,bottom_margin=None):
         """
         Function: Encapsulated PostScript
-        
+
         Description of Function:
         In some cases, the user may want to save the plot out as an Encapsulated
         PostScript image. This routine allows the user to save the VCS canvas output
         as an Encapsulated PostScript file.
         This file can be converted to other image formats with the aid of xv and other
         such imaging tools found freely on the web.
-        
-        
+
+
         Example of Use:
         a=vcs.init()
         a.plot(array)
@@ -5616,7 +5620,7 @@ Options:::
         self.postscript(tmpfile,mode,orientation,width,height,units,left_margin,right_margin,top_margin,bottom_margin)
         os.popen("ps2epsi %s %s" % ( tmpfile, file)).readlines()
         os.remove(tmpfile)
-                 
+
     #############################################################################
     #                                                                           #
     # Show VCS primary and secondary elements wrapper for VCS.                  #
@@ -5638,7 +5642,7 @@ Options:::
         gm=GM.g_name
         key=gm+'_'+nm+'('
         if file is None:
-            file=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes') 
+            file=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes')
         f=open(file,'r')
         for ln in f.xreadlines():
             if ln.find(key)>-1:
@@ -5681,7 +5685,7 @@ Options:::
 """ % (self._dotdir)
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
-        
+
 
     #############################################################################
     #                                                                           #
@@ -5694,8 +5698,8 @@ Options:::
 
  Description of Function:
     The VCS scripting capability serves many purposes. It allows one to save the
-    system state for replay in a later session; to save primary and secondary 
-    element attributes for use in later visual presentations; to save a sequence 
+    system state for replay in a later session; to save primary and secondary
+    element attributes for use in later visual presentations; to save a sequence
     of interactive operations for replay; or to recover from a system failure.
 
  Example of Use:
@@ -5720,7 +5724,7 @@ Options:::
  Function: canvasraised                         # Raise the VCS Canvas to the top
 
  Description of Function:
-    This function marks a VCS Canvas as eligible to be displayed and  
+    This function marks a VCS Canvas as eligible to be displayed and
     positions the window at the top of the stack of its siblings.
 
  Example of Use:
@@ -5743,13 +5747,13 @@ Options:::
  Function: iscanvasdisplayed          # Return 1 if a VCS Canvas is displayed
 
  Description of Function:
-    This function returns a 1 if a VCS Canvas is displayed or a 0 if  
+    This function returns a 1 if a VCS Canvas is displayed or a 0 if
     no VCS Canvas is displayed on the screen.
-    
+
  Example of Use:
     a=vcs.init()
     ...
-    
+
     a.iscanvasdisplayed()
 """
 
@@ -5890,20 +5894,20 @@ Options:::
             return nms
         else:
             return nms[0]
-    
+
 
     def getfontnumber(self, name):
         """
         get the font number associated with a font name
         """
         return vcs.getfontnumber(name)
-    
+
     def getfontname(self, number):
         """
         get the font name associated with a font number
         """
         return vcs.getfontname(number)
-    
+
     def getfont(self, font):
         """
         get the font name/number associated with a font number/name
@@ -5914,7 +5918,7 @@ Options:::
             return self.getfontnumber(font)
         else:
             raise vcsError,"Error you must pass a string or int"
-        
+
     def switchfonts(self,font1,font2):
         """ Switch 2 font indexes, you can pass either the font names or indexes """
         if isinstance(font1,str):
@@ -5931,9 +5935,9 @@ Options:::
             nm = self.getfont(index2) # make sure font exists
         else:
             raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
-        
+
         return apply(self.canvas.switchfontnumbers,(index1,index2))
-    
+
     def copyfontto(self,font1,font2):
         """ copy name and path of font 1 into font 2, you can pass either the font names or indexes """
         if isinstance(font1,str):
@@ -5951,13 +5955,13 @@ Options:::
         else:
             raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
         return apply(self.canvas.copyfontto,(index1,index2))
-    
+
     def setdefaultfont(self,font):
         """Sets the passed font as the default font for vcs"""
         if isinstance(font,str):
             font = self.getfont(font)
         return self.copyfontto(font,1)
- 
+
     #############################################################################
     #                                                                           #
     # Orientation VCS Canvas orientation wrapper for VCS.                       #
@@ -5973,7 +5977,7 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.orientation()      # Return either "landscape" or "portrait"
-""" 
+"""
         return self.backend.orientation(*args,**kargs)
 
     #############################################################################
@@ -5984,7 +5988,7 @@ Options:::
     def getcolorcell(self, *args):
         """
  Function: getcolorcell
- 
+
  Description of Function:
     Get an individual color cell in the active colormap. If default is
     the active colormap, then return an error string.
@@ -5995,7 +5999,7 @@ Options:::
     Note, the user can only change color cells 0 through 239 and R,G,B
     value must range from 0 to 100. Where 0 represents no color intensity
     and 100 is the greatest color intensity.
- 
+
  Example of Use:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -6029,12 +6033,12 @@ Options:::
     a.getcolormapname()
 """
         return self.colormap
-    
+
     def dummy_user_action(self,*args,**kargs):
         print 'Arguments:',args
         print 'Keywords:',kargs
         return None
-    
+
 #############################################################################
 #                                                                           #
 # Primarily used for reseting the animation date and time string.           #
