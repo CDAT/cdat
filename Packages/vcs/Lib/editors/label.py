@@ -134,7 +134,7 @@ class LabelEditor(point.PointEditor):
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = vcs.colorpicker.ColorPicker(500, 500, vcs.getcolormap(), self.tt.color, on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = vcs.colorpicker.ColorPicker(500, 500, vcs.getcolormap(), self.tt.color, parent_interactor=self.interactor, on_save=self.set_color, on_cancel=self.cancel_color)
 
     def set_color(self, cmap, color):
         self.tt.color = color

@@ -103,7 +103,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = ColorPicker(500, 500, self.marker.colormap, self.marker.color[self.index], on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = ColorPicker(500, 500, self.marker.colormap, self.marker.color[self.index], parent_interactor=self.interactor,  on_save=self.set_color, on_cancel=self.cancel_color)
 
     def set_color(self, colormap, color):
         self.marker.colormap = colormap
