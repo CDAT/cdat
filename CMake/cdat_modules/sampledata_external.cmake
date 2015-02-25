@@ -1,0 +1,7 @@
+message("SITEPKG:" ${PYTHON_SITE_PACKAGES_PREFIX})
+if (CDAT_DOWNLOAD_SAMPLE_DATA)
+  file(READ ${cdat_CMAKE_SOURCE_DIR}/Packages/dat/files.txt SAMPLE_FILES)
+  foreach(SAMPLE_FILE ${SAMPLE_FILES})
+    message("TRYING TO DOWNLOAD"${SAMPLE_FILE})
+  endforeach()
+endif()
