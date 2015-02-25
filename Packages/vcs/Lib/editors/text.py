@@ -160,7 +160,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def handle_click(self, point):
         x, y = point
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["alt"]
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["control"]
 
     def process_click(self, text_index, x, y):
 
@@ -176,7 +176,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                 self.index = text_index
                 self.textboxes[self.index].start_editing((x, y))
             else:
-                if self.current_modifiers()["alt"]:
+                if self.current_modifiers()["control"]:
 
                     self.textboxes[self.index].stop_editing()
 
