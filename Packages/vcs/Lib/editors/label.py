@@ -1,6 +1,5 @@
 import point
 import vcs
-import inspect
 import text
 import vcs.vcs2vtk
 from functools import partial
