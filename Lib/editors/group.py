@@ -26,7 +26,7 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         self.toolbar = vcs.vtk_ui.Toolbar(interactor, "Group Options")
         self.picker = None
         self.color_button = self.toolbar.add_button(["Change Color"], action=self.change_color)
-        
+        self.toolbar.show()
         self.widgets = []
         self.widget_dragged_methods = {}
 
