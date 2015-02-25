@@ -1,1 +1,1 @@
-set(seawater ${seawater_pkg} ${python_pkg})
+set(seawater_deps ${python_pkg})
