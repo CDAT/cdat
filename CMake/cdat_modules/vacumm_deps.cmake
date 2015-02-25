@@ -1,1 +1,1 @@
-set(vacumm ${vacumm_pkg} ${python_pkg})
+set(vacumm_deps ${python_pkg})
