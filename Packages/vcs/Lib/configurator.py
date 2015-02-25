@@ -129,15 +129,16 @@ class Configurator(object):
         if self.clicking is None:
             return
 
+
+
         if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
 
             point = self.clicking[0]
-
+            self.clicking = None
             if self.creating:
                 self.click_locations.append(point)
                 if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
                     self.create()
-                self.clicking = None
                 return
 
             if self.target and self.shift() == False and self.target.handle_click(point):
@@ -165,9 +166,6 @@ class Configurator(object):
             elif self.target is not None and self.shift() == False:
                 self.deactivate(self.target)
             self.interactor.GetRenderWindow().Render()
-        else:
-            # Let other people handle this event.
-            pass
 
         self.clicking = None
 
@@ -179,7 +177,10 @@ class Configurator(object):
 
         if self.target:
             if self.target.handle_click(point):
-                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
+                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
+                else:
+                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
         else:
             if self.toolbar.in_toolbar(*point):
