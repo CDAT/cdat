@@ -1,1 +1,1 @@
-set(gsw ${gsw_pkg} ${python_pkg})
+set(gsw_deps ${python_pkg})
