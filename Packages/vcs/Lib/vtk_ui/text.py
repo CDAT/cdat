@@ -81,9 +81,9 @@ class Label(Widget, DraggableMixin):
         if textproperty is not None:
             self.actor = vtkTextActor()
             self.actor.SetInput(string)
-            textproperty.SetBackgroundColor(white_or_black(*textproperty.GetColor()))
-            textproperty.SetBackgroundOpacity(0)
             self.actor.SetTextProperty(textproperty)
+            if textproperty.GetBackgroundColor() == textproperty.GetColor():
+                textproperty.SetBackgroundColor(*white_or_black(*textproperty.GetColor()))
         else:
             self.actor = text_actor(string, fgcolor, size, font)
 
@@ -146,9 +146,11 @@ class Label(Widget, DraggableMixin):
     def show(self):
         self.place()
         self.widget.On()
+        self.interactor.GetRenderWindow().Render()
 
     def hide(self):
         self.widget.Off()
+        self.interactor.GetRenderWindow().Render()
 
     def place(self):
         w, h = self.interactor.GetRenderWindow().GetSize()

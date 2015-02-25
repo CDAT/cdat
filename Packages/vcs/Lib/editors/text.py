@@ -1,4 +1,4 @@
-from vcs.vtk_ui import Textbox, Toolbar
+from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
 from vcs.colorpicker import ColorPicker
 from vtk import vtkTextProperty
@@ -67,6 +67,15 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
         self.toolbar.show()
+
+        prop = vtkTextProperty()
+        prop.SetBackgroundColor(.87, .79, .55)
+        prop.SetBackgroundOpacity(1)
+        prop.SetColor(0, 0, 0)
+        self.tooltip = Label(self.interactor, "Ctrl + Click to place new text.", textproperty=prop)
+        self.tooltip.left = 0
+        self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
+        self.tooltip.show()
         super(TextEditor, self).__init__()
         self.register()
         self.update()
@@ -181,7 +190,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
                     self.textboxes[self.index].stop_editing()
 
-
                     # Add a new text item to self.text, update, and start editing
                     new_index = max(len(self.text.x), len(self.text.y), len(self.text.string))
 
@@ -238,7 +246,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         if self.text.priority > 0:
             for actor in self.actors:
                 actor.SetVisibility(1)
-
+        self.tooltip.detach()
         self.toolbar.detach()
 
     def halign(self, state):
