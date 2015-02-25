@@ -50,12 +50,15 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     if sys.platform == "darwin":
         self.reRender = False
+        self.oldCursor = None
+
     self.clickRenderer = None
 
   def setAnimationStepper( self, stepper ):
@@ -87,7 +90,7 @@ class VTKVCSBackend(object):
     if self.renWin is not None:
       if self.reRender:
         self.reRender = False
-        self._lastSize = None
+        #self._lastSize = None
         self.renWin.Render()
 
   def renderEvent(self,caller,evt):
@@ -181,6 +184,11 @@ class VTKVCSBackend(object):
       self.renWin.Render()
 
   def configureEvent(self,obj,ev):
+    cursor = self.renWin.GetCurrentCursor()
+    if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
+      self.oldCursor = cursor
+      return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -207,20 +215,38 @@ class VTKVCSBackend(object):
           key_args.append({"ratio":d.ratio})
       else:
           key_args.append({})
+
+    # Have to pull out the UI layer so it doesn't get borked by the clear
+    from vtk_ui.manager import get_manager
+    manager = get_manager(self.renWin.GetInteractor())
+    if manager:
+      self.renWin.RemoveRenderer(manager.renderer)
+
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
 
+
+    if manager:
+      # Set the UI renderer's layer on top of what's there right now
+      self.setLayer(manager.renderer, 3)
+
+      # Re-add the UI layer
+      self.renWin.AddRenderer(manager.renderer)
+
     if self.canvas.animate.created():
       self.canvas.animate.draw_frame()
+
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
       self.renWin.Render()
     if sys.platform == "darwin":
-        ## ON mac somehow we need to issue an extra Render after resize
-        self.reRender = True
+        ## On mac somehow we need to issue an extra Render after resize
+        # If ev is None, then the update() was called, and we only need to render once.
+        if ev is not None:
+          self.reRender = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -440,26 +466,10 @@ class VTKVCSBackend(object):
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
-            # Add a transform to correct the glyph's aspect ratio:
             if pd is None and act.GetUserTransform():
-              # Invert the scale of the actor's transform.
-              glyphTransform = vtk.vtkTransform()
-              scale = act.GetUserTransform().GetScale()
-              xComp = scale[0]
-              scale = [xComp / float(val) for val in scale]
-              glyphTransform.Scale(scale)
+              vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
+            self.setLayer(ren,gm.priority)
 
-              glyphFixer = vtk.vtkTransformPolyDataFilter()
-              glyphFixer.SetTransform(glyphTransform)
-
-              if pd is None:
-                glyphFixer.SetInputConnection(gs.GetOutputPort())
-              else:
-                glyphFixer.SetInputData(pd)
-                g.SetSourceData(None)
-
-              g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
@@ -583,7 +593,7 @@ class VTKVCSBackend(object):
     return {}
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000+1
+    n = self.numberOfPlotCalls + (priority-1)*10000 + 1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
@@ -1248,6 +1258,10 @@ class VTKVCSBackend(object):
               returned["vtk_backend_%s_text_actor" % s0] = t
               self.canvas.display_names.remove(d.name)
               del(vcs.elements["display"][d.name])
+          else:
+              returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
@@ -1404,6 +1418,11 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
+    from vtk_ui.manager import get_manager
+    manager = get_manager(self.renWin.GetInteractor())
+    if manager:
+      self.renWin.RemoveRenderer(manager.renderer)
+
     gl  = vtk.vtkGL2PSExporter()
 
     # This is the size of the initial memory buffer that holds the transformed
@@ -1434,6 +1453,8 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    if manager:
+      self.renWin.AddRenderer(manager.renderer)
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1460,7 +1481,10 @@ class VTKVCSBackend(object):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
-
+        from vtk_ui.manager import get_manager
+        manager = get_manager(self.renWin.GetInteractor())
+        if manager:
+          self.renWin.RemoveRenderer(manager.renderer)
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1472,6 +1496,7 @@ class VTKVCSBackend(object):
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
+
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
@@ -1485,10 +1510,17 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if manager:
+          self.renWin.AddRenderer(manager.renderer)
 
   def cgm(self,file):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
+
+        from vtk_ui.manager import get_manager
+        manager = get_manager(self.renWin.GetInteractor())
+        if manager:
+          self.renWin.RemoveRenderer(manager.renderer)
 
         if not file.split('.')[-1].lower() in ['cgm']:
             file+='.cgm'
@@ -1511,6 +1543,8 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
+        if manager:
+          self.renWin.AddRenderer(manager.renderer)
   def Animate(self,*args,**kargs):
      return VTKAnimate.VTKAnimate(*args,**kargs)
 
