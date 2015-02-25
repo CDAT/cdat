@@ -1,5 +1,5 @@
 set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
-set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:@cdat_EXTERNALS@/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:$ENV{@LIBRARY_PATH@} @cdat_osx_ld_flags@")
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:@cdat_EXTERNALS@/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:$ENV{@LIBRARY_PATH@}")
 if (NOT DEFINED SKIP_LDFLAGS)
  set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@ @cdat_rpath_flag@@CMAKE_INSTALL_PREFIX@/lib @cdat_rpath_flag@@cdat_EXTERNALS@/lib")
 endif()
