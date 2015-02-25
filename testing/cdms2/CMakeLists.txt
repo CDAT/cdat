@@ -9,6 +9,10 @@ add_test("test_dim_unlimited"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/test_dim_unlimited.py
     TestCDATLite)
+  add_test("CDMS_Test_Zonal_regrid_Switch_to_Regrid2"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/test_regrid_zonal_switch_to_regrid2.py)
+
 add_test("CDMS_Test_01"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/cdtest01.py)
