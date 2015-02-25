@@ -224,6 +224,7 @@ class Button(Widget):
 
     def detach(self):
         self.text_widget.detach()
+        self.action = None
         super(Button, self).detach()
 
     def hide(self):
@@ -292,6 +293,11 @@ class ToggleButton(Button):
             self.on()
         else:
             self.off()
+
+    def detach(self):
+        super(ToggleButton, self).detach()
+        self.on = None
+        self.off = None
 
     def copy(self, interactor):
         b = ToggleButton(interactor, self.label, on=self.on, off=self.off, renderer=self.renderer, corner_radius=self.radius, width=self.width,

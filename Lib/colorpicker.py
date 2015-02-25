@@ -65,7 +65,7 @@ class ColorPicker(object):
         self.save_button.show()
         self.cancel_button.show()
 
-        self.render_window.MakeCurrent()
+        self.make_current()
 
         self.selectedMapper = vtk.vtkDataSetMapper()
         self.selectedActor = vtk.vtkActor()
@@ -173,6 +173,7 @@ class ColorPicker(object):
         self.render_window.Finalize()
         inter = self.render_window.GetInteractor()
         inter.TerminateApp()
+        del self.render_window, inter
         if self.parent_interactor:
             self.parent_interactor.Start()
 
