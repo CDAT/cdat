@@ -476,12 +476,17 @@ class Configurator(object):
         # An "off" and "on" state
         states = [vtk_ui.button.ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
 
+        prop = vtk.vtkTextProperty()
+        prop.SetBackgroundColor(.87, .79, .55)
+        prop.SetBackgroundOpacity(1)
+        prop.SetColor(0, 0, 0)
+
         #self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
-        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click)
+        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click, tooltip="Create Text: click to place.", tooltip_property=prop)
 
         #self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
 
-        self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click)
+        self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click, tooltip="Create Marker: click to place.", tooltip_property=prop)
 
 
     def creator_enabled(self, button):
