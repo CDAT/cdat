@@ -3,18 +3,12 @@ Created on Apr 29, 2014
 
 @author: tpmaxwel
 '''
-<<<<<<< HEAD
     
 import sys, vtk, cdms2, traceback, os, cdtime, math 
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
 #from ImagePlaneAxisAlignedWidget import *
-=======
 
-import sys, vtk, cdms2, traceback, os, cdtime, math
-from ColorMapManager import *
-from Shapefile import shapeFileReader
->>>>>>> master
 from ImagePlaneWidget import *
 from StructuredGridPlot import  *
 from StructuredDataset import *
@@ -1834,7 +1828,7 @@ class RectGridPlot(StructuredGridPlot):
                 imageRange = self.getImageValues( ctfRange, cmap_index )
 #                print " ********************** scaleColormap[%s]:  " % ( constituent ), str( imageRange), str( ctfRange )
                 colormapManager.setScale( imageRange, ctfRange )
-                if self.enableContourOverlays and self.contourLineMapperer is not None: 
+                if self.enableContourOverlays and self.contourLineMapperer is not None:
                     self.contourLineMapperer.Modified()
                 if constituent == 'Slice':
                     self.updatingColormap( cmap_index, colormapManager )
