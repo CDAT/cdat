@@ -1,5 +1,8 @@
 import vtk
 
+# Support multiple render windows
+ui_managers = {}
+
 class InterfaceManager(object):
     """
     Provides a full-window renderer for UI widgets
@@ -28,10 +31,11 @@ class InterfaceManager(object):
     def remove_widget(self, widget):
         if widget in self.widgets:
             self.widgets.remove(widget)
-
-
-# Support multiple render windows
-ui_managers = {}
+            if len(self.widgets) == 0:
+                del ui_managers[self.interactor]
+                del self.window
+                del self.renderer
+                del self.interactor
 
 def get_manager(inter):
 
