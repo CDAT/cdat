@@ -52,7 +52,14 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
         # Used to store the color picker when it's active
         self.picker = None
-
+        prop = vtk.vtkTextProperty()
+        prop.SetBackgroundColor(.87, .79, .55)
+        prop.SetBackgroundOpacity(1)
+        prop.SetColor(0, 0, 0)
+        self.tooltip = vtk_ui.Label(self.interactor, "Ctrl + Click to place new markers.", textproperty=prop)
+        self.tooltip.left = 0
+        self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
+        self.tooltip.show()
         super(MarkerEditor, self).__init__()
         self.register()
 
@@ -181,6 +188,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
         for h in self.handles:
             h.detach()
+        self.tooltip.detach()
 
     def delete(self):
         del self.marker.x[self.index]

@@ -3,7 +3,7 @@ from image_utils import *
 from text import Label, text_dimensions
 from slider import Slider
 from widget import Widget
-
+from datetime import datetime, timedelta
 
 BUTTON_MARGIN = 3
 
@@ -35,7 +35,7 @@ BOTTOM_ALIGN = "BOTTOM"
 class Button(Widget):
     def __init__(self, interactor, renderer=None, action=None, corner_radius=5, width=None, font="Arial",
                  height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
-                 opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN):
+                 opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, tooltip=None, tooltip_property=None):
         """
         @kwargs:
             renderer: Which renderer to use from the interactor's RenderWindow
@@ -96,10 +96,35 @@ class Button(Widget):
 
         super(Button, self).__init__(interactor, widget)
 
+        if tooltip:
+            self.tooltip_label = Label(interactor, tooltip, textproperty=tooltip_property)
+            self.hover_handler = self.interactor.AddObserver("MouseMoveEvent", self.hover)
+            self.hover_timer = None
+            self.timer_handler = self.interactor.AddObserver("TimerEvent", self.still_hovering)
+
         if self.renderer:
             self.repr.SetRenderer(self.renderer)
         self.update()
         self.subscribe( 'StateChangedEvent', self.clicked)
+
+    def hover(self, obj, event):
+        x, y = self.interactor.GetEventPosition()
+
+        if self.hover_timer is None:
+            if self.in_bounds(x, y):
+                self.hover_timer = self.interactor.CreateOneShotTimer(300)
+
+        if self.in_bounds(x, y) == False:
+            if self.hover_timer is not None:
+                self.interactor.DestroyTimer(self.hover_timer)
+                self.hover_timer = None
+            self.tooltip_label.hide()
+
+
+    def still_hovering(self, obj, event):
+        if self.hover_timer:
+            self.tooltip_label.place()
+            self.tooltip_label.show()
 
     def get_text(self):
         return self.text_widget.get_text()
@@ -123,6 +148,19 @@ class Button(Widget):
         self.text_widget.top = sheight - y + BUTTON_MARGIN
 
         self.text_widget.place()
+
+        try:
+            w, h = self.tooltip_label.get_dimensions()
+
+            if x + 5 + w < swidth:
+                self.tooltip_label.left = x + 5
+            else:
+                self.tooltip_label.left = swidth - w - 5
+
+            self.tooltip_label.top = sheight - (y - height)
+            self.tooltip_label.place()
+        except AttributeError:
+            pass
 
 
     def get_dimensions(self):
@@ -224,10 +262,21 @@ class Button(Widget):
 
     def detach(self):
         self.text_widget.detach()
+        self.text_widget = None
+        try:
+            self.tooltip_label.detach()
+            self.tooltip_label = None
+            self.interactor.RemoveObserver(self.hover_handler)
+        except:
+            pass
         self.action = None
         super(Button, self).detach()
 
     def hide(self):
+        try:
+            self.tooltip_label.hide()
+        except AttributeError:
+            pass
         self.text_widget.hide()
         self.widget.Off()
 
