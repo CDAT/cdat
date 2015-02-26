@@ -18,6 +18,11 @@ def extract_widgets(editor):
     return widgets
 
 class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, vcs.vtk_ui.behaviors.DraggableMixin):
+    """
+    Editor for multiple targets at once
+
+    Multiplexes events to all targets, provides a toolbar to edit like items.
+    """
     def __init__(self, interactor, targets):
 
         self.targets = []

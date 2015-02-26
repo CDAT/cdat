@@ -3,6 +3,11 @@ from vcs.vtk_ui import Toolbar
 import vcs
 
 class DataEditor(BoxEditor):
+    """
+    Editor for the "data" attribute of a template
+
+    Does everything BoxEditor does, plus a config toolbar for data properties.
+    """
     def __init__(self, interactor, gm, template, configurator):
         super(DataEditor, self).__init__(interactor, template.data, configurator)
         self.gm = gm

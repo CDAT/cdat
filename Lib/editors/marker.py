@@ -7,6 +7,11 @@ import vcs.vcs2vtk
 import priority
 
 class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+    """
+    Editor for marker objects
+
+    Ctrl + click to drop a new marker, toolbar to configure, priority, draggable + handles on each marker.
+    """
     def __init__(self, interactor, marker, index, display, configurator):
         self.interactor = interactor
         self.marker = marker

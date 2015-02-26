@@ -4,6 +4,11 @@ from vcs.colorpicker import ColorPicker
 import priority
 
 class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+    """
+    Editor for vcs `line` objects.
+
+    Double click to add a vertex, draggable, handles on each vertex
+    """
     styles = ["solid", "dash", "dot", "dash-dot", "long-dash"]
     def __init__(self, interactor, line, index, configurator):
         self.index = index

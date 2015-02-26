@@ -3,6 +3,11 @@ from vcs.vtk_ui import Toolbar
 import vcs
 
 class LegendEditor(BoxEditor):
+    """
+    Editor for the legend box
+
+    Adds a toolbar to swap what colormap is in use.
+    """
     def __init__(self, interactor, template, configurator):
         super(LegendEditor, self).__init__(interactor, template.legend, configurator)
         # Legend doesn't need anything too exciting, just need to add a toolbar button

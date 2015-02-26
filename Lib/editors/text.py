@@ -17,6 +17,11 @@ __valign_map__ = {
 }
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
+    """
+    Editor for `textcombined` objects
+
+    Click a text box to edit the text, config toolbar, draggable textboxes (using the vtk_ui.textbox widget).
+    """
     def __init__(self, interactor, text, index, dp, configurator):
 
         self.interactor = interactor
