@@ -1,10 +1,6 @@
 
 import vtk, sys, gc
 
-VTK_NEAREST_RESLICE = 0
-VTK_LINEAR_RESLICE  = 1
-VTK_CUBIC_RESLICE   = 2
-
 class DisplayMode:
     Scalar= 0
     VectorLIC = 1
@@ -44,8 +40,6 @@ class ImagePlaneWidget:
         self.PlaceFactor = 0.5;
         self.PlaneOrientation   = 0
         self.PlaceFactor  = 1.0
-        self.TextureInterpolate = 1
-        self.ResliceInterpolate = VTK_LINEAR_RESLICE
         self.UserControlledLookupTable= 0
         self.CurrentCursorPosition = [ 0, 0, 0 ]
         self.CurrentScreenPosition = [ 0, 0 ]
@@ -53,13 +47,13 @@ class ImagePlaneWidget:
         self.CurrentImageValue2 = vtk.VTK_DOUBLE_MAX
         self.Input2ExtentOffset = [0,0,0]        
         self.Input2OriginOffset = [0,0,0]
-        self.ResliceAxes   = vtk.vtkMatrix4x4()   
-        self.ResliceAxes2   = vtk.vtkMatrix4x4()   
         self.ContourInputDims = 0;     
         self.InputDims = 0
         self.CurrentPosition = 0.0   
         self.plane = vtk.vtkPlane()  
         self.Texture = None
+        self.texture_interpolate = 1
+        self.plane_position_index = [ -1, -1, -1 ]
                         
         # Represent the plane's outline
         #
@@ -68,14 +62,11 @@ class ImagePlaneWidget:
         self.PlaneSource.SetYResolution(1)
         self.PlaneOutlinePolyData  = vtk.vtkPolyData()
         self.PlaneOutlineActor     = vtk.vtkActor()
-            
-        # Represent the resliced image plane
-        #
         self.ColorMap = None
 #        self.ContourFilter = vtk.vtkContourFilter
-        self.Reslice = vtk.vtkImageReslice()
-        self.Reslice.TransformInputSamplingOff()
-        self.Reslice2 = None        
+        self.Clipper = vtk.vtkImageClip()
+        self.Clipper.ClipDataOn()
+        self.Clipper2 = vtk.vtkImageClip()
 
         self.Transform     = vtk.vtkTransform()
         self.ImageData    = 0
@@ -142,15 +133,6 @@ class ImagePlaneWidget:
         
     def GetCurrentScreenPosition(self): 
         return self.CurrentScreenPosition
-        
-    def SetResliceInterpolateToNearestNeighbour(self):
-        self.SetResliceInterpolate(VTK_NEAREST_RESLICE)
-        
-    def SetResliceInterpolateToLinear(self):
-        self.SetResliceInterpolate(VTK_LINEAR_RESLICE)
-        
-    def SetResliceInterpolateToCubic(self):
-        self.SetResliceInterpolate(VTK_CUBIC_RESLICE)
 
     def SetColorMap( self, value ):
         self.ColorMap = value
@@ -683,8 +665,8 @@ class ImagePlaneWidget:
         
         # This method must be called _after_ SetInput
         #
-        self.Reslice.Update()
-        self.ImageData  = self.Reslice.GetInput()
+        self.Clipper.Update()
+        self.ImageData  = self.Clipper.GetInput()
         if ( not self.ImageData ):        
             print>>sys.stderr, "SetInput() before setting plane orientation."
             return
@@ -767,27 +749,19 @@ class ImagePlaneWidget:
             
         dims = self.ImageData.GetDimensions()
         self.InputDims = 3 if ( ( len(dims) > 2 ) and ( dims[2] > 1 ) ) else 2
-             
-        interpolate = self.ResliceInterpolate
-        self.ResliceInterpolate = -1 # Force change
-        self.SetResliceInterpolate(interpolate)
-        
-        if self.Reslice2:           
-            self.Reslice2.Update() 
 
-            
     def UpdateInputs(self):
         
         if(  not self.ImageData ):       
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(None)
-            else:                           self.Reslice.SetInputData(None)                         
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.Clipper.SetInput(None)
+            else:                           self.Clipper.SetInputData(None)
             return False
         
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(self.ImageData)
-        else:                           self.Reslice.SetInputData(self.ImageData) 
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.Clipper.SetInput(self.ImageData)
+        else:                           self.Clipper.SetInputData(self.ImageData)
                                       
-        self.Reslice.Modified()        
-        self.Reslice.Update()       
+        self.Clipper.Modified()
+        self.Clipper.Update()
         return True            
         
     def updateTextDisplay( self, text ):
@@ -827,144 +801,48 @@ class ImagePlaneWidget:
             
     def UpdatePlane(self):
         
-        self.ImageData  =self.Reslice.GetInput()
-        if (  not self.Reslice or not self.ImageData ): return
+        self.ImageData  =self.Clipper.GetInput()
+        if ( not self.ImageData ): return
            
         # Calculate appropriate pixel spacing for the reslicing
         #
 #        self.ImageData.UpdateInformation()
-        spacing = self.ImageData.GetSpacing()
-        origin = self.ImageData.GetOrigin()
-        extent = self.ImageData.GetExtent()        
-        bounds = [ origin[0] + spacing[0]*extent[0], origin[0] + spacing[0]*extent[1],  origin[1] + spacing[1]*extent[2],  origin[1] + spacing[1]*extent[3],  origin[2] + spacing[2]*extent[4],  origin[2] + spacing[2]*extent[5] ]    
-        
-        for j in range( 3 ): 
-            i = 2*j   
-            if ( bounds[i] > bounds[i+1] ):
-                t = bounds[i+1]
-                bounds[i+1] = bounds[i]
-                bounds[i] = t
-           
-        abs_normal = list( self.PlaneSource.GetNormal() )
-        planeCenter = list( self.PlaneSource.GetCenter() )
-        nmax = 0.0
-        k = 0
-        for i in range( 3 ):    
-            abs_normal[i] = abs(abs_normal[i])
-            if ( abs_normal[i]>nmax ):       
-                nmax = abs_normal[i]
-                k = i
-            
-        # Force the plane to lie within the true image bounds along its normal
-        #
-        if ( planeCenter[k] > bounds[2*k+1] ):    
-            planeCenter[k] = bounds[2*k+1]   
-        elif ( planeCenter[k] < bounds[2*k] ):   
-            planeCenter[k] = bounds[2*k]
-               
-        self.PlaneSource.SetCenter(planeCenter)
-            
-        planeAxis1 = self.GetVector1()
-        planeAxis2 = self.GetVector2()
-        
-        # The x,y dimensions of the plane
-        #
-        planeSizeX  = vtk.vtkMath.Normalize(planeAxis1)
-        planeSizeY  = vtk.vtkMath.Normalize(planeAxis2)
-        normal = list( self.PlaneSource.GetNormal() )
-        
-        # Generate the slicing matrix
-        #
-        self.ResliceAxes.Identity()
-        for i in range( 3 ):       
-            self.ResliceAxes.SetElement(0,i,planeAxis1[i])
-            self.ResliceAxes.SetElement(1,i,planeAxis2[i])
-            self.ResliceAxes.SetElement(2,i,normal[i])
-           
-        srcPlaneOrigin = self.PlaneSource.GetOrigin()         
-        planeOrigin = [ srcPlaneOrigin[0], srcPlaneOrigin[1], srcPlaneOrigin[2], 1.0 ]
-        originXYZW = self.ResliceAxes.MultiplyPoint(planeOrigin)    
-        self.ResliceAxes.Transpose()
-        neworiginXYZW = self.ResliceAxes.MultiplyPoint(originXYZW) 
-        
-        self.ResliceAxes.SetElement(0,3,neworiginXYZW[0])
-        self.ResliceAxes.SetElement(1,3,neworiginXYZW[1])
-        self.ResliceAxes.SetElement(2,3,neworiginXYZW[2])        
-        self.Reslice.SetResliceAxes(self.ResliceAxes)
-        
-        spacingX = abs(planeAxis1[0]*spacing[0]) + abs(planeAxis1[1]*spacing[1]) + abs(planeAxis1[2]*spacing[2])   
-        spacingY = abs(planeAxis2[0]*spacing[0]) + abs(planeAxis2[1]*spacing[1]) + abs(planeAxis2[2]*spacing[2])
-        
-        # make sure we're working with valid values
-        realExtentX = vtk.VTK_INT_MAX if ( spacingX == 0 ) else planeSizeX / spacingX       
-        # make sure extentY doesn't wrap during padding
-        realExtentY = vtk.VTK_INT_MAX if ( spacingY == 0 ) else planeSizeY / spacingY
 
-        extentX = 1
-        while (extentX < realExtentX): extentX = extentX << 1
-        extentY = 1
-        while (extentY < realExtentY): extentY = extentY << 1
-            
-        outputSpacingX = 1.0 if (planeSizeX == 0) else planeSizeX/extentX
-        outputSpacingY = 1.0 if (planeSizeY == 0) else planeSizeY/extentY
-        self.Reslice.SetOutputSpacing(outputSpacingX, outputSpacingY, 1)
-        self.Reslice.SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0)
-        self.Reslice.SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0)
+        position_index = self.GetSliceIndex()
 
-        if self.ImageData2 and not self.Reslice2:
-            dims2 = self.ImageData2.GetDimensions()
-            self.ContourInputDims = 3 if ( ( len(dims2) > 2 ) and ( dims2[2] > 1 ) ) else 2
-            self.Reslice2 = vtk.vtkImageReslice()
-            self.Reslice2.TransformInputSamplingOff()
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice2.SetInput(self.ImageData2)
-            else:                           self.Reslice2.SetInputData(self.ImageData2)            
-            self.Reslice2.Modified()
-        
-        if self.Reslice2:
-            self.Reslice2.SetResliceAxes(self.ResliceAxes)
-            if self.ContourInputDims == 2: 
-                self.ResliceAxes2.DeepCopy( self.ResliceAxes )
-                self.ResliceAxes2.SetElement( 2, 3, 0.0 ) 
-                self.Reslice2.SetResliceAxes(self.ResliceAxes2) 
-            else: 
-                self.Reslice2.SetResliceAxes(self.ResliceAxes)
-            
-#            print " Set contour extent = %s, spacing = %s " % ( str( (extentX,extentY) ), str( (outputSpacingX,outputSpacingY) ) )
-            self.Reslice2.SetOutputSpacing(outputSpacingX, outputSpacingY, 1)
-            self.Reslice2.SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0)
-            self.Reslice2.SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0)
-            self.Reslice2.Update()     
-         
-        self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )    
-        self.UpdateInputs()
-        self.CurrentRenderer.ResetCameraClippingRange()
+        if position_index <> self.plane_position_index[self.PlaneOrientation]:
+
+            self.plane_position_index[self.PlaneOrientation] = position_index
+
+    #        if position_index <> self.PlaneOrientation:
+
+            spacing = self.ImageData.GetSpacing()
+            origin = self.ImageData.GetOrigin()
+            extent = self.ImageData.GetExtent()
+            bounds = [ origin[0] + spacing[0]*extent[0], origin[0] + spacing[0]*extent[1],  origin[1] + spacing[1]*extent[2],  origin[1] + spacing[1]*extent[3],  origin[2] + spacing[2]*extent[4],  origin[2] + spacing[2]*extent[5] ]
+
+            for j in range( 3 ):
+                i = 2*j
+                if ( bounds[i] > bounds[i+1] ):
+                    t = bounds[i+1]
+                    bounds[i+1] = bounds[i]
+                    bounds[i] = t
+
+            clipped_extent = list(extent)
+            clipped_extent[ 2*self.PlaneOrientation ] = position_index
+            clipped_extent[ 2*self.PlaneOrientation+1 ] = position_index
+            self.Clipper.SetOutputWholeExtent(clipped_extent)
+            self.UpdateInputs()
+            self.CurrentRenderer.ResetCameraClippingRange()
+            return True
+
+        return False
                    
 #----------------------------------------------------------------------------
 
-    def GetResliceOutput(self):
-        self.Reslice.Update()             
-        return self.Reslice.GetOutput()
-
-    def GetReslice2Output(self):      
-        self.Reslice2.Update()             
-        return self.Reslice2.GetOutput() if self.Reslice2 else None      
-
-#----------------------------------------------------------------------------
-    def SetResliceInterpolate( self, i ):
-        
-        if ( self.ResliceInterpolate == i ):  return
-          
-        self.ResliceInterpolate = i
-        self.Modified()
-        
-        if (  not self.Reslice ): return
-                  
-        if ( i == VTK_NEAREST_RESLICE ):    
-            self.Reslice.SetInterpolationModeToNearestNeighbor()          
-        elif ( i == VTK_LINEAR_RESLICE): 
-            self.Reslice.SetInterpolationModeToLinear()          
-        else:                               
-            self.Reslice.SetInterpolationModeToCubic()
+    def GetClipOutput(self):
+        self.Clipper.Update()
+        return self.Clipper.GetOutput()
 
 #----------------------------------------------------------------------------
 
@@ -998,12 +876,12 @@ class ImagePlaneWidget:
     def ConvertPositionToRelative( self, position ):
         bounds = self.dataBounds[ self.PlaneOrientation*2:]
         bsize = ( bounds[1] - bounds[0] )
-        rpos = 0.0 if ( bsize == 0.0 ) else ( position - bounds[0] ) / bsize
+        rpos = 0.01 if ( bsize == 0.0 ) else ( ( position - bounds[0] ) / bsize ) + 0.01
         return rpos
 
     def ConvertPositionFromRelative( self, relative_position ):
         bounds = self.dataBounds[ self.PlaneOrientation*2:]
-        pos =  bounds[0]  +  relative_position * ( bounds[1] - bounds[0] )
+        pos =  bounds[0] + relative_position * ( bounds[1] - bounds[0] )
         return pos
 
     def SetSlicePositionFromRelative( self, rel_position ):
@@ -1070,9 +948,9 @@ class ImagePlaneWidget:
 
     def SetSliceIndex(self, index):
         
-        if (  not self.Reslice ): return
+        if (  not self.Clipper ): return
         
-        self.ImageData  = self.Reslice.GetInput()
+        self.ImageData  = self.Clipper.GetInput()
         if (  not self.ImageData ): return
          
         self.ImageData.UpdateInformation()
@@ -1118,9 +996,9 @@ class ImagePlaneWidget:
 
     def GetSliceIndex(self):
         
-        if (  not  self.Reslice ): return 0
+        if (  not  self.Clipper ): return 0
         
-        self.ImageData  = self.Reslice.GetInput()
+        self.ImageData  = self.Clipper.GetInput()
         if (  not  self.ImageData ): return 0
          
         origin = self.ImageData.GetOrigin()
@@ -1151,7 +1029,7 @@ class ImagePlaneWidget:
 
     def UpdateCursor( self, X, Y ):
         
-        self.ImageData  = self.Reslice.GetInput()
+        self.ImageData  = self.Clipper.GetInput()
         if (  not self.ImageData ): return
         
         # We're going to be extracting values with GetScalarComponentAsDouble(),
@@ -1306,8 +1184,6 @@ class ImagePlaneWidget:
         self.UpdatePlane()
         self.BuildRepresentation()
 
-
-
 #----------------------------------------------------------------------------
 
     def GetVector1(self):
@@ -1392,12 +1268,14 @@ class ImagePlaneWidget:
         self.CursorActor.PickableOff()
         self.CursorActor.VisibilityOff()
 
+    def setTextureInterpolate( self, interp  ):
+        self.texture_interpolate = interp
+        self.GenerateTexturePlane()
+
     def GenerateTexturePlane(self):
         if  self.Texture == None:
             self.Texture = vtk.vtkTexture()
             self.TexturePlaneActor   = vtk.vtkActor()
-    
-            self.SetResliceInterpolate(self.ResliceInterpolate)       
             self.LookupTable = self.CreateDefaultLookupTable()
             
             self.UpdateInputs()
@@ -1408,7 +1286,6 @@ class ImagePlaneWidget:
             
             self.Texture.SetQualityTo32Bit()
             self.Texture.MapColorScalarsThroughLookupTableOff()
-            self.Texture.SetInterpolate(self.TextureInterpolate)
             self.Texture.RepeatOff()
             self.Texture.SetLookupTable(self.LookupTable)
             
@@ -1417,6 +1294,7 @@ class ImagePlaneWidget:
             self.TexturePlaneActor.SetTexture(self.Texture)
             self.TexturePlaneActor.PickableOn()
             self.TextureVisibility = 1
+        self.Texture.SetInterpolate( self.texture_interpolate )
 
 class ScalarSliceWidget(ImagePlaneWidget): 
 
@@ -1487,10 +1365,6 @@ class ScalarSliceWidget(ImagePlaneWidget):
     def SetLookupTable( self, table ):
         ImagePlaneWidget.SetLookupTable( self, table )               
         self.Texture.SetLookupTable(self.LookupTable)
-
-    def SetResliceInterpolate( self, i ):
-        ImagePlaneWidget.SetResliceInterpolate( self, i )         
-        self.Texture.SetInterpolate(self.TextureInterpolate)
         
     def UpdateInputs(self):
         if not ImagePlaneWidget.UpdateInputs(self):
@@ -1510,8 +1384,8 @@ class ScalarSliceWidget(ImagePlaneWidget):
             self.ColorMap.SetOutputFormatToRGBA()
             self.ColorMap.PassAlphaToOutputOn()
                          
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
-        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Clipper.GetOutput())
+        else:                           self.ColorMap.SetInputData(self.Clipper.GetOutput())
         self.ColorMap.SetLookupTable(self.LookupTable)    
         self.ColorMap.Update()  
               
@@ -1677,9 +1551,9 @@ class VectorSliceWidget(ImagePlaneWidget):
     def __init__( self, actionHandler, picker, planeIndex, **args ): 
         self.glyphMapper = None
         ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
-        self.glyphDecimationFactorBounds = [ 5.0, 20.0 ]
-        self.glyphDecimationFactor = 6.0
-        self.lowResGlyphDecimationFactor = 12.0
+        self.glyphDecimationFactorBounds = [ 1.0, 20.0 ] 
+        self.glyphDecimationFactor = 3.0
+        self.lowResGlyphDecimationFactor = 10.0
         self.hiResGlyphDecimationFactor = self.glyphDecimationFactor 
         self.hiResGlyphScale = None
         self.nSkipCount = 4
@@ -1804,21 +1678,22 @@ class VectorSliceWidget(ImagePlaneWidget):
 
     def ApplyGlyphDecimationFactor(self):
         sampleRate =  int( round( abs( self.glyphDecimationFactor ) )  )
-        print "Sample rate: %s " % str( sampleRate )
+#        print "Sample rate: %s " % str( sampleRate )
         self.resample.SetSampleRate( sampleRate, sampleRate, 1 )
         
-        # spacing = [ self.initialSpacing[i]*self.glyphDecimationFactor for i in range(3) ]
-        # extent = [ int( (self.dataBounds[i] - self.initialOrigin[i/2]) / spacing[i/2] ) for i in range( 6 )  ]
-        # self.resample.SetOutputExtent( extent )
-        # self.resample.SetOutputSpacing( spacing )
-        # resampleOutput = self.resample.GetOutput()
-        # resampleOutput.Update()
-        # ptData = resampleOutput.GetPointData()
-        # ptScalars = ptData.GetScalars()
-        # np = resampleOutput.GetNumberOfPoints()
-        # print " Decimated ImageData: npoints= %d, vectors: ncomp=%d, ntup=%d " % ( np, ptScalars.GetNumberOfComponents(), ptScalars.GetNumberOfTuples() )
-
-        self.UpdateCut()
+#        spacing = [ self.initialSpacing[i]*self.glyphDecimationFactor for i in range(3) ]
+#        extent = [ int( (self.dataBounds[i] - self.initialOrigin[i/2]) / spacing[i/2] ) for i in range( 6 )  ]
+#        self.resample.SetOutputExtent( extent )
+#        self.resample.SetOutputSpacing( spacing )
+#        resampleOutput = self.resample.GetOutput()
+#        resampleOutput.Update()
+#        ptData = resampleOutput.GetPointData()
+#        ptScalars = ptData.GetScalars()
+#        np = resampleOutput.GetNumberOfPoints()
+#        print " decimated ImageData: npoints= %d, vectors: ncomp=%d, ntup=%d " % ( np, ptScalars.GetNumberOfComponents(), ptScalars.GetNumberOfTuples() )
+        
+#        ncells = resampleOutput.GetNumberOfCells()
+        self.UpdateCut()  
 
     def processGlyphScaleCommand( self, args, config_function = None ):
         glyphScale = config_function.value
@@ -1839,7 +1714,9 @@ class VectorSliceWidget(ImagePlaneWidget):
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue() 
+            mapper_input = self.cutter.GetOutput()
+            cutter_input = self.resample.GetOutput()
+            value = args[2].GetValue()
             glyphScale.setValue( 0, value )
             self.glyphScale = abs( value )
             if self.isActiveUpdate():
