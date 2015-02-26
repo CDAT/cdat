@@ -13,6 +13,10 @@ class Behavior(object):
         point = self.interactor.GetEventPosition()
         if normalized:
             w, h = self.interactor.GetRenderWindow().GetSize()
+
+            if w == 0 or h == 0:
+                return 0, 0
+
             x, y = point
             x = x / float(w)
             y = y / float(h)
