@@ -1,6 +1,7 @@
 set(libcdms_source "${CMAKE_CURRENT_BINARY_DIR}/build/libcdms")
 set(libcdms_install "${cdat_EXTERNALS}")
-set(CONFIGURE_ARGS  --srcdir=${libcdms_source}^^--enable-dap=^^--enable-drs=no^^--enable-hdf=no^^--enable-pp=yes^^--enable-ql=no^^--cache-file=/dev/null^^--prefix=${libcdms_install_dir}^^--with-nclib=${cdat_EXTERNALS}/lib^^--with-ncinc=${cdat_EXTERNALS}/include^^--with-daplib=/lib^^--with-dapinc=/include^^--with-hdfinc=./include^^--with-hdflib=./lib^^--with-hdf5lib=^^--with-grib2lib=${cdat_EXTERNALS}/lib^^--with-jasperlib=${cdat_EXTERNALS}/lib^^--with-grib2inc=${cdat_EXTERNALS}/include^^--enable-grib2)
+set(CONFIGURE_ARGS --srcdir=${libcdms_source}^^--enable-dap=^^--enable-drs=no^^--enable-hdf=no^^--enable-pp=yes^^--enable-ql=no^^--cache-file=/dev/null^^--prefix=${libcdms_install}^^--with-nclib=${cdat_EXTERNALS}/lib^^--with-ncinc=${cdat_EXTERNALS}/include^^--with-daplib=/lib^^--with-dapinc=/include^^--with-hdfinc=./include^^--with-hdflib=./lib^^--with-hdf5lib=${cdat_EXTERNALS}/lib^^--with-grib2lib=${cdat_EXTERNALS}/lib^^--with-jasperlib=${cdat_EXTERNALS}/lib^^--with-grib2inc=${cdat_EXTERNALS}/include^^--enable-grib2)
+file(MAKE_DIRECTORY ${cdat_EXTERNALS}/man/man3)
 
 ExternalProject_Add(libcdms
   LIST_SEPARATOR ^^
