@@ -4,6 +4,12 @@ from vcs.colorpicker import ColorPicker
 import priority
 
 class FillEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+    """
+    Editor for vcs `fillarea` object
+
+    Sticks a handle at each vertex for manipulating the x/y coordinates of that vertex,
+    draggable as a whole, double click on an edge to add a new vertex, toolbar to configure options.
+    """
     def __init__(self, interactor, fillarea, index, configurator):
         self.index = index
         self.fill = fillarea

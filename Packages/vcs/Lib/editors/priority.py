@@ -1,6 +1,9 @@
 from vcs.vtk_ui.behaviors import KeyableMixin
 
 class PriorityEditor(KeyableMixin):
+    """
+    Provides basic keyboard manipulation of object's priority– up / down to raise / lower priority, delete/backspace to set it to 0
+    """
     def key_pressed(self, key, shift=False, alt=False, control=False):
         if key == "Up":
             self.raise_priority()

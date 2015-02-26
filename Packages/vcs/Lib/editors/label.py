@@ -29,6 +29,11 @@ def get_actor(member, dp):
     return actor
 
 class LabelEditor(point.PointEditor):
+    """
+    An editor for text items that have data-provided text (template.min, template.max, etc.)
+
+    Draggable, provides a toolbar for config options.
+    """
     def __init__(self, interactor, label, dp, configurator):
         self.label = label
         self.display = dp
