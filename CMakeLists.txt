@@ -109,7 +109,7 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
 
-  # Support only 10.6 or higher for now
+  # Support only 10.8 or higher for now
   if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk")
     set(HAVE_10_8_SDK TRUE)
   endif()
