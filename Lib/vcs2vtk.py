@@ -865,7 +865,6 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   actors=[]
   for i in range(n):
     t = vtk.vtkTextActor()
-    #t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
