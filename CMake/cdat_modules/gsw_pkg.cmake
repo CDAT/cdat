@@ -3,7 +3,7 @@ set( GSW_MINOR 0 )
 set( GSW_PATCH 3 )
 set( GSW_VERSION ${GSW_MAJOR}.${GSW_MINOR}.${GSW_PATCH} )
 set( GSW_URL ${LLNL_URL} )
-set( GSW_GZ python-gsw-${SEAWATER_VERSION}.tar.gz )
+set( GSW_GZ python-gsw-${GSW_VERSION}.tar.gz )
 set( GSW_MD5 a522a9ab6ab41fb70064e0378e904ffd )
 
 set (nm GSW)
