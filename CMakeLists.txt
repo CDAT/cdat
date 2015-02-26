@@ -515,7 +515,7 @@ include(pytables_pkg)
 include(readline_pkg)
 include(r_pkg)
 include(scikits_pkg)
-#include(scipy_pkg)
+include(scipy_pkg)
 ## Part of setuptools no need to extra build it
 ## include(distribute_pkg)
 if (NOT CDAT_USE_SYSTEM_PYTHON)
