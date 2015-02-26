@@ -4,7 +4,7 @@ Created on Nov 21, 2011
 @author: tpmaxwel
 '''
    
-import vtk, sys, os, copy, time, traceback
+import vtk, sys, os, copy, time, traceback, collections
 import cdms2, cdtime, cdutil, MV2, cPickle 
 PortDataVersion = 0
 from ConfigurationFunctions import *
@@ -34,7 +34,7 @@ class OutputRecManager:
 #         if orecMap: del orecMap[outputName] 
 
     def addOutputRec( self, dsid, orec ): 
-        orecMap =  self.outputRecs.setdefault( dsid, {} )
+        orecMap =  self.outputRecs.setdefault( dsid, collections.OrderedDict() )
         orecMap[ orec.getKey() ] = orec
 
     def getOutputRec( self, dsid, outputName ):
@@ -430,8 +430,12 @@ class StructuredDataReader:
 #                 self.outputSpecs.append( ispec )
 
     def output( self, iIndex=0 ):
-        cachedImageDataName = self.output_names[ iIndex ]
-        cachedImageData = self.getCachedImageData( cachedImageDataName ) 
+        try:
+            cachedImageDataName = self.output_names[ iIndex ]
+            cachedImageData = self.getCachedImageData( cachedImageDataName ) 
+        except IndexError:
+            print>>sys.stderr, "Error getting output ", int( iIndex )
+            return None
         return cachedImageData
 
     def outputSpec( self, iIndex=0 ):

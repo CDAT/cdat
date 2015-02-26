@@ -369,22 +369,15 @@ class CPCPlot( DV3DPlot ):
         else: return False
         return True
     
-    def toggleVolumeVisibility( self, args, config_function ):
-        if len( args ) > 1 and args[1]:
-            if (len(args) > 3):
-                button_bar = args[3]
-                button_bar.clear( current=config_function.name )
-            self.render()
-
-    def toggleIsosurfaceVisibility( self, args, config_function ):
-        
+    def toggleVolumeVisibility( self, state ):
         return
-    
-        if len( args ) > 1 and args[1]:
-            if (len(args) > 3):
-                button_bar = args[3]
-                button_bar.clear( current=config_function.name )
-            self.render()
+        # if state:
+        #     if (button_bar <> None) and (config_function <> None):
+        #         button_bar.clear( current=config_function.name )
+        #     self.render()
+
+    def toggleIsosurfaceVisibility( self, state ):
+        return
                          
     def processCategorySelectionCommand( self, args ):
         op = args[0]
@@ -740,7 +733,7 @@ class CPCPlot( DV3DPlot ):
         self.current_subset_specs = {}
         
     def updateThresholding( self, target=None, trange=None, normalized=True ):
-        if target <> None:
+        if target is not None:
             subset_spec = ( target, trange[0], trange[1], normalized )
             self.current_subset_specs[target] = subset_spec
 #            print " $$$$$$ Update Thresholding: Generated spec = %s, render mode = %d " % ( str( subset_spec ), self.render_mode )
@@ -1350,8 +1343,8 @@ class CPCPlot( DV3DPlot ):
         for file_attribute_name in ['url', 'filename', 'file' ]:
             if data_file <> None: break
             data_file = self.plot_attributes.get( file_attribute_name, None ) 
-        varnames = [ getVarName( var1 ) ]
-        if not var2 is None: varnames.append( getVarName( var2 ) )
+        varnames = [ getVarName( var1 ) if (data_file <> None) else var1 ]
+        if not var2 is None: varnames.append( getVarName( var2 ) if (dfile <> None) else var2 )
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None
