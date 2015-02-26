@@ -67,7 +67,7 @@ if args.amplitude:
   nm_xtra="_amplitude"
   U=numpy.cos(lons[:])
   V=numpy.sin(lats[:])
-  A=MV2.array(V[:,numpy.newaxis]*U[numpy.newaxis,:])
+  A=3+MV2.array(V[:,numpy.newaxis]*U[numpy.newaxis,:])
   A.setAxis(0,lats)
   A.setAxis(1,lons)
   u*=A
