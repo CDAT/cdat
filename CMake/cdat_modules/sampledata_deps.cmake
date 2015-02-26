@@ -1,1 +1,1 @@
-set(sampledata_deps)
+set(sampledata_deps ${cdat_pkg})

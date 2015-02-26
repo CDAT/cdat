@@ -11,6 +11,7 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     CONFIGURE_COMMAND ${sampledata_cmd}
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
+    DEPENDS ${sampledata_deps}
     ${ep_log_options}
     )
 endif()
