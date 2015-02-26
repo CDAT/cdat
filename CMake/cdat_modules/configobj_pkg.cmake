@@ -1,0 +1,18 @@
+set( CONFIGOBJ_MAJOR 2 )
+set( CONFIGOBJ_MINOR 4 )
+set( CONFIGOBJ_PATCH 0 )
+set( CONFIGOBJ_VERSION ${CONFIGOBJ_MAJOR}.${CONFIGOBJ_MINOR}.${CONFIGOBJ_PATCH} )
+set( CONFIGOBJ_URL ${LLNL_URL} )
+set( CONFIGOBJ_GZ h5py-${H5PY_VERSION}.tar.gz )
+set( CONFIGOBJ_MD5 80c9a94ae31f84885cc2ebe1323d6758)
+
+set (nm CONFIGOBJ)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+set(CONFIGOBJ_SOURCE ${CONFIGOBJ_URL}/${CONFIGOBJ_GZ})
+
+if (CDAT_BUILD_ALL)
+  add_cdat_package(configobj "" "" ON)
+else()
+  add_cdat_package(configobj "" "" OFF)
+endif()
