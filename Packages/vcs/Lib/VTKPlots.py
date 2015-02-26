@@ -217,10 +217,7 @@ class VTKVCSBackend(object):
           key_args.append({})
 
     # Have to pull out the UI layer so it doesn't get borked by the clear
-    from vtk_ui.manager import get_manager
-    manager = get_manager(self.renWin.GetInteractor())
-    if manager:
-      self.renWin.RemoveRenderer(manager.renderer)
+    self.hideGUI()
 
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
@@ -229,14 +226,7 @@ class VTKVCSBackend(object):
     if self.canvas.animate.created():
       self.canvas.animate.draw_frame()
 
-    if manager:
-      # Set the UI renderer's layer on top of what's there right now
-      layer = self.renWin.GetNumberOfLayers() + 1
-      self.renWin.SetNumberOfLayers(layer)
-      manager.renderer.SetLayer(layer - 1)
-
-      # Re-add the UI layer
-      self.renWin.AddRenderer(manager.renderer)
+    self.showGUI()
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
@@ -1414,14 +1404,31 @@ class VTKVCSBackend(object):
     self.renWin.Render()
     return
 
+  def hideGUI(self):
+    if self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+      if manager:
+        self.renWin.RemoveRenderer(manager.renderer)
+
+  def showGUI(self):
+    if self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+
+      if manager:
+        # Set the UI renderer's layer on top of what's there right now
+        layer = self.renWin.GetNumberOfLayers() + 1
+        self.renWin.SetNumberOfLayers(layer)
+        manager.renderer.SetLayer(layer - 1)
+        # Re-add the UI layer
+        self.renWin.AddRenderer(manager.renderer)
+
   def vectorGraphics(self, output_type, file, width=None, height=None, units=None):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
-    from vtk_ui.manager import get_manager
-    manager = get_manager(self.renWin.GetInteractor())
-    if manager:
-      self.renWin.RemoveRenderer(manager.renderer)
+    self.hideGUI()
 
     gl  = vtk.vtkGL2PSExporter()
 
@@ -1453,8 +1460,8 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
-    if manager:
-      self.renWin.AddRenderer(manager.renderer)
+
+    self.showGUI()
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1481,10 +1488,9 @@ class VTKVCSBackend(object):
 
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
-        from vtk_ui.manager import get_manager
-        manager = get_manager(self.renWin.GetInteractor())
-        if manager:
-          self.renWin.RemoveRenderer(manager.renderer)
+
+        self.hideGUI()
+
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1510,17 +1516,14 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
-        if manager:
-          self.renWin.AddRenderer(manager.renderer)
+
+        self.showGUI()
 
   def cgm(self,file):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
-        from vtk_ui.manager import get_manager
-        manager = get_manager(self.renWin.GetInteractor())
-        if manager:
-          self.renWin.RemoveRenderer(manager.renderer)
+        self.hideGUI()
 
         if not file.split('.')[-1].lower() in ['cgm']:
             file+='.cgm'
@@ -1543,8 +1546,9 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
-        if manager:
-          self.renWin.AddRenderer(manager.renderer)
+
+        self.showGUI()
+
   def Animate(self,*args,**kargs):
      return VTKAnimate.VTKAnimate(*args,**kargs)
 
