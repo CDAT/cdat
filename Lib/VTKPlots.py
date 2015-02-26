@@ -231,7 +231,9 @@ class VTKVCSBackend(object):
 
     if manager:
       # Set the UI renderer's layer on top of what's there right now
-      self.setLayer(manager.renderer, 3)
+      layer = self.renWin.GetNumberOfLayers() + 1
+      self.renWin.SetNumberOfLayers(layer)
+      manager.renderer.SetLayer(layer - 1)
 
       # Re-add the UI layer
       self.renWin.AddRenderer(manager.renderer)
