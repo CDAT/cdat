@@ -118,6 +118,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
+        self.plot_attributes['name'] = self.g_name
+        self.plot_attributes['template'] = Gfdv3d_name
 #        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
         
     def setProvenanceHandler(self, provenanceHandler ):

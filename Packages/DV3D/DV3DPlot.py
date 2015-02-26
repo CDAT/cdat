@@ -190,6 +190,7 @@ class DV3DPlot():
         self.type = args.get( 'gmname', 'default').lower()
         self.activate_display=args.get('display',True)
         self.renderer = None
+        self.parameter_initializing = False
         self.useDepthPeeling = False
         self.record_animation = False
         self.animation_frames = []
@@ -197,7 +198,7 @@ class DV3DPlot():
         self.inputSpecs = {}
         self.logoActor = None
         self.logoVisible = True
-        self.logoRepresentation = None 
+        self.logoRepresentation = None
         self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
         self.resizingWindow = False
@@ -229,7 +230,8 @@ class DV3DPlot():
         self.isAltMode = False
         self.createColormap = True
         self.colormapManagers= {}
-        self.colormapWidget = None 
+        self.colormapWidget = None
+        self.widgetsVisible = True
         self.colormapWindowSize = None
         self.keyPressHandlers = {}
         interactionButtons = self.getInteractionButtons()
@@ -245,7 +247,19 @@ class DV3DPlot():
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
         self.addKeyPressHandler( 'p',  self.printParameterValues )
-        
+        self.addKeyPressHandler( 'w',  self.toggleWidgetVisibility )
+        self.addKeyPressHandler( 't',  self.createTest )
+
+    def toggleWidgetVisibility( self, **args ):
+        print " Toggle Widget Visibility: ", str( args )
+        self.widgetsVisible = not self.widgetsVisible
+        if self.widgetsVisible:  self.showWidgets()
+        else:                    self.hideWidgets()
+
+    def createTest(self, **args ):
+        ctestFunction = self.createCTestFunction()
+        print " Create CTest: \n", ctestFunction
+
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
         
@@ -261,41 +275,32 @@ class DV3DPlot():
         args[ 'toggle' ] = True
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ] ) 
-        return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        activations = [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ]
+        control_bar.changeButtonActivations( activations )
         return control_bar
 
     def getConstituentSelectionButton(self, config_function, build_args, position, **args ):    
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
         control_bar.reposition()
         return control_bar
-
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
-        control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] )  
-        return control_bar
-
-    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
-        control_bar.reposition()
-        return control_bar
     
     def processConfigParameterChange( self, parameter, val_key = None ):
-        values = parameter.getValue(val_key)
-        if values == None: values = parameter.getValues()
-        if not hasattr( values, '__iter__' ): values = [ values ]
-        state = parameter.getState()
-        if state <> None: addState( values, state )
-        argList = [ parameter.name, parameter.ptype, str(values) ] 
+#        values = parameter.getValue(val_key)
+#        if values == None: values = parameter.getValues()
+#        if not hasattr( values, '__iter__' ): values = [ values ]
+#        state = parameter.getState()
+#        if state <> None: addState( values, state )
+        values = parameter.values
+        active_constituents = self.getActiveConstituentNames()
+        argList = [ parameter.name, parameter.ptype, str(values), active_constituents ]
         self.ParameterValueChanged( argList )
+
+    def getActiveConstituentNames(self):
+        active_constituents = []
+        for cname in self.plotConstituents.keys():
+            if self.isConstituentConfigEnabled(cname):
+	            active_constituents.append( cname )
+        return active_constituents
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
@@ -308,11 +313,17 @@ class DV3DPlot():
     def refresh(self):
         self.onWindowModified()
         
-    def onClosing(self):
-        print "Closing!"
+    def onClosing(self, cell ):
+        print " ------> Closing!"
         self.stopAnimation()
-        self.terminate()
-        
+        if cell <> None:
+            self.cfgManager.parent.clear( cell )
+            self.terminate()
+            self.renderer.RemoveAllViewProps()
+            self.clearReferrents()
+            if self.renderWindowInteractor <> None:
+                self.renderWindowInteractor.TerminateApp()
+
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
 #         if pipeline == None: pipeline = self.getCurrentPipeline()
 #         if pipeline: UVCDATGuiConfigFunction.clearModules( pipeline )
@@ -322,10 +333,6 @@ class DV3DPlot():
 #        self.cellWidget = None 
 #        self.builtCellWidget = False    
  
-        self.renderer.RemoveAllViewProps()
-        self.clearReferrents()
-        if self.renderWindowInteractor <> None:
-            self.renderWindowInteractor.TerminateApp()
 
     def terminate( self ):
         pass
@@ -334,7 +341,7 @@ class DV3DPlot():
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.saveState()
-        self.onClosing()
+        self.onClosing(None)
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
@@ -392,7 +399,7 @@ class DV3DPlot():
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
-#        print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+        print " ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
             if activate: button.activate()
             else: button.deactivate()
@@ -400,6 +407,7 @@ class DV3DPlot():
             button.setToggleState( state )
             
     def changeButtonActivations(self, activation_list ):
+        print " ** Change Button Activations: ", str( activation_list )
         for activation_spec in activation_list:
             self.changeButtonActivation( *activation_spec )
                         
@@ -416,11 +424,71 @@ class DV3DPlot():
     def getConfigurationParms(self, **args): 
         return self.cfgManager.getConfigurationParms( **args )
 
+# test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ],
+#                      parameters={'VerticalScaling': 3.0,
+#                                  'ToggleVolumePlot': vcs.off,
+#                                  'ScaleOpacity': [1.0, 1.0],
+#                                  'ToggleSurfacePlot': vcs.off,
+#                                  'ScaleColormap': [-10.0, 10.0, 1],
+#                                  'BasemapOpacity': [0.5],
+#                                  'XSlider': ( -50.0, vcs.on ),
+#                                  'ZSlider': ( 0.0,  vcs.on ),
+#                                  'YSlider': ( 20.0,  vcs.on ),
+#                                  }  )
+
+
+#    plot = self.canvas.backend.plotApps[ self.gm ]
+
+    def createCTestFunction( self, **args ):
+        try:
+            cTestStrs = []
+            lt = time.localtime(time.time())
+            mdataStrs = [ '"ctest"' ]
+            roi = self.cfgManager.getMetadata('roi')
+            if roi: mdataStrs.append( ' roi=%s' % str( roi ) )
+            cdmsfile = self.cfgManager.getMetadata('cdmsfile')
+            filename = os.path.basename(cdmsfile)
+            mdataStrs.append( ' file="%s"' % filename )
+            var_list = []
+            for input_index in range(0,5):
+                input_ispec = self.getInputSpec( input_index )
+                if input_ispec == None: break
+                else:
+                    plist = input_ispec.getMetadata( 'inputVarList' )
+                    if not plist:
+                        pname = input_ispec.getMetadata( 'scalars' )
+                        var_list.append( pname )
+                    else:
+                        for pname in plist:
+                            if ( pname <> '__zeros__' ):
+                                var_list.append( pname )
+            mdataStrs.append( ' vars=%s' % str(var_list) )
+            mdataStrs.append( ' type="%s"' % str(self.type) )
+            template = self.plot_attributes.get( 'template', None )
+            if template <> None: mdataStrs.append( ' template="%s"' % template )
+            cTestStrs.append( 'vcsTest( %s,' % ( ','.join(mdataStrs) ) )
+            self.recordCamera()
+            parameter_names = set( self.cfgManager.getParameterList() )
+            parameter_names.update( PlotButtonNames )
+            cTestStrs.append(  '\t\t\t\tparameters = {' )
+            ignorable_parms = [ 'axes', 'Configure', 'SliceRoundRobin' ]
+            for param_name in parameter_names:
+                if not param_name in ignorable_parms:
+                    pval = self.cfgManager.getParameterDescription( param_name, ignorable=['cell','count'] )
+                    if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
+            cTestStrs.append( '\t\t\t\t\t} )' )
+            return '\n'.join( cTestStrs )
+        except Exception, err:
+            print "Error generating CTestFunction: ", str( err )
+            traceback.print_exc()
+            return ""
+
     def printParameterValues( self, **args ):
         self.recordCamera()
         parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
         for param_name in parameter_names:
-            print '%s = %s' % ( param_name, self.cfgManager.getParameterValue( param_name ) )
+            pval = self.cfgManager.getParameterValue( param_name )
+            if pval: print '%s = %s' % ( param_name, pval )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -481,8 +549,10 @@ class DV3DPlot():
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
+            self.parameter_initializing = True
             for plotItem in self.plotConstituents.items():
                 self.setColormap( plotItem[0], config_function.initial_value )
+            self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
@@ -493,8 +563,9 @@ class DV3DPlot():
                 self.colormapWidget.StateChangedSignal.connect( bbar.processInteractionEvent )
             if len( args ) == 1:    self.colormapWidget.toggleVisibility()
             else:                   self.colormapWidget.toggleVisibility( state = args[1] )
-            if state: self.logoWidget.Off()
-            else: self.logoWidget.On()
+            if self.logoRepresentation is not None:
+                if state: self.logoWidget.Off()
+                else: self.logoWidget.On()
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -562,8 +633,11 @@ class DV3DPlot():
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue()
-            runSpeed.setValue( 0, value )
+            try:
+                value = args[2].GetValue()
+                runSpeed.setValue( 0, value )
+            except Exception, err:
+                print>>sys.stderr, "Error setting animation run speed: ", str( err )
                                    
     def processAnimationStateChange( self, button_id, key, state, force = False ):
 #        print " Process Animation State Change[%s], state = %d " % ( button_id, state )
@@ -872,24 +946,34 @@ class DV3DPlot():
 
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
+            self.parameter_initializing = True
             state = config_function.getState()
             if state: self.cfgManager.initialized = True 
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-            if state: self.toggleIsosurfaceVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleIsosurfaceVisibility( args, config_function ) 
+                config_function.setState( config_function.initial_value[0] )
+            state = config_function.getState()
+            if state: self.toggleIsosurfaceVisibility( state )
+            self.parameter_initializing = False
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleIsosurfaceVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
+            self.parameter_initializing = True
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True
             if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-            if state: self.toggleVolumeVisibility( args, config_function )
-        elif args and args[0] == "InitConfig": 
-            self.toggleVolumeVisibility( args, config_function )  
+                config_function.setState( config_function.initial_value[0] )
+#            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
+            state = config_function.getState()
+            state_val =  state[0] if hasattr(state, "__iter__") else state
+            if state_val: self.toggleVolumeVisibility( state_val )
+            self.parameter_initializing = False
+        elif args and args[0] == "InitConfig":
+            state = args[1]
+            self.toggleVolumeVisibility( state )
             self.processConfigStateChange( config_function.value )
 
     
@@ -914,7 +998,13 @@ class DV3DPlot():
             if bbar:
                 if isVisible: bbar.show()
                 else: bbar.hide()
-    
+
+    def hideWidgets(self ):
+        self.buttonBarHandler.hideWidgets()
+
+    def showWidgets(self ):
+        self.buttonBarHandler.showWidgets()
+
     def processConfigurationToggle( self, args, config_function = None ):
         if args and args[0] == "Init":
 #             name = config_function.name
@@ -957,7 +1047,7 @@ class DV3DPlot():
          
     def onWindowExit( self, caller=None, event=None ):
         #print "Window Event: ", event
-        self.onClosing()
+        self.onClosing(None)
              
     def onAnyWindowEvent( self, caller=None, event=None ):
         pass
@@ -993,7 +1083,8 @@ class DV3DPlot():
                 bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
                 button = bbar.getButton( 'ChooseColormap' )
                 button.setToggleState( 0 )
-                self.logoWidget.On()
+                if self.logoRepresentation is not None:
+                    self.logoWidget.On()
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
             self.renderWindow.Modified()
@@ -1015,14 +1106,14 @@ class DV3DPlot():
         print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ) 
 
     def toggleLogoVisibility( self ):
-        if self.logoRepresentation:
+        if self.logoRepresentation is not None:
             self.logoVisible = not self.logoVisible
             if self.logoVisible: self.logoWidget.On()
             else: self.logoWidget.Off()
             self.renderWindow.Render() 
 
     def addLogo(self):
-        if self.logoRepresentation == None:
+        if self.logoRepresentation is None:
             import cdat_info
             defaultLogoFile = os.path.join(cdat_info.get_prefix(),"share","vcs","uvcdat.png")
             reader = vtk.vtkPNGReader()
@@ -1084,7 +1175,7 @@ class DV3DPlot():
         pass
     
     def enableRender(self, **args ):
-        return True
+        return not self.parameter_initializing
 
     def render( self, **args ):
         if self.enableRender( **args ):
@@ -1153,7 +1244,7 @@ class DV3DPlot():
                 self.renderer.AddActor( colormapManager.createActor( pos=cmap_pos, title=cm_title ) )
     #        colormapManager.setColorbarVisibility( show_colorBar )
             self.updatingColormap( cmap_index, colormapManager )
-            self.render() 
+            self.render()
             return True
         except Exception, err:
             print>>sys.stderr, "Error setting colormap: ", str(err)

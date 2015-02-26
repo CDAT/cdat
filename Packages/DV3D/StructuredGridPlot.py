@@ -42,7 +42,6 @@ class StructuredGridPlot(DV3DPlot):
         elif args and args[0] == "Init":
             oval = config_function.initial_value
             self.mapManager.setMapOpacity( oval )
-            self.render()
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacity )
         elif args and args[0] == "InitConfig":
@@ -68,6 +67,7 @@ class StructuredGridPlot(DV3DPlot):
             self.zscaleBoxWidget.On()
             self.zscaleBoxWidget.PlaceWidget(wbounds)
         elif args and args[0] == "Init":
+            self.parameter_initializing = True
             ispec = self.inputSpecs[ 0 ] 
             zsval = config_function.initial_value
 #             plotType = ispec.getMetadata('plotType')
@@ -87,14 +87,14 @@ class StructuredGridPlot(DV3DPlot):
             oprop = self.zscaleBoxWidget.GetOutlineProperty() 
             oprop.SetColor( 0.0, 0.0, 0.0 )
             oprop.SetLineWidth( 2.0 )
-            self.zscaleBoxWidget.SetEnabled(1) 
-            self.zscaleBoxWidget.Off() 
+            self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
             vscale = verticalScale.getValues()
             self.setZScale( vscale )
             self.zscaleBoxWidget.Off() 
             self.processConfigParameterChange( verticalScale )
         elif args and args[0] == "InitConfig":
+            self.zscaleBoxWidget.SetEnabled(1)
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             self.skipIndex = 2
@@ -109,7 +109,6 @@ class StructuredGridPlot(DV3DPlot):
             verticalScale.setValues( [ vscale ] )
             wbounds = ispec.getDataBounds( zscale=vscale )
             self.zscaleBoxWidget.PlaceWidget( wbounds )
-
 
 #     def onKeyEvent(self, eventArgs ):
 #         key = eventArgs[0]
@@ -158,14 +157,15 @@ class StructuredGridPlot(DV3DPlot):
     
     def setInputZScale(self, zscale_data, input_index=0, **args  ):
         input = self.variable_reader.output( input_index )
-        spacing = input.GetSpacing()
-        ix, iy, iz = spacing
-        sz = zscale_data[0]
-        if iz <> sz:
-#            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
-            input.SetSpacing( ix, iy, sz )  
-            input.Modified() 
-            self.processScaleChange( spacing, ( ix, iy, sz ) )
+        if input is not None:
+            spacing = input.GetSpacing()
+            ix, iy, iz = spacing
+            sz = zscale_data[0]
+            if iz <> sz:
+    #            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
+                input.SetSpacing( ix, iy, sz )  
+                input.Modified() 
+                self.processScaleChange( spacing, ( ix, iy, sz ) )
         return input
     
     def getDataRangeBounds(self, inputIndex=0 ):
@@ -329,6 +329,7 @@ class StructuredGridPlot(DV3DPlot):
 
 
     def getInputSpec( self, input_index=0 ):
+        if input_index == -1: input_index = len( self.inputSpecs ) - 1
         return self.inputSpecs.get( input_index, None )
 
     def getDataValue( self, image_value, input_index = 0 ):
