@@ -1,1 +1,1 @@
-set(gsw_deps ${python_pkg})
+set(gsw_deps ${python_pkg} ${numpy_pkg})
