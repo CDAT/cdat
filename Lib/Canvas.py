@@ -851,7 +851,6 @@ class Canvas(object,AutoAPI.AutoAPI):
 ########### rt.destroy()                                                            #########
         #                                                                           #
         #############################################################################
-
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL( 'ParameterChanged' )
         vcs.next_canvas_id+=1
@@ -939,9 +938,10 @@ class Canvas(object,AutoAPI.AutoAPI):
           warnings.warn("Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" % backend)
           self.backend=backend
 
-        self.configurator = configurator.Configurator(self)
-
         self._animate = self.backend.Animate( self )
+
+        self.configurator = configurator.Configurator(self, show_on_update=(backend != "vtk") )
+
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
 ###########################################################################################
