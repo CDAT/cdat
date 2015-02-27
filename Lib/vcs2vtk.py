@@ -983,7 +983,7 @@ def genPoly(coords,pts,filled=True):
   return poly
 
 def prepGlyph(g, marker, index=0):
-  t, s = marker.type[index], marker.size[index]
+  t, s = marker.type[index], marker.size[index] * .5
   gs = vtk.vtkGlyphSource2D()
   pd = None
 
