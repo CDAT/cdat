@@ -269,6 +269,8 @@ class Configurator(object):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def show(self):
+        if len(self.displays) == 0:
+            return
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
