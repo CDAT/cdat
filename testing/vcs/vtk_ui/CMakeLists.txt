@@ -17,3 +17,9 @@ add_test(test_vtk_ui_button_corner_radius
   ${TEST_DIR}/test_vtk_ui_button_corner_radius.py
   ${BASELINE_DIR}/test_vtk_ui_button_corner_radius.png
 )
+
+add_test(test_vtk_ui_button_dimensions
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_dimensions.py
+  ${BASELINE_DIR}/test_vtk_ui_button_dimensions.png
+)
