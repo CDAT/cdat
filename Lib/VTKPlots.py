@@ -611,10 +611,10 @@ class VTKVCSBackend(object):
           g.update( tmpl )
       return {}
 
-  def onClosing(self):
+  def onClosing( self, cell ):
       for plot in self.plotApps.values():
           if hasattr( plot, 'onClosing' ):
-              plot.onClosing()
+              plot.onClosing( cell )
 
   def plotVector(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
     #Preserve time and z axis for plotting these inof in rendertemplate
@@ -1253,6 +1253,7 @@ class VTKVCSBackend(object):
               self.canvas.display_names.remove(d.name)
               del(vcs.elements["display"][d.name])
     if taxis is not None:
+      try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
         crdate = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crdate")
@@ -1284,7 +1285,10 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
+      except:
+          pass
     if zaxis is not None:
+      try:
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
@@ -1328,6 +1332,8 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zvalue.name])
+      except:
+          pass
     return returned
 
 
@@ -1405,6 +1411,9 @@ class VTKVCSBackend(object):
     return
 
   def hideGUI(self):
+    plot = self.get3DPlot()
+    if plot: plot.hideWidgets()
+
     if self.bg is False:
       from vtk_ui.manager import get_manager
       manager = get_manager(self.renWin.GetInteractor())
@@ -1412,6 +1421,10 @@ class VTKVCSBackend(object):
         self.renWin.RemoveRenderer(manager.renderer)
 
   def showGUI(self):
+    plot = self.get3DPlot()
+
+    if plot: plot.showWidgets()
+
     if self.bg is False:
       from vtk_ui.manager import get_manager
       manager = get_manager(self.renWin.GetInteractor())
@@ -1423,6 +1436,15 @@ class VTKVCSBackend(object):
         manager.renderer.SetLayer(layer - 1)
         # Re-add the UI layer
         self.renWin.AddRenderer(manager.renderer)
+
+  def get3DPlot(self):
+    from dv3d import Gfdv3d
+    plot = None
+    for key in self.plotApps.keys():
+        if isinstance( key, Gfdv3d ):
+            plot = self.plotApps[key]
+            break
+    return plot
 
   def vectorGraphics(self, output_type, file, width=None, height=None, units=None):
     if self.renWin is None:
@@ -1460,6 +1482,7 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    if plot: plot.showWidgets()
 
     self.showGUI()
 
@@ -1499,6 +1522,8 @@ class VTKVCSBackend(object):
         except:
           pass
 
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
@@ -1516,6 +1541,7 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if plot: plot.showWidgets()
 
         self.showGUI()
 
@@ -1532,6 +1558,9 @@ class VTKVCSBackend(object):
           os.remove(file)
         except:
           pass
+
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
 
         writer = vtk.vtkIOCGM.vtkCGMWriter()
         writer.SetFileName(file)
