@@ -2,31 +2,6 @@ from vtk import vtkHandleWidget, vtkPointHandleRepresentation2D
 from widget import Widget
 
 
-__handles_to_render__ = {}
-
-def __schedule_render__(interactor, handle):
-    """
-    Batch renders handles so they all move in a group together.
-    """
-    listener = None
-    timer = None
-
-    def render(obj, event):
-        for handle in __handles_to_render__[interactor]:
-            handle.widget.Render()
-
-        interactor.RemoveObserver(listener)
-        interactor.DestroyTimer(timer)
-        del __handles_to_render__[interactor]
-
-    # Batch render handles
-    if __handles_to_render__.get(interactor, None) is None:
-        listener = interactor.AddObserver("TimerEvent", render)
-        timer = interactor.CreateOneShotTimer(1)
-        __handles_to_render__[interactor] = [handle]
-    else:
-        __handles_to_render__[interactor].append(handle)
-
 
 
 class Handle(Widget):
@@ -111,7 +86,7 @@ class Handle(Widget):
         """
         Doesn't actually immediately render; batches up handle renders so everything shows up in the appropriate place at once
         """
-        __schedule_render__(self.interactor, self)
+        self.manager.queue_render()
 
     def release(self, object, event):
         

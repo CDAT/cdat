@@ -127,7 +127,7 @@ class Label(Widget, DraggableMixin):
         self.top_offset += above
         self.repr.SetText(string)
         self.place()
-        self.widget.Render()
+        self.render()
 
     def set_font_size(self, size):
         prop = self.actor.GetTextProperty()
@@ -146,11 +146,11 @@ class Label(Widget, DraggableMixin):
     def show(self):
         self.place()
         self.widget.On()
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
     def hide(self):
         self.widget.Off()
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
     def place(self):
         w, h = self.interactor.GetRenderWindow().GetSize()
@@ -162,7 +162,7 @@ class Label(Widget, DraggableMixin):
             self.release_action(self.interactor.GetEventPosition())
 
     def render(self):
-        self.widget.Render()
+        self.manager.queue_render()
 
     def click(self, obj, event):
         self.drag_origin = self.event_position()
