@@ -143,9 +143,10 @@ def array_strings(template, array):
     return strings
 
 class Configurator(object):
-    def __init__(self, canvas):
+    def __init__(self, canvas, show_on_update=False):
         self.canvas = canvas
         self.backend = canvas.backend
+        self.show_on_update = show_on_update
         self.interactor = None
         self.display_strings = {}
         self.displays = []
@@ -191,6 +192,10 @@ class Configurator(object):
             display.template = new_template.name
             # This is an attribute used internally; might break
             display._template_origin = new_template.name
+
+        if self.show_on_update:
+                self.show()
+                self.show_on_update = False
 
     def release(self, object, event):
         if self.clicking is None:
