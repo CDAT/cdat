@@ -56,3 +56,5 @@ logs/
 site.cfg
 sources/
 version
+/.hooks-config
+/.idea

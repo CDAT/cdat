@@ -1,7 +1,7 @@
 import vcs, cdms2, sys
 x = vcs.init()
 f = cdms2.open(vcs.prefix+"/sample_data/clt.nc")
-v = f["clt"] 
+v = f["clt"]
 dv3d = vcs.get3d_scalar('Hovmoller3D')
 dv3d.ToggleSurfacePlot = vcs.on
 dv3d.ToggleVolumePlot = vcs.on
