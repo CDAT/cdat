@@ -4,9 +4,9 @@ Test button placement
 import os, sys
 import vtk, vcs.vtk_ui
 src=sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
+pth = os.path.join(os.path.dirname(__file__),"../..")
 sys.path.append(pth)
-#import checkimage
+import checkimage
 
 win = vtk.vtkRenderWindow()
 win.SetSize(100, 250)
@@ -34,7 +34,7 @@ png_writer.SetFileName(fnm)
 png_writer.SetInputConnection(out_filter.GetOutputPort())
 png_writer.Write()
 
-#print "fnm:",fnm
-#print "src:",src
-#ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-#sys.exit(ret)
+print "fnm:",fnm
+print "src:",src
+ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+sys.exit(ret)
