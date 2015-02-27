@@ -9,4 +9,4 @@ set(LIBCDMS_REPOSITORY ${GIT_PROTOCOL}github.com/UV-CDAT/libcdms.git )
 set(GIT_CMD_STR GIT_REPOSITORY ${LIBCDMS_REPOSITORY})
 set(GIT_TAG GIT_TAG "${LIBCDMS_BRANCH}")
 
-add_cdat_package(libcdms "" "" ON)
+add_cdat_package(libcdms "" "" OFF)

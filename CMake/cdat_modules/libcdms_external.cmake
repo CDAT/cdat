@@ -31,4 +31,6 @@ ExternalProject_Add(libcdms
   DEPENDS ${libcdms_deps}
   ${ep_log_options}
 )
-
+if (DEFINED GIT_CMD_STR)
+  unset(GIT_CMD_STR)
+endif()
