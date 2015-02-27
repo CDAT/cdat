@@ -28,6 +28,7 @@ ExternalProject_Add(libcdms
   PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCONFIGURE_ARGS=${CONFIGURE_ARGS} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} -j1
   DEPENDS ${libcdms_deps}
   ${ep_log_options}
 )
