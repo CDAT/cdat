@@ -16,5 +16,4 @@ class test_vtk_ui_button_draw(vtk_ui_test):
             button.show()
         self.test_file = "test_vtk_ui_button_draw.png"
 
-import sys
-sys.exit(test_vtk_ui_button_draw().test())
+test_vtk_ui_button_draw().test()

@@ -28,17 +28,20 @@ class vtk_ui_test(object):
         self.win = init()
         self.inter = self.win.GetInteractor()
         self.test_file = None
+        self.passed = 0
 
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 
     def test(self):
         self.do_test()
-        generate_png(self.win, self.test_file)
-        src=sys.argv[1]
-        pth = os.path.join(os.path.dirname(__file__),"../..")
-        sys.path.append(pth)
-        import checkimage
-        print "fnm:", self.test_file
-        print "src:", src
-        return checkimage.check_result_image(self.test_file, src, checkimage.defaultThreshold)
+        if self.test_file is not None:
+            generate_png(self.win, self.test_file)
+            src=sys.argv[1]
+            pth = os.path.join(os.path.dirname(__file__),"../..")
+            sys.path.append(pth)
+            import checkimage
+            print "fnm:", self.test_file
+            print "src:", src
+            self.passed = checkimage.check_result_image(self.test_file, src, checkimage.defaultThreshold)
+        sys.exit(self.passed)
