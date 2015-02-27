@@ -11,3 +11,9 @@ add_test(test_vtk_ui_button_action
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_button_action.py
 )
+
+add_test(test_vtk_ui_button_corner_radius
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_corner_radius.py
+  ${BASELINE_DIR}/test_vtk_ui_button_corner_radius.png
+)

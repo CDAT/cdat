@@ -33,6 +33,11 @@ class vtk_ui_test(object):
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 
+    def test_output(self):
+        self.do_test()
+        if self.test_file is not None:
+            generate_png(self.win, self.test_file)
+
     def test(self):
         self.do_test()
         if self.test_file is not None:
