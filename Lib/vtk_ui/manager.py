@@ -17,6 +17,19 @@ class InterfaceManager(object):
         self.renderer.SetBackground(1, 1, 1)
         self.window.AddRenderer(self.renderer)
         self.widgets = []
+        self.timer_listener = self.interactor.AddObserver("TimerEvent", self.__render)
+        self.timer = None
+
+    def __render(self, obj, event):
+        if self.timer is not None:
+            self.window.Render()
+            self.timer = None
+
+    def queue_render(self):
+        if self.timer is None:
+            # approximately one frame at 60 fps
+            self.timer = self.interactor.CreateOneShotTimer(16)
+
 
     def add_widget(self, widget):
         self.widgets.append(widget)

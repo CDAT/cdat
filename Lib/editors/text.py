@@ -280,6 +280,11 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             self.text.priority = 0
             self.configurator.deactivate(self)
     
+    def render(self):
+        from vcs.vtk_ui.manager import get_manager
+        m = get_manager(self.interactor)
+        m.queue_render()
+
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
         new_layer = self.text.priority * 10000 + 1 + self.configurator.displays.index(self.display)
@@ -289,7 +294,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         for actor in self.actors:
             actor.SetLayerNumber(new_layer)
 
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
 
 def text_dimensions(text, index, winsize):

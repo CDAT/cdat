@@ -33,7 +33,7 @@ class Textbox(Label):
                 self.cursor.hide()
             else:
                 self.cursor.show()
-            self.cursor.widget.Render()
+            self.manager.queue_render()
 
     def get_char(self):
         keycode = self.interactor.GetKeyCode()
@@ -195,7 +195,6 @@ class Textbox(Label):
 
         self.cursor = Button(self.interactor, left=cursor_left, top=cursor_top, width=2, height=row_height, corner_radius=0, bgcolor=(0,0,0))
         self.cursor.show()
-        #self.cursor.widget.Render()
 
 
     def row_col_at_point(self, x, y):
@@ -310,7 +309,7 @@ class Textbox(Label):
         prop.SetBackgroundOpacity(0)
 
         self.on_editing_end(self)
-        self.interactor.GetRenderWindow().Render()
+        self.manager.queue_render()
 
     def place(self):
         super(Textbox, self).place()

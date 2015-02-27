@@ -84,12 +84,17 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             h.place()
         self.toolbar.place()
 
+    def render(self):
+        from vcs.vtk_ui.manager import get_manager
+        m = get_manager(self.interactor)
+        m.queue_render()
+
     def update_shape(self):
         # Update the glyph for the marker to reflect the new shape
         self.glyph_source, self.polydata = vcs.vcs2vtk.prepGlyph(self.glyph, self.marker, self.index)
         self.display.backend["vtk_backend_marker_actors"][self.index] = (self.glyph, self.glyph_source, self.polydata, self.actor, self.geo)
         # Have to rescale the glyph now... work that out later with charles
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
     def change_shape(self, index):
         if index != 0:
@@ -123,7 +128,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         del self.picker
         self.picker = None
         vcs.vcs2vtk.setMarkerColor(self.actor.GetProperty(), self.marker, self.marker.color[self.index])
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
     def cancel_color(self):
         del self.picker
@@ -211,7 +216,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
         self.actor.SetLayerNumber(new_layer)
 
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
     def sync_positions(self):
         # Sync all points
@@ -222,7 +227,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             else:
                 points.SetPoint(i, x, y, 0)
         self.glyph.GetInput().Modified()
-        self.interactor.GetRenderWindow().Render()
+        self.render()
 
 __shape_cache = {}
 

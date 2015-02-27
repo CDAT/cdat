@@ -184,7 +184,12 @@ class LabelEditor(point.PointEditor):
 
         self.actor.SetLayerNumber(new_layer)
 
-        self.interactor.GetRenderWindow().Render()
+        self.render()
+
+    def render(self):
+        from vcs.vtk_ui.manager import get_manager
+        m = get_manager(self.interactor)
+        m.queue_render()
 
 
 def get_label_text(label, display):

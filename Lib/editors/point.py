@@ -35,6 +35,11 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
         except AttributeError:
             return self.in_bounds(x, y)
 
+    def render(self):
+        from vcs.vtk_ui.manager import get_manager
+        m = get_manager(self.interactor)
+        m.queue_render()
+
     def drag_move(self, d_x, d_y):
         self.point.x += d_x
         self.point.y += d_y
@@ -43,7 +48,7 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
             x, y = self.actor.GetPosition()
             self.actor.SetPosition(x + w * d_x, y + h * d_y)
             self.actor.GetMapper().Update()
-            self.interactor.GetRenderWindow().Render()
+            self.render()
         except AttributeError:
             self.configurator.changed = True
 
