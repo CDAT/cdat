@@ -6,3 +6,8 @@ add_test(test_vtk_ui_button_draw
   ${TEST_DIR}/test_vtk_ui_button_draw.py
   ${BASELINE_DIR}/test_vtk_ui_button_draw.png
 )
+
+add_test(test_vtk_ui_button_action
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_action.py
+)

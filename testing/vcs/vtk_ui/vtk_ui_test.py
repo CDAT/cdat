@@ -28,7 +28,7 @@ class vtk_ui_test(object):
         self.win = init()
         self.inter = self.win.GetInteractor()
         self.test_file = None
-        self.passed = 0
+        self.passed = 1
 
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
