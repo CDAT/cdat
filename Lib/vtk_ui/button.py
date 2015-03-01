@@ -108,6 +108,9 @@ class Button(Widget):
         self.subscribe( 'StateChangedEvent', self.clicked)
 
     def hover(self, obj, event):
+        if self.widget.GetEnabled() == 0:
+            return
+
         x, y = self.interactor.GetEventPosition()
 
         if self.hover_timer is None:
