@@ -160,6 +160,9 @@ class Configurator(object):
         self.line_button = None
         self.marker_button = None
         self.initialized = False
+        self.animation_speed = 250
+        self.animation_timer = None
+        self.animation_last_frame_time = datetime.datetime.now()
         # Map custom templates to their source template
         self.templates = {}
 
@@ -172,6 +175,7 @@ class Configurator(object):
     def update(self, displays):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
+            self.interactor.AddObserver("TimerEvent", self.animate)
             self.interactor.AddObserver("LeftButtonPressEvent", self.click)
             self.interactor.AddObserver("MouseMoveEvent", self.hover)
             self.interactor.AddObserver("LeftButtonReleaseEvent", self.release)
@@ -443,9 +447,32 @@ class Configurator(object):
     def setup_animation(self):
         self.canvas.animate.create()
         if self.initialized == False:
-            self.toolbar.add_toggle_button("Animation", on=self.canvas.animate.run, off=self.canvas.animate.stop, on_prefix="Run", off_prefix="Stop")
-            self.toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            anim_toolbar = self.toolbar.add_toolbar("Animation")
+            anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            anim_toolbar.add_slider_button(4, 1, 30, "Frames Per Second", update=self.set_animation_speed)
             self.initialized = True
+
+    def set_animation_speed(self, value):
+        v = int(value)
+        self.animation_speed = int(1000.0 / v)
+        if self.animation_timer is not None:
+            self.interactor.DestroyTimer(self.animation_timer)
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+        return v
+
+    def animate(self, obj, event):
+        if self.animation_timer and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * self.animation_speed)):
+            self.animation_last_frame_time = datetime.datetime.now()
+            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+
+    def start_animating(self):
+        self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+
+    def stop_animating(self):
+        self.interactor.DestroyTimer(self.animation_timer)
+        self.animation_timer = None
 
     def set_animation_frame(self, value):
         value = int(value)
