@@ -194,8 +194,8 @@ class Configurator(object):
             display._template_origin = new_template.name
 
         if self.show_on_update:
-                self.show()
-                self.show_on_update = False
+            self.show()
+            self.show_on_update = False
 
     def release(self, object, event):
         if self.clicking is None:
