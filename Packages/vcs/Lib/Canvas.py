@@ -3731,7 +3731,7 @@ Options:::
         if dn is not None:
           self.display_names.append(result.name)
           if self.backend.bg == False:
-            self.configurator.update(self.display_names)
+            self.configurator.update()
         # Commented out as agreed we shouldn't use warnings in these contexts.
         #if not hasattr(__main__,"__file__") and not bg:
         #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
