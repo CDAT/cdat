@@ -4,6 +4,10 @@ add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+add_test(vcs_line_duplicate_points_fix
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_line_point_extension.py
+)
 add_test(vcs_mkscale_zero_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_zero_range.py
@@ -74,6 +78,17 @@ add_test(vcs_test_read_yx_scr
 add_test(vcs_test_queries
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_queries.py
+  )
+add_test(vcs_test_dump_taylordiagram
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_save_td_json.py
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_py.py.good
+  )
+add_test(vcs_test_reload_taylor_from_json
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_reload_taylor_from_json.py
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
   )
 add_test(vcs_test_dump_json
   "${PYTHON_EXECUTABLE}"
@@ -201,12 +216,12 @@ add_test(vcs_test_taylor_2_quads
     )
   add_test(vcs_test_canvas_background
     "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_canvas_background.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background.py
     "${BASELINE_DIR}/test_canvas_background.png"
     )
   add_test(vcs_test_canvas_background_update
     "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_canvas_background_update.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background_update.py
     "${BASELINE_DIR}/test_canvas_background_update.png"
     )
   add_test(vcs_test_boxfill_10x10_numpy
@@ -233,6 +248,10 @@ add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    add_test(vcs_test_bad_time_units
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
+      )
     add_test(vcs_test_plot_file_varible
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
@@ -259,7 +278,10 @@ add_test(vcs_test_taylor_2_quads
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
         )
     ENDFOREACH(gm)
-
+    add_test(vcs_test_show
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
+      )
     FOREACH(gm boxfill isofill isoline vector meshfill )
      FOREACH(ptype 0 -3 aeqd)
       add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
@@ -376,6 +398,16 @@ add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
+      )
+    add_test(vcs_test_isoline_labels_multi_label_input_types
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
+      "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
+      )
+    add_test(vcs_test_isoline_labels
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
+      "${BASELINE_DIR}/test_isoline_labels.png"
       )
     add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"

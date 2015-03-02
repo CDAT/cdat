@@ -61,40 +61,39 @@ def createnewvcsobj(canvas,type,basenm,src='default',src2='default'):
 
 class TDMarker(object):
     """class"""
-##     __slots__ = [
-##         '_parent',
-##         'status',
-##         'line',
-##         'id',
-##         'id_size',
-##         'id_color',
-##         'id_font',
-##         'symbol',
-##         'color',
-##         'size',
-##         'xoffset',
-##         'yoffset',
-##         'line_color',
-##         'line_size',
-##         'line_type',
-##         'number'
-##         '_parent',
-##         '_status',
-##         '_line',
-##         '_id',
-##         '-id_size',
-##         '_id_color',
-##         '_id_font',
-##         '_symbol',
-##         '-color',
-##         '_size',
-##         '-xoffset',
-##         '_yoffset',
-##         '_line_color',
-##         '_line_size',
-##         '_line_type',
-##         '_number',
-##         ]
+    __slots__ = [
+         '_status',
+         '_line',
+         '_id',
+         '_id_size',
+         '_id_color',
+         '_id_font',
+         '_symbol',
+         '_color',
+         '_size',
+         '_xoffset',
+         '_yoffset',
+         '_line_color',
+         '_line_size',
+         '_line_type',
+         '_number',
+         'name',
+         'status',
+         'line',
+         'id',
+         'id_size',
+         'id_color',
+         'id_font',
+         'symbol',
+         'color',
+         'size',
+         'xoffset',
+         'yoffset',
+         'line_color',
+         'line_size',
+         'line_type',
+         'number'
+         ]
     
     def __init__(self):
         self.name='marker'
@@ -411,9 +410,6 @@ class TDMarker(object):
                 self.eq(attr,n)
             self._number=n
             
-        
-
-        
 class Gtd(object):
     """ class"""    
     __slots__=[
@@ -784,46 +780,87 @@ class Gtd(object):
         print 'Marker'
         self.Marker.list()
         
-    def script(self,file,option='a'):
+    def script(self,script_filename,mode='a'):
         self.Marker.equalize()
-        if not option in ['a','w']:
-            raise Exception,'Error valid write option are w or a'
-        if option=='a' : option='r+'
-        try:
-            f=open(file,option)
-            a=f.readlines()
-        except:
-            f=open(file,'w')
-        f.write('Gtd_'+self.name+'(\n')
-        f.write( 'detail = '+repr(self.detail)+';\n')
-        f.write( 'max = '+repr(self.max)+';\n') # maximum value of the standard deviaton, copied to the value of the outter circle
-        f.write( 'quadrans = '+repr(self.quadrans)+';\n')
-        f.write( 'skillValues = '+repr(self.skillValues)+';\n')
-        f.write( 'skillColor = '+repr(self.skillColor)+';\n')
-        f.write( 'skillDrawLabels = '+repr(self.skillDrawLabels)+';\n')
-        f.write( 'skillCoefficient = '+repr(self.skillCoefficient)+';\n')
-        f.write( 'referencevalue = '+repr(self.referencevalue)+';\n')
-##         f.write( 'referencecolor = '+repr(self.referencecolor)+';\n')
-        f.write( 'arrowlength = '+repr(self.arrowlength)+';\n')
-        f.write( 'arrowangle = '+repr(self.arrowangle)+';\n')
-        f.write( 'arrowbase = '+repr(self.arrowbase)+';\n')
-        f.write( 'Marker;\n')
-        f.write('    status = '+repr(self.Marker.status)+';\n')
-        f.write('    line = '+repr(self.Marker.line)+';\n')
-        f.write('    id = '+repr(self.Marker.id)+';\n')
-        f.write('    id_size = '+repr(self.Marker.id_size)+';\n')
-        f.write('    id_color = '+repr(self.Marker.id_color)+';\n')
-        f.write('    id_font = '+repr(self.Marker.id_font)+';\n')
-        f.write('    symbol = '+repr(self.Marker.symbol)+';\n')
-        f.write('    color = '+repr(self.Marker.color)+';\n')
-        f.write('    size = '+repr(self.Marker.size)+';\n')
-        f.write('    xoffset = '+repr(self.Marker.xoffset)+';\n')
-        f.write('    yoffset = '+repr(self.Marker.yoffset)+';\n')
-        f.write('    line_color = '+repr(self.Marker.line_color)+';\n')
-        f.write('    line_size = '+repr(self.Marker.line_size)+';\n')
-        f.write('    line_type = '+repr(self.Marker.line_type)+';\n')
-        f.write(')\n')
-        f.close()
+        if (script_filename == None):
+          raise ValueError, 'Error - Must provide an output script file name.'
+
+        if (mode == None):
+           mode = 'a'
+        elif (mode not in ('w', 'a')):
+          raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
+
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
+        else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
+           mode = mode + '+'
+           py_type = script_filename[len(script_filename)-3:len(script_filename)]
+           if (py_type != '.py'):
+              script_filename = script_filename + '.py'
+
+           # Write to file
+           f = open(script_filename,mode)
+           if (f.tell() == 0): # Must be a new file, so include below
+              f.write("#####################################\n")
+              f.write("#                                 #\n")
+              f.write("# Import and Initialize VCS     #\n")
+              f.write("#                             #\n")
+              f.write("#############################\n")
+              f.write("import vcs\n")
+              f.write("v=vcs.init()\n\n")
+
+           unique_name = '__Gtd__' + self.name
+           f.write("#----Taylordiagram (Gtd) \n")
+           f.write("gtd_list=v.listelements('taylordiagram')\n")
+           f.write("if ('%s' in gtd_list):\n" % self.name)
+           f.write("   %s = v.gettaylordiagram('%s')\n" % (unique_name, self.name))
+           f.write("else:\n")
+           f.write("   %s = v.createtaylordiagram('%s')\n" % (unique_name, self.name))
+
+           f.write( '%s.detail = %s\n' % (unique_name,repr(self.detail)))
+           f.write( '%s.max = %s\n' % (unique_name,repr(self.max))) # maximum value of the standard deviaton, copied to the value of the outter circle
+           f.write( '%s.quadrans = %s\n' % (unique_name,repr(self.quadrans)))
+           f.write( '%s.skillValues = %s\n' % (unique_name,repr(self.skillValues)))
+           f.write( '%s.skillColor = %s\n' % (unique_name,repr(self.skillColor)))
+           f.write( '%s.skillDrawLabels = %s\n' % (unique_name,repr(self.skillDrawLabels)))
+           f.write( '%s.skillCoefficient = %s\n' % (unique_name,repr(self.skillCoefficient)))
+           f.write( '%s.referencevalue = %s\n' % (unique_name,repr(self.referencevalue)))
+##         f.write( '%s.referencecolor = %s\n' % (unique_name,repr(self.referencecolor)))
+           f.write( '%s.arrowlength = %s\n' % (unique_name,repr(self.arrowlength)))
+           f.write( '%s.arrowangle = %s\n' % (unique_name,repr(self.arrowangle)))
+           f.write( '%s.arrowbase = %s\n' % (unique_name,repr(self.arrowbase)))
+           for i in range(self.Marker.number):
+             f.write('%s.addMarker(\n' % (unique_name))
+             f.write('    status = %s,\n' % repr(self.Marker.status[i]))
+             f.write('    line = %s,\n' % repr(self.Marker.line[i]))
+             f.write('    id = %s,\n' % repr(self.Marker.id[i]))
+             f.write('    id_size = %s,\n' % repr(self.Marker.id_size[i]))
+             f.write('    id_color = %s,\n' % repr(self.Marker.id_color[i]))
+             f.write('    id_font = %s,\n' % repr(self.Marker.id_font[i]))
+             f.write('    symbol = %s,\n' % repr(self.Marker.symbol[i]))
+             f.write('    color = %s,\n' % repr(self.Marker.color[i]))
+             f.write('    size = %s,\n' % repr(self.Marker.size[i]))
+             f.write('    xoffset = %s,\n' % repr(self.Marker.xoffset[i]))
+             f.write('    yoffset = %s,\n' % repr(self.Marker.yoffset[i]))
+             f.write('    line_color = %s,\n' % repr(self.Marker.line_color[i]))
+             f.write('    line_size = %s,\n' % repr(self.Marker.line_size[i]))
+             f.write('    line_type = %s\n' % repr(self.Marker.line_type[i]))
+             f.write(')\n')
+           f.close()
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     def addMarker(self,status='on',line=None,
                   id='',id_size=None,id_color=None,id_font=None,symbol=None,
                   color=None,size=None,xoffset=0.,yoffset=0.,

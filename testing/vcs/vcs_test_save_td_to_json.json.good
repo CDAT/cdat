@@ -1,0 +1,144 @@
+{
+ "Gtd": {
+  "vcs_test_save_taylor_to_json_and_python": {
+   "Marker": {
+    "color": [
+     16, 
+     239, 
+     16, 
+     239, 
+     1
+    ], 
+    "id": [
+     "0", 
+     "1", 
+     "2", 
+     "3", 
+     "4"
+    ], 
+    "id_color": [
+     16, 
+     239, 
+     16, 
+     239, 
+     1
+    ], 
+    "id_font": [
+     1, 
+     1, 
+     1, 
+     1, 
+     1
+    ], 
+    "id_size": [
+     20, 
+     20, 
+     20, 
+     20, 
+     30
+    ], 
+    "line": [
+     null, 
+     null, 
+     null, 
+     null, 
+     null
+    ], 
+    "line_color": [
+     1, 
+     1, 
+     1, 
+     1, 
+     1
+    ], 
+    "line_size": [
+     1.0, 
+     1.0, 
+     1.0, 
+     1.0, 
+     1.0
+    ], 
+    "line_type": [
+     "solid", 
+     "solid", 
+     "solid", 
+     "solid", 
+     "solid"
+    ], 
+    "name": "marker", 
+    "number": 5, 
+    "size": [
+     5, 
+     5, 
+     5, 
+     5, 
+     5
+    ], 
+    "status": [
+     1, 
+     1, 
+     1, 
+     1, 
+     1
+    ], 
+    "symbol": [
+     "dot", 
+     "dot", 
+     "dot", 
+     "dot", 
+     "dot"
+    ], 
+    "xoffset": [
+     2.0380499362945557, 
+     2.1889517307281494, 
+     2.005732774734497, 
+     2.194457530975342, 
+     0.0
+    ], 
+    "yoffset": [
+     1.0833240747451782, 
+     1.5037295818328857, 
+     1.2790908813476562, 
+     1.4414606094360352, 
+     0.0
+    ]
+   }, 
+   "arrowangle": 20.0, 
+   "arrowbase": 0.75, 
+   "arrowlength": 0.05, 
+   "cmtics1": "*", 
+   "cticlabels1": "*", 
+   "detail": 75, 
+   "displays": [], 
+   "max": null, 
+   "outtervalue": null, 
+   "preserveaspectratio": "y", 
+   "quadrans": 1, 
+   "referencevalue": 1.0, 
+   "skillCoefficient": [
+    1.0, 
+    1.0, 
+    1.0
+   ], 
+   "skillColor": 252, 
+   "skillDrawLabels": "y", 
+   "skillValues": [
+    0.1, 
+    0.2, 
+    0.3, 
+    0.4, 
+    0.5, 
+    0.6, 
+    0.7, 
+    0.8, 
+    0.9, 
+    0.95
+   ], 
+   "template": null, 
+   "xmtics1": "*", 
+   "xticlabels1": "*", 
+   "ymtics1": "*", 
+   "yticlabels1": "*"
+  }
+ }
+}

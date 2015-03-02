@@ -34,6 +34,8 @@ def dumpToDict(obj,skipped=[],must=[]):
               "colormap":set(),
               "projection":set(),
               }
+  if isinstance(obj,(vcs.taylor.TDMarker,vcs.taylor.Gtd)):
+    del(associated["line"])
   associated_keys=associated.keys()
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
@@ -45,7 +47,7 @@ def dumpToDict(obj,skipped=[],must=[]):
         if a=="line" and isinstance(obj,(vcs.isoline.Gi,vcs.unified1D.G1d)):
           continue
         associated[a].add(val)
-      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
+      if not isinstance(val,(unicode,str,tuple,list,int,long,float,dict)) and val is not None:
         val,asso = dumpToDict(val,skipped,must)
         for k in associated_keys:
           for v in asso[k]:
@@ -183,34 +185,20 @@ a.show('line')
 a.show('marker')
 a.show('text')
 """
-    if args != () and args[0].lower() == 'taylordiagram':
-        ln=[]
-        ln.append('*******************Taylor Diagrams Names List**********************')
-        nms=[]
-        i=0
-        ln.append('')
-        for t in vcs.taylordiagrams:
-            if i%3==0 :
-               ln[-1]=ln[-1]+'(%4s):' % str(i+1)
-            ln[-1]=ln[-1]+'%20s' % t.name
-            i=i+1
-            if i%3==0 : ln.append('')
-        if ln[-1]=='' : ln.pop(-1)
-        ln.append('*****************End Taylor Diagrams Names List********************')
-        for l in ln:
-            print l
-        return None
-    elif args == ():
+    if args == ():
        return vcs.listelements()
     else:
       elts = vcs.listelements(args[0])
-      m = max([len(e) for e in elts])+1
+      try:
+          m = max([len(e) for e in elts])+1
+      except:
+          m = 4
       print "*******************%s Names List**********************" % args[0].capitalize()
       for i,e in enumerate(elts):
-        print e.ljust(m),
+        print ("%s" % e).ljust(m),
         if (i+1)%3==0:
           print
-      if (i+1)%3!=0:
+      if len(elts)>0 and (i+1)%3!=0:
         print
       print "*******************End %s Names List**********************" % args[0].capitalize()
       return 
@@ -631,15 +619,22 @@ def loadVCSItem(typ,nm,json_dict = {}):
     exec(cmd)
   for a,v in json_dict.iteritems():
     if isinstance(v,dict):
-      for k in v.keys():
-        try:
-          v[eval(k)]=v[k]
-          del(v[k])
-        except:
-          pass
+      if a=="Marker" and tp=="taylordiagram":
+        gm.addMarker()
+        for k in v.keys():
+            cmd = "gm.Marker.%s = %s" % (k,repr(v[k]))
+            exec(cmd)
+      else:
+        for k in v.keys():
+          try:
+            v[eval(k)]=v[k]
+            del(v[k])
+          except:
+            pass
     elif isinstance(v,unicode):
       v=str(v)
-    setattr(gm,a,v)
+    if not(a=="Marker" and tp=="taylordiagram"):
+      setattr(gm,a,v)
   return gm
 
 def return_display_names():
@@ -1235,7 +1230,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
-          ticks="lon30"
+          ticks="Lon30"
         else:
           ticks=vcs.mkscale(datawc_x1,datawc_x2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
@@ -1268,7 +1263,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
-          ticks="lon30"
+          ticks="Lon30"
         else:
           ticks=vcs.mkscale(datawc_x1,datawc_x2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
@@ -1302,7 +1297,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
-          ticks="lat20"
+          ticks="Lat20"
         else:
           ticks=vcs.mkscale(datawc_y1,datawc_y2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
@@ -1335,7 +1330,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
           copy_gm = creategraphicsmethod(gm.g_name,gm.name)
           gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
-          ticks="lat20"
+          ticks="Lat20"
         else:
           ticks=vcs.mkscale(datawc_y1,datawc_y2)
           ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)

@@ -67,17 +67,15 @@ if args.amplitude:
   nm_xtra="_amplitude"
   U=numpy.cos(lons[:])
   V=numpy.sin(lats[:])
-  A=MV2.array(V[:,numpy.newaxis]*U[numpy.newaxis,:])
+  A=3+MV2.array(V[:,numpy.newaxis]*U[numpy.newaxis,:])
   A.setAxis(0,lats)
   A.setAxis(1,lons)
   u*=A
   v*=A
   #Now plots the amplitude underneath the data
   b=x.createboxfill()
-  print vcs.elements["list"]["lon30"]
-  print vcs.elements["list"]["lat20"]
-  b.xticlabels1=vcs.elements["list"]["lon30"]
-  b.yticlabels1=vcs.elements["list"]["lat20"]
+  b.xticlabels1=vcs.elements["list"]["Lon30"]
+  b.yticlabels1=vcs.elements["list"]["Lat20"]
   x.plot(A,b,bg=bg)
 u.setAxis(0,lats)
 u.setAxis(1,lons)

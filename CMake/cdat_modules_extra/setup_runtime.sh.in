@@ -10,8 +10,6 @@ function cleanup {
 # which can lead to errors.
 if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
   if [ "${UVCDAT_SETUP_PATH}" = "${install_prefix}" ] ; then
-    echo "WARNING: UVCDAT setup already sourced for this install location." 1>&2
-    echo "WARNING: You shouldn't source setup_runtime anymore." 1>&2
     cleanup
     return 0
   else
