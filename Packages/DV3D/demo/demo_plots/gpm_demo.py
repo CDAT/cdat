@@ -29,14 +29,14 @@ def getReltime( timestamp, units ):
     ctval = cdtime.comptime( int(ymd[0]), int(ymd[1]), int(ymd[2]), int(hms[0]), int(hms[1]), int(hms[2])  )
     return ctval.torel( units )
 
-def merge_data_arrays( threshold_var, color_var, vthresholds, n_color_vals ):
+def merge_data_arrays( threshold_var, color_var, vthresholds, n_color_vals=256 ):
     vrange = ( color_var.min(), color_var.max() )
     indexed_color_var = ( ( color_var - vrange[0] ) * ( ( n_color_vals - 0.01 ) / (vrange[1] - vrange[0]) ) ).astype(int)
     for vthresh in vthresholds:
         indexed_color_var[ threshold_var > vthresh ] += n_color_vals
     return indexed_color_var
 
-def createTransientVariable( hfile, varnames ):
+def createTransientVariable( hfile, varnames, vthresholds ):
     point_coord_var_names=[ "Latitude", "Longitude" ]
     lev_axis_name='nbin'
     time_axis_name=None
@@ -129,7 +129,7 @@ def createTransientVariable( hfile, varnames ):
 
         masked_vars.append( data_array )
 
-    merged_data_array = merge_data_arrays( masked_vars )
+    merged_data_array = merge_data_arrays( data_array[0], data_array[1], vthresholds )
 
     v = cdms2.createVariable( merged_data_array, dtype, 0, 0, merged_data_array.mask, fillval, tcgrid, caxes, file_mdata, varname, 0 )
     return v
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 #    varnames = [ "/NS/SLV/precipRate" ]
 
     hfile = h5py.File( data_file, 'r' )
-    v = createTransientVariable( hfile, varnames )
+    v = createTransientVariable( hfile, varnames, [ 120.0 ] )
     hfile.close()
 
     x=vcs.init()
