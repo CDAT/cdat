@@ -1482,6 +1482,7 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    plot = self.get3DPlot()
     if plot: plot.showWidgets()
 
     self.showGUI()
