@@ -162,6 +162,7 @@ class Configurator(object):
         self.initialized = False
         self.animation_speed = 250
         self.animation_timer = None
+        self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
         # Map custom templates to their source template
         self.templates = {}
@@ -175,10 +176,10 @@ class Configurator(object):
     def update(self, displays):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
-            self.interactor.AddObserver("TimerEvent", self.animate)
-            self.interactor.AddObserver("LeftButtonPressEvent", self.click)
-            self.interactor.AddObserver("MouseMoveEvent", self.hover)
-            self.interactor.AddObserver("LeftButtonReleaseEvent", self.release)
+            self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
+            self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
+            self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
+            self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
             self.init_buttons()
             self.init_toolbar()
 
@@ -201,11 +202,29 @@ class Configurator(object):
             self.show()
             self.show_on_update = False
 
+    def detach(self):
+        if self.toolbar is not None:
+            self.toolbar.detach()
+            self.toolbar = None
+        if self.fill_button is not None:
+            self.fill_button.detach()
+            self.fill_button = None
+        if self.text_button is not None:
+            self.text_button.detach()
+            self.text_button = None
+        if self.line_button is not None:
+            self.line_button.detach()
+            self.line_button = None
+        if self.marker_button is not None:
+            self.marker_button.detach()
+            self.marker_button = None
+
+        for listener in self.listeners:
+            self.interactor.RemoveObserver(listener)
+
     def release(self, object, event):
         if self.clicking is None:
             return
-
-
 
         if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
 
