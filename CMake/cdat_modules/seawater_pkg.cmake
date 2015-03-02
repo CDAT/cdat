@@ -1,0 +1,18 @@
+set( SEAWATER_MAJOR 3 )
+set( SEAWATER_MINOR 3 )
+set( SEAWATER_PATCH 2 )
+set( SEAWATER_VERSION ${SEAWATER_MAJOR}.${SEAWATER_MINOR}.${SEAWATER_PATCH} )
+set( SEAWATER_URL ${LLNL_URL} )
+set( SEAWATER_GZ python-seawater-${SEAWATER_VERSION}.tar.gz )
+set( SEAWATER_MD5 b23df1bbf3b96771aa9926dc851c4675 )
+
+set (nm SEAWATER)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+set(SEAWATER_SOURCE ${SEAWATER_URL}/${SEAWATER_GZ})
+
+if (CDAT_BUILD_ALL)
+  add_cdat_package(seawater "" "" ON)
+else()
+  add_cdat_package(seawater "" "" OFF)
+endif()

@@ -50,13 +50,16 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     if sys.platform == "darwin":
         self.reRender = False
-    self.clickRenderer = None
+        self.clickRenderer = None
+        self.oldCursor = None
+
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -87,7 +90,7 @@ class VTKVCSBackend(object):
     if self.renWin is not None:
       if self.reRender:
         self.reRender = False
-        self._lastSize = None
+        #self._lastSize = None
         self.renWin.Render()
 
   def renderEvent(self,caller,evt):
@@ -181,6 +184,11 @@ class VTKVCSBackend(object):
       self.renWin.Render()
 
   def configureEvent(self,obj,ev):
+    cursor = self.renWin.GetCurrentCursor()
+    if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
+      self.oldCursor = cursor
+      return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -207,6 +215,10 @@ class VTKVCSBackend(object):
           key_args.append({"ratio":d.ratio})
       else:
           key_args.append({})
+
+    # Have to pull out the UI layer so it doesn't get borked by the clear
+    self.hideGUI()
+
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
@@ -214,13 +226,17 @@ class VTKVCSBackend(object):
     if self.canvas.animate.created():
       self.canvas.animate.draw_frame()
 
+    self.showGUI()
+
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
       self.renWin.Render()
     if sys.platform == "darwin":
-        ## ON mac somehow we need to issue an extra Render after resize
-        self.reRender = True
+        ## On mac somehow we need to issue an extra Render after resize
+        # If ev is None, then the update() was called, and we only need to render once.
+        if ev is not None:
+          self.reRender = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -440,26 +456,10 @@ class VTKVCSBackend(object):
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
-            # Add a transform to correct the glyph's aspect ratio:
             if pd is None and act.GetUserTransform():
-              # Invert the scale of the actor's transform.
-              glyphTransform = vtk.vtkTransform()
-              scale = act.GetUserTransform().GetScale()
-              xComp = scale[0]
-              scale = [xComp / float(val) for val in scale]
-              glyphTransform.Scale(scale)
+              vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
+            self.setLayer(ren,gm.priority)
 
-              glyphFixer = vtk.vtkTransformPolyDataFilter()
-              glyphFixer.SetTransform(glyphTransform)
-
-              if pd is None:
-                glyphFixer.SetInputConnection(gs.GetOutputPort())
-              else:
-                glyphFixer.SetInputData(pd)
-                g.SetSourceData(None)
-
-              g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
@@ -583,7 +583,7 @@ class VTKVCSBackend(object):
     return {}
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000+1
+    n = self.numberOfPlotCalls + (priority-1)*10000 + 1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
@@ -611,10 +611,10 @@ class VTKVCSBackend(object):
           g.update( tmpl )
       return {}
 
-  def onClosing(self):
+  def onClosing( self, cell ):
       for plot in self.plotApps.values():
           if hasattr( plot, 'onClosing' ):
-              plot.onClosing()
+              plot.onClosing( cell )
 
   def plotVector(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
     #Preserve time and z axis for plotting these inof in rendertemplate
@@ -1248,7 +1248,12 @@ class VTKVCSBackend(object):
               returned["vtk_backend_%s_text_actor" % s0] = t
               self.canvas.display_names.remove(d.name)
               del(vcs.elements["display"][d.name])
+          else:
+              returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
+              self.canvas.display_names.remove(d.name)
+              del(vcs.elements["display"][d.name])
     if taxis is not None:
+      try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
         #ok we have a time axis let's display the time
         crdate = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crdate")
@@ -1280,7 +1285,10 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
+      except:
+          pass
     if zaxis is not None:
+      try:
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
@@ -1324,6 +1332,8 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][zvalue.name])
+      except:
+          pass
     return returned
 
 
@@ -1400,9 +1410,47 @@ class VTKVCSBackend(object):
     self.renWin.Render()
     return
 
+  def hideGUI(self):
+    plot = self.get3DPlot()
+    if plot: plot.hideWidgets()
+
+    if self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+      if manager:
+        self.renWin.RemoveRenderer(manager.renderer)
+
+  def showGUI(self):
+    plot = self.get3DPlot()
+
+    if plot: plot.showWidgets()
+
+    if self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+
+      if manager:
+        # Set the UI renderer's layer on top of what's there right now
+        layer = self.renWin.GetNumberOfLayers() + 1
+        self.renWin.SetNumberOfLayers(layer)
+        manager.renderer.SetLayer(layer - 1)
+        # Re-add the UI layer
+        self.renWin.AddRenderer(manager.renderer)
+
+  def get3DPlot(self):
+    from dv3d import Gfdv3d
+    plot = None
+    for key in self.plotApps.keys():
+        if isinstance( key, Gfdv3d ):
+            plot = self.plotApps[key]
+            break
+    return plot
+
   def vectorGraphics(self, output_type, file, width=None, height=None, units=None):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
+
+    self.hideGUI()
 
     gl  = vtk.vtkGL2PSExporter()
 
@@ -1434,6 +1482,10 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    plot = self.get3DPlot()
+    if plot: plot.showWidgets()
+
+    self.showGUI()
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1461,6 +1513,8 @@ class VTKVCSBackend(object):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
+        self.hideGUI()
+
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1469,9 +1523,12 @@ class VTKVCSBackend(object):
         except:
           pass
 
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
+
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
@@ -1485,10 +1542,15 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if plot: plot.showWidgets()
+
+        self.showGUI()
 
   def cgm(self,file):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
+
+        self.hideGUI()
 
         if not file.split('.')[-1].lower() in ['cgm']:
             file+='.cgm'
@@ -1497,6 +1559,9 @@ class VTKVCSBackend(object):
           os.remove(file)
         except:
           pass
+
+        plot = self.get3DPlot()
+        if plot: plot.hideWidgets()
 
         writer = vtk.vtkIOCGM.vtkCGMWriter()
         writer.SetFileName(file)
@@ -1511,6 +1576,9 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
+
+        self.showGUI()
+
   def Animate(self,*args,**kargs):
      return VTKAnimate.VTKAnimate(*args,**kargs)
 
