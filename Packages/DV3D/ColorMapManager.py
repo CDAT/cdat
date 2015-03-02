@@ -278,4 +278,27 @@ class ColorMapManager():
             return None         
         return lut
 
- 
+    def load_multi_phase_lut(self, colormap_list, n_color_vals, n_opacity_vals, **args ):
+        print_log = args.get( 'log', False )
+        mp_lut = vtk.vtkLookupTable()
+        mp_lut.SetNumberOfColors( len( colormap_list ) *  n_color_vals * n_opacity_vals )
+        mp_lut.Build()
+        mp_index = 0
+        if print_log: print "Colormaps: ", colormaps.keys()
+        for colormapName in colormap_list:
+            lut = colormaps[ colormapName ]
+            for iOpacity in range( n_opacity_vals ):
+                opacity = float( iOpacity ) / ( n_opacity_vals - 1 ) if ( n_opacity_vals > 1 ) else 1.0
+                colorStep = len(lut) / float( n_color_vals - 1 )
+                for iColor in range( n_color_vals ):
+                    cmap_index = min( int( iColor * colorStep ), len(lut)-1 )
+                    cval = lut[ cmap_index ]
+                    mp_lut.SetTableValue( mp_index, cval[0], cval[1], cval[2], opacity )
+                    if print_log: print " SetTableValue[%d]: %s" % ( mp_index, str([cval[0], cval[1], cval[2], opacity]) )
+                    mp_index = mp_index + 1
+                if print_log: print " ----- "
+        return mp_lut
+
+if __name__ == '__main__':
+    cm = ColorMapManager(None)
+    cm.load_multi_phase_lut( [ 'jet', 'cool' ], 10, 5 )
