@@ -3,10 +3,10 @@ Created on Apr 29, 2014
 
 @author: tpmaxwel
 '''
-    
-import sys, vtk, cdms2, traceback, os, cdtime, math 
-from ColorMapManager import *  
-from Shapefile import shapeFileReader   
+
+import sys, vtk, cdms2, traceback, os, cdtime, math
+from ColorMapManager import *
+from Shapefile import shapeFileReader
 #from ImagePlaneAxisAlignedWidget import *
 
 from ImagePlaneWidget import *
@@ -291,8 +291,8 @@ class RectGridPlot(StructuredGridPlot):
             config_function.setRangeBounds( init_range )
             isosurfaceValue.setValue( 'count', 1 )
             if config_function.initial_value == None:
-                init_value = (init_range[0]+init_range[1])/2.0          
-                config_function.initial_value = init_value             
+                init_value = (init_range[0]+init_range[1])/2.0
+                config_function.initial_value = init_value
             isosurfaceValue.initValues( [ config_function.initial_value ] )
             self.setIsosurfaceLevel( isosurfaceValue.getValue(0) )
         elif args and args[0] == "EndConfig":
@@ -574,7 +574,7 @@ class RectGridPlot(StructuredGridPlot):
         abs_range.append(  AbsValueTransferFunction )
         return abs_range
 
-    def getSgnRangeBounds(self, inputIndex=0 ): 
+    def getSgnRangeBounds(self, inputIndex=0 ):
         range = self.getDataRangeBounds( inputIndex )
         if self.transferFunctionConfig:
             range[2] = self.transferFunctionConfig.getTransferFunctionType()
@@ -780,21 +780,21 @@ class RectGridPlot(StructuredGridPlot):
         Dispatch the vtkRenderer to the actual rendering widget
         """
         self.debug_log( 'buildIsosurfacePipeline' )
-        surface_ispec = self.getInputSpec( 1 ) 
+        surface_ispec = self.getInputSpec( 1 )
         if surface_ispec is None:
-            surface_ispec = self.getInputSpec( 0 ) 
+            surface_ispec = self.getInputSpec( 0 )
             texture_ispec = None
             surface_input = self.input(0)
             texture_input = None
-        else:              
-            texture_ispec = self.getInputSpec( 0 )  
+        else:
+            texture_ispec = self.getInputSpec( 0 )
             surface_input = self.input(1)
             texture_input = self.input(0)
-#        print "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ispecs: ", str( surface_ispec.metadata['scalars'] ), str( texture_ispec.metadata['scalars'] )          
-        xMin, xMax, yMin, yMax, zMin, zMax = surface_input.GetExtent()       
-        self.sliceCenter = [ (xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2  ]       
+#        print "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ispecs: ", str( surface_ispec.metadata['scalars'] ), str( texture_ispec.metadata['scalars'] )
+        xMin, xMax, yMin, yMax, zMin, zMax = surface_input.GetExtent()
+        self.sliceCenter = [ (xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2  ]
         spacing = surface_input.GetSpacing()
-        sx, sy, sz = spacing     
+        sx, sy, sz = spacing
         origin = surface_input.GetOrigin()
         ox, oy, oz = origin
         dataType = surface_input.GetScalarTypeAsString()
@@ -819,9 +819,9 @@ class RectGridPlot(StructuredGridPlot):
             self.surfacePicker  = vtk.vtkPointPicker()
 
         self.levelSetFilter = vtk.vtkContourFilter()
-        
+
         if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(surface_input)
-        else:                           self.levelSetFilter.SetInputData(surface_input)        
+        else:                           self.levelSetFilter.SetInputData(surface_input)
 
 #         self.clipper.GetPlanes( self.clipPlanes )
 #         self.polyClipper = vtk.vtkClipPolyData()
@@ -841,11 +841,11 @@ class RectGridPlot(StructuredGridPlot):
             self.probeFilter.SetInputConnection( mapperInputPort )
             self.levelSetMapper.SetInputConnection( self.probeFilter.GetOutputPort() )
             self.levelSetMapper.SetScalarRange( textureRange )
-            
-        colormapManager = self.getColormapManager( 'Surface' ) 
-        self.scaleColormap( 'Surface', textureRange, 1 )                 
-#        colormapManager = self.getColormapManager()                  
-        colormapManager.setAlphaRange ( [ 1, 1 ] ) 
+
+        colormapManager = self.getColormapManager( 'Surface' )
+        self.scaleColormap( 'Surface', textureRange, 1 )
+#        colormapManager = self.getColormapManager()
+        colormapManager.setAlphaRange ( [ 1, 1 ] )
         self.levelSetMapper.SetLookupTable( colormapManager.lut )
         self.levelSetMapper.UseLookupTableScalarRangeOn()
 
@@ -1059,7 +1059,7 @@ class RectGridPlot(StructuredGridPlot):
         self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
         self.updateOpacity( 'Slice', [1.0, 1.0] )
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
-        
+
         if self.enableContourOverlays and (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
             rangeBounds = self.getRangeBounds( contour_input_index )
             colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
@@ -1149,8 +1149,8 @@ class RectGridPlot(StructuredGridPlot):
         p = aCamera.GetPosition()
         f = aCamera.GetFocalPoint()
 #        printArgs( "ResetCameraClippingRange", focal_point=f, cam_pos=p, vol_bounds=bounds )
-        self.renderer.ResetCameraClippingRange() 
-        
+        self.renderer.ResetCameraClippingRange()
+
     def toggleVolumeVisibility( self, state ):
         if (self.volume == None):
             self.buildVolumePipeline()
@@ -1166,8 +1166,8 @@ class RectGridPlot(StructuredGridPlot):
         if ( self.levelSetActor == None ):
             self.buildIsosurfacePipeline()
         if state:
-            self.levelSetActor.VisibilityOn() 
-        else: 
+            self.levelSetActor.VisibilityOn()
+        else:
             self.levelSetActor.VisibilityOff()
             self.cursorActor.VisibilityOff()
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
@@ -1440,7 +1440,7 @@ class RectGridPlot(StructuredGridPlot):
         if self.planeWidgetX <> None:
             bounds = list( primaryInput.GetBounds() )
             if not self.planeWidgetX.MatchesBounds( bounds ):
-                self.planeWidgetX.PlaceWidget( bounds )        
+                self.planeWidgetX.PlaceWidget( bounds )
                 self.planeWidgetY.PlaceWidget( bounds )
                 self.planeWidgetZ.UpdateDataBounds()
                 self.planeWidgetZ.PlaceWidget( bounds )
@@ -1616,7 +1616,7 @@ class RectGridPlot(StructuredGridPlot):
         self.debug_log( 'updateModule' )
         self.updateInteractionStyle()
         primaryInput = self.input()
-        contour_ispec = self.getInputSpec(  1 )       
+        contour_ispec = self.getInputSpec(  1 )
         contourInput = contour_ispec.input() if ( contour_ispec <> None )  else None
 
         if self.enableContourOverlays:
@@ -1821,7 +1821,7 @@ class RectGridPlot(StructuredGridPlot):
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
         if self.isConstituentConfigEnabled( constituent ):
             ispec = self.inputSpecs.get( cmap_index, None )
-            if ispec and ispec.input(): 
+            if ispec and ispec.input():
                 ctfRange = ctf_data[0:2] if ( ctf_data[1] >= ctf_data[0] ) else [ ctf_data[1], ctf_data[0] ]
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):

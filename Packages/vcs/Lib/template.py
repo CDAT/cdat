@@ -1251,11 +1251,17 @@ class P(object):
                     tt.string=meanstring
                 else :
                     tt.string=str(getattr(slab,s))
-                    kargs["donotstoredisplay"]=True
+                    kargs["donotstoredisplay"]=False
                 tt.x=[sub.x]
                 tt.y=[sub.y]
                 tt.priority=sub.priority
-                displays.append(x.text(tt,bg=bg,**kargs))
+                dp = x.text(tt,bg=bg,**kargs)
+                if dp is not None:
+                  if s != "id":
+                    dp.backend["vtk_backend_template_attribute"] = s
+                  else:
+                    dp.backend["vtk_backend_template_attribute"] = "dataname"
+                  displays.append(dp)
                 sp = tt.name.split(":::")
                 del(vcs.elements["texttable"][sp[0]])
                 del(vcs.elements["textorientation"][sp[1]])
