@@ -391,7 +391,7 @@ class StructuredGridPlot(DV3DPlot):
            
     def buildBaseMap(self):        
         self.mapManager = MapManager( roi = self.roi )
-        self.renderer.AddActor( self.mapManager.getPlaneActor() )
+        self.renderer.AddActor( self.mapManager.getPlaneMap() )
 
 #         if self.baseMapActor <> None: self.renderer.RemoveActor( self.baseMapActor )               
 #         world_map =  None  

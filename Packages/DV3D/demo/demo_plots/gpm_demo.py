@@ -5,7 +5,6 @@ import numpy as np
 import numpy.ma as ma
 eps = 0.0001
 time_units = "days since 1996-1-1"
-singleCore = False
 
 def print_attributes( grp ):
     print "\n ----> %s attributes:" % grp.name
@@ -36,32 +35,44 @@ def merge_data_arrays( threshold_var, color_var, vthresholds, n_color_vals=256 )
         indexed_color_var[ threshold_var > vthresh ] += n_color_vals
     return indexed_color_var
 
-def createTransientVariable( hfile, varnames, vthresholds ):
-    point_coord_var_names=[ "Latitude", "Longitude" ]
-    lev_axis_name='nbin'
-    time_axis_name=None
-    slice = None
-    tcgrid = None
-    transient_axes = None
-    caxes = None
-    fillval = None
-    file_mdata = None
-    dtype = None
-    masked_vars = []
-    for varname in varnames:
-        var = hfile[ varname ]
-        dtype = var.dtype
+def createTransientVariable( hfile, phase_var_name, data_var_name, phase_range=None, value_threshold = None ):
+        point_coord_var_names=[ "Latitude", "Longitude" ]
+        lev_axis_name='nbin'
+        time_axis_name=None
+        slice = None
+        tcgrid = None
+        caxes = None
+        file_mdata = None
         point_coord_axes = collections.OrderedDict()
-        fillval = float(var.attrs['CodeMissingValue'])
-        var_shape = list(var.shape)
-        data_array = np.zeros(var.shape, var.dtype )
-        var.read_direct(data_array)
+
+        phase_var = hfile[ phase_var_name ]
+        phase_fillval = int( phase_var.attrs['CodeMissingValue'] )
+        phase_array = np.zeros(phase_var.shape, phase_var.dtype )
+        phase_var.read_direct(phase_array)
+        phase_array = ma.masked_equal( phase_array, phase_fillval )
+
+        data_var = hfile[ data_var_name ]
+        fillval = float(data_var.attrs['CodeMissingValue'])
+        data_array = np.zeros(data_var.shape, data_var.dtype )
+        data_var.read_direct(data_array)
         data_array = ma.masked_inside( data_array, fillval - eps, fillval + eps )
-        toks = varname.split('/')
+
+        if value_threshold is not None:
+            data_array = ma.masked_less( data_array, (value_threshold + eps)  )
+            phase_array.mask = data_array.mask
+
+        if phase_range is not None:
+            phase_array = ma.masked_outside( phase_array, phase_range[0], phase_range[1]  )
+            data_array.mask = phase_array.mask
+
+        print "Phase value range: ", str( [ phase_array.min(), phase_array.max() ])
+
+        toks = data_var_name.split('/')
         groups = toks[0:-1]
         varname = toks[-1]
 
         if tcgrid == None:
+            var_shape = list(data_var.shape)
             subgrp = hfile
             group_path = [ hfile ]
             for group in groups:
@@ -73,7 +84,7 @@ def createTransientVariable( hfile, varnames, vthresholds ):
             file_mdata = getFileMetadata( hfile.attrs )
             timestamp = file_mdata.get( 'StartGranuleDateTime', None )
 
-            dim_names = var.attrs['DimensionNames'].split(',')
+            dim_names = data_var.attrs['DimensionNames'].split(',')
 
             coord_axes_rec = collections.OrderedDict()
             for idim, dim_id in enumerate( dim_names ):
@@ -121,26 +132,36 @@ def createTransientVariable( hfile, varnames, vthresholds ):
                     caxes.insert( 0, caxis )
                     var_shape.insert(0, 1 )
 
-        if slice is not None:
-            data_array = data_array[:,:,slice]
-        else:
-            if list(var.shape) <> var_shape:
-                data_array = data_array.reshape( var_shape )
+            if slice is not None:
+                data_array = data_array[:,:,slice]
+                phase_array = data_array[:,:,slice]
+            else:
+                if list(data_var.shape) <> var_shape:
+                    data_array = data_array.reshape( var_shape )
+                    phase_array = phase_array.reshape( var_shape )
 
-        masked_vars.append( data_array )
+#        merged_data_array = merge_data_arrays( phase_array, data_array, phase_thresholds )
+#        merged_fillval = -1
+#        v = cdms2.createVariable( ma.filled( merged_data_array, merged_fillval ), merged_data_array.dtype, 0, 0, merged_data_array.mask, merged_fillval, tcgrid, caxes, file_mdata, varname, 0 )
 
-    merged_data_array = merge_data_arrays( data_array[0], data_array[1], vthresholds )
+#        merged_fillval = -1
+#        v = cdms2.createVariable( ma.filled( data_array, merged_fillval ), data_array.dtype, 0, 0, data_array.mask, merged_fillval, tcgrid, caxes, file_mdata, varname, 0 )
 
-    v = cdms2.createVariable( merged_data_array, dtype, 0, 0, merged_data_array.mask, fillval, tcgrid, caxes, file_mdata, varname, 0 )
-    return v
+        merged_fillval = 0
+        v = cdms2.createVariable( ma.filled( phase_array, merged_fillval ), phase_array.dtype, 0, 0, phase_array.mask, merged_fillval, tcgrid, caxes, file_mdata, varname, 0 )
+
+        return v
 
 if __name__ == "__main__":
     data_file="/Users/tpmaxwel/Dropbox/Data/GPM/2A.GPM.Ku.V520140829.20150201-S011128-E014127.V03B.RT-H5"
-    varnames = [ "/NS/DSD/phase", "/NS/SLV/precipRate" ]
-#    varnames = [ "/NS/SLV/precipRate" ]
+    phase_varname =  "/NS/DSD/phase"
+    data_varname = "/NS/SLV/precipRate"
+    singleCore = True
+
 
     hfile = h5py.File( data_file, 'r' )
-    v = createTransientVariable( hfile, varnames, [ 120.0 ] )
+    vthresh = 0.0
+    v = createTransientVariable( hfile, phase_varname, data_varname, [ 0, 254 ], vthresh )
     hfile.close()
 
     x=vcs.init()
@@ -148,11 +169,12 @@ if __name__ == "__main__":
     dv3d.VerticalScaling = 0.05
     dv3d.ToggleVolumePlot = vcs.on
     dv3d.ToggleSphericalProj = vcs.off
-    vthresh = 0  # [0,255] if plotType == 'phase' else 0
+    vmax = v.max()
 
     if singleCore:
         dv3d.NumCores = 1
-        x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=vthresh, level_range=[76,176] )
+        phase_vthresh = 1
+        x.plot( v, dv3d, maxNumSerialPoints=50000000, vthresh=phase_vthresh, level_range=[76,176] )
     else:
         x.plot( v, dv3d, vthresh=vthresh, level_range=[76,176] )
 

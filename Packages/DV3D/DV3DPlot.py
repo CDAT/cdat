@@ -1222,6 +1222,7 @@ class DV3DPlot():
         name = args.get('name',None)
         invert = args.get('invert',None)
         smooth = args.get('smooth',None)
+        multi_cmap_spec = args.get('multi_cmap_spec',None)
         cmap_name = '-'.join( [ constituent, str(cmap_index) ] )
         cmap_mgr = self.colormapManagers.get( cmap_name, None )
         if cmap_mgr == None:
@@ -1231,18 +1232,21 @@ class DV3DPlot():
         if (invert <> None): cmap_mgr.invertColormap = invert
         if (smooth <> None): cmap_mgr.smoothColormap = smooth
         if name:             cmap_mgr.load_lut( name )
+        if multi_cmap_spec:  cmap_mgr.load_multi_lut( multi_cmap_spec )
         return cmap_mgr
         
     def setColormap( self, constituent, data, **args ):
-        try:
-            colormapName = str(data[0])
-            invertColormap = getBool( data[1] ) 
+#        try:
             cmap_index = args.get( 'index', 0 )
             metadata = self.getMetadata()
             var_name = metadata.get( 'var_name', '')
             var_units = metadata.get( 'var_units', '')
-    #        self.updateStereo( enableStereo )
-            colormapManager = self.getColormapManager( constituent, name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
+            if isinstance( data[0], (list, tuple) ):
+                colormapManager = self.getColormapManager( constituent, multi_cmap_spec=data, index=cmap_index, units=var_units )
+            else:
+                colormapName = str(data[0])
+                invertColormap = getBool( data[1] )
+                colormapManager = self.getColormapManager( constituent, name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
             if( colormapManager.colorBarActor == None ): 
                 cm_title = str.replace( "%s (%s)" % ( var_name, var_units ), " ", "\n" )
                 cmap_pos = [ 0.9, 0.2 ] if (cmap_index==0) else [ 0.02, 0.2 ]
@@ -1251,9 +1255,9 @@ class DV3DPlot():
             self.updatingColormap( cmap_index, colormapManager )
             self.render()
             return True
-        except Exception, err:
-            print>>sys.stderr, "Error setting colormap: ", str(err)
-        return False 
+#        except Exception, err:
+#            print>>sys.stderr, "Error setting colormap: ", str(err)
+#        return False
     
     def getUnits(self, var_index ):
         return ""

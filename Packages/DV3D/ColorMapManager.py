@@ -246,6 +246,12 @@ class ColorMapManager():
         self.lut.GetColor( dval, color )  
         return color           
 
+    def load_multi_lut(self, spec, ncolors=256, **args ):
+        self.create_multi_phase_lut( spec, ncolors, **args )
+        self.display_lut.SetTable( self.lut.GetTable() )
+        self.display_lut.SetValueRange( self.lut.GetValueRange() )
+        self.display_lut.Modified()
+
     def load_lut(self, value=None):
         if( value <> None ): self.colormapName = str( value )       
         if self.colormapName == 'file':
@@ -278,7 +284,7 @@ class ColorMapManager():
             return None         
         return lut
 
-    def load_multi_phase_lut(self, colormap_list, n_color_vals, n_opacity_vals, **args ):
+    def load_multi_phase_and_opacity_lut(self, colormap_list, n_color_vals, n_opacity_vals, **args ):
         print_log = args.get( 'log', False )
         mp_lut = vtk.vtkLookupTable()
         mp_lut.SetNumberOfColors( len( colormap_list ) *  n_color_vals * n_opacity_vals )
@@ -298,6 +304,30 @@ class ColorMapManager():
                     mp_index = mp_index + 1
                 if print_log: print " ----- "
         return mp_lut
+
+    def create_multi_phase_lut(self, colormap_list, n_color_vals, **args ):
+        print_log = args.get( 'log', False )
+        if self.lut == None: self.lut = vtk.vtkLookupTable()
+        num_entries = len( colormap_list ) *  n_color_vals
+        self.lut.SetNumberOfColors( num_entries )
+        self.lut.Build()
+        mp_index = 0
+        if print_log: print "Colormaps: ", colormaps.keys()
+        self.alphaManager.setNumberOfColors( n_color_vals )
+        for ( colormapName, reverse ) in colormap_list:
+            lut = colormaps[ colormapName ]
+            if reverse: lut = lut[::-1, :]
+            colorStep = len(lut) / float( n_color_vals - 1 )
+            for iColor in range( n_color_vals ):
+                alpha = self.alphaManager.getAlphaValue( iColor )
+                cmap_index = min( int( iColor * colorStep ), len(lut)-1 )
+                cval = lut[ cmap_index ]
+                self.lut.SetTableValue( mp_index, cval[0], cval[1], cval[2], alpha )
+                if print_log: print " SetTableValue[%d]: %s" % ( mp_index, str([cval[0], cval[1], cval[2], alpha]) )
+                mp_index = mp_index + 1
+            if print_log: print " ----- "
+        self.lut.SetTableRange( 0, num_entries )
+        self.lut.Modified()
 
 if __name__ == '__main__':
     cm = ColorMapManager(None)

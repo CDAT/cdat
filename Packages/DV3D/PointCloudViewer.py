@@ -320,9 +320,9 @@ class CPCPlot( DV3DPlot ):
         self.sphere_actor.GetProperty().SetColor(color)
 
     def createSphere(self, center=(0,0,0), radius=0.1 ):
-        tres = self.sphere_source.GetThetaResolution()
-        pres = self.sphere_source.GetPhiResolution()
-        print "\n\n ****************************************>  Sphere res: ", str( [ tres, pres ] )
+#        tres = self.sphere_source.GetThetaResolution()
+#        pres = self.sphere_source.GetPhiResolution()
+#        print "\n\n ****************************************>  Sphere res: ", str( [ tres, pres ] )
         self.sphere_source = vtk.vtkSphereSource()
         self.sphere_source.SetCenter(center)
         self.sphere_source.SetRadius(radius)        
