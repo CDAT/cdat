@@ -1,6 +1,7 @@
 # Disabling GUI tests as they don't work
 #add_subdirectory(uvcdat)
 
+# Helper macro that sets the environment correctly
 macro (cdat_add_test name python_exe script)
   #string (REPLACE ";" " " TEST_ARGS "${ARGN}")
   add_test (${name} "${python_exe}" ${script} ${ARGN})
