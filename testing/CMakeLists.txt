@@ -1,6 +1,20 @@
 # Disabling GUI tests as they don't work
 #add_subdirectory(uvcdat)
 
+macro (cdat_add_test name python_exe script)
+  #string (REPLACE ";" " " TEST_ARGS "${ARGN}")
+  add_test (${name} "${python_exe}" ${script} ${ARGN})
+  if(DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
+    set_tests_properties (${name}
+      PROPERTIES ENVIRONMENT "UVCDAT_ANONYMOUS_LOG=$ENV{UVCDAT_ANONYMOUS_LOG}"
+    )
+  else()
+    set_tests_properties (${name}
+      PROPERTIES ENVIRONMENT "UVCDAT_ANONYMOUS_LOG=no"
+    )
+  endif()
+endmacro()
+
 add_subdirectory(regrid)
 if (CDAT_BUILD_VCS_LEGACY)
   add_subdirectory(vcs_legacy)
