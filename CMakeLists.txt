@@ -38,16 +38,16 @@ set(CMAKE_MODULE_PATH
 )
 
 if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
-  if (($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "True") OR
-      ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "False"))
+  if (($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "yes") OR
+      ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "no"))
     message("[INFO] Using UVCDAT_ANONYMOUS_LOG found in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
   else()
     message("[INFO] Found UVCDAT_ANONYMOUS_LOG in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
     message("[INFO] Valid values are 'True' or 'False' resetting to: 'True'")
-    set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
+    set(ENV{UVCDAT_ANONYMOUS_LOG} "yes")
   endif()
 else()
-  set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
+  set(ENV{UVCDAT_ANONYMOUS_LOG} "no")
 endif()
 
 # Disable in source build of any kind.
