@@ -169,6 +169,37 @@ class Configurator(object):
 
         self.creating = False
         self.click_locations = None
+        try:
+            from PyQt4 import QtGui
+            self.__qt_app = QtGui.QApplication([])
+        except ImportError:
+            self.__qt_app = None
+
+    def get_save_path(self, default_name='', dialog_name="Save File"):
+        import os.path
+        user_home = os.path.expanduser("~")
+        if self.__qt_app is not None:
+            from PyQt4 import QtGui
+
+            start_path = os.path.join(user_home, default_name)
+            path = str(QtGui.QFileDialog.getSaveFileName(None, dialog_name, start_path))
+        else:
+            output_dir = os.path.join(user_home, ".uvcdat", "output")
+            if os.path.exists(output_dir) == False:
+                os.mkdir(output_dir)
+            # We'll just use .uvcdat– this is a headless install
+            path = os.path.join(output_dir, default_name)
+
+            p_index = 0
+            directory, filename = os.path.split(path)
+            filename, extension = os.path.splitext(filename)
+            while os.path.exists(path):
+                path = os.path.join(directory, filename + "_" + p_index + extension)
+                p_index += 1
+            print "Saving to " + path
+
+        return path
+
 
     def shift(self):
         return self.interactor.GetShiftKey() == 1
