@@ -93,3 +93,7 @@ class DV3DApp:
     def showWidgets(self):
         self.plot.showWidgets()
 
+if __name__ == '__main__':
+
+     from DistributedPointCollections import kill_all_zombies
+     kill_all_zombies()

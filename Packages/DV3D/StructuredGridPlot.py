@@ -83,6 +83,8 @@ class StructuredGridPlot(DV3DPlot):
             self.zscaleBoxWidget = vtk.vtkBoxWidget()
             self.zscaleBoxWidget.SetInteractor( self.renderWindowInteractor )
             self.zscaleBoxWidget.SetPlaceFactor(1.0)
+            self.zscaleBoxWidget.SetRotationEnabled(0)
+            self.zscaleBoxWidget.SetScalingEnabled(0)
             self.zscaleBoxWidget.HandlesOff()
             oprop = self.zscaleBoxWidget.GetOutlineProperty()
             oprop.SetColor( 0.0, 0.0, 0.0 )

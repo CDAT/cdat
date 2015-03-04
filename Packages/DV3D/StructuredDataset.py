@@ -756,7 +756,8 @@ class CDMSDataset:
         try:
             rv = transVar( **args1 )
         except Exception, err:
-            print>>sys.stderr, "Error Reading Variable", str(err)
+            print>>sys.stderr, "Error Reading Variable, args = ", str(args1)
+            traceback.print_exc()
             return CDMSDataset.NullVariable
 
         memoryLogger.log("Create Mask")
