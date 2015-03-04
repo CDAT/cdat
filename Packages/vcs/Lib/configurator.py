@@ -546,12 +546,10 @@ class Configurator(object):
             self.initialized = True
 
     def step_forward(self, state):
-        if self.canvas.animate.frame_num < self.canvas.animate.number_of_frames() - 1:
-            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
 
     def step_back(self, state):
-        if self.canvas.animate.frame_num > 0:
-            self.canvas.animate.draw_frame(self.canvas.animate.frame_num - 1)
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames())
 
     def save_animation(self, state):
         self.interactor.TerminateApp()
