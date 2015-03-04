@@ -468,7 +468,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
-      self.configurator.show()
+      if self.configurator is not None:
+        self.configurator.show()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
@@ -3730,8 +3731,12 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
-          if self.backend.bg == False:
+          if result.g_type in ("3d_scalar", "3d_vector") and self.configurator is not None:
+            self.configurator.detach()
+            self.configurator = None
+          if self.backend.bg == False and self.configurator is not None:
             self.configurator.update(self.display_names)
+
         # Commented out as agreed we shouldn't use warnings in these contexts.
         #if not hasattr(__main__,"__file__") and not bg:
         #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
