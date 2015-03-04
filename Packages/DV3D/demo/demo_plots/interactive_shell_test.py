@@ -32,4 +32,3 @@ print 'Typing "q" in the 2D canvas will go back to the interpreter => GOOD! :)\n
 x.interact()
 
 # The end
-
