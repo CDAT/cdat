@@ -173,7 +173,7 @@ class Configurator(object):
     def shift(self):
         return self.interactor.GetShiftKey() == 1
 
-    def update(self, displays):
+    def update(self):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
@@ -188,7 +188,47 @@ class Configurator(object):
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
 
         for display in self.displays:
-            if display.template in self.templates:
+
+            if display._template_origin in self.templates:
+                # Adjust data coords if display.ratio is not none
+                if display.ratio is not None:
+                    t = vcs.gettemplate(display.template)
+                    orig = vcs.gettemplate(self.templates[display._template_origin])
+                    t.data._ratio  = -999.
+                    t.data._x1     = orig.data._x1
+                    t.data._x2     = orig.data._x2
+                    t.data._y1     = orig.data._y1
+                    t.data._y2     = orig.data._y2
+                    t.box1._x1     = orig.box1._x1
+                    t.box1._x2     = orig.box1._x2
+                    t.box1._y1     = orig.box1._y1
+                    t.box1._y2     = orig.box1._y2
+                    t.xlabel1._y   = orig.xlabel1._y
+                    t.xlabel2._y   = orig.xlabel2._y
+                    t.xtic2._y1    = orig.xtic2._y1
+                    t.ylabel1._x   = orig.ylabel1._x
+                    t.ytic1._x1    = orig.ytic1._x1
+                    t.ylabel2._x   = orig.ylabel2._x
+                    t.ytic2._x1    = orig.ytic2._x1
+                    t.xtic1._y2    = orig.xtic1._y2
+                    t.xtic1._y1    = orig.xtic1._y1
+                    t.data._y1     = orig.data._y1
+                    t.xtic1.y1     = orig.xtic1.y1
+                    t.xtic2._y2    = orig.xtic2._y2
+                    t.data._y2     = orig.data._y2
+                    t.xtic2.y1     = orig.xtic2.y1
+                    t.xmintic1._y2 = orig.xmintic1._y2
+                    t.xmintic1._y1 = orig.xmintic1._y1
+                    t.xmintic2._y2 = orig.xmintic2._y2
+                    t.xmintic2._y1 = orig.xmintic2._y1
+                    t.ytic1._x2    = orig.ytic1._x2
+                    t.data._x1     = orig.data._x1
+                    t.ytic2._x2    = orig.ytic2._x2
+                    t.data._x2     = orig.data._x2
+                    t.ymintic1._x2 = orig.ymintic1._x2
+                    t.ymintic1._x1 = orig.ymintic1._x1
+                    t.ymintic2._x2 = orig.ymintic2._x2
+                    t.ymintic2._x1 = orig.ymintic2._x1
                 # It already has a template we created
                 continue
             # Manufacture a placeholder template to use for updates
@@ -418,7 +458,6 @@ class Configurator(object):
 
     def init_toolbar(self):
         self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)
-
         # Canvas background color
         color_toolbar = self.toolbar.add_toolbar("Background Color")
         red, green, blue = self.canvas.backgroundcolor

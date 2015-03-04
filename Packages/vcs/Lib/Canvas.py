@@ -3735,7 +3735,7 @@ Options:::
             self.configurator.detach()
             self.configurator = None
           if self.backend.bg == False and self.configurator is not None:
-            self.configurator.update(self.display_names)
+            self.configurator.update()
 
         # Commented out as agreed we shouldn't use warnings in these contexts.
         #if not hasattr(__main__,"__file__") and not bg:
