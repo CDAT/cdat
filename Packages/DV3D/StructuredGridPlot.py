@@ -396,11 +396,11 @@ class StructuredGridPlot(DV3DPlot):
         self.mapManager = MapManager( roi = self.roi )
         self.renderer.AddActor( self.mapManager.getBaseMapActor() )
 
-#         if self.baseMapActor <> None: self.renderer.RemoveActor( self.baseMapActor )
-#         world_map =  None
-#         map_border_size = 20
-#
-#         self.y0 = -90.0
+#         if self.baseMapActor <> None: self.renderer.RemoveActor( self.baseMapActor )               
+#         world_map =  None  
+#         map_border_size = 20 
+#             
+#         self.y0 = -90.0  
 #         self.x0 =  0.0
 #         dataPosition = None
 #         if world_map == None:
