@@ -82,7 +82,7 @@ vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-samp
                                  'BasemapOpacity': [0.5],
                                  'XSlider': ( vcs.off ),
                                  'ZSlider': ( vcs.off ),
-                                 'YSlider': ( vcs.off ), 
+                                 'YSlider': ( vcs.off ),
                                  }  )       
 
 # vcsTest( 'dv3d_constituents_test', file="geos5-sample.nc", vars = [ 'uwnd' ], type="3d_scalar", template="default",

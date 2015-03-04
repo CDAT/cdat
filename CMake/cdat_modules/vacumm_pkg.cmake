@@ -1,0 +1,18 @@
+set( VACUMM_MAJOR 2 )
+set( VACUMM_MINOR 5 )
+set( VACUMM_PATCH 1-svn1807 )
+set( VACUMM_VERSION ${VACUMM_MAJOR}.${VACUMM_MINOR}.${VACUMM_PATCH} )
+set( VACUMM_URL ${LLNL_URL} )
+set( VACUMM_GZ vacumm-${VACUMM_VERSION}.tar.gz )
+set( VACUMM_MD5 9da3f6c29a86e29c0e6e3799fd9ef378 )
+
+set (nm VACUMM)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+set(VACUMM_SOURCE ${VACUMM_URL}/${VACUMM_GZ})
+
+if (CDAT_BUILD_ALL)
+  add_cdat_package(vacumm "" "" ON)
+else()
+  add_cdat_package(vacumm "" "" OFF)
+endif()
