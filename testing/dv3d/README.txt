@@ -16,6 +16,3 @@ Instructions for generating and running ctests.
    the corresponding reference image to determine if the ctest passes or fails.
 9. To push the new ctest to the uvcdat repo, the command 'git push origin HEAD' must be executed in the 'source' and
    'build/uvcdat-testdata' directories.
-
-
-
