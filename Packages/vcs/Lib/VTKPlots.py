@@ -50,6 +50,7 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+    self.interacting = False
 
     if renWin is not None:
       self.renWin = renWin
@@ -84,7 +85,18 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
+      self.interacting = True
       interactor.Start()
+
+  def endInteraction(self):
+      if self.renWin is None:
+          warnings.warn("Cannot stop interaction if you did not open the canvas yet.")
+          return
+      if self.interacting == False:
+          warnings.warn("Cannot stop interaction if it hasn't begun yet.")
+          return
+      self.renWin.GetInteractor().TerminateApp()
+      self.interacting = False
 
   def endEvent(self,obj,event):
     if self.renWin is not None:
@@ -245,6 +257,7 @@ class VTKVCSBackend(object):
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     hasValidRenderer = True if ren is not None else False
+    self.hideGUI()
     while ren is not None:
         if not ren in self.plotRenderers:
             ren.RemoveAllViewProps()
@@ -255,6 +268,7 @@ class VTKVCSBackend(object):
               r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
               ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
+    self.showGUI()
     if hasValidRenderer and self.renWin.IsDrawable():
         self.renWin.Render()
     self.numberOfPlotCalls = 0
@@ -1419,6 +1433,9 @@ class VTKVCSBackend(object):
         self.renWin.RemoveRenderer(manager.renderer)
 
   def showGUI(self):
+    if self.interacting == False:
+        return
+
     plot = self.get3DPlot()
 
     if plot: plot.showWidgets()
@@ -1434,6 +1451,8 @@ class VTKVCSBackend(object):
         manager.renderer.SetLayer(layer - 1)
         # Re-add the UI layer
         self.renWin.AddRenderer(manager.renderer)
+
+
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
@@ -1521,8 +1540,7 @@ class VTKVCSBackend(object):
         except:
           pass
 
-        plot = self.get3DPlot()
-        if plot: plot.hideWidgets()
+
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
@@ -1540,7 +1558,6 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
-        if plot: plot.showWidgets()
 
         self.showGUI()
 

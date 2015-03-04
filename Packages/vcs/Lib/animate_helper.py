@@ -997,7 +997,7 @@ class AnimationController(animate_obj_old):
     self.create_canvas.png(fn,draw_white_background=1)
     return displays
 
-  def draw_frame(self):
+  def draw_frame(self, frame_num = None):
     if frame_num is not None:
       self.frame_num = frame_num
     self.vcs_self.backend.clear()
@@ -1012,16 +1012,10 @@ class AnimationController(animate_obj_old):
   def save(self,movie,bitrate=1024, rate=None, options=''):
     """Save animation to a file"""
     if self.created():
-        started = False
         while len(self.animation_files)!=self.number_of_frames():
-            print len(self.animation_files),self.number_of_frames()
-            if not self.playback_running:
-                # if not runnnig getting it going so we can use the pngs
-                self.run()
-                started = True
-        if started:
-            # ok we can stop it nw
-            self.stop()
+            self.draw_frame()
+            self.frame_num = (self.frame_num + 1) % self.number_of_frames()
+
         if rate is None:
             rate = self.playback_params.fps()
         files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
