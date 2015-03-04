@@ -1,96 +1,96 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
-add_test(vcs_verify_import
+cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
-add_test(vcs_line_duplicate_points_fix
+cdat_add_test(vcs_line_duplicate_points_fix
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_line_point_extension.py
 )
-add_test(vcs_mkscale_zero_range
+cdat_add_test(vcs_mkscale_zero_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_zero_range.py
 )
-add_test(vcs_verify_create_get
+cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
 )
-add_test(vcs_test_antialiasing
+cdat_add_test(vcs_test_antialiasing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
 )
-add_test(vcs_verify_init
+cdat_add_test(vcs_verify_init
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
 )
-add_test(vcs_mkscale_great_range
+cdat_add_test(vcs_mkscale_great_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
 )
-add_test(vcs_verify_boxfill_basics
+cdat_add_test(vcs_verify_boxfill_basics
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_basics_no_plot.py
 )
-add_test(vcs_verify_proj_basics
+cdat_add_test(vcs_verify_proj_basics
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_projection_basics_no_plot.py
 )
-add_test(vcs_verify_fillarea_basics
+cdat_add_test(vcs_verify_fillarea_basics
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_basics_no_plot.py
 )
 
-add_test(vcs_test_clear_empy_canvas
+cdat_add_test(vcs_test_clear_empy_canvas
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_clear_empty_canvas.py
   )
-add_test(vcs_test_interact_no_open
+cdat_add_test(vcs_test_interact_no_open
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_open.py
   )
-add_test(vcs_test_interact_no_plot
+cdat_add_test(vcs_test_interact_no_plot
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_interact_no_plot.py
   )
 
-add_test(vcs_test_colorcells
+cdat_add_test(vcs_test_colorcells
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_colorcells.py
   )
 
-add_test(vcs_test_template_associated
+cdat_add_test(vcs_test_template_associated
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_template_saves_associated_to_tt.py
   ${cdat_SOURCE_DIR}/testing/vcs/template_test_associated_dump.json
   )
-add_test(vcs_test_load_json
+cdat_add_test(vcs_test_load_json
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_load_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/test_json.json
   )
 
-add_test(vcs_test_read_yx_scr
+cdat_add_test(vcs_test_read_yx_scr
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_readyx_scr.py
   ${cdat_SOURCE_DIR}/testing/vcs/read_yxvsx.scr
   )
-add_test(vcs_test_queries
+cdat_add_test(vcs_test_queries
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_queries.py
   )
-add_test(vcs_test_dump_taylordiagram
+cdat_add_test(vcs_test_dump_taylordiagram
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_save_td_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_py.py.good
   )
-add_test(vcs_test_reload_taylor_from_json
+cdat_add_test(vcs_test_reload_taylor_from_json
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_reload_taylor_from_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_save_td_to_json.json.good
   )
-add_test(vcs_test_dump_json
+cdat_add_test(vcs_test_dump_json
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_dump_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
@@ -98,7 +98,7 @@ add_test(vcs_test_dump_json
 
 # Some vector plot testing
 FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
-  add_test(vcs_test_vectors_angle_${angle}
+  cdat_add_test(vcs_test_vectors_angle_${angle}
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
     --angle=${angle}
@@ -106,7 +106,7 @@ FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
     )
 ENDFOREACH(angle)
 FOREACH(scale 0.5 2)
-  add_test(vcs_test_vectors_scaling_${scale}
+  cdat_add_test(vcs_test_vectors_scaling_${scale}
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
     --scale=${scale}
@@ -114,7 +114,7 @@ FOREACH(scale 0.5 2)
     "--source=${BASELINE_DIR}/test_vcs_basic_vectors_45_${scale}.png"
     )
 ENDFOREACH(scale)
-add_test(vcs_test_vectors_amplitude
+cdat_add_test(vcs_test_vectors_amplitude
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
   --scale=2
@@ -122,124 +122,124 @@ add_test(vcs_test_vectors_amplitude
   --amplitude
   "--source=${BASELINE_DIR}/test_vcs_basic_vectors_45_2_amplitude.png"
   )
-add_test(vcs_test_vectors_missing
+cdat_add_test(vcs_test_vectors_missing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
-add_test(vcs_test_draw_logo_on
+cdat_add_test(vcs_test_draw_logo_on
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
   ${BASELINE_DIR}/test_vcs_draw_logo_on.png
   )
-add_test(vcs_test_monotonic_decreasing_yxvsx_default
+cdat_add_test(vcs_test_monotonic_decreasing_yxvsx_default
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_monotonic_decreasing_yxvsx_default.py
   ${BASELINE_DIR}/test_vcs_monotonic_decreasing_yxvsx_default.png
   )
-add_test(vcs_test_taylor_template_ctl
+cdat_add_test(vcs_test_taylor_template_ctl
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_taylor_template_ctl.py
   ${BASELINE_DIR}/test_vcs_taylor_template_ctl.png
   )
-add_test(vcs_test_taylor_2_quads
+cdat_add_test(vcs_test_taylor_2_quads
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_taylor_2quads.py
   ${BASELINE_DIR}/test_vcs_taylor_2quads.png
   )
 
 #These test actually plot things need sample data
-  add_test(vcs_test_gen_meshfill
+  cdat_add_test(vcs_test_gen_meshfill
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
     "${BASELINE_DIR}/test_vcs_gen_meshfill.png"
     )
-  add_test(vcs_setcolormap
+  cdat_add_test(vcs_setcolormap
     "${PYTHON_EXECUTABLE}"
     "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.py"
     "${BASELINE_DIR}/test_vcs_setcolormap.png"
     )
-  add_test(vcs_test_1d_in_boxfill
+  cdat_add_test(vcs_test_1d_in_boxfill
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.py
     "${BASELINE_DIR}/test_1d_in_boxfill.png"
     )
-  add_test(vcs_test_1d_missing
+  cdat_add_test(vcs_test_1d_missing
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_missing.py
     "${BASELINE_DIR}/test_vcs_1d_missing.png"
     )
-  add_test(vcs_test_infinity
+  cdat_add_test(vcs_test_infinity
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_infinity.py
     "${BASELINE_DIR}/infinity.png"
     )
-  add_test(test_vcs_1D_datawc
+  cdat_add_test(test_vcs_1D_datawc
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc.py
     "${BASELINE_DIR}/test_vcs_1D_datawc.png"
     )
-  add_test(test_vcs_1D_datawc_missing
+  cdat_add_test(test_vcs_1D_datawc_missing
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.py
     "${BASELINE_DIR}/test_vcs_1D_datawc_missing.png"
     )
-  add_test(vcs_test_wmo_marker
+  cdat_add_test(vcs_test_wmo_marker
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_w07_marker.py
     "${BASELINE_DIR}/wmo_marker.png"
     )
-  add_test(vcs_test_wmo_markers
+  cdat_add_test(vcs_test_wmo_markers
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_markers.py
     "${BASELINE_DIR}/wmo_markers.png"
     )
-  add_test(vcs_test_iso_celine_part1
+  cdat_add_test(vcs_test_iso_celine_part1
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug.py
     "${BASELINE_DIR}/test_celine_iso.png"
     )
-  add_test(vcs_test_iso_celine_part2
+  cdat_add_test(vcs_test_iso_celine_part2
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug_part2.py
     "${BASELINE_DIR}/test_celine_iso_2.png"
     )
-  add_test(vcs_test_markers
+  cdat_add_test(vcs_test_markers
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.py
     "${BASELINE_DIR}/test_markers.png"
     )
-  add_test(vcs_test_star_triangle_markers
+  cdat_add_test(vcs_test_star_triangle_markers
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_star_triangle_markers.py
     "${BASELINE_DIR}/test_star_triangle_markers.png"
     )
-  add_test(vcs_test_canvas_background
+  cdat_add_test(vcs_test_canvas_background
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background.py
     "${BASELINE_DIR}/test_canvas_background.png"
     )
-  add_test(vcs_test_canvas_background_update
+  cdat_add_test(vcs_test_canvas_background_update
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background_update.py
     "${BASELINE_DIR}/test_canvas_background_update.png"
     )
-  add_test(vcs_test_boxfill_10x10_numpy
+  cdat_add_test(vcs_test_boxfill_10x10_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
     "${BASELINE_DIR}/test_vcs_boxfill_10x10_numpy.png"
     )
-  add_test(vcs_test_boxfill_10x10_masked_numpy
+  cdat_add_test(vcs_test_boxfill_10x10_masked_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_masked_numpy.py
     "${BASELINE_DIR}/test_vcs_boxfill_10x10_masked_numpy.png"
     )
-  add_test(vcs_test_1D_with_manyDs
+  cdat_add_test(vcs_test_1D_with_manyDs
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.py
     "${BASELINE_DIR}/test_1D_with_manyDs.png"
     )
-  add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
+  cdat_add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
     ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
@@ -248,29 +248,29 @@ add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
-    add_test(vcs_test_bad_time_units
+    cdat_add_test(vcs_test_bad_time_units
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
       )
-    add_test(vcs_test_plot_file_varible
+    cdat_add_test(vcs_test_plot_file_varible
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
       )
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
-      add_test(vcs_test_basic_${gm}_zero
+      cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
         --zero
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_zero.png"
         )
-      add_test(vcs_test_basic_${gm}
+      cdat_add_test(vcs_test_basic_${gm}
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}.png"
         )
-      add_test(vcs_test_basic_${gm}_masked
+      cdat_add_test(vcs_test_basic_${gm}_masked
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -278,13 +278,13 @@ add_test(vcs_test_taylor_2_quads
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
         )
     ENDFOREACH(gm)
-    add_test(vcs_test_show
+    cdat_add_test(vcs_test_show
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
       )
     FOREACH(gm boxfill isofill isoline vector meshfill )
      FOREACH(ptype 0 -3 aeqd)
-      add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
+      cdat_add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -292,7 +292,7 @@ add_test(vcs_test_taylor_2_quads
         --projection=${ptype}
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked_${ptype}_proj.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -301,7 +301,7 @@ add_test(vcs_test_taylor_2_quads
         --lat2=0
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -312,7 +312,7 @@ add_test(vcs_test_taylor_2_quads
         --lon2=180
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -323,7 +323,7 @@ add_test(vcs_test_taylor_2_quads
         --lon2=360
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_NH
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -332,7 +332,7 @@ add_test(vcs_test_taylor_2_quads
         --lat2=0
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_gm
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_gm
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -342,7 +342,7 @@ add_test(vcs_test_taylor_2_quads
         --range_via_gm
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180_gm
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180_gm
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -354,7 +354,7 @@ add_test(vcs_test_taylor_2_quads
         --range_via_gm
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360_gm
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360_gm
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -366,7 +366,7 @@ add_test(vcs_test_taylor_2_quads
         --range_via_gm
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -376,7 +376,7 @@ add_test(vcs_test_taylor_2_quads
         --range_via_gm
         "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png"
         )
-      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm_flip
+      cdat_add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm_flip
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -389,100 +389,100 @@ add_test(vcs_test_taylor_2_quads
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
-    add_test(vcs_test_isoline_numpy
+    cdat_add_test(vcs_test_isoline_numpy
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
       ${BASELINE_DIR}/test_vcs_isoline_numpy.png
       )
-    add_test(vcs_test_meshfill_draw_mesh
+    cdat_add_test(vcs_test_meshfill_draw_mesh
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
-    add_test(vcs_test_isoline_labels_multi_label_input_types
+    cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
       "${PYTHON_EXECUTABLE}"
       "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
       "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
       )
-    add_test(vcs_test_isoline_labels
+    cdat_add_test(vcs_test_isoline_labels
       "${PYTHON_EXECUTABLE}"
       "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
       "${BASELINE_DIR}/test_isoline_labels.png"
       )
-    add_test(vcs_test_oned_level_axis
+    cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
       )
-    add_test(vcs_test_${gm}_patterns
+    cdat_add_test(vcs_test_${gm}_patterns
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
       "${BASELINE_DIR}/test_vcs_patterns.png"
       )
-    add_test(vcs_test_first_png_blank
+    cdat_add_test(vcs_test_first_png_blank
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
       "${BASELINE_DIR}/first_png_blank.png"
       )
-    #    add_test(vcs_test_aspect_ratio
+    #    cdat_add_test(vcs_test_aspect_ratio
     #  "${PYTHON_EXECUTABLE}"
     #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
     #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
     #  )
-    add_test(vcs_test_polar_set_opt_param_polar
+    cdat_add_test(vcs_test_polar_set_opt_param_polar
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.py
       "${BASELINE_DIR}/test_polar_set_opt_param_polar.png"
       )
-    add_test(vcs_test_boxfill_lev1_lev2
+    cdat_add_test(vcs_test_boxfill_lev1_lev2
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2.png"
       )
-    add_test(vcs_test_boxfill_lev1_lev2_ext1
+    cdat_add_test(vcs_test_boxfill_lev1_lev2_ext1
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1.png"
       )
-    add_test(vcs_test_boxfill_lev1_lev2_ext2
+    cdat_add_test(vcs_test_boxfill_lev1_lev2_ext2
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext2.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext2.png"
       )
-    add_test(vcs_test_boxfill_lev1_lev2_ext1_ext2
+    cdat_add_test(vcs_test_boxfill_lev1_lev2_ext1_ext2
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1_ext2.png"
       )
 
     FOREACH(flip None X XY Y)
-      add_test(vcs_test_flip${flip}
+      cdat_add_test(vcs_test_flip${flip}
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.py
         "${BASELINE_DIR}/test_vcs_flip${flip}.png"
         )
     ENDFOREACH(flip)
 
-    add_test(vcs_test_boxfill_lev1_lev2_ta_missing
+    cdat_add_test(vcs_test_boxfill_lev1_lev2_ta_missing
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ta_missing.png"
       )
 
-    add_test(vcs_test_close
+    cdat_add_test(vcs_test_close
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
       "${BASELINE_DIR}/test_vcs_close.png"
       )
 
-    add_test(vcs_test_basic_isofill_bigvalues
+    cdat_add_test(vcs_test_basic_isofill_bigvalues
       "${PYTHON_EXECUTABLE}"
       "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py"
       --gm_type=isofill
       --bigvalues
       "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
       )
-    add_test(vcs_test_issue_960_labels
+    cdat_add_test(vcs_test_issue_960_labels
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png

@@ -1246,12 +1246,10 @@ class VTKVCSBackend(object):
           s0=txt.split()[0]
           if s0 in ["Min","Max","Mean"]:
               returned["vtk_backend_%s_text_actor" % s0] = t
-              self.canvas.display_names.remove(d.name)
-              del(vcs.elements["display"][d.name])
           else:
               returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
-              self.canvas.display_names.remove(d.name)
-              del(vcs.elements["display"][d.name])
+        self.canvas.display_names.remove(d.name)
+        del(vcs.elements["display"][d.name])
     if taxis is not None:
       try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
