@@ -538,9 +538,28 @@ class Configurator(object):
         if self.initialized == False:
             anim_toolbar = self.toolbar.add_toolbar("Animation")
             anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
+            anim_toolbar.add_button(["Step Backward"], action=self.step_back)
             anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
             anim_toolbar.add_slider_button(4, 1, 30, "Frames Per Second", update=self.set_animation_speed)
+            anim_toolbar.add_button(["Save Animation"], action=self.save_animation)
             self.initialized = True
+
+    def step_forward(self, state):
+        if self.canvas.animate.frame_num < self.canvas.animate.number_of_frames() - 1:
+            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
+
+    def step_back(self, state):
+        if self.canvas.animate.frame_num > 0:
+            self.canvas.animate.draw_frame(self.canvas.animate.frame_num - 1)
+
+    def save_animation(self, state):
+        self.interactor.TerminateApp()
+        # Create and save the animation
+        save_path = self.get_save_path("animation.mp4")
+        self.canvas.animate.run()
+        self.canvas.animate.save(save_path, rate=int(1000.0 / self.animation_speed))
+        self.interactor.Start()
 
     def set_animation_speed(self, value):
         v = int(value)
@@ -553,15 +572,15 @@ class Configurator(object):
     def animate(self, obj, event):
         if self.animation_timer and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * self.animation_speed)):
             self.animation_last_frame_time = datetime.datetime.now()
-            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
             self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
 
     def start_animating(self):
         self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
 
     def stop_animating(self):
-        self.interactor.DestroyTimer(self.animation_timer)
-        self.animation_timer = None
+        t, self.animation_timer = self.animation_timer, None
+        self.interactor.DestroyTimer(t)
 
     def set_animation_frame(self, value):
         value = int(value)
