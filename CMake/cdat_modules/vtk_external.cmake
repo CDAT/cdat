@@ -17,6 +17,8 @@ list(APPEND vtk_build_args
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
   -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
+  -DVTK_USE_SYSTEM_JPEG:BOOL=ON
+  -DVTK_USE_SYSTEM_PNG:BOOL=ON
 )
 
 # Turn off testing and other non essential featues
