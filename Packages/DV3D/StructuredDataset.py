@@ -715,7 +715,10 @@ class CDMSDataset:
         if decimation: decimationFactor = decimation[0]+1
 
         args1 = {}
-        order = 'xyt' if ( timeBounds == None) else 'xyz' if levaxis else 'xy'
+        if ( timeBounds == None):
+            order = 'xyt' if timeaxis is not None else 'xy'
+        else:
+            order = 'xyz' if levaxis is not None else 'xy'
         try:
             nts = self.timeRange[1]
             if ( timeIndex <> None ) and  useTimeIndex:
