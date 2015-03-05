@@ -536,23 +536,24 @@ class VTKVCSBackend(object):
         x1-=.0001
         x2+=.0001
     l._worldcoordinate = [x1,x2,y1,y2]
-    m=self.canvas.createmarker()
-    m.type = gm.marker
-    m.color = gm.markercolor
-    if gm.markersize>0:
-        m.size = gm.markersize
-    else:
-        m.priority=0
-    m._x = l.x
-    m._y = l.y
-    m._viewport=l.viewport
-    m._worldcoordinate = l.worldcoordinate
+    if gm.marker is not None:
+        m=self.canvas.createmarker()
+        m.type = gm.marker
+        m.color = gm.markercolor
+        if gm.markersize>0:
+            m.size = gm.markersize
+        else:
+            m.priority=0
+        m._x = l.x
+        m._y = l.y
+        m._viewport=l.viewport
+        m._worldcoordinate = l.worldcoordinate
 
     if not (Y[:].min()>max(y1,y2) or Y[:].max()<min(y1,y2) \
             or X[:].min()>max(x1,x2) or X[:].max()<min(x1,x2)):
     	if l.priority>0:
             self.canvas.plot(l,donotstoredisplay=True)
-        if m.priority>0:
+        if gm.marker is not None and m.priority>0:
             self.canvas.plot(m,donotstoredisplay=True)
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
@@ -560,7 +561,8 @@ class VTKVCSBackend(object):
     if hasattr(data1,"_yname"):
       del(data1._yname)
     del(vcs.elements["line"][l.name])
-    del(vcs.elements["marker"][m.name])
+    if gm.marker is not None:
+        del(vcs.elements["marker"][m.name])
 
     if tmpl.legend.priority>0:
         legd = self.canvas.createline()
