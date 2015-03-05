@@ -725,7 +725,7 @@ class VTKVCSBackend(object):
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
     if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
-        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo,flatten=False)
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
         gridGenDict["cellData"]=False
     else:
         gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
