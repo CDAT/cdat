@@ -405,7 +405,6 @@ class VTKVCSBackend(object):
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
-            #print "Calling 1"
             #ren = self.createRenderer()
             #if not (vcs.issecondaryobject(gm) and gm.priority==0):
             #    self.setLayer(ren,tpl.data.priority)
@@ -725,7 +724,6 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    print "GM is:",gm
     if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
         gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo,flatten=False)
         gridGenDict["cellData"]=False
@@ -780,14 +778,10 @@ class VTKVCSBackend(object):
           c2p = vtk.vtkCellDataToPointData()
           c2p.SetInputData(vtk_backend_grid)
           c2p.Update()
-          if self.debug:
-            vcs2vtk.dump2VTK(c2p)
           #For contouring duplicate points seem to confuse it
           if vtk_backend_grid.IsA("vtkUntructuredGrid"):
               cln = vtk.vtkCleanUnstructuredGrid()
               cln.SetInputConnection(c2p.GetOutputPort())
-              if self.debug:
-                vcs2vtk.dump2VTK(cln)
               sFilter.SetInputConnection(cln.GetOutputPort())
           else:
               sFilter.SetInputConnection(c2p.GetOutputPort())
@@ -795,7 +789,6 @@ class VTKVCSBackend(object):
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
       returned["vtk_backend_filter"]=sFilter
-      vcs2vtk.dump2VTK(vtk_backend_grid)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
         if cellData:
@@ -966,8 +959,6 @@ class VTKVCSBackend(object):
               cot = vtk.vtkBandedPolyDataContourFilter()
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
-              #print "data range (pre contour):",sFilter.GetOutput().GetPointData().GetScalars().GetRange()
-              #print "data range (post contour):",cot.GetOutput().GetPointData().GetScalars().GetRange()
               cot.SetNumberOfContours(len(l))
               cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
@@ -1172,7 +1163,6 @@ class VTKVCSBackend(object):
           pass
         # create a new renderer for this mapper
         # (we need one for each mapper because of cmaera flips)
-        print "DATA FIT TO PORT:",[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2]
         ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
         if tmpl.data.priority>0:
             ren.AddActor(act)
@@ -1229,7 +1219,6 @@ class VTKVCSBackend(object):
       else:
           geo=None
 
-      print "CONTINENT FIT TO PORT:",[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2]
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         self.setLayer(ren,tmpl.data.priority)
@@ -1865,7 +1854,6 @@ class VTKVCSBackend(object):
           j=0
           while actor:
             j+=1
-            #print "renderer:",i,"actor",j
             m = actor.GetMapper()
             m.Update()
             actor=actors.GetNextItem()
