@@ -64,8 +64,17 @@ class StructuredGridPlot(DV3DPlot):
         if args and args[0] == "StartConfig":
             ispec = self.inputSpecs[ 0 ]
             wbounds = ispec.getDataBounds()
+            self.zscaleBoxWidget = vtk.vtkBoxWidget()
+            self.zscaleBoxWidget.SetInteractor( self.renderWindowInteractor )
+            self.zscaleBoxWidget.SetPlaceFactor(1.0)
+            self.zscaleBoxWidget.HandlesOff()
+            self.zscaleBoxWidget.SetEnabled(1)
+            oprop = self.zscaleBoxWidget.GetOutlineProperty()
+            oprop.SetColor( 0.0, 0.0, 0.0 )
+            oprop.SetLineWidth( 2.0 )
             self.zscaleBoxWidget.On()
             self.zscaleBoxWidget.PlaceWidget(wbounds)
+#            print "  >>>>>>>>>>>>>>>>>>>>> Place box widget: ", str( wbounds )
         elif args and args[0] == "Init":
             self.parameter_initializing = True
             ispec = self.inputSpecs[ 0 ]
@@ -80,24 +89,15 @@ class StructuredGridPlot(DV3DPlot):
 #             verticalScale.setValues( [ zsval ] )
             self.setZScale( zsval  )
             verticalScale.setValue( 'count', 1 )
-            self.zscaleBoxWidget = vtk.vtkBoxWidget()
-            self.zscaleBoxWidget.SetInteractor( self.renderWindowInteractor )
-            self.zscaleBoxWidget.SetPlaceFactor(1.0)
-            self.zscaleBoxWidget.SetTranslationEnabled(0)
-            self.zscaleBoxWidget.SetRotationEnabled(0)
-            self.zscaleBoxWidget.SetScalingEnabled(0)
-            self.zscaleBoxWidget.HandlesOff()
-            oprop = self.zscaleBoxWidget.GetOutlineProperty()
-            oprop.SetColor( 0.0, 0.0, 0.0 )
-            oprop.SetLineWidth( 2.0 )
             self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
             vscale = verticalScale.getValues()
             self.setZScale( vscale )
             self.zscaleBoxWidget.Off()
+            self.zscaleBoxWidget.SetEnabled(0)
+            self.zscaleBoxWidget = None
             self.processConfigParameterChange( verticalScale )
         elif args and args[0] == "InitConfig":
-            self.zscaleBoxWidget.SetEnabled(1)
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             self.skipIndex = 2
