@@ -547,7 +547,22 @@ class Configurator(object):
     def save_animation(self, state):
         # Save the animation
         self.canvas.animate.fps(self.animation_speed)
-        save_path = self.get_save_path("animation.mp4")
+
+        data_titles = {}
+        name_to_type = {}
+        # Iterate the displays and create a name for the animation
+        for display in self.displays:
+            name_to_type[display.g_name] = display.g_type
+
+            for array in display.array:
+                if array is not None:
+                    if display.g_name not in data_titles:
+                        data_titles[display.g_name] = []
+                    data_titles[display.g_name].append("_".join(array.title.split()))
+
+        plot_names = [name_to_type[d_name]+ "_" + "-".join(data_titles[d_name]) for d_name in data_titles]
+        name = "__".join(plot_names) + ".mp4"
+        save_path = self.get_save_path(name)
         if save_path == '':
             return
         self.canvas.animate.save(save_path)
