@@ -626,7 +626,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -725,9 +725,15 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    print "GM is:",gm
+    if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+        gridGenDict["cellData"]=False
+    else:
+        gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
         exec("%s = gridGenDict['%s']" % (k,k))
+    print "CELLDATA:",cellData
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     returned["vtk_backend_wrap"]=wrap
@@ -738,6 +744,7 @@ class VTKVCSBackend(object):
     if cellData:
         vtk_backend_grid.GetCellData().SetScalars(data)
     else:
+        print "SETTING SCALR POINTS"
         vtk_backend_grid.GetPointData().SetScalars(data)
 
     try:
@@ -790,8 +797,7 @@ class VTKVCSBackend(object):
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
       returned["vtk_backend_filter"]=sFilter
-      if self.debug:
-        vcs2vtk.dump2VTK(sFilter)
+      vcs2vtk.dump2VTK(vtk_backend_grid)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
         if cellData:
@@ -962,6 +968,8 @@ class VTKVCSBackend(object):
               cot = vtk.vtkBandedPolyDataContourFilter()
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
+              print "data range (pre contour):",sFilter.GetOutput().GetPointData().GetScalars().GetRange()
+              print "data range (post contour):",cot.GetOutput().GetPointData().GetScalars().GetRange()
               cot.SetNumberOfContours(len(l))
               cot.SetClipTolerance(0.)
               for j,v in enumerate(l):

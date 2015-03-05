@@ -76,7 +76,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
+def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   useStructuredGrid = True
@@ -635,10 +635,10 @@ def setProjectionParameters(pd,proj):
 dumps={}
 def dump2VTK(obj,fnm=None):
   global dumps
-  if fnm[:-4].lower()!=".vtk":
-    fnm+=".vtk"
   if fnm is None:
     fnm="foo.vtk" % dumps
+  if fnm[:-4].lower()!=".vtk":
+    fnm+=".vtk"
   if fnm in dumps:
     dumps[fnm]+=1
     fnm=fnm[:-4]+"%.3i.vtk" % dumps[fnm]
