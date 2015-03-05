@@ -1014,7 +1014,6 @@ class AnimationController(animate_obj_old):
     if self.created():
         started = False
         while len(self.animation_files)!=self.number_of_frames():
-            print len(self.animation_files),self.number_of_frames()
             if not self.playback_running:
                 # if not runnnig getting it going so we can use the pngs
                 self.run()
