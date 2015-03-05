@@ -55,16 +55,18 @@ if (CDAT_BUILD_PARALLEL)
   endif()
 endif()
 
+set(_vtk_modules "vtkRenderingImage;vtkRenderingVolume;vtkRenderingLabel;vtkRenderingFreeType;vtkRenderingFreeTypeOpenGL;vtkRenderingVolumeOpenGL;vtkRenderingCore;vtkRenderingOpenGL;vtkGeovisCore;vtkViewsCore;vtkViewsGeovis;vtkInteractionImage;vtkInteractionStyle;vtkInteractionWidgets;vtkCommonTransforms;vtkCommonCore;vtkCommonComputationalGeometry;vtkCommonExecutionModel;vtkCommonSystem;vtkCommonMisc;vtkFiltersFlowPaths;vtkFiltersStatistics;vtkFiltersAMR;vtkFiltersGeneric;vtkFiltersSources;vtkFiltersModeling;vtkFiltersExtraction;vtkFiltersSelection;vtkFiltersSMP;vtkFiltersCore;vtkFiltersHybrid;vtkFiltersTexture;vtkFiltersGeneral;vtkFiltersImaging;vtkFiltersGeometry;vtkIOImage;vtkIOCore;vtkIOExport;vtkIOImport;vtkIOGeometry;vtkImagingColor;vtkImagingSources;vtkImagingCore;vtkImagingGeneral;vtkImagingMath")
+
+if(NOT CDAT_BUILD_LEAN)
+  list(APPEND _vtk_modules "vtkIOFFMPEG")
+endif()
 # Either we use cdat zlib and libxml or system zlib and libxml
 list(APPEND ParaView_tpl_args
   -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
   -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
-  -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
-  -DVTK_USE_SYSTEM_JPEG:BOOL=ON
-  -DVTK_USE_SYSTEM_PNG:BOOL=ON
 )
 
 # Turn off testing and other non essential featues
@@ -181,6 +183,10 @@ else ()
     set(DOWNLOAD_CMD_STR)
 endif()
 
+set(_vtk_module_options)
+foreach(_module ${_vtk_modules})
+  list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
+endforeach()
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ParaView_source}
@@ -210,6 +216,7 @@ ExternalProject_Add(ParaView
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
     -DVTK_LEGACY_SILENT:BOOL=ON
+    ${_vtk_module_options}
     -DPARAVIEW_DO_UNIX_STYLE_INSTALLS:BOOL=ON
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
