@@ -754,42 +754,42 @@ def main(arglist):
         #command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
         #command = command + ' | tr -s " " | cut -d " " -f 2'
         #wget = os.popen(command).readlines()[0].strip()
-        wget = "@WGET_EXECUTABLE@"
-        data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
-        dfiles=open("files.txt")
-        data_files=dfiles.readlines()
-        dfiles.close()
-        try:
-            os.makedirs(target)
-        except:
-            pass
-        if sampleData: # Turn to False to skip sample_data download, need to add an option to turn this off
-            for df in data_files:
-                sp=df.strip().split()
-                fnm=sp[1]
-                target = os.path.join(target_prefix, 'sample_data', fnm)
-                md5=''
-                tries=0
-                if os.path.exists(target) :
-                    data_files=open(target)
-                    t=data_files.read()
-                    data_files.close()
-                    md5=hashlib.md5(t)
-                    md5=md5.hexdigest()
-                while md5 != sp[0] and tries<5:
-                    print 'Redownloading target: %s' % fnm
-                    print 'target: ', target
-                    print 'data_source_url', data_source_url
-                    print 'fnm', fnm
-                    ln = os.popen("%s -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
-                    tries+=1
-                    data_files=open(target)
-                    t=data_files.read()
-                    data_files.close()
-                    md5=hashlib.md5(t)
-                    md5=md5.hexdigest()
-                if md5!=sp[0]:
-                    print 'Error downloading:',fnm
+        #wget = "@WGET_EXECUTABLE@"
+        #data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
+        #dfiles=open("files.txt")
+        #data_files=dfiles.readlines()
+        #dfiles.close()
+        #try:
+        #    os.makedirs(target)
+        #except:
+        #    pass
+        #if sampleData: # Turn to False to skip sample_data download, need to add an option to turn this off
+        #    for df in data_files:
+        #        sp=df.strip().split()
+        #        fnm=sp[1]
+        #        target = os.path.join(target_prefix, 'sample_data', fnm)
+        #        md5=''
+        #        tries=0
+        #        if os.path.exists(target) :
+        #            data_files=open(target)
+        #            t=data_files.read()
+        #            data_files.close()
+        #            md5=hashlib.md5(t)
+        #            md5=md5.hexdigest()
+        #        while md5 != sp[0] and tries<5:
+        #            print 'Redownloading target: %s' % fnm
+        #            print 'target: ', target
+        #            print 'data_source_url', data_source_url
+        #            print 'fnm', fnm
+        #            ln = os.popen("%s -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
+        #            tries+=1
+        #            data_files=open(target)
+        #            t=data_files.read()
+        #            data_files.close()
+        #            md5=hashlib.md5(t)
+        #            md5=md5.hexdigest()
+        #        if md5!=sp[0]:
+        #            print 'Error downloading:',fnm
         os.chdir(here)
     else:
         import cdat_info
@@ -797,10 +797,10 @@ def main(arglist):
 
     # Install CDMS
     cdms_library_file = os.path.join(cdms_library_directory, 'libcdms.a')
-    if force or not os.path.isfile(cdms_library_file):
-        install('libcdms', action)
-        if (sys.platform in ['darwin',]):
-           os.system('ranlib '+os.path.join(target_prefix,'lib','libcdms.a'))
+    #if force or not os.path.isfile(cdms_library_file):
+    #    install('libcdms', action)
+    #    if (sys.platform in ['darwin',]):
+    #       os.system('ranlib '+os.path.join(target_prefix,'lib','libcdms.a'))
 
     # Install Packages
     package_errors=0
