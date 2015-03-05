@@ -727,13 +727,12 @@ class VTKVCSBackend(object):
       data2 = self.trimData2D(data2)
     print "GM is:",gm
     if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
-        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo,flatten=False)
         gridGenDict["cellData"]=False
     else:
         gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
         exec("%s = gridGenDict['%s']" % (k,k))
-    print "CELLDATA:",cellData
     returned["vtk_backend_grid"]=vtk_backend_grid
     returned["vtk_backend_geo"]=geo
     returned["vtk_backend_wrap"]=wrap
@@ -744,7 +743,6 @@ class VTKVCSBackend(object):
     if cellData:
         vtk_backend_grid.GetCellData().SetScalars(data)
     else:
-        print "SETTING SCALR POINTS"
         vtk_backend_grid.GetPointData().SetScalars(data)
 
     try:
@@ -968,8 +966,8 @@ class VTKVCSBackend(object):
               cot = vtk.vtkBandedPolyDataContourFilter()
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
-              print "data range (pre contour):",sFilter.GetOutput().GetPointData().GetScalars().GetRange()
-              print "data range (post contour):",cot.GetOutput().GetPointData().GetScalars().GetRange()
+              #print "data range (pre contour):",sFilter.GetOutput().GetPointData().GetScalars().GetRange()
+              #print "data range (post contour):",cot.GetOutput().GetPointData().GetScalars().GetRange()
               cot.SetNumberOfContours(len(l))
               cot.SetClipTolerance(0.)
               for j,v in enumerate(l):
@@ -1174,6 +1172,7 @@ class VTKVCSBackend(object):
           pass
         # create a new renderer for this mapper
         # (we need one for each mapper because of cmaera flips)
+        print "DATA FIT TO PORT:",[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2]
         ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
         if tmpl.data.priority>0:
             ren.AddActor(act)
@@ -1230,6 +1229,7 @@ class VTKVCSBackend(object):
       else:
           geo=None
 
+      print "CONTINENT FIT TO PORT:",[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2]
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         self.setLayer(ren,tmpl.data.priority)
