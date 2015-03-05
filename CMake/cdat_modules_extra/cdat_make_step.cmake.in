@@ -4,7 +4,6 @@ include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 if(NOT ${make})
   set(make make)
 endif()
-message("[INFO CFLGAGS]  $ENV{CFLAGS}")
 execute_process(
   COMMAND env CFLAGS=$ENV{CFLAGS} LDFLAGS=$ENV{LDFLAGS} CPPFLAGS=$ENV{CPPFLAGS} CXXFLAGS=$ENV{CXXFLAG} ${make} ${BUILD_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
@@ -13,8 +12,7 @@ execute_process(
   RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
-  message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message("[ERROR] Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
   message(FATAL_ERROR "Error in Make")
 endif()
-message("Make succeeded.")
 
