@@ -419,7 +419,6 @@ class VTKVCSBackend(object):
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
-            #print "Calling 1"
             #ren = self.createRenderer()
             #if not (vcs.issecondaryobject(gm) and gm.priority==0):
             #    self.setLayer(ren,tpl.data.priority)
@@ -550,23 +549,24 @@ class VTKVCSBackend(object):
         x1-=.0001
         x2+=.0001
     l._worldcoordinate = [x1,x2,y1,y2]
-    m=self.canvas.createmarker()
-    m.type = gm.marker
-    m.color = gm.markercolor
-    if gm.markersize>0:
-        m.size = gm.markersize
-    else:
-        m.priority=0
-    m._x = l.x
-    m._y = l.y
-    m._viewport=l.viewport
-    m._worldcoordinate = l.worldcoordinate
+    if gm.marker is not None:
+        m=self.canvas.createmarker()
+        m.type = gm.marker
+        m.color = gm.markercolor
+        if gm.markersize>0:
+            m.size = gm.markersize
+        else:
+            m.priority=0
+        m._x = l.x
+        m._y = l.y
+        m._viewport=l.viewport
+        m._worldcoordinate = l.worldcoordinate
 
     if not (Y[:].min()>max(y1,y2) or Y[:].max()<min(y1,y2) \
             or X[:].min()>max(x1,x2) or X[:].max()<min(x1,x2)):
     	if l.priority>0:
             self.canvas.plot(l,donotstoredisplay=True)
-        if m.priority>0:
+        if gm.marker is not None and m.priority>0:
             self.canvas.plot(m,donotstoredisplay=True)
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
@@ -574,7 +574,8 @@ class VTKVCSBackend(object):
     if hasattr(data1,"_yname"):
       del(data1._yname)
     del(vcs.elements["line"][l.name])
-    del(vcs.elements["marker"][m.name])
+    if gm.marker is not None:
+        del(vcs.elements["marker"][m.name])
 
     if tmpl.legend.priority>0:
         legd = self.canvas.createline()
@@ -640,7 +641,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -739,7 +740,11 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+        gridGenDict["cellData"]=False
+    else:
+        gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -789,14 +794,10 @@ class VTKVCSBackend(object):
           c2p = vtk.vtkCellDataToPointData()
           c2p.SetInputData(vtk_backend_grid)
           c2p.Update()
-          if self.debug:
-            vcs2vtk.dump2VTK(c2p)
           #For contouring duplicate points seem to confuse it
           if vtk_backend_grid.IsA("vtkUntructuredGrid"):
               cln = vtk.vtkCleanUnstructuredGrid()
               cln.SetInputConnection(c2p.GetOutputPort())
-              if self.debug:
-                vcs2vtk.dump2VTK(cln)
               sFilter.SetInputConnection(cln.GetOutputPort())
           else:
               sFilter.SetInputConnection(c2p.GetOutputPort())
@@ -804,8 +805,6 @@ class VTKVCSBackend(object):
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
       returned["vtk_backend_filter"]=sFilter
-      if self.debug:
-        vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
         if cellData:
@@ -1875,7 +1874,6 @@ class VTKVCSBackend(object):
           j=0
           while actor:
             j+=1
-            #print "renderer:",i,"actor",j
             m = actor.GetMapper()
             m.Update()
             actor=actors.GetNextItem()

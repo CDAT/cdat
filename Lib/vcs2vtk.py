@@ -76,7 +76,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
+def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   useStructuredGrid = True
@@ -126,11 +126,11 @@ def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
   if geo is None:
     geo, geopts = project(pts,projection,[xm,xM,ym,yM])
-  ## Sets the vertics into the grid
+  ## Sets the vertices into the grid
   if grid is None:
     if useStructuredGrid:
       vg = vtk.vtkStructuredGrid()
-      vg.SetDimensions(y.shape[1],y.shape[0],1)
+      vg.SetDimensions(data1.shape[1],data1.shape[0],1)
     else:
       vg = vtk.vtkUnstructuredGrid()
     vg.SetPoints(geopts)
@@ -191,7 +191,6 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
         # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
         m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    #print "No mesh data found"
     pass
   if m3 is not None:
     #Create unstructured grid points
@@ -412,6 +411,20 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+
+  # The dataset has some duplicate lines that extend outside of x=[-180, 180],
+  # which will cause wrapping artifacts for certain projections (e.g.
+  # Robinson). Clip out the duplicate data:
+  box = vtk.vtkBox()
+  box.SetXMin(-180., -90., 0.)
+  box.SetXMax(180., 90., 1.)
+  clipper = vtk.vtkClipPolyData()
+  clipper.SetInputData(poly)
+  clipper.InsideOutOn()
+  clipper.SetClipFunction(box)
+  clipper.Update()
+  poly = clipper.GetOutput()
+
   vcsContinents[fnm]=poly
   return poly
 
@@ -426,8 +439,6 @@ def project(pts,projection,wc,geo=None):
   if geo is None:
     geo = vtk.vtkGeoTransform()
     ps = vtk.vtkGeoProjection()
-    #for i in range(ps.GetNumberOfProjections()):
-    #  print i, ps.GetProjectionName(i)
     pd = vtk.vtkGeoProjection()
     names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
     proj_dic = {"polar stereographic":"stere",
@@ -438,12 +449,6 @@ def project(pts,projection,wc,geo=None):
 
     pname = proj_dic.get(projection._type,projection.type)
     projName = pname
-    #for i in range(0,184,2):
-    #  pd.SetName(pd.GetProjectionName(i))
-    #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-    #  pd.SetName(pd.GetProjectionName(i+1))
-    #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
-
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
       if ym<yM:
@@ -621,10 +626,10 @@ def setProjectionParameters(pd,proj):
 dumps={}
 def dump2VTK(obj,fnm=None):
   global dumps
-  if fnm[:-4].lower()!=".vtk":
-    fnm+=".vtk"
   if fnm is None:
     fnm="foo.vtk" % dumps
+  if fnm[:-4].lower()!=".vtk":
+    fnm+=".vtk"
   if fnm in dumps:
     dumps[fnm]+=1
     fnm=fnm[:-4]+"%.3i.vtk" % dumps[fnm]
@@ -1291,7 +1296,6 @@ def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
 
 def R2World(ren,x,y):
   """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
-  #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
   return wp
