@@ -405,7 +405,6 @@ class VTKVCSBackend(object):
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
-            #print "Calling 1"
             #ren = self.createRenderer()
             #if not (vcs.issecondaryobject(gm) and gm.priority==0):
             #    self.setLayer(ren,tpl.data.priority)
@@ -626,7 +625,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -725,7 +724,11 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+        gridGenDict["cellData"]=False
+    else:
+        gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -775,14 +778,10 @@ class VTKVCSBackend(object):
           c2p = vtk.vtkCellDataToPointData()
           c2p.SetInputData(vtk_backend_grid)
           c2p.Update()
-          if self.debug:
-            vcs2vtk.dump2VTK(c2p)
           #For contouring duplicate points seem to confuse it
           if vtk_backend_grid.IsA("vtkUntructuredGrid"):
               cln = vtk.vtkCleanUnstructuredGrid()
               cln.SetInputConnection(c2p.GetOutputPort())
-              if self.debug:
-                vcs2vtk.dump2VTK(cln)
               sFilter.SetInputConnection(cln.GetOutputPort())
           else:
               sFilter.SetInputConnection(c2p.GetOutputPort())
@@ -790,8 +789,6 @@ class VTKVCSBackend(object):
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
       returned["vtk_backend_filter"]=sFilter
-      if self.debug:
-        vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
         if cellData:
@@ -1857,7 +1854,6 @@ class VTKVCSBackend(object):
           j=0
           while actor:
             j+=1
-            #print "renderer:",i,"actor",j
             m = actor.GetMapper()
             m.Update()
             actor=actors.GetNextItem()
