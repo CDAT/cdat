@@ -1417,6 +1417,8 @@ class VTKVCSBackend(object):
     cam.SetFocalPoint(xc+xoff,yc+yoff,0.)
     cam.SetPosition(xc+xoff,yc+yoff,d)
     ren.AddActor(a)
+    layer = self.renWin.GetNumberOfLayers() - 2
+    ren.SetLayer(layer)
     self.renWin.AddRenderer(ren)
     self.renWin.Render()
     return
@@ -1444,10 +1446,18 @@ class VTKVCSBackend(object):
       manager = get_manager(self.renWin.GetInteractor())
 
       if manager:
-        # Set the UI renderer's layer on top of what's there right now
-        layer = self.renWin.GetNumberOfLayers() + 1
-        self.renWin.SetNumberOfLayers(layer)
-        manager.renderer.SetLayer(layer - 1)
+        renderers = self.renWin.GetRenderers()
+        renderers.InitTraversal()
+        ren = renderers.GetNextItem()
+        max_layer = manager.renderer.GetLayer()
+        while ren is not None:
+            max_layer = max(ren.GetLayer(), max_layer)
+            ren = renderers.GetNextItem()
+        if max_layer != manager.renderer.GetLayer():
+            # Set the UI renderer's layer on top of what's there right now
+            layer = self.renWin.GetNumberOfLayers() + 1
+            self.renWin.SetNumberOfLayers(layer)
+            manager.renderer.SetLayer(layer - 1)
         # Re-add the UI layer
         self.renWin.AddRenderer(manager.renderer)
 
