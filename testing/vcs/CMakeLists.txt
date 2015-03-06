@@ -127,6 +127,11 @@ cdat_add_test(vcs_test_vectors_missing
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
+cdat_add_test(vcs_test_remove_marker_none_1d
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_remove_marker_none_1d.py
+  "${BASELINE_DIR}/test_remove_marker_none_1d.png"
+  )
 cdat_add_test(vcs_test_draw_logo_on
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
