@@ -1530,8 +1530,6 @@ class VTKVCSBackend(object):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
-        self.hideGUI()
-
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1553,13 +1551,16 @@ class VTKVCSBackend(object):
           imgfiltr.SetInputBufferTypeToRGB()
         else:
           imgfiltr.SetInputBufferTypeToRGBA()
+
+        self.hideGUI()
         imgfiltr.Update()
+        self.showGUI()
+        self.renWin.Render()
+
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
-
-        self.showGUI()
 
   def cgm(self,file):
         if self.renWin is None:
