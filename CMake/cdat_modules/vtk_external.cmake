@@ -17,9 +17,18 @@ list(APPEND vtk_build_args
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
   -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
-  -DVTK_USE_SYSTEM_JPEG:BOOL=ON
-  -DVTK_USE_SYSTEM_PNG:BOOL=ON
 )
+if (APPLE)
+  list(APPEND vtk_build_args
+    -DVTK_USE_SYSTEM_PNG:BOOL=OFF
+    -DVTK_USE_SYSTEM_JPEG:BOOL=OFF
+    )
+else()
+  list(APPEND vtk_build_args
+    -DVTK_USE_SYSTEM_PNG:BOOL=ON
+    -DVTK_USE_SYSTEM_JPEG:BOOL=ON
+  )
+endif()
 
 # Turn off testing and other non essential featues
 list(APPEND vtk_build_args
