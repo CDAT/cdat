@@ -49,11 +49,15 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
   def run(self):
     pass
 
-  def get_frame(self, frame_num):
-    png_name=os.path.join(os.environ["HOME"],".uvcdat",self.controller._unique_prefix,"anim_%i.png" % frame_num)
-
+  def get_frame_name(self, frame_num):
+    png_name = os.path.join(os.environ["HOME"],".uvcdat",self.controller._unique_prefix,"anim_%i.png" % frame_num)
     if not os.path.exists(os.path.dirname(png_name)):
         os.makedirs(os.path.dirname(png_name))
+    return png_name
+
+  def get_frame(self, frame_num):
+    png_name = self.get_frame_name(frame_num)
+
     if not os.path.exists(png_name):
         self.draw_frame(frame_num, png_name)
 
@@ -104,6 +108,26 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 class VTKAnimationPlayback(animate_helper.AnimationPlayback):
   def __init__(self, controller):
     animate_helper.AnimationPlayback.__init__(self,controller)
+
+  def run(self):
+      self.controller.frame_num = 0
+      if self.controller.signals is not None:
+          self.controller.signals.stopped.emit(False)
+      self.controller.playback_running = True
+      while not self.is_stopped():
+          self.wait_if_paused()
+          self.controller.draw_frame(allow_static = False, main_window_png = True)
+
+          self.controller.frame_num += 1
+          if self.controller.frame_num >= self.controller.number_of_frames():
+              if self.controller.playback_params.loop:
+                  self.controller.frame_num = 0
+              else:
+                  break
+          time.sleep(1./self.controller.playback_params.frames_per_second)
+      self.controller.playback_running = False
+      if self.controller.signals is not None:
+          self.controller.signals.stopped.emit(True)
 
 class VTKAnimate(animate_helper.AnimationController):
     def __init__(self,vcs_self):
@@ -167,7 +191,7 @@ class VTKAnimate(animate_helper.AnimationController):
         be.showGUI()
         be.renWin.Render()
 
-    def draw_frame(self, frame_num = None, allow_static=True):
+    def draw_frame(self, frame_num = None, allow_static=True, main_window_png=False):
       if frame_num is None:
         frame_num = self.frame_num
       else:
@@ -190,6 +214,9 @@ class VTKAnimate(animate_helper.AnimationController):
         update_input(self)
 
         self.vcs_self.backend.renWin.Render()
+
+        if main_window_png:
+            self.vcs_self.png(self.create_thread.get_frame_name(self.frame_num))
 
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)
