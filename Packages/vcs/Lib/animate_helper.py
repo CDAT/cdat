@@ -1015,7 +1015,6 @@ class AnimationController(animate_obj_old):
         while len(self.animation_files)!=self.number_of_frames():
             self.draw_frame()
             self.frame_num = (self.frame_num + 1) % self.number_of_frames()
-
         if rate is None:
             rate = self.playback_params.fps()
         files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
