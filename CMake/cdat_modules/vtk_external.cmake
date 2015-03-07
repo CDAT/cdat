@@ -17,17 +17,16 @@ list(APPEND vtk_build_args
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
   -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
+  -DVTK_USE_SYSTEM_PNG:BOOL=ON
+  -DVTK_USE_SYSTEM_JPEG:BOOL=ON
 )
 if (APPLE)
   list(APPEND vtk_build_args
-    -DVTK_USE_SYSTEM_PNG:BOOL=OFF
-    -DVTK_USE_SYSTEM_JPEG:BOOL=OFF
+    -DJPEG_LIBRARY:FILEPATH=${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib
+    -DJPEG_INCLUDE_DIR:PATH=${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/ImageIO.framework/Versions/A/Headers
+    -DPNG_LIBRARY:FILEPATH=${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib
+    -DPNG_PNG_INCLUDE_DIR:PATH=${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/ImageIO.framework/Versions/A/Headers
     )
-else()
-  list(APPEND vtk_build_args
-    -DVTK_USE_SYSTEM_PNG:BOOL=ON
-    -DVTK_USE_SYSTEM_JPEG:BOOL=ON
-  )
 endif()
 
 # Turn off testing and other non essential featues
