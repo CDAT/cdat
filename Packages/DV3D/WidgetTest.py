@@ -37,10 +37,10 @@ textActor = vtk.vtkFollower()
 textActor.SetMapper(textMapper)
 textActor.SetScale(0.1, 0.1, 0.1)
 
-buttonRepresentation = vtk.vtkProp3DButtonRepresentation() 
+buttonRepresentation = vtk.vtkProp3DButtonRepresentation()
 #buttonRepresentation.FollowCameraOn()
 buttonRepresentation.SetNumberOfStates(1)
-buttonRepresentation.SetButtonProp( 0, textActor ) 
+buttonRepresentation.SetButtonProp( 0, textActor )
 
 
 # Create the Renderer, RenderWindow, and RenderWindowInteractor.
@@ -54,11 +54,11 @@ ren.SetBackground(0.1, 0.2, 0.4)
 
 buttonWidget = vtk.vtkButtonWidget()
 buttonWidget.SetInteractor( iren )
-position = [ 0.5, 0.5 ] 
-size = [ 1.0, 1.0 ] 
+position = [ 0.5, 0.5 ]
+size = [ 1.0, 1.0 ]
 # ComputeDisplayToWorld(double x, double y, double z, double worldPt[4])
 bounds = computeBounds(ren, position,size)
-print " Bounds = ", bounds 
+print " Bounds = ", bounds
 buttonRepresentation.PlaceWidget( bounds )
 buttonWidget.SetRepresentation(buttonRepresentation)
 

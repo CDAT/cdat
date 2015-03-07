@@ -432,12 +432,14 @@ def checkListTuple(self,name,value):
      else:
           checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either a list or a tuple.')
      
-def checkColor(self,name,value):
+def checkColor(self,name,value,NoneOk=False):
      checkName(self,name,value)
      if isinstance(value,unicode):
        value = str(value)
      if isinstance(value,str):
           value = color2vcs(value)
+     if value is None and NoneOk:
+         return value
      if isinstance(value,int) and value in range(0,256):
           return value
      else:
@@ -446,7 +448,7 @@ def checkColor(self,name,value):
 def checkColorList(self,name,value):
      checkName(self,name,value)
      value=checkListTuple(self,name,value)
-     for v in value:checkColor(self,name+'_list_value',v)
+     for v in value:checkColor(self,name+'_list_value',v,NoneOk=True)
      return value
      
 def checkIsolineLevels(self,name,value):
@@ -570,17 +572,21 @@ def checkTextsList(self,name,value):
      for v in value:
           if v in range(1,10):
                hvalue.append(v)
-          elif ((queries.istexttable(v)==1) and
-                (queries.istextorientation(v)==0)):
-               name='__Tt__.'+ v.name
-               hvalue.append(name)
-          elif ((queries.istexttable(v)==0) and
-                (queries.istextorientation(v)==1)):
-               name='__To__.'+ v.name
-               hvalue.append(name)
-          elif (queries.istextcombined(v)==1):
-               name=v.Tt_name + '__' + v.To_name
-               hvalue.append(name)
+          elif queries.istexttable(v):
+               hvalue.append(v)
+          elif queries.istextorientation(v):
+               hvalue.append(v)
+          elif queries.istextcombined(v):
+               hvalue.append(v)
+          elif isinstance(v,str):
+              if v in vcs.listelements("textcombined"):
+                  hvalue.append(vcs.gettextcombined(v))
+              elif v in vcs.listelements("texttable"):
+                  hvalue.append(vcs.gettexttable(v))
+              elif v in vcs.listelements("textorientation"):
+                  hvalue.append(vcs.gettextorientation(v))
+              else:
+                  checkedRaise(self,value,ValueError,"text attributes can be either a textcombined object, a texttable object a textorientation object or a string of the name on one such objects (checked in that order)")
      return hvalue
 
 def checkLegend(self,name,value):
@@ -670,8 +676,7 @@ def checkTicks(self,name,value):
       return value.strip()
     if not value in vcs.elements["list"]:
       checkedRaise(self,value,ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value)
-  else:
-    return value
+  return value
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)
      if isinstance(value,unicode):

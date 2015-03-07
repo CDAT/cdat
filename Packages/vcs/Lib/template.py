@@ -1234,6 +1234,7 @@ class P(object):
                 tt=x.createtext(None,sub.texttable,None,sub.textorientation)
 
                 # Now for the min/max/mean add the name in front
+                kargs["donotstoredisplay"]=False
                 if s=='min':
                   tt.string='Min %g' % (smn)
                 elif s=='max':
@@ -1243,7 +1244,6 @@ class P(object):
                          meanstring='Mean '+str(getattr(slab,s))
                     else:
                         try:
-                         #slices = [slice(0,1),] * (slab.ndim -2 )
                          meanstring='Mean %.4g'% float(cdutil.averager(slab,
                                  axis = " ".join(["(%s)" % S for S in slab.getAxisIds()])))
                         except Exception,err:
@@ -1251,16 +1251,24 @@ class P(object):
                     tt.string=meanstring
                 else :
                     tt.string=str(getattr(slab,s))
+                    kargs["donotstoredisplay"]=False
                 tt.x=[sub.x]
                 tt.y=[sub.y]
                 tt.priority=sub.priority
-                displays.append(x.text(tt,bg=bg,**kargs))
+                dp = x.text(tt,bg=bg,**kargs)
+                if dp is not None:
+                  if s != "id":
+                    dp.backend["vtk_backend_template_attribute"] = s
+                  else:
+                    dp.backend["vtk_backend_template_attribute"] = "dataname"
+                  displays.append(dp)
                 sp = tt.name.split(":::")
                 del(vcs.elements["texttable"][sp[0]])
                 del(vcs.elements["textorientation"][sp[1]])
                 del(vcs.elements["textcombined"][tt.name])
                 
 
+        kargs["donotstoredisplay"]=True
         if not isinstance(gm,vcs.taylor.Gtd):
           nms = ["x","y","z","t"]
           for i,ax in enumerate(slab.getAxisList()[::-1]):
