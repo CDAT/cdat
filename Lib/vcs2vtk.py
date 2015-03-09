@@ -1232,10 +1232,27 @@ def prepLine(renWin,line,cmap=None):
 
     pts = vtk.vtkPoints()
 
-    for j in range(number_points):
-      pts.InsertNextPoint(x[j],y[j],0.)
-
-    for j in range(number_points - 1):
+    if vcs.elements["projection"][line.projection].type=="linear":
+        for j in range(number_points):
+          pts.InsertNextPoint(x[j],y[j],0.)
+        n2 = number_points - 1
+    else:
+        pts.InsertNextPoint(x[0],y[0],0.)
+        n2=0
+        for j in range(1,number_points):
+            NPointsInterp = 25
+            for i in range(1,NPointsInterp+1):
+                if x[j]!=x[j-1]:
+                    tmpx = x[j-1]+float(i)/NPointsInterp*(x[j]-x[j-1])
+                else:
+                    tmpx=x[j]
+                if y[j]!=y[j-1]:
+                    tmpy = y[j-1]+float(i)/NPointsInterp*(y[j]-y[j-1])
+                else:
+                    tmpy=y[j]
+                pts.InsertNextPoint(tmpx,tmpy,0.)
+                n2+=1
+    for j in range(n2):
       l.GetPointIds().SetId(0,j)
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
