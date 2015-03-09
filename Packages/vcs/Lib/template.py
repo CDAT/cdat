@@ -944,6 +944,7 @@ class P(object):
         # the following to make sure we have a unique name,
         # i put them together assuming it would be faster
         ticks=x.createline(source=obj.line)
+        ticks.projection = gm.projection
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         ticks.priority=obj.priority
         tt.priority=objlabl.priority
@@ -1305,78 +1306,37 @@ class P(object):
              displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
 
+        if X is None:
+          X=slab.getAxis(-1)
+        if Y is None:
+          Y=slab.getAxis(-2)
+        displays = []
+        wc2 = vcs.utils.getworldcoordinates(gm,X,Y)
         # Do the boxes and lines
-        b=self.box1
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
+        for tp in ["box","line"]:
+            for num in ["1","2"]:
+                e = getattr(self,tp+num)
+                if e.priority!=0:
+                     l=x.createline(source=e.line)
+                     l.projection=gm.projection
+                     if vcs.elements["projection"][l.projection].type!="linear":
+                         l.worldcoordinate=wc2
+                         l.viewport=[e._x1,e._x2,e._y1,e._y2]
+                         dx = (e._x2-e._x1)/(self.data.x2-self.data.x1)*(wc2[1]-wc2[0])
+                         dy = (e._y2-e._y1)/(self.data.y2-self.data.y1)*(wc2[3]-wc2[2])
+                         if tp == "line":
+                             l._x=[wc2[0],wc2[0]+dx]
+                             l._y=[wc2[2],wc2[2]+dy]
+                         else:
+                             l._x = [wc2[0],wc2[0]+dx,wc2[0]+dx,wc2[0],wc2[0]]
+                             l._y = [wc2[2],wc2[2],wc2[3],wc2[3],wc2[2]]
+                     else:
+                         l._x=[e._x1,e._x2,e._x2,e._x1,e._x1]
+                         l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
+                     l._priority=e._priority
+                     displays.append(x.line(l,bg=bg,**kargs))
+                     del(vcs.elements["line"][l.name])
 
-        b=self.box2
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b.priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.box3
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.box4
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line1
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b.priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line2
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line3
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line4
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
         #x.mode=m
         # I think i have to use dict here because it's a valid value
         # (obviously since i got it from the object itself and didn't touch it
