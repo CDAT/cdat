@@ -468,8 +468,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
-      if self.configurator is not None:
-        self.configurator.show()
+      self.configure()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
@@ -941,7 +940,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self._animate = self.backend.Animate( self )
 
-        self.configurator = configurator.Configurator(self, show_on_update=(backend != "vtk") )
+        self.configurator = None
 
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
@@ -966,11 +965,20 @@ class Canvas(object,AutoAPI.AutoAPI):
            else:
               shutil.copy2(os.path.join(*pth),user_init)
 
-	called_initial_attributes_flg = 1
+        called_initial_attributes_flg = 1
         self.canvas_template_editor=None
         self.ratio=0
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
+
+    def configure(self):
+        self.configurator = configurator.Configurator(self)
+        self.configurator.update()
+        self.configurator.show()
+
+    def endconfigure(self):
+        self.configurator.detach()
+        self.configurator = None
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
@@ -3732,8 +3740,7 @@ Options:::
         if dn is not None:
           self.display_names.append(result.name)
           if result.g_type in ("3d_scalar", "3d_vector") and self.configurator is not None:
-            self.configurator.detach()
-            self.configurator = None
+            self.endconfigure()
           if self.backend.bg == False and self.configurator is not None:
             self.configurator.update()
 

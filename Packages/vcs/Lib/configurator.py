@@ -143,10 +143,9 @@ def array_strings(template, array):
     return strings
 
 class Configurator(object):
-    def __init__(self, canvas, show_on_update=False):
+    def __init__(self, canvas):
         self.canvas = canvas
         self.backend = canvas.backend
-        self.show_on_update = show_on_update
         self.interactor = None
         self.display_strings = {}
         self.displays = []
@@ -260,10 +259,6 @@ class Configurator(object):
             # This is an attribute used internally; might break
             display._template_origin = new_template.name
 
-        if self.show_on_update:
-            self.show()
-            self.show_on_update = False
-
     def detach(self):
         if self.toolbar is not None:
             self.toolbar.detach()
@@ -363,6 +358,7 @@ class Configurator(object):
     def show(self):
         if len(self.displays) == 0:
             return
+        self.place()
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
