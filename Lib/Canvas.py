@@ -972,13 +972,15 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
 
     def configure(self):
-        self.configurator = configurator.Configurator(self)
-        self.configurator.update()
-        self.configurator.show()
+        if self.configurator is None:
+            self.configurator = configurator.Configurator(self)
+            self.configurator.update()
+            self.configurator.show()
 
     def endconfigure(self):
-        self.configurator.detach()
-        self.configurator = None
+        if self.configurator is not None:
+            self.configurator.detach()
+            self.configurator = None
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
