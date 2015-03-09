@@ -197,10 +197,11 @@ class VTKVCSBackend(object):
       if self.renWin is not None and sys.platform == "darwin":
         self.renWin.Render()
       return
-    interactor = self.renWin.GetInteractor()
+
     self._lastSize = sz
     plots_args = []
     key_args =[]
+
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       parg = []
@@ -220,18 +221,20 @@ class VTKVCSBackend(object):
     self.hideGUI()
 
     self.canvas.clear()
+
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
 
-    if self.canvas.animate.created():
+    if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
       self.canvas.animate.draw_frame()
 
     self.showGUI()
 
+    if self.canvas.configurator is not None:
+        self.canvas.configurator.place()
+
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
-    if self.renWin is not None and sys.platform == "darwin":
-      self.renWin.Render()
     if sys.platform == "darwin":
         ## On mac somehow we need to issue an extra Render after resize
         # If ev is None, then the update() was called, and we only need to render once.
@@ -477,7 +480,7 @@ class VTKVCSBackend(object):
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.scaleLogo()
-    if not kargs.get("donotstoredisplay",False):
+    if not kargs.get("donotstoredisplay",False) and not kargs.get("fromtemplate", False):
       self.renWin.Render()
     return returned
 
@@ -590,7 +593,6 @@ class VTKVCSBackend(object):
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
-    pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
@@ -1432,22 +1434,20 @@ class VTKVCSBackend(object):
       manager = get_manager(self.renWin.GetInteractor())
 
       if manager:
-        renderers = self.renWin.GetRenderers()
-        renderers.InitTraversal()
-        ren = renderers.GetNextItem()
-        max_layer = manager.renderer.GetLayer()
-        while ren is not None:
-            max_layer = max(ren.GetLayer(), max_layer)
-            ren = renderers.GetNextItem()
-        if max_layer != manager.renderer.GetLayer():
-            # Set the UI renderer's layer on top of what's there right now
-            layer = self.renWin.GetNumberOfLayers() + 1
-            self.renWin.SetNumberOfLayers(layer)
-            manager.renderer.SetLayer(layer - 1)
-        # Re-add the UI layer
-        self.renWin.AddRenderer(manager.renderer)
-
-
+          renderers = self.renWin.GetRenderers()
+          renderers.InitTraversal()
+          ren = renderers.GetNextItem()
+          max_layer = manager.renderer.GetLayer()
+          while ren is not None:
+              max_layer = max(ren.GetLayer(), max_layer)
+              ren = renderers.GetNextItem()
+          if max_layer != manager.renderer.GetLayer():
+              # Set the UI renderer's layer on top of what's there right now
+              layer = self.renWin.GetNumberOfLayers() + 1
+              self.renWin.SetNumberOfLayers(layer)
+              manager.renderer.SetLayer(layer - 1)
+          # Re-add the UI layer
+          self.renWin.AddRenderer(manager.renderer)
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
