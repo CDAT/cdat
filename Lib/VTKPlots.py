@@ -50,7 +50,6 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
-    self.interacting = False
 
     if renWin is not None:
       self.renWin = renWin
@@ -85,18 +84,7 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
-      self.interacting = True
       interactor.Start()
-
-  def endInteraction(self):
-      if self.renWin is None:
-          warnings.warn("Cannot stop interaction if you did not open the canvas yet.")
-          return
-      if self.interacting == False:
-          warnings.warn("Cannot stop interaction if it hasn't begun yet.")
-          return
-      self.renWin.GetInteractor().TerminateApp()
-      self.interacting = False
 
   def endEvent(self,obj,event):
     if self.renWin is not None:
@@ -1434,8 +1422,6 @@ class VTKVCSBackend(object):
         self.renWin.RemoveRenderer(manager.renderer)
 
   def showGUI(self):
-    if self.interacting == False:
-        return
 
     plot = self.get3DPlot()
 
