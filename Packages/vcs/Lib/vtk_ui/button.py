@@ -136,6 +136,8 @@ class Button(Widget):
         self.states.append(ButtonState(label=label, image=image, bgcolor=bgcolor, fgcolor=fgcolor, opacity=opacity))
 
     def place(self):
+        if self.widget.GetEnabled() == 0:
+            return
         width, height = self.get_dimensions()
         x, y = self.get_position()
 
@@ -256,7 +258,6 @@ class Button(Widget):
         label = self.label if new_state.label is None else new_state.label
         self.text_widget.set_text(label)
         self.repr.SetState(state)
-        self.place()
 
     def show(self):
         self.widget.On()
