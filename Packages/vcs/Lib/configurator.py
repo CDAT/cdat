@@ -204,8 +204,6 @@ class Configurator(object):
             self.init_buttons()
             self.init_toolbar()
 
-        self.place()
-
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
 
         for display in self.displays:
@@ -638,7 +636,7 @@ class Configurator(object):
         if self.target is not None:
             self.deactivate(self.target)
 
-        buttons = [self.fill_button, self.text_button, self.line_button, self.marker_button]
+        buttons = [self.text_button, self.marker_button]
         buttons.remove(button)
 
         if self.creating:
