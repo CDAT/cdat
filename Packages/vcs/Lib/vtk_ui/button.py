@@ -109,7 +109,7 @@ class Button(Widget):
 
         x, y = self.interactor.GetEventPosition()
 
-        if self.hover_timer is None:
+        if self.hover_timer is None and self.tooltip_label.showing() == False:
             if self.in_bounds(x, y):
                 self.hover_timer = self.interactor.CreateOneShotTimer(300)
 
@@ -117,13 +117,15 @@ class Button(Widget):
             if self.hover_timer is not None:
                 self.interactor.DestroyTimer(self.hover_timer)
                 self.hover_timer = None
-            self.tooltip_label.hide()
+            if self.tooltip_label.showing():
+                self.tooltip_label.hide()
 
 
     def still_hovering(self, obj, event):
         if self.hover_timer:
             self.tooltip_label.place()
             self.tooltip_label.show()
+            self.hover_timer = None
 
     def get_text(self):
         return self.text_widget.get_text()
