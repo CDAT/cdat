@@ -230,9 +230,6 @@ class VTKVCSBackend(object):
 
     self.showGUI()
 
-    if self.canvas.configurator is not None:
-        self.canvas.configurator.place()
-
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if sys.platform == "darwin":
