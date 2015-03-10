@@ -112,7 +112,7 @@ class VTKVCSBackend(object):
         continue
       t=vcs.elements["template"][d.template]
       gm = vcs.elements[d.g_type][d.g_name]
-      if t.data.x1<=x<=t.data.x2 and t.data.y1<=y<=t.data.y2:
+      if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
         ## Ok we clicked within template
         if numpy.allclose(gm.datawc_x1,1.e20):
           x1 = d.array[0].getAxis(-1)[0]
@@ -150,6 +150,8 @@ class VTKVCSBackend(object):
                 st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
         except:
             st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
+    if st == "":
+        return
     ren = vtk.vtkRenderer()
     ren.SetBackground(.96,.96,.86)
     ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
@@ -182,6 +184,7 @@ class VTKVCSBackend(object):
       self.clickRenderer.RemoveAllViewProps()
       self.renWin.RemoveRenderer(self.clickRenderer)
       self.renWin.Render()
+      self.clickRenderer = None
 
   def configureEvent(self,obj,ev):
     cursor = self.renWin.GetCurrentCursor()
