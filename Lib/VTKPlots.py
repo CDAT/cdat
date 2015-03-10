@@ -431,13 +431,13 @@ class VTKVCSBackend(object):
       returned.update(self.plot3D(data1,data2,tpl,gm,ren,**kargs))
     elif gtype in ["text"]:
       if tt.priority!=0:
-        if not (None,None,None) in self._renderers.keys():
-            ren = self.createRenderer()
-            self.renWin.AddRenderer(ren)
-            self.setLayer(ren,1)
-            self._renderers[(None,None,None)]=ren
-        else:
-            ren = self._renderers[(None,None,None)]
+        #if not (None,None,None) in self._renderers.keys():
+        ren = self.createRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,1)
+        #    self._renderers[(None,None,None)]=ren
+        #else:
+        #    ren = self._renderers[(None,None,None)]
         returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(ren,to=to,tt=tt)
         self.setLayer(ren,tt.priority)
     elif gtype=="line":

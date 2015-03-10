@@ -868,18 +868,36 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
 
   sz = renderer.GetRenderWindow().GetSize()
   actors=[]
-  geo=None
+  pts = vtk.vtkPoints()
+  geo = None
+  if vcs.elements["projection"][tt.projection].type!="linear":
+      # Need to figure out new WC
+      Npts = 20
+      for i in range(Npts+1):
+          X = tt.worldcoordinate[0]+float(i)/Npts*(tt.worldcoordinate[1]-tt.worldcoordinate[0])
+          for j in range(Npts+1):
+              Y = tt.worldcoordinate[2]+float(j)/Npts*(tt.worldcoordinate[3]-tt.worldcoordinate[2])
+              pts.InsertNextPoint(X,Y,0.)
+      geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=None)
+      wc = pts.GetBounds()[:4]
+      #renderer.SetViewport(tt.viewport[0],tt.viewport[2],tt.viewport[1],tt.viewport[3])
+      renderer.SetWorldPoint(wc)
+
+
   for i in range(n):
     t = vtk.vtkTextActor()
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     pts = vtk.vtkPoints()
     pts.InsertNextPoint(x[i],y[i],0.)
-    geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=None)
-    t.SetInput(string[i])
-    X,Y,tz=pts.GetPoint(0)
-    X,Y = world2Renderer(renderer,X,Y,tt.viewport,tt.worldcoordinate)
+    if geo is not None:
+        geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=geo)
+        X,Y,tz=pts.GetPoint(0)
+        X,Y = world2Renderer(renderer,X,Y,tt.viewport,wc)
+    else:
+        X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
+    t.SetInput(string[i])
     #T=vtk.vtkTransform()
     #T.Scale(1.,sz[1]/606.,1.)
     #T.RotateY(to.angle)

@@ -950,7 +950,11 @@ class P(object):
         ticks.priority=obj.priority
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         tt.projection = gm.projection
-        tt.viewport=vp
+        if axis=="y":
+            tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
+        else:
+            tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
+
         tt.worldcoordinate=wc
         tt.priority=objlabl.priority
         # initialize the list of values
@@ -966,40 +970,47 @@ class P(object):
         if isinstance(loc,str):
           loc = vcs.elements["list"].get(loc,{})
         # set the x/y/text values
+        xmn,xmx = vcs.minmax(wc[0],wc[1])
+        ymn,ymx = vcs.minmax(wc[2],wc[3])
         for l in loc.keys():
           if axis=='x':
-               mn,mx = vcs.minmax(wc[0],wc[1])
-               if mn<=l<=mx:
-                    xs.append(l)
-                    ys.append(wc[2]+(wc[3]-wc[2])*(obj.y2-self.data._y1)/(self.data._y2-self._data.y1))
+               if xmn<=l<=xmx:
+                    xs.append([l,l])
+                    end = wc[2]+(wc[3]-wc[2])*(obj.y2-obj.y1)/(self.data._y2-self._data.y1)
+                    ys.append([wc[2],end])
                     txs.append(l)
-                    tys.append(wc[2]+(wc[3]-wc[2])*(objlabl.y-self.data._y1)/(self.data._y2-self._data.y1))
+                    tys.append(wc[2])
                     tstring.append(loc[l])
           elif axis=='y':
-               mn,mx = vcs.minmax(wc[2],wc[3])
-               if mn<=l<=mx:
-                    ys.append(l)
-                    xs.append(wc[0]+(wc[1]-wc[0])*(obj.x2-self.data._x1)/(self.data._x2-self._data.x1))
+               if ymn<=l<=ymx:
+                    ys.append([l,l])
+                    end = wc[0]+(wc[1]-wc[0])*(obj._x2-obj._x1)/(self._data._x2-self._data.x1)
+                    if vcs.elements["projection"][gm.projection].type!="linear" and end<-180.:
+                        end=wc[0]
+                    xs.append([wc[0],end])
                     tys.append(l)
-                    txs.append(wc[0]+(wc[1]-wc[0])*(objlabl.x-self.data._x1)/(self.data._x2-self._data.x1))
+                    txs.append(wc[0])
                     tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
             obj=getattr(self,axis+'mintic'+number)
-            for l in getattr(gm,axis+'mtics'+number).keys():
-                a=getattr(gm,axis+'mtics'+number)[l]
-                if axis=='x':
-                    mn,mx = vcs.minmax(wc[0],wc[1])
-                    if mn<=l<=mx:
-                         xs.append(l)
-                         ys.append(wc[2]+(wc[3]-wc[2])*(obj.y-self.data._y1)/(self.data._y2-self._data.y1))
-                         tstring.append(a)
-                elif axis=='y':
-                    mn,mx = vcs.minmax(wc[2],wc[3])
-                    if mn<=l<=mx:
-                         ys.append(l)
-                         xs.append(wc[0]+(wc[1]-wc[0])*(obj.x-self.data._x1)/(self.data._x2-self._data.x1))
-                         tstring.append(a)
+            if obj.priority>0:
+                ynum = getattr(self._data,"_y%i" % number)
+                xnum = getattr(self._data,"_x%i" % number)
+                for l in getattr(gm,axis+'mtics'+number).keys():
+                    a=getattr(gm,axis+'mtics'+number)[l]
+                    if axis=='x':
+                        if xmn<=l<=xmx:
+                             xs.append([l,l])
+                             ys.append([wc[2],
+                                 wc[2]+(wc[3]-wc[2])*(obj._y-ynum)/(self._data._y2-self._data._y1)])
+                             tstring.append(a)
+                    elif axis=='y':
+                        if ymn<=l<=ymx:
+                             ys.append([l,l])
+                             xs.append([wc[0],
+                                 wc[0]+(wc[1]-wc[0])*(obj._x-xnum)/(self._data._x2-self._data._x1)])
+                             tstring.append(a)
 
         if txs!=[]:
              tt.string=tstring
@@ -1339,7 +1350,8 @@ class P(object):
                          l._x=[e._x1,e._x2,e._x2,e._x1,e._x1]
                          l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
-                     displays.append(x.line(l,bg=bg,**kargs))
+                     if tp == "box" and num == "1":
+                     displays.append(x.plot(l,bg=bg,**kargs))
                      del(vcs.elements["line"][l.name])
 
         #x.mode=m
