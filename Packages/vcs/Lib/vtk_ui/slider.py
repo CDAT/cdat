@@ -12,10 +12,8 @@ class Slider(Widget):
         self.end_callback = end
         self.update_callback = update
 
-        self.repr.GetPoint1Coordinate().SetCoordinateSystemToNormalizedDisplay()
-        self.repr.GetPoint2Coordinate().SetCoordinateSystemToNormalizedDisplay()
-        self.repr.GetPoint1Coordinate().SetValue((point1[0], point1[1], 0))
-        self.repr.GetPoint2Coordinate().SetValue((point2[0], point2[1], 0))
+        self.x1, self.y1 = point1
+        self.x2, self.y2 = point2
 
         prop = self.repr.GetSliderProperty()
         prop.SetColor( 1.0, 0.0, 0.0 )
@@ -50,6 +48,10 @@ class Slider(Widget):
         sliderWidget.AddObserver("InteractionEvent", self.slide_value)
 
         sliderWidget.KeyPressActivationOff()
+
+    def place(self):
+        self.repr.GetPoint1Coordinate().SetValue((self.x1, self.y1, 0))
+        self.repr.GetPoint2Coordinate().SetValue((self.x2, self.y2, 0))
 
     def show(self):
         self.widget.EnabledOn()
