@@ -46,6 +46,15 @@ class InterfaceManager(object):
             # approximately one frame at 60 fps
             self.timer = self.interactor.CreateOneShotTimer(16)
 
+    def elevate(self):
+        # Raise to top layer of render window
+        layer = self.window.GetNumberOfLayers()
+        self.window.SetNumberOfLayers(layer + 1)
+        if self.window.HasRenderer(self.renderer):
+            self.window.RemoveRenderer(self.renderer)
+        self.renderer.SetLayer(layer)
+        self.window.AddRenderer(self.renderer)
+
 
     def add_widget(self, widget):
         self.widgets.append(widget)

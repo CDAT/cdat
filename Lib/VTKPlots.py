@@ -1429,20 +1429,9 @@ class VTKVCSBackend(object):
       manager = get_manager(self.renWin.GetInteractor())
 
       if manager:
-          renderers = self.renWin.GetRenderers()
-          renderers.InitTraversal()
-          ren = renderers.GetNextItem()
-          max_layer = manager.renderer.GetLayer()
-          while ren is not None:
-              max_layer = max(ren.GetLayer(), max_layer)
-              ren = renderers.GetNextItem()
-          if max_layer != manager.renderer.GetLayer():
-              # Set the UI renderer's layer on top of what's there right now
-              layer = self.renWin.GetNumberOfLayers() + 1
-              self.renWin.SetNumberOfLayers(layer)
-              manager.renderer.SetLayer(layer - 1)
-          # Re-add the UI layer
           self.renWin.AddRenderer(manager.renderer)
+          manager.elevate()
+      self.renWin.Render()
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
