@@ -197,8 +197,6 @@ class VTKVCSBackend(object):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
-      if self.renWin is not None and sys.platform == "darwin":
-        self.renWin.Render()
       return
 
     self._lastSize = sz
@@ -223,10 +221,10 @@ class VTKVCSBackend(object):
     # Have to pull out the UI layer so it doesn't get borked by the clear
     self.hideGUI()
 
-    self.canvas.clear()
+    self.canvas.clear(render=False)
 
     for i, pargs in enumerate(plots_args):
-      self.canvas.plot(*pargs,**key_args[i])
+      self.canvas.plot(*pargs, render = False, **key_args[i])
 
     if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
       self.canvas.animate.draw_frame()
@@ -235,13 +233,10 @@ class VTKVCSBackend(object):
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
-    if sys.platform == "darwin":
-        ## On mac somehow we need to issue an extra Render after resize
-        # If ev is None, then the update() was called, and we only need to render once.
-        if ev is not None:
-          self.reRender = True
 
-  def clear(self):
+    self.renWin.Render()
+
+  def clear(self, render=True):
     if self.renWin is None: #Nothing to clear
           return
     renderers = self.renWin.GetRenderers()
@@ -260,7 +255,7 @@ class VTKVCSBackend(object):
               ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
     self.showGUI()
-    if hasValidRenderer and self.renWin.IsDrawable():
+    if hasValidRenderer and self.renWin.IsDrawable() and render:
         self.renWin.Render()
     self.numberOfPlotCalls = 0
     self.logoRenderer = None
@@ -480,7 +475,7 @@ class VTKVCSBackend(object):
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.scaleLogo()
-    if not kargs.get("donotstoredisplay",False) and not kargs.get("fromtemplate", False):
+    if not kargs.get("donotstoredisplay",False) and kargs.get("render", True):
       self.renWin.Render()
     return returned
 
