@@ -1980,7 +1980,7 @@ Options:::
     def createline(self,name=None, source='default', ltype=None,
                  width=None, color=None, priority=1,
                  viewport=None, worldcoordinate=None,
-                 x=None, y=None, projection='default'):
+                 x=None, y=None, projection=None):
         return vcs.createline(name,source,ltype,width,color,priority,viewport,worldcoordinate,x,y,projection)
     createline.__doc__ = vcs.manageElements.createline.__doc__
 
@@ -2678,7 +2678,7 @@ Options:::
             #    copy_tmpl=self.createtemplate(source=arglist[2])
         check_mthd = vcs.getgraphicsmethod(arglist[3],arglist[4])
         check_tmpl = vcs.gettemplate(arglist[2])
-
+        print check_mthd
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
         Doratio = keyargs.get("ratio",None)
@@ -3485,7 +3485,6 @@ Options:::
             p=self.getprojection(gm.projection)
             if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
-
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
@@ -3532,6 +3531,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
+                print "PROJ IS NOW:",proj.type
                 if proj.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
 

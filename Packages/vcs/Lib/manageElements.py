@@ -1023,7 +1023,7 @@ getscatter.__doc__ = getscatter.__doc__ % (plot_keywords_doc,graphics_method_cor
 def createline(name=None, source='default', ltype=None, 
              width=None, color=None, priority=1,
              viewport=None, worldcoordinate=None,
-             x=None, y=None, projection='default'):
+             x=None, y=None, projection=None):
     """
 Function: createline                       # Construct a new line secondary method
 
@@ -1071,7 +1071,8 @@ vcs.line(ln2)                      # Plot using specified line object
         ln.x = x
     if (y is not None):
         ln.y = y
-    ln.projection=projection
+    if (projection is not None):
+        ln.projection=projection
     return ln
 
 def getline(name='default', ltype=None, width=None, color=None,
