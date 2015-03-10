@@ -945,8 +945,13 @@ class P(object):
         # i put them together assuming it would be faster
         ticks=x.createline(source=obj.line)
         ticks.projection = gm.projection
-        tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
+        ticks.viewport=vp
+        ticks.worldcoordinate=wc
         ticks.priority=obj.priority
+        tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
+        tt.projection = gm.projection
+        tt.viewport=vp
+        tt.worldcoordinate=wc
         tt.priority=objlabl.priority
         # initialize the list of values
         tstring=[]
@@ -965,18 +970,18 @@ class P(object):
           if axis=='x':
                mn,mx = vcs.minmax(wc[0],wc[1])
                if mn<=l<=mx:
-                    xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
-                    ys.append([obj.y1,obj.y2])
-                    txs.append((l-wc[0])/dx+vp[0])
-                    tys.append(objlabl.y)
+                    xs.append(l)
+                    ys.append(wc[2]+(wc[3]-wc[2])*(obj.y2-self.data._y1)/(self.data._y2-self._data.y1))
+                    txs.append(l)
+                    tys.append(wc[2]+(wc[3]-wc[2])*(objlabl.y-self.data._y1)/(self.data._y2-self._data.y1))
                     tstring.append(loc[l])
           elif axis=='y':
                mn,mx = vcs.minmax(wc[2],wc[3])
                if mn<=l<=mx:
-                    ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
-                    xs.append([obj.x1,obj.x2])
-                    tys.append((l-wc[2])/dy+vp[2])
-                    txs.append(objlabl.x)
+                    ys.append(l)
+                    xs.append(wc[0]+(wc[1]-wc[0])*(obj.x2-self.data._x1)/(self.data._x2-self._data.x1))
+                    tys.append(l)
+                    txs.append(wc[0]+(wc[1]-wc[0])*(objlabl.x-self.data._x1)/(self.data._x2-self._data.x1))
                     tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
@@ -986,14 +991,14 @@ class P(object):
                 if axis=='x':
                     mn,mx = vcs.minmax(wc[0],wc[1])
                     if mn<=l<=mx:
-                         xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
-                         ys.append([obj.y1,obj.y2])
+                         xs.append(l)
+                         ys.append(wc[2]+(wc[3]-wc[2])*(obj.y-self.data._y1)/(self.data._y2-self._data.y1))
                          tstring.append(a)
                 elif axis=='y':
                     mn,mx = vcs.minmax(wc[2],wc[3])
                     if mn<=l<=mx:
-                         ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
-                         xs.append([obj.x1,obj.x2])
+                         ys.append(l)
+                         xs.append(wc[0]+(wc[1]-wc[0])*(obj.x-self.data._x1)/(self.data._x2-self._data.x1))
                          tstring.append(a)
 
         if txs!=[]:
