@@ -277,6 +277,11 @@ class Configurator(object):
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
 
+        # if all of the widgets have been cleaned up correctly, this will delete the manager
+        vtk_ui.manager.delete_manager(self.interactor)
+
+        self.interactor.Render()
+
     def release(self, object, event):
         if self.clicking is None:
             return
@@ -313,9 +318,10 @@ class Configurator(object):
                         self.target.detach()
                         self.target = None
                         self.save()
+                        return
             elif self.target is not None and self.shift() == False:
                 self.deactivate(self.target)
-            self.interactor.GetRenderWindow().Render()
+                return
 
         self.clicking = None
 
@@ -324,13 +330,15 @@ class Configurator(object):
             return
 
         point = self.interactor.GetEventPosition()
-
+        cursor = self.interactor.GetRenderWindow().GetCurrentCursor()
         if self.target:
             if self.target.handle_click(point):
                 if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
+                    if cursor != vtk.VTK_CURSOR_CROSSHAIR:
+                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
                 else:
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                    if cursor != vtk.VTK_CURSOR_HAND:
+                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
         else:
             if self.toolbar.in_toolbar(*point):
@@ -342,10 +350,11 @@ class Configurator(object):
         for display in self.displays:
             obj = self.in_display_plot(point, display)
             if obj is not None:
-                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                if cursor != vtk.VTK_CURSOR_HAND:
+                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
-
-        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
+        if cursor != vtk.VTK_CURSOR_DEFAULT:
+            self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
 
 
     def click(self, object, event):
@@ -360,6 +369,7 @@ class Configurator(object):
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
+        self.interactor.Render()
         #self.fill_button.show()
         #self.line_button.show()
 
