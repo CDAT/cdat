@@ -1201,7 +1201,7 @@ class P(object):
         returns a list containing all the displays used"""
         displays = []
         kargs["donotstoredisplay"]=True
-        kargs["fromtemplate"] = True
+        kargs["render"] = False
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x._viewport
         wc=x._worldcoordinate
