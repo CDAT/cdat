@@ -18,7 +18,25 @@ class InterfaceManager(object):
         self.window.AddRenderer(self.renderer)
         self.widgets = []
         self.timer_listener = self.interactor.AddObserver("TimerEvent", self.__render)
+        self.configure_listener = self.window.AddObserver("ModifiedEvent", self.__place, 10)
+        self.render_listener = self.window.AddObserver("RenderEvent", self.__rendered)
+        self.last_size = None
         self.timer = None
+
+    def __rendered(self, obj, event):
+        if self.timer is not None:
+            self.interactor.DestroyTimer(self.timer)
+            self.timer = None
+
+    def __place(self, obj, event):
+        size = self.window.GetSize()
+        if size == self.last_size:
+            return
+        self.last_size = size
+        for widget in self.widgets:
+            if widget.widget.GetEnabled() == 1:
+                widget.place()
+
 
     def __render(self, obj, event):
         if self.timer is not None:
