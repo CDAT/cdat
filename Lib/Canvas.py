@@ -2435,7 +2435,7 @@ Options:::
                        'xbounds','ybounds','xname','yname','xunits','yunits','xweights','yweights',
                        'comment1','comment2','comment3','comment4','hms','long_name','zaxis',
                        'zarray','zname','zunits','taxis','tarray','tname','tunits','waxis','warray',
-                       'wname','wunits','bg','ratio','donotstoredisplay']
+                       'wname','wunits','bg','ratio','donotstoredisplay', 'fromtemplate']
 
 
 
