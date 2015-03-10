@@ -144,13 +144,15 @@ class Label(Widget, DraggableMixin):
         return bbox[0], bbox[1]
 
     def show(self):
-        self.place()
-        self.widget.On()
-        self.render()
+        if self.showing() == False:
+            self.place()
+            self.widget.On()
+            self.render()
 
     def hide(self):
-        self.widget.Off()
-        self.render()
+        if self.showing() == True:
+            self.widget.Off()
+            self.render()
 
     def place(self):
         w, h = self.interactor.GetRenderWindow().GetSize()
