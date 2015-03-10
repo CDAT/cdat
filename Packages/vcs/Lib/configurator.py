@@ -369,6 +369,8 @@ class Configurator(object):
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
+        man = vtk_ui.manager.get_manager(self.interactor)
+        man.elevate()
         self.interactor.Render()
         #self.fill_button.show()
         #self.line_button.show()
