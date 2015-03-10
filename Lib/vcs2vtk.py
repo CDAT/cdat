@@ -868,12 +868,17 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
 
   sz = renderer.GetRenderWindow().GetSize()
   actors=[]
+  geo=None
   for i in range(n):
     t = vtk.vtkTextActor()
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
+    pts = vtk.vtkPoints()
+    pts.InsertNextPoint(x[i],y[i],0.)
+    geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=None)
     t.SetInput(string[i])
-    X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
+    X,Y,tz=pts.GetPoint(0)
+    X,Y = world2Renderer(renderer,X,Y,tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
     #T=vtk.vtkTransform()
     #T.Scale(1.,sz[1]/606.,1.)
