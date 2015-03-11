@@ -196,6 +196,13 @@ class VTKAnimate(animate_helper.AnimationController):
         be.renWin.Render()
 
     def draw_frame(self, frame_num = None, render_offscreen=True, allow_static=True, main_window_png=False):
+      """
+      Draws a frame on the canvas
+        frame_num: Which frame to draw– defaults to self.frame_num
+        render_offscreen: Whether or not we allow rendering offscreen (when run in threads, there are issues)
+        allow_static: Whether or not we allow the drawn frame to be a static image
+        main_window_png: Whether or not to render the canvas into a PNG file to use later
+      """
       if frame_num is None:
         frame_num = self.frame_num
       else:
