@@ -2229,7 +2229,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def createtexttable(self,name=None, source='default', font=None,
-                 spacing=None, expansion=None, color=None, priority=1,
+                 spacing=None, expansion=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None):
       return vcs.createtexttable(name,source,font,spacing,expansion,color,priority,
@@ -2263,7 +2263,7 @@ Options:::
     # Text Combined  functions for VCS.                                         #
     #                                                                           #
     #############################################################################
-    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=1, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
         return vcs.createtextcombined(Tt_name, Tt_source, To_name, To_source,
             font, spacing, expansion, color, priority, viewport, worldcoordinate,
             x, y, height, angle, path, halign, valign, projection)
@@ -2331,6 +2331,7 @@ Options:::
                 setattr(t,k,parms[k])
                 del(parms[k])
             args.insert(0,t)
+        print "ALIST:",args[0].priority
         arglist=_determine_arg_list('text',args)
         return self.__plot(arglist, parms)
     #
@@ -3518,6 +3519,8 @@ Options:::
                 # Now creates a copy of the primitives, in case it's used on other canvases with diferent ratios
                 if arglist[3]=='text':
                     nms = arglist[4].split(":::")
+                    P=self.gettext(nms[0],nms[1])
+                    print "REAL PRIO:",P.priority
                     p = self.createtext(Tt_source=nms[0],To_source=nms[1])
                 elif arglist[3]=='marker':
                     p = self.createmarker(source=arglist[4])
@@ -3531,7 +3534,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                print "PROJ IS NOW:",proj.type
+                print "PROJ IS NOW:",proj.type,p.priority
                 if proj.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
 
