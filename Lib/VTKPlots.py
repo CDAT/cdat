@@ -1652,6 +1652,7 @@ class VTKVCSBackend(object):
        if geo.GetDestinationProjection().GetName() in ["aeqd",]:
            ## These need more precision to compute actual range
            Npts=250.
+           print "Yes doing the long one"
        else:
            Npts=50.
        for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
@@ -1749,13 +1750,13 @@ class VTKVCSBackend(object):
         cd = cam.GetDistance()
         cam.SetPosition(xc,yc,cd)
         cam.SetFocalPoint(xc,yc,0.)
-        #if geo is None:
-        #  if flipY:
-        #    cam.Elevation(180.)
-        #    cam.Roll(180.)
-        #    pass
-        #  if flipX:
-        #    cam.Azimuth(180.)
+        if geo is None:
+          if flipY:
+            cam.Elevation(180.)
+            cam.Roll(180.)
+            pass
+          if flipX:
+            cam.Azimuth(180.)
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
