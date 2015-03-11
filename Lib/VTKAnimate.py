@@ -147,7 +147,9 @@ class VTKAnimate(animate_helper.AnimationController):
             else:
                 self.create_thread.bg_ren.SetBackground(*ren.GetBackground())
             ren = renderers.GetNextItem()
-        be.showGUI()
+        # We don't want to render yet, because we are going to put a PNG on the screen first.
+        be.showGUI(render=False)
+
 
         self.create_thread.offscreen_window.SetSize(*be.renWin.GetSize())
 
