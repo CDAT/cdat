@@ -7,7 +7,7 @@ language: c++
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y gfortran; fi
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then pushd $HOME && mkdir cmake3.1 && cd cmake3.1 && (curl "http://www.cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz" | gunzip -c | tar x) && cd cmake-*/bin && export PATH="${PWD}:${PATH}"; popd; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew outdated cmake || brew upgrade cmake ; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew outdated cmake || brew upgrade cmake ; brew install expat ; fi
     - cmake --version
 
 script:
@@ -16,6 +16,6 @@ script:
     - cd ..
     - mkdir _build
     - cd _build
-    - cmake -DGIT_PROTOCOL=git:// -DCDAT_BUILD_MODE=LEAN -DCDAT_BUILD_GRAPHICS=ON -DCDAT_BUILD_SCIPY=OFF ../uvcdat
+    - cmake -DGIT_PROTOCOL=git:// -DCDAT_BUILD_MODE=DEFAULT -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_SCIPY=OFF ../uvcdat
     - ctest -VV -S ../uvcdat/CMake/travis_build.cmake
     - ctest -VV -S ../uvcdat/CMake/travis_submit.cmake
