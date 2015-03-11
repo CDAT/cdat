@@ -433,6 +433,7 @@ class VTKVCSBackend(object):
           gm.addPlotAttribute( 'url', cdms_file )
       returned.update(self.plot3D(data1,data2,tpl,gm,ren,**kargs))
     elif gtype in ["text"]:
+      print "priority in VTK:",tt.priority
       if tt.priority!=0:
         #if not (None,None,None) in self._renderers.keys():
         ren = self.createRenderer()
@@ -1745,13 +1746,13 @@ class VTKVCSBackend(object):
         cd = cam.GetDistance()
         cam.SetPosition(xc,yc,cd)
         cam.SetFocalPoint(xc,yc,0.)
-        if geo is None:
-          if flipY:
-            cam.Elevation(180.)
-            cam.Roll(180.)
-            pass
-          if flipX:
-            cam.Azimuth(180.)
+        #if geo is None:
+        #  if flipY:
+        #    cam.Elevation(180.)
+        #    cam.Roll(180.)
+        #    pass
+        #  if flipX:
+        #    cam.Azimuth(180.)
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
