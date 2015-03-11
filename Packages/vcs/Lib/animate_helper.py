@@ -676,7 +676,10 @@ class AnimationPlaybackParams(object):
 
   def zoom(self,value):
     """Zoom factor for the animation"""
-    self.zoom_factor = value
+    if value > 0:
+        self.zoom_factor = value
+    else:
+        raise Exception("Zoom must be greater than 0")
 
   def horizontal(self,value):
     """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"

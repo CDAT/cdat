@@ -91,6 +91,11 @@ def delete_manager(inter):
         manager.detach()
         del ui_managers[inter]
 
+def manager_exists(inter):
+    if inter is None:
+        return False
+    return inter in ui_managers
+
 def get_manager(inter):
 
     if inter is None:

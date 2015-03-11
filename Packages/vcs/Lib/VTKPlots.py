@@ -1413,10 +1413,10 @@ class VTKVCSBackend(object):
     if plot: plot.hideWidgets()
 
     if self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-      if manager:
-        self.renWin.RemoveRenderer(manager.renderer)
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
+          self.renWin.RemoveRenderer(manager.renderer)
 
   def showGUI(self, render=True):
 
@@ -1425,10 +1425,9 @@ class VTKVCSBackend(object):
     if plot: plot.showWidgets()
 
     if self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-
-      if manager:
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
           self.renWin.AddRenderer(manager.renderer)
           manager.elevate()
       if render:
