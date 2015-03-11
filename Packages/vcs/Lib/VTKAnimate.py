@@ -1,7 +1,6 @@
 # VTK Backend Animation Module
 ## Author:  Charles Doutriaux
 import animate_helper
-import vcs
 import time
 import random
 import hashlib
@@ -68,23 +67,6 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     Draw the specified frame on the background window, render to png_name, add to controller's animation_files
     """
     update_input(self.controller, update=False)
-
-    renderers = self.hidden_window.GetRenderers()
-    renderers.InitTraversal()
-    ren = renderers.GetNextItem()
-    i=0
-    while ren:
-      i+=1
-      actors = ren.GetActors()
-      actors.InitTraversal()
-      actor = actors.GetNextItem()
-      j=0
-      while actor:
-        j+=1
-        m = actor.GetMapper()
-        m.Update()
-        actor=actors.GetNextItem()
-      ren=renderers.GetNextItem()
 
     self.hidden_window.Render()
 
