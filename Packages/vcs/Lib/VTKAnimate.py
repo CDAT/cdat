@@ -36,13 +36,13 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     self.controller = controller
 
     # this all happens in the init function because in interaction mode, run basically never happens
-    self.hidden_window = vtk.vtkRenderWindow()
-    self.hidden_window.SetOffScreenRendering(1)
+    self.offscreen_window = vtk.vtkRenderWindow()
+    self.offscreen_window.SetOffScreenRendering(1)
     self.controller._unique_prefix=hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
     self.bg_ren = vtk.vtkRenderer()
-    self.hidden_window.SetNumberOfLayers(2)
+    self.offscreen_window.SetNumberOfLayers(2)
     self.bg_ren.SetLayer(0)
-    self.hidden_window.AddRenderer(self.bg_ren)
+    self.offscreen_window.AddRenderer(self.bg_ren)
     self.controller.animation_created = True
 
   def run(self):
@@ -64,14 +64,14 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 
   def draw_frame(self, frame_num, png_name):
     """
-    Draw the specified frame on the background window, render to png_name, add to controller's animation_files
+    Draw the specified frame on the offscreen window, render to png_name, add to controller's animation_files
     """
     update_input(self.controller, update=False)
 
-    self.hidden_window.Render()
+    self.offscreen_window.Render()
 
     imgfiltr = vtk.vtkWindowToImageFilter()
-    imgfiltr.SetInput(self.hidden_window)
+    imgfiltr.SetInput(self.offscreen_window)
     imgfiltr.Update()
     writer = vtk.vtkPNGWriter()
     writer.SetInputConnection(imgfiltr.GetOutputPort())
@@ -126,7 +126,7 @@ class VTKAnimate(animate_helper.AnimationController):
     def extract_renderers(self):
         """
         Pulls all non-background renderers from the main window, and moves them
-        to the background window in the creation thread.
+        to the offscreen window in the creation thread.
         """
         if self.cleared:
             return
@@ -139,21 +139,21 @@ class VTKAnimate(animate_helper.AnimationController):
         ren = renderers.GetNextItem()
 
         be.hideGUI()
-        self.create_thread.hidden_window.SetNumberOfLayers(be.renWin.GetNumberOfLayers())
+        self.create_thread.offscreen_window.SetNumberOfLayers(be.renWin.GetNumberOfLayers())
         while ren is not None:
             if not ren.GetLayer() == 0:
                 be.renWin.RemoveRenderer(ren)
-                self.create_thread.hidden_window.AddRenderer(ren)
+                self.create_thread.offscreen_window.AddRenderer(ren)
             else:
                 self.create_thread.bg_ren.SetBackground(*ren.GetBackground())
             ren = renderers.GetNextItem()
         be.showGUI()
 
-        self.create_thread.hidden_window.SetSize(*be.renWin.GetSize())
+        self.create_thread.offscreen_window.SetSize(*be.renWin.GetSize())
 
     def reclaim_renderers(self):
         """
-        Returns all renderers from the background window to the main window.
+        Returns all renderers from the offscreen window to the main window.
         """
         if not self.cleared:
             return
@@ -172,12 +172,12 @@ class VTKAnimate(animate_helper.AnimationController):
             if ren.GetLayer() != 0:
                 be.renWin.RemoveRenderer(ren)
             ren = renderers.GetNextItem()
-        renderers = self.create_thread.hidden_window.GetRenderers()
+        renderers = self.create_thread.offscreen_window.GetRenderers()
         renderers.InitTraversal()
         ren = renderers.GetNextItem()
         while ren is not None:
             if not ren.GetLayer() == 0:
-                self.create_thread.hidden_window.RemoveRenderer(ren)
+                self.create_thread.offscreen_window.RemoveRenderer(ren)
                 be.renWin.AddRenderer(ren)
             ren = renderers.GetNextItem()
         be.showGUI()
