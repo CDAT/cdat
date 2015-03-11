@@ -1320,10 +1320,11 @@ class P(object):
 
         # Do the tickmarks/labels
         if not isinstance(gm,vcs.taylor.Gtd):
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             #displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             #displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             #displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             #displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             pass
 
         if X is None:
           X=slab.getAxis(-1)
@@ -1354,8 +1355,9 @@ class P(object):
                          l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
                      if tp=="box" and num=="1":
-                         #print "Box1:",l.list()
-                         pass
+                         l.x=l.x[:4]
+                         l.y=l.y[:4]
+                         print "Box1:",l.list()
                      displays.append(x.plot(l,bg=bg,**kargs))
                      del(vcs.elements["line"][l.name])
 

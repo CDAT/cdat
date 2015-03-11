@@ -2331,7 +2331,6 @@ Options:::
                 setattr(t,k,parms[k])
                 del(parms[k])
             args.insert(0,t)
-        print "ALIST:",args[0].priority
         arglist=_determine_arg_list('text',args)
         return self.__plot(arglist, parms)
     #
@@ -3520,7 +3519,6 @@ Options:::
                 if arglist[3]=='text':
                     nms = arglist[4].split(":::")
                     P=self.gettext(nms[0],nms[1])
-                    print "REAL PRIO:",P.priority
                     p = self.createtext(Tt_source=nms[0],To_source=nms[1])
                 elif arglist[3]=='marker':
                     p = self.createmarker(source=arglist[4])
@@ -3534,7 +3532,6 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                print "PROJ IS NOW:",proj.type,p.priority
                 if proj.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
 

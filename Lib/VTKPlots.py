@@ -433,7 +433,6 @@ class VTKVCSBackend(object):
           gm.addPlotAttribute( 'url', cdms_file )
       returned.update(self.plot3D(data1,data2,tpl,gm,ren,**kargs))
     elif gtype in ["text"]:
-      print "priority in VTK:",tt.priority
       if tt.priority!=0:
         #if not (None,None,None) in self._renderers.keys():
         ren = self.createRenderer()
@@ -1650,22 +1649,26 @@ class VTKVCSBackend(object):
        pt.SetNumberOfPoints(1)
        Xrg2 = [1.e20,-1.e20]
        Yrg2 = [1.e20,-1.e20]
-       Npts=50.
+       if geo.GetDestinationProjection().GetName() in ["aeqd",]:
+           ## These need more precision to compute actual range
+           Npts=250.
+       else:
+           Npts=50.
        for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
          for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-           pt.SetPoint(0,x,y,0)
+           pt.InsertNextPoint(x,y,0)
            pts = vtk.vtkPoints()
-           geo.TransformPoints(pt,pts)
-           b = pts.GetBounds()
-           xm,xM,ym,yM=b[:4]
-           if xm!=-numpy.inf:
-             Xrg2[0]=min(Xrg2[0],xm)
-           if xM!=numpy.inf:
-             Xrg2[1]=max(Xrg2[1],xM)
-           if ym!=-numpy.inf:
-             Yrg2[0]=min(Yrg2[0],ym)
-           if yM!=numpy.inf:
-             Yrg2[1]=max(Yrg2[1],yM)
+       geo.TransformPoints(pt,pts)
+       b = pts.GetBounds()
+       xm,xM,ym,yM=b[:4]
+       if xm!=-numpy.inf:
+         Xrg2[0]=min(Xrg2[0],xm)
+       if xM!=numpy.inf:
+         Xrg2[1]=max(Xrg2[1],xM)
+       if ym!=-numpy.inf:
+         Yrg2[0]=min(Yrg2[0],ym)
+       if yM!=numpy.inf:
+         Yrg2[1]=max(Yrg2[1],yM)
        Xrg=Xrg2
        Yrg=Yrg2
       sc = self.renWin.GetSize()
