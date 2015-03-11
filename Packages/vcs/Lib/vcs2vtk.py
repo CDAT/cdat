@@ -851,7 +851,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
   if tt.priority==0:
-    return
+    return []
   if string is None:
     string = tt.string
   if x is None:
@@ -859,7 +859,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if y is None:
     y = tt.y
   if x is None or y is None or string in [['',],[]]:
-    return
+    return []
 
   n = max(len(x),len(y),len(string))
   for a in [x,y,string]:
@@ -909,7 +909,7 @@ def prepPrimitive(prim):
 def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
-    return
+    return []
   actors =[]
 
   # Find color map:
@@ -1173,7 +1173,7 @@ def scaleMarkerGlyph(g, gs, pd, a):
 def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
-    return
+    return []
   actors=[]
   for i in range(n):
     g = vtk.vtkGlyph2D()
@@ -1211,7 +1211,7 @@ def prepLine(renWin,line,cmap=None):
   number_lines = prepPrimitive(line)
 
   if number_lines == 0:
-    return
+    return []
 
   actors = []
 
