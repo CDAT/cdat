@@ -948,6 +948,8 @@ class P(object):
         ticks.viewport=vp
         ticks.worldcoordinate=wc
         ticks.priority=obj.priority
+        if ticks.priority!=0:
+            ticks.priority+=50
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         tt.projection = gm.projection
         if axis=="y":
@@ -1020,6 +1022,7 @@ class P(object):
         if xs!=[]:
              ticks._x=xs
              ticks._y=ys
+             print "LINE SENT WITH PRIO:",ticks.priority
              displays.append(x.line(ticks,bg=bg,**kargs))
         del(vcs.elements["line"][ticks.name])
         sp = tt.name.split(":::")
@@ -1350,7 +1353,6 @@ class P(object):
                          l._x=[e._x1,e._x2,e._x2,e._x1,e._x1]
                          l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
-                     if tp == "box" and num == "1":
                      displays.append(x.plot(l,bg=bg,**kargs))
                      del(vcs.elements["line"][l.name])
 

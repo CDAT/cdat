@@ -1260,7 +1260,7 @@ def prepLine(renWin,line,cmap=None):
           pts.InsertNextPoint(x[j],y[j],0.)
         n2 = number_points - 1
     else:
-        pts.InsertNextPoint(x[0],y[0],0.)
+        pts.InsertNextPoint(x[0],y[0],-1.)
         n2=0
         for j in range(1,number_points):
             NPointsInterp = 25

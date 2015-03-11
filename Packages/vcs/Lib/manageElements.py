@@ -1021,7 +1021,7 @@ sct2=vcs.getscatter('quick')          # sct2 instance of existing 'quick' scatte
 getscatter.__doc__ = getscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, scatter_output)
 
 def createline(name=None, source='default', ltype=None, 
-             width=None, color=None, priority=1,
+             width=None, color=None, priority=None,
              viewport=None, worldcoordinate=None,
              x=None, y=None, projection=None):
     """
@@ -1134,7 +1134,7 @@ vcs.line(ln3)                      # Plot using specified line object
     return ln
 
 def createmarker(name=None, source='default', mtype=None,
-             size=None, color=None,priority=1,
+             size=None, color=None,priority=None,
              viewport=None, worldcoordinate=None,
              x=None, y=None,projection=None):
     """
@@ -1245,7 +1245,7 @@ vcs.marker(mrk3)                      # Plot using specified marker object
     return mrk
 
 def createfillarea(name=None, source='default', style=None,
-             index=None, color=None, priority=1,
+             index=None, color=None, priority=None,
              viewport=None, worldcoordinate=None,
              x=None, y=None):
     """
@@ -1354,7 +1354,7 @@ vcs.fillarea(fa3)                      # Plot using specified fill area object
     return fa
 
 def createtexttable(name=None, source='default', font=None,
-             spacing=None, expansion=None, color=None, priority=1,
+             spacing=None, expansion=None, color=None, priority=None,
              viewport=None, worldcoordinate=None,
              x=None, y=None):
     """
@@ -1508,7 +1508,7 @@ to2=vcs.gettextorientation('quick')  # to2 instance of existing 'quick' textorie
       raise ValueError,"The textorientation '%s' does not exists" % To_name_src
     return vcs.elements["textorientation"][To_name_src]
 
-def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=1, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
     """
 Function: createtext or createtextcombined  # Construct a new text combined secondary method
 
