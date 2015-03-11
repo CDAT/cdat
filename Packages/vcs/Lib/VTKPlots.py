@@ -1418,7 +1418,7 @@ class VTKVCSBackend(object):
       if manager:
         self.renWin.RemoveRenderer(manager.renderer)
 
-  def showGUI(self):
+  def showGUI(self, render=True):
 
     plot = self.get3DPlot()
 
@@ -1431,7 +1431,8 @@ class VTKVCSBackend(object):
       if manager:
           self.renWin.AddRenderer(manager.renderer)
           manager.elevate()
-      self.renWin.Render()
+      if render:
+          self.renWin.Render()
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
