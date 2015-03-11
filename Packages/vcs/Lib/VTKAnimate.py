@@ -64,6 +64,9 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     return png_name
 
   def draw_frame(self, frame_num, png_name):
+    """
+    Draw the specified frame on the background window, render to png_name, add to controller's animation_files
+    """
     update_input(self.controller, update=False)
 
     renderers = self.hidden_window.GetRenderers()
@@ -139,6 +142,10 @@ class VTKAnimate(animate_helper.AnimationController):
         atexit.register(self.close)
 
     def extract_renderers(self):
+        """
+        Pulls all non-background renderers from the main window, and moves them
+        to the background window in the creation thread.
+        """
         if self.cleared:
             return
         self.cleared = True
@@ -163,6 +170,9 @@ class VTKAnimate(animate_helper.AnimationController):
         self.create_thread.hidden_window.SetSize(*be.renWin.GetSize())
 
     def reclaim_renderers(self):
+        """
+        Returns all renderers from the background window to the main window.
+        """
         if not self.cleared:
             return
         self.cleared = False
