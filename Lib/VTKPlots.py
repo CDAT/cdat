@@ -189,6 +189,9 @@ class VTKVCSBackend(object):
       self.oldCursor = cursor
       return
 
+    if self.get3DPlot() is not None:
+        return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -1409,9 +1412,9 @@ class VTKVCSBackend(object):
 
   def hideGUI(self):
     plot = self.get3DPlot()
-    if plot: plot.hideWidgets()
-
-    if self.bg is False:
+    if plot:
+        plot.hideWidgets()
+    elif self.bg is False:
       from vtk_ui.manager import get_manager
       manager = get_manager(self.renWin.GetInteractor())
       if manager:
@@ -1419,13 +1422,11 @@ class VTKVCSBackend(object):
 
   def showGUI(self):
     plot = self.get3DPlot()
-
-    if plot: plot.showWidgets()
-
-    if self.bg is False:
+    if plot:
+        plot.showWidgets()
+    elif self.bg is False:
       from vtk_ui.manager import get_manager
       manager = get_manager(self.renWin.GetInteractor())
-
       if manager:
         # Set the UI renderer's layer on top of what's there right now
         layer = self.renWin.GetNumberOfLayers() + 1
