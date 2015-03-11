@@ -1978,7 +1978,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def createline(self,name=None, source='default', ltype=None,
-                 width=None, color=None, priority=1,
+                 width=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None, projection=None):
         return vcs.createline(name,source,ltype,width,color,priority,viewport,worldcoordinate,x,y,projection)
