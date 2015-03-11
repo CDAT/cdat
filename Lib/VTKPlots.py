@@ -1008,8 +1008,8 @@ class VTKVCSBackend(object):
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
           #T=vtk.vtkTexture()
           #T.SetInputConnection(png.GetOutputPort())
-          if isinstance(gm,isofill.Gfi):
-              mappers.append([mapper,])
+          #if isinstance(gm,isofill.Gfi):
+          #    mappers.append([mapper,])
         returned["vtk_backend_luts"]=luts
         if len(cots)>0:
            returned["vtk_backend_contours"]=cots
