@@ -2678,7 +2678,6 @@ Options:::
             #    copy_tmpl=self.createtemplate(source=arglist[2])
         check_mthd = vcs.getgraphicsmethod(arglist[3],arglist[4])
         check_tmpl = vcs.gettemplate(arglist[2])
-        print check_mthd
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
         Doratio = keyargs.get("ratio",None)

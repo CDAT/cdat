@@ -981,7 +981,7 @@ class P(object):
                     end = wc[2]+(wc[3]-wc[2])*(obj.y2-obj.y1)/(self.data._y2-self._data.y1)
                     ys.append([wc[2],end])
                     txs.append(l)
-                    tys.append(wc[2])
+                    tys.append(wc[3])
                     tstring.append(loc[l])
           elif axis=='y':
                if ymn<=l<=ymx:
@@ -1018,7 +1018,6 @@ class P(object):
              tt.string=tstring
              tt.x=txs
              tt.y=tys
-             print "TEXT:",axis,tt.priority
              displays.append(x.text(tt,bg=bg,**kargs))
         if xs!=[]:
              ticks._x=xs
@@ -1320,11 +1319,10 @@ class P(object):
 
         # Do the tickmarks/labels
         if not isinstance(gm,vcs.taylor.Gtd):
-             #displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             #displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             #displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             #displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
-             pass
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
 
         if X is None:
           X=slab.getAxis(-1)
@@ -1354,10 +1352,6 @@ class P(object):
                          l._x=[e._x1,e._x2,e._x2,e._x1,e._x1]
                          l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
-                     if tp=="box" and num=="1":
-                         l.x=l.x[:4]
-                         l.y=l.y[:4]
-                         print "Box1:",l.list()
                      displays.append(x.plot(l,bg=bg,**kargs))
                      del(vcs.elements["line"][l.name])
 

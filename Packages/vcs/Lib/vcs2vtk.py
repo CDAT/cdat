@@ -1263,11 +1263,10 @@ def prepLine(renWin,line,cmap=None):
         pts.InsertNextPoint(x[0],y[0],0.)
         n2=0
         for j in range(1,number_points):
-            if geo.GetDestinationProjection().GetName() in ["aeqd",]:
-                NPointsInterp = 35
+            if vcs.elements["projection"][line.projection].type in ["polar","polar (non gctp)"]:
+                NPointsInterp = 50
             else:
                 NPointsInterp = 25
-            print "Next set"
             for i in range(1,NPointsInterp+1):
                 if x[j]!=x[j-1]:
                     tmpx = x[j-1]+float(i)/NPointsInterp*(x[j]-x[j-1])
@@ -1277,7 +1276,6 @@ def prepLine(renWin,line,cmap=None):
                     tmpy = y[j-1]+float(i)/NPointsInterp*(y[j]-y[j-1])
                 else:
                     tmpy=y[j]
-                print "Intermediate:",tmpx,tmpy
                 pts.InsertNextPoint(tmpx,tmpy,0.)
                 n2+=1
     for j in range(n2):
