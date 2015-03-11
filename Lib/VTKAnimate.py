@@ -101,7 +101,7 @@ class VTKAnimationPlayback(animate_helper.AnimationPlayback):
       self.controller.playback_running = True
       while not self.is_stopped():
           self.wait_if_paused()
-          self.controller.draw_frame(allow_static = False, main_window_png = True)
+          self.controller.draw_frame(allow_static = True, render_offscreen = False, main_window_png = True)
 
           self.controller.frame_num += 1
           if self.controller.frame_num >= self.controller.number_of_frames():
@@ -120,13 +120,15 @@ class VTKAnimate(animate_helper.AnimationController):
         self.AnimationCreate = VTKAnimationCreate
         self.AnimationPlayback = VTKAnimationPlayback
         self.cleared = False
+        self.renderers = []
         import atexit
         atexit.register(self.close)
 
-    def extract_renderers(self):
+    def extract_renderers(self, background=True):
         """
-        Pulls all non-background renderers from the main window, and moves them
-        to the offscreen window in the creation thread.
+        Pulls all non-background renderers from the main window
+        If background is true, it moves the renderers to the offscreen window in the creation thread.
+        Otherwise, it stores them in a list to re-add after animation stops.
         """
         if self.cleared:
             return
@@ -143,7 +145,10 @@ class VTKAnimate(animate_helper.AnimationController):
         while ren is not None:
             if not ren.GetLayer() == 0:
                 be.renWin.RemoveRenderer(ren)
-                self.create_thread.offscreen_window.AddRenderer(ren)
+                if background:
+                    self.create_thread.offscreen_window.AddRenderer(ren)
+                else:
+                    self.renderers.append(ren)
             else:
                 self.create_thread.bg_ren.SetBackground(*ren.GetBackground())
             ren = renderers.GetNextItem()
@@ -155,7 +160,7 @@ class VTKAnimate(animate_helper.AnimationController):
 
     def reclaim_renderers(self):
         """
-        Returns all renderers from the offscreen window to the main window.
+        Returns all renderers to the main window.
         """
         if not self.cleared:
             return
@@ -174,27 +179,31 @@ class VTKAnimate(animate_helper.AnimationController):
             if ren.GetLayer() != 0:
                 be.renWin.RemoveRenderer(ren)
             ren = renderers.GetNextItem()
-        renderers = self.create_thread.offscreen_window.GetRenderers()
-        renderers.InitTraversal()
-        ren = renderers.GetNextItem()
-        while ren is not None:
-            if not ren.GetLayer() == 0:
-                self.create_thread.offscreen_window.RemoveRenderer(ren)
+        if self.renderers:
+            for ren in self.renderers:
                 be.renWin.AddRenderer(ren)
+            self.renderers = []
+        else:
+            renderers = self.create_thread.offscreen_window.GetRenderers()
+            renderers.InitTraversal()
             ren = renderers.GetNextItem()
+            while ren is not None:
+                if not ren.GetLayer() == 0:
+                    self.create_thread.offscreen_window.RemoveRenderer(ren)
+                    be.renWin.AddRenderer(ren)
+                ren = renderers.GetNextItem()
         be.showGUI()
         be.renWin.Render()
 
-    def draw_frame(self, frame_num = None, allow_static=True, main_window_png=False):
+    def draw_frame(self, frame_num = None, render_offscreen=True, allow_static=True, main_window_png=False):
       if frame_num is None:
         frame_num = self.frame_num
       else:
         self.frame_num = frame_num
 
-      if allow_static:
+      if render_offscreen or (allow_static and len(self.animation_files) == self.number_of_frames()):
         # Attempt to extract the renderers and place them onto the create thread
-        self.extract_renderers()
-
+        self.extract_renderers(background=render_offscreen)
         # Retrieve the frame from the create thread and place it on the canvas
         self.vcs_self.put_png_on_canvas(
           self.create_thread.get_frame(self.frame_num),
@@ -202,7 +211,6 @@ class VTKAnimate(animate_helper.AnimationController):
           self.playback_params.vertical_factor,
           self.playback_params.horizontal_factor)
       else:
-        # Attempt to reclaim the renderers from the create thread
         self.reclaim_renderers()
 
         update_input(self)
@@ -210,7 +218,19 @@ class VTKAnimate(animate_helper.AnimationController):
         self.vcs_self.backend.renWin.Render()
 
         if main_window_png:
-            self.vcs_self.png(self.create_thread.get_frame_name(self.frame_num))
+            png_name = self.create_thread.get_frame_name(self.frame_num)
+            self.vcs_self.png(png_name)
+            self.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
 
       if self.signals is not None:
         self.signals.drawn.emit(self.frame_num)
+
+    def stop(self):
+        super(VTKAnimate, self).stop()
+        self.reclaim_renderers()
+
+    def reset(self):
+        self.reclaim_renderers()
+
+    def frame(self, frame):
+        self.draw_frame(frame_num = frame, allow_static = False, render_offscreen = False)
