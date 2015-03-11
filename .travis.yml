@@ -17,3 +17,4 @@ script:
     - mkdir _build
     - cd _build
     - travis_wait cmake -DGIT_PROTOCOL=git:// -DCDAT_BUILD_MODE=DEFAULT -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_SCIPY=OFF ../uvcdat
+    - travis_wait ctest -VV -S ../uvcdat/CMake/travis_build.cmake
