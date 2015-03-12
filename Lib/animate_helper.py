@@ -1024,6 +1024,7 @@ class AnimationController(animate_obj_old):
             rate = self.playback_params.fps()
         files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
         self.vcs_self.ffmpeg(movie, files, bitrate, rate, options)
+        self.animation_files = []
 
   def fps(self, value=None):
     """Animation desired number of frame per seconds (might not be
