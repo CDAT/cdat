@@ -1631,70 +1631,76 @@ class VTKVCSBackend(object):
       else:
         Xrg=[float(wc[0]),float(wc[1])]
         Yrg=[float(wc[2]),float(wc[3])]
-      if Yrg[0]>Yrg[1]:
-        #Yrg=[Yrg[1],Yrg[0]]
-        #T.RotateY(180)
-        Yrg=[Yrg[1],Yrg[0]]
-        flipY = True
-      else:
-        flipY = False
-      if Xrg[0]>Xrg[1]:
-        Xrg=[Xrg[1],Xrg[0]]
-        flipX=True
-      else:
-        flipX=False
 
-      if geo is not None:
-       pt = vtk.vtkPoints()
-       pt.SetNumberOfPoints(1)
-       Xrg2 = [1.e20,-1.e20]
-       Yrg2 = [1.e20,-1.e20]
-       if geo.GetDestinationProjection().GetName() in ["aeqd",]:
-           ## These need more precision to compute actual range
-           Npts=250.
-           print "Yes doing the long one"
-       else:
-           Npts=50.
-       for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
-         for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-           pt.InsertNextPoint(x,y,0)
-           pts = vtk.vtkPoints()
-       geo.TransformPoints(pt,pts)
-       b = pts.GetBounds()
-       xm,xM,ym,yM=b[:4]
-       if xm!=-numpy.inf:
-         Xrg2[0]=min(Xrg2[0],xm)
-       if xM!=numpy.inf:
-         Xrg2[1]=max(Xrg2[1],xM)
-       if ym!=-numpy.inf:
-         Yrg2[0]=min(Yrg2[0],ym)
-       if yM!=numpy.inf:
-         Yrg2[1]=max(Yrg2[1],yM)
-       Xrg=Xrg2
-       Yrg=Yrg2
+      wc_used = (float(Xrg[0]),float(Xrg[1]),float(Yrg[0]),float(Yrg[1]))
       sc = self.renWin.GetSize()
-      wRatio = float(sc[0])/float(sc[1])
-      dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
-      vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
 
-
-      if wRatio>1.: #landscape orientated window
-          yScale = 1.
-          xScale = vRatio*wRatio/dRatio
-      else:
-          xScale = 1.
-          yScale = dRatio/(vRatio*wRatio)
-      ## Ok now we know scaling and vp, let's see if we did this already.
-      if (vp,xScale,yScale) in self._renderers.keys():
+      # Ok at this point this is all the info we need
+      # we can determine if it's a unique renderer or not
+      # let's see if we did this already.
+      if (vp,wc_used,sc) in self._renderers.keys():
         #yep already have one, we will use this Renderer
-        Renderer = self._renderers[(vp,xScale,yScale)]
+        Renderer,xScale,yScale = self._renderers[(vp,wc_used,sc)]
         didRenderer = True
       else:
         Renderer = self.createRenderer()
         self.renWin.AddRenderer(Renderer)
-        self._renderers[(vp,xScale,yScale)]=Renderer
         Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
         didRenderer = False
+
+        if Yrg[0]>Yrg[1]:
+          #Yrg=[Yrg[1],Yrg[0]]
+          #T.RotateY(180)
+          Yrg=[Yrg[1],Yrg[0]]
+          flipY = True
+        else:
+          flipY = False
+        if Xrg[0]>Xrg[1]:
+          Xrg=[Xrg[1],Xrg[0]]
+          flipX=True
+        else:
+          flipX=False
+
+        if geo is not None:
+         pt = vtk.vtkPoints()
+         pt.SetNumberOfPoints(1)
+         Xrg2 = [1.e20,-1.e20]
+         Yrg2 = [1.e20,-1.e20]
+         if geo.GetDestinationProjection().GetName() in ["aeqd",]:
+             ## These need more precision to compute actual range
+             Npts=250.
+             print "Yes doing the long one"
+         else:
+             Npts=50.
+         for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
+           for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
+             pt.InsertNextPoint(x,y,0)
+             pts = vtk.vtkPoints()
+         geo.TransformPoints(pt,pts)
+         b = pts.GetBounds()
+         xm,xM,ym,yM=b[:4]
+         if xm!=-numpy.inf:
+           Xrg2[0]=min(Xrg2[0],xm)
+         if xM!=numpy.inf:
+           Xrg2[1]=max(Xrg2[1],xM)
+         if ym!=-numpy.inf:
+           Yrg2[0]=min(Yrg2[0],ym)
+         if yM!=numpy.inf:
+           Yrg2[1]=max(Yrg2[1],yM)
+         Xrg=Xrg2
+         Yrg=Yrg2
+        wRatio = float(sc[0])/float(sc[1])
+        dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
+        vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
+
+
+        if wRatio>1.: #landscape orientated window
+            yScale = 1.
+            xScale = vRatio*wRatio/dRatio
+        else:
+            xScale = 1.
+            yScale = dRatio/(vRatio*wRatio)
+        self._renderers[(vp,wc_used,sc)] = Renderer,xScale,yScale
 
       T = vtk.vtkTransform()
       T.Scale(xScale,yScale,1.)
