@@ -5,6 +5,7 @@ import time
 import random
 import hashlib
 import os
+import shutil
 import glob
 import vcs
 
@@ -32,12 +33,13 @@ def update_input(canvas, dimensions, frame_num, update=True):
 class VTKAnimationCreate(animate_helper.StoppableThread):
   def __init__(self, controller):
     animate_helper.StoppableThread.__init__(self)
-
     self.controller = controller
+    self.create_prefix()
     self.canvas = vcs.init()
-
-    self.controller._unique_prefix=hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
     self.controller.animation_created = True
+
+  def create_prefix(self):
+    self.controller._unique_prefix = hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
 
   def run(self):
     pass
@@ -236,6 +238,9 @@ class VTKAnimate(animate_helper.AnimationController):
         self.reclaim_renderers()
 
     def reset(self):
+        if self.animation_files:
+            shutil.rmtree(os.path.dirname(self.animation_files[0]))
+        self.create_thread.create_prefix()
         self.reclaim_renderers()
 
     def frame(self, frame):
