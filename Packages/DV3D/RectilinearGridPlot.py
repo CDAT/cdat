@@ -472,10 +472,10 @@ class RectGridPlot(StructuredGridPlot):
             self.clipper.PlaceWidget( self.cropRegion )
             self.clipper.GetPlanes( self.clipPlanes )
 
-    def activateEvent( self, caller, event ):
-        StructuredGridPlot.activateEvent( self, caller, event )
-        self.initializeClipper()
-        self.render()
+#     def activateEvent( self, caller, event ):
+#         DV3DPlot.activateEvent( self, caller, event )
+#         self.initializeClipper()
+# #        self.render()
 
     def getVolumeBounds( self, **args ):
         extent = args.get( "extent", self.input().GetExtent() )

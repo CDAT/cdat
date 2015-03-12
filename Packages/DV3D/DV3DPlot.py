@@ -238,7 +238,7 @@ class DV3DPlot():
         interactionButtons.addSliderButton( names=['BasemapOpacity'], key='B', toggle=True, label='Basemap Opacity', sliderLabels='Basemap Opacity', interactionHandler=self.processBasemapOpacityCommand, range_bounds=[ 0.0, 1.0 ], initValue= 0.5 )
         interactionButtons.addSliderButton( names=['VerticalScaling'], key='Z', toggle=True, label='Vertical Scaling', sliderLabels='Vertical Scale', interactionHandler=self.processVerticalScalingCommand, range_bounds=[ 0.02, 20.0 ], initValue= 1.0 )
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
-        interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
+        interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=[ 'ToggleVolumePlot' ], interactionHandler=self.processToggleClippingCommand  ) # , 'ToggleSurfacePlot'],
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
         interactionButtons.addSliderButton( names=['Animation'], key='a', toggle=True, label='Animation', sliderLabels='Speed (Step Delay)', interactionHandler=self.processAnimationCommand, range_bounds=[ 0.0, 2.0 ], initValue=0.0  )
         cameraFunction = self.cfgManager.getConfigurableFunction( 'Camera', interactionHandler=self.processCameraCommand )
