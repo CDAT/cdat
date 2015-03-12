@@ -6,43 +6,37 @@ import random
 import hashlib
 import os
 import glob
-import vtk
+import vcs
 
 
-def update_input(controller, update=True):
+def update_input(canvas, dimensions, frame_num, update=True):
     ## Ok let's loop through the arrays and figure out the slice needed and update
-    for i,info in enumerate(controller.vcs_self.animate_info):
+    for i,info in enumerate(canvas.animate_info):
       disp,slabs = info
       slab = slabs[0]
       if slab is None:
-        continue # nothing to do
+          continue # nothing to do
       #Ok we have a slab, let's figure which slice it is
-      args=[]
-      Ntot=1
-      for a in slab.getAxisList()[:-controller._number_of_dims_used_for_plot][::-1]:
-         n=controller.frame_num/Ntot % len(a)
-         Ntot*=len(a)
-         args.append(slice(n,n+1))
-      args=args[::-1]
+      args = []
+      Ntot = 1
+      for a in slab.getAxisList()[:-dimensions][::-1]:
+          n = frame_num / Ntot % len(a)
+          Ntot *= len(a)
+          args.append(slice(n,n+1))
+      args = args[::-1]
       if slabs[1] is None:
-          controller.vcs_self.backend.update_input(disp.backend,slab(*args),update=update)
+          canvas.backend.update_input(disp.backend, slab(*args), update=update)
       else:
-          controller.vcs_self.backend.update_input(disp.backend,slab(*args),slabs[1](*args),update=update)
+          canvas.backend.update_input(disp.backend, slab(*args), slabs[1](*args), update=update)
 
 class VTKAnimationCreate(animate_helper.StoppableThread):
   def __init__(self, controller):
     animate_helper.StoppableThread.__init__(self)
 
     self.controller = controller
+    self.canvas = vcs.init()
 
-    # this all happens in the init function because in interaction mode, run basically never happens
-    self.offscreen_window = vtk.vtkRenderWindow()
-    self.offscreen_window.SetOffScreenRendering(1)
     self.controller._unique_prefix=hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
-    self.bg_ren = vtk.vtkRenderer()
-    self.offscreen_window.SetNumberOfLayers(2)
-    self.bg_ren.SetLayer(0)
-    self.offscreen_window.AddRenderer(self.bg_ren)
     self.controller.animation_created = True
 
   def run(self):
@@ -64,19 +58,14 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 
   def draw_frame(self, frame_num, png_name):
     """
-    Draw the specified frame on the offscreen window, render to png_name, add to controller's animation_files
+    Draw the specified frame on the offscreen canvas, render to png_name, add to controller's animation_files
     """
-    update_input(self.controller, update=False)
+    update_input(self.canvas, self.controller._number_of_dims_used_for_plot, frame_num, update=False)
 
-    self.offscreen_window.Render()
+    size = self.controller.vcs_self.backend.renWin.GetSize()
 
-    imgfiltr = vtk.vtkWindowToImageFilter()
-    imgfiltr.SetInput(self.offscreen_window)
-    imgfiltr.Update()
-    writer = vtk.vtkPNGWriter()
-    writer.SetInputConnection(imgfiltr.GetOutputPort())
-    writer.SetFileName(png_name)
-    writer.Write()
+    self.canvas.png(png_name, width=size[0], height=size[1])
+
     self.controller.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
 
   def describe(self):
@@ -124,7 +113,7 @@ class VTKAnimate(animate_helper.AnimationController):
         import atexit
         atexit.register(self.close)
 
-    def extract_renderers(self, background=True):
+    def extract_renderers(self):
         """
         Pulls all non-background renderers from the main window
         If background is true, it moves the renderers to the offscreen window in the creation thread.
@@ -133,30 +122,49 @@ class VTKAnimate(animate_helper.AnimationController):
         if self.cleared:
             return
         self.cleared = True
+
         be = self.vcs_self.backend
-        if be.renWin is None: #Nothing to clear
+
+        if be.renWin is None:
             return
+
         renderers = be.renWin.GetRenderers()
         renderers.InitTraversal()
         ren = renderers.GetNextItem()
 
+        self.create_thread.canvas.backgroundcolor = self.vcs_self.backgroundcolor
+        if self.vcs_self.getdrawlogo():
+            self.create_thread.canvas.drawlogoon()
+        else:
+            self.create_thread.canvas.drawlogooff()
+        self.create_thread.canvas.clear()
+
+        for dnm in self.vcs_self.display_names:
+            d=vcs.elements["display"][dnm]
+            parg = []
+            for a in d.array:
+                if a is not None:
+                    parg.append(a)
+            parg.append(d._template_origin)
+            parg.append(d.g_type)
+            parg.append(d.g_name)
+
+            if d.ratio is not None:
+                kargs = {"ratio":d.ratio, "bg":1}
+            else:
+                kargs = {"bg":1}
+
+            self.create_thread.canvas.plot(*parg, **kargs)
+
         be.hideGUI()
-        self.create_thread.offscreen_window.SetNumberOfLayers(be.renWin.GetNumberOfLayers())
         while ren is not None:
             if not ren.GetLayer() == 0:
                 be.renWin.RemoveRenderer(ren)
-                if background:
-                    self.create_thread.offscreen_window.AddRenderer(ren)
-                else:
-                    self.renderers.append(ren)
-            else:
-                self.create_thread.bg_ren.SetBackground(*ren.GetBackground())
+                self.renderers.append(ren)
             ren = renderers.GetNextItem()
+
         # We don't want to render yet, because we are going to put a PNG on the screen first.
         be.showGUI(render=False)
-
-
-        self.create_thread.offscreen_window.SetSize(*be.renWin.GetSize())
 
     def reclaim_renderers(self):
         """
@@ -168,7 +176,7 @@ class VTKAnimate(animate_helper.AnimationController):
 
         be = self.vcs_self.backend
 
-        if be.renWin is None: #Nothing to clear
+        if be.renWin is None:
             return
 
         be.hideGUI()
@@ -179,19 +187,10 @@ class VTKAnimate(animate_helper.AnimationController):
             if ren.GetLayer() != 0:
                 be.renWin.RemoveRenderer(ren)
             ren = renderers.GetNextItem()
-        if self.renderers:
-            for ren in self.renderers:
-                be.renWin.AddRenderer(ren)
-            self.renderers = []
-        else:
-            renderers = self.create_thread.offscreen_window.GetRenderers()
-            renderers.InitTraversal()
-            ren = renderers.GetNextItem()
-            while ren is not None:
-                if not ren.GetLayer() == 0:
-                    self.create_thread.offscreen_window.RemoveRenderer(ren)
-                    be.renWin.AddRenderer(ren)
-                ren = renderers.GetNextItem()
+
+        for ren in self.renderers:
+            be.renWin.AddRenderer(ren)
+        self.renderers = []
         be.showGUI()
         be.renWin.Render()
 
@@ -210,7 +209,7 @@ class VTKAnimate(animate_helper.AnimationController):
 
       if render_offscreen or (allow_static and len(self.animation_files) == self.number_of_frames()):
         # Attempt to extract the renderers and place them onto the create thread
-        self.extract_renderers(background=render_offscreen)
+        self.extract_renderers()
         # Retrieve the frame from the create thread and place it on the canvas
         self.vcs_self.put_png_on_canvas(
           self.create_thread.get_frame(self.frame_num),
@@ -220,7 +219,7 @@ class VTKAnimate(animate_helper.AnimationController):
       else:
         self.reclaim_renderers()
 
-        update_input(self)
+        update_input(self.vcs_self, self._number_of_dims_used_for_plot, frame_num)
 
         self.vcs_self.backend.renWin.Render()
 
