@@ -819,7 +819,6 @@ class DV3DPlot():
         self.clipper.SetInteractor( self.renderWindowInteractor )
         self.clipper.SetHandleSize( 0.005 )
         self.clipper.SetEnabled( True )
-        self.clipper.InsideOutOn()
         self.clipper.AddObserver( 'StartInteractionEvent', self.startClip )
         self.clipper.AddObserver( 'EndInteractionEvent', self.endClip )
         self.clipper.AddObserver( 'InteractionEvent', self.executeClip )

@@ -823,16 +823,16 @@ class RectGridPlot(StructuredGridPlot):
         if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(surface_input)
         else:                           self.levelSetFilter.SetInputData(surface_input)
 
-#         self.clipper.GetPlanes( self.clipPlanes )
-#         self.polyClipper = vtk.vtkClipPolyData()
-#         self.polyClipper.SetInputConnection( self.levelSetFilter.GetOutputPort() )
-#         self.polyClipper.SetClipFunction( self.clipPlanes )
-#         self.polyClipper.InsideOutOn()
-#         self.polyClipper.GenerateClipScalarsOn()
+        self.clipper.GetPlanes( self.clipPlanes )
+        self.polyClipper = vtk.vtkClipPolyData()
+        self.polyClipper.SetInputConnection( self.levelSetFilter.GetOutputPort() )
+        self.polyClipper.SetClipFunction( self.clipPlanes )
+        self.polyClipper.InsideOutOn()
+        self.polyClipper.GenerateClipScalarsOn()
 
         self.levelSetMapper = vtk.vtkPolyDataMapper()
         self.levelSetMapper.SetColorModeToMapScalars()
-        mapperInputPort = self.levelSetFilter.GetOutputPort() # self.polyClipper.GetOutputPort()
+        mapperInputPort = self.polyClipper.GetOutputPort() # self.levelSetFilter.GetOutputPort()
         if ( self.probeFilter == None ):
             imageRange = self.getImageValues( self.range )
             self.levelSetMapper.SetInputConnection( mapperInputPort )
@@ -1087,15 +1087,15 @@ class RectGridPlot(StructuredGridPlot):
         if args and args[0] == "InitConfig":
             self.toggleClipping( args[1] )
         elif args and args[0] == "Init":
+            if not self.cropRegion: self.initializeClipper()
             plane_positions = config_function.initial_value
             if (plane_positions <> None):
-                if not self.cropRegion: self.initializeClipper()
                 for ip, pval in enumerate( plane_positions ):
                     self.cropRegion[ip] = pval
-                self.clipper.PlaceWidget( self.cropRegion )
-                self.toggleClipping( True )
-                self.executeClip()
-                self.toggleClipping( False )
+                self.clipper.PlaceWidget()
+            self.toggleClipping( True )
+            self.executeClip()
+            self.toggleClipping( False )
 
     def clipObserver( self, caller=None, event=None ):
         print " Clip Observer: %s ", str(event)
