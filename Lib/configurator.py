@@ -545,10 +545,10 @@ class Configurator(object):
             self.initialized = True
 
     def step_forward(self, state):
-        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False)
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def step_back(self, state):
-        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False)
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def save_animation(self, state):
         # Save the animation
@@ -593,7 +593,7 @@ class Configurator(object):
         if self.animation_timer is not None:
             t, self.animation_timer = self.animation_timer, None
             self.interactor.DestroyTimer(t)
-            self.canvas.animate.draw_frame(allow_static = False)
+            self.canvas.animate.draw_frame(allow_static = False, render_offscreen = False)
 
     def set_animation_frame(self, value):
         value = int(value)
