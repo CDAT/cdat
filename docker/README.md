@@ -49,5 +49,5 @@ Note that UV-CDAT probably won't build with the standard VM setup by `boot2docke
 may need to increase the memory and disk size when initializing.  For example, to create a VM with 4 GB of RAM and 
 50 GB of disk space:
 ```
-boot2docker --memory=4096 -disksize=50000
+boot2docker --memory=4096 --disksize=50000
 ```
