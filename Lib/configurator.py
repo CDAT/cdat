@@ -538,7 +538,7 @@ class Configurator(object):
             anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
             anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
-            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame, end=self.final_animation_frame)
             anim_toolbar.add_slider_button(self.animation_speed, 1, 30, "Frames Per Second", update=self.set_animation_speed)
             anim_toolbar.add_button(["Save Animation"], action=self.save_animation)
             self.initialized = True
@@ -599,6 +599,9 @@ class Configurator(object):
         value = int(value)
         self.canvas.animate.draw_frame(value)
         return value
+    def final_animation_frame(self, value):
+        value = int(value)
+        self.canvas.animate.draw_frame(value, allow_static = False, render_offscreen = False)
 
     def set_background_red(self, value):
         _, g, b = self.canvas.backgroundcolor
