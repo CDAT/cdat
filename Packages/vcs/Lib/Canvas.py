@@ -972,6 +972,10 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
 
     def configure(self):
+        for display in self.display_names:
+            d = vcs.elements["display"][display]
+            if "3d" in d.g_type.lower():
+                return
         if self.configurator is None:
             self.configurator = configurator.Configurator(self)
             self.configurator.update()
