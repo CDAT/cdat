@@ -192,6 +192,9 @@ class VTKVCSBackend(object):
       self.oldCursor = cursor
       return
 
+    if self.get3DPlot() is not None:
+        return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -1412,25 +1415,26 @@ class VTKVCSBackend(object):
 
   def hideGUI(self):
     plot = self.get3DPlot()
-    if plot: plot.hideWidgets()
 
-    if self.bg is False:
+    if plot:
+        plot.hideWidgets()
+    elif self.bg is False:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
           self.renWin.RemoveRenderer(manager.renderer)
 
   def showGUI(self, render=True):
-
     plot = self.get3DPlot()
 
-    if plot: plot.showWidgets()
-
-    if self.bg is False:
+    if plot:
+        plot.showWidgets()
+    elif self.bg is False:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
           self.renWin.AddRenderer(manager.renderer)
+          # Bring the manager's renderer to the top of the stack
           manager.elevate()
       if render:
           self.renWin.Render()
