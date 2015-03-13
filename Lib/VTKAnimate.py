@@ -240,6 +240,7 @@ class VTKAnimate(animate_helper.AnimationController):
     def reset(self):
         if self.animation_files:
             shutil.rmtree(os.path.dirname(self.animation_files[0]))
+            self.animation_files = []
         self.create_thread.create_prefix()
         self.reclaim_renderers()
 
