@@ -583,12 +583,13 @@ class Configurator(object):
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
             self.animation_last_frame_time = datetime.datetime.now()
             self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
 
     def start_animating(self):
-        self.animation_timer = self.interactor.CreateRepeatingTimer(int(1000.0 / self.animation_speed))
+        if self.animation_timer is None:
+            self.animation_timer = self.interactor.CreateRepeatingTimer(int(1000.0 / self.animation_speed))
 
     def stop_animating(self):
         if self.animation_timer is not None:
