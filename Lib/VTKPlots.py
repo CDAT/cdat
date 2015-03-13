@@ -227,7 +227,7 @@ class VTKVCSBackend(object):
       self.canvas.plot(*pargs, render = False, **key_args[i])
 
     if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
-      self.canvas.animate.draw_frame()
+      self.canvas.animate.draw_frame(allow_static = False, render_offscreen=False)
 
     self.showGUI()
 
@@ -1377,6 +1377,7 @@ class VTKVCSBackend(object):
       return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
 
   def put_img_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+    self.hideGUI()
     readerFactory = vtk.vtkImageReader2Factory()
     reader = readerFactory.CreateImageReader2(filename)
     reader.SetFileName(filename)
@@ -1405,6 +1406,7 @@ class VTKVCSBackend(object):
     layer = self.renWin.GetNumberOfLayers() - 2
     ren.SetLayer(layer)
     self.renWin.AddRenderer(ren)
+    self.showGUI(render=False)
     self.renWin.Render()
     return
 

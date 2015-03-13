@@ -64,9 +64,7 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     """
     update_input(self.canvas, self.controller._number_of_dims_used_for_plot, frame_num, update=False)
 
-    size = self.controller.vcs_self.backend.renWin.GetSize()
-
-    self.canvas.png(png_name, width=size[0], height=size[1])
+    self.canvas.png(png_name)
 
     self.controller.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
 
@@ -112,8 +110,49 @@ class VTKAnimate(animate_helper.AnimationController):
         self.AnimationPlayback = VTKAnimationPlayback
         self.cleared = False
         self.renderers = []
+        self.last_size = None
+        self.modified_listener = None
         import atexit
         atexit.register(self.close)
+
+    def modified(self, obj, event):
+        # Use this to sync canvas sizes and to prevent configureEvent from blowing things up
+        new_size = obj.GetSize()
+        if self.last_size == new_size:
+            return
+
+        self.last_size = new_size
+        self.create_thread.canvas.backend.renWin.SetSize(new_size)
+        self.create_thread.canvas.backend.configureEvent(self.create_thread.canvas, "ModifiedEvent")
+
+        if self.renderers is None or len(self.renderers) > 0:
+            # If we're displaying a PNG, we'll skip the configureEvent action on vcs_self's backend so it doesn't break anything
+            self.vcs_self.backend._lastSize = new_size
+            # All of the images are now the wrong size; need to blow them all away.
+            if self.animation_files:
+                shutil.rmtree(os.path.dirname(self.animation_files[0]))
+                self.animation_files = []
+            # We'll use None as a sentinel value to tell us to replot in retrieve_renderers
+            self.renderers = None
+
+    def plot_to_canvas(self, canvas, displays, **kargs):
+        # Store in case clear is nuking the canvas that holds the displays
+        real_displays = [vcs.elements['display'][d] for d in displays]
+        canvas.clear()
+        for d in real_displays:
+            parg = []
+            for a in d.array:
+                if a is not None:
+                    parg.append(a)
+            parg.append(d._template_origin)
+            parg.append(d.g_type)
+            parg.append(d.g_name)
+            karg = {}
+            karg.update(kargs)
+            if d.ratio is not None:
+                karg.update({"ratio":d.ratio})
+
+            canvas.plot(*parg, **karg)
 
     def extract_renderers(self):
         """
@@ -130,35 +169,13 @@ class VTKAnimate(animate_helper.AnimationController):
         if be.renWin is None:
             return
 
+        be.hideGUI()
+
+        self.plot_to_canvas(self.create_thread.canvas, self.vcs_self.display_names, bg=1)
+
         renderers = be.renWin.GetRenderers()
         renderers.InitTraversal()
         ren = renderers.GetNextItem()
-
-        self.create_thread.canvas.backgroundcolor = self.vcs_self.backgroundcolor
-        if self.vcs_self.getdrawlogo():
-            self.create_thread.canvas.drawlogoon()
-        else:
-            self.create_thread.canvas.drawlogooff()
-        self.create_thread.canvas.clear()
-
-        for dnm in self.vcs_self.display_names:
-            d=vcs.elements["display"][dnm]
-            parg = []
-            for a in d.array:
-                if a is not None:
-                    parg.append(a)
-            parg.append(d._template_origin)
-            parg.append(d.g_type)
-            parg.append(d.g_name)
-
-            if d.ratio is not None:
-                kargs = {"ratio":d.ratio, "bg":1}
-            else:
-                kargs = {"bg":1}
-
-            self.create_thread.canvas.plot(*parg, **kargs)
-
-        be.hideGUI()
         while ren is not None:
             if not ren.GetLayer() == 0:
                 be.renWin.RemoveRenderer(ren)
@@ -182,6 +199,7 @@ class VTKAnimate(animate_helper.AnimationController):
             return
 
         be.hideGUI()
+
         renderers = be.renWin.GetRenderers()
         renderers.InitTraversal()
         ren = renderers.GetNextItem()
@@ -190,8 +208,11 @@ class VTKAnimate(animate_helper.AnimationController):
                 be.renWin.RemoveRenderer(ren)
             ren = renderers.GetNextItem()
 
-        for ren in self.renderers:
-            be.renWin.AddRenderer(ren)
+        if self.renderers is not None:
+            for ren in self.renderers:
+                be.renWin.AddRenderer(ren)
+        else:
+            self.plot_to_canvas(self.vcs_self, self.vcs_self.display_names)
         self.renderers = []
         be.showGUI()
         be.renWin.Render()
@@ -204,6 +225,8 @@ class VTKAnimate(animate_helper.AnimationController):
         allow_static: Whether or not we allow the drawn frame to be a static image
         main_window_png: Whether or not to render the canvas into a PNG file to use later
       """
+      if self.modified_listener is None:
+          self.modified_listener = self.vcs_self.backend.renWin.AddObserver("ModifiedEvent", self.modified, 25)
       if frame_num is None:
         frame_num = self.frame_num
       else:
