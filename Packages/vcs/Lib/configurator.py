@@ -571,6 +571,7 @@ class Configurator(object):
         if save_path == '':
             return
         self.canvas.animate.save(save_path)
+        self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
 
     def set_animation_speed(self, value):
         v = int(value)
