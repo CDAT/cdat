@@ -71,13 +71,13 @@ class InterfaceManager(object):
             self.widgets.remove(widget)
             if len(self.widgets) == 0:
                 del ui_managers[self.interactor]
-                del self.window
-                del self.renderer
-                del self.interactor
+                self.detach()
 
     def detach(self):
         for w in self.widgets:
             w.detach()
+        if self.window.HasRenderer(self.renderer):
+            self.window.RemoveRenderer(self.renderer)
         self.interactor.RemoveObserver(self.timer_listener)
         self.window.RemoveObserver(self.window_mod)
         self.window.RemoveObserver(self.render_listener)
