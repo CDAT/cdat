@@ -358,8 +358,6 @@ class Configurator(object):
 
 
     def click(self, object, event):
-        if self.animation_timer:
-            self.stop_animating()
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def show(self):
