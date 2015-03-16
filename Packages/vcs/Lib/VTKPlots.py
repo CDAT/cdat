@@ -455,14 +455,12 @@ class VTKVCSBackend(object):
         returned["vtk_backend_line_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
-            ren.AddActor(act)
     elif gtype=="marker":
       if gm.priority!=0:
         actors = vcs2vtk.prepMarker(self.renWin,gm)
         returned["vtk_backend_marker_actors"]=actors
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
-            ren.AddActor(act)
             if pd is None and act.GetUserTransform():
               vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
 
@@ -472,7 +470,6 @@ class VTKVCSBackend(object):
         returned["vtk_backend_fillarea_actors"]=actors
         for act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
-            ren.AddActor(act)
     elif gtype=="1d":
       #self.renWin.AddRenderer(ren)
       returned.update(self.plot1D(data1,data2,tpl,gm))
@@ -706,8 +703,6 @@ class VTKVCSBackend(object):
     x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,data1.getAxis(-1),data1.getAxis(-2))
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2],priority=tmpl.data.priority)
-    if tmpl.data.priority!=0:
-        ren.AddActor(act)
     returned.update(self.renderTemplate(tmpl,data1,gm,taxis,zaxis))
     if self.canvas._continents is None:
       continents = False
@@ -1172,8 +1167,6 @@ class VTKVCSBackend(object):
         # (we need one for each mapper because of cmaera flips)
         ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
                 wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
-        if tmpl.data.priority>0:
-            ren.AddActor(act)
       returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
@@ -1228,11 +1221,6 @@ class VTKVCSBackend(object):
 
       ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
               wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
-      if tmpl.data.priority!=0:
-        ren.AddActor(contActor)
-        col = ren.GetActors()
-        col.InitTraversal()
-        n=col.GetNextActor()
       return {}
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
@@ -1707,6 +1695,24 @@ class VTKVCSBackend(object):
         self.setLayer(Renderer,priority)
         self._renderers[(vp,wc_used,sc,priority)] = Renderer,xScale,yScale
 
+        xc = xScale*float(Xrg[1]+Xrg[0])/2.
+        yc = yScale*float(Yrg[1]+Yrg[0])/2.
+        xd = xScale*float(Xrg[1]-Xrg[0])/2.
+        yd = yScale*float(Yrg[1]-Yrg[0])/2.
+        cam = Renderer.GetActiveCamera()
+        cam.ParallelProjectionOn()
+        cam.SetParallelScale(yd)
+        cd = cam.GetDistance()
+        cam.SetPosition(xc,yc,cd)
+        cam.SetFocalPoint(xc,yc,0.)
+        if geo is None:
+          if flipY:
+            cam.Elevation(180.)
+            cam.Roll(180.)
+            pass
+          if flipX:
+            cam.Azimuth(180.)
+
       T = vtk.vtkTransform()
       T.Scale(xScale,yScale,1.)
 
@@ -1750,24 +1756,7 @@ class VTKVCSBackend(object):
               plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
               plane = planeCollection.GetNextItem()
 
-      if not didRenderer:
-        xc = xScale*float(Xrg[1]+Xrg[0])/2.
-        yc = yScale*float(Yrg[1]+Yrg[0])/2.
-        xd = xScale*float(Xrg[1]-Xrg[0])/2.
-        yd = yScale*float(Yrg[1]-Yrg[0])/2.
-        cam = Renderer.GetActiveCamera()
-        cam.ParallelProjectionOn()
-        cam.SetParallelScale(yd)
-        cd = cam.GetDistance()
-        cam.SetPosition(xc,yc,cd)
-        cam.SetFocalPoint(xc,yc,0.)
-        if geo is None:
-          if flipY:
-            cam.Elevation(180.)
-            cam.Roll(180.)
-            pass
-          if flipX:
-            cam.Azimuth(180.)
+      Renderer.AddActor(Actor)
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
