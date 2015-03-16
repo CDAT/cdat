@@ -948,8 +948,6 @@ class P(object):
         ticks.viewport=vp
         ticks.worldcoordinate=wc
         ticks.priority=obj.priority
-        if ticks.priority!=0:
-            ticks.priority+=50
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         tt.projection = gm.projection
         if axis=="y":
