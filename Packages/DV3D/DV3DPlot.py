@@ -932,9 +932,8 @@ class DV3DPlot():
         if (self.type == '3d_vector') or not enable_3d_plots:
             sliderLabels= 'Slice Position' if enable_3d_plots else []
             b = bbar.addSliderButton( names=['ZSlider'],  key='z', visible=enable_3d_plots, toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )
-            if not enable_3d_plots:
-                vs_button = self.buttonBarHandler.findButton( 'VerticalScaling' )
-                if vs_button is not None: vs_button.setVisibility( False )
+            vs_button = self.buttonBarHandler.findButton( 'VerticalScaling' )
+            if vs_button is not None: vs_button.setVisibility( False )
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
             b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )

@@ -723,14 +723,17 @@ class ButtonBarWidget(ButtonBar):
             self.releaseSlider( index )
 
     def positionSlider(self, position_index, n_sliders ):
-        slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
-        sliderRep = swidget.GetRepresentation( )
-        sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )
-        sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
-        sliderRep.Modified()
-        swidget.Modified()
-        sliderRep.NeedToRenderOn()
+        try:
+            slider_pos = self.slider_postions[ n_sliders ]
+            ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
+            sliderRep = swidget.GetRepresentation( )
+            sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )
+            sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
+            sliderRep.Modified()
+            swidget.Modified()
+            sliderRep.NeedToRenderOn()
+        except Exception, err:
+            print>>sys.stderr, " Error in positionSlider: ", str( err )
 
     def setSliderValues( self, values ):
         for index, value in enumerate(values):
