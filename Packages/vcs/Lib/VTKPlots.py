@@ -404,6 +404,12 @@ class VTKVCSBackend(object):
       gm = vcs.elements[gtype][gname]
     tpl = vcs.elements["template"][template]
 
+    try:
+        priority = gm.priority
+    except:
+        priority = -1
+    print "plot:",gtype,"priority=%d"%priority,"call=%d"%self.numberOfPlotCalls
+
     if kargs.get("renderer",None) is None:
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
@@ -448,28 +454,25 @@ class VTKVCSBackend(object):
         actors = vcs2vtk.prepLine(self.renWin,gm)
         returned["vtk_backend_line_actors"]=actors
         for act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
     elif gtype=="marker":
       if gm.priority!=0:
         actors = vcs2vtk.prepMarker(self.renWin,gm)
         returned["vtk_backend_marker_actors"]=actors
         for g,gs,pd,act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
             ren.AddActor(act)
             if pd is None and act.GetUserTransform():
               vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
-            self.setLayer(ren,gm.priority)
 
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
         returned["vtk_backend_fillarea_actors"]=actors
         for act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
     elif gtype=="1d":
       #self.renWin.AddRenderer(ren)
       returned.update(self.plot1D(data1,data2,tpl,gm))
@@ -591,6 +594,7 @@ class VTKVCSBackend(object):
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
+    print "setting layer to",n,"for renderer at",hex(id(renderer))
     pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
@@ -701,11 +705,9 @@ class VTKVCSBackend(object):
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,data1.getAxis(-1),data1.getAxis(-2))
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-    ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+    ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2],priority=tmpl.data.priority)
     if tmpl.data.priority!=0:
         ren.AddActor(act)
-        self.setLayer(ren,tmpl.data.priority)
-    ren.AddActor(act)
     returned.update(self.renderTemplate(tmpl,data1,gm,taxis,zaxis))
     if self.canvas._continents is None:
       continents = False
@@ -1168,10 +1170,10 @@ class VTKVCSBackend(object):
           pass
         # create a new renderer for this mapper
         # (we need one for each mapper because of cmaera flips)
-        ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+        ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
+                wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
         if tmpl.data.priority>0:
             ren.AddActor(act)
-            self.setLayer(ren,tmpl.data.priority)
       returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
@@ -1224,9 +1226,9 @@ class VTKVCSBackend(object):
       else:
           geo=None
 
-      ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+      ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
+              wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
       if tmpl.data.priority!=0:
-        self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(contActor)
         col = ren.GetActors()
         col.InitTraversal()
@@ -1622,8 +1624,10 @@ class VTKVCSBackend(object):
             self.setLayer(self.logoRenderer,1)
             self.renWin.AddRenderer(self.logoRenderer)
 
-  def fitToViewport(self,Actor,vp,wc=None,geo=None):
+  def fitToViewport(self,Actor,vp,wc=None,geo=None,priority=None):
       ## Data range in World Coordinates
+      if priority==0:
+          return None
       vp=tuple(vp)
       if wc is None:
         Xrg = list(Actor.GetXRange())
@@ -1638,15 +1642,16 @@ class VTKVCSBackend(object):
       # Ok at this point this is all the info we need
       # we can determine if it's a unique renderer or not
       # let's see if we did this already.
-      if (vp,wc_used,sc) in self._renderers.keys():
+      if (vp,wc_used,sc,priority) in self._renderers.keys():
         #yep already have one, we will use this Renderer
-        Renderer,xScale,yScale = self._renderers[(vp,wc_used,sc)]
+        Renderer,xScale,yScale = self._renderers[(vp,wc_used,sc,priority)]
         didRenderer = True
       else:
         Renderer = self.createRenderer()
         self.renWin.AddRenderer(Renderer)
         Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
         didRenderer = False
+        self.setLayer(Renderer,priority)
 
         if Yrg[0]>Yrg[1]:
           #Yrg=[Yrg[1],Yrg[0]]
@@ -1700,7 +1705,7 @@ class VTKVCSBackend(object):
         else:
             xScale = 1.
             yScale = dRatio/(vRatio*wRatio)
-        self._renderers[(vp,wc_used,sc)] = Renderer,xScale,yScale
+        self._renderers[(vp,wc_used,sc,priority)] = Renderer,xScale,yScale
 
       T = vtk.vtkTransform()
       T.Scale(xScale,yScale,1.)
