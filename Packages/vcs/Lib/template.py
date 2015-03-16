@@ -945,27 +945,28 @@ class P(object):
         # i put them together assuming it would be faster
         ticks=x.createline(source=obj.line)
         ticks.projection = gm.projection
-        ticks.viewport=vp
-        ticks.worldcoordinate=wc
         ticks.priority=obj.priority
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         tt.projection = gm.projection
         tt.priority=objlabl.priority
-        if axis=="y":
-            tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
-            if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
-                tt.priority=0
-        else:
-            if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
-                xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
-                ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
-                vp = [xmn*.75,xmx*1.1,ymn*.85,ymx*1.015]
-                tt.viewport=vp
-                pass
-            else:
-                tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
+        if vcs.elements["projection"][gm.projection].type!="linear":
+          ticks.viewport=vp
+          ticks.worldcoordinate=wc
+          tt.worldcoordinate=wc
+          if axis=="y":
+              tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
+              if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+                  tt.priority=0
+          else:
+              if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+                  xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
+                  ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
+                  vp = [xmn*.75,xmx*1.1,ymn*.85,ymx*1.015]
+                  tt.viewport=vp
+                  pass
+              else:
+                  tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
 
-        tt.worldcoordinate=wc
         # initialize the list of values
         tstring=[]
         xs=[]
@@ -984,14 +985,26 @@ class P(object):
         for l in loc.keys():
           if axis=='x':
                if xmn<=l<=xmx:
+                 if vcs.elements["projection"][gm.projection].type=="linear":
+                   xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
+                   ys.append([obj.y1,obj.y2])
+                   txs.append((l-wc[0])/dx+vp[0])
+                   tys.append(objlabl.y)
+                 else:
                     xs.append([l,l])
                     end = wc[2]+(wc[3]-wc[2])*(obj.y2-obj.y1)/(self.data._y2-self._data.y1)
                     ys.append([wc[2],end])
                     txs.append(l)
                     tys.append(wc[3])
-                    tstring.append(loc[l])
+                 tstring.append(loc[l])
           elif axis=='y':
                if ymn<=l<=ymx:
+                 if vcs.elements["projection"][gm.projection].type=="linear":
+                   ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
+                   xs.append([obj.x1,obj.x2])
+                   tys.append((l-wc[2])/dy+vp[2])
+                   txs.append(objlabl.x)
+                 else:
                     ys.append([l,l])
                     end = wc[0]+(wc[1]-wc[0])*(obj._x2-obj._x1)/(self._data._x2-self._data.x1)
                     if vcs.elements["projection"][gm.projection].type!="linear" and end<-180.:
@@ -999,7 +1012,7 @@ class P(object):
                     xs.append([wc[0],end])
                     tys.append(l)
                     txs.append(wc[0])
-                    tstring.append(loc[l])
+                 tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
             obj=getattr(self,axis+'mintic'+number)
@@ -1010,12 +1023,22 @@ class P(object):
                     a=getattr(gm,axis+'mtics'+number)[l]
                     if axis=='x':
                         if xmn<=l<=xmx:
+                         if vcs.elements["projection"][gm.projection].type=="linear":
+                           xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
+                           ys.append([obj.y1,obj.y2])
+                           tstring.append(a)
+                         else:
                              xs.append([l,l])
                              ys.append([wc[2],
                                  wc[2]+(wc[3]-wc[2])*(obj._y-ynum)/(self._data._y2-self._data._y1)])
                              tstring.append(a)
                     elif axis=='y':
                         if ymn<=l<=ymx:
+                         if vcs.elements["projection"][gm.projection].type=="linear":
+                           ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
+                           xs.append([obj.x1,obj.x2])
+                           tstring.append(a)
+                         else:
                              ys.append([l,l])
                              xs.append([wc[0],
                                  wc[0]+(wc[1]-wc[0])*(obj._x-xnum)/(self._data._x2-self._data._x1)])
