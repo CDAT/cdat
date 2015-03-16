@@ -404,12 +404,6 @@ class VTKVCSBackend(object):
       gm = vcs.elements[gtype][gname]
     tpl = vcs.elements["template"][template]
 
-    try:
-        priority = gm.priority
-    except:
-        priority = -1
-    print "plot:",gtype,"priority=%d"%priority,"call=%d"%self.numberOfPlotCalls
-
     if kargs.get("renderer",None) is None:
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
@@ -591,8 +585,6 @@ class VTKVCSBackend(object):
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
-    print "setting layer to",n,"for renderer at",hex(id(renderer))
-    pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
@@ -1661,7 +1653,6 @@ class VTKVCSBackend(object):
          if geo.GetDestinationProjection().GetName() in ["aeqd",]:
              ## These need more precision to compute actual range
              Npts=250.
-             print "Yes doing the long one"
          else:
              Npts=50.
          for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):

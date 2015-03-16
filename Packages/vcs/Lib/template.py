@@ -950,13 +950,22 @@ class P(object):
         ticks.priority=obj.priority
         tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
         tt.projection = gm.projection
+        tt.priority=objlabl.priority
         if axis=="y":
             tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
+            if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+                tt.priority=0
         else:
-            tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
+            if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+                xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
+                ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
+                vp = [xmn*.75,xmx*1.1,ymn*.85,ymx*1.015]
+                tt.viewport=vp
+                pass
+            else:
+                tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
 
         tt.worldcoordinate=wc
-        tt.priority=objlabl.priority
         # initialize the list of values
         tstring=[]
         xs=[]
