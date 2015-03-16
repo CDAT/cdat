@@ -1651,7 +1651,6 @@ class VTKVCSBackend(object):
         self.renWin.AddRenderer(Renderer)
         Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
         didRenderer = False
-        self.setLayer(Renderer,priority)
 
         if Yrg[0]>Yrg[1]:
           #Yrg=[Yrg[1],Yrg[0]]
@@ -1705,6 +1704,7 @@ class VTKVCSBackend(object):
         else:
             xScale = 1.
             yScale = dRatio/(vRatio*wRatio)
+        self.setLayer(Renderer,priority)
         self._renderers[(vp,wc_used,sc,priority)] = Renderer,xScale,yScale
 
       T = vtk.vtkTransform()
