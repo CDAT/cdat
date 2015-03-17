@@ -1647,18 +1647,20 @@ class VTKVCSBackend(object):
 
         if geo is not None:
          pt = vtk.vtkPoints()
-         pt.SetNumberOfPoints(1)
          Xrg2 = [1.e20,-1.e20]
          Yrg2 = [1.e20,-1.e20]
          if geo.GetDestinationProjection().GetName() in ["aeqd",]:
              ## These need more precision to compute actual range
-             Npts=250.
+             Npts=250
          else:
-             Npts=50.
+             Npts=50
+         NGridCover=0
+         pt.SetNumberOfPoints(Npts*Npts)
          for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
            for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-             pt.InsertNextPoint(x,y,0)
-             pts = vtk.vtkPoints()
+             pt.SetPoint(NGridCover,x,y,0)
+             NGridCover+=1
+         pts = vtk.vtkPoints()
          geo.TransformPoints(pt,pts)
          b = pts.GetBounds()
          xm,xM,ym,yM=b[:4]
