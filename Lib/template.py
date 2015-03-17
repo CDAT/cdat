@@ -961,7 +961,12 @@ class P(object):
               if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
                   xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
                   ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
-                  vp = [xmn*.75,xmx*1.1,ymn*.85,ymx*1.015]
+                  widen = .02
+                  xmn -= widen
+                  xmx += widen
+                  ymn -= widen
+                  ymx += widen
+                  vp = [max(0.,xmn),min(xmx,1.),max(0,ymn),min(ymx,1.)]
                   tt.viewport=vp
                   pass
               else:
@@ -1374,14 +1379,17 @@ class P(object):
                          dx = (e._x2-e._x1)/(self.data.x2-self.data.x1)*(wc2[1]-wc2[0])
                          dy = (e._y2-e._y1)/(self.data.y2-self.data.y1)*(wc2[3]-wc2[2])
                          if tp == "line":
-                             l._x=[wc2[0],wc2[0]+dx]
-                             l._y=[wc2[2],wc2[2]+dy]
+                             l._x = [wc2[0],wc2[0]+dx]
+                             l._y = [wc2[2],wc2[2]+dy]
+                         elif tp=="box" and vcs.elements["projection"][l.projection].type in ["polar (non gctp)",]:
+                             l._x = [[-180.,180],[-180.,180]]
+                             l._y = [wc2[3],wc2[3]],[wc2[2],wc2[2]]
                          else:
                              l._x = [wc2[0],wc2[0]+dx,wc2[0]+dx,wc2[0],wc2[0]]
                              l._y = [wc2[2],wc2[2],wc2[3],wc2[3],wc2[2]]
                      else:
-                         l._x=[e._x1,e._x2,e._x2,e._x1,e._x1]
-                         l._y=[e._y1,e._y1,e._y2,e._y2,e._y1]
+                         l._x = [e._x1,e._x2,e._x2,e._x1,e._x1]
+                         l._y = [e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
                      displays.append(x.plot(l,bg=bg,**kargs))
                      del(vcs.elements["line"][l.name])
