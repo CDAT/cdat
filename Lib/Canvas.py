@@ -3551,7 +3551,7 @@ Options:::
                     else:
                         arglist[4]=p.name
                 else:
-                  if arglist[3]=='text':
+                  if arglist[3]=='text' and keyargs.get("donotstoredisplay",False) is True:
                       sp = p.name.split(":::")
                       del(vcs.elements["texttable"][sp[0]])
                       del(vcs.elements["textorientation"][sp[1]])

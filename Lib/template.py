@@ -1318,9 +1318,10 @@ class P(object):
                     dp.backend["vtk_backend_template_attribute"] = "dataname"
                   displays.append(dp)
                 sp = tt.name.split(":::")
-                del(vcs.elements["texttable"][sp[0]])
-                del(vcs.elements["textorientation"][sp[1]])
-                del(vcs.elements["textcombined"][tt.name])
+                if kargs.get("donotstoredisplay",True):
+                    del(vcs.elements["texttable"][sp[0]])
+                    del(vcs.elements["textorientation"][sp[1]])
+                    del(vcs.elements["textcombined"][tt.name])
                 
 
         kargs["donotstoredisplay"]=True
