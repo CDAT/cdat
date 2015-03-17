@@ -1406,7 +1406,7 @@ class VTKVCSBackend(object):
     cam.SetFocalPoint(xc+xoff,yc+yoff,0.)
     cam.SetPosition(xc+xoff,yc+yoff,d)
     ren.AddActor(a)
-    layer = self.renWin.GetNumberOfLayers() - 2
+    layer = max(self.renWin.GetNumberOfLayers() - 2, 0)
     ren.SetLayer(layer)
     self.renWin.AddRenderer(ren)
     self.showGUI(render=False)

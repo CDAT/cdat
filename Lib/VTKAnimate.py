@@ -157,8 +157,7 @@ class VTKAnimate(animate_helper.AnimationController):
     def extract_renderers(self):
         """
         Pulls all non-background renderers from the main window
-        If background is true, it moves the renderers to the offscreen window in the creation thread.
-        Otherwise, it stores them in a list to re-add after animation stops.
+        and stores them in a list to re-add after animation stops.
         """
         if self.cleared:
             return
