@@ -362,6 +362,7 @@ class VTKVCSBackend(object):
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+      self._lastSize = (self.canvas.bgX, self.canvas.bgY)
 
   def open(self):
     self.createRenWin( open=True )
