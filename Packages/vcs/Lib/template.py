@@ -1366,7 +1366,8 @@ class P(object):
                 e = getattr(self,tp+num)
                 if e.priority!=0:
                      l=x.createline(source=e.line)
-                     l.projection=gm.projection
+                     if hasattr(gm,"projection"):
+                         l.projection=gm.projection
                      if vcs.elements["projection"][l.projection].type!="linear":
                          l.worldcoordinate=wc2
                          l.viewport=[e._x1,e._x2,e._y1,e._y2]
