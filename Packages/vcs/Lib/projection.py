@@ -22,6 +22,10 @@ import VCS_validation_functions
 import vcs
 import copy
 
+#projection that seems to be doing a circle
+# We will probably to add some more in it as we find more that fit this
+round_projections = ['albers equal area','polar (non gctp)','stereographic',
+        'gnomonic', 'orthographic',"aeqd","ortho","poly","aea"]
 def process_src(nm,code):
   try:
     gm = Proj(nm)
