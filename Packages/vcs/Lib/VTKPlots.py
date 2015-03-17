@@ -47,7 +47,7 @@ class VTKVCSBackend(object):
     self.logoRepresentation = None
     self.renderer = None
     self._renderers = {}
-    self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
+    self._plot_keywords = [ 'renderer','vtk_backend_grid','vtk_backend_geo', 'cdmsfile', 'cell_coordinates' ]
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
 
