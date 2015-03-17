@@ -73,6 +73,7 @@ canvas_closed = 0
 import vcsaddons
 import vcs.manageElements
 import configurator
+from projection import round_projections
 
 class SIGNAL(object):
 
@@ -3482,7 +3483,7 @@ Options:::
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
             p=self.getprojection(gm.projection)
-            if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
+            if p.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
@@ -3531,7 +3532,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in ["polar (non gctp)","polar stereographic"]:
+                if proj.type in round_projections:
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
@@ -3576,7 +3577,7 @@ Options:::
                       tp="textcombined"
                     gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
-                if p.type in ["polar (non gctp)","polar stereographic"]:
+                if p.type in round_projections:
                   doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':

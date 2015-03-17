@@ -35,6 +35,7 @@ from Pdata import *
 from types import *
 import inspect
 import cdutil
+from projection import round_projections
 
 ## Following for class properties
 def _getgen(self,name):
@@ -955,10 +956,10 @@ class P(object):
           tt.worldcoordinate=wc
           if axis=="y":
               tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
-              if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+              if vcs.elements["projection"][tt.projection].type in round_projections:
                   tt.priority=0
           else:
-              if vcs.elements["projection"][tt.projection].type in ["polar (non gctp)"]:
+              if vcs.elements["projection"][tt.projection].type in round_projections:
                   xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
                   ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
                   widen = .02
@@ -1326,6 +1327,9 @@ class P(object):
         if not isinstance(gm,vcs.taylor.Gtd):
           nms = ["x","y","z","t"]
           for i,ax in enumerate(slab.getAxisList()[::-1]):
+             if nms[i] in ["x","y"] and hasattr(gm,"projection") and \
+                     vcs.elements["projection"][gm.projection].type in round_projections:
+                continue
              nm=nms[i]+"name"
              sub = getattr(self,nm)
              tt=x.createtext(None,sub.texttable,None,sub.textorientation)
@@ -1381,7 +1385,7 @@ class P(object):
                          if tp == "line":
                              l._x = [wc2[0],wc2[0]+dx]
                              l._y = [wc2[2],wc2[2]+dy]
-                         elif tp=="box" and vcs.elements["projection"][l.projection].type in ["polar (non gctp)",]:
+                         elif tp=="box" and vcs.elements["projection"][l.projection].type in round_projections:
                              l._x = [[-180.,180],[-180.,180]]
                              l._y = [wc2[3],wc2[3]],[wc2[2],wc2[2]]
                          else:

@@ -10,6 +10,7 @@ from vtk.util import numpy_support as VN
 import cdms2
 import warnings
 import cdtime
+from projection import round_projections
 
 f = open(os.path.join(vcs.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
@@ -1263,7 +1264,7 @@ def prepLine(renWin,line,cmap=None):
         pts.InsertNextPoint(x[0],y[0],0.)
         n2=0
         for j in range(1,number_points):
-            if vcs.elements["projection"][line.projection].type in ["polar","polar (non gctp)"]:
+            if vcs.elements["projection"][line.projection].type in round_projections:
                 NPointsInterp = 50
             else:
                 NPointsInterp = 25
