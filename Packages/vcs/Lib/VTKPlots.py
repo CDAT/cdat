@@ -1661,7 +1661,7 @@ class VTKVCSBackend(object):
              pt.InsertPoint(NGridCover,x,y,0)
              NGridCover+=1
          pts = vtk.vtkPoints()
-         pts.SetNumberOfPoints(Npts*Npts)
+         #pts.SetNumberOfPoints(Npts*Npts)
          geo.TransformPoints(pt,pts)
          b = pts.GetBounds()
          xm,xM,ym,yM=b[:4]
