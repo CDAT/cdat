@@ -962,11 +962,12 @@ class P(object):
               if vcs.elements["projection"][tt.projection].type in round_projections:
                   xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
                   ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
-                  widen = .02
-                  xmn -= widen
-                  xmx += widen
-                  ymn -= widen
-                  ymx += widen
+                  xwiden = .02
+                  ywiden = .02
+                  xmn -= xwiden
+                  xmx += xwiden
+                  ymn -= ywiden
+                  ymx += ywiden
                   vp = [max(0.,xmn),min(xmx,1.),max(0,ymn),min(ymx,1.)]
                   tt.viewport=vp
                   pass
@@ -1054,7 +1055,7 @@ class P(object):
              tt.string=tstring
              tt.x=txs
              tt.y=tys
-             displays.append(x.text(tt,bg=bg,**kargs))
+             displays.append(x.text(tt,bg=bg,ratio="none",**kargs))
         if xs!=[]:
              ticks._x=xs
              ticks._y=ys
