@@ -1848,21 +1848,4 @@ class VTKVCSBackend(object):
                           t.SetInput("%g" % l[0])
 
       if update:
-        ##Ok let's go thru all renderers
-        renderers = self.renWin.GetRenderers()
-        renderers.InitTraversal()
-        ren = renderers.GetNextItem()
-        i=0
-        while ren:
-          i+=1
-          actors = ren.GetActors()
-          actors.InitTraversal()
-          actor = actors.GetNextItem()
-          j=0
-          while actor:
-            j+=1
-            m = actor.GetMapper()
-            m.Update()
-            actor=actors.GetNextItem()
-          ren=renderers.GetNextItem()
         self.renWin.Render()
