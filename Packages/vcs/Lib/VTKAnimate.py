@@ -37,6 +37,8 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     self.create_prefix()
     self.canvas = vcs.init()
     self.controller.animation_created = True
+    import atexit
+    atexit.register(self.close)
 
   def create_prefix(self):
     self.controller._unique_prefix = hashlib.sha1(time.asctime()+str(random.randint(0,10000))).hexdigest()
@@ -78,6 +80,8 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
         print "Array:",info[1][0].shape
       else:
         print "No Array"
+  def close(self):
+      self.canvas.close()
 
 class VTKAnimationPlayback(animate_helper.AnimationPlayback):
   def __init__(self, controller):
