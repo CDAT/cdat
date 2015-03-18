@@ -1397,7 +1397,7 @@ class P(object):
                          l._x = [e._x1,e._x2,e._x2,e._x1,e._x1]
                          l._y = [e._y1,e._y1,e._y2,e._y2,e._y1]
                      l._priority=e._priority
-                     displays.append(x.plot(l,bg=bg,**kargs))
+                     displays.append(x.plot(l,bg=bg,ratio="none",**kargs))
                      del(vcs.elements["line"][l.name])
 
         #x.mode=m
