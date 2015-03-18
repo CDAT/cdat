@@ -18,7 +18,7 @@ def isNone(obj):
 def lsize( axis ):
     try:     return axis.size()
     except:  return axis.size
-    
+
 def getVarAttribute( var, attribute_name_list ):
     for attribute_name in attribute_name_list:
         try:
@@ -35,38 +35,38 @@ class PlotType:
     List = 0
     Grid = 1
     LevelAliases = [ 'isobaric', "layers", "interfaces"  ]
-    
+
     @classmethod
     def validCoords( cls, lat, lon ):
         return ( id(lat) <> id(None) ) and ( id(lon) <> id(None) )
-    
+
     @classmethod
     def isLevelAxis( cls, pid ):
         lname = pid.lower()
         if ( lname.find('lev')  >= 0 ): return True
         if ( lname.find('bottom') >= 0 ) and ( lname.find('top') >= 0 ): return True
         if pid in cls.LevelAliases: return True
-        return False    
+        return False
 
     @classmethod
     def getPointsLayout( cls, grid ):
         if grid <> None:
-            if (grid.__class__.__name__ in ( "RectGrid", "TransientRectGrid", "FileRectGrid") ): 
+            if (grid.__class__.__name__ in ( "RectGrid", "TransientRectGrid", "FileRectGrid") ):
                 return cls.Grid
-        return cls.List  
+        return cls.List
 
 class MultiVarPointCollection():
 
     def __init__( self ):
         self.iTimeStep = 0
         self.point_data = None
-        self.vtk_planar_points = None                                  
+        self.vtk_planar_points = None
         self.cameraOrientation = {}
         self.topo = PlotType.Planar
         self.lon_data = None
-        self.lat_data = None 
+        self.lat_data = None
         self.z_scaling = None
-        self.hgt_var = None 
+        self.hgt_var = None
         self.metadata = {}
         self.istart = 0
         self.istep = 1
@@ -80,7 +80,7 @@ class MultiVarPointCollection():
         self.vertical_bounds = None
         self.maxStageHeight = 100.0
         self.var_data_cache = {}
-        self.vars = {} 
+        self.vars = {}
         self.thresholdTargetType = None
         self.selected_index_array = None
         self.value_bounds = None
@@ -88,16 +88,16 @@ class MultiVarPointCollection():
     def setROI( self, ROI ):
         self.roi = ROI
         self.initPoints()
-               
+
     def configure(self, **args ):
         self.maxStageHeight = args.get('maxStageHeight', self.maxStageHeight )
         self.roi = args.get('roi', None )
         self.value_bounds = args.get('vthresh', None )
         self.level_range = args.get('level_range', None )
-        
+
     def getGridType(self):
         return self.point_layout
-    
+
     def getCoordIndex( self, var, coord ):
         try:
             axis_order = var.getOrder()
@@ -198,9 +198,9 @@ class MultiVarPointCollection():
                     np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                 else:
                     print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
-            
+
         return np_var_data_block
-    
+
     def processCoordinates( self, lat, lon ):
 #        print "Process Coordinates, lat = %s%s, lon = %s%s " % ( lat.id, str(lat.shape), lon.id, str(lon.shape)  )
         nz = (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
@@ -240,24 +240,24 @@ class MultiVarPointCollection():
             if lat.units == "radians":
                 radian_conversion_factor = ( 180.0 / math.pi )
                 self.lat_data = self.lat_data * radian_conversion_factor
-                self.lon_data = self.lon_data * radian_conversion_factor                    
+                self.lon_data = self.lon_data * radian_conversion_factor
         except: pass
         xmax, xmin = self.lon_data.max(), self.lon_data.min()
         ymax, ymin = self.lat_data.max(), self.lat_data.min()
         self.axis_bounds[ 'x' ] = ( xmin, xmax )
         self.axis_bounds[ 'y' ] = ( ymin, ymax )
-        self.xcenter =  ( xmax + xmin ) / 2.0       
-        self.xwidth =  ( xmax - xmin ) 
-        self.ycenter =  ( ymax + ymin ) / 2.0       
-        self.ywidth =  ( ymax - ymin ) 
+        self.xcenter =  ( xmax + xmin ) / 2.0
+        self.xwidth =  ( xmax - xmin )
+        self.ycenter =  ( ymax + ymin ) / 2.0
+        self.ywidth =  ( ymax - ymin )
         return lon, lat
 
-    def getNumberOfInputPoints(self): 
+    def getNumberOfInputPoints(self):
         return self.n_input_points
-    
-    def getNumberOfPoints(self): 
-        return len( self.point_data_arrays['x'] ) 
-    
+
+    def getNumberOfPoints(self):
+        return len( self.point_data_arrays['x'] )
+
     def levelsAreAscending(self):
         if self.lev == None: return True
         lev_positive_direction = self.lev.attributes.get('positive','up')
@@ -266,36 +266,35 @@ class MultiVarPointCollection():
             return not lev_values_ascending
         else:
             return lev_values_ascending
-    
+
     def setPointHeights( self, **args ):
 #        print " PointCollection-->setPointHeights, args = %s " % str( args )
         if self.lev == None:
             stage_height = 0.0
             if self.point_layout == PlotType.List:
-                z_data = numpy.empty( self.lon_data.shape, self.lon_data.dtype ) 
-            elif self.point_layout == PlotType.Grid: 
-                z_data = numpy.empty( [ self.lon_data.shape[0] * self.lat_data.shape[0] ], self.lon_data.dtype ) 
+                z_data = numpy.empty( self.lon_data.shape, self.lon_data.dtype )
+            elif self.point_layout == PlotType.Grid:
+                z_data = numpy.empty( [ self.lon_data.shape[0] * self.lat_data.shape[0] ], self.lon_data.dtype )
             z_data.fill( stage_height )
             self.point_data_arrays['z'] = z_data
-        else: 
+        else:
             height_varname = args.get( 'height_var', None )
             z_scaling = args.get( 'z_scale', 1.0 )
             if isinstance( z_scaling, (list, tuple) ): z_scaling = z_scaling[0]
             self.data_height = args.get( 'data_height', None )
             ascending = self.levelsAreAscending()
             stage_height = ( self.maxStageHeight * z_scaling )
-            
             nz = self.level_range[1] - self.level_range[0]
             if height_varname and (height_varname <> self.hgt_var) and (height_varname <> 'Levels' ):
                 hgt_var = self.getProcessedVariable( height_varname )
                 if hgt_var:
                     self.hgt_var = height_varname
                     np_hgt_var_data_block = self.getDataBlock(hgt_var)
-                    zdata = np_hgt_var_data_block.astype( numpy.float32 ) 
+                    zdata = np_hgt_var_data_block.astype( numpy.float32 )
     #                print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
-                    self.vertical_bounds = ( zdata.min(), zdata.max() )  
+                    self.vertical_bounds = ( zdata.min(), zdata.max() )
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
-                    self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height ) 
+                    self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height )
                 else:
                     print>>sys.stderr, "Can't find height var: %s " % height_varname
             else:
@@ -308,19 +307,19 @@ class MultiVarPointCollection():
                     for iz in range( nz ):
                         zvalue = iz * zstep
                         if self.point_layout == PlotType.List:
-                            z_data = numpy.empty( self.lon_data.shape, self.lon_data.dtype ) 
-                        elif self.point_layout == PlotType.Grid: 
-                            z_data = numpy.empty( [ self.lon_data.shape[0] * self.lat_data.shape[0] ], self.lon_data.dtype ) 
+                            z_data = numpy.empty( self.lon_data.shape, self.lon_data.dtype )
+                        elif self.point_layout == PlotType.Grid:
+                            z_data = numpy.empty( [ self.lon_data.shape[0] * self.lat_data.shape[0] ], self.lon_data.dtype )
                         z_data.fill( zvalue )
                         if ascending: np_points_data_list.append( z_data.flat )
                         else: np_points_data_list.insert( 0, z_data.flat )
 #                    print " **** Sample z data value: %s" % str( np_points_data_list[nz/2][10] )
-                    self.point_data_arrays['z'] = numpy.concatenate( np_points_data_list ).astype( numpy.float32 ) 
-        self.vertical_bounds =  ( 0.0, stage_height )  
+                    self.point_data_arrays['z'] = numpy.concatenate( np_points_data_list ).astype( numpy.float32 )
+        self.vertical_bounds =  ( 0.0, stage_height )
         self.axis_bounds[ 'z' ] = self.vertical_bounds
-        
-    def getAxisBounds( self, axis=None ): 
-        return self.getBounds() if ( axis == None ) else self.axis_bounds[ axis ]                 
+
+    def getAxisBounds( self, axis=None ):
+        return self.getBounds() if ( axis == None ) else self.axis_bounds[ axis ]
 
     def computePoints( self, **args ):
         nz = self.level_range[1] - self.level_range[0]
@@ -332,20 +331,20 @@ class MultiVarPointCollection():
             grid_data_y = numpy.repeat( self.lat_data, self.lon_data.shape[0] )  
             self.point_data_arrays['x'] = numpy.tile( grid_data_x, nz )  
             self.point_data_arrays['y'] = numpy.tile( grid_data_y, nz )  
-        
+
     def getBounds(self):
-        return self.axis_bounds[ 'x' ] + self.axis_bounds[ 'y' ] + self.axis_bounds[ 'z' ] 
+        return self.axis_bounds[ 'x' ] + self.axis_bounds[ 'y' ] + self.axis_bounds[ 'z' ]
 
     def getPointsLayout( self, var ):
         return PlotType.getPointsLayout( var.getGrid() )
-    
+
     def getAxisIds( self, var ):
         if not hasattr( var, "coordinates" ):
             return None
-        axis_ids = var.coordinates.strip().split(' ')  
-        try: 
-            axis_ids[0].lower().index('lat') 
-            return [ axis_ids[1], axis_ids[0] ]  
+        axis_ids = var.coordinates.strip().split(' ')
+        try:
+            axis_ids[0].lower().index('lat')
+            return [ axis_ids[1], axis_ids[0] ]
         except:
             return axis_ids
 
@@ -355,45 +354,45 @@ class MultiVarPointCollection():
 #         if grid_file:
 #             lat = grid_file['lat']
 #             lon = grid_file['lon']
-#             if PlotType.validCoords( lat, lon ): 
+#             if PlotType.validCoords( lat, lon ):
 #                 return  self.processCoordinates( lat, lon )
-        Var = self.var        
+        Var = self.var
         axis_ids = self.getAxisIds( Var )
         lat = None
         lon = None
         if axis_ids:
             try:
-                if grid_file:   
+                if grid_file:
                     lon = grid_file( axis_ids[0], squeeze=1 )
-                    lat = grid_file( axis_ids[1], squeeze=1 )  
+                    lat = grid_file( axis_ids[1], squeeze=1 )
                 elif data_file:
                     lon = data_file( axis_ids[0], squeeze=1 )
-                    lat = data_file( axis_ids[1], squeeze=1 )  
+                    lat = data_file( axis_ids[1], squeeze=1 )
             except cdms2.error.CDMSError:
                 print>>sys.stderr, "Can't find lat/lon coordinate variables in file(s)."
                 return None, None
-            if PlotType.validCoords( lat, lon ): 
+            if PlotType.validCoords( lat, lon ):
                 return  self.processCoordinates( lat, lon )
         elif hasattr( Var, "stagger" ):
             stagger = Var.stagger.strip()
             if data_file <> None:
-                lat = data_file( "XLAT_%s" % stagger, squeeze=1 )  
+                lat = data_file( "XLAT_%s" % stagger, squeeze=1 )
                 lon = data_file( "XLONG_%s" % stagger, squeeze=1 )
-                if PlotType.validCoords( lat, lon ): 
+                if PlotType.validCoords( lat, lon ):
                     return  self.processCoordinates( lat, lon )
 
-        lat = Var.getLatitude()  
+        lat = Var.getLatitude()
         lon = Var.getLongitude()
-        if PlotType.validCoords( lat, lon ): 
+        if PlotType.validCoords( lat, lon ):
             return  self.processCoordinates( lat.getValue(), lon.getValue() )
-        
-        lon_coord = grid_coords[0] 
+
+        lon_coord = grid_coords[0]
         lon = data_file( lon_coord, squeeze=1 ) if lon_coord else None
-        lat_coord = grid_coords[1] 
-        lat = data_file( lat_coord, squeeze=1 )  if lat_coord else None 
-        if PlotType.validCoords( lat, lon ): 
-            return  self.processCoordinates( lat, lon )  
-        
+        lat_coord = grid_coords[1]
+        lat = data_file( lat_coord, squeeze=1 )  if lat_coord else None
+        if PlotType.validCoords( lat, lon ):
+            return  self.processCoordinates( lat, lon )
+
         lon_coord_names = [ 'east_west', 'west_east']
         lat_coord_names = [ 'north_south', 'south_north' ]
         for axis_spec in Var.getDomain():
@@ -403,15 +402,15 @@ class MultiVarPointCollection():
             for aname in lat_coord_names:
                 if axis_spec[0].id.lower().find( aname ) <> -1:
                     lat = axis_spec[0]
-        if PlotType.validCoords( lat, lon ): 
+        if PlotType.validCoords( lat, lon ):
             return  self.processCoordinates( lat.getValue(), lon.getValue() )
-        
+
         axis_ids = []
         longitude_names = [ 'longitude', 'column longitude' ]
         latitude_names = [ 'latitude', 'column latitude' ]
         for axis_spec in Var.getDomain():
             if not ( axis_spec[0].isLevel() or axis_spec[0].isTime() ):
-                axis_ids.append( axis_spec[0].id ) 
+                axis_ids.append( axis_spec[0].id )
         for dset in [ data_file, grid_file ]:
             if dset:
                 for cvar_name in dset.variables:
@@ -420,24 +419,24 @@ class MultiVarPointCollection():
                     if ( len( cvar_axis_ids ) == 1 ) and ( cvar_axis_ids[0] in axis_ids ):
                         if hasattr( cvar, 'long_name' ):
                             if ( cvar.long_name.lower() in longitude_names ):
-                                lon = dset( cvar.id, squeeze=1 )   
+                                lon = dset( cvar.id, squeeze=1 )
                             elif ( cvar.long_name.lower() in latitude_names ):
-                                lat = dset( cvar.id, squeeze=1 )   
+                                lat = dset( cvar.id, squeeze=1 )
                         if hasattr( cvar, 'standard_name' ):
                             if ( cvar.standard_name.lower() in longitude_names ):
-                                lon = dset( cvar.id, squeeze=1 )   
+                                lon = dset( cvar.id, squeeze=1 )
                             elif ( cvar.standard_name.lower() in latitude_names ):
-                                lat = dset( cvar.id, squeeze=1 )   
-        if PlotType.validCoords( lat, lon ): 
-            return  self.processCoordinates( lat, lon ) 
-        print>>sys.stdout, "Error, Can't find grid axes!"  
+                                lat = dset( cvar.id, squeeze=1 )
+        if PlotType.validCoords( lat, lon ):
+            return  self.processCoordinates( lat, lon )
+        print>>sys.stdout, "Error, Can't find grid axes!"
         return None, None
-    
+
     def setDataSlice(self, istart, **args ):
         self.istart = istart
         self.istep = args.get( 'istep', -1 )
         self.max_points = args.get( 'max_points', -1 )
-        
+
     def getLevel(self, var ):
         lev_aliases =  [ "isobaric", "bottom_top", "layers", "interfaces" ]
         lev = var.getLevel()
@@ -471,16 +470,16 @@ class MultiVarPointCollection():
             self.iTimeStep = 0
         grid_var_name = self.var.id
         if process:
-            var_data = self.var_data_cache.get( self.iTimeStep, None ) 
+            var_data = self.var_data_cache.get( self.iTimeStep, None )
             if id(var_data) == id(None):
-                var_data = self.getDataBlock(self.var)  
+                var_data = self.getDataBlock(self.var)
                 self.var_data_cache[ self.iTimeStep ] = var_data
             self.point_data_arrays[ grid_var_name ] = var_data.data
-            self.vrange[grid_var_name] = ( var_data.min(), var_data.max() ) 
+            self.vrange[grid_var_name] = ( var_data.min(), var_data.max() )
         return process
-    
+
     def getProcessedVariable( self, var_proc_op = None ):
-        var = self.df[ self.grid_vars[0] ] if ( (self.df <> None) and ( type( self.grid_vars[0] ) == str ) ) else self.grid_vars[0]           
+        var = self.df[ self.grid_vars[0] ] if ( (self.df <> None) and ( type( self.grid_vars[0] ) == str ) ) else self.grid_vars[0]
         self.point_layout = self.getPointsLayout( var )
         if isNone( var ):
             print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( self.grid_vars[0] )
@@ -493,65 +492,65 @@ class MultiVarPointCollection():
 #         if var_proc_op == "anomaly_t":
 #             var = cdutil.averager( var, axis='time' )
         return var
-    
+
 #     def subsetUnstructuredVar(self, var, roi ):
 #         return var   # Subset later
 
     def getMetadata( self ):
         return self.metadata
 
-    def initialize( self, args, **cfg_args ): 
+    def initialize( self, args, **cfg_args ):
         self.configure( **cfg_args )
         ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace, zscale ) = args
         self.interface = interface
         self.roi = ROI
         self.gf = cdms2.open( grid_file ) if grid_file else None
-        self.df = cdms2.open( data_file ) if data_file else None         
+        self.df = cdms2.open( data_file ) if data_file else None
         self.grid_vars = grd_vars if ( grd_vars <> None ) else self.df.variables[0]
         self.grid_coords = grd_coords
         self.initPoints( var_proc_op, zscale )
-        
+
     def initPoints( self, var_proc_op=None, z_scale = 0.5 ):
         self.var = self.getProcessedVariable( var_proc_op )
         varname = self.var.id
         self.grid = self.var.getGrid()
         self.lev = self.getLevel(self.var)
-        lon, lat = self.getLatLon( self.grid_coords )  
-        if not ( isNone(lat) or isNone(lon) ): 
+        lon, lat = self.getLatLon( self.grid_coords )
+        if not ( isNone(lat) or isNone(lon) ):
             self.vars[ 'lat' ] = lat
-            self.metadata[ 'lat' ] = ( getattr( lat, 'long_name', 'Latitude' ), getattr( lat, 'units', None ), self.axis_bounds.get( 'y', None ) )  
-            self.vars[ 'lon' ] = lon 
-            self.metadata[ 'lon' ] = ( getattr( lon, 'long_name', 'Longitude' ), getattr( lon, 'units', None ), self.axis_bounds.get( 'x', None ) )  
-            self.time = self.var.getTime()        
+            self.metadata[ 'lat' ] = ( getattr( lat, 'long_name', 'Latitude' ), getattr( lat, 'units', None ), self.axis_bounds.get( 'y', None ) )
+            self.vars[ 'lon' ] = lon
+            self.metadata[ 'lon' ] = ( getattr( lon, 'long_name', 'Longitude' ), getattr( lon, 'units', None ), self.axis_bounds.get( 'x', None ) )
+            self.time = self.var.getTime()
             self.missing_value = self.var.attributes.get( 'missing_value', None )
             if self.lev == None:
                 domain = self.var.getDomain()
                 for axis in domain:
                     if PlotType.isLevelAxis( axis[0].id.lower() ):
                         self.lev = axis[0]
-                        break 
-            if self.lev <> None: 
+                        break
+            if self.lev <> None:
                 self.vars[ 'lev' ] = self.lev
             var_data = self.getDataBlock( self.var )
 
             self.computePoints()
             self.point_data_arrays[ 'lon' ] = self.point_data_arrays['x']                                
-            self.point_data_arrays[ 'lat' ] = self.point_data_arrays['y']                            
+            self.point_data_arrays[ 'lat' ] = self.point_data_arrays['y']
             self.setPointHeights( height_var=self.grid_coords[3], z_scale=z_scale )
-            if self.lev <> None: 
-                self.metadata[ 'lev' ] = ( self.lev.__dict__.get('long_name',self.lev.id), self.lev.units, self.axis_bounds.get( 'z', None ) ) 
-                self.point_data_arrays[ 'lev' ] = self.point_data_arrays['z'] 
+            if self.lev <> None:
+                self.metadata[ 'lev' ] = ( self.lev.__dict__.get('long_name',self.lev.id), self.lev.units, self.axis_bounds.get( 'z', None ) )
+                self.point_data_arrays[ 'lev' ] = self.point_data_arrays['z']
 
             self.vars[ varname ] = self.var
             if not isNone( var_data ):
                 self.point_data_arrays[ varname ] = var_data
                 vrng = ( var_data.min(), var_data.max() )
-                self.vrange[ varname ] = vrng 
+                self.vrange[ varname ] = vrng
 #                self.var_data_cache[ self.iTimeStep ] = var_data
-                var_long_name = getVarAttribute( self.var, [ 'long_name', 'name_in_file', 'id' ] )             
-                var_units = getVarAttribute( self.var, [ 'units' ] ) 
+                var_long_name = getVarAttribute( self.var, [ 'long_name', 'name_in_file', 'id' ] )
+                var_units = getVarAttribute( self.var, [ 'units' ] )
                 self.metadata[ varname ] = ( var_long_name, var_units, vrng )
-        
+
     def getPoints(self):
         #print " ---- getPoints ---- "
         point_comps = [ self.point_data_arrays[comp].flat for comp in [ 'x', 'y', 'z'] ]
@@ -559,9 +558,9 @@ class MultiVarPointCollection():
 
     def getPointIndices(self):
         return self.selected_index_array
-    
+
     def getPointHeights(self):
-        return self.point_data_arrays['z'] 
+        return self.point_data_arrays['z']
 
     def getVarData(self, var_name=None):
         if not var_name: var_name = self.var.id
@@ -574,13 +573,13 @@ class MultiVarPointCollection():
     def getThresholdedRange(self, var_name=None ):
         if not var_name: var_name = self.var.id
         return self.thresholded_range.get( var_name, None )
-    
+
     def getThresholdTargetType(self):
         return self.thresholdTargetType
-        
+
     def getNLevels(self):
         return (len( self.lev ) if self.lev else 1) if (self.level_range is None) else  ( self.level_range[1]-self.level_range[0] )
-    
+
     def computeThresholdRange( self, args ):
 #        print " computeThresholdRange: ", str( args )
         try:
@@ -600,7 +599,7 @@ class MultiVarPointCollection():
             var_data = threshold_target
             var_data_id = threshold_target.id
 
-        if not isNone(var_data):           
+        if not isNone(var_data):
             arange = self.axis_bounds.get( threshold_target )
             try:
                 if arange:
@@ -619,12 +618,12 @@ class MultiVarPointCollection():
                             pass
                     else:
                         vmin = rmin
-                        vmax = rmax                  
+                        vmax = rmax
                 if not vmin is None:
                     if ( var_data_id == 'z' ):
                         nLev = self.level_range[1]-self.level_range[0]
                         rave = (rmin + rmax)/2
-                        iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  ) 
+                        iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  )
                         lev_val = self.lev[ iLev ]
                         self.thresholded_range[var_data_id] = [ lev_val, lev_val ]
     #                    print "Z threshold Range: %d %f " % ( iLev, lev_val )
@@ -642,7 +641,7 @@ class MultiVarPointCollection():
             for var_op in args[1:]:  
                 var_data, vmin, vmax, var_data_id = self.computeThresholdRange( var_op )
                 if not isNone(var_data):
-                    var_mask = numpy.logical_and( numpy.greater_equal( var_data, vmin ), numpy.less_equal( var_data, vmax ) )  
+                    var_mask = numpy.logical_and( numpy.greater_equal( var_data, vmin ), numpy.less_equal( var_data, vmax ) )
 #                    print "MultiVarPointCollection.execute: %s, mask range = %s  " % ( str( args ), str( (vmin, vmax) ) ); sys.stdout.flush()
                     if isNone(threshold_mask):                       
                         self.thresholdTargetType = 'coords' if var_data_id in [ 'lat', 'lon', 'lev', 'x', 'y', 'z' ] else 'vardata'
@@ -655,15 +654,15 @@ class MultiVarPointCollection():
                 return None, None
             else:
                 index_array = numpy.arange( 0, len(threshold_mask) )
-                self.selected_index_array = index_array[ threshold_mask ]  
-                return vmin, vmax   
-        elif op == 'points': 
+                self.selected_index_array = index_array[ threshold_mask ]
+                return vmin, vmax
+        elif op == 'points':
             #print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
             if not args[2] is None:
-                self.setPointHeights( height_var=args[1], z_scale=args[2] )  
-        elif op == 'ROI': 
+                self.setPointHeights( height_var=args[1], z_scale=args[2] )
+        elif op == 'ROI':
             ROI = args[1]
-            self.setROI(ROI)            
-        elif op == 'timestep': 
-            self.stepTime( **kwargs )  
+            self.setROI(ROI)
+        elif op == 'timestep':
+            self.stepTime( **kwargs )
 

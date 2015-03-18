@@ -234,7 +234,7 @@ class Reader:
                 self.dbf = kwargs["dbf"]
                 if hasattr(self.dbf, "seek"):
                     self.dbf.seek(0)
-        if self.shp or self.dbf:        
+        if self.shp or self.dbf:
             self.load()
         else:
             raise ShapefileException("Shapefile Reader requires a shapefile or file-like object.")
@@ -359,7 +359,7 @@ class Reader:
             record.m = unpack("<d", f.read(8))
         # Seek to the end of this record as defined by the record header because
         # the shapefile spec doesn't require the actual content to meet the header
-        # definition.  Probably allowed for lazy feature deletion. 
+        # definition.  Probably allowed for lazy feature deletion.
         f.seek(next)
         return record
 
@@ -412,7 +412,7 @@ class Reader:
         shp = self.__getFileObj(self.shp)
         shp.seek(100)
         while shp.tell() < self.shpLength:
-            yield self.__shape()    
+            yield self.__shape()
 
     def __dbfHeaderLength(self):
         """Retrieves the header length of a dbf file header."""
@@ -972,8 +972,8 @@ class Writer:
         be written exclusively using saveShp, saveShx, and saveDbf respectively.
         If target is specified but not shp,shx, or dbf then the target path and
         file name are used.  If no options or specified, a unique base file name
-        is generated to save the files and the base file name is returned as a 
-        string. 
+        is generated to save the files and the base file name is returned as a
+        string.
         """
         # Create a unique file name if one is not defined
         if shp:
@@ -987,7 +987,7 @@ class Writer:
             if not target:
                 temp = tempfile.NamedTemporaryFile(prefix="shapefile_",dir=os.getcwd())
                 target = temp.name
-                generated = True         
+                generated = True
             self.saveShp(target)
             self.shp.close()
             self.saveShx(target)
@@ -1116,25 +1116,25 @@ class Editor(Writer):
 
 
 class shapeFileReader:
-    
+
     def __init__(self):
         self._rgb=[ 0.5, 0.7, 0.1 ]
         self._linewidth=5
         self._reader=multiRoiShape()
-        
-        
-    #sets the color of vtk    
-    def setColors(self,rgb):    
+
+
+    #sets the color of vtk
+    def setColors(self,rgb):
        self._rgb=rgb
-        
+
     #sets length of vtk
     def setWidth(self, linewidth):
        self._linewidth=linewidth
-    
+
     #looks for resolution of the file, connects directory paths and then
-    #creates a VTK model of land    
-    def getPolyLines(self,roi, mrsDefFilePath, resFile="high" ): 
-        
+    #creates a VTK model of land
+    def getPolyLines(self,roi, mrsDefFilePath, resFile="high" ):
+
         xr=roi[1]-roi[0]
         yr=roi[3]-roi[2]
         r=max(xr,yr)
@@ -1145,18 +1145,18 @@ class shapeFileReader:
 #         if r>=50 and r<=100:
 #             resFile="medium"
 #         else:
-                       
+
         directory=self._reader.openFile(resFile,mrsDefFilePath)
 #         lonWrap = ( xr > 359 )
 #         if lonWrap:
-#            roi[0] = roi[0] + 0.5 
-#            roi[1] = roi[1] - 0.5 
+#            roi[0] = roi[0] + 0.5
+#            roi[1] = roi[1] - 0.5
         if directory == None: return None
-        
+
 #        print "Retreiving polylines from %s, resolution=%s" % ( mrsDefFilePath, resFile )
         #rel_coastFilePath=self._reader.read(resFile, mrsDefFilePath)
         root_path=os.path.abspath( os.path.dirname( mrsDefFilePath ) )
-        #combines two directories together 
+        #combines two directories together
         full_coastFilePath=os.path.join( root_path, directory)
         sf = Reader(full_coastFilePath)
         shapes = sf.shapes()
@@ -1165,23 +1165,23 @@ class shapeFileReader:
 
 #         roim = [ ( roi[i] % 360.0 ) for i in range(6) ]
 #         for x in range(len(shapes)):
-#             shape =  shapes[x] 
+#             shape =  shapes[x]
 #             nPts = len( shape.points )
 #             idList=vtk.vtkIdList()
 #             for iPt in range(nPts):
 #                 pt = shape.points[iPt]
-#                 if ( pt[0] % 360.0 ) > roim[0] and ( pt[0] % 360.0 )<roim[1]: 
+#                 if ( pt[0] % 360.0 ) > roim[0] and ( pt[0] % 360.0 )<roim[1]:
 #                     if ( pt[1] % 360.0 )>roim[2] and (pt[1] % 360.0 )<roim[3]:
 
         lines = vtk.vtkCellArray()
         for x in range(len(shapes)):
-            shape =  shapes[x] 
+            shape =  shapes[x]
             nPts = len( shape.points )
             parts_queue = [ iPart for iPart in shape.parts ]
             idList = None
             for iPt in range(nPts):
                 if len( parts_queue ) and ( iPt == parts_queue[0] ):
-                    if idList: lines.InsertNextCell(idList) 
+                    if idList: lines.InsertNextCell(idList)
                     idList=vtk.vtkIdList()
                     parts_queue.pop(0)
                     pt0 = None
@@ -1199,24 +1199,24 @@ class shapeFileReader:
                             plen = abs( pt0[0]-pt[0] ) + abs( pt0[1]-pt[1] )
                             if plen > 100:
                                 lines.InsertNextCell(idList)
-                                idList=vtk.vtkIdList()                
-                        ptIndex=points.InsertNextPoint(pt[0], pt[1], 0.0 ) 
+                                idList=vtk.vtkIdList()
+                        ptIndex=points.InsertNextPoint(pt[0], pt[1], 0.0 )
                         idList.InsertNextId(ptIndex)
                         pt0 = pt
                     else: inBounds = False
                 if not inBounds:
                     lines.InsertNextCell(idList)
-                    idList=vtk.vtkIdList()                                          
+                    idList=vtk.vtkIdList()
             lines.InsertNextCell(idList)
         polygon = vtk.vtkPolyData()
         polygon.SetPoints(points)
         polygon.SetLines(lines)
         polygonMapper = vtk.vtkPolyDataMapper()
         if vtk.VTK_MAJOR_VERSION <= 5:  polygonMapper.SetInput(polygon)
-        else:                           polygonMapper.SetInputData(polygon)        
+        else:                           polygonMapper.SetInputData(polygon)
         polygonActor = vtk.vtkActor()
         polygonActor.SetMapper(polygonMapper)
-        
+
         property = vtk.vtkProperty()
         property.SetColor(self._rgb)
         property.SetLineWidth(self._linewidth)
@@ -1224,11 +1224,11 @@ class shapeFileReader:
         return polygonActor
 
 class multiRoiShape:
-    
-     def __init__(self):       
+
+     def __init__(self):
         self.FileMap = {}
-        
-        
+
+
      def openFile( self, res, textFilePath ):
          if not self.FileMap.has_key(textFilePath):
              try:
@@ -1238,7 +1238,7 @@ class multiRoiShape:
                  return None
          resDict =  self.FileMap[textFilePath]
          return resDict[res]
-         
+
      def read(self, textFilePath):
         resDict ={}
         f=open(textFilePath, 'r')
@@ -1246,9 +1246,9 @@ class multiRoiShape:
         for line in lines:
             lineE=line.split('=')
             if len( lineE ) > 1:
-                resDict[ lineE[0].strip() ]  = lineE[1].strip()  
+                resDict[ lineE[0].strip() ]  = lineE[1].strip()
         return resDict
-        
+
 
 # Begin Testing
 def test():

@@ -11,7 +11,7 @@ ExternalProject_Add(uuid
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDS ${uuid_DEPENDENCY}
+  DEPENDS ${uuid_deps}
   ${ep_log_options}
 )
 

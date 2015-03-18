@@ -27,6 +27,8 @@ TAGS
 *.o
 *.class
 *.pyc
+*.project
+*.pydevproject
 *.egg
 *#*
 *.md5
@@ -58,4 +60,3 @@ sources/
 version
 /.hooks-config
 /.idea
-

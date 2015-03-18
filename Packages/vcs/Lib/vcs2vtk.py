@@ -76,7 +76,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
+def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   useStructuredGrid = True
@@ -126,11 +126,11 @@ def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
   if geo is None:
     geo, geopts = project(pts,projection,[xm,xM,ym,yM])
-  ## Sets the vertics into the grid
+  ## Sets the vertices into the grid
   if grid is None:
     if useStructuredGrid:
       vg = vtk.vtkStructuredGrid()
-      vg.SetDimensions(y.shape[1],y.shape[0],1)
+      vg.SetDimensions(data1.shape[1],data1.shape[0],1)
     else:
       vg = vtk.vtkUnstructuredGrid()
     vg.SetPoints(geopts)
@@ -191,7 +191,6 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
         # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
         m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    #print "No mesh data found"
     pass
   if m3 is not None:
     #Create unstructured grid points
@@ -412,6 +411,20 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+
+  # The dataset has some duplicate lines that extend outside of x=[-180, 180],
+  # which will cause wrapping artifacts for certain projections (e.g.
+  # Robinson). Clip out the duplicate data:
+  box = vtk.vtkBox()
+  box.SetXMin(-180., -90., 0.)
+  box.SetXMax(180., 90., 1.)
+  clipper = vtk.vtkClipPolyData()
+  clipper.SetInputData(poly)
+  clipper.InsideOutOn()
+  clipper.SetClipFunction(box)
+  clipper.Update()
+  poly = clipper.GetOutput()
+
   vcsContinents[fnm]=poly
   return poly
 
@@ -426,8 +439,6 @@ def project(pts,projection,wc,geo=None):
   if geo is None:
     geo = vtk.vtkGeoTransform()
     ps = vtk.vtkGeoProjection()
-    #for i in range(ps.GetNumberOfProjections()):
-    #  print i, ps.GetProjectionName(i)
     pd = vtk.vtkGeoProjection()
     names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
     proj_dic = {"polar stereographic":"stere",
@@ -438,12 +449,6 @@ def project(pts,projection,wc,geo=None):
 
     pname = proj_dic.get(projection._type,projection.type)
     projName = pname
-    #for i in range(0,184,2):
-    #  pd.SetName(pd.GetProjectionName(i))
-    #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-    #  pd.SetName(pd.GetProjectionName(i+1))
-    #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
-
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
       if ym<yM:
@@ -621,10 +626,10 @@ def setProjectionParameters(pd,proj):
 dumps={}
 def dump2VTK(obj,fnm=None):
   global dumps
-  if fnm[:-4].lower()!=".vtk":
-    fnm+=".vtk"
   if fnm is None:
     fnm="foo.vtk" % dumps
+  if fnm[:-4].lower()!=".vtk":
+    fnm+=".vtk"
   if fnm in dumps:
     dumps[fnm]+=1
     fnm=fnm[:-4]+"%.3i.vtk" % dumps[fnm]
@@ -821,6 +826,8 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None,
   elif to.halign in [1,'center']:
     p.SetJustificationToCentered()
 
+  p.SetOrientation(-to.angle)
+
   if to.valign in [0,'top']:
     p.SetVerticalJustificationToTop()
   elif to.valign in [2, 'half']:
@@ -844,7 +851,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
   if tt.priority==0:
-    return
+    return []
   if string is None:
     string = tt.string
   if x is None:
@@ -852,7 +859,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if y is None:
     y = tt.y
   if x is None or y is None or string in [['',],[]]:
-    return
+    return []
 
   n = max(len(x),len(y),len(string))
   for a in [x,y,string]:
@@ -863,7 +870,6 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   actors=[]
   for i in range(n):
     t = vtk.vtkTextActor()
-    t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
@@ -903,7 +909,7 @@ def prepPrimitive(prim):
 def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
-    return
+    return []
   actors =[]
 
   # Find color map:
@@ -981,20 +987,200 @@ def genPoly(coords,pts,filled=True):
     pid.SetId(j,j+N)
   return poly
 
+def prepGlyph(g, marker, index=0):
+  t, s = marker.type[index], marker.size[index] * .5
+  gs = vtk.vtkGlyphSource2D()
+  pd = None
+
+  if t=='dot':
+    gs.SetGlyphTypeToCircle()
+    gs.FilledOn()
+  elif t=='circle':
+    gs.SetGlyphTypeToCircle()
+    gs.FilledOff()
+  elif t=='plus':
+    gs.SetGlyphTypeToCross()
+    gs.FilledOff()
+  elif t=='cross':
+    gs.SetGlyphTypeToCross()
+    gs.SetRotationAngle(45)
+    gs.FilledOff()
+  elif t[:6]=='square':
+    gs.SetGlyphTypeToSquare()
+    gs.FilledOff()
+  elif t[:7]=='diamond':
+    gs.SetGlyphTypeToDiamond()
+    gs.FilledOff()
+  elif t[:8]=='triangle':
+    gs.SetGlyphTypeToTriangle()
+    gs.FilledOff()
+    if t[9]=="d":
+      gs.SetRotationAngle(180)
+    elif t[9]=="l":
+      gs.SetRotationAngle(90)
+    elif t[9]=="r":
+      gs.SetRotationAngle(-90)
+    elif t[9]=="u":
+      gs.SetRotationAngle(0)
+  elif t == "hurricane":
+    s =s/5.
+    ds = vtk.vtkDiskSource()
+    ds.SetInnerRadius(.55*s)
+    ds.SetOuterRadius(1.01*s)
+    ds.SetCircumferentialResolution(90)
+    ds.SetRadialResolution(30)
+    gf = vtk.vtkGeometryFilter()
+    gf.SetInputConnection(ds.GetOutputPort())
+    gf.Update()
+    pd1 = gf.GetOutput()
+    apd = vtk.vtkAppendPolyData()
+    apd.AddInputData(pd1)
+    pts = vtk.vtkPoints()
+    pd = vtk.vtkPolyData()
+    polygons = vtk.vtkCellArray()
+    add_angle = numpy.pi/360.
+    coords = []
+    angle1 = .6*numpy.pi
+    angle2 = .88*numpy.pi
+    while angle1<=angle2:
+      coords.append([s*2+2*s*numpy.cos(angle1),2*s*numpy.sin(angle1)])
+      angle1+=add_angle
+    angle1=.79*numpy.pi
+    angle2=.6*numpy.pi
+    while angle1>=angle2:
+      coords.append([s*2.25+s*4*numpy.cos(angle1),-s*2+s*4*numpy.sin(angle1)])
+      angle1-=add_angle
+    poly = genPoly(coords,pts,filled=True)
+    polygons.InsertNextCell(poly)
+    coords=[]
+    angle1 = 1.6*numpy.pi
+    angle2 = 1.9*numpy.pi
+    while angle1 <= angle2:
+      coords.append( [- s*2 + s*2*numpy.cos(angle1),s*2*numpy.sin(angle1)])
+      angle1 += add_angle
+    angle1 = 1.8*numpy.pi
+    angle2 = 1.6*numpy.pi
+    while angle1 >= angle2:
+      coords.append( [- s*2.27 + s*4*numpy.cos(angle1), s*2 + s*4*numpy.sin(angle1)])
+      angle1 -= add_angle
+    poly = genPoly(coords,pts,filled=True)
+    polygons.InsertNextCell(poly)
+    pd.SetPoints(pts)
+    pd.SetPolys(polygons)
+    apd.AddInputData(pd)
+    apd.Update()
+    g.SetSourceData(apd.GetOutput())
+  elif t[:4] == "star":
+    np = 5
+    points = starPoints(.001 * s, 0, 0, np)
+
+    pts = vtk.vtkPoints()
+    # Add all perimeter points
+    for point in points:
+      pts.InsertNextPoint((point[0], point[1], 0))
+
+    center_id = len(points)
+
+    # Add center point
+    pts.InsertNextPoint((0,0,0))
+
+    polygons = vtk.vtkCellArray()
+    for ind in range(0, np*2, 2):
+      poly = vtk.vtkPolygon()
+      pid = poly.GetPointIds()
+      pid.SetNumberOfIds(4)
+      pid.SetId(0, ind)
+      pid.SetId(1, (ind - 1) % len(points))
+      pid.SetId(2, center_id)
+      pid.SetId(3, (ind + 1) % len(points))
+      polygons.InsertNextCell(poly)
+
+    pd = vtk.vtkPolyData()
+
+    pd.SetPoints(pts)
+    pd.SetPolys(polygons)
+
+    g.SetSourceData(pd)
+  elif t in ["w%.2i" % x for x in range(203)]:
+    ## WMO marker
+    params = wmo[t]
+    pts = vtk.vtkPoints()
+    pd = vtk.vtkPolyData()
+    polys = vtk.vtkCellArray()
+    lines = vtk.vtkCellArray()
+    s*=3
+    #Lines first
+    for l in params["line"]:
+      coords = numpy.array(zip(*l))*s/30.
+      line = genPoly(coords.tolist(),pts,filled=False)
+      lines.InsertNextCell(line)
+    for l in params["poly"]:
+      coords = numpy.array(zip(*l))*s/30.
+      line = genPoly(coords.tolist(),pts,filled=True)
+      polys.InsertNextCell(line)
+    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
+    pd.SetPoints(pts)
+    pd.SetPolys(polys)
+    pd.SetLines(lines)
+    g.SetSourceData(pd)
+  else:
+    warnings.warn("unknown marker type: %s, using dot" % t)
+    gs.SetGlyphTypeToCircle()
+    gs.FilledOn()
+  if t[-5:]=="_fill":
+    gs.FilledOn()
+
+  if pd is None:
+    # Use the difference in x to scale the point, as later we'll use the
+    # x range to correct the aspect ratio:
+    dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
+    s *= abs(float(dx))/500.
+    gs.SetScale(s)
+    gs.Update()
+    g.SetSourceConnection(gs.GetOutputPort())
+  return gs, pd
+
+def setMarkerColor(p, marker, c, cmap=None):
+  #Color
+  if cmap is None:
+    if marker.colormap is not None:
+      cmap = marker.colormap
+    else:
+      cmap = 'default'
+  if isinstance(cmap,str):
+    cmap = vcs.elements["colormap"][cmap]
+  color = cmap.index[c]
+  p.SetColor([C/100. for C in color])
+
+def scaleMarkerGlyph(g, gs, pd, a):
+  # Invert the scale of the actor's transform.
+  glyphTransform = vtk.vtkTransform()
+  scale = a.GetUserTransform().GetScale()
+  xComp = scale[0]
+  scale = [xComp / float(val) for val in scale]
+  glyphTransform.Scale(scale)
+
+  glyphFixer = vtk.vtkTransformPolyDataFilter()
+  glyphFixer.SetTransform(glyphTransform)
+
+  if pd is None:
+    glyphFixer.SetInputConnection(gs.GetOutputPort())
+  else:
+    glyphFixer.SetInputData(pd)
+    g.SetSourceData(None)
+  g.SetSourceConnection(glyphFixer.GetOutputPort())
+
 def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
-    return
+    return []
   actors=[]
   for i in range(n):
-    ## Creates the glyph
     g = vtk.vtkGlyph2D()
     markers = vtk.vtkPolyData()
     x = marker.x[i]
-    y=marker.y[i]
-    c=marker.color[i]
-    s=marker.size[i]*.5
-    t=marker.type[i]
+    y = marker.y[i]
+    c = marker.color[i]
     N = max(len(x),len(y))
     for a in [x,y]:
       while len(a)<n:
@@ -1007,156 +1193,7 @@ def prepMarker(renWin,marker,cmap=None):
 
     #  Type
     ## Ok at this point generates the source for glpyh
-    gs = vtk.vtkGlyphSource2D()
-    pd = None
-    if t=='dot':
-      gs.SetGlyphTypeToCircle()
-      gs.FilledOn()
-    elif t=='circle':
-      gs.SetGlyphTypeToCircle()
-      gs.FilledOff()
-    elif t=='plus':
-      gs.SetGlyphTypeToCross()
-      gs.FilledOff()
-    elif t=='cross':
-      gs.SetGlyphTypeToCross()
-      gs.SetRotationAngle(45)
-      gs.FilledOff()
-    elif t[:6]=='square':
-      gs.SetGlyphTypeToSquare()
-      gs.FilledOff()
-    elif t[:7]=='diamond':
-      gs.SetGlyphTypeToDiamond()
-      gs.FilledOff()
-    elif t[:8]=='triangle':
-      gs.SetGlyphTypeToTriangle()
-      gs.FilledOff()
-      if t[9]=="d":
-        gs.SetRotationAngle(180)
-      elif t[9]=="l":
-        gs.SetRotationAngle(90)
-      elif t[9]=="r":
-        gs.SetRotationAngle(-90)
-      elif t[9]=="u":
-        gs.SetRotationAngle(0)
-    elif t == "hurricane":
-      s =s/5.
-      ds = vtk.vtkDiskSource()
-      ds.SetInnerRadius(.55*s)
-      ds.SetOuterRadius(1.01*s)
-      ds.SetCircumferentialResolution(90)
-      ds.SetRadialResolution(30)
-      gf = vtk.vtkGeometryFilter()
-      gf.SetInputConnection(ds.GetOutputPort())
-      gf.Update()
-      pd1 = gf.GetOutput()
-      apd = vtk.vtkAppendPolyData()
-      apd.AddInputData(pd1)
-      pts = vtk.vtkPoints()
-      pd = vtk.vtkPolyData()
-      polygons = vtk.vtkCellArray()
-      add_angle = numpy.pi/360.
-      coords = []
-      angle1 = .6*numpy.pi
-      angle2 = .88*numpy.pi
-      while angle1<=angle2:
-        coords.append([s*2+2*s*numpy.cos(angle1),2*s*numpy.sin(angle1)])
-        angle1+=add_angle
-      angle1=.79*numpy.pi
-      angle2=.6*numpy.pi
-      while angle1>=angle2:
-        coords.append([s*2.25+s*4*numpy.cos(angle1),-s*2+s*4*numpy.sin(angle1)])
-        angle1-=add_angle
-      poly = genPoly(coords,pts,filled=True)
-      polygons.InsertNextCell(poly)
-      coords=[]
-      angle1 = 1.6*numpy.pi
-      angle2 = 1.9*numpy.pi
-      while angle1 <= angle2:
-        coords.append( [- s*2 + s*2*numpy.cos(angle1),s*2*numpy.sin(angle1)])
-        angle1 += add_angle
-      angle1 = 1.8*numpy.pi
-      angle2 = 1.6*numpy.pi
-      while angle1 >= angle2:
-        coords.append( [- s*2.27 + s*4*numpy.cos(angle1), s*2 + s*4*numpy.sin(angle1)])
-        angle1 -= add_angle
-      poly = genPoly(coords,pts,filled=True)
-      polygons.InsertNextCell(poly)
-      pd.SetPoints(pts)
-      pd.SetPolys(polygons)
-      apd.AddInputData(pd)
-      apd.Update()
-      g.SetSourceData(apd.GetOutput())
-    elif t[:4] == "star":
-      np = 5
-      points = starPoints(.001 * s, 0, 0, np)
-
-      pts = vtk.vtkPoints()
-      # Add all perimeter points
-      for point in points:
-        pts.InsertNextPoint((point[0], point[1], 0))
-
-      center_id = len(points)
-
-      # Add center point
-      pts.InsertNextPoint((0,0,0))
-
-      polygons = vtk.vtkCellArray()
-      for ind in range(0, np*2, 2):
-        poly = vtk.vtkPolygon()
-        pid = poly.GetPointIds()
-        pid.SetNumberOfIds(4)
-        pid.SetId(0, ind)
-        pid.SetId(1, (ind - 1) % len(points))
-        pid.SetId(2, center_id)
-        pid.SetId(3, (ind + 1) % len(points))
-        polygons.InsertNextCell(poly)
-
-      pd = vtk.vtkPolyData()
-
-      pd.SetPoints(pts)
-      pd.SetPolys(polygons)
-
-      g.SetSourceData(pd)
-    elif t in ["w%.2i" % x for x in range(203)]:
-      ## WMO marker
-      params = wmo[t]
-      pts = vtk.vtkPoints()
-      pd = vtk.vtkPolyData()
-      polys = vtk.vtkCellArray()
-      lines = vtk.vtkCellArray()
-      s*=3
-      #Lines first
-      for l in params["line"]:
-        coords = numpy.array(zip(*l))*s/30.
-        line = genPoly(coords.tolist(),pts,filled=False)
-        lines.InsertNextCell(line)
-      for l in params["poly"]:
-        coords = numpy.array(zip(*l))*s/30.
-        line = genPoly(coords.tolist(),pts,filled=True)
-        polys.InsertNextCell(line)
-      geo,pts = project(pts,marker.projection,marker.worldcoordinate)
-      pd.SetPoints(pts)
-      pd.SetPolys(polys)
-      pd.SetLines(lines)
-      g.SetSourceData(pd)
-    else:
-      warnings.warn("unknown marker type: %s, using dot" % t)
-      gs.SetGlyphTypeToCircle()
-      gs.FilledOn()
-    if t[-5:]=="_fill":
-      gs.FilledOn()
-
-    if pd is None:
-      # Use the difference in x to scale the point, as later we'll use the
-      # x range to correct the aspect ratio:
-      dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
-      s *= abs(float(dx))/500.
-    gs.SetScale(s)
-    gs.Update()
-
-    if pd is None:
-      g.SetSourceConnection(gs.GetOutputPort())
+    gs, pd = prepGlyph(g, marker, index=i)
     g.SetInputData(markers)
 
     a = vtk.vtkActor()
@@ -1165,18 +1202,8 @@ def prepMarker(renWin,marker,cmap=None):
     m.Update()
     a.SetMapper(m)
     p = a.GetProperty()
-    #Color
-    if cmap is None:
-      if marker.colormap is not None:
-        cmap = marker.colormap
-      else:
-        cmap = 'default'
-    if isinstance(cmap,str):
-      cmap = vcs.elements["colormap"][cmap]
-    color = cmap.index[c]
-    p.SetColor([C/100. for C in color])
-    actors.append((g,gs,pd,a,geo))
-
+    setMarkerColor(p, marker, c, cmap)
+    actors.append((g, gs, pd, a, geo))
 
   return actors
 
@@ -1184,7 +1211,7 @@ def prepLine(renWin,line,cmap=None):
   number_lines = prepPrimitive(line)
 
   if number_lines == 0:
-    return
+    return []
 
   actors = []
 
@@ -1269,7 +1296,6 @@ def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
 
 def R2World(ren,x,y):
   """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
-  #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
   return wp

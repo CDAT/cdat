@@ -72,6 +72,7 @@ canvas_closed = 0
 #import Pmw
 import vcsaddons
 import vcs.manageElements
+import configurator
 
 class SIGNAL(object):
 
@@ -467,6 +468,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
+      if self.configurator is not None:
+        self.configurator.show()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
@@ -849,7 +852,6 @@ class Canvas(object,AutoAPI.AutoAPI):
 ########### rt.destroy()                                                            #########
         #                                                                           #
         #############################################################################
-
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL( 'ParameterChanged' )
         vcs.next_canvas_id+=1
@@ -936,7 +938,11 @@ class Canvas(object,AutoAPI.AutoAPI):
         else:
           warnings.warn("Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" % backend)
           self.backend=backend
+
         self._animate = self.backend.Animate( self )
+
+        self.configurator = configurator.Configurator(self, show_on_update=(backend != "vtk") )
+
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
 ###########################################################################################
@@ -3725,6 +3731,12 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
+          if result.g_type in ("3d_scalar", "3d_vector") and self.configurator is not None:
+            self.configurator.detach()
+            self.configurator = None
+          if self.backend.bg == False and self.configurator is not None:
+            self.configurator.update()
+
         # Commented out as agreed we shouldn't use warnings in these contexts.
         #if not hasattr(__main__,"__file__") and not bg:
         #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")

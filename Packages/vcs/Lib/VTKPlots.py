@@ -47,16 +47,19 @@ class VTKVCSBackend(object):
     self.logoRepresentation = None
     self.renderer = None
     self._renderers = {}
-    self._plot_keywords = ['renderer','vtk_backend_grid','vtk_backend_geo']
+    self._plot_keywords = [ 'renderer','vtk_backend_grid','vtk_backend_geo', 'cdmsfile', 'cell_coordinates' ]
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
     if sys.platform == "darwin":
         self.reRender = False
-    self.clickRenderer = None
+        self.clickRenderer = None
+        self.oldCursor = None
+
 
   def setAnimationStepper( self, stepper ):
       for plot in self.plotApps.values():
@@ -87,7 +90,7 @@ class VTKVCSBackend(object):
     if self.renWin is not None:
       if self.reRender:
         self.reRender = False
-        self._lastSize = None
+        #self._lastSize = None
         self.renWin.Render()
 
   def renderEvent(self,caller,evt):
@@ -181,6 +184,14 @@ class VTKVCSBackend(object):
       self.renWin.Render()
 
   def configureEvent(self,obj,ev):
+    cursor = self.renWin.GetCurrentCursor()
+    if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
+      self.oldCursor = cursor
+      return
+
+    if self.get3DPlot() is not None:
+        return
+
     sz = self.renWin.GetSize()
     if self._lastSize == sz:
       # We really only care about resize event
@@ -207,6 +218,10 @@ class VTKVCSBackend(object):
           key_args.append({"ratio":d.ratio})
       else:
           key_args.append({})
+
+    # Have to pull out the UI layer so it doesn't get borked by the clear
+    self.hideGUI()
+
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
@@ -214,13 +229,17 @@ class VTKVCSBackend(object):
     if self.canvas.animate.created():
       self.canvas.animate.draw_frame()
 
+    self.showGUI()
+
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
     if self.renWin is not None and sys.platform == "darwin":
       self.renWin.Render()
     if sys.platform == "darwin":
-        ## ON mac somehow we need to issue an extra Render after resize
-        self.reRender = True
+        ## On mac somehow we need to issue an extra Render after resize
+        # If ev is None, then the update() was called, and we only need to render once.
+        if ev is not None:
+          self.reRender = True
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -389,7 +408,6 @@ class VTKVCSBackend(object):
         if ( gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"] ) and (self.renderer <> None):
             ren = self.renderer
         else:
-            #print "Calling 1"
             #ren = self.createRenderer()
             #if not (vcs.issecondaryobject(gm) and gm.priority==0):
             #    self.setLayer(ren,tpl.data.priority)
@@ -440,26 +458,10 @@ class VTKVCSBackend(object):
         for g,gs,pd,act,geo in actors:
             ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
             ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
-            # Add a transform to correct the glyph's aspect ratio:
             if pd is None and act.GetUserTransform():
-              # Invert the scale of the actor's transform.
-              glyphTransform = vtk.vtkTransform()
-              scale = act.GetUserTransform().GetScale()
-              xComp = scale[0]
-              scale = [xComp / float(val) for val in scale]
-              glyphTransform.Scale(scale)
+              vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
+            self.setLayer(ren,gm.priority)
 
-              glyphFixer = vtk.vtkTransformPolyDataFilter()
-              glyphFixer.SetTransform(glyphTransform)
-
-              if pd is None:
-                glyphFixer.SetInputConnection(gs.GetOutputPort())
-              else:
-                glyphFixer.SetInputData(pd)
-                g.SetSourceData(None)
-
-              g.SetSourceConnection(glyphFixer.GetOutputPort())
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
@@ -536,23 +538,24 @@ class VTKVCSBackend(object):
         x1-=.0001
         x2+=.0001
     l._worldcoordinate = [x1,x2,y1,y2]
-    m=self.canvas.createmarker()
-    m.type = gm.marker
-    m.color = gm.markercolor
-    if gm.markersize>0:
-        m.size = gm.markersize
-    else:
-        m.priority=0
-    m._x = l.x
-    m._y = l.y
-    m._viewport=l.viewport
-    m._worldcoordinate = l.worldcoordinate
+    if gm.marker is not None:
+        m=self.canvas.createmarker()
+        m.type = gm.marker
+        m.color = gm.markercolor
+        if gm.markersize>0:
+            m.size = gm.markersize
+        else:
+            m.priority=0
+        m._x = l.x
+        m._y = l.y
+        m._viewport=l.viewport
+        m._worldcoordinate = l.worldcoordinate
 
     if not (Y[:].min()>max(y1,y2) or Y[:].max()<min(y1,y2) \
             or X[:].min()>max(x1,x2) or X[:].max()<min(x1,x2)):
     	if l.priority>0:
             self.canvas.plot(l,donotstoredisplay=True)
-        if m.priority>0:
+        if gm.marker is not None and m.priority>0:
             self.canvas.plot(m,donotstoredisplay=True)
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
@@ -560,7 +563,8 @@ class VTKVCSBackend(object):
     if hasattr(data1,"_yname"):
       del(data1._yname)
     del(vcs.elements["line"][l.name])
-    del(vcs.elements["marker"][m.name])
+    if gm.marker is not None:
+        del(vcs.elements["marker"][m.name])
 
     if tmpl.legend.priority>0:
         legd = self.canvas.createline()
@@ -583,7 +587,7 @@ class VTKVCSBackend(object):
     return {}
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000+1
+    n = self.numberOfPlotCalls + (priority-1)*10000 + 1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
@@ -626,7 +630,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -725,7 +729,11 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+    if isinstance(gm,(vcs.isofill.Gfi,vcs.isoline.Gi)):
+        gridGenDict = vcs2vtk.genGridOnPoints(data1,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
+        gridGenDict["cellData"]=False
+    else:
+        gridGenDict = vcs2vtk.genGrid(data1,data2,gm,deep=False,grid=vtk_backend_grid,geo=vtk_backend_geo)
     for k in ['vtk_backend_grid','xm','xM','ym','yM','continents','wrap','geo','cellData']:
         exec("%s = gridGenDict['%s']" % (k,k))
     returned["vtk_backend_grid"]=vtk_backend_grid
@@ -775,14 +783,10 @@ class VTKVCSBackend(object):
           c2p = vtk.vtkCellDataToPointData()
           c2p.SetInputData(vtk_backend_grid)
           c2p.Update()
-          if self.debug:
-            vcs2vtk.dump2VTK(c2p)
           #For contouring duplicate points seem to confuse it
           if vtk_backend_grid.IsA("vtkUntructuredGrid"):
               cln = vtk.vtkCleanUnstructuredGrid()
               cln.SetInputConnection(c2p.GetOutputPort())
-              if self.debug:
-                vcs2vtk.dump2VTK(cln)
               sFilter.SetInputConnection(cln.GetOutputPort())
           else:
               sFilter.SetInputConnection(c2p.GetOutputPort())
@@ -790,8 +794,6 @@ class VTKVCSBackend(object):
           sFilter.SetInputData(vtk_backend_grid)
       sFilter.Update()
       returned["vtk_backend_filter"]=sFilter
-      if self.debug:
-        vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
         if cellData:
@@ -1246,8 +1248,10 @@ class VTKVCSBackend(object):
           s0=txt.split()[0]
           if s0 in ["Min","Max","Mean"]:
               returned["vtk_backend_%s_text_actor" % s0] = t
-              self.canvas.display_names.remove(d.name)
-              del(vcs.elements["display"][d.name])
+          else:
+              returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
+        self.canvas.display_names.remove(d.name)
+        del(vcs.elements["display"][d.name])
     if taxis is not None:
       try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
@@ -1406,6 +1410,31 @@ class VTKVCSBackend(object):
     self.renWin.Render()
     return
 
+  def hideGUI(self):
+    plot = self.get3DPlot()
+    if plot:
+        plot.hideWidgets()
+    elif self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+      if manager:
+        self.renWin.RemoveRenderer(manager.renderer)
+
+  def showGUI(self):
+    plot = self.get3DPlot()
+    if plot:
+        plot.showWidgets()
+    elif self.bg is False:
+      from vtk_ui.manager import get_manager
+      manager = get_manager(self.renWin.GetInteractor())
+      if manager:
+        # Set the UI renderer's layer on top of what's there right now
+        layer = self.renWin.GetNumberOfLayers() + 1
+        self.renWin.SetNumberOfLayers(layer)
+        manager.renderer.SetLayer(layer - 1)
+        # Re-add the UI layer
+        self.renWin.AddRenderer(manager.renderer)
+
   def get3DPlot(self):
     from dv3d import Gfdv3d
     plot = None
@@ -1419,8 +1448,8 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
-    plot = self.get3DPlot()
-    if plot: plot.hideWidgets()
+    self.hideGUI()
+
     gl  = vtk.vtkGL2PSExporter()
 
     # This is the size of the initial memory buffer that holds the transformed
@@ -1451,7 +1480,10 @@ class VTKVCSBackend(object):
     else:
         raise Exception("Unknown format: %s" % output_type)
     gl.Write()
+    plot = self.get3DPlot()
     if plot: plot.showWidgets()
+
+    self.showGUI()
 
   def postscript(self, file, width=None, height=None, units=None,left=None,right=None,top=None,bottom=None):
       if right is not None:
@@ -1479,6 +1511,8 @@ class VTKVCSBackend(object):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
+        self.hideGUI()
+
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1492,6 +1526,7 @@ class VTKVCSBackend(object):
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
+
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
@@ -1507,9 +1542,13 @@ class VTKVCSBackend(object):
         writer.Write()
         if plot: plot.showWidgets()
 
+        self.showGUI()
+
   def cgm(self,file):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
+
+        self.hideGUI()
 
         if not file.split('.')[-1].lower() in ['cgm']:
             file+='.cgm'
@@ -1536,7 +1575,7 @@ class VTKVCSBackend(object):
           writer.Write()
           a=A.GetNextActor()
 
-        if plot: plot.showWidgets()
+        self.showGUI()
 
   def Animate(self,*args,**kargs):
      return VTKAnimate.VTKAnimate(*args,**kargs)
@@ -1818,7 +1857,6 @@ class VTKVCSBackend(object):
           j=0
           while actor:
             j+=1
-            #print "renderer:",i,"actor",j
             m = actor.GetMapper()
             m.Update()
             actor=actors.GetNextItem()
