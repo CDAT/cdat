@@ -1210,9 +1210,9 @@ def prepMarker(renWin,marker,cmap=None):
       while len(a)<n:
         a.append(a[-1])
     pts = vtk.vtkPoints()
-    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     for j in range(N):
       pts.InsertNextPoint(x[j],y[j],0.)
+    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     markers.SetPoints(pts)
 
     #  Type

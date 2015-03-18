@@ -1658,14 +1658,12 @@ class VTKVCSBackend(object):
          pt.SetNumberOfPoints(Npts*Npts)
          for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
            for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-             pt.SetPoint(NGridCover,x,y,0)
+             pt.InsertPoint(NGridCover,x,y,0)
              NGridCover+=1
          pts = vtk.vtkPoints()
          pts.SetNumberOfPoints(Npts*Npts)
-         print "BEFORE HAND:",pt.GetNumberOfPoints(),pt.GetBounds()
          geo.TransformPoints(pt,pts)
          b = pts.GetBounds()
-         print "AFTER:",b
          xm,xM,ym,yM=b[:4]
          if xm!=-numpy.inf:
            Xrg2[0]=min(Xrg2[0],xm)
