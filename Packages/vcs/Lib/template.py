@@ -1323,7 +1323,7 @@ class P(object):
                     del(vcs.elements["texttable"][sp[0]])
                     del(vcs.elements["textorientation"][sp[1]])
                     del(vcs.elements["textcombined"][tt.name])
-                
+
 
         kargs["donotstoredisplay"]=True
         if not isinstance(gm,vcs.taylor.Gtd):
@@ -1369,7 +1369,7 @@ class P(object):
           X=slab.getAxis(-1)
         if Y is None:
           Y=slab.getAxis(-2)
-        displays = []
+
         wc2 = vcs.utils.getworldcoordinates(gm,X,Y)
         # Do the boxes and lines
         for tp in ["box","line"]:
