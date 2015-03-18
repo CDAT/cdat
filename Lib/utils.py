@@ -1516,32 +1516,35 @@ def getworldcoordinates(gm,X,Y):
   """Given a graphics method and two axes figures out correct world coordinates"""
   # compute the spanning in x and y, and adjust for the viewport
   wc=[0,1,0,1]
-  if gm.datawc_x1 > 9.E19 :
-    try:
-      i=0
-      try:
-        while X[:][i].count()==0:
-          i+=1
-      except:
-        pass
-      wc[0]=X[:][i]
-    except:
-      wc[0]=X[:].min()
-  else:
-    wc[0] = gm.datawc_x1
-  if gm.datawc_x2 > 9.E19 :
-    try:
-      i=-1
-      try:
-        while X[:][i].count()==0:
-          i-=1
-      except:
-        pass
-      wc[1]=X[:][i]
-    except:
-      wc[1]=X[:].max()
-  else:
-    wc[1] = gm.datawc_x2
+  try:
+      if gm.datawc_x1 > 9.E19 :
+        try:
+          i=0
+          try:
+            while X[:][i].count()==0:
+              i+=1
+          except:
+            pass
+          wc[0]=X[:][i]
+        except:
+          wc[0]=X[:].min()
+      else:
+        wc[0] = gm.datawc_x1
+      if gm.datawc_x2 > 9.E19 :
+        try:
+          i=-1
+          try:
+            while X[:][i].count()==0:
+              i-=1
+          except:
+            pass
+          wc[1]=X[:][i]
+        except:
+          wc[1]=X[:].max()
+      else:
+        wc[1] = gm.datawc_x2
+  except:
+      return wc
   if (((not isinstance(X,cdms2.axis.TransientAxis) and isinstance(Y,cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(X[:])) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20))\
       or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear") :
     wc[0]=X[:].min()
