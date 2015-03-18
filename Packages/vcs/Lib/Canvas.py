@@ -73,6 +73,7 @@ canvas_closed = 0
 import vcsaddons
 import vcs.manageElements
 import configurator
+from projection import round_projections
 
 class SIGNAL(object):
 
@@ -1978,9 +1979,9 @@ Options:::
     #                                                                           #
     #############################################################################
     def createline(self,name=None, source='default', ltype=None,
-                 width=None, color=None, priority=1,
+                 width=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
-                 x=None, y=None, projection='default'):
+                 x=None, y=None, projection=None):
         return vcs.createline(name,source,ltype,width,color,priority,viewport,worldcoordinate,x,y,projection)
     createline.__doc__ = vcs.manageElements.createline.__doc__
 
@@ -2229,7 +2230,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def createtexttable(self,name=None, source='default', font=None,
-                 spacing=None, expansion=None, color=None, priority=1,
+                 spacing=None, expansion=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None):
       return vcs.createtexttable(name,source,font,spacing,expansion,color,priority,
@@ -2263,7 +2264,7 @@ Options:::
     # Text Combined  functions for VCS.                                         #
     #                                                                           #
     #############################################################################
-    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=1, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
         return vcs.createtextcombined(Tt_name, Tt_source, To_name, To_source,
             font, spacing, expansion, color, priority, viewport, worldcoordinate,
             x, y, height, angle, path, halign, valign, projection)
@@ -2678,7 +2679,6 @@ Options:::
             #    copy_tmpl=self.createtemplate(source=arglist[2])
         check_mthd = vcs.getgraphicsmethod(arglist[3],arglist[4])
         check_tmpl = vcs.gettemplate(arglist[2])
-
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
         Doratio = keyargs.get("ratio",None)
@@ -3482,10 +3482,11 @@ Options:::
                 elif tp=="default":
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
+                if hasattr(gm,"priority") and gm.priority==0:
+                    return
             p=self.getprojection(gm.projection)
-            if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
+            if p.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
-
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
@@ -3519,6 +3520,7 @@ Options:::
                 # Now creates a copy of the primitives, in case it's used on other canvases with diferent ratios
                 if arglist[3]=='text':
                     nms = arglist[4].split(":::")
+                    P=self.gettext(nms[0],nms[1])
                     p = self.createtext(Tt_source=nms[0],To_source=nms[1])
                 elif arglist[3]=='marker':
                     p = self.createmarker(source=arglist[4])
@@ -3532,7 +3534,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in ["polar (non gctp)","polar stereographic"]:
+                if proj.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
@@ -3551,7 +3553,7 @@ Options:::
                     else:
                         arglist[4]=p.name
                 else:
-                  if arglist[3]=='text':
+                  if arglist[3]=='text' and keyargs.get("donotstoredisplay",False) is True:
                       sp = p.name.split(":::")
                       del(vcs.elements["texttable"][sp[0]])
                       del(vcs.elements["textorientation"][sp[1]])
@@ -3577,7 +3579,7 @@ Options:::
                       tp="textcombined"
                     gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
-                if p.type in ["polar (non gctp)","polar stereographic"]:
+                if p.type in round_projections:
                   doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
