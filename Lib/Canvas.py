@@ -3482,6 +3482,8 @@ Options:::
                 elif tp=="default":
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
+                if hasattr(gm,"priority") and gm.priority==0:
+                    return
             p=self.getprojection(gm.projection)
             if p.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
@@ -3532,7 +3534,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in round_projections:
+                if proj.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
