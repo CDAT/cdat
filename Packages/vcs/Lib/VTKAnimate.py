@@ -94,6 +94,7 @@ class VTKAnimationPlayback(animate_helper.AnimationPlayback):
       self.controller.playback_running = True
       while not self.is_stopped():
           self.wait_if_paused()
+
           self.controller.draw_frame(allow_static = True, render_offscreen = False, main_window_png = True)
 
           self.controller.frame_num += 1
@@ -166,6 +167,8 @@ class VTKAnimate(animate_helper.AnimationController):
         if self.cleared:
             return
         self.cleared = True
+        if self.modified_listener is None:
+          self.modified_listener = self.vcs_self.backend.renWin.AddObserver("ModifiedEvent", self.modified, 25)
 
         be = self.vcs_self.backend
 
@@ -194,6 +197,9 @@ class VTKAnimate(animate_helper.AnimationController):
         """
         if not self.cleared:
             return
+        if self.modified_listener is not None:
+          self.vcs_self.backend.renWin.RemoveObserver(self.modified_listener)
+          self.modified_listener = None
         self.cleared = False
 
         be = self.vcs_self.backend
@@ -228,8 +234,7 @@ class VTKAnimate(animate_helper.AnimationController):
         allow_static: Whether or not we allow the drawn frame to be a static image
         main_window_png: Whether or not to render the canvas into a PNG file to use later
       """
-      if self.modified_listener is None:
-          self.modified_listener = self.vcs_self.backend.renWin.AddObserver("ModifiedEvent", self.modified, 25)
+
       if frame_num is None:
         frame_num = self.frame_num
       else:
@@ -264,11 +269,12 @@ class VTKAnimate(animate_helper.AnimationController):
         self.reclaim_renderers()
 
     def reset(self):
-        if self.animation_files:
-            shutil.rmtree(os.path.dirname(self.animation_files[0]))
-            self.animation_files = []
-        self.create_thread.create_prefix()
-        self.reclaim_renderers()
+        if self.create_thread:
+            if self.animation_files:
+                shutil.rmtree(os.path.dirname(self.animation_files[0]))
+                self.animation_files = []
+            self.create_thread.create_prefix()
+            self.reclaim_renderers()
 
     def frame(self, frame):
         self.draw_frame(frame_num = frame, allow_static = False, render_offscreen = False)

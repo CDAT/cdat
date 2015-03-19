@@ -799,6 +799,7 @@ class AnimationController(animate_obj_old):
       self.playback_thread = None
     else:
       self.create_thread.stop()
+      self.create_thread.join()
 
   def playback_pause(self):
     if self.is_playing():
