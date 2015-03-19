@@ -253,6 +253,7 @@ class Button(Widget):
         label = self.label if new_state.label is None else new_state.label
         self.text_widget.set_text(label)
         self.repr.SetState(state)
+        self.place()
 
     def show(self):
         self.widget.On()
