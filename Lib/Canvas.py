@@ -2656,6 +2656,7 @@ Options:::
             print err
 
     def __plot (self, arglist, keyargs):
+
         # This routine has five arguments in arglist from _determine_arg_list
         # It adds one for bg and passes those on to Canvas.plot as its sixth arguments.
 
@@ -2673,6 +2674,10 @@ Options:::
         if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert isinstance(arglist[3],str)
         assert isinstance(arglist[4],str)
 
+        if self.animate.is_playing():
+            self.animate.stop()
+            while self.animate.is_playing():
+                pass
         ##reset animation
         self.animate.create_flg = 0
 
