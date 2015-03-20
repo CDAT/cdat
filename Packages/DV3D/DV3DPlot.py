@@ -316,13 +316,12 @@ class DV3DPlot():
     def onClosing(self, cell ):
         print " ------> Closing!"
         self.stopAnimation()
-        if cell <> None:
-            self.cfgManager.parent.clear( cell )
-            self.terminate()
-            self.renderer.RemoveAllViewProps()
-            self.clearReferrents()
-            if self.renderWindowInteractor <> None:
-                self.renderWindowInteractor.TerminateApp()
+        self.cfgManager.parent.clear( cell )
+        self.terminate()
+        self.renderer.RemoveAllViewProps()
+        self.clearReferrents()
+        if self.renderWindowInteractor <> None:
+            self.renderWindowInteractor.TerminateApp()
 
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
 #         if pipeline == None: pipeline = self.getCurrentPipeline()
@@ -338,11 +337,11 @@ class DV3DPlot():
         pass
 
     def quit( self, **args ):
+        self.saveState()
+        self.onClosing(None)
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
-            self.saveState()
-        self.onClosing(None)
-        sys.exit( 0 )
+            sys.exit( 0 )
 
     def stepAnimation(self, **args):
         if self.record_animation: self.captureFrame()
