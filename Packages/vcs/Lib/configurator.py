@@ -161,6 +161,9 @@ class Configurator(object):
         self.initialized = False
         self.animation_speed = 5
         self.animation_timer = None
+        self.save_timer = None
+        self.save_listener = None
+        self.save_anim_button = None
         self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
         # Map custom templates to their source template
@@ -540,7 +543,7 @@ class Configurator(object):
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
             anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame, end=self.final_animation_frame)
             anim_toolbar.add_slider_button(self.animation_speed, 1, 30, "Frames Per Second", update=self.set_animation_speed)
-            anim_toolbar.add_button(["Save Animation"], action=self.save_animation)
+            self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
 
     def step_forward(self, state):
@@ -549,7 +552,21 @@ class Configurator(object):
     def step_back(self, state):
         self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
-    def save_animation(self, state):
+    def save_animation_press(self, state):
+        if state == 1:
+            self.save_listener = self.interactor.AddObserver("TimerEvent", self.save_tick)
+            self.save_timer = self.interactor.CreateRepeatingTimer(10)
+        else:
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+            self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+
+
+    def save_animation(self):
         # Save the animation
         self.canvas.animate.fps(self.animation_speed)
 
@@ -570,8 +587,27 @@ class Configurator(object):
         save_path = self.get_save_path(name)
         if save_path == '':
             return
+
         self.canvas.animate.save(save_path)
         self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+        self.save_anim_button.set_state(0)
+
+
+    def save_tick(self, obj, event):
+        if self.save_timer is None or self.save_listener is None:
+            return
+
+        if self.canvas.animate.number_of_frames() == len(self.canvas.animate.animation_files):
+            self.save_animation()
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+        else:
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
+
 
     def set_animation_speed(self, value):
         v = int(value)
