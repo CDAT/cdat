@@ -58,6 +58,8 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     if not os.path.exists(png_name):
         self.draw_frame(frame_num, png_name)
 
+    self.controller.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
+
     return png_name
 
   def draw_frame(self, frame_num, png_name):
@@ -68,7 +70,6 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 
     self.canvas.png(png_name)
 
-    self.controller.animation_files = sorted(glob.glob(os.path.join(os.path.dirname(png_name),"*.png")))
 
   def describe(self):
     for info in self.controller.animate_info:
