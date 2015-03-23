@@ -36,6 +36,10 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
     self.controller = controller
     self.create_prefix()
     self.canvas = vcs.init()
+    self.canvas.bgX, self.canvas.bgY = controller.vcs_self.backend.renWin.GetSize()
+    # Animation resizing is broken right now; this will give us some buffer space to work with.
+    self.canvas.bgX *= 2
+    self.canvas.bgY *= 2
     self.controller.animation_created = True
     import atexit
     atexit.register(self.close)
@@ -128,7 +132,8 @@ class VTKAnimate(animate_helper.AnimationController):
             return
 
         self.last_size = new_size
-        self.create_thread.canvas.backend.renWin.SetSize(new_size)
+        # Resizing a background window doesn't work great right now- see https://github.com/UV-CDAT/uvcdat/issues/1148
+        #self.create_thread.canvas.backend.renWin.SetSize(new_size)
         self.create_thread.canvas.backend.configureEvent(self.create_thread.canvas, "ModifiedEvent")
 
         if self.renderers is None or len(self.renderers) > 0:
