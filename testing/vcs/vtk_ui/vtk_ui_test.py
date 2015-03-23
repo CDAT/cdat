@@ -30,6 +30,12 @@ class vtk_ui_test(object):
         self.test_file = None
         self.passed = 1
 
+    def click_event(self, x, y):
+        self.inter.SetEventInformation(x, y)
+        self.inter.MouseMoveEvent()
+        self.inter.LeftButtonPressEvent()
+        self.inter.LeftButtonReleaseEvent()
+
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 

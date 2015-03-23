@@ -23,3 +23,15 @@ add_test(test_vtk_ui_button_dimensions
   ${TEST_DIR}/test_vtk_ui_button_dimensions.py
   ${BASELINE_DIR}/test_vtk_ui_button_dimensions.png
 )
+
+add_test(test_vtk_ui_button_states
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_states.py
+  ${BASELINE_DIR}/test_vtk_ui_button_states.png
+)
+
+add_test(test_vtk_ui_button_click
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_click.py
+  ${BASELINE_DIR}/test_vtk_ui_button_click.png
+)
