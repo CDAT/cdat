@@ -32,6 +32,7 @@ class vtk_ui_test(object):
         self.passed = 1
 
     def click_event(self, x, y):
+        self.win.Render()
         self.inter.SetEventInformation(x, y)
         self.inter.MouseMoveEvent()
         self.inter.LeftButtonPressEvent()

@@ -13,8 +13,6 @@ class test_vtk_ui_button_click(vtk_ui_test):
 
         b = vcs.vtk_ui.Button(self.inter, states=states, action=self.pass_me, left=0, top=0)
         b.show()
-        b.place()
-        self.win.Render()
 
         self.click_event(5, 95)
 
