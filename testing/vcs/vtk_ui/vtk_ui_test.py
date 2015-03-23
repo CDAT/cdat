@@ -10,6 +10,7 @@ def init():
     manager = vcs.vtk_ui.manager.get_manager(inter)
     win.SetOffScreenRendering(1)
     win.AddRenderer(manager.renderer)
+
     return win
 
 def generate_png(win, fnm):
@@ -45,7 +46,9 @@ class vtk_ui_test(object):
             generate_png(self.win, self.test_file)
 
     def test(self):
+        self.win.Render()
         self.do_test()
+
         if self.test_file is not None:
             generate_png(self.win, self.test_file)
             if len(sys.argv) >= 2:
@@ -56,4 +59,6 @@ class vtk_ui_test(object):
                 print "fnm:", self.test_file
                 print "src:", src
                 self.passed = checkimage.check_result_image(self.test_file, src, checkimage.defaultThreshold)
+
+        print sys.argv[0], "passed" if self.passed == 0 else "failed"
         sys.exit(self.passed)

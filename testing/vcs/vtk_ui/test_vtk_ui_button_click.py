@@ -13,12 +13,15 @@ class test_vtk_ui_button_click(vtk_ui_test):
 
         b = vcs.vtk_ui.Button(self.inter, states=states, action=self.pass_me, left=0, top=0)
         b.show()
+        b.place()
+        self.win.Render()
 
-        self.click_event(5, 295)
+        self.click_event(5, 95)
 
     def pass_me(self, state):
         if state == 1:
             print "Button action executed"
-            self.passed = True
+            self.passed = 0
 
-test_vtk_ui_button_click().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_click().test()
