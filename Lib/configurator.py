@@ -277,6 +277,9 @@ class Configurator(object):
             self.marker_button.detach()
             self.marker_button = None
 
+        if self.animation_timer is not None:
+            self.stop_animating()
+
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
 
