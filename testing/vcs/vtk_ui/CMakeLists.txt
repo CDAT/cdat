@@ -54,8 +54,14 @@ add_test(test_vtk_ui_button_image
   ${BASELINE_DIR}/test_vtk_ui_button_image.png
 )
 
-add_test(test_vtk_ui_button_tooltip
+add_test(test_vtk_ui_button_tooltip_show
   "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_button_tooltip.py
-  ${BASELINE_DIR}/test_vtk_ui_button_tooltip.png
+  ${TEST_DIR}/test_vtk_ui_button_tooltip_show.py
+  ${BASELINE_DIR}/test_vtk_ui_button_tooltip_show.png
+)
+
+add_test(test_vtk_ui_button_tooltip_hide
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_tooltip_hide.py
+  ${BASELINE_DIR}/test_vtk_ui_button_tooltip_hide.png
 )

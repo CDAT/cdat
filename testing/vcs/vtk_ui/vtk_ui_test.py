@@ -1,6 +1,6 @@
 import vtk, vcs.vtk_ui
 
-import os, sys
+import os, sys, time
 
 def init():
     win = vtk.vtkRenderWindow()
@@ -31,6 +31,14 @@ class vtk_ui_test(object):
         self.test_file = None
         self.passed = 1
 
+    def hover(self, x, y, duration):
+        self.win.Render()
+        self.inter.SetEventInformation(x, y)
+        self.inter.MouseMoveEvent()
+        time.sleep(duration)
+        self.inter.InvokeEvent("TimerEvent")
+        self.win.Render()
+
     def click_event(self, x, y):
         self.win.Render()
         self.inter.SetEventInformation(x, y)
@@ -41,13 +49,7 @@ class vtk_ui_test(object):
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 
-    def test_output(self):
-        self.do_test()
-        if self.test_file is not None:
-            generate_png(self.win, self.test_file)
-
     def test(self):
-        self.win.Render()
         self.do_test()
 
         if self.test_file is not None:
