@@ -112,7 +112,7 @@ class VTKVCSBackend(object):
         continue
       t=vcs.elements["template"][d.template]
       gm = vcs.elements[d.g_type][d.g_name]
-      if t.data.x1<=x<=t.data.x2 and t.data.y1<=y<=t.data.y2:
+      if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
         ## Ok we clicked within template
         if numpy.allclose(gm.datawc_x1,1.e20):
           x1 = d.array[0].getAxis(-1)[0]
@@ -150,6 +150,8 @@ class VTKVCSBackend(object):
                 st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
         except:
             st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
+    if st == "":
+        return
     ren = vtk.vtkRenderer()
     ren.SetBackground(.96,.96,.86)
     ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
@@ -182,6 +184,7 @@ class VTKVCSBackend(object):
       self.clickRenderer.RemoveAllViewProps()
       self.renWin.RemoveRenderer(self.clickRenderer)
       self.renWin.Render()
+      self.clickRenderer = None
 
   def configureEvent(self,obj,ev):
     cursor = self.renWin.GetCurrentCursor()
@@ -197,13 +200,12 @@ class VTKVCSBackend(object):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
-      if self.renWin is not None and sys.platform == "darwin":
-        self.renWin.Render()
       return
-    interactor = self.renWin.GetInteractor()
+
     self._lastSize = sz
     plots_args = []
     key_args =[]
+
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       parg = []
@@ -222,32 +224,29 @@ class VTKVCSBackend(object):
     # Have to pull out the UI layer so it doesn't get borked by the clear
     self.hideGUI()
 
-    self.canvas.clear()
-    for i, pargs in enumerate(plots_args):
-      self.canvas.plot(*pargs,**key_args[i])
+    self.canvas.clear(render=False)
 
-    if self.canvas.animate.created():
-      self.canvas.animate.draw_frame()
+    for i, pargs in enumerate(plots_args):
+      self.canvas.plot(*pargs, render = False, **key_args[i])
+
+    if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
+      self.canvas.animate.draw_frame(allow_static = False, render_offscreen=False)
 
     self.showGUI()
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
-    if self.renWin is not None and sys.platform == "darwin":
-      self.renWin.Render()
-    if sys.platform == "darwin":
-        ## On mac somehow we need to issue an extra Render after resize
-        # If ev is None, then the update() was called, and we only need to render once.
-        if ev is not None:
-          self.reRender = True
 
-  def clear(self):
+    self.renWin.Render()
+
+  def clear(self, render=True):
     if self.renWin is None: #Nothing to clear
           return
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     hasValidRenderer = True if ren is not None else False
+    self.hideGUI()
     while ren is not None:
         if not ren in self.plotRenderers:
             ren.RemoveAllViewProps()
@@ -258,7 +257,8 @@ class VTKVCSBackend(object):
               r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
               ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
-    if hasValidRenderer and self.renWin.IsDrawable():
+    self.showGUI()
+    if hasValidRenderer and self.renWin.IsDrawable() and render:
         self.renWin.Render()
     self.numberOfPlotCalls = 0
     self.logoRenderer = None
@@ -362,6 +362,7 @@ class VTKVCSBackend(object):
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+      self._lastSize = (self.canvas.bgX, self.canvas.bgY)
 
   def open(self):
     self.createRenWin( open=True )
@@ -472,7 +473,7 @@ class VTKVCSBackend(object):
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.scaleLogo()
-    if not kargs.get("donotstoredisplay",False):
+    if not kargs.get("donotstoredisplay",False) and kargs.get("render", True):
       self.renWin.Render()
     return returned
 
@@ -1363,6 +1364,7 @@ class VTKVCSBackend(object):
       return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
 
   def put_img_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+    self.hideGUI()
     readerFactory = vtk.vtkImageReader2Factory()
     reader = readerFactory.CreateImageReader2(filename)
     reader.SetFileName(filename)
@@ -1388,34 +1390,38 @@ class VTKVCSBackend(object):
     cam.SetFocalPoint(xc+xoff,yc+yoff,0.)
     cam.SetPosition(xc+xoff,yc+yoff,d)
     ren.AddActor(a)
+    layer = max(self.renWin.GetNumberOfLayers() - 2, 0)
+    ren.SetLayer(layer)
     self.renWin.AddRenderer(ren)
+    self.showGUI(render=False)
     self.renWin.Render()
     return
 
   def hideGUI(self):
     plot = self.get3DPlot()
+
     if plot:
         plot.hideWidgets()
     elif self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-      if manager:
-        self.renWin.RemoveRenderer(manager.renderer)
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
+          self.renWin.RemoveRenderer(manager.renderer)
 
-  def showGUI(self):
+  def showGUI(self, render=True):
     plot = self.get3DPlot()
+
     if plot:
         plot.showWidgets()
     elif self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-      if manager:
-        # Set the UI renderer's layer on top of what's there right now
-        layer = self.renWin.GetNumberOfLayers() + 1
-        self.renWin.SetNumberOfLayers(layer)
-        manager.renderer.SetLayer(layer - 1)
-        # Re-add the UI layer
-        self.renWin.AddRenderer(manager.renderer)
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
+          self.renWin.AddRenderer(manager.renderer)
+          # Bring the manager's renderer to the top of the stack
+          manager.elevate()
+      if render:
+          self.renWin.Render()
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
@@ -1493,8 +1499,6 @@ class VTKVCSBackend(object):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
-        self.hideGUI()
-
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1503,8 +1507,7 @@ class VTKVCSBackend(object):
         except:
           pass
 
-        plot = self.get3DPlot()
-        if plot: plot.hideWidgets()
+
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
@@ -1517,14 +1520,16 @@ class VTKVCSBackend(object):
           imgfiltr.SetInputBufferTypeToRGB()
         else:
           imgfiltr.SetInputBufferTypeToRGBA()
+
+        self.hideGUI()
         imgfiltr.Update()
+        self.showGUI()
+        self.renWin.Render()
+
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
-        if plot: plot.showWidgets()
-
-        self.showGUI()
 
   def cgm(self,file):
         if self.renWin is None:
@@ -1843,21 +1848,4 @@ class VTKVCSBackend(object):
                           t.SetInput("%g" % l[0])
 
       if update:
-        ##Ok let's go thru all renderers
-        renderers = self.renWin.GetRenderers()
-        renderers.InitTraversal()
-        ren = renderers.GetNextItem()
-        i=0
-        while ren:
-          i+=1
-          actors = ren.GetActors()
-          actors.InitTraversal()
-          actor = actors.GetNextItem()
-          j=0
-          while actor:
-            j+=1
-            m = actor.GetMapper()
-            m.Update()
-            actor=actors.GetNextItem()
-          ren=renderers.GetNextItem()
         self.renWin.Render()

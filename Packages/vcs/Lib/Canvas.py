@@ -469,8 +469,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
-      if self.configurator is not None:
-        self.configurator.show()
+      self.configure()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
@@ -942,7 +941,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self._animate = self.backend.Animate( self )
 
-        self.configurator = configurator.Configurator(self, show_on_update=(backend != "vtk") )
+        self.configurator = None
 
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
@@ -967,11 +966,26 @@ class Canvas(object,AutoAPI.AutoAPI):
            else:
               shutil.copy2(os.path.join(*pth),user_init)
 
-	called_initial_attributes_flg = 1
+        called_initial_attributes_flg = 1
         self.canvas_template_editor=None
         self.ratio=0
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
+
+    def configure(self):
+        for display in self.display_names:
+            d = vcs.elements["display"][display]
+            if "3d" in d.g_type.lower():
+                return
+        if self.configurator is None:
+            self.configurator = configurator.Configurator(self)
+            self.configurator.update()
+            self.configurator.show()
+
+    def endconfigure(self):
+        if self.configurator is not None:
+            self.configurator.detach()
+            self.configurator = None
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
@@ -2426,7 +2440,7 @@ Options:::
                        'xbounds','ybounds','xname','yname','xunits','yunits','xweights','yweights',
                        'comment1','comment2','comment3','comment4','hms','long_name','zaxis',
                        'zarray','zname','zunits','taxis','tarray','tname','tunits','waxis','warray',
-                       'wname','wunits','bg','ratio','donotstoredisplay']
+                       'wname','wunits','bg','ratio','donotstoredisplay', 'render']
 
 
 
@@ -2643,6 +2657,7 @@ Options:::
             print err
 
     def __plot (self, arglist, keyargs):
+
         # This routine has five arguments in arglist from _determine_arg_list
         # It adds one for bg and passes those on to Canvas.plot as its sixth arguments.
 
@@ -2660,6 +2675,10 @@ Options:::
         if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert isinstance(arglist[3],str)
         assert isinstance(arglist[4],str)
 
+        if self.animate.is_playing():
+            self.animate.stop()
+            while self.animate.is_playing():
+                pass
         ##reset animation
         self.animate.create_flg = 0
 
@@ -3734,8 +3753,7 @@ Options:::
         if dn is not None:
           self.display_names.append(result.name)
           if result.g_type in ("3d_scalar", "3d_vector") and self.configurator is not None:
-            self.configurator.detach()
-            self.configurator = None
+            self.endconfigure()
           if self.backend.bg == False and self.configurator is not None:
             self.configurator.update()
 
