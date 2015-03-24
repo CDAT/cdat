@@ -1,5 +1,4 @@
 import vtk
-
 # Support multiple render windows
 ui_managers = {}
 
@@ -18,17 +17,43 @@ class InterfaceManager(object):
         self.window.AddRenderer(self.renderer)
         self.widgets = []
         self.timer_listener = self.interactor.AddObserver("TimerEvent", self.__render)
+        self.window_mod = self.window.AddObserver("ModifiedEvent", self.__place, 30)
+        self.render_listener = self.window.AddObserver("RenderEvent", self.__rendered)
+        self.last_size = None
         self.timer = None
+
+    def __rendered(self, obj, event):
+        if self.timer is not None:
+            self.interactor.DestroyTimer(self.timer)
+            self.timer = None
+
+    def __place(self, obj, event):
+        size = self.window.GetSize()
+        if size == self.last_size:
+            return
+        self.last_size = size
+        for widget in self.widgets:
+            if widget.showing() == 1:
+                widget.place()
 
     def __render(self, obj, event):
         if self.timer is not None:
-            self.window.Render()
             self.timer = None
+            self.window.Render()
 
     def queue_render(self):
         if self.timer is None:
             # approximately one frame at 60 fps
             self.timer = self.interactor.CreateOneShotTimer(16)
+
+    def elevate(self):
+        # Raise to top layer of render window
+        layer = self.window.GetNumberOfLayers()
+        self.window.SetNumberOfLayers(layer + 1)
+        if self.window.HasRenderer(self.renderer):
+            self.window.RemoveRenderer(self.renderer)
+        self.renderer.SetLayer(layer)
+        self.window.AddRenderer(self.renderer)
 
 
     def add_widget(self, widget):
@@ -46,9 +71,30 @@ class InterfaceManager(object):
             self.widgets.remove(widget)
             if len(self.widgets) == 0:
                 del ui_managers[self.interactor]
-                del self.window
-                del self.renderer
-                del self.interactor
+                self.detach()
+
+    def detach(self):
+        for w in self.widgets:
+            w.detach()
+        if self.window.HasRenderer(self.renderer):
+            self.window.RemoveRenderer(self.renderer)
+        self.interactor.RemoveObserver(self.timer_listener)
+        self.window.RemoveObserver(self.window_mod)
+        self.window.RemoveObserver(self.render_listener)
+
+def delete_manager(inter):
+    if inter is None:
+        return None
+
+    manager = ui_managers.get(inter, None)
+    if manager is not None and len(manager.widgets) == 0:
+        manager.detach()
+        del ui_managers[inter]
+
+def manager_exists(inter):
+    if inter is None:
+        return False
+    return inter in ui_managers
 
 def get_manager(inter):
 
