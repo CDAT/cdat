@@ -623,7 +623,7 @@ class Configurator(object):
     def animate(self, obj, event):
         if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
             self.animation_last_frame_time = datetime.datetime.now()
-            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
     def start_animating(self):
         if self.animation_timer is None:
@@ -633,7 +633,6 @@ class Configurator(object):
         if self.animation_timer is not None:
             t, self.animation_timer = self.animation_timer, None
             self.interactor.DestroyTimer(t)
-            self.canvas.animate.draw_frame(allow_static = False, render_offscreen = False)
 
     def set_animation_frame(self, value):
         value = int(value)
