@@ -643,11 +643,8 @@ class Configurator(object):
 
     def set_animation_frame(self, value):
         value = int(value)
-        self.canvas.animate.draw_frame(value)
+        self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
         return value
-    def final_animation_frame(self, value):
-        value = int(value)
-        self.canvas.animate.draw_frame(value, allow_static = False, render_offscreen = False)
 
     def set_background_red(self, value):
         _, g, b = self.canvas.backgroundcolor
