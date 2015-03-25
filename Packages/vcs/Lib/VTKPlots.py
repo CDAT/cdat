@@ -50,14 +50,15 @@ class VTKVCSBackend(object):
     self._plot_keywords = [ 'renderer','vtk_backend_grid','vtk_backend_geo', 'cdmsfile', 'cell_coordinates' ]
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+    self.clickRenderer = None
 
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
+
     if sys.platform == "darwin":
         self.reRender = False
-        self.clickRenderer = None
         self.oldCursor = None
 
 
@@ -175,7 +176,7 @@ class VTKVCSBackend(object):
     ren.AddActor(a2d)
     ren.AddActor(a)
     ren.ResetCamera()
-    self.clickRenderer= ren
+    self.clickRenderer = ren
     self.renWin.AddRenderer(ren)
     self.renWin.Render()
 
