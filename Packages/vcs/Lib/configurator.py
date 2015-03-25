@@ -546,7 +546,9 @@ class Configurator(object):
             self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
             anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
-            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame, end=self.final_animation_frame)
+            def get_frame():
+                return self.canvas.animate.frame_num
+            anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
             anim_toolbar.add_slider_button(self.animation_speed, 1, 30, "Frames Per Second", update=self.set_animation_speed)
             self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
