@@ -100,7 +100,7 @@ class VTKAnimationPlayback(animate_helper.AnimationPlayback):
       while not self.is_stopped():
           self.wait_if_paused()
 
-          self.controller.draw_frame(allow_static = True, render_offscreen = False, main_window_png = True)
+          self.controller.draw_frame(allow_static = False, render_offscreen = False, main_window_png = False)
 
           self.controller.frame_num += 1
           if self.controller.frame_num >= self.controller.number_of_frames():
@@ -258,7 +258,7 @@ class VTKAnimate(animate_helper.AnimationController):
       else:
         self.reclaim_renderers()
 
-        update_input(self.vcs_self, self._number_of_dims_used_for_plot, frame_num)
+        update_input(self.vcs_self, self._number_of_dims_used_for_plot, frame_num, update=False)
 
         self.vcs_self.backend.renWin.Render()
 
