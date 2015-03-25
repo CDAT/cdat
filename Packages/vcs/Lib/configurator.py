@@ -164,6 +164,7 @@ class Configurator(object):
         self.save_timer = None
         self.save_listener = None
         self.save_anim_button = None
+        self.anim_button = None
         self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
         # Map custom templates to their source template
@@ -541,7 +542,7 @@ class Configurator(object):
         if self.initialized == False:
             self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
-            anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
             anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
             anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame, end=self.final_animation_frame)
@@ -557,6 +558,9 @@ class Configurator(object):
 
     def save_animation_press(self, state):
         if state == 1:
+            if self.animation_timer:
+                self.stop_animating()
+                self.anim_button.set_state(0)
             self.save_listener = self.interactor.AddObserver("TimerEvent", self.save_tick)
             self.save_timer = self.interactor.CreateRepeatingTimer(10)
         else:
