@@ -63,7 +63,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
 
-        self.tooltip = vtk_ui.Label(self.interactor, "%s + Click to place new markers." % "Cmd" if sys.platform == "darwin" else "Ctrl", textproperty=prop)
+        self.tooltip = vtk_ui.Label(self.interactor, "%s + Click to place new markers." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
         self.tooltip.left = 0
         self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
