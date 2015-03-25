@@ -279,6 +279,10 @@ class Configurator(object):
             self.marker_button.detach()
             self.marker_button = None
 
+        if self.target is not None:
+            self.target.detach()
+            self.target = None
+
         if self.animation_timer is not None:
             self.stop_animating()
 
