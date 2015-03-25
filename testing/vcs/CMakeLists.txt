@@ -287,7 +287,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
       )
-    FOREACH(gm boxfill isofill isoline vector meshfill )
+    FOREACH(gm boxfill isofill isoline meshfill )
      FOREACH(ptype 0 -3 aeqd)
       cdat_add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
         "${PYTHON_EXECUTABLE}"
