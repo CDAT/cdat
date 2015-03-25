@@ -5,6 +5,7 @@ from vcs.VCS_validation_functions import checkMarker
 import vtk
 import vcs.vcs2vtk
 import priority
+import sys
 
 class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     """
@@ -61,7 +62,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
-        self.tooltip = vtk_ui.Label(self.interactor, "Ctrl + Click to place new markers.", textproperty=prop)
+
+        self.tooltip = vtk_ui.Label(self.interactor, "%s + Click to place new markers." % "Cmd" if sys.platform == "darwin" else "Ctrl", textproperty=prop)
         self.tooltip.left = 0
         self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
@@ -73,7 +75,7 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def handle_click(self, point):
         x, y = point
-        # Alt drops a new instance
+        # Control drops a new instance
         return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["control"]
 
     def is_object(self, marker):
@@ -136,7 +138,6 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def click_release(self):
         x, y = self.event_position()
-
         if self.current_modifiers()["control"]:
             h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
             h.show()
