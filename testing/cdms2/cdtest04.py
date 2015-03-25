@@ -14,7 +14,7 @@ lon = numpy.ma.arange(NLON)*(360.0/NLON)
 timestr = ['2000','2001','2002']
 u = x[0]
 
-f = cdms2.createDataset('readwrite.nc')
+f = cdms2.createDataset('readwrite4.nc')
 pth = os.path.dirname(os.path.abspath(__file__))
 h = cdms2.open(os.path.join(pth,'readonly.nc'))
 tobj = f.createAxis('time',numpy.ma.array([time[1]]))
@@ -81,7 +81,7 @@ f.write(um2, id='u3')
 
 f.close()
 #-----------------------------------------------------------
-g = cdms2.open('readwrite.nc','r+')
+g = cdms2.open('readwrite4.nc','r+')
 try:
     con = '<not read>'
     con = g.Conventions

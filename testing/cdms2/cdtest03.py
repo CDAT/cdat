@@ -14,7 +14,7 @@ lon = numpy.arange(NLON)*(360.0/NLON)
 timestr = ['2000','2001','2002']
 u = x[0]
 
-f = cdms2.createDataset('readwrite.nc')
+f = cdms2.createDataset('readwrite3.nc')
 tobj = f.createAxis('time',numpy.array([time[1]]))
 tobj.units = 'days since 2000-1-1'
 latobj = f.createAxis('latitude',lat)
@@ -52,7 +52,7 @@ p0.assignValue(-99.9)
 
 f.close()
 #-----------------------------------------------------------
-g = cdms2.openDataset('readwrite.nc','r+')
+g = cdms2.openDataset('readwrite3.nc','r+')
 con = g.Conventions
 try:
     con = '<not read>'

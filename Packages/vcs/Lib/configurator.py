@@ -200,12 +200,13 @@ class Configurator(object):
     def update(self):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
-            self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
-            self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
-            self.init_buttons()
-            self.init_toolbar()
+            if self.interactor is not None:
+                self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
+                self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
+                self.init_buttons()
+                self.init_toolbar()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
 
