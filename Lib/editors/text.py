@@ -7,6 +7,7 @@ import priority
 import vcs
 from vcs.vcs2vtk import genTextActor
 from font import FontEditor
+import sys
 
 __valign_map__ = {
     0: 0,
@@ -58,7 +59,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
-        self.tooltip = Label(self.interactor, "Ctrl + Click to place new text.", textproperty=prop)
+        self.tooltip = Label(self.interactor, "%s + Click to place new text." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
         self.tooltip.left = 0
         self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
