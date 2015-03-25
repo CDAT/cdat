@@ -1,2 +1,2 @@
-set(scientificpython_deps ${numpy_pkg} ${netcdf_pkg} ${cdat_pkg} ${pip_pkg})
+set(scientificpython_deps ${numpy_pkg} ${netcdf_pkg} ${cdat_pkg} ${pip_pkg} ${cython_pkg})
 
