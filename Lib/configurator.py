@@ -553,7 +553,7 @@ class Configurator(object):
             def get_frame():
                 return self.canvas.animate.frame_num
             anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
-            anim_toolbar.add_slider_button(self.animation_speed, 1, 30, "Frames Per Second", update=self.set_animation_speed)
+            anim_toolbar.add_slider_button(self.animation_speed, 1, 100, "Speed (Step Delay)", update=self.set_animation_speed)
             self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
 
@@ -582,7 +582,7 @@ class Configurator(object):
 
     def save_animation(self):
         # Save the animation
-        self.canvas.animate.fps(self.animation_speed)
+        self.canvas.animate.fps(int(1000.0 / self.animation_speed))
 
         data_titles = {}
         name_to_type = {}
@@ -625,10 +625,10 @@ class Configurator(object):
 
     def set_animation_speed(self, value):
         v = int(value)
-        self.animation_speed = v
+        self.animation_speed = 10 * v
         if self.animation_timer is not None:
             self.interactor.DestroyTimer(self.animation_timer)
-            self.animation_timer = self.interactor.CreateRepeatingTimer(int(1000.0 / self.animation_speed))
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
         return v
 
     def animate(self, obj, event):
@@ -638,7 +638,7 @@ class Configurator(object):
 
     def start_animating(self):
         if self.animation_timer is None:
-            self.animation_timer = self.interactor.CreateRepeatingTimer(int(1000.0 / self.animation_speed))
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
 
     def stop_animating(self):
         if self.animation_timer is not None:
