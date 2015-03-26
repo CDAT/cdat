@@ -35,7 +35,12 @@ class Slider(Widget):
 
         self.repr.SetMinimumValue(float(min_val))
         self.repr.SetMaximumValue(float(max_val))
-        self.repr.SetValue(float(value))
+        if callable(value):
+            self.repr.SetValue(float(value()))
+            self.value_func = value
+        else:
+            self.repr.SetValue(float(value))
+            self.value_func = None
 
         self.repr.SetSliderLength(0.05)
         self.repr.SetSliderWidth(0.02)
@@ -58,6 +63,8 @@ class Slider(Widget):
         self.repr.GetPoint2Coordinate().SetValue((self.x2, self.y2, 0))
 
     def show(self):
+        if self.value_func:
+            self.repr.SetValue(float(self.value_func()))
         self.widget.EnabledOn()
         self.widget.On()
 
