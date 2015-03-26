@@ -78,6 +78,7 @@ class InterfaceManager(object):
             w.detach()
         if self.window.HasRenderer(self.renderer):
             self.window.RemoveRenderer(self.renderer)
+        self.renderer.RemoveAllViewProps()
         self.interactor.RemoveObserver(self.timer_listener)
         self.window.RemoveObserver(self.window_mod)
         self.window.RemoveObserver(self.render_listener)
