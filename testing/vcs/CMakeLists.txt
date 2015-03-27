@@ -253,6 +253,11 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_auto_time_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
+      "${BASELINE_DIR}/test_vcs_auto_time_labels.png"
+      )
     cdat_add_test(test_vcs_isofill_mask_cell_shift
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
