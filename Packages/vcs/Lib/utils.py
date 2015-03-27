@@ -1472,6 +1472,8 @@ def monotonic(x):
     return numpy.all(dx <= 0) or numpy.all(dx >= 0)
 
 def getgraphicsmethod(type,name):
+    if type=="default":
+        type="boxfill"
     if isinstance(type,vcsaddons.core.VCSaddon):
         func = type.getgm
         copy_mthd=func(source = name)
