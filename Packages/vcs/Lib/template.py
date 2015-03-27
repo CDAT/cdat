@@ -912,7 +912,7 @@ class P(object):
                 for t in loc.keys():
                     loc[t]=''
         if isinstance(loc,str):
-          loc = vcs.elements["list"].get(loc,{})
+          loc = copy.copy(vcs.elements["list"].get(loc,{}))
         # Make sure the label passed are not outside the world coordinates
         dw1=1.E20
         dw2=1.E20

@@ -247,7 +247,7 @@ cdat_add_test(vcs_test_taylor_2_quads
   cdat_add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
-    ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
+    "${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png"
     )
 
 
@@ -258,10 +258,15 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
       "${BASELINE_DIR}/test_vcs_auto_time_labels.png"
       )
+    cdat_add_test(test_vcs_lon_axes_freak_out
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_lon_axes_freak_out.py
+      "${BASELINE_DIR}/test_lon_axes_freak_out.png"
+      )
     cdat_add_test(test_vcs_isofill_mask_cell_shift
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
-      ${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png
+      "${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png"
       )
     cdat_add_test(vcs_test_bad_time_units
       "${PYTHON_EXECUTABLE}"
