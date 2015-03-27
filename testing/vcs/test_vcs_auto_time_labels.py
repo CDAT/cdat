@@ -8,7 +8,7 @@ s=f("clt",longitude=slice(34,35),squeeze=1)
 x=vcs.init()
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
-x.plot(s)
+x.plot(s,bg=1)
 fnm = "test_vcs_auto_time_labels.png"
 x.png(fnm)
 print "fnm:",fnm
