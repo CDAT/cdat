@@ -292,8 +292,6 @@ class Configurator(object):
         # if all of the widgets have been cleaned up correctly, this will delete the manager
         vtk_ui.manager.delete_manager(self.interactor)
 
-        self.interactor.Render()
-
     def release(self, object, event):
         if self.clicking is None:
             return
