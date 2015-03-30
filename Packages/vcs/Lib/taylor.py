@@ -95,6 +95,27 @@ class TDMarker(object):
          'number'
          ]
     
+    def __getstate__(self):
+      return {
+          'name':self.name,
+          'status':self.status,
+          'line':self.line,
+          'id':self.id,
+          'id_size':self.id_size,
+          'id_color':self.id_color,
+          'id_font':self.id_font,
+          'symbol':self.symbol,
+          'color':self.color,
+          'size':self.size,
+          'xoffset':self.xoffset,
+          'yoffset':self.yoffset,
+          'line_color':self.line_color,
+          'line_size':self.line_size,
+          'line_type':self.line_type,
+          'number':self.number}
+    def __setstate__(self,dict):
+      for k in dict.keys():
+        setattr(self,k,dict[k])
     def __init__(self):
         self.name='marker'
         self._status=[]
