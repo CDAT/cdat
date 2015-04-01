@@ -316,13 +316,12 @@ class DV3DPlot():
     def onClosing(self, cell ):
         print " ------> Closing!"
         self.stopAnimation()
-        if cell <> None:
-            self.cfgManager.parent.clear( cell )
-            self.terminate()
-            self.renderer.RemoveAllViewProps()
-            self.clearReferrents()
-            if self.renderWindowInteractor <> None:
-                self.renderWindowInteractor.TerminateApp()
+        self.cfgManager.parent.clear( cell )
+        self.terminate()
+        self.renderer.RemoveAllViewProps()
+        self.clearReferrents()
+        if self.renderWindowInteractor <> None:
+            self.renderWindowInteractor.TerminateApp()
 
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
 #         if pipeline == None: pipeline = self.getCurrentPipeline()
@@ -338,11 +337,11 @@ class DV3DPlot():
         pass
 
     def quit( self, **args ):
+        self.saveState()
+        self.onClosing(None)
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
-            self.saveState()
-        self.onClosing(None)
-        sys.exit( 0 )
+            sys.exit( 0 )
 
     def stepAnimation(self, **args):
         if self.record_animation: self.captureFrame()
@@ -931,7 +930,9 @@ class DV3DPlot():
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if (self.type == '3d_vector') or not enable_3d_plots:
             sliderLabels= 'Slice Position' if enable_3d_plots else []
-            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', visible=enable_3d_plots, toggle=True, group='SliceRoundRobin', sliderLabels=sliderLabels, label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )
+            vs_button = self.buttonBarHandler.findButton( 'VerticalScaling' )
+            if vs_button is not None: vs_button.setVisibility( False )
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
             b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )

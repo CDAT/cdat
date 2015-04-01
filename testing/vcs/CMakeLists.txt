@@ -127,6 +127,11 @@ cdat_add_test(vcs_test_vectors_missing
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
+cdat_add_test(vcs_test_remove_marker_none_1d
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_remove_marker_none_1d.py
+  "${BASELINE_DIR}/test_remove_marker_none_1d.png"
+  )
 cdat_add_test(vcs_test_draw_logo_on
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
@@ -242,12 +247,27 @@ cdat_add_test(vcs_test_taylor_2_quads
   cdat_add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
-    ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
+    "${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png"
     )
 
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_auto_time_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
+      "${BASELINE_DIR}/test_vcs_auto_time_labels.png"
+      )
+    cdat_add_test(test_vcs_lon_axes_freak_out
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_lon_axes_freak_out.py
+      "${BASELINE_DIR}/test_lon_axes_freak_out.png"
+      )
+    cdat_add_test(test_vcs_isofill_mask_cell_shift
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
+      "${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png"
+      )
     cdat_add_test(vcs_test_bad_time_units
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
@@ -282,7 +302,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
       )
-    FOREACH(gm boxfill isofill isoline vector meshfill )
+    FOREACH(gm boxfill isofill isoline meshfill )
      FOREACH(ptype 0 -3 aeqd)
       cdat_add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
         "${PYTHON_EXECUTABLE}"

@@ -73,6 +73,7 @@ canvas_closed = 0
 import vcsaddons
 import vcs.manageElements
 import configurator
+from projection import round_projections
 
 class SIGNAL(object):
 
@@ -468,7 +469,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.interact(*args,**kargs)
 
     def interact(self,*args,**kargs):
-      self.configurator.show()
+      self.configure()
       self.backend.interact(*args,**kargs)
 
     def _datawc_tv(self, tv, arglist):
@@ -940,7 +941,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self._animate = self.backend.Animate( self )
 
-        self.configurator = configurator.Configurator(self, show_on_update=(backend != "vtk") )
+        self.configurator = None
 
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
@@ -965,11 +966,26 @@ class Canvas(object,AutoAPI.AutoAPI):
            else:
               shutil.copy2(os.path.join(*pth),user_init)
 
-	called_initial_attributes_flg = 1
+        called_initial_attributes_flg = 1
         self.canvas_template_editor=None
         self.ratio=0
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
+
+    def configure(self):
+        for display in self.display_names:
+            d = vcs.elements["display"][display]
+            if "3d" in d.g_type.lower():
+                return
+        if self.configurator is None:
+            self.configurator = configurator.Configurator(self)
+            self.configurator.update()
+            self.configurator.show()
+
+    def endconfigure(self):
+        if self.configurator is not None:
+            self.configurator.detach()
+            self.configurator = None
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
@@ -1977,9 +1993,9 @@ Options:::
     #                                                                           #
     #############################################################################
     def createline(self,name=None, source='default', ltype=None,
-                 width=None, color=None, priority=1,
+                 width=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
-                 x=None, y=None, projection='default'):
+                 x=None, y=None, projection=None):
         return vcs.createline(name,source,ltype,width,color,priority,viewport,worldcoordinate,x,y,projection)
     createline.__doc__ = vcs.manageElements.createline.__doc__
 
@@ -2228,7 +2244,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def createtexttable(self,name=None, source='default', font=None,
-                 spacing=None, expansion=None, color=None, priority=1,
+                 spacing=None, expansion=None, color=None, priority=None,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None):
       return vcs.createtexttable(name,source,font,spacing,expansion,color,priority,
@@ -2262,7 +2278,7 @@ Options:::
     # Text Combined  functions for VCS.                                         #
     #                                                                           #
     #############################################################################
-    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=1, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+    def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
         return vcs.createtextcombined(Tt_name, Tt_source, To_name, To_source,
             font, spacing, expansion, color, priority, viewport, worldcoordinate,
             x, y, height, angle, path, halign, valign, projection)
@@ -2424,7 +2440,7 @@ Options:::
                        'xbounds','ybounds','xname','yname','xunits','yunits','xweights','yweights',
                        'comment1','comment2','comment3','comment4','hms','long_name','zaxis',
                        'zarray','zname','zunits','taxis','tarray','tname','tunits','waxis','warray',
-                       'wname','wunits','bg','ratio','donotstoredisplay']
+                       'wname','wunits','bg','ratio','donotstoredisplay', 'render']
 
 
 
@@ -2641,6 +2657,7 @@ Options:::
             print err
 
     def __plot (self, arglist, keyargs):
+
         # This routine has five arguments in arglist from _determine_arg_list
         # It adds one for bg and passes those on to Canvas.plot as its sixth arguments.
 
@@ -2658,6 +2675,10 @@ Options:::
         if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert isinstance(arglist[3],str)
         assert isinstance(arglist[4],str)
 
+        if self.animate.is_playing():
+            self.animate.stop()
+            while self.animate.is_playing():
+                pass
         ##reset animation
         self.animate.create_flg = 0
 
@@ -2677,7 +2698,6 @@ Options:::
             #    copy_tmpl=self.createtemplate(source=arglist[2])
         check_mthd = vcs.getgraphicsmethod(arglist[3],arglist[4])
         check_tmpl = vcs.gettemplate(arglist[2])
-
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
         Doratio = keyargs.get("ratio",None)
@@ -3481,10 +3501,11 @@ Options:::
                 elif tp=="default":
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
+                if hasattr(gm,"priority") and gm.priority==0:
+                    return
             p=self.getprojection(gm.projection)
-            if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
+            if p.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
-
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
@@ -3518,6 +3539,7 @@ Options:::
                 # Now creates a copy of the primitives, in case it's used on other canvases with diferent ratios
                 if arglist[3]=='text':
                     nms = arglist[4].split(":::")
+                    P=self.gettext(nms[0],nms[1])
                     p = self.createtext(Tt_source=nms[0],To_source=nms[1])
                 elif arglist[3]=='marker':
                     p = self.createmarker(source=arglist[4])
@@ -3531,7 +3553,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in ["polar (non gctp)","polar stereographic"]:
+                if proj.type in round_projections and (doratio=="0" or doratio[:4]=="auto"):
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
@@ -3550,7 +3572,7 @@ Options:::
                     else:
                         arglist[4]=p.name
                 else:
-                  if arglist[3]=='text':
+                  if arglist[3]=='text' and keyargs.get("donotstoredisplay",False) is True:
                       sp = p.name.split(":::")
                       del(vcs.elements["texttable"][sp[0]])
                       del(vcs.elements["textorientation"][sp[1]])
@@ -3576,7 +3598,7 @@ Options:::
                       tp="textcombined"
                     gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
-                if p.type in ["polar (non gctp)","polar stereographic"]:
+                if p.type in round_projections:
                   doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
@@ -3730,8 +3752,11 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
-          if self.backend.bg == False:
-            self.configurator.update(self.display_names)
+          if result.g_type in ("3d_scalar", "3d_vector") and self.configurator is not None:
+            self.endconfigure()
+          if self.backend.bg == False and self.configurator is not None:
+            self.configurator.update()
+
         # Commented out as agreed we shouldn't use warnings in these contexts.
         #if not hasattr(__main__,"__file__") and not bg:
         #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")

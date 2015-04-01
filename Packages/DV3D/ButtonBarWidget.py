@@ -46,6 +46,7 @@ class Button:
         self.children = args.get( 'children', [] )
         self.toggle = args.get( 'toggle', False )
         self.parents = args.get( 'parents', [] )
+        self.visible = args.get( 'visible', True )
         self.numberOfStates = args.get( 'nstates', ( 2 if self.toggle else len( self.names ) ) )
         self.id = args.get( 'id', self.names[0] if self.numberOfStates else None )
         self.key = args.get( 'key', None )
@@ -64,6 +65,9 @@ class Button:
         self.updateWidgetState()
 #         if self.id == 'ToggleVolumePlot':
 #             print "."
+
+    def setVisibility(self, visibility ):
+        self.visible = visibility
 
     def processButtonEvent(self, *args ):
         print '-----> processButtonEvent: ', str( args )
@@ -195,7 +199,7 @@ class Button:
         return self.image_size
 
     def On(self):
-        if self.active:
+        if self.active and self.visible:
             self.buttonWidget.On()
 #            print " Button %s on " % self.id
 
@@ -205,8 +209,9 @@ class Button:
 #             print " Button %s off " % self.id
 
     def activate(self):
-        self.active = True
-        self.buttonWidget.On()
+        if self.visible:
+            self.active = True
+            self.buttonWidget.On()
 #        print " Button %s on " % self.id
 
     def deactivate(self):
@@ -718,14 +723,17 @@ class ButtonBarWidget(ButtonBar):
             self.releaseSlider( index )
 
     def positionSlider(self, position_index, n_sliders ):
-        slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
-        sliderRep = swidget.GetRepresentation( )
-        sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )
-        sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
-        sliderRep.Modified()
-        swidget.Modified()
-        sliderRep.NeedToRenderOn()
+        try:
+            slider_pos = self.slider_postions[ n_sliders ]
+            ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
+            sliderRep = swidget.GetRepresentation( )
+            sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )
+            sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
+            sliderRep.Modified()
+            swidget.Modified()
+            sliderRep.NeedToRenderOn()
+        except Exception, err:
+            print>>sys.stderr, " Error in positionSlider: ", str( err )
 
     def setSliderValues( self, values ):
         for index, value in enumerate(values):

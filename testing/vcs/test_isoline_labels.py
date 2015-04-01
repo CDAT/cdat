@@ -14,7 +14,7 @@ canvas.setbgoutputdimensions(1200, 1091, units="pixels")
 canvas.drawlogooff()
 
 isoline = canvas.createisoline()
-isoline.labels="y"
+isoline.label="y"
 texts=[]
 colors = []
 for i in range(20):

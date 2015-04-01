@@ -10,6 +10,7 @@ from vtk.util import numpy_support as VN
 import cdms2
 import warnings
 import cdtime
+from projection import round_projections
 
 f = open(os.path.join(vcs.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
@@ -52,18 +53,19 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
                   grid2.SetPointVisibilityArray(nomsk)
               grid2.GetPointData().SetScalars(imsk)
               #grid2.SetCellVisibilityArray(imsk)
-              p2c = vtk.vtkPointDataToCellData()
-              p2c.SetInputData(grid2)
-              geoFilter.SetInputConnection(p2c.GetOutputPort())
-              #lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
-              #lut.SetTableValue(1,r/100.,g/100.,b/100.,0.)
+              #p2c = vtk.vtkPointDataToCellData()
+              #p2c.SetInputData(grid2)
+              #geoFilter.SetInputConnection(p2c.GetOutputPort())
+              geoFilter.SetInputData(grid2)
+              lut.SetTableValue(0,r/100.,g/100.,b/100.,1.)
+              lut.SetTableValue(1,r/100.,g/100.,b/100.,1.)
           else:
               if grid2.IsA("vtkStructuredGrid"):
                   grid2.SetCellVisibilityArray(nomsk)
               grid2.GetCellData().SetScalars(imsk)
               geoFilter.SetInputData(grid2)
-          lut.SetTableValue(0,r/100.,g/100.,b/100.,0.)
-          lut.SetTableValue(1,r/100.,g/100.,b/100.,1.)
+              lut.SetTableValue(0,r/100.,g/100.,b/100.,0.)
+              lut.SetTableValue(1,r/100.,g/100.,b/100.,1.)
           geoFilter.Update()
           mapper = vtk.vtkPolyDataMapper()
           mapper.SetInputData(geoFilter.GetOutput())
@@ -76,7 +78,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
+def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   useStructuredGrid = True
@@ -126,11 +128,11 @@ def genGridOnPoints(data1,data2,gm,deep=True,grid=None,geo=None):
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
   if geo is None:
     geo, geopts = project(pts,projection,[xm,xM,ym,yM])
-  ## Sets the vertics into the grid
+  ## Sets the vertices into the grid
   if grid is None:
     if useStructuredGrid:
       vg = vtk.vtkStructuredGrid()
-      vg.SetDimensions(y.shape[1],y.shape[0],1)
+      vg.SetDimensions(data1.shape[1],data1.shape[0],1)
     else:
       vg = vtk.vtkUnstructuredGrid()
     vg.SetPoints(geopts)
@@ -191,7 +193,6 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
         # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
         m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    #print "No mesh data found"
     pass
   if m3 is not None:
     #Create unstructured grid points
@@ -412,6 +413,20 @@ def prepContinents(fnm):
     ln=f.readline()
   poly.SetPoints(pts)
   poly.SetLines(cells)
+
+  # The dataset has some duplicate lines that extend outside of x=[-180, 180],
+  # which will cause wrapping artifacts for certain projections (e.g.
+  # Robinson). Clip out the duplicate data:
+  box = vtk.vtkBox()
+  box.SetXMin(-180., -90., 0.)
+  box.SetXMax(180., 90., 1.)
+  clipper = vtk.vtkClipPolyData()
+  clipper.SetInputData(poly)
+  clipper.InsideOutOn()
+  clipper.SetClipFunction(box)
+  clipper.Update()
+  poly = clipper.GetOutput()
+
   vcsContinents[fnm]=poly
   return poly
 
@@ -426,8 +441,6 @@ def project(pts,projection,wc,geo=None):
   if geo is None:
     geo = vtk.vtkGeoTransform()
     ps = vtk.vtkGeoProjection()
-    #for i in range(ps.GetNumberOfProjections()):
-    #  print i, ps.GetProjectionName(i)
     pd = vtk.vtkGeoProjection()
     names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
     proj_dic = {"polar stereographic":"stere",
@@ -438,12 +451,6 @@ def project(pts,projection,wc,geo=None):
 
     pname = proj_dic.get(projection._type,projection.type)
     projName = pname
-    #for i in range(0,184,2):
-    #  pd.SetName(pd.GetProjectionName(i))
-    #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-    #  pd.SetName(pd.GetProjectionName(i+1))
-    #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
-
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
       if ym<yM:
@@ -621,10 +628,10 @@ def setProjectionParameters(pd,proj):
 dumps={}
 def dump2VTK(obj,fnm=None):
   global dumps
-  if fnm[:-4].lower()!=".vtk":
-    fnm+=".vtk"
   if fnm is None:
     fnm="foo.vtk" % dumps
+  if fnm[:-4].lower()!=".vtk":
+    fnm+=".vtk"
   if fnm in dumps:
     dumps[fnm]+=1
     fnm=fnm[:-4]+"%.3i.vtk" % dumps[fnm]
@@ -846,7 +853,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
   if tt.priority==0:
-    return
+    return []
   if string is None:
     string = tt.string
   if x is None:
@@ -854,7 +861,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   if y is None:
     y = tt.y
   if x is None or y is None or string in [['',],[]]:
-    return
+    return []
 
   n = max(len(x),len(y),len(string))
   for a in [x,y,string]:
@@ -863,13 +870,36 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
 
   sz = renderer.GetRenderWindow().GetSize()
   actors=[]
+  pts = vtk.vtkPoints()
+  geo = None
+  if vcs.elements["projection"][tt.projection].type!="linear":
+      # Need to figure out new WC
+      Npts = 20
+      for i in range(Npts+1):
+          X = tt.worldcoordinate[0]+float(i)/Npts*(tt.worldcoordinate[1]-tt.worldcoordinate[0])
+          for j in range(Npts+1):
+              Y = tt.worldcoordinate[2]+float(j)/Npts*(tt.worldcoordinate[3]-tt.worldcoordinate[2])
+              pts.InsertNextPoint(X,Y,0.)
+      geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=None)
+      wc = pts.GetBounds()[:4]
+      #renderer.SetViewport(tt.viewport[0],tt.viewport[2],tt.viewport[1],tt.viewport[3])
+      renderer.SetWorldPoint(wc)
+
+
   for i in range(n):
     t = vtk.vtkTextActor()
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
-    t.SetInput(string[i])
-    X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
+    pts = vtk.vtkPoints()
+    pts.InsertNextPoint(x[i],y[i],0.)
+    if geo is not None:
+        geo,pts = project(pts,tt.projection,tt.worldcoordinate,geo=geo)
+        X,Y,tz=pts.GetPoint(0)
+        X,Y = world2Renderer(renderer,X,Y,tt.viewport,wc)
+    else:
+        X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
+    t.SetInput(string[i])
     #T=vtk.vtkTransform()
     #T.Scale(1.,sz[1]/606.,1.)
     #T.RotateY(to.angle)
@@ -904,7 +934,7 @@ def prepPrimitive(prim):
 def prepFillarea(renWin,farea,cmap=None):
   n = prepPrimitive(farea)
   if n==0:
-    return
+    return []
   actors =[]
 
   # Find color map:
@@ -1168,7 +1198,7 @@ def scaleMarkerGlyph(g, gs, pd, a):
 def prepMarker(renWin,marker,cmap=None):
   n=prepPrimitive(marker)
   if n==0:
-    return
+    return []
   actors=[]
   for i in range(n):
     g = vtk.vtkGlyph2D()
@@ -1181,9 +1211,9 @@ def prepMarker(renWin,marker,cmap=None):
       while len(a)<n:
         a.append(a[-1])
     pts = vtk.vtkPoints()
-    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     for j in range(N):
       pts.InsertNextPoint(x[j],y[j],0.)
+    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     markers.SetPoints(pts)
 
     #  Type
@@ -1206,7 +1236,7 @@ def prepLine(renWin,line,cmap=None):
   number_lines = prepPrimitive(line)
 
   if number_lines == 0:
-    return
+    return []
 
   actors = []
 
@@ -1227,10 +1257,30 @@ def prepLine(renWin,line,cmap=None):
 
     pts = vtk.vtkPoints()
 
-    for j in range(number_points):
-      pts.InsertNextPoint(x[j],y[j],0.)
-
-    for j in range(number_points - 1):
+    if vcs.elements["projection"][line.projection].type=="linear":
+        for j in range(number_points):
+          pts.InsertNextPoint(x[j],y[j],0.)
+        n2 = number_points - 1
+    else:
+        pts.InsertNextPoint(x[0],y[0],0.)
+        n2=0
+        for j in range(1,number_points):
+            if vcs.elements["projection"][line.projection].type in round_projections:
+                NPointsInterp = 50
+            else:
+                NPointsInterp = 25
+            for i in range(1,NPointsInterp+1):
+                if x[j]!=x[j-1]:
+                    tmpx = x[j-1]+float(i)/NPointsInterp*(x[j]-x[j-1])
+                else:
+                    tmpx=x[j]
+                if y[j]!=y[j-1]:
+                    tmpy = y[j-1]+float(i)/NPointsInterp*(y[j]-y[j-1])
+                else:
+                    tmpy=y[j]
+                pts.InsertNextPoint(tmpx,tmpy,0.)
+                n2+=1
+    for j in range(n2):
       l.GetPointIds().SetId(0,j)
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
@@ -1291,7 +1341,6 @@ def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
 
 def R2World(ren,x,y):
   """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
-  #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
   return wp

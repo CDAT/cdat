@@ -1,0 +1,18 @@
+set( CONFIGOBJ_MAJOR 5 )
+set( CONFIGOBJ_MINOR 0 )
+set( CONFIGOBJ_PATCH 6 )
+set( CONFIGOBJ_VERSION ${CONFIGOBJ_MAJOR}.${CONFIGOBJ_MINOR}.${CONFIGOBJ_PATCH} )
+set( CONFIGOBJ_URL ${LLNL_URL} )
+set( CONFIGOBJ_GZ configobj-${CONFIGOBJ_VERSION}.tar.gz )
+set( CONFIGOBJ_MD5 e472a3a1c2a67bb0ec9b5d54c13a47d6 )
+
+set (nm CONFIGOBJ)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+set(CONFIGOBJ_SOURCE ${CONFIGOBJ_URL}/${CONFIGOBJ_GZ})
+
+if (CDAT_BUILD_ALL)
+  add_cdat_package(configobj "" "" ON)
+else()
+  add_cdat_package(configobj "" "" OFF)
+endif()

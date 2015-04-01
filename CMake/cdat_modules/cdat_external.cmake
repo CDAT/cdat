@@ -40,6 +40,7 @@ ExternalProject_Add(CDAT
   BUILD_COMMAND ""
   INSTALL_COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" ${CMAKE_COMMAND} -DPYTHON_INSTALL_ARGS=${cdat_xtra_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   DEPENDS ${CDAT_deps}
+  ${ep_log_options}
 )
 
 #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_installed_pingdb_step.cmake.in

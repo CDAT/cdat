@@ -6,7 +6,8 @@ from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
 from vcs.vcs2vtk import genTextActor
-from functools import partial
+from font import FontEditor
+import sys
 
 __valign_map__ = {
     0: 0,
@@ -47,27 +48,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         valign.set_state(__valign_map__[self.text.valign])
 
         self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle)
-        self.fonts = sorted(vcs.elements["font"].keys())
 
-        font_toolbar = self.toolbar.add_toolbar("Fonts")
-
-        self.font_buttons = {}
-
-        def font_setter(font):
-            return partial(self.set_font, font)
-
-        deactivate = font_setter("default")
-
-        for ind, font in enumerate(self.fonts):
-
-            if font[:4] != "Math":
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
-            else:
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
-
-            if vcs.elements["fontNumber"][self.text.font] == font:
-                button.set_state(1)
-            self.font_buttons[font] = button
+        font_editor = FontEditor(self.toolbar, self.set_font, vcs.elements["fontNumber"][self.text.font])
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -77,7 +59,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
-        self.tooltip = Label(self.interactor, "Ctrl + Click to place new text.", textproperty=prop)
+        self.tooltip = Label(self.interactor, "%s + Click to place new text." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
         self.tooltip.left = 0
         self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
@@ -86,11 +68,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.update()
 
     def set_font(self, font):
-        current_font = vcs.getfontname(self.text.font)
-        if font != current_font:
-            self.font_buttons[current_font].set_state(0)
         self.text.font = font
-        self.font_buttons[font].set_state(1)
         self.update()
 
     def get_object(self):
