@@ -306,7 +306,27 @@ class VTKVCSBackend(object):
   def update(self, *args, **kargs):
     self._lastSize=-1
     if self.renWin:
-      self.configureEvent(None,None)
+      if self.get3DPlot():
+        plots_args = []
+        key_args =[]
+        for dnm in self.canvas.display_names:
+          d=vcs.elements["display"][dnm]
+          parg = []
+          for a in d.array:
+            if a is not None:
+              parg.append(a)
+          parg.append(d._template_origin)
+          parg.append(d.g_type)
+          parg.append(d.g_name)
+          plots_args.append(parg)
+          if d.ratio is not None:
+              key_args.append({"ratio":d.ratio})
+          else:
+              key_args.append({})
+        for i, args in enumerate(plots_args):
+            self.canvas.plot(*args, **key_args[i])
+      else:
+        self.configureEvent(None,None)
 
   def canvasinfo(self):
     if self.renWin is None:
