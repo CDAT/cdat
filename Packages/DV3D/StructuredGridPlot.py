@@ -639,6 +639,8 @@ class StructuredGridPlot(DV3DPlot):
         if id(var2) <> id(None): var_list.append( var2 )
         self.variable_reader = StructuredDataReader( vars=var_list, otype=self.type, **args )
         self.variable_reader.execute( )
+        if "cm" in args:
+            self.cfgManager = args["cm"]
         self.createRenderer( **args )
         self.execute( )
         self.initializePlots()

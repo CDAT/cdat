@@ -1356,6 +1356,8 @@ class CPCPlot( DV3DPlot ):
 
     def gminit(self, var1, var2, **args  ):
         init_args = self.getInitArgs( var1, var2, **args )
+        if "cm" in args:
+            self.cfgManager = args["cm"]
         self.init( init=init_args, **args )
 
     def init(self, **args ):
