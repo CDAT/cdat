@@ -247,16 +247,20 @@ class VTKVCSBackend(object):
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     hasValidRenderer = True if ren is not None else False
+
+    for gm in self.plotApps:
+      app = self.plotApps[gm]
+      app.plot.quit()
+
     self.hideGUI()
     while ren is not None:
-        if not ren in self.plotRenderers:
-            ren.RemoveAllViewProps()
-            if not ren.GetLayer()==0:
-              self.renWin.RemoveRenderer(ren)
-            else:
-              #Update background color
-              r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
-              ren.SetBackground(r,g,b)
+        ren.RemoveAllViewProps()
+        if not ren.GetLayer()==0:
+          self.renWin.RemoveRenderer(ren)
+        else:
+          #Update background color
+          r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
+          ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
     self.showGUI()
     if hasValidRenderer and self.renWin.IsDrawable() and render:
