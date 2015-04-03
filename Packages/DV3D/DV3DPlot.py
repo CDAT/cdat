@@ -314,9 +314,10 @@ class DV3DPlot():
         self.onWindowModified()
 
     def onClosing(self, cell ):
-        print " ------> Closing!"
+        #print " ------> Closing!"
         self.stopAnimation()
-        self.cfgManager.parent.clear( cell )
+        if self.cfgManager.parent:
+            self.cfgManager.parent.clear( cell )
         self.terminate()
         self.renderer.RemoveAllViewProps()
         self.clearReferrents()
