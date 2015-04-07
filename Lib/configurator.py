@@ -594,7 +594,7 @@ class Configurator(object):
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
             self.animation_last_frame_time = datetime.datetime.now()
             self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
