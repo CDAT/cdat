@@ -881,6 +881,7 @@ class VTKVCSBackend(object):
             mapper.SetLabelVisibility(1)
         else:
             mapper.SetLookupTable(lut)
+        returned["vtk_backend_luts"] = [[lut, [0, len(levs) - 1, False]]]
 
         # Create text properties.
         if gm.label=="y":
