@@ -879,9 +879,10 @@ class VTKVCSBackend(object):
         if gm.label=="y":
             mapper.GetPolyDataMapper().SetLookupTable(lut)
             mapper.SetLabelVisibility(1)
+            returned["vtk_backend_labeled_luts"] = [[lut, [0, len(levs) - 1, False]]]
         else:
             mapper.SetLookupTable(lut)
-        returned["vtk_backend_luts"] = [[lut, [0, len(levs) - 1, False]]]
+            returned["vtk_backend_luts"] = [[lut, [0, len(levs) - 1, False]]]
 
         # Create text properties.
         if gm.label=="y":
@@ -914,13 +915,12 @@ class VTKVCSBackend(object):
               tprops.AddItem(tprop)
               if colorOverride is not None:
                   del(vcs.elements["texttable"][tt])
-
-              mapper.SetTextProperties(tprops)
          else:
             # No text properties specified. Use the default:
-            tprop = vtk.vtkTextProperty()
-            vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
-            mapper.SetTextProperty(tprop)
+            tprops = vtk.vtkTextProperty()
+            vcs2vtk.prepTextProperty(tprops, self.renWin.GetSize())
+         mapper.SetTextProperty(tprops)
+         returned["vtk_backend_contours_labels_text_properties"]=tprops
 
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
@@ -1825,14 +1825,36 @@ class VTKVCSBackend(object):
                       mapper = missingMapper2
                       wrp = a[2]
                   else:
-                      mapper = vtk.vtkPolyDataMapper()
-                      mapper.SetInputConnection(ports[i].GetOutputPort())
-                      lut,rg = vtkobjects["vtk_backend_luts"][i]
-                      if lut is not None:
-                          mapper.SetLookupTable(lut)
-                          if rg[2]:
-                              mapper.SetScalarModeToUseCellData()
-                          mapper.SetScalarRange(rg[0],rg[1])
+                      ## Labeled contours are a different king
+                      if vtkobjects.has_key("vtk_backend_luts"):
+                          print "not labeled"
+                          lut,rg = vtkobjects["vtk_backend_luts"][i]
+                          mapper = vtk.vtkPolyDataMapper()
+                      elif vtkobjects.has_key("vtk_backend_labeled_luts"):
+                          print "labeled"
+                          lut,rg = vtkobjects["vtk_backend_labeled_luts"][i]
+                          mapper = vtk.vtkLabeledContourMapper()
+                      else:
+                          print "OOOOPS"
+                      if lut is None:
+                          mapper.SetInputConnection(ports[i].GetOutputPort())
+                      else:
+                          if mapper.IsA("vtkPolyDataMapper"):
+                              mapper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetLookupTable(lut)
+                          else:
+                              print "labelled"
+                              stripper = vtk.vtkStripper()
+                              stripper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetInputConnection(stripper.GetOutputPort())
+                              stripper.Update()
+                              tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
+                              mapper.GetPolyDataMapper().SetLookupTable(lut)
+                              mapper.SetLabelVisibility(1)
+                              mapper.SetTextProperty(tprops)
+                          #if rg[2]:
+                          #    mapper.SetScalarModeToUseCellData()
+                          #mapper.SetScalarRange(rg[0],rg[1])
                   act.SetMapper(mapper)
                   act = vcs2vtk.doWrap(a[0],wrp)
                   a[0].SetMapper(act.GetMapper())
