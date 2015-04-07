@@ -1,5 +1,6 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
+
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -509,3 +510,5 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
       )
   endif()
+
+add_subdirectory(vtk_ui)
