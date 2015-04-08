@@ -11,7 +11,6 @@ p.add_argument("--orientation",dest="orientation",choices=["horizontal","vertica
 p.add_argument("--ext1", dest="ext1", choices=["y","n"], default="n", help="turn on extension 1")
 p.add_argument("--ext2", dest="ext2", choices=["y","n"], default="n", help="turn on extension 2")
 
-
 args = p.parse_args(sys.argv[1:])
 
 gm_type= args.gm
@@ -50,7 +49,10 @@ if gm_type=="boxfill":
     gm.level_1=20
     gm.level_2=80
 else:
-    levels = [20, 30, 40, 50, 60, 70, 80]
+    if gm_type=="isofill":
+        levels = [20, 30, 40, 50, 60, 70, 80]
+    else:
+        levels = [300,500,800,1000,1200]
     gm.levels=levels
     gm.colors = vcs.getcolors(levels)
 tmpl = x.createtemplate()
