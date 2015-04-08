@@ -521,9 +521,13 @@ class Configurator(object):
             self.initialized = True
 
     def step_forward(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
         self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def step_back(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
         self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def save_animation_press(self, state):
@@ -607,8 +611,11 @@ class Configurator(object):
         if self.animation_timer is not None:
             t, self.animation_timer = self.animation_timer, None
             self.interactor.DestroyTimer(t)
+            self.anim_button.set_state(0)
 
     def set_animation_frame(self, value):
+        if self.animation_timer is not None:
+            self.stop_animating()
         value = int(value)
         self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
         return value
