@@ -1827,15 +1827,11 @@ class VTKVCSBackend(object):
                   else:
                       ## Labeled contours are a different king
                       if vtkobjects.has_key("vtk_backend_luts"):
-                          print "not labeled"
                           lut,rg = vtkobjects["vtk_backend_luts"][i]
                           mapper = vtk.vtkPolyDataMapper()
                       elif vtkobjects.has_key("vtk_backend_labeled_luts"):
-                          print "labeled"
                           lut,rg = vtkobjects["vtk_backend_labeled_luts"][i]
                           mapper = vtk.vtkLabeledContourMapper()
-                      else:
-                          print "OOOOPS"
                       if lut is None:
                           mapper.SetInputConnection(ports[i].GetOutputPort())
                       else:
@@ -1843,7 +1839,6 @@ class VTKVCSBackend(object):
                               mapper.SetInputConnection(ports[i].GetOutputPort())
                               mapper.SetLookupTable(lut)
                           else:
-                              print "labelled"
                               stripper = vtk.vtkStripper()
                               stripper.SetInputConnection(ports[i].GetOutputPort())
                               mapper.SetInputConnection(stripper.GetOutputPort())
@@ -1852,9 +1847,9 @@ class VTKVCSBackend(object):
                               mapper.GetPolyDataMapper().SetLookupTable(lut)
                               mapper.SetLabelVisibility(1)
                               mapper.SetTextProperty(tprops)
-                          #if rg[2]:
-                          #    mapper.SetScalarModeToUseCellData()
-                          #mapper.SetScalarRange(rg[0],rg[1])
+                          if rg[2]:
+                              mapper.SetScalarModeToUseCellData()
+                          mapper.SetScalarRange(rg[0],rg[1])
                   act.SetMapper(mapper)
                   act = vcs2vtk.doWrap(a[0],wrp)
                   a[0].SetMapper(act.GetMapper())
