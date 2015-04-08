@@ -1494,6 +1494,7 @@ class P(object):
                    dlong=dLong*(1.-minarrow)/(nbox-1.)
                    if ext_2=='y': iext=2
                    
+         print "EXTS:",ext_1,ext_2,iext
          for i in range(nbox):
               if ext_1=='y' and i==0:
                    if iext==1 or iext==3: # did the chage the size of the arrow
@@ -1572,6 +1573,7 @@ class P(object):
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
          if isinstance(levels[0],list):
+           print "non contig levels"
            ## Ok these are nono contiguous levels, we will use legend only if it's a perfect match
            for i,l in enumerate(levels):
              lt = l[0]
@@ -1596,12 +1598,14 @@ class P(object):
          else:
            if legend is None:
                 legend=vcs.mklabels(levels)
+           print "contig levels",levels,legend
            if levels[0]<levels[1]:
                 ecompfunc=numpy.less_equal
                 compfunc=numpy.less             
            else:
                 ecompfunc=numpy.greater_equal
                 compfunc=numpy.greater
+           dlong = dD/(len(levels)-1)
            for l in legend.keys():
                 if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
                      for i in range(len(levels)-1):
