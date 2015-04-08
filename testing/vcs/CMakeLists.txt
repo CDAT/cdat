@@ -277,6 +277,19 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
       )
+    FOREACH(gm boxfill isofill meshfill)
+      FOREACH(ori horizontal vertical)
+        FOREACH(ext1 y n)
+          FOREACH(ext2 y n)
+            cdat_add_test(vcs_test_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
+              "${PYTHON_EXECUTABLE}"
+              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+              --gm_type=${gm}
+              --orientation=${ori}
+              --ext1=${ext1}
+              --ext2=${ext2}
+              "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
+              )
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"

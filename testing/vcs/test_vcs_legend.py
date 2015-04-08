@@ -8,8 +8,8 @@ p.add_argument("--gm_type", dest="gm", help="gm to test",choices=["boxfill","mes
 p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
 p.add_argument("--orientation",dest="orientation",choices=["horizontal","vertical"],default="horizontal")
-p.add_argument("--ext1", dest="ext1", choices=["y","n"], help="turn on extension 1")
-p.add_argument("--ext2", dest="ext2", choices=["y","n"], help="turn on extension 2")
+p.add_argument("--ext1", dest="ext1", choices=["y","n"], default="n", help="turn on extension 1")
+p.add_argument("--ext2", dest="ext2", choices=["y","n"], default="n", help="turn on extension 2")
 
 
 args = p.parse_args(sys.argv[1:])
