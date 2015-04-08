@@ -541,6 +541,8 @@ class Canvas(object,AutoAPI.AutoAPI):
       self._savedcontinentstype = value
 
     def onClosing( self, cell  ):
+        if self.configurator:
+            self.endconfigure()
         self.backend.onClosing( cell )
 
     def _reconstruct_tv(self, arglist, keyargs):
@@ -3843,6 +3845,8 @@ Options:::
 """
         if self.animate.created():
             self.animate.close()
+        if self.configurator is not None:
+            self.configurator.stop_animating()
         self.animate_info=[]
         self.animate.update_animate_display_list( )
         self.backend.clear(*args,**kargs)
