@@ -41,15 +41,7 @@ if gm_type=="meshfill":
     f=cdms2.open(os.path.join(vcs.prefix,'sample_data','sampleCurveGrid4.nc'))
 else:
     f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
-if gm_type=="vector":
-    u=f("u",**xtra)
-    v=f("v",**xtra)
-    if args.mask:
-        u=MV2.masked_greater(u,58.)
-    if args.zero:
-      u-=u
-      v-=v
-elif gm_type=="meshfill":
+if gm_type=="meshfill":
     s=f("sample")
 else:
     s=f("clt",**xtra)
@@ -63,8 +55,12 @@ else:
     gm.colors = vcs.getcolors(levels)
 tmpl = x.createtemplate()
 if args.orientation=="vertical":
-    tmpl.legend.x1=.96
-    tmpl.legend.x2=.99
+    tmpl.data.x2=.8
+    tmpl.box1.x2=.8
+    tmpl.ytic2.x1=.8
+    tmpl.ytic2.x2=.815
+    tmpl.legend.x1=.86
+    tmpl.legend.x2=.9
     tmpl.legend.y1=.3
     tmpl.legend.y2=.8
 
@@ -72,12 +68,7 @@ if args.ext1=="y":
     gm.ext_1="y"
 if args.ext2=="y":
     gm.ext_2="y"
-if gm_type=="vector":
-    x.plot(u,v,gm,tmpl,bg=bg)
-elif gm_type in ["scatter","xvsy"]:
-    x.plot(s,s2,gm,tmpl,bg=bg)
-else:
-    x.plot(s,gm,bg=bg)
+x.plot(s,gm,tmpl,bg=bg)
 
 fnm = "test_vcs_legend_%s_%s_ext1_%s_ext2_%s" % (gm_type.lower(),args.orientation,args.ext1,args.ext2)
 x.png(fnm)
