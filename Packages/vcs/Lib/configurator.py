@@ -227,6 +227,9 @@ class Configurator(object):
                 display._template_origin = new_template.name
 
     def detach(self):
+        if self.animation_timer is not None:
+            self.stop_animating()
+
         if self.toolbar is not None:
             self.toolbar.detach()
             self.toolbar = None
@@ -247,14 +250,12 @@ class Configurator(object):
             self.target.detach()
             self.target = None
 
-        if self.animation_timer is not None:
-            self.stop_animating()
-
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
 
         # if all of the widgets have been cleaned up correctly, this will delete the manager
         vtk_ui.manager.delete_manager(self.interactor)
+        self.interactor.GetRenderWindow().Render()
 
     def release(self, object, event):
         if self.clicking is None:
@@ -594,7 +595,7 @@ class Configurator(object):
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
             self.animation_last_frame_time = datetime.datetime.now()
             self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
