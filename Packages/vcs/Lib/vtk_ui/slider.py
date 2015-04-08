@@ -50,7 +50,7 @@ class Slider(Widget):
         self.repr.SetTitleHeight( 0.02 )
         self.repr.SetTitleText(title)
 
-        sliderWidget.SetAnimationModeToAnimate()
+        sliderWidget.SetAnimationModeToJump()
 
         sliderWidget.AddObserver("EndInteractionEvent", self.end_slide)
         sliderWidget.AddObserver("InteractionEvent", self.slide_value)

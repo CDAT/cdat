@@ -65,3 +65,9 @@ add_test(test_vtk_ui_button_tooltip_hide
   ${TEST_DIR}/test_vtk_ui_button_tooltip_hide.py
   ${BASELINE_DIR}/test_vtk_ui_button_tooltip_hide.png
 )
+
+add_test(test_vtk_ui_slider_jumps
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_jumps.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_jumps.png
+)
