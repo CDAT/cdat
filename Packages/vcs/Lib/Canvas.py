@@ -3883,7 +3883,8 @@ Options:::
         #if (self.canvas_gui is not None):
         #   self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
         #   gui_canvas_closed = 0
-
+        if self.configurator:
+            self.endconfigure()
         # Close the VCS Canvas
         a = self.backend.close(*args,**kargs)
 
