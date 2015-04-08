@@ -511,4 +511,8 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
   endif()
 
+cdat_add_test(vcs_test_endconfigure
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
+)
 add_subdirectory(vtk_ui)
