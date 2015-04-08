@@ -283,7 +283,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           FOREACH(ext2 y n)
             cdat_add_test(vcs_test_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
               "${PYTHON_EXECUTABLE}"
-              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py
               --gm_type=${gm}
               --orientation=${ori}
               --ext1=${ext1}
