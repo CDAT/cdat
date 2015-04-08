@@ -1825,7 +1825,7 @@ class VTKVCSBackend(object):
                       mapper = missingMapper2
                       wrp = a[2]
                   else:
-                      ## Labeled contours are a different king
+                      ## Labeled contours are a different kind
                       if vtkobjects.has_key("vtk_backend_luts"):
                           lut,rg = vtkobjects["vtk_backend_luts"][i]
                           mapper = vtk.vtkPolyDataMapper()
