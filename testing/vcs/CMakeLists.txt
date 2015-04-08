@@ -290,6 +290,10 @@ cdat_add_test(vcs_test_taylor_2_quads
               --ext2=${ext2}
               "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
               )
+          ENDFOREACH(ext2)
+        ENDFOREACH(ext1)
+      ENDFOREACH(ori)
+    ENDFOREACH(gm)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
