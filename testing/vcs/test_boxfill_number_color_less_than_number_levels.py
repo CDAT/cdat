@@ -22,20 +22,13 @@ boxfill.boxfill_type = 'custom'
 levels = range(20,81,10)
 boxfill.levels=levels
 boxfill.ext_1="y"
-boxfill.fillareacolors=vcs.getcolors(boxfill.levels)
-boxfill.list()
+boxfill.fillareacolors=vcs.getcolors(levels)
 
 canvas.plot(clt, boxfill, bg=1)
+try:
+    failed = False
+except:
+    failed = True
 
-# Load the image testing module:
-testingDir = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(testingDir)
-import checkimage
-
-# Create the test image and compare:
-baseline = sys.argv[1]
-testFile = "test_boxfill_custom_ext1.png"
-canvas.png(testFile)
-ret = checkimage.check_result_image(testFile, baseline,
-                                    checkimage.defaultThreshold)
-sys.exit(ret)
+if not failed:
+    raise RuntimeError("This test did not fail as expected")

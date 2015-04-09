@@ -943,6 +943,9 @@ class VTKVCSBackend(object):
             indices.append(indices[-1])
         print "levs:",levs
         print "cols:",cols
+        if len(levs)>len(cols)-1:
+            raise RuntimeError("You asked for %i levels but provided only %i colors\n\
+            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
         for i,l in enumerate(levs):
             if i==0:
                 C = [cols[i],]
