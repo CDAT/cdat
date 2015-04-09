@@ -43,7 +43,6 @@ class InterfaceManager(object):
 
     def queue_render(self):
         if not self.interactor.GetInitialized():
-            print "Not initialized"
             self.timer = 1
             self.__render(None, None)
             return
