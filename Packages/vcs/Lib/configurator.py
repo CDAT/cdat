@@ -227,6 +227,9 @@ class Configurator(object):
                 display._template_origin = new_template.name
 
     def detach(self):
+        if self.interactor is None:
+            return
+
         if self.animation_timer is not None:
             self.stop_animating()
 
