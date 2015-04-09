@@ -3,7 +3,7 @@ from button import Button
 from datetime import datetime, timedelta
 
 class Textbox(Label):
-    def __init__(self, interactor, string, on_editing_end=None, **kwargs):
+    def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
 
         super(Textbox, self).__init__(interactor, string, **kwargs)
         self.editing = False
@@ -12,6 +12,8 @@ class Textbox(Label):
         self.row = 0
         self.text = string
         self.on_editing_end = on_editing_end
+        self.highlight_opacity = highlight_opacity
+        self.highlight_color = highlight_color
         # This is a little hacky, but it'll work. We're going to use a button.
         self.cursor = None
 
@@ -283,6 +285,15 @@ class Textbox(Label):
         # Return the very end of the box if we can't figure it out.
         return len(rows) - 1, len(rows[len(rows) - 1])
 
+    def show_highlight(self):
+        prop = self.actor.GetTextProperty()
+        prop.SetBackgroundColor(self.highlight_color)
+        prop.SetBackgroundOpacity(self.highlight_opacity)
+
+    def hide_highlight(self):
+        prop = self.actor.GetTextProperty()
+        prop.SetBackgroundOpacity(0)
+
     def start_editing(self, point=None):
         if point is not None:
             self.row, self.column = self.row_col_at_point(*point)
@@ -290,9 +301,6 @@ class Textbox(Label):
             rows = self.text.split("\n")
             self.row = len(rows) - 1
             self.column = len(rows[-1])
-        # Have to init the cursor before anything else
-        prop = self.actor.GetTextProperty()
-        prop.SetBackgroundOpacity(.5)
 
         self.place_cursor()
         self.editing = True
@@ -304,9 +312,6 @@ class Textbox(Label):
         if c:
             c.detach()
             del c
-
-        prop = self.actor.GetTextProperty()
-        prop.SetBackgroundOpacity(0)
 
         self.on_editing_end(self)
         self.manager.queue_render()

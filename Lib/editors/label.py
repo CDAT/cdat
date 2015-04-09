@@ -4,7 +4,7 @@ import text
 #import vtk
 import vcs.vcs2vtk
 from font import FontEditor
-
+from vcs.vtk_ui.text import contrasting_color
 __valign_map__ = {
     0: 0,
     1: 0,
@@ -44,6 +44,12 @@ class LabelEditor(point.PointEditor):
 
         self.actor = get_actor(self.label, self.display)
 
+        tprop = self.actor.GetTextProperty()
+        self.real_bg = tprop.GetBackgroundColor()
+        self.real_bg_opacity = tprop.GetBackgroundOpacity()
+
+        tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
+        tprop.SetBackgroundOpacity(.85)
 
         text_types_name = template.name + "_" + label.member
 
@@ -123,6 +129,9 @@ class LabelEditor(point.PointEditor):
         self.tt.color = color
         self.picker = None
         self.save()
+        tprop = self.actor.GetTextProperty()
+        tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
+        tprop.SetBackgroundOpacity(.85)
         #text colormap is currently not in place, will be later.
         #self.text.colormap = cmap
 
@@ -152,6 +161,9 @@ class LabelEditor(point.PointEditor):
     def detach(self):
         super(LabelEditor, self).detach()
         self.toolbar.detach()
+        tprop = self.actor.GetTextProperty()
+        tprop.SetBackgroundColor(*self.real_bg)
+        tprop.SetBackgroundOpacity(self.real_bg_opacity)
 
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
