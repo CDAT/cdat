@@ -121,9 +121,12 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             box_prop = vtkTextProperty()
             vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
             box_prop.SetOrientation(-1 * self.text.angle)
+            text_color = box_prop.GetColor()
+            highlight_color = vcs.vtk_ui.text.contrasting_color(*text_color)
 
-            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox = Textbox(self.interactor, string, left=x, top=y, highlight_color=highlight_color, highlight_opacity=.8, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
             textbox.show()
+            textbox.show_highlight()
 
             if ind == self.index:
                 textbox.start_editing()

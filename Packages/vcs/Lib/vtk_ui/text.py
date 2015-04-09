@@ -1,5 +1,6 @@
 from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer
 import datetime
+import math
 def __set_font(font, text_props):
     """
     Font selection logic for text properties
@@ -17,11 +18,85 @@ def __set_font(font, text_props):
         text_props.SetFontFamily(VTK_FONT_FILE)
         text_props.SetFontFile(font)
 
+def luminence(r,g,b):
+    yiq = (r * 255 * 299 + g * 255 * 587 + b * 255 * 114) / 1000
+    return yiq
+
 def white_or_black(red, green, blue):
     """ Returns white or black to choose most contrasting color for provided color """
     # Convert to YIQ colorspace
-    yiq = (red * 255 * 299 + green * 255 * 587 + blue * 255 * 114) / 1000
+    yiq = luminence(red, green, blue)
     return (0,0,0) if yiq >= 128 else (1, 1, 1)
+
+def contrasting_color(red, green, blue):
+    hue, saturation, value = rgb_to_hsv(red, green, blue)
+
+    baseline = luminence(red, green, blue)
+
+    if baseline > 128:
+        # Darken
+        value /= 2.
+    else:
+        # Lighten
+        value = (1 + value) / 2.
+
+    saturation /= 2.
+
+    return hsv_to_rgb(hue, saturation, value)
+
+def hsv_to_rgb(h, s, v):
+    if s == 0:
+        # grayscale
+        return v, v, v
+
+    h = h / 60.
+    i = math.floor(h)
+    f = h - i
+    p = v * (1 - s)
+    q = v * ( 1 - s * f)
+    t = v * (1 - s * (1 - f))
+
+    if i == 0:
+        r, g, b = v, t, p
+    elif i == 1:
+        r, g, b = q, v, p
+    elif i == 2:
+        r, g, b = p, v, t
+    elif i == 3:
+        r, g, b = p, q, v
+    elif i == 4:
+        r, g, b = t, p, v
+    else:
+        r, g, b = v, p, q
+    return r, g, b
+
+def rgb_to_hsv(r, g, b):
+
+    minimum = min(r, g, b)
+    maximum = max(r, g, b)
+    v = maximum
+
+    delta = float(maximum - minimum)
+
+    if r == g == b:
+        s = 0
+        h = -1
+        return h, s, v
+    else:
+        s = delta / maximum
+
+    if r == maximum:
+        h = (g - b) / delta
+    elif g == maximum:
+        h = 2 + (b - r) / delta
+    else:
+        h = 4 + (r - g) / delta
+
+    h = h * 60
+    if h < 0:
+        h += 360
+    return h, s, v
+
 
 def text_actor(string, fgcolor, size, font):
     """
