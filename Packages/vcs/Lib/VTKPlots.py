@@ -817,12 +817,14 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
-        levs = vcs.mkscale(mn,mx)
-        if len(levs)==1: # constant value ?
-          levs = [levs[0],levs[0]+.00001]
-        Ncolors = len(levs)
-        if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
+      ## Apparently in some cases
+      if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
+        if isinstance(gm,isoline.Gi):
+            levs = vcs.mkscale(mn,mx)
+            if len(levs)==1: # constant value ?
+              levs = [levs[0],levs[0]+.00001]
+            Ncolors = len(levs)
+        else:
           levs2 = vcs.mkscale(mn,mx)
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
@@ -844,6 +846,8 @@ class VTKVCSBackend(object):
             levs.append([levs2[i],levs2[i+1]])
           if isinstance(gm,isoline.Gi):
             levs = levs2
+      print "LEVELS:",levs
+      print "LEVELS:",levs2
       Nlevs=len(levs)
       Ncolors = Nlevs
       ## Figure out colors

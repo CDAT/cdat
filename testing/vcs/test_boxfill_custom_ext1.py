@@ -11,18 +11,19 @@ clt = clt(latitude=(-90.0, 90.0), longitude=(-180., 175.), squeeze=1,
 
 # Initialize canvas:
 canvas = vcs.init()
+canvas.setbgoutputdimensions(1200,1091,units="pixels")
 canvas.drawlogooff()
 
 # Create and plot quick boxfill with default settings:
-boxfill = canvas.getboxfill('quick')
-canvas.plot(clt, boxfill, bg=1)
+boxfill=canvas.createboxfill()
 
-# Change the levels and replot:
+# Change the type
 boxfill.boxfill_type = 'custom'
-boxfill.color_1 = 16
-boxfill.color_2 = 239
-boxfill.level_1 = 0.0
-boxfill.level_2 = 20.0
+levels = range(20,81,10)
+boxfill.levels=levels
+boxfill.fillareacolors=vcs.getcolors(levels)
+boxfill.ext_1="y"
+boxfill.list()
 
 canvas.plot(clt, boxfill, bg=1)
 
@@ -33,7 +34,7 @@ import checkimage
 
 # Create the test image and compare:
 baseline = sys.argv[1]
-testFile = "test_boxfill_level_change.png"
+testFile = "test_boxfill_custom_ext1.png"
 canvas.png(testFile)
 ret = checkimage.check_result_image(testFile, baseline,
                                     checkimage.defaultThreshold)
