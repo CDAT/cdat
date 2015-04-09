@@ -941,6 +941,8 @@ class VTKVCSBackend(object):
             indices=[1,]
         while len(indices)<len(cols):
             indices.append(indices[-1])
+        print "levs:",levs
+        print "cols:",cols
         for i,l in enumerate(levs):
             if i==0:
                 C = [cols[i],]
