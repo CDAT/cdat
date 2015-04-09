@@ -915,11 +915,12 @@ class VTKVCSBackend(object):
               tprops.AddItem(tprop)
               if colorOverride is not None:
                   del(vcs.elements["texttable"][tt])
+          mapper.SetTextProperties(tprops)
          else:
             # No text properties specified. Use the default:
             tprops = vtk.vtkTextProperty()
             vcs2vtk.prepTextProperty(tprops, self.renWin.GetSize())
-         mapper.SetTextProperty(tprops)
+            mapper.SetTextProperty(tprops)
          returned["vtk_backend_contours_labels_text_properties"]=tprops
 
         stripper = vtk.vtkStripper()
