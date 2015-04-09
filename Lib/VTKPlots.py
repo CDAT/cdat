@@ -846,8 +846,6 @@ class VTKVCSBackend(object):
             levs.append([levs2[i],levs2[i+1]])
           if isinstance(gm,isoline.Gi):
             levs = levs2
-      print "LEVELS:",levs
-      print "LEVELS:",levs2
       Nlevs=len(levs)
       Ncolors = Nlevs
       ## Figure out colors
@@ -941,8 +939,6 @@ class VTKVCSBackend(object):
             indices=[1,]
         while len(indices)<len(cols):
             indices.append(indices[-1])
-        print "levs:",levs
-        print "cols:",cols
         if len(levs)>len(cols):
             raise RuntimeError("You asked for %i levels but provided only %i colors\n\
             Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
