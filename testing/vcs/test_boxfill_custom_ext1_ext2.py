@@ -21,9 +21,9 @@ boxfill=canvas.createboxfill()
 boxfill.boxfill_type = 'custom'
 levels = range(20,81,10)
 boxfill.levels=levels
-boxfill.fillareacolors=vcs.getcolors(levels)
 boxfill.ext_1="y"
 boxfill.ext_2="y"
+boxfill.fillareacolors=vcs.getcolors(boxfill.levels)
 
 canvas.plot(clt, boxfill, bg=1)
 
