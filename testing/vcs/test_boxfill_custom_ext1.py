@@ -23,7 +23,6 @@ levels = range(20,81,10)
 boxfill.levels=levels
 boxfill.ext_1="y"
 boxfill.fillareacolors=vcs.getcolors(boxfill.levels)
-boxfill.list()
 
 canvas.plot(clt, boxfill, bg=1)
 
