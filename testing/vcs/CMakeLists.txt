@@ -283,6 +283,10 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_less_than_number_levels.py
       )
+    cdat_add_test(test_vcs_boxfill_number_color_more_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_more_than_number_levels.py
+      )
     cdat_add_test(test_vcs_auto_time_labels
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
