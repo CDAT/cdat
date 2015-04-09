@@ -279,6 +279,11 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext1_ext2.py
       "${BASELINE_DIR}/test_boxfill_custom_ext1_ext2.png"
       )
+    cdat_add_test(test_vcs_boxfill_number_color_less_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_less_than_number_levels.py
+      "${BASELINE_DIR}/test_boxfill_number_color_less_than_number_levels.png"
+      )
     cdat_add_test(test_vcs_auto_time_labels
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
