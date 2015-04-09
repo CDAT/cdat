@@ -24,8 +24,8 @@ boxfill.levels=levels
 boxfill.ext_1="y"
 boxfill.fillareacolors=vcs.getcolors(levels)
 
-canvas.plot(clt, boxfill, bg=1)
 try:
+    canvas.plot(clt, boxfill, bg=1)
     failed = False
 except:
     failed = True
