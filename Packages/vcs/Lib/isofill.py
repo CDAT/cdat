@@ -509,8 +509,8 @@ Class: Gfi				# Isofill
           self._xaxisconvert='linear'
           self._yaxisconvert='linear'
           self._missing=241
-          self._ext_1='n'
-          self._ext_2='n'
+          self._ext_1=False
+          self._ext_2=False
           self._fillareastyle='solid'
           self._fillareaindices=None
           self._fillareacolors=[1,]
@@ -525,6 +525,8 @@ Class: Gfi				# Isofill
           if not Gfi_name_src in vcs.elements["isofill"].keys():
             raise ValueError,"Isofill method '%s' does not exists" % Gfi_name_src
           src =vcs.elements["isofill"][Gfi_name_src]
+          self._ext_1=False
+          self._ext_2=False
           for att in ['projection' ,'colormap','xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,att,getattr(src,att))
 
