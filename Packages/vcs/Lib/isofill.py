@@ -528,7 +528,7 @@ Class: Gfi				# Isofill
           self._ext_1=False
           self._ext_2=False
           for att in ['projection' ,'colormap','xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
-            setattr(self,att,getattr(src,att))
+            setattr(self,"_"+att,getattr(src,"_"+att))
 
         self.info = AutoAPI.Info(self)
         self.info.expose=['ALL']
