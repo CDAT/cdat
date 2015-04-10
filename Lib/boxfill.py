@@ -526,17 +526,8 @@ class Gfb(object,AutoAPI.AutoAPI):
          self._fillareastyle=value
     fillareastyle=property(_getfillareastyle,_setfillareastyle)
     
-    def _getext_1(self):
-         return self._ext_1
-    def _setext_1(self,value):
-         self._ext_1 = VCS_validation_functions.checkExt(self,'ext_1',value)
-    ext_1=property(_getext_1,_setext_1)
-
-    def _getext_2(self):
-         return self._ext_2
-    def _setext_2(self,value):
-         self._ext_2 = VCS_validation_functions.checkExt(self,'ext_1',value)
-    ext_2=property(_getext_2,_setext_2)
+    ext_1=VCS_validation_functions.ext_1
+    ext_2=VCS_validation_functions.ext_2
 
     def _getmissing(self):
          return self._missing

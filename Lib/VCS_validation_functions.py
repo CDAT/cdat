@@ -1241,14 +1241,14 @@ def _setlevels(self,value):
        value = list(value[0])
 
      if (value[0]<-9.9E19):
-         self._ext_1='y'
+         self._ext_1=True
      else:
-         self._ext_1='n'
+         self._ext_1=False
 
      if (value[-1]>9.9E19):
-        self._ext_2='y'
+        self._ext_2=True
      else:
-        self._ext_2='n'
+        self._ext_2=False
      self._levels=list(value)
 levels=property(_getlevels,_setlevels)
 def _getlegend(self):
@@ -1284,32 +1284,35 @@ projection=property(_getprojection,_setprojection)
 #                                                                               #
 #################################################################################
 def add_level_ext_1(self, ext_value):
-    if ((ext_value == 'n') and (self.ext_1 == 'y')): # remove extension
-       if isinstance(self.levels[0], list): # remove from tuple of lists
-          self.levels[0].remove(self.levels[0][0])
-          return self.levels
-       if isinstance(self.levels,tuple):       # remove from list
+    if self.levels == [] or numpy.allclose(self.levels,1.e20):
+       return self.levels # nothing to do
+    if ((ext_value == 'n') and self.ext_1): # remove extension
+       if isinstance(self.levels[0], list) and self.levels[0][0]<-9.E19: # remove from tuple of lists
+          self.levels.pop(0)
+       if isinstance(self.levels,(tuple,list)):       # remove from list
           ret_tup = []
           for i in range(len(self.levels)):
              ret_tup.insert(i+1,self.levels[i])
-          ret_tup.remove(self.levels[0])
-          return ret_tup
+          if ret_tup[0]<-9.e19:
+              ret_tup.pop(0)
+          self.levels=ret_tup
+       return self.levels
 
-    if isinstance(self.levels,tuple):
-       if isisntance(self.levels[0],list): # add to tuple of lists
-          self.levels[0].insert(0,-1e20)
+    if isinstance(self.levels,(list,tuple)):
+       if isinstance(self.levels,tuple):
+           self.levels=list(self.levels)
+       if isinstance(self.levels[0],list): # add to tuple of lists
+          if self.levels[0][0]>-9.E19: # ok need to add this level
+              self.levels.insert(0,[-1e20,self.levels[0][0]])
           return self.levels
        else:                                  # must be a mutable tuple
-          ret_tup = [-1e20]		      # therefore, covert to a list
+          if self.levels[0]<-9.e19:
+               ret_tup=[]
+          else:
+               ret_tup = [-1e20]		      # therefore, covert to a list
           for i in range(len(self.levels)):   # then add extension to list
              ret_tup.insert(i+1,self.levels[i])
           self.levels=ret_tup
-          return ret_up
-    if isinstance(self.levels,list):       # add extension to list
-          if (((self.levels[(len(self.levels)-1)] - self.levels[0])) >= 0):
-             self.levels.insert(0,-1e20)
-          else:
-             self.levels.insert(0,-1e20)
           return self.levels
 
 #################################################################################
@@ -1329,53 +1332,41 @@ def add_level_ext_1(self, ext_value):
 #                                                                               #
 #################################################################################
 def add_level_ext_2(self, ext_value):
-    if ((ext_value == 'n') and (self.ext_2 == 'y')): # remove extension
+    if self.levels in [[],[1.e20,1.e20]]:
+       return self.levels # nothing to do
+    if ((ext_value == 'n') and self.ext_2): # remove extension
        if isinstance(self.levels[0],list): # remove from tuple of lists
           last=len(self.levels) - 1
-          last2=len(self.levels[last]) - 1
-          self.levels[last].remove(self.levels[last][last2])
-          return self.levels
+          if self.levels[-1][1]>9.e19:
+              self.levels.pop(-1)
        if isinstance(self.levels, tuple):       # remove from list
           ret_tup = []		      	
           for i in range(len(self.levels)-1):
              ret_tup.insert(i+1,self.levels[i])
-          return ret_tup
+          if ret_tup[-1]>9.e19:
+              ret_tup.pop(-1)
+          self.levels=ret_tup
+       return self.levels
 
     if isinstance(self.levels, tuple):
-       last=len(self.levels) - 1
-       if isinstance(self.levels[last], list): # add to tuple of lists
-          self.levels[last].append(1e20)
-          return self.levels
-       else:                                  # must be a mutable tuple
-          ret_tup = []			      # therefore, covert to a list
-          for i in range(len(self.levels)):   # then add extension to list
-             ret_tup.insert(i,self.levels[i])
-          ret_tup.insert(i+1,1e20)
-          return ret_up
-    if isinstance(self.levels, list):       # add extension to list
-          if (((self.levels[(len(self.levels)-1)] - self.levels[0])) > 0):
-             self.levels.insert(len(self.levels),1e20)
-          else:
-             self.levels.insert(len(self.levels),-1e20)
-          return self.levels
+        self.levels=list(self.levels)
+    if isinstance(self.levels[-1], list): # add to tuple of lists
+       if self.levels[-1][1]<9.e19:
+           self.levels.append([self.levels[-1][1],1e20])
+    else:
+       if self.levels[-1]<9.e19:
+           self.levels.append(1.e20)
+    return self.levels
 
 def _getext_1(self):
      return self._ext_1
 def _setext_1(self,value):
-     do = checkExt(self,'ext_1',value)
-     if do:
-          if value=='y' and (-9.9E19<self.levels[0]<9.9E19):
-             returned_levels = add_level_ext_1(self, value)
-             self._ext_1=value
-             #self._setlevels(returned_levels)
-          elif value=='n':
-             returned_levels = add_level_ext_1(self, value)
-             self._ext_1=value
-             #self._setlevels(returned_levels)
-          else:
-             self._ext_1=value
-     else:
-        self._ext_1=value
+    do = checkExt(self,'ext_1',value)
+    if do:
+      returned_levels = add_level_ext_1(self, 'y')
+    else:
+      returned_levels = add_level_ext_1(self, 'n')
+    self._ext_1=do
 ext_1=property(_getext_1,_setext_1)
 
 def _getext_2(self):
@@ -1383,18 +1374,10 @@ def _getext_2(self):
 def _setext_2(self,value):
      do = checkExt(self,'ext_2',value)
      if do:
-          if value=='y' and (-9.9E19<self.levels[-1]<9.9E19):
-             returned_levels = add_level_ext_2(self, value)
-             self._ext_2=value
-             #self._setlevels(returned_levels)
-          elif value=='n':
-             returned_levels = add_level_ext_2(self, value)
-             self._ext_2=value
-             #self._setlevels(returned_levels)
-          else:
-             self._ext_2=value
+         returned_levels = add_level_ext_2(self, 'y')
      else:
-        self._ext_2=value
+         returned_levels = add_level_ext_2(self, 'n')
+     self._ext_2=do
 ext_2=property(_getext_2,_setext_2)
 
 def _getwc(self):
