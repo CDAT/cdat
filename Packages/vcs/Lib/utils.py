@@ -560,8 +560,7 @@ def scriptrun(script):
         "Cp":"colormap",
         "L":"L",
         }
-    #try:
-    if 1:
+    try:
       f=open(script)
       jsn = json.load(f)
       for typ in jsn.keys():
@@ -572,15 +571,15 @@ def scriptrun(script):
             except Exception,err:
               print "could not load tmpl:",nm,err
           else:
-            #try:
+            try:
               loadVCSItem(loader[typ],nm,v)
-            #except Exception,err:
-            #  print "failed",typ,nm,err
-    #except Exception,err: #ok could not read json file maybe it is an old initial.attributes
-    #  if os.path.split(script)[-1] == "initial.attributes":
-    #    _scriptrun(script)
-    #  else:
-    #    warnings.warn("unable to source file: %si %s" % (script,err))
+            except Exception,err:
+              print "failed",typ,nm,err
+    except Exception,err: #ok could not read json file maybe it is an old initial.attributes
+      if os.path.split(script)[-1] == "initial.attributes":
+        _scriptrun(script)
+      else:
+        warnings.warn("unable to source file: %si %s" % (script,err))
   vcs._doValidation = True
   return
 
