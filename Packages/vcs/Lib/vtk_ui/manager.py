@@ -42,6 +42,11 @@ class InterfaceManager(object):
             self.window.Render()
 
     def queue_render(self):
+        if not self.interactor.GetInitialized():
+            self.timer = 1
+            self.__render(None, None)
+            return
+
         if self.timer is None:
             # approximately one frame at 60 fps
             self.timer = self.interactor.CreateOneShotTimer(16)
