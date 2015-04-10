@@ -1,6 +1,7 @@
 from text import Label, text_dimensions
-from button import Button
 from datetime import datetime, timedelta
+from line import Line
+import vtk
 
 class Textbox(Label):
     def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
@@ -14,13 +15,12 @@ class Textbox(Label):
         self.on_editing_end = on_editing_end
         self.highlight_opacity = highlight_opacity
         self.highlight_color = highlight_color
-        # This is a little hacky, but it'll work. We're going to use a button.
-        self.cursor = None
 
+        self.cursor = Line((0,0), (1,1), renderer=self.widget.GetCurrentRenderer(), width=4)
         # Blink the cursor if we're editing.
         self.blink_timer = self.interactor.CreateRepeatingTimer(600)
         self.blink_observer = self.interactor.AddObserver("TimerEvent", self.blink_cursor)
-        # At some point, the timer goes insane, and so we have to manually limit how often it triggers.
+        # All timer events trigger all listeners, so we will only update when the time elapsed is the expected period.
         self.last_blink = datetime.now()
         # Use the third argument (priority) to intercept key events before anything else does
         self.keyboard_observer = self.interactor.AddObserver("KeyPressEvent", self.typed, 1.0)
@@ -31,7 +31,7 @@ class Textbox(Label):
 
         self.last_blink = datetime.now()
         if self.editing:
-            if self.cursor.widget.GetEnabled() == 1:
+            if self.cursor.showing:
                 self.cursor.hide()
             else:
                 self.cursor.show()
@@ -163,40 +163,69 @@ class Textbox(Label):
 
 
     def place_cursor(self):
+        # Find current position of the text actor
+        x, y = self.repr.GetPosition()
 
+        # Use to adjust all window-space numbers
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        x, y = int(x * w), int(y * h)
+
+        # Get the maximum line height for the current font
+        prop = vtk.vtkTextProperty()
+        prop.ShallowCopy(self.actor.GetTextProperty())
+        # Store for later
+        angle = prop.GetOrientation()
+        # Reset so we get accurate dimensions
+        prop.SetOrientation(0)
+
+        test_line = "Hhqjy"
+        _, line_height = text_dimensions(test_line, prop)
+
+        # Find the y of the top of the current row
+        y -= line_height * self.row
+
+        # Find the x of the current column
         rows = self.text.split("\n")
-        prop = self.actor.GetTextProperty()
 
-        cursor_top = self.top
-        cursor_left = self.left
+        # Grab the total width of the text
+        max_width, _ = text_dimensions(self.text, prop)
 
-        max_width, total_height = text_dimensions(self.text, prop)
-        _, before_h = text_dimensions("\n".join(rows[:self.row]), prop)
+        # Now grab the width of the current row
+        row_width, _ = text_dimensions(rows[self.row], prop)
 
-        if len(rows) > self.row + 1:
-            _, after_h = text_dimensions("\n".join(rows[self.row + 1:]), prop)
-            row_height = total_height - (after_h + before_h)
-        else:
-            row_height = total_height - before_h
+        # Here's the amount we need to adjust by
+        width_difference = max_width - row_width
 
-        cursor_top += before_h
+        # Adjust for alignment
+        align = prop.GetJustificationAsString()
+        if align == 1:
+            # If we're center aligned, we need to adjust by half
+            x += width_difference / 2.
+        elif align == 2:
+            # If we're right aligned, we need to adjust the full difference
+            x += width_difference
 
-        row = rows[self.row]
-        row_width, _ = text_dimensions(row, prop)
-        before = row[:self.column]
+        # Now we need to get the offset for the character clicked
+        up_to_col_width, _ = text_dimensions(rows[self.row][:self.column], prop)
+        x += up_to_col_width
 
-        before_w, _ = text_dimensions(before, prop)
-        cursor_left += before_w
-
-
-        cursor_left += (max_width - row_width) / 2.0
-
-        if self.cursor:
-            self.cursor.detach()
-            del self.cursor
-
-        self.cursor = Button(self.interactor, left=cursor_left, top=cursor_top, width=2, height=row_height, corner_radius=0, bgcolor=(0,0,0))
-        self.cursor.show()
+        # Rotate both points to the orientation as the text
+        def rotate(point, angle):
+            import math
+            x, y = point
+            # Rotate about the origin
+            theta = math.radians(angle)
+            xrot = x * math.cos(theta) - y * math.sin(theta)
+            yrot = x * math.sin(theta) + y * math.cos(theta)
+            return int(xrot), int(yrot)
+        x1, y1 = rotate((0, line_height / 2.), angle)
+        x2, y2 = rotate((0, -1 * line_height / 2.), angle)
+        x1 += x
+        x2 += x
+        y1 += y + line_height / 2.
+        y2 += y + line_height / 2.
+        self.cursor.point_1 = (x1, y1)
+        self.cursor.point_2 = (x2, y2)
 
 
     def row_col_at_point(self, x, y):
@@ -307,11 +336,7 @@ class Textbox(Label):
 
     def stop_editing(self):
         self.editing = False
-        c = self.cursor
-        self.cursor = None
-        if c:
-            c.detach()
-            del c
+        self.cursor.hide()
 
         self.on_editing_end(self)
         self.manager.queue_render()
