@@ -743,7 +743,7 @@ class Configurator(object):
             t = self.canvas.createtextcombined()
             t.x = x
             t.y = y
-            t.string = ["New Text"]
+            t.string = ["Click to Edit"]
             created = t
             self.text_button.set_state(0)
             dp = self.canvas.text(t)

@@ -180,9 +180,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
                     self.text.x.append(x)
                     self.text.y.append(y)
-                    self.text.string.append("New Text")
+                    self.text.string.append("Click to Edit")
 
-                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["New Text"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
+                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["Click to Edit"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
                     new_actor.SetVisibility(0)
                     self.actors.append(new_actor)
                     self.index = new_index
