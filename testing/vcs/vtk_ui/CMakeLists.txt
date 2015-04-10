@@ -77,3 +77,8 @@ add_test(test_vtk_ui_textbox_highlight
   ${TEST_DIR}/test_vtk_ui_textbox_highlight.py
   ${BASELINE_DIR}/test_vtk_ui_textbox_highlight.png
 )
+
+add_test(test_vtk_ui_contrasting_colors
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_complementary_colors.py
+)
