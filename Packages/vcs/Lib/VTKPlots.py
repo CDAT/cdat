@@ -817,12 +817,14 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
-        levs = vcs.mkscale(mn,mx)
-        if len(levs)==1: # constant value ?
-          levs = [levs[0],levs[0]+.00001]
-        Ncolors = len(levs)
-        if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
+      ## Apparently in some cases
+      if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
+        if isinstance(gm,isoline.Gi):
+            levs = vcs.mkscale(mn,mx)
+            if len(levs)==1: # constant value ?
+              levs = [levs[0],levs[0]+.00001]
+            Ncolors = len(levs)
+        else:
           levs2 = vcs.mkscale(mn,mx)
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
@@ -937,6 +939,12 @@ class VTKVCSBackend(object):
             indices=[1,]
         while len(indices)<len(cols):
             indices.append(indices[-1])
+        if len(levs)>len(cols):
+            raise RuntimeError("You asked for %i levels but provided only %i colors\n\
+            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
+        elif len(levs)<len(cols)-1:
+            warnings.warn("You asked for %i levels but provided %i colors, extra ones will be ignored\n\
+            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
         for i,l in enumerate(levs):
             if i==0:
                 C = [cols[i],]
