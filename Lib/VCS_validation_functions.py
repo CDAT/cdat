@@ -1284,7 +1284,7 @@ projection=property(_getprojection,_setprojection)
 #                                                                               #
 #################################################################################
 def add_level_ext_1(self, ext_value):
-    if ext_value=="n" and self.levels in [[],[1.e20,1.e20]]:
+    if self.levels in [[],[1.e20,1.e20]]:
        return self.levels # nothing to do
     if ((ext_value == 'n') and self.ext_1): # remove extension
        if isinstance(self.levels[0], list) and self.levels[0][0]<-9.E19: # remove from tuple of lists
@@ -1313,7 +1313,7 @@ def add_level_ext_1(self, ext_value):
           for i in range(len(self.levels)):   # then add extension to list
              ret_tup.insert(i+1,self.levels[i])
           self.levels=ret_tup
-          return ret_up
+          return self.levels
 
 #################################################################################
 #                                                                               #
@@ -1332,6 +1332,8 @@ def add_level_ext_1(self, ext_value):
 #                                                                               #
 #################################################################################
 def add_level_ext_2(self, ext_value):
+    if self.levels in [[],[1.e20,1.e20]]:
+       return self.levels # nothing to do
     if ((ext_value == 'n') and self.ext_2): # remove extension
        if isinstance(self.levels[0],list): # remove from tuple of lists
           last=len(self.levels) - 1
