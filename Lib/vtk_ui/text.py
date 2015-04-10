@@ -18,31 +18,56 @@ def __set_font(font, text_props):
         text_props.SetFontFamily(VTK_FONT_FILE)
         text_props.SetFontFile(font)
 
-def luminence(r,g,b):
-    yiq = (r * 255 * 299 + g * 255 * 587 + b * 255 * 114) / 1000
-    return yiq
+def lum_normalize(component):
+    if component <= .03928:
+        return component / 12.92
+    else:
+        return ((component + .055) / 1.055) ** 2.4
 
+def luminance(color):
+    r, g, b = [lum_normalize(c) for c in color]
+    lum = .2126 * r + .7152 * g + .0722 * b
+    return lum
+
+def contrast_ratio(fg, bg):
+    lum_fg = luminance(fg)
+    lum_bg = luminance(bg)
+    l1 = max(lum_fg, lum_bg)
+    l2 = min(lum_fg, lum_bg)
+
+    return (l1 + .05) / (l2 + .05)
 def white_or_black(red, green, blue):
     """ Returns white or black to choose most contrasting color for provided color """
     # Convert to YIQ colorspace
-    yiq = luminence(red, green, blue)
-    return (0,0,0) if yiq >= 128 else (1, 1, 1)
+    lum = luminance((red, green, blue))
+    return (0,0,0) if lum >= .5 else (1, 1, 1)
 
 def contrasting_color(red, green, blue):
     hue, saturation, value = rgb_to_hsv(red, green, blue)
 
-    baseline = luminence(red, green, blue)
+    #saturation /= 2.
+    r, g, b = red, green, blue
+    phi = .61803398875
 
-    if baseline > 128:
-        # Darken
-        value /= 2.
-    else:
-        # Lighten
-        value = (1 + value) / 2.
+    iterations = 0
+    max_iters = 5
 
-    saturation /= 2.
+    hsv = {"hue": hue, "value": value, "saturation":saturation}
+    var_keys = hsv.keys()
+    key = "value"
 
-    return hsv_to_rgb(hue, saturation, value)
+    while contrast_ratio((red, green, blue), (r, g, b)) < 4.5:
+        iterations += 1
+        if iterations == max_iters:
+            key = var_keys[(var_keys.index(key) + 1) % 3]
+            iterations = 0
+        var_value = hsv[key] - phi
+        if var_value < 0:
+            var_value += 1
+        hsv[key] = var_value
+        r, g, b = hsv_to_rgb(hsv["hue"], hsv["saturation"], hsv["value"])
+
+    return hsv_to_rgb(hsv["hue"], hsv["saturation"], hsv["value"])
 
 def hsv_to_rgb(h, s, v):
     if s == 0:
