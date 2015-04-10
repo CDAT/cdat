@@ -71,3 +71,9 @@ add_test(test_vtk_ui_slider_jumps
   ${TEST_DIR}/test_vtk_ui_slider_jumps.py
   ${BASELINE_DIR}/test_vtk_ui_slider_jumps.png
 )
+
+add_test(test_vtk_ui_textbox_highlight
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_highlight.py
+  ${BASELINE_DIR}/test_vtk_ui_textbox_highlight.png
+)
