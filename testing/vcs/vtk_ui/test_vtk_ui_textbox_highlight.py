@@ -3,7 +3,6 @@ Test textbox highlight features
 """
 import vcs.vtk_ui
 
-import vtk
 from vtk_ui_test import vtk_ui_test
 
 class test_vtk_ui_textbox_highlight(vtk_ui_test):
