@@ -817,7 +817,6 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      ## Apparently in some cases
       if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
         if isinstance(gm,isoline.Gi):
             levs = vcs.mkscale(mn,mx)
