@@ -12,3 +12,7 @@ cdat_add_test("diags_test_01"
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/metrics/diagtest01.py
   ${UVCMETRICS_TEST_DATA_DIRECTORY} )
+cdat_add_test("diags_test_02"
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/metrics/diagtest01.py
+  ${UVCMETRICS_TEST_DATA_DIRECTORY} )

@@ -4,6 +4,7 @@
 # First argument: data location - with subdirectories cam_output and obs_atmos and baseline.
 # These have sample model output, observation data, and "baseline" output which we should match.
 # However, the graphical output (png files) may not match in manner suitable for automated testing.
+# So the return value only depends on the numerical values in the .nc files.
 # Second argument: 'keep' to keep (don't delete) output files*
 # At the moment this just creates plots (and .nc data files) without checking them.
 # No attempt is made to clean up the diagnostics' cache files, which are generally in /tmp.
@@ -18,13 +19,30 @@ pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 
-#from markError import clearError, markError, reportError
-#clearError()
+def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
+    fname = os.path.join( pathout, filename )
+    baselinefname = os.path.join( baselinepath, filename )
+    f = cdms2.open( fname )
+    g = cdms2.open( baselinefname )
+    fvar = f(varname)
+    gvar = g(varname)
+    close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
+    if close:
+        print "fvar and gvar are close for", varname
+    else:
+        print "fvar and gvar differ for", varname
+        print "max difference", (fvar-gvar).max()
+        print "min difference", (fvar-gvar).min()
+    f.close()
+    g.close()
+    return close
 
 datadir = sys.argv[1]
 path1 = os.path.join( datadir, 'cam_output' )
 path2 = os.path.join( datadir, 'obs_atmos' )
+baselinepath = os.path.join( datadir, 'baseline' )
 pathout = tempfile.mkdtemp()
+
 diagstr = "diags --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_startswith('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,path1,path2)
 # nonstandard, suitable for testing:
 #diagstr = "diags --outputdir '%s' --model path=%s,climos=yes --obs path=%s,filter=\"f_startswith('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,os.path.join(datadir,'cam_output_climo'),path2)
@@ -37,30 +55,24 @@ if proc_status!=0:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
 filename = 'set5_Global_ANN_T-combined.png'
 fname = os.path.join( pathout, filename )
-baselinefname = os.path.join( datadir, 'baseline', filename )
+baselinefname = os.path.join( baselinepath, filename )
 threshold = 1.0e6
 graphics_result = checkimage.check_result_image( fname, baselinefname, threshold )
 print "Graphics file",fname,"match difference:",graphics_result
 
 # Test of NetCDF data (nc) file match:
-filename = 'T_ANN_at_850_mbar_(1)_None.nc'
-varname = 'dv_T_lp_ANN_ft0_None_None'
-fname = os.path.join( pathout, filename )
-baselinefname = os.path.join( datadir, 'baseline', filename )
-f = cdms2.open( fname )
-print f.variables.keys()
-g = cdms2.open( baselinefname )
-fvar = f(varname)
-gvar = g(varname)
 rtol = 1.0e-3
 atol = 1.0e-2   # suitable for temperatures
-close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
-if close:
-    print "fvar and gvar are close for", varname
-else:
-    print "fvar and gvar differ for", varname
-    print "max difference", (fvar-gvar).max()
-    print "min difference", (fvar-gvar).min()
+filename = 'T_ANN_at_850_mbar_(1)_None.nc'
+varname = 'dv_T_lp_ANN_ft0_None_None'
+close1 = closeness( varname, filename, pathout, baselinepath, rtol, atol )
+filename = 'T_ANN_at_850_mbar_(2)_None.nc'
+varname = 'dv_T_lp_ANN_ft1_None_None'
+close2 = closeness( varname, filename, pathout, baselinepath, rtol, atol )
+filename = 'T_ANN_at_850_mbar_(1)-(2)_None,_None.nc'
+varname = 'dv_T_lp_ANN_ft0_None_None_dv_T_lp_ANN_ft1_None_None'
+close12 = closeness( varname, filename, pathout, baselinepath, rtol, atol )
+close = close1 and close2 and close12
 
 if len(sys.argv)>2 and sys.argv[2]=='keep':
     print "saving output in",pathout
