@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Compute a set of contour plots using diags (diags.py).
-# First argument: data location - with subdirectories cam_output and obs_atmos and baseline.
+# First argument: --datadir=<data location> - with subdirectories cam_output and obs_atmos and baseline.
 # These have sample model output, observation data, and "baseline" output which we should match.
 # However, the graphical output (png files) may not match in manner suitable for automated testing.
 # So the return value only depends on the numerical values in the .nc files.
-# Second argument: 'keep' to keep (don't delete) output files*
+# Second argument: '--keep=True' to keep (don't delete) output files*
 # At the moment this just creates plots (and .nc data files) without checking them.
 # No attempt is made to clean up the diagnostics' cache files, which are generally in /tmp.
 
@@ -18,6 +18,13 @@ import cdms2, numpy
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
+import argparse
+
+p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
+p.add_argument("--datadir", dest="datadir", help="root directory for model and obs data")
+p.add_argument("--baseline", dest="baseline", help="directory with baseline files for comparing results")
+p.add_argument("--keep", dest="keep", help="Iff True, will keep computed png and nc files")
+args = p.parse_args(sys.argv[1:])
 
 def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
     fname = os.path.join( pathout, filename )
@@ -37,10 +44,10 @@ def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
     g.close()
     return close
 
-datadir = sys.argv[1]
+datadir = args.datadir
 path1 = os.path.join( datadir, 'cam_output' )
 path2 = os.path.join( datadir, 'obs_atmos' )
-baselinepath = os.path.join( datadir, 'baseline' )
+baselinepath = args.baseline
 pathout = tempfile.mkdtemp()
 
 diagstr = "diags --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_startswith('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,path1,path2)
@@ -74,7 +81,7 @@ varname = 'dv_T_lp_ANN_ft0_None_None_dv_T_lp_ANN_ft1_None_None'
 close12 = closeness( varname, filename, pathout, baselinepath, rtol, atol )
 close = close1 and close2 and close12
 
-if len(sys.argv)>2 and sys.argv[2]=='keep':
+if args.keep is True:
     print "saving output in",pathout
 else:
     shutil.rmtree(pathout)
