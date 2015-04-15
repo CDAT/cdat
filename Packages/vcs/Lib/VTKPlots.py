@@ -828,6 +828,12 @@ class VTKVCSBackend(object):
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
+          if gm.ext_1:
+            ## user wants arrow at the end
+            levs2[0]=-1.e20
+          if gm.ext_2:
+            ## user wants arrow at the end
+            levs2[-1]=1.e20
           for i in range(len(levs2)-1):
             levs.append([levs2[i],levs2[i+1]])
       else:
@@ -1204,17 +1210,28 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
+      if gm.ext_1 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
-            levs.insert(0,-1.e20)
-      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
+          if isinstance(levs[0],list):
+            if numpy.less(abs(levs[0][0]),1.e20):
+              ## Ok we need to add the ext levels
+              levs.insert(0,[-1.e20,levs[0][0]])
+          else:
+            if numpy.less(abs(levs[0]),1.e20):
+              ## need to add an ext
+              levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
-            levs.append(1.e20)
-
+          if isinstance(levs[-1],list):
+            if numpy.less(abs(levs[-1][1]),1.e20):
+              ## need ext
+              levs.append([levs[-1][1],1.e20])
+          else:
+            if numpy.less(abs(levs[-1]),1.e20):
+              ## need exts
+              levs.append(1.e20)
       returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
     if self.canvas._continents is None:
       continents = False
