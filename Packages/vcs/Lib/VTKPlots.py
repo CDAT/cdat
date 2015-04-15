@@ -828,10 +828,11 @@ class VTKVCSBackend(object):
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
-          if gm.ext_1:
+          # using "y"/1/True for bacwrad compatibility
+          if gm.ext_1 in ["y",1,True]:
             ## user wants arrow at the end
             levs2[0]=-1.e20
-          if gm.ext_2:
+          if gm.ext_2 in ["y",1,True]:
             ## user wants arrow at the end
             levs2[-1]=1.e20
           for i in range(len(levs2)-1):
