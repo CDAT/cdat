@@ -733,7 +733,6 @@ class VTKVCSBackend(object):
     return returned
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
-    print "GETTING IN VTK:",gm.list()
     #Preserve time and z axis for plotting these inof in rendertemplate
     returned = {}
     t = data1.getTime()
@@ -818,7 +817,6 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      print "LEVELS:",levs
       if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
         if isinstance(gm,isoline.Gi):
             levs = vcs.mkscale(mn,mx)
