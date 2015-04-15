@@ -50,9 +50,9 @@ path2 = os.path.join( datadir, 'obs_atmos' )
 baselinepath = args.baseline
 pathout = tempfile.mkdtemp()
 
-diagstr = "diags --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_startswith('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,path1,path2)
+diagstr = "diags --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_contains('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,path1,path2)
 # nonstandard, suitable for testing:
-#diagstr = "diags --outputdir '%s' --model path=%s,climos=yes --obs path=%s,filter=\"f_startswith('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,os.path.join(datadir,'cam_output_climo'),path2)
+#diagstr = "diags --outputdir '%s' --model path=%s,climos=yes --obs path=%s,filter=\"f_contains('NCEP')\",climos=yes --varopts 850 --package AMWG --set 5 --var T --seasons ANN" % (pathout,os.path.join(datadir,'cam_output_climo'),path2)
 proc = subprocess.Popen([diagstr],shell=True)
 proc_status = proc.wait()
 if proc_status!=0: 
