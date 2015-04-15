@@ -632,9 +632,7 @@ def loadVCSItem(typ,nm,json_dict = {}):
     elif isinstance(v,unicode):
       v=str(v)
     if not(a=="Marker" and tp=="taylordiagram"):
-      if gm.name == "a_isofill": print "SEtting",a,"to",v
       setattr(gm,a,v)
-      if gm.name == "a_isofill":gm.list()
   return gm
 
 def return_display_names():

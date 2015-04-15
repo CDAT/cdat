@@ -1219,7 +1219,6 @@ colormap = property(_getcolormap,_setcolormap)
 def _getlevels(self):
      return self._levels
 def _setlevels(self,value):
-     print "SETLEVELS GOT:",value
      if value ==  ([1.0000000200408773e+20, 1.0000000200408773e+20],):
       self._levels = value
       return
@@ -1250,7 +1249,6 @@ def _setlevels(self,value):
         self._ext_2=True
      else:
         self._ext_2=False
-     print "SETTING LEVELS IN THE END TO:",list(value)
      self._levels = list(value)
 levels=property(_getlevels,_setlevels)
 def _getlegend(self):
