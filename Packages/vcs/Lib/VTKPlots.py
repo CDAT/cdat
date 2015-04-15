@@ -734,6 +734,7 @@ class VTKVCSBackend(object):
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
     #Preserve time and z axis for plotting these inof in rendertemplate
+    print "COMING IN GM:",gm.list()
     returned = {}
     t = data1.getTime()
     if data1.ndim>2:
