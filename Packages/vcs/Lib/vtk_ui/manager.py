@@ -54,9 +54,18 @@ class InterfaceManager(object):
     def elevate(self):
         # Raise to top layer of render window
         layer = self.window.GetNumberOfLayers()
+
+        if layer > 1 and self.window.HasRenderer(self.renderer) and self.renderer.GetLayer() == layer - 1:
+            # We don't need to mess with anything and send out ModifiedEvents on the render window if
+            # we're already at the top layer.
+            return
+
         self.window.SetNumberOfLayers(layer + 1)
+
+        # To get the layer to change appropriately, have to remove first.
         if self.window.HasRenderer(self.renderer):
             self.window.RemoveRenderer(self.renderer)
+
         self.renderer.SetLayer(layer)
         self.window.AddRenderer(self.renderer)
 
