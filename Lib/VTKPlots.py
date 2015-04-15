@@ -85,6 +85,7 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
+      self.showGUI()
       interactor.Start()
 
   def endEvent(self,obj,event):
@@ -296,9 +297,11 @@ class VTKVCSBackend(object):
 
     if self.renderer == None:
       self.renderer = self.createRenderer()
-      if self.bg is False:
+      if self.bg != True:
           self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
+    if "open" in kargs and kargs["open"]:
+      self.renWin.Render()
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
@@ -1435,7 +1438,7 @@ class VTKVCSBackend(object):
 
     if plot:
         plot.hideWidgets()
-    elif self.bg is False:
+    elif self.bg != True:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
@@ -1446,7 +1449,7 @@ class VTKVCSBackend(object):
 
     if plot:
         plot.showWidgets()
-    elif self.bg is False:
+    elif self.bg != True:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
