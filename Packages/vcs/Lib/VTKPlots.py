@@ -733,6 +733,7 @@ class VTKVCSBackend(object):
     return returned
 
   def plot2D(self,data1,data2,tmpl,gm,vtk_backend_grid=None,vtk_backend_geo=None):
+    print "GETTING IN VTK:",gm.list()
     #Preserve time and z axis for plotting these inof in rendertemplate
     returned = {}
     t = data1.getTime()
@@ -817,6 +818,7 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
+      print "LEVELS:",levs
       if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
         if isinstance(gm,isoline.Gi):
             levs = vcs.mkscale(mn,mx)
@@ -940,7 +942,7 @@ class VTKVCSBackend(object):
             indices.append(indices[-1])
         if len(levs)>len(cols):
             raise RuntimeError("You asked for %i levels but provided only %i colors\n\
-            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
+                Graphic Method: %s of type %s\nLevels: %s" % (len(levs),len(cols),gm.name,gm.g_name,repr(levs)))
         elif len(levs)<len(cols)-1:
             warnings.warn("You asked for %i levels but provided %i colors, extra ones will be ignored\n\
             Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
