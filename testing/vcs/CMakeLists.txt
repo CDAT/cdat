@@ -29,6 +29,10 @@ cdat_add_test(vcs_mkscale_great_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
 )
+cdat_add_test(vcs_verify_set_ext_2_on_default
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_ext_2_setting.py
+)
 cdat_add_test(vcs_verify_read_a_isofill
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_read_a_isofill.py
