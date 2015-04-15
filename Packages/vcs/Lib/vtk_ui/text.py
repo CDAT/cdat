@@ -1,4 +1,4 @@
-from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer
+from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer, vtkTextProperty
 import datetime
 import math
 def __set_font(font, text_props):
@@ -170,13 +170,12 @@ def baseline_offsets(origin, new_string, text_prop):
 
     return below_offset, above_offset
 
-from widget import Widget
+from widget import Widget, WidgetReprShim
 from behaviors import DraggableMixin
 
 class Label(Widget, DraggableMixin):
 
     def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
-        widget = vtkTextWidget()
 
         if textproperty is not None:
             self.actor = vtkTextActor()
@@ -187,11 +186,10 @@ class Label(Widget, DraggableMixin):
         else:
             self.actor = text_actor(string, fgcolor, size, font)
 
-        widget.SetTextActor(self.actor)
+        widget = WidgetReprShim(interactor, self.actor)
 
         super(Label, self).__init__(interactor, widget)
 
-        #self.widget.ResizableOff()
         self.movable = movable
         self.action = on_click
         self.release_action = on_release
@@ -201,31 +199,21 @@ class Label(Widget, DraggableMixin):
         self.left, self.top = left, top
         self.top_offset = 0
 
-        # Assigned by Widget.__init__
-        self.repr.MovingOff()
-        self.repr.PickableOff()
-        self.repr.SetShowBorderToOff()
-
         self.actor.SetTextScaleModeToNone()
-
-        # Map events to draggable actions, because standard events aren't propagated
-        self.add_event_handler("StartInteractionEvent", self.drag_clicked)
-        self.add_event_handler("InteractionEvent", self.drag_moved)
-        self.add_event_handler("EndInteractionEvent", self.drag_released)
-        self.add_event_handler("StartInteractionEvent", self.click)
-        self.add_event_handler("EndInteractionEvent", self.release)
+        self.actor.SetUseBorderAlign(False)
+        self.actor.VisibilityOff()
 
         self.register()
 
     def get_text(self):
-        return self.repr.GetText()
+        return self.actor.GetInput()
 
     def set_text(self, string):
 
         below, above = baseline_offsets(self.actor.GetInput(), string, self.actor.GetTextProperty())
 
         self.top_offset += above
-        self.repr.SetText(string)
+        self.actor.SetInput(string)
         self.place()
         self.render()
 
@@ -239,25 +227,52 @@ class Label(Widget, DraggableMixin):
         prop.SetBackgroundColor(white_or_black(*color))
 
     def get_dimensions(self):
+        prop = vtkTextProperty()
+        prop.ShallowCopy(self.actor.GetTextProperty())
+        text = self.get_text()
+        prop.SetOrientation(0)
+        return text_dimensions(text, prop)
+        """
         bbox = [0,0]
         self.actor.GetSize(self.repr.GetRenderer(), bbox)
         return bbox[0], bbox[1]
+        """
 
     def show(self):
         if self.showing() == False:
             self.place()
-            self.widget.On()
+            self.actor.VisibilityOn()
+            self.actor.Modified()
             self.render()
 
     def hide(self):
         if self.showing() == True:
-            self.widget.Off()
+            self.actor.VisibilityOff()
+            self.actor.Modified()
             self.render()
 
     def place(self):
         w, h = self.interactor.GetRenderWindow().GetSize()
-        _, widget_h = self.get_dimensions()
-        self.repr.SetPosition(self.left / float(w), (h - self.top - widget_h - self.top_offset ) / float(h))
+        widget_w, widget_h = self.get_dimensions()
+
+        x, y = self.left, h - self.top - self.top_offset
+
+        p = self.actor.GetTextProperty()
+
+        just = p.GetJustificationAsString()
+        if just == "Centered":
+            x += widget_w / 2.
+        elif just == "Right":
+            x += widget_w
+
+        vjust = p.GetVerticalJustificationAsString()
+        if vjust == "Centered":
+            y -= widget_h / 2.
+        elif vjust == "Bottom":
+            y -= widget_h
+
+        x, y = int(x), int(y)
+        self.actor.SetPosition(x, y)
 
     def release(self, obj, event):
         if self.release_action is not None:
@@ -282,6 +297,12 @@ class Label(Widget, DraggableMixin):
     def drag_stop(self):
         if self.movable and self.move_action:
             self.move_action()
+
+    def detach(self):
+        self.unsubscribe(*self.subscriptions.keys())
+        self.manager.remove_widget(self)
+        self.repr.GetRenderer().RemoveActor(self.actor)
+        self.interactor = None
 
     def drag_move(self, dx, dy):
         if self.movable:

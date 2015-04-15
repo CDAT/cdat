@@ -46,3 +46,53 @@ class Widget(object):
         self.widget.Off()
         get_manager(self.interactor).remove_widget(self)
         self.interactor = None
+
+class WidgetReprShim(object):
+    """
+    Used to substitute for a vtkWidget and vtkWidgetRepresentation derivatives in Widget subclasses
+    """
+    def __init__(self, interactor, actor):
+        self._inter = interactor
+        self._actor = actor
+        self._ren = None
+
+    def SetPosition(self, x, y):
+        self._actor.SetPosition((x, y))
+
+    def GetPosition(self):
+        return self._actor.GetPosition()
+
+    def GetEnabled(self):
+        return 1 if self._actor.GetVisibility() else 0
+
+    def GetRenderer(self):
+        return self._ren
+
+    def GetCurrentRenderer(self):
+        return self._ren
+
+    def SetCurrentRenderer(self, renderer):
+        man = get_manager(self._inter)
+        self._ren = man.actor_renderer
+        self._ren.AddActor(self._actor)
+
+    def AddObserver(self, event, action):
+        """
+        Passes through to interactor
+        """
+        return self._inter.AddObserver(event, action)
+
+    def RemoveObserver(self, e):
+        """
+        Passes through to interactor
+        """
+        self._inter.RemoveObserver(e)
+
+    def SetInteractor(self, interactor):
+        self._inter = interactor
+
+    def GetRepresentation(self):
+        """
+        This object is also a shim for representations
+        """
+        return self
