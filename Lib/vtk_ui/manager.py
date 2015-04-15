@@ -14,7 +14,15 @@ class InterfaceManager(object):
         self.renderer = vtk.vtkRenderer()
         self.renderer.SetViewport(0, 0, 1, 1)
         self.renderer.SetBackground(1, 1, 1)
+
+        # Used to overlay actors above widgets
+        self.actor_renderer = vtk.vtkRenderer()
+        self.actor_renderer.SetViewport(0, 0, 1, 1)
+        self.actor_renderer.SetBackground(1, 1, 1)
+
         self.window.AddRenderer(self.renderer)
+        self.window.AddRenderer(self.actor_renderer)
+
         self.widgets = []
         self.timer_listener = self.interactor.AddObserver("TimerEvent", self.__render)
         self.window_mod = self.window.AddObserver("ModifiedEvent", self.__place, 30)
@@ -60,14 +68,18 @@ class InterfaceManager(object):
             # we're already at the top layer.
             return
 
-        self.window.SetNumberOfLayers(layer + 1)
+        self.window.SetNumberOfLayers(layer + 2)
 
         # To get the layer to change appropriately, have to remove first.
         if self.window.HasRenderer(self.renderer):
             self.window.RemoveRenderer(self.renderer)
+        if self.window.HasRenderer(self.actor_renderer):
+            self.window.RemoveRenderer(self.actor_renderer)
 
         self.renderer.SetLayer(layer)
+        self.actor_renderer.SetLayer(layer + 1)
         self.window.AddRenderer(self.renderer)
+        self.window.AddRenderer(self.actor_renderer)
 
 
     def add_widget(self, widget):
@@ -92,8 +104,16 @@ class InterfaceManager(object):
             w.detach()
         if self.window.HasRenderer(self.renderer):
             self.window.RemoveRenderer(self.renderer)
+
+        if self.window.HasRenderer(self.actor_renderer):
+            self.window.RemoveRenderer(self.actor_renderer)
+
         self.renderer.RemoveAllViewProps()
+        self.actor_renderer.RemoveAllViewProps()
+
         self.renderer = None
+        self.actor_renderer = None
+
         self.interactor.RemoveObserver(self.timer_listener)
         self.window.RemoveObserver(self.window_mod)
         self.window.RemoveObserver(self.render_listener)
