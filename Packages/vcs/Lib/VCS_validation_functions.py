@@ -1298,6 +1298,11 @@ def add_level_ext_1(self, ext_value):
           self.levels=ret_tup
        return self.levels
 
+    #Ok if it is "N" nothing else to do
+    if ext_value == "n":
+        return self.levels
+
+    # We may need to add extnsion
     if isinstance(self.levels,(list,tuple)):
        if isinstance(self.levels,tuple):
            self.levels=list(self.levels)
@@ -1348,6 +1353,11 @@ def add_level_ext_2(self, ext_value):
           self.levels=ret_tup
        return self.levels
 
+    #Ok if it is "N" nothing else to do
+    if ext_value == "n":
+        return self.levels
+
+    # We may need to add extnsion
     if isinstance(self.levels, tuple):
         self.levels=list(self.levels)
     if isinstance(self.levels[-1], list): # add to tuple of lists
