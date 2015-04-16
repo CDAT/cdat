@@ -110,10 +110,10 @@ class StructuredDataReader:
                     self.varSpecs = [ var.name_in_file for var in self.vars ]
                     self.df = cdms2.open( self.fileSpecs )
                 else:
-                    self.varSpecs = [ var.name for var in self.vars ]
+                    self.varSpecs = [ getVarName( var ) for var in self.vars ]
                     plot_attributes = args.get( 'plot_attributes', None )
                     if plot_attributes <> None:
-                        self.datasetId = plot_attributes.get( 'filename', self.vars[0].name )
+                        self.datasetId = plot_attributes.get( 'filename',  getVarName( self.vars[0] ) )
                         for file_attribute_name in ['url', 'filename', 'file' ]:
                             self.fileSpecs = plot_attributes.get( file_attribute_name, None )
                             if self.fileSpecs <> None: break
@@ -122,8 +122,8 @@ class StructuredDataReader:
                             print>>sys.stderr, "Warning, can't open data file '%s'" % self.fileSpecs
                             self.df = None
                     else:
-                        self.datasetId = self.vars[0].name
-                        self.fileSpecs = self.vars[0].name
+                        self.datasetId =  getVarName( self.vars[0] )
+                        self.fileSpecs =  getVarName( self.vars[0] )
                         self.df = None
 
         self.referenceTimeUnits = None
@@ -371,7 +371,7 @@ class StructuredDataReader:
 
     def generateVariableOutput( self, cdms_var ):
         print str(cdms_var.var)
-        self.set3DOutput( name=cdms_var.name,  output=cdms_var.var )
+        self.set3DOutput( name= getVarName( cdms_var ),  output=cdms_var.var )
 
     def refreshVersion(self):
         portData = self.getPortData()

@@ -9,7 +9,7 @@ import sys
 import os, time
 import subprocess, signal
 
-demo_index = '0'
+demo_index = '4'
 background_render = 0
 bgX=2048
 bgY=1024
@@ -72,7 +72,6 @@ elif demo_index == '4':
     v0 =  f["uwnd"]
     v1 =  f["vwnd"]
     is_vector = True
-    dv3d_v.VerticalScaling = 4.0
     dv3d_v.BasemapOpacity = 0.0
 
 elif demo_index == '5':

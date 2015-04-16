@@ -25,6 +25,12 @@ defaultMapCut = -180
 SLIDER_MAX_VALUE = 100
 MAX_IMAGE_SIZE = 1000000
 
+def getVarName( var ):
+    if hasattr( var,'name_in_file'): return var.name_in_file
+    if hasattr( var,'name'): return var.name
+    if hasattr( var,'id'): return var.id
+    if hasattr( var,'outvar'): return var.outvar.name
+
 def get_scalar_value( tvals ):
     if hasattr( tvals, '__iter__' ):
         return get_scalar_value( tvals[0] )
