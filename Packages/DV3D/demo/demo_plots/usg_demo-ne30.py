@@ -23,7 +23,7 @@ if plot_index == 1:
 
 if plot_index == 2:
     filename = "ne30_gx1.B1850c5d_JAN_climo.nc"
-    varname = "U"
+    varname = "RELHUM"
 
 f = cdms2.open( os.path.join( data_dir, filename ) )
 v = f[ varname ]
