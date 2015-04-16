@@ -19,4 +19,9 @@ cdat_add_test("diags_test_02"
   ${cdat_SOURCE_DIR}/testing/metrics/diagtest02.py
   --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}
   --baseline=${BASELINE_DIR}/metrics/ )
+cdat_add_test("diags_test_03"
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/metrics/diagtest03.py
+  --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}
+  --baseline=${BASELINE_DIR}/metrics/ )
 
