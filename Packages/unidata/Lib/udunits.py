@@ -2,6 +2,38 @@ import udunits_wrap,sys,string,unidata
 version=sys.version.split()[0].split('.')
 version=string.join(version[:2],'.')
 udunits_name=unidata.__path__[0]+'/udunits.dat'
+def addBaseUnit(name):
+    """let you add to udunits2 system a new base unit with a specific name"""
+    return udunits_wrap.addBaseUnit(name)
+
+def addDimensionlessUnit(name):
+    """let you add to udunits2 system a new dimensionless unit with a specific name"""
+    return udunits_wrap.addDimensionlessUnit(name)
+
+def addScaledUnit(name,scale,original):
+    """let you add to udunits2 system a new scaled unit with a specific name
+    from an original unit"""
+    return udunits_wrap.addScaledUnit(name,scale,original)
+
+def addOffsettedUnit(name,offset,original):
+    """let you add to udunits2 system a new offsetted unit with a specific name
+    from an original unit"""
+    return udunits_wrap.addOffsettedUnit(name,scale,original)
+
+def addMultipliedUnits(name,unit1,unit2):
+    """let you add to udunits2 system a new unit with a specific name
+    which is the multiplication of two other units specified by name"""
+    return udunits_wrap.addMultipliedUnits(name,unit1,unit2)
+
+def addDividedUnits(name,unit1,unit2):
+    """let you add to udunits2 system a new unit with a specific name
+    which is the division of two other units specified by name"""
+    return udunits_wrap.addDividedUnits(name,unit1,unit2)
+
+def addInvertedUnit(name,original):
+    """let you add to udunits2 system a new inverted unit with a specific name
+    from an original unit"""
+    return udunits_wrap.addInvertedUnit(name,original)
 
 class udunits(object):
     """UNIDATA/UDUNITS Python Object
