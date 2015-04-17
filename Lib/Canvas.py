@@ -2766,6 +2766,8 @@ Options:::
                 #tmp.list()
             except Exception,err:
                 arglist[4]='default'
+        elif (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(arglist[0].getGrid(),cdms2.grid.AbstractRectGrid)) and arglist[3] in ["boxfill","default"] and arglist[4]=="default":
+          arglist[3]="meshfill"
 
 ##                         arglist[4]=copy_mthd.name
 
