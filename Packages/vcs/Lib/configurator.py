@@ -73,75 +73,6 @@ def sync_template(src, target):
     target.legend=copy.copy(src.legend)
     target.data=copy.copy(src.data)
 
-def array_strings(template, array):
-    attrs = [
-        "file",
-        "function",
-        "logicalmask",
-        "transformation",
-        "source",
-        "dataname",
-        "title",
-        "units",
-        "crdate",
-        "crtime",
-        "comment1",
-        "comment2",
-        "comment3",
-        "comment4",
-        "xname",
-        "yname",
-        "zname",
-        "tname",
-        "xunits",
-        "yunits",
-        "zunits",
-        "tunits",
-        "xvalue",
-        "yvalue",
-        "zvalue",
-        "tvalue",
-        "mean",
-        "min",
-        "max",
-        "xtic1",
-        "xtic2",
-        "xmintic1",
-        "xmintic2",
-        "ytic1",
-        "ytic2",
-        "ymintic1",
-        "ymintic2",
-        "xlabel1",
-        "xlabel2",
-        "ylabel1",
-        "ylabel2",
-        "box1",
-        "box2",
-        "box3",
-        "box4",
-        "line1",
-        "line2",
-        "line3",
-        "line4",
-        "legend",
-        "data",
-    ]
-
-    template = t(template)
-
-    strings = {}
-    for attr in attrs:
-        try:
-            attribute = getattr(template, attr)
-
-            if is_label(attribute):
-                strings[attr] = editors.label.get_label_text(attribute, array)
-        except AttributeError:
-            pass
-
-    return strings
-
 class Configurator(object):
     def __init__(self, canvas):
         self.canvas = canvas
@@ -167,6 +98,7 @@ class Configurator(object):
         self.anim_button = None
         self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
+        self.picker = vtk.vtkPropPicker()
         # Map custom templates to their source template
         self.templates = {}
 
@@ -265,9 +197,9 @@ class Configurator(object):
             return
 
         if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
-
             point = self.clicking[0]
             self.clicking = None
+
             if self.creating:
                 self.click_locations.append(point)
                 if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
@@ -280,59 +212,87 @@ class Configurator(object):
             if self.shift() and type(self.target) != editors.group.GroupEditor:
                 self.target = editors.group.GroupEditor(self.interactor, (self.target,))
 
-            clicked = None
-            display_clicked = None
-            for display in self.displays:
-                obj = self.in_display_plot(point, display)
-                if obj is not None and (clicked is None or obj.priority >= clicked.priority):
-                    clicked = obj
-                    display_clicked = display
-            if clicked:
-                if self.target is None or self.target.is_object(clicked) == False:
-                    self.activate(clicked, display_clicked)
-                elif self.shift() and self.target.contains_object(clicked):
-                    self.target.remove_object(clicked)
-                    if len(self.target.targets) == 0:
-                        self.target.detach()
-                        self.target = None
-                        self.save()
-                        return
-            elif self.target is not None and self.shift() == False:
+            clicked_actor = self.actor_at_point(*point)
+
+            if clicked_actor is None and self.target:
                 self.deactivate(self.target)
                 return
 
+            display, key = self.display_and_key_for_actor(clicked_actor)
+            if editable_type(display, key):
+                self.activate(display, clicked_actor, key)
+
         self.clicking = None
+
+    def display_and_key_for_actor(self, actor):
+        for display in self.displays:
+            for key in display.backend:
+                try:
+                    if actor == display.backend[key] or actor in display.backend[key]:
+                        return display, key
+                except TypeError:
+                    # display.backend[key] isn't iterable
+                    pass
+            else:
+                continue
+            break
+        else:
+            return None, None
+
+
+    def actor_at_point(self, x, y):
+        """
+        Iterates all renderers, checks if there's an actor at the point
+        """
+        obj = None
+        layer_obj = 0
+
+        for ren in vtkIterate(self.interactor.GetRenderWindow().GetRenderers()):
+            layer = ren.GetLayer()
+            if layer >= self.interactor.GetRenderWindow().GetNumberOfLayers() - 2:
+                # Skip manager renderers
+                continue
+
+            if obj is not None and layer < layer_obj:
+                continue
+
+            if self.picker.PickProp(x, y, ren):
+                obj = self.picker.GetViewProp()
+                layer_obj = layer
+
+        return obj
+
 
     def hover(self, object,event):
         if self.clicking is not None:
             return
 
         point = self.interactor.GetEventPosition()
+
+        actor = self.actor_at_point(*point)
+        window = self.interactor.GetRenderWindow()
+
         cursor = self.interactor.GetRenderWindow().GetCurrentCursor()
-        if self.target:
-            if self.target.handle_click(point):
-                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
-                    if cursor != vtk.VTK_CURSOR_CROSSHAIR:
-                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
-                else:
-                    if cursor != vtk.VTK_CURSOR_HAND:
-                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
-                return
+
+        new_cursor = vtk.VTK_CURSOR_DEFAULT
+        if actor is None:
+            man = vtk_ui.manager.get_manager(self.interactor)
+            if man.widget_at_point(*point):
+                new_cursor = vtk.VTK_CURSOR_HAND
         else:
-            if self.toolbar.in_toolbar(*point):
-                return
+            if self.target and self.target.handle_click(point):
+                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
+                    new_cursor = vtk.VTK_CURSOR_CROSSHAIR
+                else:
+                    new_cursor = vtk.VTK_CURSOR_HAND
+            else:
+                display, key = self.display_and_key_for_actor(actor)
 
-        if self.marker_button.in_bounds(*point) or self.text_button.in_bounds(*point):
-            return
+                if display is not None and editable_type(display, key):
+                    new_cursor = vtk.VTK_CURSOR_HAND
 
-        for display in self.displays:
-            obj = self.in_display_plot(point, display)
-            if obj is not None:
-                if cursor != vtk.VTK_CURSOR_HAND:
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
-                return
-        if cursor != vtk.VTK_CURSOR_DEFAULT:
-            self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
+        if cursor != new_cursor:
+            window.SetCurrentCursor(new_cursor)
 
 
     def click(self, object, event):
@@ -381,79 +341,31 @@ class Configurator(object):
         if self.target:
             self.target.place()
 
-    def activate(self, obj, display):
+    def activate(self, display, actor, key):
         if self.target is not None and self.shift() == False:
             self.deactivate(self.target)
 
         self.toolbar.hide()
 
-        if display.g_type == "fillarea":
-            editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "line":
-            editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "marker":
-            editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, display, self)
+        if display.g_type == "marker":
+            l = display.backend[key]
+            index = l.index(actor)
+            editor = editors.marker.MarkerEditor(self.interactor, index, self.clicked_info, display, self)
         elif display.g_type == "text":
-            editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, display, self)
+            l = display.backend[key]
+            index = l.index(actor)
+            editor = editors.text.TextEditor(self.interactor, index, self.clicked_info, display, self)
+        elif is_label(key):
+            obj = get_attribute(display, key)
+            editor = editors.label.LabelEditor(self.interactor, obj, display, self)
         else:
-            if is_box(obj):
-                if obj.member == "legend":
-                    editor = editors.legend.LegendEditor(self.interactor, t(display.template), self)
-                elif obj.member == "data":
-                    editor = editors.data.DataEditor(self.interactor, vcs.getgraphicsmethod(display.g_type, display.g_name), t(display.template), self)
-                else:
-                    editor = editors.box.BoxEditor(self.interactor, obj, self)
-            else:
-                if is_label(obj):
-                    editor = editors.label.LabelEditor(self.interactor, obj, display, self)
-                elif is_point(obj):
-                    editor = editors.point.PointEditor(self.interactor, obj, self)
-                else:
-                    editor = None
+            editor = None
 
         if self.target:
             self.target.add_target(editor)
         else:
             self.target = editor
 
-
-
-    def in_display_plot(self, point, dp):
-        #Normalize the point
-        x, y = point
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        if x > 1 or y > 1:
-            point = (x / float(w), y / float(h))
-            x, y = point
-
-        if dp.g_type == "fillarea":
-            fill = vcs.getfillarea(dp.g_name)
-            info = editors.fillarea.inside_fillarea(fill, *point)
-            if info is not None:
-                self.clicked_info = info
-                return fill
-        elif dp.g_type == "line":
-            l = vcs.getline(dp.g_name)
-            # Uses screen_height to determine how much buffer space there is around the line
-            info = editors.line.inside_line(l, *point, screen_height=h)
-            if info is not None:
-                self.clicked_info = info
-                return l
-        elif dp.g_type == "marker":
-            m = vcs.getmarker(dp.g_name)
-            info = editors.marker.inside_marker(m, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return m
-        elif dp.g_type == "text":
-            tc = vcs.gettextcombined(dp.g_name)
-            info = editors.text.inside_text(tc, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return tc
-        else:
-            fudge = 5 / float(w)
-            return in_template(point, t(dp.template), dp, (w, h), fudge=fudge)
 
     def save(self):
         if self.changed:
@@ -770,115 +682,19 @@ class Configurator(object):
         self.creating = False
         self.click_locations = None
 
+def get_attribute(display, backend_key):
+    key = backend_key.split("_")[2]
+    template = t(display.template)
+    if key in ("Min", "Max", "Mean"):
+        return getattr(template, key.lower())
+    else:
+        return getattr(template, key)
 
 def t(name):
     return vcs.gettemplate(name)
 
-def is_label(obj):
-    return type(obj) in (vcs.Pformat.Pf, vcs.Ptext.Pt)
-
-def in_template(point, template, dp, window_size, fudge=None):
-    x, y = point
-
-    attrs = [
-        "file",
-        "function",
-        "logicalmask",
-        "transformation",
-        "source",
-        "dataname",
-        "title",
-        "units",
-        "crdate",
-        "crtime",
-        "comment1",
-        "comment2",
-        "comment3",
-        "comment4",
-        "xname",
-        "yname",
-        "zname",
-        "tname",
-        "xunits",
-        "yunits",
-        "zunits",
-        "tunits",
-        "xvalue",
-        "yvalue",
-        "zvalue",
-        "tvalue",
-        "mean",
-        "min",
-        "max",
-        "xtic1",
-        "xtic2",
-        "xmintic1",
-        "xmintic2",
-        "ytic1",
-        "ytic2",
-        "ymintic1",
-        "ymintic2",
-        "xlabel1",
-        "xlabel2",
-        "ylabel1",
-        "ylabel2",
-        "box1",
-        "box2",
-        "box3",
-        "box4",
-        "line1",
-        "line2",
-        "line3",
-        "line4",
-        "legend",
-        "data",
-    ]
-
-    intersecting = None
-
-    for attr in attrs:
-        attribute = getattr(template, attr)
-        if attribute.priority == 0 or (intersecting is not None and intersecting.priority > attribute.priority):
-            # 0 is turned off
-            continue
-        t_x = safe_get(attribute, "x")
-        t_y = safe_get(attribute, "y")
-
-        if t_x is not None or t_y is not None:
-            if t_x is not None and t_y is not None:
-                # It's probably a text blob
-                if is_label(attribute):
-                    text = editors.label.get_label_text(attribute, dp)
-                    if text == '':
-                        continue
-                    if editors.label.inside_label(attribute, text, x, y, *window_size):
-                        intersecting = attribute
-                elif is_point_in_box((x, y), ((t_x - fudge, t_y - fudge), (t_x + fudge, t_y + fudge))):
-                    intersecting = attribute
-            else:
-                pass
-                """ Uncomment to enable axis editors
-                # It's probably the labels for an axis
-                if t_x is not None and t_x < x + fudge and t_x > x - fudge:
-                    intersecting = attribute
-                elif t_y is not None and t_y < y + fudge and t_y > y - fudge:
-                    intersecting = attribute
-                """
-        else:
-            pass
-            """ Uncomment to reenable the box editors
-            x1 = safe_get(attribute, "x1")
-            y1 = safe_get(attribute, "y1")
-            x2 = safe_get(attribute, "x2")
-            y2 = safe_get(attribute, "y2")
-
-            if None in (x1, y1, x2, y2):
-                continue
-            else:
-                if is_point_in_box((x, y), ((min(x1, x2), min(y1, y2)), (max(x1, x2), max(y1, y2)))):
-                    intersecting = attribute
-            """
-    return intersecting
+def is_label(key):
+    return "_text_actor" == key[-11:]
 
 def is_box(member):
     x1 = safe_get(member, "x1")
@@ -915,3 +731,13 @@ def safe_get(obj, attr, sentinel=None):
         return getattr(obj, attr)
     except AttributeError:
         return sentinel
+
+def vtkIterate(iterator):
+    iterator.InitTraversal()
+    obj = iterator.GetNextItem()
+    while obj is not None:
+        yield obj
+        obj = iterator.GetNextItem()
+
+def editable_type(display, key):
+    return display.g_type in ("marker", "text") or is_label(key)

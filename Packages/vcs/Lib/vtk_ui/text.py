@@ -1,4 +1,4 @@
-from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer, vtkTextProperty
+from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer, vtkTextProperty, vtkPropPicker
 import datetime
 import math
 def __set_font(font, text_props):
@@ -284,10 +284,15 @@ class Label(Widget, DraggableMixin):
             self.action(self.interactor.GetEventPosition())
 
     def in_bounds(self, x, y):
-        w, h = self.get_dimensions()
-        if x < self.left + w and x > self.left and y < self.top and y > self.top - h:
+        picker = vtkPropPicker()
+        ren = self.manager.actor_renderer
+        if picker.PickProp(x, y, ren) and picker.GetViewProp() == self.actor:
             return True
-        return False
+        else:
+            return False
+
+    def drag_start(self):
+        self.log("Start drag")
 
     def drag_stop(self):
         if self.movable and self.move_action:
