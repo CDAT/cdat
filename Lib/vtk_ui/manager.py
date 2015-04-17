@@ -49,6 +49,14 @@ class InterfaceManager(object):
             self.timer = None
             self.window.Render()
 
+    def widget_at_point(self, x, y):
+        picker = vtk.vtkPropPicker()
+        if picker.PickProp(x, y, self.renderer):
+            return True
+        if picker.PickProp(x, y, self.actor_renderer):
+            return True
+        return False
+
     def queue_render(self):
         if not self.interactor.GetInitialized():
             self.timer = 1
