@@ -256,7 +256,7 @@ class Button(Widget):
         self.place()
 
     def show(self):
-        self.widget.On()
+        super(Button, self).show()
         self.text_widget.show()
         self.place()
 
@@ -273,12 +273,12 @@ class Button(Widget):
         super(Button, self).detach()
 
     def hide(self):
+        super(Button, self).hide()
         try:
             self.tooltip_label.hide()
         except AttributeError:
             pass
         self.text_widget.hide()
-        self.widget.Off()
 
     def in_bounds(self, x, y):
         w, h = self.get_dimensions()

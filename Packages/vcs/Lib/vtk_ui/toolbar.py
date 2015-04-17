@@ -307,7 +307,7 @@ class Toolbar(object):
     def hide_sliders(self):
         for w in self.widgets:
             if type(w) == SliderButton:
-                if w.slider.is_showing():
+                if w.slider.showing():
                     w.set_state(0)
                     w.off()
             if type(w) == Toolbar:
