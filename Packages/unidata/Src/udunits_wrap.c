@@ -1,5 +1,4 @@
 #include <Python.h>
-#include "numpy/arrayobject.h"
 #include <udunits.h>
 
 static ut_system *ut_read = NULL;
@@ -13,6 +12,7 @@ void check_ut_read(char *xmlFile) {
   ut_set_error_message_handler(ut_ignore);
   ut_read = ut_read_xml(xmlFile);
   if (ut_read == NULL) {
+    printf("FAILED INIT\n");
     status = ut_get_status() == UT_PARSE
       ? UT_ESYNTAX
       : UT_EIO;
@@ -39,7 +39,7 @@ addBaseUnit(self,args)
   char msg[256],*unit;
   int MAX_STRING=256;
   ut_unit *newequnit=NULL;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
   if (!PyArg_ParseTuple(args,"s",&unit))
@@ -69,7 +69,7 @@ addDimensionlessUnit(self,args)
   char msg[256],*unit;
   int MAX_STRING=256;
   ut_unit *dimlessunit=NULL;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
   if (!PyArg_ParseTuple(args,"s",&unit))
@@ -100,10 +100,10 @@ addOffsettedUnit(self,args)
   int MAX_STRING=256;
   double offset;
   ut_unit *offsettedunit=NULL,*originalunit;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
-  if (!PyArg_ParseTuple(args,"sfs",&newunit,&offset,&oldunit))
+  if (!PyArg_ParseTuple(args,"sds",&newunit,&offset,&oldunit))
     return NULL;
 
   originalunit = ut_parse(ut_read, oldunit, UT_ASCII);
@@ -138,10 +138,10 @@ addScaledUnit(self,args)
   int MAX_STRING=256;
   double scale;
   ut_unit *scaledunit=NULL,*originalunit;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
-  if (!PyArg_ParseTuple(args,"sfs",&newunit,&scale,&oldunit))
+  if (!PyArg_ParseTuple(args,"sds",&newunit,&scale,&oldunit))
     return NULL;
 
   originalunit = ut_parse(ut_read, oldunit, UT_ASCII);
@@ -176,7 +176,7 @@ addMultipliedUnits(self,args)
   char msg[256],*newunit, *unit1, *unit2, err[256];
   int MAX_STRING=256;
   ut_unit *outunit=NULL,*uunit1,*uunit2;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
   if (!PyArg_ParseTuple(args,"sss",&newunit,&unit1,&unit2))
@@ -219,7 +219,7 @@ addDividedUnits(self,args)
   char msg[256],*newunit, *unit1, *unit2, err[256];
   int MAX_STRING=256;
   ut_unit *outunit=NULL,*uunit1,*uunit2;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
   if (!PyArg_ParseTuple(args,"sss",&newunit,&unit1,&unit2))
@@ -262,7 +262,7 @@ addInvertedUnit(self,args)
   char msg[256],*newunit, *oldunit, err[256];
   int MAX_STRING=256;
   ut_unit *invertedunit=NULL,*originalunit;
-  ut_status myutstatus=0;
+  ut_status myutstatus;
 
   /* read in unit name */
   if (!PyArg_ParseTuple(args,"ss",&newunit,&oldunit))
@@ -369,8 +369,6 @@ void
 initudunits_wrap()
 {
   (void) Py_InitModule("udunits_wrap", MyUdunitsMethods);
-  import_array()
-  
 }
 
 int main(int argc,char **argv)

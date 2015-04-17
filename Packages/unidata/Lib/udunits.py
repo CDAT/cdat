@@ -18,7 +18,7 @@ def addScaledUnit(name,scale,original):
 def addOffsettedUnit(name,offset,original):
     """let you add to udunits2 system a new offsetted unit with a specific name
     from an original unit"""
-    return udunits_wrap.addOffsettedUnit(name,scale,original)
+    return udunits_wrap.addOffsettedUnit(name,offset,original)
 
 def addMultipliedUnits(name,unit1,unit2):
     """let you add to udunits2 system a new unit with a specific name
@@ -110,7 +110,7 @@ class udunits(object):
             udunits_wrap.init()#udunits_name)
             unidata.udunits_init=1
         self._units=units
-        self._value=value
+        self._value=float(value)
 
     def to(self,units):
         if isinstance(units,udunits):
