@@ -30,6 +30,9 @@ unidata.addMultipliedUnits("efP","eq","pourcent")
 unidata.addDividedUnits("defC","eq","fakeCelsius")
 unidata.addDividedUnits("defP","eq","pourcent")
 
+## Create inverted unit
+unidata.addInvertedUnit("iefC","defC")
+
 ## Test scaled
 p = unidata.udunits(1,"pourcent")
 ## Test new base unit
@@ -77,3 +80,10 @@ o=o.to("defP")
 print o
 assert(o.units=="defP")
 assert(o.value == 5E-3)
+
+## Trying inverted
+o=fC/eq
+o=o.to("iefC")
+print o
+assert(o.units=="iefC")
+assert(o.value == 2)
