@@ -11,6 +11,9 @@ class Widget(object):
         self.manager.add_widget(self)
         super(Widget, self).__init__()
 
+    def log(self, message):
+        print repr(self), message
+
     def subscribe(self, event, action):
         if event in self.subscriptions:
             raise Exception("%s already subscribed to %s's %s event." % (action, self.widget, event))
@@ -33,6 +36,18 @@ class Widget(object):
     def showing(self):
         return self.widget.GetEnabled() == 1
 
+    def show(self):
+        if not self.showing():
+            self.widget.SetEnabled(True)
+            self.place()
+            self.manager.queue_render()
+
+    def hide(self):
+        if self.showing():
+            self.widget.SetEnabled(False)
+            self.widget.SetCurrentRenderer(self.manager.renderer)
+            self.manager.queue_render()
+
     def detach(self):
         render = self.widget.GetCurrentRenderer()
         if render is None:
@@ -49,7 +64,7 @@ class Widget(object):
 
 class WidgetReprShim(object):
     """
-    Used to substitute for a vtkWidget and vtkWidgetRepresentation derivatives in Widget subclasses
+    Used to substitute for a vtkWidget and vtkWidgetRepresentation when using actors directly
     """
     def __init__(self, interactor, actor):
         self._inter = interactor
@@ -72,6 +87,9 @@ class WidgetReprShim(object):
         return self._ren
 
     def SetCurrentRenderer(self, renderer):
+        """
+        The main cause of all this hubbub; need to use the actor_renderer.
+        """
         man = get_manager(self._inter)
         self._ren = man.actor_renderer
         self._ren.AddActor(self._actor)

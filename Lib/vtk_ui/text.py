@@ -202,8 +202,10 @@ class Label(Widget, DraggableMixin):
         self.actor.SetTextScaleModeToNone()
         self.actor.SetUseBorderAlign(False)
         self.actor.VisibilityOff()
-
         self.register()
+
+    def __repr__(self):
+        return "<Label Widget: %s>" % self.get_text()
 
     def get_text(self):
         return self.actor.GetInput()
@@ -227,16 +229,9 @@ class Label(Widget, DraggableMixin):
         prop.SetBackgroundColor(white_or_black(*color))
 
     def get_dimensions(self):
-        prop = vtkTextProperty()
-        prop.ShallowCopy(self.actor.GetTextProperty())
-        text = self.get_text()
-        prop.SetOrientation(0)
-        return text_dimensions(text, prop)
-        """
         bbox = [0,0]
         self.actor.GetSize(self.repr.GetRenderer(), bbox)
         return bbox[0], bbox[1]
-        """
 
     def show(self):
         if self.showing() == False:
