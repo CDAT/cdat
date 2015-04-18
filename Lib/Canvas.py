@@ -2770,7 +2770,9 @@ Options:::
           arglist[3]="meshfill"
 
 ##                         arglist[4]=copy_mthd.name
-
+        # Ok let's check for meshfill needed
+        if (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(arglist[0].getGrid(),cdms2.grid.AbstractRectGrid)) and arglist[3] not in ["meshfill","isofill"]:
+          raise RuntimeError("You are attempting to plot unstructured grid with a method that is not meshfill")
         # preprocessing for extra keyword (at-plotting-time options)
         cmds={}
         # First of all a little preprocessing for legend !
