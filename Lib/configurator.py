@@ -2,8 +2,10 @@ import vcs
 import datetime
 import editors
 import vtk_ui
-import os, sys
+import os
+import sys
 import vtk
+from vcs2vtk import vtkIterate
 
 CREATING_FILL = "fill"
 CREATING_LINE = "line"
@@ -19,59 +21,61 @@ CLICKS_TO_CREATE = {
 
 import copy
 
+
 def sync_template(src, target):
-    target.orientation=src.orientation
-    target.file=copy.copy(src.file)
-    target.function=copy.copy(src.function)
-    target.logicalmask=copy.copy(src.logicalmask)
-    target.transformation=copy.copy(src.transformation)
-    target.source=copy.copy(src.source)
-    target.dataname=copy.copy(src.dataname)
-    target.title=copy.copy(src.title)
-    target.units=copy.copy(src.units)
-    target.crdate=copy.copy(src.crdate)
-    target.crtime=copy.copy(src.crtime)
-    target.comment1=copy.copy(src.comment1)
-    target.comment2=copy.copy(src.comment2)
-    target.comment3=copy.copy(src.comment3)
-    target.comment4=copy.copy(src.comment4)
-    target.xname=copy.copy(src.xname)
-    target.yname=copy.copy(src.yname)
-    target.zname=copy.copy(src.zname)
-    target.tname=copy.copy(src.tname)
-    target.xunits=copy.copy(src.xunits)
-    target.yunits=copy.copy(src.yunits)
-    target.zunits=copy.copy(src.zunits)
-    target.tunits=copy.copy(src.tunits)
-    target.xvalue=copy.copy(src.xvalue)
-    target.yvalue=copy.copy(src.yvalue)
-    target.zvalue=copy.copy(src.zvalue)
-    target.tvalue=copy.copy(src.tvalue)
-    target.mean=copy.copy(src.mean)
-    target.min=copy.copy(src.min)
-    target.max=copy.copy(src.max)
-    target.xtic1=copy.copy(src.xtic1)
-    target.xtic2=copy.copy(src.xtic2)
-    target.xmintic1=copy.copy(src.xmintic1)
-    target.xmintic2=copy.copy(src.xmintic2)
-    target.ytic1=copy.copy(src.ytic1)
-    target.ytic2=copy.copy(src.ytic2)
-    target.ymintic1=copy.copy(src.ymintic1)
-    target.ymintic2=copy.copy(src.ymintic2)
-    target.xlabel1=copy.copy(src.xlabel1)
-    target.xlabel2=copy.copy(src.xlabel2)
-    target.ylabel1=copy.copy(src.ylabel1)
-    target.ylabel2=copy.copy(src.ylabel2)
-    target.box1=copy.copy(src.box1)
-    target.box2=copy.copy(src.box2)
-    target.box3=copy.copy(src.box3)
-    target.box4=copy.copy(src.box4)
-    target.line1=copy.copy(src.line1)
-    target.line2=copy.copy(src.line2)
-    target.line3=copy.copy(src.line3)
-    target.line4=copy.copy(src.line4)
-    target.legend=copy.copy(src.legend)
-    target.data=copy.copy(src.data)
+    target.orientation = src.orientation
+    target.file = copy.copy(src.file)
+    target.function = copy.copy(src.function)
+    target.logicalmask = copy.copy(src.logicalmask)
+    target.transformation = copy.copy(src.transformation)
+    target.source = copy.copy(src.source)
+    target.dataname = copy.copy(src.dataname)
+    target.title = copy.copy(src.title)
+    target.units = copy.copy(src.units)
+    target.crdate = copy.copy(src.crdate)
+    target.crtime = copy.copy(src.crtime)
+    target.comment1 = copy.copy(src.comment1)
+    target.comment2 = copy.copy(src.comment2)
+    target.comment3 = copy.copy(src.comment3)
+    target.comment4 = copy.copy(src.comment4)
+    target.xname = copy.copy(src.xname)
+    target.yname = copy.copy(src.yname)
+    target.zname = copy.copy(src.zname)
+    target.tname = copy.copy(src.tname)
+    target.xunits = copy.copy(src.xunits)
+    target.yunits = copy.copy(src.yunits)
+    target.zunits = copy.copy(src.zunits)
+    target.tunits = copy.copy(src.tunits)
+    target.xvalue = copy.copy(src.xvalue)
+    target.yvalue = copy.copy(src.yvalue)
+    target.zvalue = copy.copy(src.zvalue)
+    target.tvalue = copy.copy(src.tvalue)
+    target.mean = copy.copy(src.mean)
+    target.min = copy.copy(src.min)
+    target.max = copy.copy(src.max)
+    target.xtic1 = copy.copy(src.xtic1)
+    target.xtic2 = copy.copy(src.xtic2)
+    target.xmintic1 = copy.copy(src.xmintic1)
+    target.xmintic2 = copy.copy(src.xmintic2)
+    target.ytic1 = copy.copy(src.ytic1)
+    target.ytic2 = copy.copy(src.ytic2)
+    target.ymintic1 = copy.copy(src.ymintic1)
+    target.ymintic2 = copy.copy(src.ymintic2)
+    target.xlabel1 = copy.copy(src.xlabel1)
+    target.xlabel2 = copy.copy(src.xlabel2)
+    target.ylabel1 = copy.copy(src.ylabel1)
+    target.ylabel2 = copy.copy(src.ylabel2)
+    target.box1 = copy.copy(src.box1)
+    target.box2 = copy.copy(src.box2)
+    target.box3 = copy.copy(src.box3)
+    target.box4 = copy.copy(src.box4)
+    target.line1 = copy.copy(src.line1)
+    target.line2 = copy.copy(src.line2)
+    target.line3 = copy.copy(src.line3)
+    target.line4 = copy.copy(src.line4)
+    target.legend = copy.copy(src.legend)
+    target.data = copy.copy(src.data)
+
 
 class Configurator(object):
     def __init__(self, canvas):
@@ -725,13 +729,6 @@ def safe_get(obj, attr, sentinel=None):
         return getattr(obj, attr)
     except AttributeError:
         return sentinel
-
-def vtkIterate(iterator):
-    iterator.InitTraversal()
-    obj = iterator.GetNextItem()
-    while obj is not None:
-        yield obj
-        obj = iterator.GetNextItem()
 
 def editable_type(display, key):
     return display.g_type in ("marker", "text") or is_label(key)
