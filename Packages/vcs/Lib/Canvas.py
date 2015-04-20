@@ -633,7 +633,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         isgridded = (grid is not None)
 
         # Set the default graphics method if not already set.
-        if arglist[GRAPHICS_METHOD] in ['default','boxfill']:       # See _determine_arg_list
+        if arglist[GRAPHICS_METHOD] == "default" or\
+                 (arglist[GRAPHICS_METHOD] == 'boxfill' and arglist[GRAPHICS_METHOD+1]=="default"):
+                     # See _determine_arg_list
             try:
                 nomesh=0
                 m=grid.getMesh()
@@ -642,7 +644,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
             if grid is None:
                 if tv.ndim==1:
-                    arglist[GRAPHICS_METHOD] = 'yxvsx1'
+                    arglist[GRAPHICS_METHOD] = 'yxvsx'
                 else:
                     arglist[GRAPHICS_METHOD] = 'boxfill'
             elif isinstance(grid, AbstractRectGrid):
@@ -2762,7 +2764,7 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
-        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(g0,cdms2.gengrid.AbstractGenericGrid) and g0 is not None:
+        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(g0,cdms2.gengrid.AbstractGenericGrid):
             arglist[3]='1d'
             try:
                 tmp=self.getyxvsx(arglist[4])
