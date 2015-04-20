@@ -36,6 +36,7 @@ cdat_add_test(vcs_verify_set_ext_2_on_default
 cdat_add_test(vcs_verify_levels_extensions_order_setting
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_ext_1_n_triggers_1e20.py
+  )
 cdat_add_test(vcs_verify_read_a_isofill
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_read_a_isofill.py
