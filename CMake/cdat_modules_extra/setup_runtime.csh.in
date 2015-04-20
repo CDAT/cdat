@@ -91,3 +91,7 @@ setenv UVCDAT_SETUP_PATH ${install_prefix}
 
 unset install_prefix
 
+echo "Successfully updated your environment to use UV-CDAT"
+echo "(changes are valid for this session/terminal only)"
+echo "Version: "${UVCDAT_PROMPT_STRING}
+echo "Location: "${UVCDAT_SETUP_PATH}
