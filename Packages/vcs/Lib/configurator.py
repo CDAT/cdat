@@ -105,6 +105,11 @@ class Configurator(object):
         self.creating = False
         self.click_locations = None
 
+    @property
+    def render_window(self):
+        if self.interactor is not None:
+            return self.interactor.GetRenderWindow()
+        return self.backend.renWin
 
     def get_save_path(self, default_name='', dialog_name="Save File"):
         import os.path
@@ -190,7 +195,7 @@ class Configurator(object):
 
         # if all of the widgets have been cleaned up correctly, this will delete the manager
         vtk_ui.manager.delete_manager(self.interactor)
-        self.interactor.GetRenderWindow().Render()
+        self.render_window.Render()
 
     def release(self, object, event):
         if self.clicking is None:
@@ -206,7 +211,7 @@ class Configurator(object):
                     self.create()
                 return
 
-            if self.target and self.shift() == False and self.target.handle_click(point):
+            if self.target and self.shift() is False and self.target.handle_click(point):
                 return
 
             if self.shift() and type(self.target) != editors.group.GroupEditor:
@@ -220,6 +225,13 @@ class Configurator(object):
 
             display, key = self.display_and_key_for_actor(clicked_actor)
             if editable_type(display, key):
+                # Some methods (markers) have more than one actor per displayed item
+                if clicked_actor != display.backend[key] and clicked_actor not in display.backend[key]:
+                    for group in display.backend[key]:
+                        if clicked_actor in group:
+                            clicked_actor = group
+                            break
+
                 self.activate(display, clicked_actor, key)
 
         self.clicking = None
@@ -228,7 +240,7 @@ class Configurator(object):
         for display in self.displays:
             for key in display.backend:
                 try:
-                    if actor == display.backend[key] or actor in display.backend[key]:
+                    if actor == display.backend[key] or actor in display.backend[key] or [True for group in display.backend[key] if actor in group]:
                         return display, key
                 except TypeError:
                     # display.backend[key] isn't iterable
@@ -247,11 +259,13 @@ class Configurator(object):
         obj = None
         layer_obj = 0
 
-        for ren in vtkIterate(self.interactor.GetRenderWindow().GetRenderers()):
+        for ren in vtkIterate(self.render_window.GetRenderers()):
             layer = ren.GetLayer()
-            if layer >= self.interactor.GetRenderWindow().GetNumberOfLayers() - 2:
-                # Skip manager renderers
-                continue
+
+            if self.interactor is not None:
+                manager = vcs.vtk_ui.manager.get_manager(self.interactor)
+                if ren == manager.actor_renderer or ren == manager.renderer:
+                    continue
 
             if obj is not None and layer < layer_obj:
                 continue
@@ -270,9 +284,9 @@ class Configurator(object):
         point = self.interactor.GetEventPosition()
 
         actor = self.actor_at_point(*point)
-        window = self.interactor.GetRenderWindow()
+        window = self.render_window
 
-        cursor = self.interactor.GetRenderWindow().GetCurrentCursor()
+        cursor = self.render_window.GetCurrentCursor()
 
         new_cursor = vtk.VTK_CURSOR_DEFAULT
         if actor is None:
@@ -342,19 +356,20 @@ class Configurator(object):
             self.target.place()
 
     def activate(self, display, actor, key):
-        if self.target is not None and self.shift() == False:
+        if self.target is not None and self.shift() is False:
             self.deactivate(self.target)
 
         self.toolbar.hide()
 
         if display.g_type == "marker":
             l = display.backend[key]
+            # Actor is actually a group of VTK objects
             index = l.index(actor)
-            editor = editors.marker.MarkerEditor(self.interactor, index, self.clicked_info, display, self)
+            editor = editors.marker.MarkerEditor(self.interactor, vcs.getmarker(display.g_name), index, display, self)
         elif display.g_type == "text":
             l = display.backend[key]
             index = l.index(actor)
-            editor = editors.text.TextEditor(self.interactor, index, self.clicked_info, display, self)
+            editor = editors.text.TextEditor(self.interactor, vcs.gettext(display.g_name), index, display, self)
         elif is_label(key):
             obj = get_attribute(display, key)
             editor = editors.label.LabelEditor(self.interactor, obj, display, self)
@@ -372,7 +387,7 @@ class Configurator(object):
             self.canvas.update()
             self.changed = False
         else:
-            self.interactor.GetRenderWindow().Render()
+            self.render_window.Render()
         self.canvas.animate.reset()
 
     def init_toolbar(self):
@@ -571,11 +586,7 @@ class Configurator(object):
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
 
-        #self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click, tooltip="Create Text: click to place.", tooltip_property=prop)
-
-        #self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
-
         self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click, tooltip="Create Marker: click to place.", tooltip_property=prop)
 
 
@@ -633,7 +644,7 @@ class Configurator(object):
             self.creator_disabled(self.fill_button)
 
     def create(self):
-        w, h = self.interactor.GetRenderWindow().GetSize()
+        w, h = self.render_window.GetSize()
 
         x = []
         y = []
@@ -642,42 +653,25 @@ class Configurator(object):
             x.append(point[0] / float(w))
             y.append(point[1] / float(h))
 
-        created = None
-
-        if self.creating == CREATING_FILL:
-            fill = self.canvas.createfillarea()
-            fill.x = x
-            fill.y = y
-            created = fill
-            self.fill_button.set_state(0)
-            dp = self.canvas.fillarea(fill)
-        elif self.creating == CREATING_TEXT:
+        if self.creating == CREATING_TEXT:
             t = self.canvas.createtextcombined()
             t.x = x
             t.y = y
             t.string = ["Click to Edit"]
-            created = t
             self.text_button.set_state(0)
             dp = self.canvas.text(t)
+            key = "vtk_backend_text_actors"
         elif self.creating == CREATING_MARKER:
             m = self.canvas.createmarker()
             m.x = x
             m.y = y
             m.size = [10]
-            created = m
             self.marker_button.set_state(0)
             dp = self.canvas.marker(m)
-        elif self.creating == CREATING_LINE:
-            l = self.canvas.createline()
-            l.x = x
-            l.y = y
-            created = l
-            self.line_button.set_state(0)
-            dp = self.canvas.line(l)
+            key = "vtk_backend_marker_actors"
 
         # Activate an editor for the new object
-        self.clicked_info = 0
-        self.activate(created, dp)
+        self.activate(dp, dp.backend[key][0], key)
 
         self.creating = False
         self.click_locations = None

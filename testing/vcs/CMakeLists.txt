@@ -607,4 +607,17 @@ cdat_add_test(vcs_test_endconfigure
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
 )
+
+cdat_add_test(vcs_test_configurator_click_text
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_text.py
+)
+cdat_add_test(vcs_test_configurator_click_label
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_label.py
+)
+cdat_add_test(vcs_test_configurator_click_marker
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_marker.py
+)
 add_subdirectory(vtk_ui)
