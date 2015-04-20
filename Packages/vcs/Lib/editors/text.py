@@ -282,38 +282,3 @@ def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
     vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop)
-
-def inside_text(text, x, y, screen_width, screen_height, index=None):
-
-    winsize = (screen_width, screen_height)
-
-    if x > 1:
-        x = x / float(screen_width)
-    if y > 1:
-        y = y / float(screen_height)
-
-    for ind, xcoord in enumerate(text.x):
-        if index is not None:
-            if ind != index:
-                continue
-
-        ycoord = text.y[ind]
-        text_width, text_height = text_dimensions(text, ind, winsize)
-        text_width = text_width / float(screen_width)
-        text_height = text_height / float(screen_height)
-
-        x1, y1 = xcoord, ycoord
-        x2, y2 = xcoord + text_width, ycoord + text_height
-
-        # Adjust for alignments
-        if text.valign in ("half", 2):
-            ycoord += text_height / 2.0
-        elif text.valign in ("top", 0):
-            ycoord += text_height
-
-        if text.halign in ("right", 2):
-            xcoord += text_width
-        elif text.halign in ("center", 1):
-            xcoord += text_width / 2.0
-
-    return None
