@@ -1,6 +1,8 @@
 from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer, vtkTextProperty, vtkPropPicker
 import datetime
 import math
+
+
 def __set_font(font, text_props):
     """
     Font selection logic for text properties
@@ -18,16 +20,19 @@ def __set_font(font, text_props):
         text_props.SetFontFamily(VTK_FONT_FILE)
         text_props.SetFontFile(font)
 
+
 def lum_normalize(component):
     if component <= .03928:
         return component / 12.92
     else:
         return ((component + .055) / 1.055) ** 2.4
 
+
 def luminance(color):
     r, g, b = [lum_normalize(c) for c in color]
     lum = .2126 * r + .7152 * g + .0722 * b
     return lum
+
 
 def contrast_ratio(fg, bg):
     lum_fg = luminance(fg)
@@ -36,11 +41,14 @@ def contrast_ratio(fg, bg):
     l2 = min(lum_fg, lum_bg)
 
     return (l1 + .05) / (l2 + .05)
+
+
 def white_or_black(red, green, blue):
     """ Returns white or black to choose most contrasting color for provided color """
     # Convert to YIQ colorspace
     lum = luminance((red, green, blue))
     return (0,0,0) if lum >= .5 else (1, 1, 1)
+
 
 def contrasting_color(red, green, blue):
     hue, saturation, value = rgb_to_hsv(red, green, blue)
@@ -69,6 +77,7 @@ def contrasting_color(red, green, blue):
 
     return hsv_to_rgb(hsv["hue"], hsv["saturation"], hsv["value"])
 
+
 def hsv_to_rgb(h, s, v):
     if s == 0:
         # grayscale
@@ -94,6 +103,7 @@ def hsv_to_rgb(h, s, v):
     else:
         r, g, b = v, p, q
     return r, g, b
+
 
 def rgb_to_hsv(r, g, b):
 
@@ -149,11 +159,13 @@ def text_actor(string, fgcolor, size, font):
 
     return actor
 
+
 def text_dimensions(text, text_prop):
     ren = vtkTextRenderer()
     bounds = [0,0,0,0]
     ren.GetBoundingBox(text_prop, text, bounds)
     return bounds[1] - bounds[0], bounds[3] - bounds[2]
+
 
 def baseline_offsets(origin, new_string, text_prop):
     ren = vtkTextRenderer()
@@ -172,6 +184,7 @@ def baseline_offsets(origin, new_string, text_prop):
 
 from widget import Widget, WidgetReprShim
 from behaviors import DraggableMixin
+
 
 class Label(Widget, DraggableMixin):
 
