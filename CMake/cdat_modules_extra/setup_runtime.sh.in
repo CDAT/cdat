@@ -10,11 +10,11 @@ function cleanup {
 # which can lead to errors.
 if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
   if [ "${UVCDAT_SETUP_PATH}" = "${install_prefix}" ] ; then
-    echo "Nothing to do UVCDAT is already setup at "${UVCDAT_SETUP_PATH} 1>&2
+    echo "Nothing to do UVCDAT is already setup at: ${UVCDAT_SETUP_PATH}" 1>&2
     cleanup
     return 0
   else
-    echo "ERROR: UVCDAT setup was previously sourced at "${UVCDAT_SETUP_PATH} 1>&2
+    echo "ERROR: UVCDAT setup was previously sourced at: ${UVCDAT_SETUP_PATH}" 1>&2
     echo "ERROR: There is no need to run setup_runtime manually anymore." 1>&2
     echo "ERROR: Open a new shell in order to use a different install location." 1>&2
     cleanup
@@ -24,7 +24,7 @@ fi
 
 # Check that the install prefix exists, otherwise stop.
 if [ ! -d "${install_prefix}" ] ; then
-  echo "ERROR: \"${install_prefix}\" is not a directory." 1>&2
+  echo "ERROR: ${install_prefix} is not a directory." 1>&2
   cleanup
   return 1
 fi
@@ -88,6 +88,6 @@ export UVCDAT_SETUP_PATH="${install_prefix}"
 cleanup
 echo "Successfully updated your environment to use UV-CDAT" 1>&2
 echo "(changes are valid for this session/terminal only)" 1>&2
-echo "Version: "${UVCDAT_PROMPT_STRING} 1>&2
-echo "Location: "${UVCDAT_SETUP_PATH} 1>&2
+echo "Version: ${UVCDAT_PROMPT_STRING}" 1>&2
+echo "Location: ${UVCDAT_SETUP_PATH}" 1>&2
 return 0
