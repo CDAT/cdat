@@ -227,6 +227,9 @@ class Configurator(object):
                 self.deactivate(self.target)
                 return
 
+            if clicked_actor is None:
+                return
+
             display, key = self.display_and_key_for_actor(clicked_actor)
             if editable_type(display, key):
                 # Some methods (markers) have more than one actor per displayed item
