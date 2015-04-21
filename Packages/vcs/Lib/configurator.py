@@ -444,7 +444,9 @@ class Configurator(object):
           logo_button.set_state(1)
 
     def setup_animation(self):
-        if self.initialized == False:
+        if self.initialized is False and [True for d in self.displays if d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")]:
+            for d in self.displays:
+                print d.g_type
             self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
             self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
