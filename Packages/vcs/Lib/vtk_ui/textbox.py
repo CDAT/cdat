@@ -38,6 +38,11 @@ class Textbox(Label):
                 self.cursor.show()
             self.manager.queue_render()
 
+    def show_cursor(self):
+        self.last_blink = datetime.now()
+        self.cursor.show()
+        self.manager.queue_render()
+
     def get_char(self):
         keycode = self.interactor.GetKeyCode()
         if len(keycode) == 0 or ord(keycode) > 126 or ord(keycode) < 33:
@@ -117,9 +122,6 @@ class Textbox(Label):
                 self.add_character("\t")
 
             if c in ("Left", "Right", "Up", "Down"):
-                # Reset blink counter
-                self.last_blink -= timedelta(0,0, 400)
-
                 rows = self.text.split("\n")
 
                 if c == "Left":
@@ -142,6 +144,7 @@ class Textbox(Label):
                         self.column = len(rows[self.row])
                     else:
                         self.row += 1
+                self.show_cursor()
 
             if self.text[-2:] == "QQ":
                 self.stop_editing()
@@ -223,8 +226,8 @@ class Textbox(Label):
 
         x1, y1 = rotate((up_to_col_width, 1 * line_height / 2.), angle)
         x2, y2 = rotate((up_to_col_width, -1 * line_height / 2.), angle)
-        x1 += self.left
-        x2 += self.left
+        x1 += self.left - 3
+        x2 += self.left - 3
         y1 += y
         y2 += y
 
