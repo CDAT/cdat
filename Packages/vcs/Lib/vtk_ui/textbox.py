@@ -155,9 +155,7 @@ class Textbox(Label):
 
     def update(self):
         if self.repr.GetText() != self.text:
-            self.widget.On()
             self.set_text(self.text)
-            self.widget.On()
         self.place_cursor()
 
     def place_cursor(self):
@@ -195,13 +193,20 @@ class Textbox(Label):
 
         # Adjust for alignment
         align = prop.GetJustificationAsString()
-        if align == "center":
+        if align == "Centered":
             # If we're center aligned, we need to adjust by half
             x += width_difference / 2.
-        elif align == "right":
+        elif align == "Right":
             # If we're right aligned, we need to adjust the full difference
             x += width_difference
 
+        align = prop.GetVerticalJustificationAsString()
+        if align == "Top":
+            y -= line_height / 2.
+        if align == "Bottom":
+            y += line_height / 2.
+
+        y += self.top_offset
         # Now we need to get the offset for the character clicked
         up_to_col_width, _ = text_dimensions(rows[self.row][:self.column], prop)
         x += up_to_col_width

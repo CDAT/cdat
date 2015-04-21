@@ -116,7 +116,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
             if self.text.valign in ("half", 2):
                 y -= text_height / 2.0
-            elif self.text.valign in ("top", 0):
+            elif self.text.valign in ("bottom", 4):
                 y -= text_height
 
             box_prop = vtkTextProperty()
@@ -254,7 +254,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         elif state == 1:
             self.text.valign = 2
         elif state == 2:
-            self.text.valign = 3
+            self.text.valign = 4
         self.update()
 
     def update_angle(self, value):

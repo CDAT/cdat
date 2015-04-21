@@ -225,9 +225,16 @@ class Label(Widget, DraggableMixin):
 
     def set_text(self, string):
 
-        below, above = baseline_offsets(self.actor.GetInput(), string, self.actor.GetTextProperty())
+        p = self.actor.GetTextProperty()
+        below, above = baseline_offsets(self.actor.GetInput(), string, p)
 
-        self.top_offset += above
+        align = p.GetVerticalJustificationAsString()
+        if align == "Top":
+            self.top_offset += above
+        elif align == "Centered":
+            self.top_offset += .5 * above
+        elif align == "Bottom":
+            self.top_offset -= below
         self.actor.SetInput(string)
         self.place()
         self.render()
@@ -242,19 +249,19 @@ class Label(Widget, DraggableMixin):
         prop.SetBackgroundColor(white_or_black(*color))
 
     def get_dimensions(self):
-        bbox = [0,0]
+        bbox = [0, 0]
         self.actor.GetSize(self.repr.GetRenderer(), bbox)
         return bbox[0], bbox[1]
 
     def show(self):
-        if self.showing() == False:
+        if self.showing() is False:
             self.place()
             self.actor.VisibilityOn()
             self.actor.Modified()
             self.render()
 
     def hide(self):
-        if self.showing() == True:
+        if self.showing():
             self.actor.VisibilityOff()
             self.actor.Modified()
             self.render()
