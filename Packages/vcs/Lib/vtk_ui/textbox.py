@@ -17,7 +17,7 @@ class Textbox(Label):
         self.highlight_opacity = highlight_opacity
         self.highlight_color = highlight_color
 
-        self.cursor = Line((0,0), (1,1), renderer=self.widget.GetCurrentRenderer(), width=4)
+        self.cursor = Line((0, 0), (1, 1), renderer=self.widget.GetCurrentRenderer(), width=2)
         # Blink the cursor if we're editing.
         self.blink_timer = self.interactor.CreateRepeatingTimer(600)
         self.blink_observer = self.interactor.AddObserver("TimerEvent", self.blink_cursor)
@@ -27,7 +27,7 @@ class Textbox(Label):
         self.keyboard_observer = self.interactor.AddObserver("KeyPressEvent", self.typed, 1.0)
 
     def blink_cursor(self, obj, event):
-        if datetime.now() - self.last_blink < timedelta(0,0,0,400):
+        if datetime.now() - self.last_blink < timedelta(0, 0, 0, 400):
             return
 
         self.last_blink = datetime.now()
@@ -68,7 +68,6 @@ class Textbox(Label):
 
         self.text = "\n".join(rows)
 
-
     def delete_character(self):
         rows = self.text.split("\n")
 
@@ -92,7 +91,6 @@ class Textbox(Label):
                 self.column = len(row)
 
         self.text = "\n".join(rows)
-
 
     def typed(self, obj, event):
         if self.editing:
@@ -162,14 +160,12 @@ class Textbox(Label):
             self.widget.On()
         self.place_cursor()
 
-
     def place_cursor(self):
         # Find current position of the text actor
         x, y = self.repr.GetPosition()
 
         # Use to adjust all window-space numbers
         w, h = self.interactor.GetRenderWindow().GetSize()
-        x, y = int(x * w), int(y * h)
 
         # Get the maximum line height for the current font
         prop = vtk.vtkTextProperty()
@@ -199,10 +195,10 @@ class Textbox(Label):
 
         # Adjust for alignment
         align = prop.GetJustificationAsString()
-        if align == 1:
+        if align == "center":
             # If we're center aligned, we need to adjust by half
             x += width_difference / 2.
-        elif align == 2:
+        elif align == "right":
             # If we're right aligned, we need to adjust the full difference
             x += width_difference
 
@@ -219,15 +215,16 @@ class Textbox(Label):
             xrot = x * math.cos(theta) - y * math.sin(theta)
             yrot = x * math.sin(theta) + y * math.cos(theta)
             return int(xrot), int(yrot)
-        x1, y1 = rotate((0, line_height / 2.), angle)
-        x2, y2 = rotate((0, -1 * line_height / 2.), angle)
-        x1 += x
-        x2 += x
-        y1 += y + line_height / 2.
-        y2 += y + line_height / 2.
+
+        x1, y1 = rotate((up_to_col_width, 1 * line_height / 2.), angle)
+        x2, y2 = rotate((up_to_col_width, -1 * line_height / 2.), angle)
+        x1 += self.left
+        x2 += self.left
+        y1 += y
+        y2 += y
+
         self.cursor.point_1 = (x1, y1)
         self.cursor.point_2 = (x2, y2)
-
 
     def row_col_at_point(self, x, y):
         rows = self.text.split("\n")
