@@ -29,6 +29,18 @@ cdat_add_test(vcs_mkscale_great_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
 )
+cdat_add_test(vcs_verify_set_ext_2_on_default
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_ext_2_setting.py
+)
+cdat_add_test(vcs_verify_levels_extensions_order_setting
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_ext_1_n_triggers_1e20.py
+  )
+cdat_add_test(vcs_verify_read_a_isofill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_read_a_isofill.py
+)
 cdat_add_test(vcs_verify_boxfill_basics
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_basics_no_plot.py
@@ -254,6 +266,11 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_as_def_vistrails_exts.py
+      "${BASELINE_DIR}/test_box_custom_as_def_vistrails_exts.png"
+      )
     cdat_add_test(test_vcs_boxfill_custom
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom.py
