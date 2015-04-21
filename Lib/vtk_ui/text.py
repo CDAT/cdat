@@ -284,15 +284,15 @@ class Label(Widget, DraggableMixin):
             self.action(self.interactor.GetEventPosition())
 
     def in_bounds(self, x, y):
+        if x < 1 and y < 1:
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            x, y = x * w, y * h
         picker = vtkPropPicker()
         ren = self.manager.actor_renderer
         if picker.PickProp(x, y, ren) and picker.GetViewProp() == self.actor:
             return True
         else:
             return False
-
-    def drag_start(self):
-        self.log("Start drag")
 
     def drag_stop(self):
         if self.movable and self.move_action:
@@ -312,3 +312,4 @@ class Label(Widget, DraggableMixin):
             self.top -= dy
             self.dragged(self, dx/w, dy/h)
             self.place()
+            self.manager.queue_render()
