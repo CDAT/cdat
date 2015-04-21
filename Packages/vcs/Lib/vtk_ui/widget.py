@@ -62,6 +62,7 @@ class Widget(object):
         get_manager(self.interactor).remove_widget(self)
         self.interactor = None
 
+
 class WidgetReprShim(object):
     """
     Used to substitute for a vtkWidget and vtkWidgetRepresentation when using actors directly
@@ -70,6 +71,16 @@ class WidgetReprShim(object):
         self._inter = interactor
         self._actor = actor
         self._ren = None
+
+    def GetText(self):
+        # This exists in text widgets
+        return self._actor.GetInput()
+
+    def On(self):
+        self._actor.SetVisibility(True)
+
+    def Off(self):
+        self._actor.SetVisibility(False)
 
     def SetPosition(self, x, y):
         self._actor.SetPosition((x, y))

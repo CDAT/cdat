@@ -1,11 +1,11 @@
 from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
 from vcs.colorpicker import ColorPicker
-from vtk import vtkTextProperty
+from vtk import vtkTextProperty, vtkPropPicker, vtkPropCollection
 from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
-from vcs.vcs2vtk import genTextActor
+from vcs.vcs2vtk import genTextActor, vtkIterate
 from font import FontEditor
 import sys
 
@@ -16,6 +16,7 @@ __valign_map__ = {
     3: 2,
     4: 2,
 }
+
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
     """
@@ -106,7 +107,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
             x = x * w
-            y = h - y * h # mirror the y axis for widgets
+            y = h - y * h  # mirror the y axis for widgets
 
             if self.text.halign in ("right", 2):
                 x -= text_width
@@ -138,12 +139,21 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.text.string[index] = textbox.text
         self.actors[index].SetInput(textbox.text)
 
+    def get_box_at_point(self, x, y):
+        for box in self.textboxes:
+            if box.in_bounds(x, y):
+                return box
+        return None
+
     def in_bounds(self, x, y):
-        return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
+        return self.get_box_at_point(x, y) is not None
 
     def click_release(self):
         x, y = self.event_position()
-        text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        box = self.get_box_at_point(x * w, y * h)
+
+        text_index = None if box is None else self.textboxes.index(box)
 
         self.process_click(text_index, x, y)
 

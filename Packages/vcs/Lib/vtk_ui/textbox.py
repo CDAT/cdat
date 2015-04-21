@@ -7,6 +7,7 @@ class Textbox(Label):
     def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
 
         super(Textbox, self).__init__(interactor, string, **kwargs)
+        self.drag_interval = timedelta(0, .1)
         self.editing = False
         self.edit_indicator = None
         self.column = 0
