@@ -1602,6 +1602,7 @@ class P(object):
            else:
                 ecompfunc=numpy.greater_equal
                 compfunc=numpy.greater
+           dlong = dD/(len(levels)-1)
            for l in legend.keys():
                 if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
                      for i in range(len(levels)-1):
