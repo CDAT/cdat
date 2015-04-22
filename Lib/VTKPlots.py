@@ -882,14 +882,20 @@ class VTKVCSBackend(object):
         else:
             mapper = vtk.vtkPolyDataMapper()
         lut = vtk.vtkLookupTable()
-        lut.SetNumberOfTableValues(1)
-        lut.SetTableValue(0, 0, 0, 0)
+        lut.SetNumberOfTableValues(len(cols))
+        for icol,col in enumerate(cols):
+            r,g,b = cmap.index[col]
+            lut.SetTableValue(icol,r/100.,g/100.,b/100.)
         if gm.label=="y":
             mapper.GetPolyDataMapper().SetLookupTable(lut)
+            mapper.GetPolyDataMapper().SetScalarRange(levs[0],levs[-1])
+            mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
             mapper.SetLabelVisibility(1)
             returned["vtk_backend_labeled_luts"] = [[lut, [0, len(levs) - 1, False]]]
         else:
             mapper.SetLookupTable(lut)
+            mapper.SetScalarRange(levs[0],levs[-1])
+            mapper.SetScalarModeToUsePointData()
             returned["vtk_backend_luts"] = [[lut, [0, len(levs) - 1, False]]]
 
         # Create text properties.
