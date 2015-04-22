@@ -150,7 +150,7 @@ def text_actor(string, fgcolor, size, font):
 
     # Sane defaults.
     props.SetJustificationToCentered()
-    props.SetVerticalJustificationToCentered()
+    props.SetVerticalJustificationToTop()
 
     if string.find("\n") != -1:
         lines = string.split("\n")
@@ -160,22 +160,23 @@ def text_actor(string, fgcolor, size, font):
     return actor
 
 
-def text_dimensions(text, text_prop):
+def text_dimensions(text, text_prop, at_angle=0):
     ren = vtkTextRenderer()
-    bounds = [0,0,0,0]
-    ren.GetBoundingBox(text_prop, text, bounds)
+    bounds = [0, 0, 0, 0]
+    p = vtkTextProperty()
+    p.ShallowCopy(text_prop)
+    p.SetOrientation(0)
+    ren.GetBoundingBox(p, text, bounds)
     return bounds[1] - bounds[0], bounds[3] - bounds[2]
 
 
 def baseline_offsets(origin, new_string, text_prop):
     ren = vtkTextRenderer()
 
-    bounds_origin = [0,0,0,0]
+    bounds_origin = [0, 0, 0, 0]
     ren.GetBoundingBox(text_prop, origin, bounds_origin)
-
-    bounds_new = [0,0,0,0]
+    bounds_new = [0, 0, 0, 0]
     ren.GetBoundingBox(text_prop, new_string, bounds_new)
-
     below_offset = bounds_origin[2] - bounds_new[2]
 
     above_offset = bounds_origin[3] - bounds_new[3]
@@ -209,13 +210,98 @@ class Label(Widget, DraggableMixin):
         self.move_action = on_move
         self.dragged = on_drag
 
-        self.left, self.top = left, top
-        self.top_offset = 0
-
         self.actor.SetTextScaleModeToNone()
         self.actor.SetUseBorderAlign(False)
         self.actor.VisibilityOff()
+
+        self.left = left
+        self.top = top
+
         self.register()
+
+    def text():
+        doc = "The text property."
+
+        def fget(self):
+            return self.actor.GetInput()
+
+        def fset(self, value):
+            self.set_text(value)
+
+        return locals()
+    text = property(**text())
+
+    def x():
+        doc = "The x coordinate of the text actor."
+
+        def fget(self):
+            return self.actor.GetPosition()[0]
+
+        def fset(self, value):
+            self.actor.SetPosition(value, self.actor.GetPosition()[1])
+        return locals()
+    x = property(**x())
+
+    def y():
+        doc = "The y coordinate of the text actor."
+
+        def fget(self):
+            return self.actor.GetPosition()[1]
+
+        def fset(self, value):
+            self.actor.SetPosition(self.actor.GetPosition()[0], value)
+        return locals()
+    y = property(**y())
+
+    def left():
+        doc = "The left property."
+
+        def fget(self):
+            return self.x
+
+        def fset(self, l):
+            halign = self.actor.GetTextProperty().GetJustificationAsString()
+            if halign == "Left":
+                self.x = l
+
+            w, h = self.get_dimensions()
+            if halign == "Centered":
+                self.x = l + w / 2.
+
+            if halign == "Right":
+                self.x = l + w
+        return locals()
+    left = property(**left())
+
+    def top():
+        """
+        Provides support for the old-style of coordinates; left + top, vs x + y
+        """
+        doc = "Top coordinate"
+
+        def fget(self):
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            return h - self.y
+
+        def fset(self, t):
+            """
+            Takes the top value, specified in pixels from the top of the screen for the top of the widget,
+            and converts it to a y value, which is based off of the justification of the widget.
+            """
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            # Convert the t from pixels from top to pixels from bottom
+            t = h - t
+            # Get the text's size to adjust for alignment
+            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+            valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+            if valign == "Top":
+                self.y = t
+            elif valign == "Centered":
+                self.y = t - h / 2.
+            elif valign == "Bottom":
+                self.y = t - h
+        return locals()
+    top = property(**top())
 
     def __repr__(self):
         return "<Label Widget: %s>" % self.get_text()
@@ -224,17 +310,6 @@ class Label(Widget, DraggableMixin):
         return self.actor.GetInput()
 
     def set_text(self, string):
-
-        p = self.actor.GetTextProperty()
-        below, above = baseline_offsets(self.actor.GetInput(), string, p)
-
-        align = p.GetVerticalJustificationAsString()
-        if align == "Top":
-            self.top_offset += above
-        elif align == "Centered":
-            self.top_offset += .5 * above
-        elif align == "Bottom":
-            self.top_offset -= below
         self.actor.SetInput(string)
         self.place()
         self.render()
@@ -267,27 +342,11 @@ class Label(Widget, DraggableMixin):
             self.render()
 
     def place(self):
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        widget_w, widget_h = self.get_dimensions()
-
-        x, y = self.left, h - self.top - self.top_offset
-
-        p = self.actor.GetTextProperty()
-
-        just = p.GetJustificationAsString()
-        if just == "Centered":
-            x += widget_w / 2.
-        elif just == "Right":
-            x += widget_w
-
-        vjust = p.GetVerticalJustificationAsString()
-        if vjust == "Centered":
-            y -= widget_h / 2.
-        elif vjust == "Bottom":
-            y -= widget_h
-
-        x, y = int(x), int(y)
-        self.actor.SetPosition(x, y)
+        """
+        No-op, now that left and top auto-update the actor,
+        but useful for subclasses to move accessories
+        """
+        pass
 
     def release(self, obj, event):
         if self.release_action is not None:
@@ -328,8 +387,8 @@ class Label(Widget, DraggableMixin):
         if self.movable:
             w, h = self.interactor.GetRenderWindow().GetSize()
             dx, dy = dx * w, dy * h
-            self.left += dx
-            self.top -= dy
-            self.dragged(self, dx/w, dy/h)
+            self.x = dx + self.x
+            self.y = dy + self.y
             self.place()
+            self.dragged(self, dx/w, dy/h)
             self.manager.queue_render()
