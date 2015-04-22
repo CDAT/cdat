@@ -24,7 +24,7 @@ print levs
 print cols
 iso.textcolors = cols
 iso.linecolors = cols
-x.plot(s,iso,bg=0)
+x.plot(s,iso,bg=1)
 x.animate.create()
 print "Saving now"
 prefix= os.path.split(__file__)[1][:-3]

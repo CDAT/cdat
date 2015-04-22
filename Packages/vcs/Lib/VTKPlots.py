@@ -891,12 +891,12 @@ class VTKVCSBackend(object):
             mapper.GetPolyDataMapper().SetScalarRange(levs[0],levs[-1])
             mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
             mapper.SetLabelVisibility(1)
-            returned["vtk_backend_labeled_luts"] = [[lut, [0, len(levs) - 1, False]]]
+            returned["vtk_backend_labeled_luts"] = [[lut, [levs[0],levs[-1], False]]]
         else:
             mapper.SetLookupTable(lut)
             mapper.SetScalarRange(levs[0],levs[-1])
             mapper.SetScalarModeToUsePointData()
-            returned["vtk_backend_luts"] = [[lut, [0, len(levs) - 1, False]]]
+            returned["vtk_backend_luts"] = [[lut, [levs[0],levs[-1], False]]]
 
         # Create text properties.
         if gm.label=="y":
@@ -1870,6 +1870,7 @@ class VTKVCSBackend(object):
                           if mapper.IsA("vtkPolyDataMapper"):
                               mapper.SetInputConnection(ports[i].GetOutputPort())
                               mapper.SetLookupTable(lut)
+                              mapper.SetScalarModeToUsePointData()
                           else:
                               stripper = vtk.vtkStripper()
                               stripper.SetInputConnection(ports[i].GetOutputPort())
@@ -1877,6 +1878,8 @@ class VTKVCSBackend(object):
                               stripper.Update()
                               tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
                               mapper.GetPolyDataMapper().SetLookupTable(lut)
+                              mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
+                              mapper.GetPolyDataMapper().SetScalarRange(rg[0],rg[1])
                               mapper.SetLabelVisibility(1)
                               if tprops.IsA("vtkTextProperty"):
                                   mapper.SetTextProperty(tprops)
