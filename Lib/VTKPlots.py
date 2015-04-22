@@ -1872,7 +1872,10 @@ class VTKVCSBackend(object):
                               tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
                               mapper.GetPolyDataMapper().SetLookupTable(lut)
                               mapper.SetLabelVisibility(1)
-                              mapper.SetTextProperty(tprops)
+                              if tprops.IsA("vtkTextProperty"):
+                                  mapper.SetTextProperty(tprops)
+                              else:
+                                  mapper.SetTextProperties(tprops)
                           if rg[2]:
                               mapper.SetScalarModeToUseCellData()
                           mapper.SetScalarRange(rg[0],rg[1])
