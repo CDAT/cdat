@@ -30,7 +30,6 @@ import os
 import MV2
 import numpy
 
-
 bg = not args.show
 
 x=vcs.init()
