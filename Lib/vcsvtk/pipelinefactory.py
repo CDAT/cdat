@@ -20,6 +20,9 @@ def createPipeline(graphics_method, context):
     elif graphics_method.g_name == "Gfm":
         from .meshfillpipeline import MeshfillPipeline
         return MeshfillPipeline(context)
+    elif graphics_method.g_name == "G1d":
+        from .pipeline1d import Pipeline1D
+        return Pipeline1D(context)
     elif graphics_method.g_name == "Gv":
         from .vectorpipeline import VectorPipeline
         return VectorPipeline(context)
