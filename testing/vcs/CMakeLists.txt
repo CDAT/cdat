@@ -29,6 +29,18 @@ cdat_add_test(vcs_mkscale_great_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
 )
+cdat_add_test(vcs_verify_set_ext_2_on_default
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_ext_2_setting.py
+)
+cdat_add_test(vcs_verify_levels_extensions_order_setting
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_ext_1_n_triggers_1e20.py
+  )
+cdat_add_test(vcs_verify_read_a_isofill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_read_a_isofill.py
+)
 cdat_add_test(vcs_verify_boxfill_basics
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_basics_no_plot.py
@@ -254,6 +266,44 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_as_def_vistrails_exts.py
+      "${BASELINE_DIR}/test_box_custom_as_def_vistrails_exts.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom.py
+      "${BASELINE_DIR}/test_boxfill_custom.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_non_default_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_non_default_levels.py
+      "${BASELINE_DIR}/test_boxfill_custom_no_default_levels.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext1
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext1.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext1.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext2
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext2.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext2.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext1_ext2
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext1_ext2.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext1_ext2.png"
+      )
+    cdat_add_test(test_vcs_boxfill_number_color_less_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_less_than_number_levels.py
+      )
+    cdat_add_test(test_vcs_boxfill_number_color_more_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_more_than_number_levels.py
+      )
     cdat_add_test(test_vcs_auto_time_labels
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
@@ -277,6 +327,23 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
       )
+    FOREACH(gm boxfill isofill meshfill)
+      FOREACH(ori horizontal vertical)
+        FOREACH(ext1 y n)
+          FOREACH(ext2 y n)
+            cdat_add_test(vcs_test_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
+              "${PYTHON_EXECUTABLE}"
+              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py
+              --gm_type=${gm}
+              --orientation=${ori}
+              --ext1=${ext1}
+              --ext2=${ext2}
+              "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
+              )
+          ENDFOREACH(ext2)
+        ENDFOREACH(ext1)
+      ENDFOREACH(ori)
+    ENDFOREACH(gm)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
@@ -511,4 +578,8 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
   endif()
 
+cdat_add_test(vcs_test_endconfigure
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
+)
 add_subdirectory(vtk_ui)

@@ -227,6 +227,12 @@ class Configurator(object):
                 display._template_origin = new_template.name
 
     def detach(self):
+        if self.interactor is None:
+            return
+
+        if self.animation_timer is not None:
+            self.stop_animating()
+
         if self.toolbar is not None:
             self.toolbar.detach()
             self.toolbar = None
@@ -247,14 +253,12 @@ class Configurator(object):
             self.target.detach()
             self.target = None
 
-        if self.animation_timer is not None:
-            self.stop_animating()
-
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
 
         # if all of the widgets have been cleaned up correctly, this will delete the manager
         vtk_ui.manager.delete_manager(self.interactor)
+        self.interactor.GetRenderWindow().Render()
 
     def release(self, object, event):
         if self.clicking is None:
@@ -520,9 +524,13 @@ class Configurator(object):
             self.initialized = True
 
     def step_forward(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
         self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def step_back(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
         self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
 
     def save_animation_press(self, state):
@@ -594,7 +602,7 @@ class Configurator(object):
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
             self.animation_last_frame_time = datetime.datetime.now()
             self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
@@ -606,8 +614,11 @@ class Configurator(object):
         if self.animation_timer is not None:
             t, self.animation_timer = self.animation_timer, None
             self.interactor.DestroyTimer(t)
+            self.anim_button.set_state(0)
 
     def set_animation_frame(self, value):
+        if self.animation_timer is not None:
+            self.stop_animating()
         value = int(value)
         self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
         return value

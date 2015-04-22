@@ -117,8 +117,7 @@ def process_src_element(code):
   i = code.find("(")
   nm=code[:i]
   code=code[i+1:-1]
-  #try:
-  if 1:
+  try:
     if typ == "Gfb":
       boxfill.process_src(nm,code)
     elif typ == "Gfi":
@@ -153,9 +152,8 @@ def process_src_element(code):
       marker.process_src(nm,code)
     elif typ=="C":
       colormap.process_src(nm,code)
-
-  #except Exception,err:
-  #  print "Processing error for %s,%s: %s" % (nm,typ,err)
+  except Exception,err:
+    print "Processing error for %s,%s: %s" % (nm,typ,err)
 
 def listelements(typ=None):
   if typ is None:
