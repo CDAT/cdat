@@ -152,10 +152,6 @@ class Textbox(Label):
 
             self.update()
 
-    def set_text(self, text):
-        super(Textbox, self).set_text(text)
-        self.text = text
-
     def update(self):
         if self.repr.GetText() != self.text:
             self.set_text(self.text)
@@ -164,6 +160,7 @@ class Textbox(Label):
     def place_cursor(self):
         # Find current position of the text actor
         x, y = self.repr.GetPosition()
+        actor_x, actor_y = x, y
 
         # Use to adjust all window-space numbers
         w, h = self.interactor.GetRenderWindow().GetSize()
@@ -179,15 +176,12 @@ class Textbox(Label):
         test_line = "Hhqjy"
         _, line_height = text_dimensions(test_line, prop)
 
-        # Find the y of the top of the current row
-        y -= line_height * self.row
-
         # Find the x of the current column
         rows = self.text.split("\n")
 
         # Grab the total width of the text
-        max_width, _ = text_dimensions(self.text, prop)
-
+        max_width, height = text_dimensions(self.text, prop)
+        print "text dimensions", max_width, height
         # Now grab the width of the current row
         row_width, _ = text_dimensions(rows[self.row], prop)
 
@@ -195,24 +189,34 @@ class Textbox(Label):
         width_difference = max_width - row_width
 
         # Adjust for alignment
-        align = prop.GetJustificationAsString()
-        if align == "Centered":
-            # If we're center aligned, we need to adjust by half
+        halign = prop.GetJustificationAsString()
+
+        valign = prop.GetVerticalJustificationAsString()
+
+        if halign == "Centered":
+            # If we're center haligned, we need to adjust by half
             x += width_difference / 2.
-        elif align == "Right":
+        elif halign == "Right":
             # If we're right aligned, we need to adjust the full difference
             x += width_difference
 
-        align = prop.GetVerticalJustificationAsString()
-        if align == "Top":
-            y -= line_height / 2.
-        if align == "Bottom":
-            y += line_height / 2.
+        _, vert_offset = text_dimensions("\n".join(rows[:self.row]), prop)
+        y -= vert_offset
+        print "y adjusted by vert offset:", -vert_offset
+        if valign == "Centered":
+            y += height / 2.
+            print "y adjusted by valign center", height / 2
+        elif valign == "Bottom":
+            y += height
+            print "y adjusted by valign bottom", height
 
-        y += self.top_offset
         # Now we need to get the offset for the character clicked
         up_to_col_width, _ = text_dimensions(rows[self.row][:self.column], prop)
-        x += up_to_col_width
+
+        # Remove horizontal and vertical margin
+        x -= 3
+        y += 3 * self.row
+        print "y adjusted by row margin", 3 * self.row
 
         # Rotate both points to the orientation as the text
         def rotate(point, angle):
@@ -224,13 +228,18 @@ class Textbox(Label):
             yrot = x * math.sin(theta) + y * math.cos(theta)
             return int(xrot), int(yrot)
 
-        x1, y1 = rotate((up_to_col_width, 1 * line_height / 2.), angle)
-        x2, y2 = rotate((up_to_col_width, -1 * line_height / 2.), angle)
-        x1 += self.left - 3
-        x2 += self.left - 3
+        x1, y1 = up_to_col_width, 0
+        x2, y2 = up_to_col_width, -line_height
+
+        x1, y1 = rotate((x1, y1), angle)
+        x2, y2 = rotate((x2, y2), angle)
+
+        x1 += x
+        x2 += x
         y1 += y
         y2 += y
 
+        print "Actor", y, "Line", y1, y2
         self.cursor.point_1 = (x1, y1)
         self.cursor.point_2 = (x2, y2)
 
@@ -257,9 +266,11 @@ class Textbox(Label):
         row_at_point = None
         for row in rows[::-1]:
             if row == '':
-                row = ' '
+                dim_row = ' '
+            else:
+                dim_row = row
 
-            w, h = text_dimensions(row, prop)
+            w, h = text_dimensions(dim_row, prop)
             row_bounds.append((w, h))
 
             if w > max_width:
