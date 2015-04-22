@@ -576,6 +576,26 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
       )
+    cdat_add_test(vcs_test_animate_isolines
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isolines.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isolines_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isolines_colored.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isolines_text_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isolines_text_labels.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isolines_text_labels_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isolines_text_labels_colored.py
+      ${BASELINE_DIR}
+      )
   endif()
 
 cdat_add_test(vcs_test_endconfigure
