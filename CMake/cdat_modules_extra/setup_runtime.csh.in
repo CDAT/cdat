@@ -25,10 +25,10 @@ if ( $?UVCDAT_SETUP_PATH ) then
     echo 'Nothing to do since UVCDAT is already setup at '${UVCDAT_SETUP_PATH}
     exit 0
   else
-    echo 'INFO: UVCDAT setup was previously sourced at '${UVCDAT_SETUP_PATH}
-    echo 'INFO: There is no need to run setup_runtime manually anymore.'
-    echo 'INFO: Open a new shell in order to use a different install location.'
-    exit 0
+    echo 'ERROR: UVCDAT setup was previously sourced at '${UVCDAT_SETUP_PATH}
+    echo 'ERROR: There is no need to run setup_runtime manually anymore.'
+    echo 'ERROR: Open a new shell in order to use a different install location.'
+    exit 1
   endif
 endif
 

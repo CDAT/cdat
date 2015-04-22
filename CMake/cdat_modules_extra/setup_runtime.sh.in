@@ -14,11 +14,11 @@ if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
     cleanup
     return 0
   else
-    echo "INFO: UVCDAT setup was previously sourced at: ${UVCDAT_SETUP_PATH}" 1>&2
-    echo "INFO: There is no need to run setup_runtime manually anymore." 1>&2
-    echo "INFO: Open a new shell in order to use a different install location." 1>&2
+    echo "ERROR: UVCDAT setup was previously sourced at: ${UVCDAT_SETUP_PATH}" 1>&2
+    echo "ERROR: There is no need to run setup_runtime manually anymore." 1>&2
+    echo "ERROR: Open a new shell in order to use a different install location." 1>&2
     cleanup
-    return 0
+    return 1
   fi
 fi
 
