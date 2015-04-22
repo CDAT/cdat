@@ -25,8 +25,6 @@ print cols
 iso.textcolors = cols
 iso.linecolors = cols
 x.plot(s,iso,bg=0)
-raw_input("Press enter")
-sys.exit(0)
 x.animate.create()
 print "Saving now"
 prefix= os.path.split(__file__)[1][:-3]
