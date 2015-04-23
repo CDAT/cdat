@@ -112,8 +112,8 @@
    "datawc_x2": 1e+20, 
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
-   "ext_1": "n", 
-   "ext_2": "n", 
+   "ext_1": false,
+   "ext_2": false,
    "fillareacolors": [
     1
    ], 
