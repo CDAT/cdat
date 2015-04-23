@@ -1,6 +1,7 @@
 import vcs,cdms2,sys,os
 
-baselineImage = sys.argv[1]
+# ('/path/to/filename', '.extension')
+baseline = os.path.splitext(sys.argv[1])
 
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
@@ -17,23 +18,49 @@ isoline = canvas.createisoline()
 isoline.label="y"
 texts=[]
 colors = []
-for i in range(20):
+for i in range(10):
     text = canvas.createtext()
-    text.color=230+i
+    text.color = 50 + 12 * i
     text.height = 12
-    colors.append(100+i)
+    colors.append(100 + 12 * i)
     if i%2 == 0:
       texts.append(text.name)
     else:
       texts.append(text)
 isoline.text = texts
-isoline.textcolors = colors
 
+# First test using isoline.text[...].color
 canvas.plot(data, isoline, bg=1)
 
-testImage = "test_isoline_labels.png"
+baselineImage = "%s%s"%baseline
+testImage = os.path.abspath("test_isoline_labels.png")
 canvas.png(testImage)
 
 ret = checkimage.check_result_image(testImage, baselineImage,
                                     checkimage.defaultThreshold)
+
+# Now set isoline.linecolors and test again.
+canvas.clear()
+isoline.linecolors = colors
+canvas.plot(data, isoline, bg=1)
+
+baselineImage = "%s%d%s"%(baseline[0], 2, baseline[1])
+testImage = os.path.abspath("test_isoline_labels2.png")
+canvas.png(testImage)
+
+ret += checkimage.check_result_image(testImage, baselineImage,
+                                     checkimage.defaultThreshold)
+
+# Now set isoline.textcolors and test again.
+canvas.clear()
+isoline.textcolors = colors
+canvas.plot(data, isoline, bg=1)
+
+baselineImage = "%s%d%s"%(baseline[0], 3, baseline[1])
+testImage = os.path.abspath("test_isoline_labels3.png")
+canvas.png(testImage)
+
+ret += checkimage.check_result_image(testImage, baselineImage,
+                                     checkimage.defaultThreshold)
+
 sys.exit(ret)
