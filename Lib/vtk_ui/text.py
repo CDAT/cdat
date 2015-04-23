@@ -165,7 +165,7 @@ def text_dimensions(text, text_prop, at_angle=0):
     bounds = [0, 0, 0, 0]
     p = vtkTextProperty()
     p.ShallowCopy(text_prop)
-    p.SetOrientation(0)
+    p.SetOrientation(at_angle)
     ren.GetBoundingBox(p, text, bounds)
     return bounds[1] - bounds[0], bounds[3] - bounds[2]
 
@@ -184,12 +184,12 @@ def baseline_offsets(origin, new_string, text_prop):
     return below_offset, above_offset
 
 from widget import Widget, WidgetReprShim
-from behaviors import DraggableMixin
+from behaviors import DraggableMixin, ClickableMixin
 
 
-class Label(Widget, DraggableMixin):
+class Label(Widget, DraggableMixin, ClickableMixin):
 
-    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, on_release=None, fgcolor=(1,1,1), size=24, font="Arial", left=0, top=0, textproperty=None):
+    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, on_release=None, fgcolor=(1, 1, 1), size=24, font="Arial", left=0, top=0, textproperty=None):
 
         if textproperty is not None:
             self.actor = vtkTextActor()
@@ -238,7 +238,7 @@ class Label(Widget, DraggableMixin):
             return self.actor.GetPosition()[0]
 
         def fset(self, value):
-            self.actor.SetPosition(value, self.actor.GetPosition()[1])
+            self.actor.SetPosition(value, self.y)
         return locals()
     x = property(**x())
 
@@ -249,7 +249,7 @@ class Label(Widget, DraggableMixin):
             return self.actor.GetPosition()[1]
 
         def fset(self, value):
-            self.actor.SetPosition(self.actor.GetPosition()[0], value)
+            self.actor.SetPosition(self.x, value)
         return locals()
     y = property(**y())
 
@@ -257,14 +257,23 @@ class Label(Widget, DraggableMixin):
         doc = "The left property."
 
         def fget(self):
-            return self.x
+            halign = self.actor.GetTextProperty().GetJustificationAsString()
+            if halign == "Left":
+                return self.x
+
+            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+            if halign == "Centered":
+                return self.x - w / 2.
+
+            if halign == "Right":
+                return self.x - w
 
         def fset(self, l):
             halign = self.actor.GetTextProperty().GetJustificationAsString()
             if halign == "Left":
                 self.x = l
 
-            w, h = self.get_dimensions()
+            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
             if halign == "Centered":
                 self.x = l + w / 2.
 
@@ -280,26 +289,43 @@ class Label(Widget, DraggableMixin):
         doc = "Top coordinate"
 
         def fget(self):
+            """
+            Returns distance in pixels from top of window to top of actor
+            """
+            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+            valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+            y = self.y
+            # Adjust from alignment point to top of the actor
+            if valign == "Top":
+                pass
+            if valign == "Centered":
+                y += h / 2.
+            if valign == "Bottom":
+                y += h
+            # Transform from y position to distance from top of screen to top of actor
             w, h = self.interactor.GetRenderWindow().GetSize()
-            return h - self.y
+            return h - y
 
         def fset(self, t):
             """
-            Takes the top value, specified in pixels from the top of the screen for the top of the widget,
-            and converts it to a y value, which is based off of the justification of the widget.
+            Sets actor y using distance in pixels from top of window to top of actor
             """
-            w, h = self.interactor.GetRenderWindow().GetSize()
-            # Convert the t from pixels from top to pixels from bottom
-            t = h - t
             # Get the text's size to adjust for alignment
             w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+
             valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+            # Adjust position based on alignment
             if valign == "Top":
-                self.y = t
+                y = t
+            # Since it's not top-aligned, alignment point will be lower (and we're in units from top)
             elif valign == "Centered":
-                self.y = t - h / 2.
+                y = t + h / 2.
             elif valign == "Bottom":
-                self.y = t - h
+                y = t + h
+            # Convert the y from pixels from top to pixels from bottom
+            w, h = self.interactor.GetRenderWindow().GetSize()
+            self.y = h - y
+
         return locals()
     top = property(**top())
 
@@ -382,6 +408,10 @@ class Label(Widget, DraggableMixin):
         self.manager.remove_widget(self)
         self.repr.GetRenderer().RemoveActor(self.actor)
         self.interactor = None
+
+    def click_release(self):
+        if self.on_click:
+            self.on_click(self.get_event_poisition())
 
     def drag_move(self, dx, dy):
         if self.movable:

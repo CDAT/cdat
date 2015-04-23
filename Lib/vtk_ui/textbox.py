@@ -159,8 +159,7 @@ class Textbox(Label):
 
     def place_cursor(self):
         # Find current position of the text actor
-        x, y = self.repr.GetPosition()
-        actor_x, actor_y = x, y
+        x, y = self.left, self.y
 
         # Use to adjust all window-space numbers
         w, h = self.interactor.GetRenderWindow().GetSize()
@@ -168,57 +167,49 @@ class Textbox(Label):
         # Get the maximum line height for the current font
         prop = vtk.vtkTextProperty()
         prop.ShallowCopy(self.actor.GetTextProperty())
-        # Store for later
+
+        # Store for rotating the cursor's coords
         angle = prop.GetOrientation()
+
         # Reset so we get accurate dimensions
         prop.SetOrientation(0)
 
-        test_line = "Hhqjy"
-        _, line_height = text_dimensions(test_line, prop)
-
-        # Find the x of the current column
         rows = self.text.split("\n")
 
-        # Grab the total width of the text
-        max_width, height = text_dimensions(self.text, prop)
-        print "text dimensions", max_width, height
-        # Now grab the width of the current row
-        row_width, _ = text_dimensions(rows[self.row], prop)
+        width, height = text_dimensions(self.text, prop)
+        line_height = float(height) / len(rows)
 
-        # Here's the amount we need to adjust by
-        width_difference = max_width - row_width
+        column_adjustment, _ = text_dimensions(rows[self.row][:self.column], prop)
 
         # Adjust for alignment
         halign = prop.GetJustificationAsString()
-
         valign = prop.GetVerticalJustificationAsString()
 
-        if halign == "Centered":
-            # If we're center haligned, we need to adjust by half
-            x += width_difference / 2.
-        elif halign == "Right":
-            # If we're right aligned, we need to adjust the full difference
-            x += width_difference
+        #x += column_adjustment
 
-        _, vert_offset = text_dimensions("\n".join(rows[:self.row]), prop)
-        y -= vert_offset
-        print "y adjusted by vert offset:", -vert_offset
-        if valign == "Centered":
+        if halign == "Left":
+            pass
+        elif halign == "Centered":
+            pass
+            #x -= width / 2.
+        elif halign == "Right":
+            pass
+            #x -= width
+
+        if valign == "Top":
+            pass
+        elif valign == "Centered":
             y += height / 2.
-            print "y adjusted by valign center", height / 2
         elif valign == "Bottom":
             y += height
-            print "y adjusted by valign bottom", height
 
-        # Now we need to get the offset for the character clicked
-        up_to_col_width, _ = text_dimensions(rows[self.row][:self.column], prop)
+        # Get to the current row
+        y -= line_height * self.row
 
-        # Remove horizontal and vertical margin
-        x -= 3
-        y += 3 * self.row
-        print "y adjusted by row margin", 3 * self.row
+        print width, height, line_height
 
         # Rotate both points to the orientation as the text
+
         def rotate(point, angle):
             import math
             x, y = point
@@ -228,18 +219,19 @@ class Textbox(Label):
             yrot = x * math.sin(theta) + y * math.cos(theta)
             return int(xrot), int(yrot)
 
-        x1, y1 = up_to_col_width, 0
-        x2, y2 = up_to_col_width, -line_height
+        x1, y1 = x - self.x, 0
+        x2, y2 = x - self.x, -line_height
 
         x1, y1 = rotate((x1, y1), angle)
         x2, y2 = rotate((x2, y2), angle)
 
-        x1 += x
-        x2 += x
+        x1 += self.x
+        x2 += self.x
         y1 += y
         y2 += y
 
-        print "Actor", y, "Line", y1, y2
+        print self.left, self.x, x1
+        print self.top, self.y, y1
         self.cursor.point_1 = (x1, y1)
         self.cursor.point_2 = (x2, y2)
 
@@ -257,7 +249,6 @@ class Textbox(Label):
         # Adjust click coords to widget's bounds
         x = abs(x - x0)
         y = text_height - abs(y - y0)
-
 
         # Calculate the bounds of each row
         row_bounds = []
@@ -315,7 +306,7 @@ class Textbox(Label):
         if x - row_left > row_right - x:
             # Start from right
             for reverse_index, c in enumerate(text[::-1]):
-                w,_ = text_dimensions(c, prop)
+                w, _ = text_dimensions(c, prop)
                 if row_right - w < x:
                     return row_at_point, len(text) - reverse_index
                 # "New" right side is one character back
