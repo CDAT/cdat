@@ -78,6 +78,17 @@ add_test(test_vtk_ui_textbox_highlight
   ${BASELINE_DIR}/test_vtk_ui_textbox_highlight.png
 )
 
+add_test(test_vtk_ui_label_top
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_label_top.py
+  ${BASELINE_DIR}/test_vtk_ui_label_top.png
+)
+add_test(test_vtk_ui_label_y
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_label_y.py
+  ${BASELINE_DIR}/test_vtk_ui_label_y.png
+)
+
 add_test(test_vtk_ui_contrasting_colors
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_complementary_colors.py

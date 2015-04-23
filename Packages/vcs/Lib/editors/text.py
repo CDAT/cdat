@@ -107,18 +107,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             string = self.text.string[ind]
 
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
+
             x = x * w
             y = h - y * h  # mirror the y axis for widgets
-
-            if self.text.halign in ("right", 2):
-                x -= text_width
-            elif self.text.halign in ("center", 1):
-                x -= text_width / 2.0
-
-            if self.text.valign in ("half", 2):
-                y -= text_height / 2.0
-            elif self.text.valign in ("bottom", 4):
-                y -= text_height
 
             box_prop = vtkTextProperty()
             vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
@@ -126,7 +117,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             text_color = box_prop.GetColor()
             highlight_color = vcs.vtk_ui.text.contrasting_color(*text_color)
 
-            textbox = Textbox(self.interactor, string, left=x, top=y, highlight_color=highlight_color, highlight_opacity=.8, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox = Textbox(self.interactor, string, highlight_color=highlight_color, highlight_opacity=.8, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox.x = x
+            textbox.y = y
             textbox.show()
             textbox.show_highlight()
 
@@ -176,7 +169,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             return
         else:
             self.textboxes[self.index].stop_editing()
-
+            if self.textboxes[self.index].text != self.text.string[self.index]:
+                print "Text doesn't match up after click"
             if text_index is not None:
                 # Change which one we're editing
                 self.index = text_index
@@ -201,12 +195,11 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                     self.update()
 
     def textbox_clicked(self, point):
-        x, y = point
+        for ind, box in enumerate(self.textboxes):
+            if box.in_bounds(*point):
+                clicked_on = ind
 
-        winsize = self.interactor.GetRenderWindow().GetSize()
-
-        clicked_on = inside_text(self.text, x, y, *winsize)
-        self.process_click(clicked_on, x, y)
+        self.process_click(clicked_on, *point)
 
     def deactivate(self):
         self.configurator.deactivate(self)
