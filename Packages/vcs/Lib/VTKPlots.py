@@ -85,6 +85,7 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
+      self.showGUI()
       interactor.Start()
 
   def endEvent(self,obj,event):
@@ -296,9 +297,11 @@ class VTKVCSBackend(object):
 
     if self.renderer == None:
       self.renderer = self.createRenderer()
-      if self.bg is False:
+      if self.bg != True:
           self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
+    if "open" in kargs and kargs["open"]:
+      self.renWin.Render()
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
@@ -817,7 +820,6 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      ## Apparently in some cases
       if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
         if isinstance(gm,isoline.Gi):
             levs = vcs.mkscale(mn,mx)
@@ -829,6 +831,13 @@ class VTKVCSBackend(object):
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
+          # using "y"/1/True for bacwrad compatibility
+          if gm.ext_1 in ["y",1,True]:
+            ## user wants arrow at the end
+            levs2[0]=-1.e20
+          if gm.ext_2 in ["y",1,True]:
+            ## user wants arrow at the end
+            levs2[-1]=1.e20
           for i in range(len(levs2)-1):
             levs.append([levs2[i],levs2[i+1]])
       else:
@@ -941,7 +950,7 @@ class VTKVCSBackend(object):
             indices.append(indices[-1])
         if len(levs)>len(cols):
             raise RuntimeError("You asked for %i levels but provided only %i colors\n\
-            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
+                Graphic Method: %s of type %s\nLevels: %s" % (len(levs),len(cols),gm.name,gm.g_name,repr(levs)))
         elif len(levs)<len(cols)-1:
             warnings.warn("You asked for %i levels but provided %i colors, extra ones will be ignored\n\
             Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
@@ -1205,17 +1214,28 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
+      if gm.ext_1 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
-            levs.insert(0,-1.e20)
-      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
+          if isinstance(levs[0],list):
+            if numpy.less(abs(levs[0][0]),1.e20):
+              ## Ok we need to add the ext levels
+              levs.insert(0,[-1.e20,levs[0][0]])
+          else:
+            if numpy.less(abs(levs[0]),1.e20):
+              ## need to add an ext
+              levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
-            levs.append(1.e20)
-
+          if isinstance(levs[-1],list):
+            if numpy.less(abs(levs[-1][1]),1.e20):
+              ## need ext
+              levs.append([levs[-1][1],1.e20])
+          else:
+            if numpy.less(abs(levs[-1]),1.e20):
+              ## need exts
+              levs.append(1.e20)
       returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
     if self.canvas._continents is None:
       continents = False
@@ -1435,7 +1455,7 @@ class VTKVCSBackend(object):
 
     if plot:
         plot.hideWidgets()
-    elif self.bg is False:
+    elif self.bg != True:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
@@ -1446,7 +1466,7 @@ class VTKVCSBackend(object):
 
     if plot:
         plot.showWidgets()
-    elif self.bg is False:
+    elif self.bg != True:
       from vtk_ui.manager import get_manager, manager_exists
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
