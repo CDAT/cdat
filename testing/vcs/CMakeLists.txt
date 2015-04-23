@@ -266,10 +266,6 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
-    cdat_add_test(test_vcs_plot_unstructured_via_non_meshfill_or_default_fails
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_plot_unstructured_via_non_meshfill_or_default_fails.py
-      )
     cdat_add_test(test_vcs_plot_unstructured_via_boxfill
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_plot_unstructured_via_boxfill.py
