@@ -163,8 +163,11 @@ class Textbox(Label):
 
         # Use to adjust all window-space numbers
         w, h = self.interactor.GetRenderWindow().GetSize()
+
+        # Translate distance from top to distance from bottom
         y = h - y
-        # Get the maximum line height for the current font
+
+        # Prep a text property for getting measurements
         prop = vtk.vtkTextProperty()
         prop.ShallowCopy(self.actor.GetTextProperty())
 
@@ -208,16 +211,22 @@ class Textbox(Label):
             yrot = x * math.sin(theta) + y * math.cos(theta)
             return int(xrot), int(yrot)
 
-        x1, y1 = x - self.x, 0
-        x2, y2 = x - self.x, -line_height
+        y1 = y
+        y2 = y - line_height
+
+        x1 = x
+        x2 = x
+
+        x1, x2 = x1 - self.x, x2 - self.x
+        y1, y2 = y1 - self.y, y2 - self.y
 
         x1, y1 = rotate((x1, y1), angle)
         x2, y2 = rotate((x2, y2), angle)
 
         x1 += self.x
         x2 += self.x
-        y1 += y
-        y2 += y
+        y1 += self.y
+        y2 += self.y
 
         self.cursor.point_1 = (x1, y1)
         self.cursor.point_2 = (x2, y2)
