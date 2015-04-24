@@ -103,6 +103,7 @@ class InterfaceManager(object):
     def remove_widget(self, widget):
         if widget in self.widgets:
             self.widgets.remove(widget)
+            del widget.manager
             if len(self.widgets) == 0:
                 del ui_managers[self.interactor]
                 self.detach()

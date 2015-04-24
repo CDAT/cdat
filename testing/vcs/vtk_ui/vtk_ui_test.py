@@ -1,17 +1,34 @@
-import vtk, vcs.vtk_ui
+import vtk
+import vcs.vtk_ui
+import os
+import sys
+import time
 
-import os, sys, time
 
 def init():
     win = vtk.vtkRenderWindow()
+
+    win.SetNumberOfLayers(3)
     win.SetSize(100, 250)
+
     inter = vtk.vtkRenderWindowInteractor()
     inter.SetRenderWindow(win)
-    manager = vcs.vtk_ui.manager.get_manager(inter)
-    win.SetOffScreenRendering(1)
-    win.AddRenderer(manager.renderer)
 
-    return win
+    ren = vtk.vtkRenderer()
+    ren.SetBackground((1, 1, 1))
+    win.AddRenderer(ren)
+    ren.SetLayer(0)
+
+    win.SetOffScreenRendering(1)
+
+    manager = vcs.vtk_ui.manager.get_manager(inter)
+
+    win.AddRenderer(manager.renderer)
+    win.AddRenderer(manager.actor_renderer)
+    manager.elevate()
+
+    return win, ren
+
 
 def generate_png(win, fnm):
     win.Render()
@@ -24,9 +41,10 @@ def generate_png(win, fnm):
     png_writer.SetInputConnection(out_filter.GetOutputPort())
     png_writer.Write()
 
+
 class vtk_ui_test(object):
     def __init__(self):
-        self.win = init()
+        self.win, self.renderer = init()
         self.inter = self.win.GetInteractor()
         self.test_file = None
         self.passed = 1
@@ -55,13 +73,14 @@ class vtk_ui_test(object):
         if self.test_file is not None:
             generate_png(self.win, self.test_file)
             if len(sys.argv) >= 2:
-                src=sys.argv[1]
-                pth = os.path.join(os.path.dirname(__file__),"../..")
+                src = sys.argv[1]
+                pth = os.path.join(os.path.dirname(__file__), "../..")
                 sys.path.append(pth)
                 import checkimage
                 print "fnm:", self.test_file
                 print "src:", src
                 self.passed = checkimage.check_result_image(self.test_file, src, checkimage.defaultThreshold)
-
+        self.win.Finalize()
+        self.inter.TerminateApp()
         print sys.argv[0], "passed" if self.passed == 0 else "failed"
         sys.exit(self.passed)
