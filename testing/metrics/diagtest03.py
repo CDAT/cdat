@@ -7,7 +7,7 @@ print amwg_plot_set3.name
 
 test_str = 'Test 3: Diagnostic multi-line (spaghetti) plots ... \n'
 #run this from command line to get the files required
-example = "./diagtest04.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
+example = "./diagtest03.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
 
 plotset = 3
 obstype = 'NCEP'
