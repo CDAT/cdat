@@ -159,11 +159,11 @@ class Textbox(Label):
 
     def place_cursor(self):
         # Find current position of the text actor
-        x, y = self.left, self.y
+        x, y = self.left, self.top
 
         # Use to adjust all window-space numbers
         w, h = self.interactor.GetRenderWindow().GetSize()
-
+        y = h - y
         # Get the maximum line height for the current font
         prop = vtk.vtkTextProperty()
         prop.ShallowCopy(self.actor.GetTextProperty())
@@ -181,32 +181,21 @@ class Textbox(Label):
 
         column_adjustment, _ = text_dimensions(rows[self.row][:self.column], prop)
 
-        # Adjust for alignment
+        x += column_adjustment
+
+        row_width, _ = text_dimensions(rows[self.row], prop)
+
+        # Adjust for blank space caused by justifications
         halign = prop.GetJustificationAsString()
-        valign = prop.GetVerticalJustificationAsString()
-
-        #x += column_adjustment
-
-        if halign == "Left":
-            pass
-        elif halign == "Centered":
-            pass
-            #x -= width / 2.
+        if halign == "Centered":
+            x += (width - row_width) / 2.
         elif halign == "Right":
-            pass
-            #x -= width
-
-        if valign == "Top":
-            pass
-        elif valign == "Centered":
-            y += height / 2.
-        elif valign == "Bottom":
-            y += height
+            x += (width - row_width) + 1  # Adjust for some margin issues
+        elif halign == "Left":
+            x -= 3
 
         # Get to the current row
         y -= line_height * self.row
-
-        print width, height, line_height
 
         # Rotate both points to the orientation as the text
 
@@ -230,8 +219,6 @@ class Textbox(Label):
         y1 += y
         y2 += y
 
-        print self.left, self.x, x1
-        print self.top, self.y, y1
         self.cursor.point_1 = (x1, y1)
         self.cursor.point_2 = (x2, y2)
 
@@ -355,6 +342,8 @@ class Textbox(Label):
             self.place_cursor()
 
     def detach(self):
+        # Make sure text is updated
+        self.stop_editing()
         if self.cursor is not None:
             self.cursor.detach()
             self.cursor = None

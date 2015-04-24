@@ -410,8 +410,10 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         self.interactor = None
 
     def click_release(self):
-        if self.on_click:
-            self.on_click(self.get_event_poisition())
+        if self.action:
+            pos = self.event_position()
+            if self.in_bounds(*pos):
+                self.action(pos)
 
     def drag_move(self, dx, dy):
         if self.movable:
