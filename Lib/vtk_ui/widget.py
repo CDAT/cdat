@@ -1,5 +1,6 @@
 from manager import get_manager
 
+
 class Widget(object):
     def __init__(self, interactor, widget):
         self.interactor = interactor

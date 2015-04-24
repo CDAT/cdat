@@ -1,4 +1,4 @@
-from vtk import vtkTextActor, vtkTextWidget, vtkTextRenderer, vtkTextProperty, vtkPropPicker
+from vtk import vtkTextActor, vtkTextRenderer, vtkTextProperty, vtkPropPicker
 import datetime
 import math
 
@@ -47,7 +47,7 @@ def white_or_black(red, green, blue):
     """ Returns white or black to choose most contrasting color for provided color """
     # Convert to YIQ colorspace
     lum = luminance((red, green, blue))
-    return (0,0,0) if lum >= .5 else (1, 1, 1)
+    return (0, 0, 0) if lum >= .5 else (1, 1, 1)
 
 
 def contrasting_color(red, green, blue):
@@ -60,7 +60,7 @@ def contrasting_color(red, green, blue):
     iterations = 0
     max_iters = 5
 
-    hsv = {"hue": hue, "value": value, "saturation":saturation}
+    hsv = {"hue": hue, "value": value, "saturation": saturation}
     var_keys = hsv.keys()
     key = "value"
 
@@ -87,7 +87,7 @@ def hsv_to_rgb(h, s, v):
     i = math.floor(h)
     f = h - i
     p = v * (1 - s)
-    q = v * ( 1 - s * f)
+    q = v * (1 - s * f)
     t = v * (1 - s * (1 - f))
 
     if i == 0:

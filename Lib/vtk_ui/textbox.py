@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from line import Line
 import vtk
 
+
 class Textbox(Label):
     def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
 
@@ -197,6 +198,7 @@ class Textbox(Label):
         elif halign == "Left":
             x -= 3  # Adjust for some margin issues
 
+        # Manual adjustments for justification artefacts
         valign = prop.GetVerticalJustificationAsString()
         if valign == "Top":
             y += 2
