@@ -339,7 +339,7 @@ class Configurator(object):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def show(self):
-        if len(self.displays) == 0:
+        if self.interactor is None:
             return
         self.place()
         self.toolbar.show()

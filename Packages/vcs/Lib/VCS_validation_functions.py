@@ -1249,7 +1249,7 @@ def _setlevels(self,value):
         self._ext_2=True
      else:
         self._ext_2=False
-     self._levels=list(value)
+     self._levels = list(value)
 levels=property(_getlevels,_setlevels)
 def _getlegend(self):
      if isinstance(self._legend,str):
@@ -1298,6 +1298,11 @@ def add_level_ext_1(self, ext_value):
           self.levels=ret_tup
        return self.levels
 
+    #Ok if it is "N" nothing else to do
+    if ext_value == "n":
+        return self.levels
+
+    # We may need to add extnsion
     if isinstance(self.levels,(list,tuple)):
        if isinstance(self.levels,tuple):
            self.levels=list(self.levels)
@@ -1332,7 +1337,7 @@ def add_level_ext_1(self, ext_value):
 #                                                                               #
 #################################################################################
 def add_level_ext_2(self, ext_value):
-    if self.levels in [[],[1.e20,1.e20]]:
+    if self.levels == [] or numpy.allclose(self.levels,1.e20):
        return self.levels # nothing to do
     if ((ext_value == 'n') and self.ext_2): # remove extension
        if isinstance(self.levels[0],list): # remove from tuple of lists
@@ -1348,6 +1353,11 @@ def add_level_ext_2(self, ext_value):
           self.levels=ret_tup
        return self.levels
 
+    #Ok if it is "N" nothing else to do
+    if ext_value == "n":
+        return self.levels
+
+    # We may need to add extnsion
     if isinstance(self.levels, tuple):
         self.levels=list(self.levels)
     if isinstance(self.levels[-1], list): # add to tuple of lists
