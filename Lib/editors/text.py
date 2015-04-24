@@ -109,7 +109,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
 
             x = x * w
-            y = h - y * h  # mirror the y axis for widgets
+            y = y * h
 
             box_prop = vtkTextProperty()
             vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
@@ -169,8 +169,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             return
         else:
             self.textboxes[self.index].stop_editing()
-            if self.textboxes[self.index].text != self.text.string[self.index]:
-                print "Text doesn't match up after click"
             if text_index is not None:
                 # Change which one we're editing
                 self.index = text_index
