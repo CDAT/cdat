@@ -115,7 +115,7 @@ def rgb_to_hsv(r, g, b):
 
     if r == g == b:
         s = 0
-        h = -1
+        h = 0
         return h, s, v
     else:
         s = delta / maximum
@@ -170,26 +170,13 @@ def text_dimensions(text, text_prop, at_angle=0):
     return bounds[1] - bounds[0], bounds[3] - bounds[2]
 
 
-def baseline_offsets(origin, new_string, text_prop):
-    ren = vtkTextRenderer()
-
-    bounds_origin = [0, 0, 0, 0]
-    ren.GetBoundingBox(text_prop, origin, bounds_origin)
-    bounds_new = [0, 0, 0, 0]
-    ren.GetBoundingBox(text_prop, new_string, bounds_new)
-    below_offset = bounds_origin[2] - bounds_new[2]
-
-    above_offset = bounds_origin[3] - bounds_new[3]
-
-    return below_offset, above_offset
-
 from widget import Widget, WidgetReprShim
 from behaviors import DraggableMixin, ClickableMixin
 
 
 class Label(Widget, DraggableMixin, ClickableMixin):
 
-    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, on_release=None, fgcolor=(1, 1, 1), size=24, font="Arial", left=0, top=0, textproperty=None):
+    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, fgcolor=(1, 1, 1), size=24, font="Arial", left=0, top=0, textproperty=None):
 
         if textproperty is not None:
             self.actor = vtkTextActor()
@@ -206,7 +193,6 @@ class Label(Widget, DraggableMixin, ClickableMixin):
 
         self.movable = movable
         self.action = on_click
-        self.release_action = on_release
         self.move_action = on_move
         self.dragged = on_drag
 
@@ -223,7 +209,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         doc = "The text property."
 
         def fget(self):
-            return self.actor.GetInput()
+            return self.get_text()
 
         def fset(self, value):
             self.set_text(value)
@@ -263,19 +249,20 @@ class Label(Widget, DraggableMixin, ClickableMixin):
 
             w, h = text_dimensions(self.text, self.actor.GetTextProperty())
             if halign == "Centered":
-                return self.x - w / 2.
+                return self.x - math.floor(w / 2.)
 
             if halign == "Right":
                 return self.x - w
 
         def fset(self, l):
+
             halign = self.actor.GetTextProperty().GetJustificationAsString()
             if halign == "Left":
                 self.x = l
 
             w, h = text_dimensions(self.text, self.actor.GetTextProperty())
             if halign == "Centered":
-                self.x = l + w / 2.
+                self.x = l + math.floor(w / 2.)
 
             if halign == "Right":
                 self.x = l + w
@@ -299,7 +286,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
             if valign == "Top":
                 pass
             if valign == "Centered":
-                y += h / 2.
+                y += math.floor(h / 2.) + 1
             if valign == "Bottom":
                 y += h
             # Transform from y position to distance from top of screen to top of actor
@@ -319,7 +306,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
                 y = t
             # Since it's not top-aligned, alignment point will be lower (and we're in units from top)
             elif valign == "Centered":
-                y = t + h / 2.
+                y = t + math.floor(h / 2.) + 1
             elif valign == "Bottom":
                 y = t + h
             # Convert the y from pixels from top to pixels from bottom
@@ -374,19 +361,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         """
         pass
 
-    def release(self, obj, event):
-        if self.release_action is not None:
-            self.release_action(self.interactor.GetEventPosition())
-
     def render(self):
         self.manager.queue_render()
-
-    def click(self, obj, event):
-        self.drag_origin = self.event_position()
-        self.drag_started = datetime.datetime.now()
-        # Pass this to self.action
-        if self.action is not None:
-            self.action(self.interactor.GetEventPosition())
 
     def in_bounds(self, x, y):
         if x < 1 and y < 1:
@@ -407,7 +383,6 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         self.unsubscribe(*self.subscriptions.keys())
         self.manager.remove_widget(self)
         self.repr.GetRenderer().RemoveActor(self.actor)
-        self.interactor = None
 
     def click_release(self):
         if self.action:
