@@ -195,7 +195,15 @@ class Textbox(Label):
         elif halign == "Right":
             x += (width - row_width) + 1  # Adjust for some margin issues
         elif halign == "Left":
-            x -= 3
+            x -= 3  # Adjust for some margin issues
+
+        valign = prop.GetVerticalJustificationAsString()
+        if valign == "Top":
+            y += 2
+        elif valign == "Centered":
+            pass
+        elif valign == "Bottom":
+            y -= 2
 
         # Get to the current row
         y -= line_height * self.row
