@@ -1,10 +1,10 @@
 import point
 import vcs
-import text
 import vtk
 import vcs.vcs2vtk
 from font import FontEditor
 from vcs.vtk_ui.text import contrasting_color
+
 __valign_map__ = {
     0: 0,
     1: 0,
@@ -91,7 +91,7 @@ class LabelEditor(point.PointEditor):
         if self.actor:
             p = self.actor.GetTextProperty()
             winSize = self.interactor.GetRenderWindow().GetSize()
-            vcs.vcs2vtk.prepTextProperty(p,winSize,to=self.to,tt=self.tt,cmap=None)
+            vcs.vcs2vtk.prepTextProperty(p, winSize, to=self.to, tt=self.tt, cmap=None)
 
     def set_font(self, font):
         self.tt.font = font
