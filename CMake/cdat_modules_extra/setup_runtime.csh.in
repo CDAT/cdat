@@ -22,11 +22,12 @@ endif
 # which can lead to errors.
 if ( $?UVCDAT_SETUP_PATH ) then
   if ( ${UVCDAT_SETUP_PATH} == ${install_prefix} ) then
-    echo 'UVCDAT setup already sourced for this install location.'
-    exit 1
+    echo 'Nothing to do since UVCDAT is already setup at '${UVCDAT_SETUP_PATH}
+    exit 0
   else
     echo 'ERROR: UVCDAT setup was previously sourced at '${UVCDAT_SETUP_PATH}
-    echo 'Open a new shell in order to use a different install location.'
+    echo 'ERROR: There is no need to run setup_runtime manually anymore.'
+    echo 'ERROR: Open a new shell in order to use a different install location.'
     exit 1
   endif
 endif
@@ -91,3 +92,7 @@ setenv UVCDAT_SETUP_PATH ${install_prefix}
 
 unset install_prefix
 
+echo 'Successfully updated your environment to use UVCDAT'
+echo '(changes are valid for this session/terminal only)'
+echo 'Version: '${UVCDAT_PROMPT_STRING}
+echo 'Location: '${UVCDAT_SETUP_PATH}

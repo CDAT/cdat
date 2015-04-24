@@ -530,8 +530,8 @@ Class:	Gfm                       	# Meshfill
           self._xaxisconvert='linear'
           self._yaxisconvert='linear'
           self._missing=241
-          self._ext_1='n'
-          self._ext_2='n'
+          self._ext_1=False
+          self._ext_2=False
           self._fillareastyle='solid'
           self._fillareaindices=None
           self._fillareacolors=[1,]

@@ -6,7 +6,6 @@
 # However, the graphical output (png files) may not match in manner suitable for automated testing.
 # So the return value only depends on the numerical values in the .nc files.
 # Second argument: '--keep=True' to keep (don't delete) output files*
-# At the moment this just creates plots (and .nc data files) without checking them.
 # No attempt is made to clean up the diagnostics' cache files, which are generally in /tmp.
 
 print 'Test 2: Diagnostic contour plots ... ',

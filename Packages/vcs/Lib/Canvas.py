@@ -633,7 +633,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         isgridded = (grid is not None)
 
         # Set the default graphics method if not already set.
-        if arglist[GRAPHICS_METHOD] in ['default','boxfill']:       # See _determine_arg_list
+        if arglist[GRAPHICS_METHOD] == "default" or\
+                 (arglist[GRAPHICS_METHOD] == 'boxfill' and arglist[GRAPHICS_METHOD+1]=="default"):
+                     # See _determine_arg_list
             try:
                 nomesh=0
                 m=grid.getMesh()
@@ -642,7 +644,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
             if grid is None:
                 if tv.ndim==1:
-                    arglist[GRAPHICS_METHOD] = 'yxvsx1'
+                    arglist[GRAPHICS_METHOD] = 'yxvsx'
                 else:
                     arglist[GRAPHICS_METHOD] = 'boxfill'
             elif isinstance(grid, AbstractRectGrid):
@@ -2708,9 +2710,12 @@ Options:::
             if float(doratio[:-1])==0.: doratio='0'
 
         ## Check for curvilinear grids, and wrap options !
+        if arglist[0] is not None:
+            inGrid = arglist[0].getGrid()
+        else:
+            inGrid = None
         if arglist[0] is not None and arglist[1] is None and arglist[3]=="meshfill":
-            g=arglist[0].getGrid()
-            if isinstance(g, (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid)):
+            if isinstance(inGrid, (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid)):
                 g=self.getmeshfill(arglist[4])
                 if not 'wrap' in keyargs.keys() and g.wrap==[0.,0.]:
                     keyargs['wrap']=[0.,360.]
@@ -2721,11 +2726,11 @@ Options:::
                 else:
                     xs=arglist[0].getAxis(-1)
                     ys=arglist[0].getAxis(-2)
-                    if xs.isLongitude() and ys.isLatitude() and isinstance(g,cdms2.grid.TransientRectGrid):
+                    if xs.isLongitude() and ys.isLatitude() and isinstance(inGrid,cdms2.grid.TransientRectGrid):
                         arglist[1]=MV2.array(g.getMesh())
                         if not 'wrap' in keyargs.keys():
                             keyargs['wrap']=[0.,360.]
-                    elif ys.isLongitude() and xs.isLatitude() and isinstance(g,cdms2.grid.TransientRectGrid):
+                    elif ys.isLongitude() and xs.isLatitude() and isinstance(inGrid,cdms2.grid.TransientRectGrid):
                         arglist[1]=MV2.array(g.getMesh())
                         if not 'wrap' in keyargs.keys():
                             keyargs['wrap']=[360.,0.]
@@ -2759,16 +2764,20 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
-        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
+        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(inGrid,cdms2.gengrid.AbstractGenericGrid):
             arglist[3]='1d'
             try:
                 tmp=self.getyxvsx(arglist[4])
                 #tmp.list()
             except Exception,err:
                 arglist[4]='default'
+        elif inGrid is not None and (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(inGrid,cdms2.grid.AbstractRectGrid)) and arglist[3] in ["boxfill","default"] and arglist[4]=="default":
+          arglist[3]="meshfill"
 
 ##                         arglist[4]=copy_mthd.name
-
+        # Ok let's check for meshfill needed
+        if inGrid is not None and (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(arglist[0].getGrid(),cdms2.grid.AbstractRectGrid)) and arglist[3] not in ["meshfill",]:
+          raise RuntimeError("You are attempting to plot unstructured grid with a method that is not meshfill")
         # preprocessing for extra keyword (at-plotting-time options)
         cmds={}
         # First of all a little preprocessing for legend !
