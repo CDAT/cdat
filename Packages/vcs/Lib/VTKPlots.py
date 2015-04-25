@@ -879,63 +879,81 @@ class VTKVCSBackend(object):
           cot.SetValue(i,levs[i])
         cot.SetValue(Nlevs,levs[-1])
         cot.Update()
-        mappers = []
+
+        lut = vtk.vtkLookupTable()
+        lut.SetNumberOfTableValues(len(cols))
+        for icol,col in enumerate(cols):
+            r,g,b = cmap.index[col]
+            lut.SetTableValue(icol,r/100.,g/100.,b/100.)
+
         if gm.label=="y":
+            # Setup label mapping array:
+            tpropMap = vtk.vtkDoubleArray()
+            tpropMap.SetNumberOfComponents(1)
+            tpropMap.SetNumberOfTuples(Nlevs)
+            for i, val in enumerate(levs):
+                tpropMap.SetTuple(i, [val,])
+
+            # Prep text properties:
+            tprops = vtk.vtkTextPropertyCollection()
+            if gm.text or gm.textcolors:
+               colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
+               texts = gm.text if gm.text else [None] * len(gm.textcolors)
+               while len(texts) < Nlevs:
+                   texts.append(texts[-1])
+               while len(colorOverrides)<Nlevs:
+                   colorOverrides.append(colorOverrides[-1])
+               for tc,colorOverride in zip(texts, colorOverrides):
+                   if vcs.queries.istextcombined(tc):
+                       tt, to = tuple(tc.name.split(":::"))
+                   elif tc is None:
+                       tt = "default"
+                       to = "default"
+                   elif vcs.queries.istexttable(tc):
+                       tt = tc.name
+                       to = "default"
+                   elif vcs.queries.istextorientation(tc):
+                       to = tc.name
+                       tt = "default"
+                   if colorOverride is not None:
+                       tt = vcs.createtexttable(None, tt)
+                       tt.color = colorOverride
+                       tt = tt.name
+                   tprop = vtk.vtkTextProperty()
+                   vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
+                   tprops.AddItem(tprop)
+                   if colorOverride is not None:
+                       del(vcs.elements["texttable"][tt])
+            else:
+               # No text properties specified. Use the default:
+               tprop = vtk.vtkTextProperty()
+               vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
+               tprops.AddItem(tprop)
+            returned["vtk_backend_contours_labels_text_properties"] = tprops
+
             mapper = vtk.vtkLabeledContourMapper()
+            mapper.SetTextProperties(tprops)
+            mapper.SetTextPropertyMapping(tpropMap)
+            mapper.SetLabelVisibility(1)
+
+            pdMapper = mapper.GetPolyDataMapper()
+
+            returned["vtk_backend_labeled_luts"] = [[lut, [levs[0], levs[-1],
+                                                           False]]]
         else:
             mapper = vtk.vtkPolyDataMapper()
-        lut = vtk.vtkLookupTable()
-        lut.SetNumberOfTableValues(1)
-        lut.SetTableValue(0, 0, 0, 0)
-        if gm.label=="y":
-            mapper.GetPolyDataMapper().SetLookupTable(lut)
-            mapper.SetLabelVisibility(1)
-        else:
-            mapper.SetLookupTable(lut)
+            pdMapper = mapper
+            returned["vtk_backend_luts"] = [[lut, [levs[0],levs[-1], False]]]
 
-        # Create text properties.
-        if gm.label=="y":
-         if gm.text or gm.textcolors:
-          colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
-          texts = gm.text if gm.text else [None] * len(gm.textcolors)
-          while len(texts)<Nlevs:
-              texts.append(texts[-1])
-          while len(colorOverrides)<Nlevs:
-              colorOverrides.append(colorOverrides[-1])
-          tprops = vtk.vtkTextPropertyCollection()
-          for tc,colorOverride in zip(texts, colorOverrides):
-              if vcs.queries.istextcombined(tc):
-                  tt,to = tuple(tc.name.split(":::"))
-              elif tc is None:
-                  tt="default"
-                  to="default"
-              elif vcs.queries.istexttable(tc):
-                  tt=tc.name
-                  to="default"
-              elif vcs.queries.istextorientation(tc):
-                  to=tc.name
-                  tt="default"
-              if colorOverride is not None:
-                  tt=vcs.createtexttable(None,tt)
-                  tt.color = colorOverride
-                  tt=tt.name
-              tprop = vtk.vtkTextProperty()
-              vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
-              tprops.AddItem(tprop)
-              if colorOverride is not None:
-                  del(vcs.elements["texttable"][tt])
-
-              mapper.SetTextProperties(tprops)
-         else:
-            # No text properties specified. Use the default:
-            tprop = vtk.vtkTextProperty()
-            vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
-            mapper.SetTextProperty(tprop)
+        pdMapper.SetLookupTable(lut)
+        pdMapper.SetScalarRange(levs[0], levs[-1])
+        pdMapper.SetScalarModeToUsePointData()
 
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
         mapper.SetInputConnection(stripper.GetOutputPort())
         stripper.Update()
+        mappers = []
         mappers.append([mapper,])
         returned["vtk_backend_contours"]=[cot,]
       else:
@@ -1852,11 +1870,31 @@ class VTKVCSBackend(object):
                       mapper = missingMapper2
                       wrp = a[2]
                   else:
-                      mapper = vtk.vtkPolyDataMapper()
-                      mapper.SetInputConnection(ports[i].GetOutputPort())
-                      lut,rg = vtkobjects["vtk_backend_luts"][i]
-                      if lut is not None:
-                          mapper.SetLookupTable(lut)
+                      ## Labeled contours are a different kind
+                      if vtkobjects.has_key("vtk_backend_luts"):
+                          lut,rg = vtkobjects["vtk_backend_luts"][i]
+                          mapper = vtk.vtkPolyDataMapper()
+                      elif vtkobjects.has_key("vtk_backend_labeled_luts"):
+                          lut,rg = vtkobjects["vtk_backend_labeled_luts"][i]
+                          mapper = vtk.vtkLabeledContourMapper()
+                      if lut is None:
+                          mapper.SetInputConnection(ports[i].GetOutputPort())
+                      else:
+                          if mapper.IsA("vtkPolyDataMapper"):
+                              mapper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetLookupTable(lut)
+                              mapper.SetScalarModeToUsePointData()
+                          else:
+                              stripper = vtk.vtkStripper()
+                              stripper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetInputConnection(stripper.GetOutputPort())
+                              stripper.Update()
+                              tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
+                              mapper.GetPolyDataMapper().SetLookupTable(lut)
+                              mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
+                              mapper.GetPolyDataMapper().SetScalarRange(rg[0],rg[1])
+                              mapper.SetLabelVisibility(1)
+                              mapper.SetTextProperties(tprops)
                           if rg[2]:
                               mapper.SetScalarModeToUseCellData()
                           mapper.SetScalarRange(rg[0],rg[1])
