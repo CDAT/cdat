@@ -43,6 +43,10 @@ class animate_obj_old(object):
       self.run_flg = 0
       self.continents_value = 0
       self.continents_hold_value = 1
+      ## We need to store this because if user close
+      ## anim with preserve_pngs = True
+      ## it still gets deleted at python exit time
+      self.preserve_pngs = False
       
    ##############################################################################
    # Create the animation images. If min or max is None, then			#
@@ -559,7 +563,9 @@ class animate_obj_old(object):
         png_names=glob.glob(
             os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png")
             )
-        if not preserve_pngs:
+        if preserve_pngs:
+            self.preserve_pngs = True
+        if not self.preserve_pngs:
           for f in png_names:
               os.remove(f)
           if len(png_names)>0:
