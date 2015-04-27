@@ -244,6 +244,9 @@ class Configurator(object):
         self.clicking = None
 
     def display_and_key_for_actor(self, actor):
+        """
+        Iterates across the displays, and tries to find the actor in the backend.
+        """
         for display in self.displays:
             for key in display.backend:
                 try:
