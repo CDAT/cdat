@@ -445,13 +445,12 @@ class Configurator(object):
 
     def setup_animation(self):
         if self.initialized is False and [True for d in self.displays if d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")]:
-            for d in self.displays:
-                print d.g_type
             self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
             self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
             anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
+
             def get_frame():
                 return self.canvas.animate.frame_num
             anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
