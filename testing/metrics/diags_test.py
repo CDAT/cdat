@@ -37,7 +37,7 @@ def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
     return close
 
 def execute(test_str, plotset, obstype, varid, season, imagefilename, imagethreshold, ncfiles, rtol, atol):
-    print test_str
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",test_str
     # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
     cdms2.setNetcdfShuffleFlag(0)
     cdms2.setNetcdfDeflateFlag(0)
