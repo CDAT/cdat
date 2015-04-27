@@ -581,6 +581,11 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
       )
+    cdat_add_test(vcs_test_animate_isofill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isofill.py
+      ${BASELINE_DIR}
+      )
     cdat_add_test(vcs_test_animate_boxfill
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_boxfill.py
