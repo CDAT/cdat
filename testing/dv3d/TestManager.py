@@ -136,7 +136,7 @@ class vcsTest:
         try:
             print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
             shutil.copy( self.image_name, ref_image )
-            ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold )
+            ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold+3. )
         except IOError:
             print "No ref image '%s' found." % ref_image
             ret = 0

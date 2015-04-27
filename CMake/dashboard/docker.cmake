@@ -1,0 +1,21 @@
+set(CTEST_SOURCE_DIRECTORY /usr/src/uvcdat)
+set(CTEST_BINARY_DIRECTORY /tmp/uvcdat-build)
+
+include(${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake)
+set(CTEST_SITE "Docker Ubuntu:14.04")
+set(CTEST_BUILD_NAME "nogui-master")
+set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+
+ctest_start("Experimental")
+ctest_configure(OPTIONS "-DCDAT_BUILD_WEB=ON;-DCDAT_BUILD_GUI=OFF;-DCDAT_BUILD_OSMESA=ON;-DCDAT_BUILD_OFFSCREEN=ON;-DCMAKE_INSTALL_PREFIX=/opt/uvcdat")
+ctest_build()
+ctest_test(PARALLEL_LEVEL 4 RETURN_VALUE res)
+ctest_coverage()
+file(REMOVE "${CTEST_BINARY_DIRECTORY}/coverage.xml")
+ctest_submit()
+
+file(REMOVE "${CTEST_BINARY_DIRECTORY}/test_failed")
+if(NOT res EQUAL 0)
+  file(WRITE "${CTEST_BINARY_DIRECTORY}/test_failed" "error")
+  message(FATAL_ERROR "Test failures occurred.")
+endif()
