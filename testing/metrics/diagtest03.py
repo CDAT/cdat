@@ -26,4 +26,4 @@ ncfiles['set3_T_JJA_difference_None,None.nc'] = ['set3_T_ft0_None_ft1_None_diff'
 rtol = 1.0e-3
 atol = 1.0e-2   # suitable for temperatures
 
-diags_test.execute(test_str, plotset, obstype, varid, season, imagefilename, imagethreshold, ncfiles, rtol, atol)
+PF = diags_test.execute(test_str, plotset, obstype, varid, season, imagefilename, imagethreshold, ncfiles, rtol, atol)

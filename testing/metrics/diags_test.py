@@ -90,13 +90,16 @@ def execute(test_str, plotset, obstype, varid, season, imagefilename, imagethres
         for ncfilename, ncvars in ncfiles.items():
             for var in ncvars:
                 #print ncfilename, var
+                print baselinepath
                 try:
                     close = closeness( var, ncfilename, outpath, baselinepath, rtol, atol )
                     if not close:
                         print var, ' in ', ncfilename, ' is not close.'
-                    CLOSE = CLOSE and close
                 except:
                     print 'comparison failed ', ncfilename, var
-
+                    close = False
+                CLOSE = CLOSE and close
+                
         #cleanup the temp files
         shutil.rmtree(outpath)
+        assert(CLOSE)#, 'data are not close'
