@@ -4,6 +4,16 @@ from line import Line
 import vtk
 
 
+def rotate(point, angle):
+    import math
+    x, y = point
+    # Rotate about the origin
+    theta = math.radians(angle)
+    xrot = x * math.cos(theta) - y * math.sin(theta)
+    yrot = x * math.sin(theta) + y * math.cos(theta)
+    return int(xrot), int(yrot)
+
+
 class Textbox(Label):
     def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
 
@@ -211,16 +221,6 @@ class Textbox(Label):
         y -= line_height * self.row
 
         # Rotate both points to the orientation as the text
-
-        def rotate(point, angle):
-            import math
-            x, y = point
-            # Rotate about the origin
-            theta = math.radians(angle)
-            xrot = x * math.cos(theta) - y * math.sin(theta)
-            yrot = x * math.sin(theta) + y * math.cos(theta)
-            return int(xrot), int(yrot)
-
         y1 = y
         y2 = y - line_height
 
@@ -249,6 +249,19 @@ class Textbox(Label):
 
         # Viewport coordinates of widget
         sw, sh = self.interactor.GetRenderWindow().GetSize()
+        # Normalize to window space
+        if x < 1 and y < 1:
+            x = sw * x
+            y = sh * y
+
+        # Rotate the click out of box space
+        x -= self.x
+        y -= self.y
+
+        x, y = rotate((x, y), -1 * prop.GetOrientation())
+
+        x += self.x
+        y += self.y
 
         x0, y0 = self.left, sh - self.top
 
@@ -261,6 +274,7 @@ class Textbox(Label):
         max_width = 0
         # We're iterating in reverse because y goes from 0 at the bottom to 1 at the top
         row_at_point = None
+
         for row in rows[::-1]:
             if row == '':
                 dim_row = ' '
@@ -274,10 +288,11 @@ class Textbox(Label):
                 # Use for x offset calculations
                 max_width = w
 
-            if h < y and row_at_point is None:
+            if h < y:
                 y = y - h
             else:
-                row_at_point = rows.index(row)
+                if row_at_point is None:
+                    row_at_point = rows.index(row)
 
         if row_at_point is None:
             row_at_point = len(rows) - 1
@@ -290,10 +305,16 @@ class Textbox(Label):
         text = rows[row_at_point]
 
         # If max_width == row[0], then offset is 0 and all of the calcs below still work
-        x -= (max_width - row[0]) / 2.0
+        just = prop.GetJustificationAsString()
 
-        row_left = 0
-        row_right = row[0]
+        if just == "Left":
+            row_left = 0
+        elif just == "Centered":
+            row_left = (max_width - row[0]) / 2.
+        elif just == "Right":
+            row_left = max_width - row[0]
+
+        row_right = row_left + row[0]
 
         if x < row_left:
             # Clicked to the left of the row
@@ -308,25 +329,14 @@ class Textbox(Label):
             return row_at_point, 1
 
         # OK, no easy answer; have to calc the width of each letter in the row till we find the column
-        # Start at left or right depending on which side the click is closer to
-        if x - row_left > row_right - x:
-            # Start from right
-            for reverse_index, c in enumerate(text[::-1]):
-                w, _ = text_dimensions(c, prop)
-                if row_right - w < x:
-                    return row_at_point, len(text) - reverse_index
-                # "New" right side is one character back
-                row_right -= w
-        else:
-            # Start from left
-            for index, c in enumerate(text):
-                w, _ = text_dimensions(c, prop)
-                if row_left + w > x:
-                    return row_at_point, index
-                # "New" left side is one character forward
-                row_left += w
-        # Return the very end of the box if we can't figure it out.
-        return len(rows) - 1, len(rows[len(rows) - 1])
+        # Start from left
+        w = 0
+        ind = 1
+        while row_left + w < x:
+            w, _ = text_dimensions(text[:ind], prop)
+            ind += 1
+
+        return row_at_point, ind - 1
 
     def show_highlight(self):
         prop = self.actor.GetTextProperty()
