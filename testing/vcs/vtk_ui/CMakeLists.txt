@@ -91,7 +91,7 @@ add_test(test_vtk_ui_label_y
 
 add_test(test_vtk_ui_contrasting_colors
   "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_complementary_colors.py
+  ${TEST_DIR}/test_vtk_ui_contrasting_colors.py
 )
 
 add_test(test_vtk_ui_hsv_rgb
@@ -131,7 +131,8 @@ add_test(test_vtk_ui_label_left
 add_test(test_vtk_ui_label_render
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_label_render.py
-  ${BASELINE_DIR}/test_vtk_ui_label_render.png
+  ${BASELINE_DIR}/test_vtk_ui_label_render_initial.png
+  ${BASELINE_DIR}/test_vtk_ui_label_render_color_change.png
 )
 
 add_test(test_vtk_ui_label_show_hide

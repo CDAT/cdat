@@ -34,7 +34,6 @@ def generate_png(win, fnm):
     win.Render()
     out_filter = vtk.vtkWindowToImageFilter()
     out_filter.SetInput(win)
-    out_filter.Update()
 
     png_writer = vtk.vtkPNGWriter()
     png_writer.SetFileName(fnm)
@@ -48,6 +47,7 @@ class vtk_ui_test(object):
         self.inter = self.win.GetInteractor()
         self.test_file = None
         self.passed = 1
+        self.args = sys.argv[1:]
 
     def hover(self, x, y, duration):
         self.win.Render()
@@ -67,19 +67,29 @@ class vtk_ui_test(object):
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 
+    def check_image(self, compare_against):
+        """
+        Checks the current render window's output against the image specified in the argument,
+        returns the result of checkimage.check_result_image
+        """
+        generate_png(self.win, self.test_file)
+        pth = os.path.join(os.path.dirname(__file__), "../..")
+        sys.path.append(pth)
+        import checkimage
+        print "fnm:", self.test_file
+        print "src:", compare_against
+        return checkimage.check_result_image(self.test_file, compare_against, checkimage.defaultThreshold)
+
     def test(self):
         self.do_test()
 
-        if self.test_file is not None:
-            generate_png(self.win, self.test_file)
-            if len(sys.argv) >= 2:
-                src = sys.argv[1]
-                pth = os.path.join(os.path.dirname(__file__), "../..")
-                sys.path.append(pth)
-                import checkimage
-                print "fnm:", self.test_file
-                print "src:", src
-                self.passed = checkimage.check_result_image(self.test_file, src, checkimage.defaultThreshold)
+        if self.test_file:
+            if self.args:
+                src = self.args[0]
+                self.passed = self.check_image(src)
+            else:
+                generate_png(self.win, self.test_file)
+
         self.win.Finalize()
         self.inter.TerminateApp()
         print sys.argv[0], "passed" if self.passed == 0 else "failed"
