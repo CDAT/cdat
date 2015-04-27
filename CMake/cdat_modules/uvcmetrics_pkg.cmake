@@ -6,7 +6,7 @@ set(UVCMETRICS_ZIP uvcmetrics-${UVCMETRICS_VERSION}.zip)
 #set(UVCMETRICS_SOURCE ${UVCMETRICS_URL}/${UVCMETRICS_ZIP})
 set(UVCMETRICS_SOURCE ${GIT_PROTOCOL}github.com/UV-CDAT/uvcmetrics.git )
 set(UVCMETRICS_MD5)
-set(UVCMETRICS_BRANCH master)
+set(UVCMETRICS_BRANCH uvcdat-2.2.0)
 
 add_cdat_package(UVCMETRICS "" "" ON)
 

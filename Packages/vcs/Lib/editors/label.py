@@ -3,7 +3,7 @@ import vcs
 import text
 #import vtk
 import vcs.vcs2vtk
-from functools import partial
+from font import FontEditor
 
 __valign_map__ = {
     0: 0,
@@ -63,27 +63,8 @@ class LabelEditor(point.PointEditor):
         valign.set_state(__valign_map__[self.to.valign])
 
         self.angle_button = self.toolbar.add_slider_button(self.to.angle, 0, 360, "Angle", update=self.update_angle)
-        self.fonts = sorted(vcs.elements["font"].keys())
 
-        font_toolbar = self.toolbar.add_toolbar("Fonts")
-
-        self.font_buttons = {}
-
-        def font_setter(font):
-            return partial(self.set_font, font)
-
-        deactivate = font_setter("default")
-
-        for ind, font in enumerate(self.fonts):
-
-            if font[:4] != "Math":
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
-            else:
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
-
-            if vcs.elements["fontNumber"][self.tt.font] == font:
-                button.set_state(1)
-            self.font_buttons[font] = button
+        font_editor = FontEditor(self.toolbar, self.set_font, vcs.elements["fontNumber"][self.tt.font])
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -105,11 +86,7 @@ class LabelEditor(point.PointEditor):
             vcs.vcs2vtk.prepTextProperty(p,winSize,to=self.to,tt=self.tt,cmap=None)
 
     def set_font(self, font):
-        current_font = vcs.getfontname(self.tt.font)
-        if font != current_font:
-            self.font_buttons[current_font].set_state(0)
         self.tt.font = font
-        self.font_buttons[font].set_state(1)
         self.save()
 
     def halign(self, state):

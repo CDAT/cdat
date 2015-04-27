@@ -30,6 +30,9 @@ class Widget(object):
             self.widget.RemoveObserver(self.subscriptions[event])
             del self.subscriptions[event]
 
+    def showing(self):
+        return self.widget.GetEnabled() == 1
+
     def detach(self):
         render = self.widget.GetCurrentRenderer()
         if render is None:

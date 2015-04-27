@@ -35,6 +35,7 @@ from Pdata import *
 from types import *
 import inspect
 import cdutil
+from projection import round_projections
 
 ## Following for class properties
 def _getgen(self,name):
@@ -911,7 +912,7 @@ class P(object):
                 for t in loc.keys():
                     loc[t]=''
         if isinstance(loc,str):
-          loc = vcs.elements["list"].get(loc,{})
+          loc = copy.copy(vcs.elements["list"].get(loc,{}))
         # Make sure the label passed are not outside the world coordinates
         dw1=1.E20
         dw2=1.E20
@@ -944,9 +945,35 @@ class P(object):
         # the following to make sure we have a unique name,
         # i put them together assuming it would be faster
         ticks=x.createline(source=obj.line)
-        tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
+        ticks.projection = gm.projection
         ticks.priority=obj.priority
+        tt=x.createtext(Tt_source=objlabl.texttable,To_source=objlabl.textorientation)
+        tt.projection = gm.projection
         tt.priority=objlabl.priority
+        if vcs.elements["projection"][gm.projection].type!="linear":
+          ticks.viewport=vp
+          ticks.worldcoordinate=wc
+          tt.worldcoordinate=wc
+          if axis=="y":
+              tt.viewport=[objlabl.x,self.data.x2,self.data.y1,self.data.y2]
+              if vcs.elements["projection"][tt.projection].type in round_projections:
+                  tt.priority=0
+          else:
+              if vcs.elements["projection"][tt.projection].type in round_projections:
+                  xmn,xmx=vcs.minmax(self.data.x1,self.data.x2)
+                  ymn,ymx=vcs.minmax(self.data.y1,self.data.y2)
+                  xwiden = .02
+                  ywiden = .02
+                  xmn -= xwiden
+                  xmx += xwiden
+                  ymn -= ywiden
+                  ymx += ywiden
+                  vp = [max(0.,xmn),min(xmx,1.),max(0,ymn),min(ymx,1.)]
+                  tt.viewport=vp
+                  pass
+              else:
+                  tt.viewport=[self.data.x1,self.data.x2,objlabl.y,self.data.y2]
+
         # initialize the list of values
         tstring=[]
         xs=[]
@@ -960,46 +987,75 @@ class P(object):
         if isinstance(loc,str):
           loc = vcs.elements["list"].get(loc,{})
         # set the x/y/text values
+        xmn,xmx = vcs.minmax(wc[0],wc[1])
+        ymn,ymx = vcs.minmax(wc[2],wc[3])
         for l in loc.keys():
           if axis=='x':
-               mn,mx = vcs.minmax(wc[0],wc[1])
-               if mn<=l<=mx:
-                    xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
-                    ys.append([obj.y1,obj.y2])
-                    txs.append((l-wc[0])/dx+vp[0])
-                    tys.append(objlabl.y)
-                    tstring.append(loc[l])
+               if xmn<=l<=xmx:
+                 if vcs.elements["projection"][gm.projection].type=="linear":
+                   xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
+                   ys.append([obj.y1,obj.y2])
+                   txs.append((l-wc[0])/dx+vp[0])
+                   tys.append(objlabl.y)
+                 else:
+                    xs.append([l,l])
+                    end = wc[2]+(wc[3]-wc[2])*(obj.y2-obj.y1)/(self.data._y2-self._data.y1)
+                    ys.append([wc[2],end])
+                    txs.append(l)
+                    tys.append(wc[3])
+                 tstring.append(loc[l])
           elif axis=='y':
-               mn,mx = vcs.minmax(wc[2],wc[3])
-               if mn<=l<=mx:
-                    ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
-                    xs.append([obj.x1,obj.x2])
-                    tys.append((l-wc[2])/dy+vp[2])
-                    txs.append(objlabl.x)
-                    tstring.append(loc[l])
+               if ymn<=l<=ymx:
+                 if vcs.elements["projection"][gm.projection].type=="linear":
+                   ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
+                   xs.append([obj.x1,obj.x2])
+                   tys.append((l-wc[2])/dy+vp[2])
+                   txs.append(objlabl.x)
+                 else:
+                    ys.append([l,l])
+                    end = wc[0]+(wc[1]-wc[0])*(obj._x2-obj._x1)/(self._data._x2-self._data.x1)
+                    if vcs.elements["projection"][gm.projection].type!="linear" and end<-180.:
+                        end=wc[0]
+                    xs.append([wc[0],end])
+                    tys.append(l)
+                    txs.append(wc[0])
+                 tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
             obj=getattr(self,axis+'mintic'+number)
-            for l in getattr(gm,axis+'mtics'+number).keys():
-                a=getattr(gm,axis+'mtics'+number)[l]
-                if axis=='x':
-                    mn,mx = vcs.minmax(wc[0],wc[1])
-                    if mn<=l<=mx:
-                         xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
-                         ys.append([obj.y1,obj.y2])
-                         tstring.append(a)
-                elif axis=='y':
-                    mn,mx = vcs.minmax(wc[2],wc[3])
-                    if mn<=l<=mx:
-                         ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
-                         xs.append([obj.x1,obj.x2])
-                         tstring.append(a)
+            if obj.priority>0:
+                ynum = getattr(self._data,"_y%i" % number)
+                xnum = getattr(self._data,"_x%i" % number)
+                for l in getattr(gm,axis+'mtics'+number).keys():
+                    a=getattr(gm,axis+'mtics'+number)[l]
+                    if axis=='x':
+                        if xmn<=l<=xmx:
+                         if vcs.elements["projection"][gm.projection].type=="linear":
+                           xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
+                           ys.append([obj.y1,obj.y2])
+                           tstring.append(a)
+                         else:
+                             xs.append([l,l])
+                             ys.append([wc[2],
+                                 wc[2]+(wc[3]-wc[2])*(obj._y-ynum)/(self._data._y2-self._data._y1)])
+                             tstring.append(a)
+                    elif axis=='y':
+                        if ymn<=l<=ymx:
+                         if vcs.elements["projection"][gm.projection].type=="linear":
+                           ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
+                           xs.append([obj.x1,obj.x2])
+                           tstring.append(a)
+                         else:
+                             ys.append([l,l])
+                             xs.append([wc[0],
+                                 wc[0]+(wc[1]-wc[0])*(obj._x-xnum)/(self._data._x2-self._data._x1)])
+                             tstring.append(a)
 
         if txs!=[]:
              tt.string=tstring
              tt.x=txs
              tt.y=tys
-             displays.append(x.text(tt,bg=bg,**kargs))
+             displays.append(x.text(tt,bg=bg,ratio="none",**kargs))
         if xs!=[]:
              ticks._x=xs
              ticks._y=ys
@@ -1201,6 +1257,7 @@ class P(object):
         returns a list containing all the displays used"""
         displays = []
         kargs["donotstoredisplay"]=True
+        kargs["render"] = False
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x._viewport
         wc=x._worldcoordinate
@@ -1263,15 +1320,19 @@ class P(object):
                     dp.backend["vtk_backend_template_attribute"] = "dataname"
                   displays.append(dp)
                 sp = tt.name.split(":::")
-                del(vcs.elements["texttable"][sp[0]])
-                del(vcs.elements["textorientation"][sp[1]])
-                del(vcs.elements["textcombined"][tt.name])
-                
+                if kargs.get("donotstoredisplay",True):
+                    del(vcs.elements["texttable"][sp[0]])
+                    del(vcs.elements["textorientation"][sp[1]])
+                    del(vcs.elements["textcombined"][tt.name])
+
 
         kargs["donotstoredisplay"]=True
         if not isinstance(gm,vcs.taylor.Gtd):
           nms = ["x","y","z","t"]
           for i,ax in enumerate(slab.getAxisList()[::-1]):
+             if nms[i] in ["x","y"] and hasattr(gm,"projection") and \
+                     vcs.elements["projection"][gm.projection].type in round_projections:
+                continue
              nm=nms[i]+"name"
              sub = getattr(self,nm)
              tt=x.createtext(None,sub.texttable,None,sub.textorientation)
@@ -1305,78 +1366,41 @@ class P(object):
              displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
              displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
 
+        if X is None:
+          X=slab.getAxis(-1)
+        if Y is None:
+          Y=slab.getAxis(-2)
+
+        wc2 = vcs.utils.getworldcoordinates(gm,X,Y)
         # Do the boxes and lines
-        b=self.box1
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
+        for tp in ["box","line"]:
+            for num in ["1","2"]:
+                e = getattr(self,tp+num)
+                if e.priority!=0:
+                     l=x.createline(source=e.line)
+                     if hasattr(gm,"projection"):
+                         l.projection=gm.projection
+                     if vcs.elements["projection"][l.projection].type!="linear":
+                         l.worldcoordinate=wc2
+                         l.viewport=[e._x1,e._x2,e._y1,e._y2]
+                         dx = (e._x2-e._x1)/(self.data.x2-self.data.x1)*(wc2[1]-wc2[0])
+                         dy = (e._y2-e._y1)/(self.data.y2-self.data.y1)*(wc2[3]-wc2[2])
+                         if tp == "line":
+                             l._x = [wc2[0],wc2[0]+dx]
+                             l._y = [wc2[2],wc2[2]+dy]
+                         elif tp=="box" and vcs.elements["projection"][l.projection].type in round_projections:
+                             l._x = [[-180.,180],[-180.,180]]
+                             l._y = [wc2[3],wc2[3]],[wc2[2],wc2[2]]
+                         else:
+                             l._x = [wc2[0],wc2[0]+dx,wc2[0]+dx,wc2[0],wc2[0]]
+                             l._y = [wc2[2],wc2[2],wc2[3],wc2[3],wc2[2]]
+                     else:
+                         l._x = [e._x1,e._x2,e._x2,e._x1,e._x1]
+                         l._y = [e._y1,e._y1,e._y2,e._y2,e._y1]
+                     l._priority=e._priority
+                     displays.append(x.plot(l,bg=bg,ratio="none",**kargs))
+                     del(vcs.elements["line"][l.name])
 
-        b=self.box2
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b.priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.box3
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.box4
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2,b._x2,b._x1,b._x1]
-             l._y=[b._y1,b._y1,b._y2,b._y2,b._y1]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line1
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b.priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line2
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line3
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
-
-        b=self.line4
-        if b.priority!=0:
-             l=x.createline(source=b.line)
-             l._x=[b._x1,b._x2]
-             l._y=[b._y1,b._y2]
-             l._priority=b._priority
-             displays.append(x.line(l,bg=bg,**kargs))
-             del(vcs.elements["line"][l.name])
         #x.mode=m
         # I think i have to use dict here because it's a valid value
         # (obviously since i got it from the object itself and didn't touch it

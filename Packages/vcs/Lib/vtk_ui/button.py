@@ -33,12 +33,11 @@ TOP_ALIGN = "TOP"
 BOTTOM_ALIGN = "BOTTOM"
 
 class Button(Widget):
-    def __init__(self, interactor, renderer=None, action=None, corner_radius=5, width=None, font="Arial",
+    def __init__(self, interactor, action=None, corner_radius=5, width=None, font="Arial",
                  height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
                  opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, tooltip=None, tooltip_property=None):
         """
         @kwargs:
-            renderer: Which renderer to use from the interactor's RenderWindow
             action: A callback function that will receive the current state ID when the button is clicked.
             width: if width is None, use the size of the label to determine width
             height: if height is None, use the size of the label to determine height
@@ -60,7 +59,6 @@ class Button(Widget):
         self.top = top
         self.radius = corner_radius
         self.action = action
-        self.renderer = renderer
 
         if halign not in (LEFT_ALIGN, RIGHT_ALIGN, CENTER_ALIGN):
             raise TypeError("halign must be one of LEFT_ALIGN, RIGHT_ALIGN, or CENTER_ALIGN")
@@ -102,8 +100,6 @@ class Button(Widget):
             self.hover_timer = None
             self.timer_handler = self.interactor.AddObserver("TimerEvent", self.still_hovering)
 
-        if self.renderer:
-            self.repr.SetRenderer(self.renderer)
         self.update()
         self.subscribe( 'StateChangedEvent', self.clicked)
 
@@ -113,7 +109,7 @@ class Button(Widget):
 
         x, y = self.interactor.GetEventPosition()
 
-        if self.hover_timer is None:
+        if self.hover_timer is None and self.tooltip_label.showing() == False:
             if self.in_bounds(x, y):
                 self.hover_timer = self.interactor.CreateOneShotTimer(300)
 
@@ -121,13 +117,15 @@ class Button(Widget):
             if self.hover_timer is not None:
                 self.interactor.DestroyTimer(self.hover_timer)
                 self.hover_timer = None
-            self.tooltip_label.hide()
+            if self.tooltip_label.showing():
+                self.tooltip_label.hide()
 
 
     def still_hovering(self, obj, event):
         if self.hover_timer:
             self.tooltip_label.place()
             self.tooltip_label.show()
+            self.hover_timer = None
 
     def get_text(self):
         return self.text_widget.get_text()
@@ -138,7 +136,6 @@ class Button(Widget):
     def place(self):
         width, height = self.get_dimensions()
         x, y = self.get_position()
-
         bounds = (x, x + width, y - height, y, 0, 0)
 
         self.repr.SetPlaceFactor(1)
@@ -294,7 +291,6 @@ class Button(Widget):
         #self.clicked(self.widget, "StateChangedEvent") Do we need to call this? I bet we don't.
 
     def clicked(self, obj, event):
-        self.place()
         state = self.get_state()
         button_state = self.states[state]
 
@@ -306,7 +302,7 @@ class Button(Widget):
 
     def copy(self, interactor, button_type=None, button_args=None, button_kwargs=None, skip_args=None):
         # In the future, we'll want to do some optimization with states and images here.
-        b = Button(interactor, renderer=self.renderer, action=self.action, corner_radius=self.radius, width=self.width,
+        b = Button(interactor, action=self.action, corner_radius=self.radius, width=self.width,
              height=self.height, left=self.left, top=self.top, image=self.image, label=self.label, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
              opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
 
@@ -322,11 +318,11 @@ class ToggleButton(Button):
     """
     Displays a button with 2 states, that will call different callbacks when clicked based on current state.
     """
-    def __init__(self, interactor, label, on=None, off=None, renderer=None, corner_radius=5, width=None,
+    def __init__(self, interactor, label, on=None, off=None, corner_radius=5, width=None,
                  height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, on_prefix="Enable", off_prefix="Disable"):
 
-        super(ToggleButton, self).__init__(interactor, renderer=renderer, action=self.toggle, corner_radius=corner_radius, width=width,
+        super(ToggleButton, self).__init__(interactor, action=self.toggle, corner_radius=corner_radius, width=width,
                  height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
                  opacity=opacity, size=size, states=states if states else [ButtonState(label="%s %s" % (on_prefix, label)), ButtonState(label="%s %s" % (off_prefix, label))], halign=halign, valign=valign)
 
@@ -352,7 +348,7 @@ class ToggleButton(Button):
         self.off = None
 
     def copy(self, interactor):
-        b = ToggleButton(interactor, self.label, on=self.on, off=self.off, renderer=self.renderer, corner_radius=self.radius, width=self.width,
+        b = ToggleButton(interactor, self.label, on=self.on, off=self.off, corner_radius=self.radius, width=self.width,
                  height=self.height, left=self.left, top=self.top, image=self.image, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
                  opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
 
@@ -370,7 +366,7 @@ class SliderButton(ToggleButton):
     Displays a button that will show a slider when toggled on, and hide it when toggled off.
     Provides a callback to receive the value of the slider, and one for when the sliding has stopped.
     """
-    def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, renderer=None, corner_radius=5, width=None,
+    def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, corner_radius=5, width=None,
                  height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, point1=(0,.1), point2=(1,.1)):
 
@@ -381,7 +377,7 @@ class SliderButton(ToggleButton):
                 on_show_slider()
             self.slider.show()
 
-        super(SliderButton, self).__init__(interactor, label, renderer=renderer, on=_show_slider, off=self.slider.hide, corner_radius=corner_radius, width=width,
+        super(SliderButton, self).__init__(interactor, label, on=_show_slider, off=self.slider.hide, corner_radius=corner_radius, width=width,
                  height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
                  opacity=opacity, size=size, states= states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
 
@@ -414,7 +410,7 @@ class SliderButton(ToggleButton):
         p2x, p2y, _ = self.slider.repr.GetPoint2Coordinate().GetValue()
 
         b = SliderButton(interactor, value, min_val, max_val, self.label, update=self.slider.update_callback, end=self.slider.end_callback,
-                         renderer=self.slider, corner_radius=self.radius, width=self.width, height=self.height, left=self.left, top=self.top, image=self.image,
+                          corner_radius=self.radius, width=self.width, height=self.height, left=self.left, top=self.top, image=self.image,
                          bgcolor=self.bgcolor, fgcolor=self.fgcolor, opacity=self.opacity, size=self.size, states=self.states, halign=self.halign, valign=self.valign,
                          point1=(p1x,p1y), point2=(p2x, p2y))
 

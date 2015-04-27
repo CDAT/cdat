@@ -822,15 +822,15 @@ class StructuredDataReader:
         if axis.isLongitude():
             self.lon = axis
             iCoord  = 0
-        if axis.isLatitude():
+        elif axis.isLatitude():
             self.lat = axis
             iCoord  = 1
-        if axis.isLevel() or PlotType.isLevelAxis(  axis.id ):
-            self.lev = axis
-            iCoord  = 2 if ( outputType <> CDMSDataType.Hoffmuller ) else -1
-        if axis.isTime():
+        elif axis.isTime():
             self.time = axis
             iCoord  = 2 if ( outputType == CDMSDataType.Hoffmuller ) else -1
+        elif ( axis.isLevel() or PlotType.isLevelAxis(  axis.id ) ):
+            self.lev = axis
+            iCoord  = 2 if ( outputType <> CDMSDataType.Hoffmuller ) else -1
         return iCoord
 
     def getIntersectedRoi( self, var, current_roi ):

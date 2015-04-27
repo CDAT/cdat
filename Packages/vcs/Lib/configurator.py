@@ -143,10 +143,9 @@ def array_strings(template, array):
     return strings
 
 class Configurator(object):
-    def __init__(self, canvas, show_on_update=False):
+    def __init__(self, canvas):
         self.canvas = canvas
         self.backend = canvas.backend
-        self.show_on_update = show_on_update
         self.interactor = None
         self.display_strings = {}
         self.displays = []
@@ -160,8 +159,12 @@ class Configurator(object):
         self.line_button = None
         self.marker_button = None
         self.initialized = False
-        self.animation_speed = 250
+        self.animation_speed = 5
         self.animation_timer = None
+        self.save_timer = None
+        self.save_listener = None
+        self.save_anim_button = None
+        self.anim_button = None
         self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
         # Map custom templates to their source template
@@ -170,77 +173,58 @@ class Configurator(object):
         self.creating = False
         self.click_locations = None
 
+
+    def get_save_path(self, default_name='', dialog_name="Save File"):
+        import os.path
+        user_home = os.path.expanduser("~")
+
+        output_dir = os.path.join(user_home, ".uvcdat", "animation")
+        if os.path.exists(output_dir) == False:
+            os.mkdir(output_dir)
+        # We'll just use .uvcdat– this is a headless install
+        path = os.path.join(output_dir, default_name)
+
+        p_index = 0
+        directory, filename = os.path.split(path)
+        filename, extension = os.path.splitext(filename)
+        while os.path.exists(path):
+            path = os.path.join(directory, filename + "_" + str(p_index) + extension)
+            p_index += 1
+        print "Saving to " + path
+
+        return path
+
+
     def shift(self):
         return self.interactor.GetShiftKey() == 1
 
     def update(self):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
-            self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
-            self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
-            self.init_buttons()
-            self.init_toolbar()
-
-        self.place()
+            if self.interactor is not None:
+                self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
+                self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
+                self.init_buttons()
+                self.init_toolbar()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
-
         for display in self.displays:
 
             if display._template_origin in self.templates:
-                # Adjust data coords if display.ratio is not none
-                if display.ratio is not None:
-                    t = vcs.gettemplate(display.template)
-                    orig = vcs.gettemplate(self.templates[display._template_origin])
-                    t.data._ratio  = -999.
-                    t.data._x1     = orig.data._x1
-                    t.data._x2     = orig.data._x2
-                    t.data._y1     = orig.data._y1
-                    t.data._y2     = orig.data._y2
-                    t.box1._x1     = orig.box1._x1
-                    t.box1._x2     = orig.box1._x2
-                    t.box1._y1     = orig.box1._y1
-                    t.box1._y2     = orig.box1._y2
-                    t.xlabel1._y   = orig.xlabel1._y
-                    t.xlabel2._y   = orig.xlabel2._y
-                    t.xtic2._y1    = orig.xtic2._y1
-                    t.ylabel1._x   = orig.ylabel1._x
-                    t.ytic1._x1    = orig.ytic1._x1
-                    t.ylabel2._x   = orig.ylabel2._x
-                    t.ytic2._x1    = orig.ytic2._x1
-                    t.xtic1._y2    = orig.xtic1._y2
-                    t.xtic1._y1    = orig.xtic1._y1
-                    t.data._y1     = orig.data._y1
-                    t.xtic1.y1     = orig.xtic1.y1
-                    t.xtic2._y2    = orig.xtic2._y2
-                    t.data._y2     = orig.data._y2
-                    t.xtic2.y1     = orig.xtic2.y1
-                    t.xmintic1._y2 = orig.xmintic1._y2
-                    t.xmintic1._y1 = orig.xmintic1._y1
-                    t.xmintic2._y2 = orig.xmintic2._y2
-                    t.xmintic2._y1 = orig.xmintic2._y1
-                    t.ytic1._x2    = orig.ytic1._x2
-                    t.data._x1     = orig.data._x1
-                    t.ytic2._x2    = orig.ytic2._x2
-                    t.data._x2     = orig.data._x2
-                    t.ymintic1._x2 = orig.ymintic1._x2
-                    t.ymintic1._x1 = orig.ymintic1._x1
-                    t.ymintic2._x2 = orig.ymintic2._x2
-                    t.ymintic2._x1 = orig.ymintic2._x1
-                # It already has a template we created
                 continue
-            # Manufacture a placeholder template to use for updates
-            new_template = vcs.createtemplate(source=display.template)
-            self.templates[new_template.name] = display.template
-            display.template = new_template.name
-            # This is an attribute used internally; might break
-            display._template_origin = new_template.name
 
-        if self.show_on_update:
-            self.show()
-            self.show_on_update = False
+            if display.ratio is not None:
+                # Ratio'd displays already have a temporary template
+                self.templates[display.template] = display._template_origin
+            else:
+                # Manufacture a placeholder template to use for updates
+                new_template = vcs.createtemplate(source=display.template)
+                self.templates[new_template.name] = display.template
+                display.template = new_template.name
+                # This is an attribute used internally; might break
+                display._template_origin = new_template.name
 
     def detach(self):
         if self.toolbar is not None:
@@ -259,8 +243,18 @@ class Configurator(object):
             self.marker_button.detach()
             self.marker_button = None
 
+        if self.target is not None:
+            self.target.detach()
+            self.target = None
+
+        if self.animation_timer is not None:
+            self.stop_animating()
+
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
+
+        # if all of the widgets have been cleaned up correctly, this will delete the manager
+        vtk_ui.manager.delete_manager(self.interactor)
 
     def release(self, object, event):
         if self.clicking is None:
@@ -298,9 +292,10 @@ class Configurator(object):
                         self.target.detach()
                         self.target = None
                         self.save()
+                        return
             elif self.target is not None and self.shift() == False:
                 self.deactivate(self.target)
-            self.interactor.GetRenderWindow().Render()
+                return
 
         self.clicking = None
 
@@ -309,13 +304,15 @@ class Configurator(object):
             return
 
         point = self.interactor.GetEventPosition()
-
+        cursor = self.interactor.GetRenderWindow().GetCurrentCursor()
         if self.target:
             if self.target.handle_click(point):
                 if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
+                    if cursor != vtk.VTK_CURSOR_CROSSHAIR:
+                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
                 else:
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                    if cursor != vtk.VTK_CURSOR_HAND:
+                        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
         else:
             if self.toolbar.in_toolbar(*point):
@@ -327,10 +324,11 @@ class Configurator(object):
         for display in self.displays:
             obj = self.in_display_plot(point, display)
             if obj is not None:
-                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
+                if cursor != vtk.VTK_CURSOR_HAND:
+                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
                 return
-
-        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
+        if cursor != vtk.VTK_CURSOR_DEFAULT:
+            self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
 
 
     def click(self, object, event):
@@ -339,9 +337,13 @@ class Configurator(object):
     def show(self):
         if len(self.displays) == 0:
             return
+        self.place()
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
+        man = vtk_ui.manager.get_manager(self.interactor)
+        man.elevate()
+        self.interactor.Render()
         #self.fill_button.show()
         #self.line_button.show()
 
@@ -455,6 +457,7 @@ class Configurator(object):
             self.changed = False
         else:
             self.interactor.GetRenderWindow().Render()
+        self.canvas.animate.reset()
 
     def init_toolbar(self):
         self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)
@@ -503,38 +506,110 @@ class Configurator(object):
           logo_button.set_state(1)
 
     def setup_animation(self):
-        self.canvas.animate.create()
         if self.initialized == False:
+            self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
-            anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
-            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
-            anim_toolbar.add_slider_button(4, 1, 30, "Frames Per Second", update=self.set_animation_speed)
+            self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
+            anim_toolbar.add_button(["Step Backward"], action=self.step_back)
+            def get_frame():
+                return self.canvas.animate.frame_num
+            anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            anim_toolbar.add_slider_button(self.animation_speed, 1, 100, "Speed (Step Delay)", update=self.set_animation_speed)
+            self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
+
+    def step_forward(self, state):
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+
+    def step_back(self, state):
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+
+    def save_animation_press(self, state):
+        if state == 1:
+            if self.animation_timer:
+                self.stop_animating()
+                self.anim_button.set_state(0)
+            self.save_listener = self.interactor.AddObserver("TimerEvent", self.save_tick)
+            self.save_timer = self.interactor.CreateRepeatingTimer(10)
+        else:
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+            self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+
+
+    def save_animation(self):
+        # Save the animation
+        self.canvas.animate.fps(int(1000.0 / self.animation_speed))
+
+        data_titles = {}
+        name_to_type = {}
+        # Iterate the displays and create a name for the animation
+        for display in self.displays:
+            name_to_type[display.g_name] = display.g_type
+
+            for array in display.array:
+                if array is not None:
+                    if display.g_name not in data_titles:
+                        data_titles[display.g_name] = []
+                    data_titles[display.g_name].append("_".join(array.title.split()))
+
+        plot_names = [name_to_type[d_name]+ "_" + "-".join(data_titles[d_name]) for d_name in data_titles]
+        name = "__".join(plot_names) + ".mp4"
+        save_path = self.get_save_path(name)
+        if save_path == '':
+            return
+
+        self.canvas.animate.save(save_path)
+        self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+        self.save_anim_button.set_state(0)
+
+
+    def save_tick(self, obj, event):
+        if self.save_timer is None or self.save_listener is None:
+            return
+
+        if self.canvas.animate.number_of_frames() == len(self.canvas.animate.animation_files):
+            self.save_animation()
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+        else:
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
+
 
     def set_animation_speed(self, value):
         v = int(value)
-        self.animation_speed = int(1000.0 / v)
+        self.animation_speed = 10 * v
         if self.animation_timer is not None:
             self.interactor.DestroyTimer(self.animation_timer)
             self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * 1000. / self.animation_speed)):
             self.animation_last_frame_time = datetime.datetime.now()
-            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
-            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
     def start_animating(self):
-        self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+        if self.animation_timer is None:
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
 
     def stop_animating(self):
-        self.interactor.DestroyTimer(self.animation_timer)
-        self.animation_timer = None
+        if self.animation_timer is not None:
+            t, self.animation_timer = self.animation_timer, None
+            self.interactor.DestroyTimer(t)
 
     def set_animation_frame(self, value):
         value = int(value)
-        self.canvas.animate.draw_frame(value)
+        self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
         return value
 
     def set_background_red(self, value):
@@ -585,7 +660,7 @@ class Configurator(object):
         if self.target is not None:
             self.deactivate(self.target)
 
-        buttons = [self.fill_button, self.text_button, self.line_button, self.marker_button]
+        buttons = [self.text_button, self.marker_button]
         buttons.remove(button)
 
         if self.creating:
