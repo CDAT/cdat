@@ -266,6 +266,11 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_plot_unstructured_via_boxfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_plot_unstructured_via_boxfill.py
+      "${BASELINE_DIR}/test_plot_unstructured_via_boxfill.png"
+    )
     cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_as_def_vistrails_exts.py
@@ -575,6 +580,26 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
+      )
+    cdat_add_test(vcs_test_animate_isoline
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_text_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_text_labels_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
+      ${BASELINE_DIR}
       )
   endif()
 
