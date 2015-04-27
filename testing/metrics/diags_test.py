@@ -16,12 +16,15 @@ import checkimage
 import argparse, pdb
 
 def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
+    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
     fname = os.path.join( pathout, filename )
     baselinefname = os.path.join( baselinepath, filename )
     f = cdms2.open( fname )
     g = cdms2.open( baselinefname )
     fvar = f(varname)
     gvar = g(varname)
+    print "FVAR:",fvar.shape
+    print "GVAR:",gvar.shape
     close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
     if close:
         print "fvar and gvar are close for", varname
@@ -35,7 +38,6 @@ def closeness( varname, filename, pathout, baselinepath, rtol, atol ):
 
 def execute(test_str, plotset, obstype, varid, season, imagefilename, imagethreshold, ncfiles, rtol, atol):
     print test_str
-    
     # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
     cdms2.setNetcdfShuffleFlag(0)
     cdms2.setNetcdfDeflateFlag(0)
@@ -102,4 +104,5 @@ def execute(test_str, plotset, obstype, varid, season, imagefilename, imagethres
                 
         #cleanup the temp files
         shutil.rmtree(outpath)
+        print "CLOSE IS:",CLOSE,close
         assert(CLOSE)#, 'data are not close'
