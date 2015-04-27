@@ -12,15 +12,15 @@ example = "./diagtest41.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat
 plotset = 41
 obstype = 'NCEP'
 varid = 'T'
-season = 'JJA'
+season = 'ANN'
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
-imagefilename = 'set41_Global_JJA_T-combined.png'
+imagefilename = 'set41_Global_ANN_T-combined.png'
 imagethreshold = 1.0e6
 ncfiles = {}
-ncfiles['T_JJA_(1)_None.nc'] = ['rv_T_JJA_ft0_None']
-ncfiles['T_JJA_(2)_None.nc'] = ['rv_T_JJA_ft1_None']
+ncfiles['T_ANN_(1)_None.nc'] = ['rv_T_ANN_ft0_None']
+ncfiles['T_ANN_(2)_None.nc'] = ['rv_T_ANN_ft1_None']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3

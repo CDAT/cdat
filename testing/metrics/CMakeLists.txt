@@ -24,14 +24,14 @@ cdat_add_test("diags_test_04"
   --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
   --baseline=${BASELINE_DIR}/metrics/ )
 
-cdat_add_test("diags_test_41"
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/metrics/diagtest41.py
-  --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
-  --baseline=${BASELINE_DIR}/metrics/ )
+#cdat_add_test("diags_test_41"
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/metrics/diagtest41.py
+#  --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
+#  --baseline=${BASELINE_DIR}/metrics/ )
   
-cdat_add_test("diags_test_05"
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/metrics/diagtest05.py
-  --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
-  --baseline=${BASELINE_DIR}/metrics/ )
+#cdat_add_test("diags_test_05"
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/metrics/diagtest05.py
+#  --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
+#  --baseline=${BASELINE_DIR}/metrics/ )
