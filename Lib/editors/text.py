@@ -130,8 +130,19 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def finished_editing(self, textbox):
         index = self.textboxes.index(textbox)
-        self.text.string[index] = textbox.text
-        self.actors[index].SetInput(textbox.text)
+        if textbox.text == "":
+            del self.text.string[index]
+            del self.text.x[index]
+            del self.text.y[index]
+            del self.actors[index]
+            textbox.detach()
+            del self.textboxes[index]
+            if len(self.text.string) == 0:
+                self.deactivate()
+                return
+        else:
+            self.text.string[index] = textbox.text
+            self.actors[index].SetInput(textbox.text)
 
     def get_box_at_point(self, x, y):
         for box in self.textboxes:

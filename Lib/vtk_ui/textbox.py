@@ -20,6 +20,7 @@ class Textbox(Label):
         super(Textbox, self).__init__(interactor, string, **kwargs)
         self.drag_interval = timedelta(0, .1)
         self.editing = False
+        self.blank = False
         self.edit_indicator = None
         self.column = 0
         self.row = 0
@@ -27,7 +28,6 @@ class Textbox(Label):
         self.on_editing_end = on_editing_end
         self.highlight_opacity = highlight_opacity
         self.highlight_color = highlight_color
-
         self.cursor = Line((0, 0), (1, 1), renderer=self.widget.GetCurrentRenderer(), width=2)
         # Blink the cursor if we're editing.
         self.blink_timer = self.interactor.CreateRepeatingTimer(600)
@@ -66,7 +66,11 @@ class Textbox(Label):
         row = rows[self.row]
 
         if self.column >= len(row):
-            row += character
+            if self.blank:
+                self.blank = False
+                row = character
+            else:
+                row += character
             rows[self.row] = row
             if character == "\n":
                 self.column = 0
@@ -74,7 +78,11 @@ class Textbox(Label):
             else:
                 self.column = len(row)
         else:
-            row = row[:self.column] + character + row[self.column:]
+            if self.blank:
+                self.blank = False
+                row = character
+            else:
+                row = row[:self.column] + character + row[self.column:]
             rows[self.row] = row
             if character != "\n":
                 self.column += 1
@@ -107,6 +115,9 @@ class Textbox(Label):
                 self.column = len(row)
 
         self.text = "\n".join(rows)
+        if self.text == "":
+            self.blank = True
+            self.text = " "
 
     def typed(self, obj, event):
         if self.editing:
@@ -361,9 +372,10 @@ class Textbox(Label):
     def stop_editing(self):
         self.editing = False
         self.cursor.hide()
-
+        if self.blank:
+            self.text = ""
         self.on_editing_end(self)
-        self.manager.queue_render()
+        self.text = " "
 
     def place(self):
         super(Textbox, self).place()
@@ -371,8 +383,6 @@ class Textbox(Label):
             self.place_cursor()
 
     def detach(self):
-        # Make sure text is updated
-        self.stop_editing()
         if self.cursor is not None:
             self.cursor.detach()
             self.cursor = None
