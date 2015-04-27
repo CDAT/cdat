@@ -1,5 +1,4 @@
 from vtk import vtkTextActor, vtkTextRenderer, vtkTextProperty, vtkPropPicker
-import datetime
 import math
 
 
@@ -206,7 +205,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         self.register()
 
     def text():
-        doc = "The text property."
+        doc = "Property that provides access to the text actor's input"
 
         def fget(self):
             return self.get_text()
@@ -240,7 +239,10 @@ class Label(Widget, DraggableMixin, ClickableMixin):
     y = property(**y())
 
     def left():
-        doc = "The left property."
+        """
+        Provides support for the old-style of coordinates; left + top, vs x + y
+        """
+        doc = "The left side of the text actor, adjusted by width/justification"
 
         def fget(self):
             halign = self.actor.GetTextProperty().GetJustificationAsString()
@@ -273,7 +275,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         """
         Provides support for the old-style of coordinates; left + top, vs x + y
         """
-        doc = "Top coordinate"
+        doc = "The top side of the text actor, adjusted by height/justification"
 
         def fget(self):
             """
@@ -356,8 +358,7 @@ class Label(Widget, DraggableMixin, ClickableMixin):
 
     def place(self):
         """
-        No-op, now that left and top auto-update the actor,
-        but useful for subclasses to move accessories
+        No-op, now that left and top auto-update the actor, but useful for subclasses to move accessories
         """
         pass
 
