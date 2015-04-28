@@ -340,13 +340,11 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         if self.showing() is False:
             self.place()
             self.actor.VisibilityOn()
-            self.actor.Modified()
             self.render()
 
     def hide(self):
         if self.showing():
             self.actor.VisibilityOff()
-            self.actor.Modified()
             self.render()
 
     def place(self):
