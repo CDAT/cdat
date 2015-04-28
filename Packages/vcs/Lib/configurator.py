@@ -694,14 +694,14 @@ class Configurator(object):
 
 def get_attribute(display, backend_key):
     key = backend_key.split("_")[2]
-    template = t(display.template)
+    template = vcstemp(display.template)
     if key in ("Min", "Max", "Mean"):
         return getattr(template, key.lower())
     else:
         return getattr(template, key)
 
 
-def t(name):
+def vcstemp(name):
     """
     Retrieves template by name
     """
