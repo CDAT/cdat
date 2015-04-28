@@ -447,7 +447,7 @@ class Configurator(object):
           logo_button.set_state(1)
 
     def setup_animation(self):
-        if self.initialized is False and [True for d in self.displays if d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")]:
+        if self.initialized is False and [True for d in self.displays if display_supports_animation(d)]:
             self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
             self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
@@ -695,8 +695,17 @@ def get_attribute(display, backend_key):
     else:
         return getattr(template, key)
 
+
 def t(name):
+    """
+    Retrieves template by name
+    """
     return vcs.gettemplate(name)
+
+
+def display_supports_animation(d):
+    return d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")
+
 
 def is_label(key):
     return "_text_actor" == key[-11:]
