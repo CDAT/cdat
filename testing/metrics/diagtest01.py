@@ -58,7 +58,7 @@ varid = 'T'
 vard = package.all_variables( filetable1, filetable2, sname )
 var = vard[varid]
 
-plot = sclass( filetable1, filetable2, varid, seasonid )
+plot = sclass( [filetable1], [filetable2], varid, seasonid )
 res = plot.compute()
 if res is not None:
     if res.__class__.__name__ is 'uvc_composite_plotspec':
