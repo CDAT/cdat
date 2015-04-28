@@ -1,9 +1,9 @@
 import point
 import vcs
-import text
-#import vtk
+import vtk
 import vcs.vcs2vtk
 from font import FontEditor
+from vcs.vtk_ui.text import contrasting_color
 
 __valign_map__ = {
     0: 0,
@@ -19,6 +19,7 @@ __backend_actor_names__ = {
     "max": "vtk_backend_Max_text_actor",
 }
 
+
 def get_actor(member, dp):
     if member.member in __backend_actor_names__:
         actor = dp.backend[__backend_actor_names__[member.member]]
@@ -27,6 +28,7 @@ def get_actor(member, dp):
     else:
         actor = None
     return actor
+
 
 class LabelEditor(point.PointEditor):
     """
@@ -44,6 +46,12 @@ class LabelEditor(point.PointEditor):
 
         self.actor = get_actor(self.label, self.display)
 
+        tprop = self.actor.GetTextProperty()
+        self.real_bg = tprop.GetBackgroundColor()
+        self.real_bg_opacity = tprop.GetBackgroundOpacity()
+
+        tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
+        tprop.SetBackgroundOpacity(.85)
 
         text_types_name = template.name + "_" + label.member
 
@@ -83,7 +91,7 @@ class LabelEditor(point.PointEditor):
         if self.actor:
             p = self.actor.GetTextProperty()
             winSize = self.interactor.GetRenderWindow().GetSize()
-            vcs.vcs2vtk.prepTextProperty(p,winSize,to=self.to,tt=self.tt,cmap=None)
+            vcs.vcs2vtk.prepTextProperty(p, winSize, to=self.to, tt=self.tt, cmap=None)
 
     def set_font(self, font):
         self.tt.font = font
@@ -123,12 +131,14 @@ class LabelEditor(point.PointEditor):
         self.tt.color = color
         self.picker = None
         self.save()
+        tprop = self.actor.GetTextProperty()
+        tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
+        tprop.SetBackgroundOpacity(.85)
         #text colormap is currently not in place, will be later.
         #self.text.colormap = cmap
 
     def cancel_color(self):
         self.picker = None
-
 
     def get_text(self):
         return get_label_text(self.label, self.display)
@@ -140,9 +150,19 @@ class LabelEditor(point.PointEditor):
         return self.label == label
 
     def in_bounds(self, x, y):
-        t = self.get_text()
-        swidth, sheight = self.interactor.GetRenderWindow().GetSize()
-        return inside_label(self.label, t, x, y, swidth, sheight)
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        x, y = x * w, y * h
+        picker = vtk.vtkPropPicker()
+        for ren in vcs.vcs2vtk.vtkIterate(self.interactor.GetRenderWindow().GetRenderers()):
+            if ren.HasViewProp(self.actor):
+                break
+        else:
+            return False
+
+        if picker.PickProp(x, y, ren) and picker.GetViewProp() == self.actor:
+            return True
+        else:
+            return False
 
     def delete(self):
         super(LabelEditor, self).delete()
@@ -152,6 +172,9 @@ class LabelEditor(point.PointEditor):
     def detach(self):
         super(LabelEditor, self).detach()
         self.toolbar.detach()
+        tprop = self.actor.GetTextProperty()
+        tprop.SetBackgroundColor(*self.real_bg)
+        tprop.SetBackgroundOpacity(self.real_bg_opacity)
 
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
@@ -184,14 +207,3 @@ def get_label_text(label, display):
         except AttributeError:
             t = ''
         return t
-
-def inside_label(label, t, x, y, screen_width, screen_height):
-    tt = label.texttable
-    to = label.textorientation
-
-    tc = vcs.createtextcombined(Tt_source=tt, To_source=to)
-    tc.string = [t]
-    tc.x = [label.x]
-    tc.y = [label.y]
-
-    return text.inside_text(tc, x, y, screen_width, screen_height) is not None
