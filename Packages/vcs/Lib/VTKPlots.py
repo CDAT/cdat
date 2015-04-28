@@ -1153,7 +1153,7 @@ class VTKVCSBackend(object):
       else:
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
-      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,False]],]
+      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,True]],]
 
     if missingMapper is not None:
       if isinstance(gm,meshfill.Gfm):
