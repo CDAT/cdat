@@ -179,7 +179,7 @@ def text_dimensions(text, text_prop, at_angle=0):
     p.ShallowCopy(text_prop)
     p.SetOrientation(at_angle)
     ren.GetBoundingBox(p, text, bounds)
-    return bounds[1] - bounds[0], bounds[3] - bounds[2]
+    return bounds[1] - bounds[0] + 1, bounds[3] - bounds[2] + 1
 
 
 from widget import Widget, WidgetReprShim
