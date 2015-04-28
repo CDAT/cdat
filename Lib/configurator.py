@@ -296,7 +296,6 @@ class Configurator(object):
 
         return obj
 
-
     def hover(self, object,event):
         if self.clicking is not None:
             return
@@ -305,8 +304,6 @@ class Configurator(object):
 
         actor = self.actor_at_point(*point)
         window = self.render_window
-
-        cursor = self.render_window.GetCurrentCursor()
 
         new_cursor = vtk.VTK_CURSOR_DEFAULT
         if actor is None:
@@ -325,9 +322,7 @@ class Configurator(object):
                 if display is not None and editable_type(display, key):
                     new_cursor = vtk.VTK_CURSOR_HAND
 
-        if cursor != new_cursor:
-            window.SetCurrentCursor(new_cursor)
-
+        window.SetCurrentCursor(new_cursor)
 
     def click(self, object, event):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
