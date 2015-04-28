@@ -250,11 +250,21 @@ class Configurator(object):
         for display in self.displays:
             for key in display.backend:
                 try:
-                    if actor == display.backend[key] or actor in display.backend[key] or [True for group in display.backend[key] if actor in group]:
-                        return display, key
+                    """
+                    display.backend[key] will contain either:
+                        A) An actor
+                        B) A list of actors
+                        C) A list of tuples that include actors
+                    """
+                    actor_in_backend = actor == display.backend[key]
+                    if not actor_in_backend:
+                        actor_in_backend = actor in display.backend[key]
+                    if not actor_in_backend:
+                        actor_in_backend = len([True for group in display.backend[key] if actor in group]) > 0
                 except TypeError:
-                    # display.backend[key] isn't iterable
-                    pass
+                    actor_in_backend = False
+                if actor_in_backend:
+                    return display, key
             else:
                 continue
             break
