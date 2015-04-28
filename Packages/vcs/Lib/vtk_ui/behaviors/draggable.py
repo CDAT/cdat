@@ -1,5 +1,7 @@
 from behavior import Behavior
 import datetime
+
+
 class DraggableMixin(Behavior):
 
     def __init__(self):
@@ -7,7 +9,8 @@ class DraggableMixin(Behavior):
         self.drag_origin = None
         self.drag_position = None
         self.drag_started = None
-        self.drag_buffer = 10 # in pixels
+        self.drag_buffer = 10  # in pixels
+        self.drag_interval = datetime.timedelta(0, .25)
         self.add_event_handler("LeftButtonPressEvent", self.drag_clicked)
         self.add_event_handler("MouseMoveEvent", self.drag_moved)
         self.add_event_handler("LeftButtonReleaseEvent", self.drag_released)
@@ -27,7 +30,6 @@ class DraggableMixin(Behavior):
     def drag_clicked(self, obj, event):
 
         x, y = self.event_position()
-
         if self.in_bounds(x, y):
             self.drag_origin = self.event_position()
             self.drag_position = None
@@ -37,7 +39,7 @@ class DraggableMixin(Behavior):
     def drag_moved(self, obj, event):
         x, y = self.event_position()
 
-        if self.drag_origin is None or datetime.datetime.now() - self.drag_started < datetime.timedelta(0, .25):
+        if self.drag_origin is None or datetime.datetime.now() - self.drag_started < self.drag_interval:
             return
 
         if self.drag_position is None:

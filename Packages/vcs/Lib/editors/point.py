@@ -1,5 +1,6 @@
-from vcs.vtk_ui import behaviors, Handle
+from vcs.vtk_ui import behaviors
 import priority
+
 
 class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
     """
@@ -30,10 +31,13 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
 
     def handle_click(self, point):
         x, y = point
+        w, h = self.interactor.GetRenderWindow().GetSize()
+
+        adjusted_x, adjusted_y = float(x) / w, float(y) / h
         try:
-            return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y)
+            return self.in_bounds(adjusted_x, adjusted_y) or self.toolbar.in_toolbar(x, y)
         except AttributeError:
-            return self.in_bounds(x, y)
+            return self.in_bounds(adjusted_x, adjusted_y)
 
     def render(self):
         from vcs.vtk_ui.manager import get_manager
@@ -47,7 +51,6 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
             w, h = self.interactor.GetRenderWindow().GetSize()
             x, y = self.actor.GetPosition()
             self.actor.SetPosition(x + w * d_x, y + h * d_y)
-            self.actor.GetMapper().Update()
             self.render()
         except AttributeError:
             self.configurator.changed = True
@@ -63,6 +66,7 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
 
     def deactivate(self):
         self.configurator.deactivate(self)
+
 
 def in_point(point, x, y):
     if x < point.x + .001 and x > point.x - .001 and y > point.y - .001 and y < point.y + .001:

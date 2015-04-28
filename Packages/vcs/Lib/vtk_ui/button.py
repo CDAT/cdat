@@ -95,6 +95,8 @@ class Button(Widget):
         super(Button, self).__init__(interactor, widget)
 
         if tooltip:
+            if tooltip_property is not None:
+                tooltip_property.SetVerticalJustificationToTop()
             self.tooltip_label = Label(interactor, tooltip, textproperty=tooltip_property)
             self.hover_handler = self.interactor.AddObserver("MouseMoveEvent", self.hover)
             self.hover_timer = None
@@ -119,7 +121,6 @@ class Button(Widget):
                 self.hover_timer = None
             if self.tooltip_label.showing():
                 self.tooltip_label.hide()
-
 
     def still_hovering(self, obj, event):
         if self.hover_timer:
@@ -256,7 +257,7 @@ class Button(Widget):
         self.place()
 
     def show(self):
-        self.widget.On()
+        super(Button, self).show()
         self.text_widget.show()
         self.place()
 
@@ -273,12 +274,12 @@ class Button(Widget):
         super(Button, self).detach()
 
     def hide(self):
+        super(Button, self).hide()
         try:
             self.tooltip_label.hide()
         except AttributeError:
             pass
         self.text_widget.hide()
-        self.widget.Off()
 
     def in_bounds(self, x, y):
         w, h = self.get_dimensions()

@@ -1450,3 +1450,10 @@ def stripGrid(vtk_grid):
             thresh.Update()
             vtk_grid = thresh.GetOutput()
     return vtk_grid
+
+def vtkIterate(iterator):
+    iterator.InitTraversal()
+    obj = iterator.GetNextItem()
+    while obj is not None:
+        yield obj
+        obj = iterator.GetNextItem()

@@ -9,7 +9,7 @@ class PriorityEditor(KeyableMixin):
             self.raise_priority()
         elif key == "Down":
             self.lower_priority()
-        elif (len(key) == 1 and ord(key) == 127) or key == "Delete":
+        elif (len(key) == 1 and ord(key) == 127) or key in ("Delete", "Backspace"):
             self.delete()
 
     def get_object(self):
