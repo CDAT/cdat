@@ -217,119 +217,99 @@ class Label(Widget, DraggableMixin, ClickableMixin):
 
         self.register()
 
-    def text():
-        doc = "Property that provides access to the text actor's input"
-
-        def fget(self):
-            return self.get_text()
-
-        def fset(self, value):
-            self.set_text(value)
-
-        return locals()
-    text = property(**text())
-
-    def x():
-        doc = "The x coordinate of the text actor."
-
-        def fget(self):
-            return self.actor.GetPosition()[0]
-
-        def fset(self, value):
-            self.actor.SetPosition(value, self.y)
-        return locals()
-    x = property(**x())
-
-    def y():
-        doc = "The y coordinate of the text actor."
-
-        def fget(self):
-            return self.actor.GetPosition()[1]
-
-        def fset(self, value):
-            self.actor.SetPosition(self.x, value)
-        return locals()
-    y = property(**y())
-
-    def left():
+    @property
+    def text(self):
         """
-        Provides support for the old-style of coordinates; left + top, vs x + y
+        Get/Set the text on the actor
         """
-        doc = "The left side of the text actor, adjusted by width/justification"
+        return self.get_text()
 
-        def fget(self):
-            halign = self.actor.GetTextProperty().GetJustificationAsString()
-            if halign == "Left":
-                return self.x
+    @text.setter
+    def text(self, value):
+        self.set_text(value)
 
-            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
-            if halign == "Centered":
-                return self.x - math.floor(w / 2.)
+    @property
+    def x(self):
+        """The x coordinate of the text actor."""
+        return self.actor.GetPosition()[0]
 
-            if halign == "Right":
-                return self.x - w
+    @x.setter
+    def x(self, value):
+        self.actor.SetPosition(value, self.y)
 
-        def fset(self, l):
+    @property
+    def y(self):
+        """The y coordinate of the text actor."""
+        return self.actor.GetPosition()[1]
 
-            halign = self.actor.GetTextProperty().GetJustificationAsString()
-            if halign == "Left":
-                self.x = l
+    @y.setter
+    def y(self, value):
+        self.actor.SetPosition(self.x, value)
 
-            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
-            if halign == "Centered":
-                self.x = l + math.floor(w / 2.)
+    @property
+    def left(self):
+        """The left side of the text actor, adjusted by width/justification"""
+        halign = self.actor.GetTextProperty().GetJustificationAsString()
+        if halign == "Left":
+            return self.x
 
-            if halign == "Right":
-                self.x = l + w
-        return locals()
-    left = property(**left())
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        if halign == "Centered":
+            return self.x - math.floor(w / 2.)
 
-    def top():
+        if halign == "Right":
+            return self.x - w
+
+    @left.setter
+    def left(self, l):
+        halign = self.actor.GetTextProperty().GetJustificationAsString()
+        if halign == "Left":
+            self.x = l
+
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        if halign == "Centered":
+            self.x = l + math.floor(w / 2.)
+
+        if halign == "Right":
+            self.x = l + w
+
+    @property
+    def top(self):
+        """The top side of the text actor, adjusted by height/justification"""
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+        y = self.y
+        # Adjust from alignment point to top of the actor
+        if valign == "Top":
+            pass
+        if valign == "Centered":
+            y += math.floor(h / 2.) + 1
+        if valign == "Bottom":
+            y += h
+        # Transform from y position to distance from top of screen to top of actor
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        return h - y
+
+    @top.setter
+    def top(self, t):
         """
-        Provides support for the old-style of coordinates; left + top, vs x + y
+        Sets actor y using distance in pixels from top of window to top of actor
         """
-        doc = "The top side of the text actor, adjusted by height/justification"
+        # Get the text's size to adjust for alignment
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
 
-        def fget(self):
-            """
-            Returns distance in pixels from top of window to top of actor
-            """
-            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
-            valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
-            y = self.y
-            # Adjust from alignment point to top of the actor
-            if valign == "Top":
-                pass
-            if valign == "Centered":
-                y += math.floor(h / 2.) + 1
-            if valign == "Bottom":
-                y += h
-            # Transform from y position to distance from top of screen to top of actor
-            w, h = self.interactor.GetRenderWindow().GetSize()
-            return h - y
-
-        def fset(self, t):
-            """
-            Sets actor y using distance in pixels from top of window to top of actor
-            """
-            # Get the text's size to adjust for alignment
-            w, h = text_dimensions(self.text, self.actor.GetTextProperty())
-
-            valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
-            # Adjust position based on alignment
-            if valign == "Top":
-                y = t
-            # Since it's not top-aligned, alignment point will be lower (and we're in units from top)
-            elif valign == "Centered":
-                y = t + math.floor(h / 2.) + 1
-            elif valign == "Bottom":
-                y = t + h
-            # Convert the y from pixels from top to pixels from bottom
-            w, h = self.interactor.GetRenderWindow().GetSize()
-            self.y = h - y
-
-        return locals()
-    top = property(**top())
+        valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+        # Adjust position based on alignment
+        if valign == "Top":
+            y = t
+        # Since it's not top-aligned, alignment point will be lower (and we're in units from top)
+        elif valign == "Centered":
+            y = t + math.floor(h / 2.) + 1
+        elif valign == "Bottom":
+            y = t + h
+        # Convert the y from pixels from top to pixels from bottom
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        self.y = h - y
 
     def __repr__(self):
         return "<Label Widget: %s>" % self.get_text()
