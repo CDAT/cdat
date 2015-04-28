@@ -57,24 +57,37 @@ def contrasting_color(red, green, blue):
     phi = .61803398875
 
     iterations = 0
-    max_iters = 5
+    change_key_count = 5
 
     hsv = {"hue": hue, "value": value, "saturation": saturation}
     var_keys = hsv.keys()
     key = "value"
 
-    while contrast_ratio((red, green, blue), (r, g, b)) < 4.5:
+    best_color = None
+    best_contrast = 0
+    contrast = 0
+
+    maximum_iterations = 1000
+    while contrast < 4.5 and iterations < maximum_iterations:
+
+        contrast = contrast_ratio((red, green, blue), (r, g, b))
+        # Allows us to jump out in case of infinite loop, and still use the best contrast we've seen
+        if contrast > best_contrast:
+            best_color = r, g, b
+            best_contrast = contrast
+
         iterations += 1
-        if iterations == max_iters:
+
+        if iterations % change_key_count == 0:
             key = var_keys[(var_keys.index(key) + 1) % 3]
-            iterations = 0
+
         var_value = hsv[key] - phi
         if var_value < 0:
             var_value += 1
         hsv[key] = var_value
         r, g, b = hsv_to_rgb(hsv["hue"], hsv["saturation"], hsv["value"])
 
-    return hsv_to_rgb(hsv["hue"], hsv["saturation"], hsv["value"])
+    return best_color
 
 
 def hsv_to_rgb(h, s, v):
