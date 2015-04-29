@@ -167,3 +167,8 @@ add_test(test_vtk_ui_white_or_black
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_white_or_black.py
 )
+
+add_test(test_vtk_ui_textbox_blank_text
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_blank_test.py
+)
