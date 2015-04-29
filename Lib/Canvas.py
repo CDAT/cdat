@@ -2727,11 +2727,11 @@ Options:::
                     xs=arglist[0].getAxis(-1)
                     ys=arglist[0].getAxis(-2)
                     if xs.isLongitude() and ys.isLatitude() and isinstance(inGrid,cdms2.grid.TransientRectGrid):
-                        arglist[1]=MV2.array(g.getMesh())
+                        arglist[1]=MV2.array(inGrid.getMesh())
                         if not 'wrap' in keyargs.keys():
                             keyargs['wrap']=[0.,360.]
                     elif ys.isLongitude() and xs.isLatitude() and isinstance(inGrid,cdms2.grid.TransientRectGrid):
-                        arglist[1]=MV2.array(g.getMesh())
+                        arglist[1]=MV2.array(inGrid.getMesh())
                         if not 'wrap' in keyargs.keys():
                             keyargs['wrap']=[360.,0.]
                     else:
