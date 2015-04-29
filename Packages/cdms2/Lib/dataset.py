@@ -245,14 +245,14 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 file = CdmsFile(uri,mode)
                 return file
             except:
-                raise "Error in DODS open of: ",uri
+                raise CDMSError, "Error in DODS open of: ",uri
         else:
             try:
                 datanode = loadURI(uri)
                 return datanode
             except:
                 datanode = loadURI(uri)
-                raise "Error in loadURI of: ",uri
+                raise CDMSError, "Error in loadURI of: ",uri
             
     else:
         raise SchemeNotSupported, scheme
