@@ -1478,6 +1478,7 @@ class VTKVCSBackend(object):
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
           self.renWin.RemoveRenderer(manager.renderer)
+          self.renWin.RemoveRenderer(manager.actor_renderer)
 
   def showGUI(self, render=True):
     plot = self.get3DPlot()
@@ -1489,6 +1490,7 @@ class VTKVCSBackend(object):
       if manager_exists(self.renWin.GetInteractor()):
           manager = get_manager(self.renWin.GetInteractor())
           self.renWin.AddRenderer(manager.renderer)
+          self.renWin.AddRenderer(manager.actor_renderer)
           # Bring the manager's renderer to the top of the stack
           manager.elevate()
       if render:
