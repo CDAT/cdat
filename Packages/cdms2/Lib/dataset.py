@@ -84,26 +84,26 @@ def setCompressionWarnings(value=None):
         value = not _showCompressWarnings
     if isinstance(value,str):
         if not value.slower() in ['y','n','yes','no']:
-            raise CDMSError,"setCompressionWarnings flags must be yes/no or 1/0, or None to invert it"
+            raise CDMSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
         if value.lower()[0]=='y':
             value = 1
         else:
             value = 0
     if not isinstance(value, (int,bool)):
-        raise CMDSError, "setCompressionWarnings flags must be yes/no or 1/0, or None to invert it"
+        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
 
     if value in [1,True]:
         _showCompressWarnings = True
     elif value in [0,False]:
         _showCompressWarnings = False
     else:
-        raise CMDSError, "setCompressionWarnings flags must be yes/no or 1/0, or None to invert it"
+        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
     return _showCompressWarnings
 
 def setNetcdfClassicFlag(value):        
     """ Sets NetCDF classic flag value"""
     if value not in [True,False,0,1]:
-        raise CDMSError, "Error NetCDF Classic flag must be 1/0 or true/False"
+        raise CDMSError("Error NetCDF Classic flag must be 1/0 or true/False")
     if value in [0,False]:
         Cdunif.CdunifSetNCFLAGS("classic",0)
     else:
@@ -112,7 +112,7 @@ def setNetcdfClassicFlag(value):
 def setNetcdfShuffleFlag(value):        
     """ Sets NetCDF shuffle flag value"""
     if value not in [True,False,0,1]:
-        raise CDMSError, "Error NetCDF Shuffle flag must be 1/0 or true/False"
+        raise CDMSError("Error NetCDF Shuffle flag must be 1/0 or true/False")
     if value in [0,False]:
         Cdunif.CdunifSetNCFLAGS("shuffle",0)
     else:
@@ -121,7 +121,7 @@ def setNetcdfShuffleFlag(value):
 def setNetcdfDeflateFlag(value):
     """ Sets NetCDF deflate flag value"""
     if value not in [True,False,0,1]:
-        raise CDMSError, "Error NetCDF deflate flag must be 1/0 or true/False"
+        raise CDMSError("Error NetCDF deflate flag must be 1/0 or true/False")
     if value in [0,False]:
         Cdunif.CdunifSetNCFLAGS("deflate",0)
     else:
@@ -214,7 +214,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
         root,ext = os.path.splitext(path)
 
         if ext in ['.xml','.cdml']:
-            if mode!='r': raise ModeNotSupported,mode
+            if mode!='r': raise ModeNotSupported(mode)
             datanode = load(path)
         else:
             # If the doesn't exist allow it to be created
@@ -239,23 +239,23 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     elif scheme in ['http', 'gridftp']:
         
         if (dods):
-            if mode!='r': raise ModeNotSupported,mode
+            if mode!='r': raise ModeNotSupported(mode)
             # DODS file?
             try:
                 file = CdmsFile(uri,mode)
                 return file
             except:
-                raise "Error in DODS open of: ",uri
+                raise CDMSError("Error in DODS open of: ",uri)
         else:
             try:
                 datanode = loadURI(uri)
                 return datanode
             except:
                 datanode = loadURI(uri)
-                raise "Error in loadURI of: ",uri
+                raise CDMSError("Error in loadURI of: ",uri)
             
     else:
-        raise SchemeNotSupported, scheme
+        raise SchemeNotSupported(scheme)
 
     # Determine dpath, the absolute path to data files:
     # dpath =
@@ -289,7 +289,7 @@ def parselist(text, f):
     n = 0
     m = _ListStart.match(text)
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[0:_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[0:_NPRINT])
     result = []
     n += m.end()
     s, nconsume = f(text[n:])
@@ -306,7 +306,7 @@ def parselist(text, f):
         n += nconsume
     m = _ListEnd.match(text[n:])
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[n:n+_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[n:n+_NPRINT])
     n += m.end()
     return result, n
 
@@ -321,7 +321,7 @@ def parseIndexList(text):
         m = _IndexList5.match(text)
         nindices = 5
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[0:_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[0:_NPRINT])
     result = [None]*(nindices+1)
     for i in range(nindices):
         s = m.group(i+1)
@@ -333,7 +333,7 @@ def parseIndexList(text):
 def parseName(text):
     m = _Name.match(text)
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[0:_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[0:_NPRINT])
     return m.group(), m.end()
 
 def parseVarMap(text):
@@ -341,7 +341,7 @@ def parseVarMap(text):
     n = 0
     m = _ListStart.match(text)
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[0:_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[0:_NPRINT])
     result = []
     n += m.end()
     s, nconsume = parselist(text[n:],parseName)
@@ -349,14 +349,14 @@ def parseVarMap(text):
     n += nconsume
     m = _ListSep.match(text[n:])
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[n:n+_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[n:n+_NPRINT])
     n += m.end()
     s, nconsume = parselist(text[n:], parseIndexList)
     result.append(s)
     n += nconsume
     m = _ListEnd.match(text[n:])
     if m is None:
-        raise CDMSError, "Parsing cdms_filemap near "+text[n:n+_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[n:n+_NPRINT])
     n += m.end()
     return result, n
 
@@ -370,7 +370,7 @@ def parseFileMap(text):
     """
     result, n = parselist(text, parseVarMap)
     if n<len(text):
-        raise CDMSError, "Parsing cdms_filemap near "+text[n:n+_NPRINT]
+        raise CDMSError("Parsing cdms_filemap near "+text[n:n+_NPRINT])
     return result
 
 
@@ -379,7 +379,7 @@ from cudsinterface import cuDataset
 class Dataset(CdmsObj, cuDataset):
     def __init__(self, uri, mode, datasetNode=None, parent=None, datapath=None):
         if datasetNode is not None and datasetNode.tag !='dataset':
-            raise CDMSError, 'Node is not a dataset node'
+            raise CDMSError('Node is not a dataset node')
         CdmsObj.__init__(self,datasetNode)
         for v in [ 'datapath',
                    'variables',
@@ -813,7 +813,7 @@ class Dataset(CdmsObj, cuDataset):
                     return f
 
             # File not found
-            raise FileNotFound, filename
+            raise FileNotFound(filename)
 
     def getLogicalCollectionDN(self, base=None):
         """Return the logical collection distinguished name of this dataset.
@@ -887,7 +887,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                     pass
             _fileobj_ = Cdunif.CdunifFile (path, mode)
         except Exception,err:
-            raise CDMSError, 'Cannot open file %s (%s)'%(path,err)
+            raise CDMSError('Cannot open file %s (%s)'%(path,err))
         self._file_ = _fileobj_   # Cdunif file object
         self.variables = {}
         self.axes = {}
@@ -1056,8 +1056,8 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 ##             try:
 ##                 return self.__dict__[name]
 ##             except KeyError:
-##                 raise AttributeError, "%s instance has no attribute %s." % \
-##                            (self.__class__.__name__, name)
+##                 raise AttributeError("%s instance has no attribute %s." % \
+##                            (self.__class__.__name__, name))
 ##         else:
 ##             return getattr(self._file_,name)
 
@@ -1070,8 +1070,8 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         try:
             del self.__dict__[name]
         except KeyError:
-            raise AttributeError, "%s instance has no attribute %s." % \
-                  (self.__class__.__name__, name)
+            raise AttributeError("%s instance has no attribute %s." % \
+                  (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
             del(self.attributes[name])
@@ -1084,7 +1084,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
    :::
    """
         if self._status_=="closed":
-            raise CDMSError, FileWasClosed + self.id
+            raise CDMSError(FileWasClosed + self.id)
         self._file_.sync()
 
     def close(self):
@@ -1133,7 +1133,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         :::
         """
         if self._status_=="closed":
-            raise CDMSError, FileWasClosed + self.id
+            raise CDMSError(FileWasClosed + self.id)
         cufile = self._file_
         if ar is None or unlimited==1:
             cufile.createDimension(name,None)
@@ -1185,7 +1185,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         :::
         """
         if self._status_=="closed":
-            raise CDMSError, FileWasClosed + self.id
+            raise CDMSError(FileWasClosed + self.id)
         cufile = self._file_
         cufile.createDimension(name, axislen)
         cufile.dimensioninfo[name] = ('','f',name,'','global',-1)
@@ -1218,10 +1218,10 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             newaxis = self.axes[newname]
             if newaxis.isVirtual():
                 if len(axis)!=len(newaxis):
-                    raise DuplicateAxisError, DuplicateAxis+newname
+                    raise DuplicateAxisError(DuplicateAxis+newname)
             elif unlimited==0:
                 if len(axis)!=len(newaxis) or numpy.alltrue(numpy.less(numpy.absolute(newaxis[:]-axis[:]),1.e-5))==0:
-                    raise DuplicateAxisError, DuplicateAxis+newname
+                    raise DuplicateAxisError(DuplicateAxis+newname)
             else:
                 if index is None:
                     isoverlap, index = isOverlapVector(axis[:],newaxis[:])
@@ -1236,7 +1236,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                     if axisBounds is not None:
                         newaxis.setBounds(axisBounds)
                 else:
-                    raise DuplicateAxisError, DuplicateAxis+newname
+                    raise DuplicateAxisError(DuplicateAxis+newname)
 
         elif axis.isVirtual():
             newaxis = self.createVirtualAxis(newname, len(axis))
@@ -1324,7 +1324,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                 (newlon is not lon) or
                 (newgrid.getOrder() != grid.getOrder()) or
                 (newgrid.getType() != grid.getType())):
-                raise DuplicateGrid, newname
+                raise DuplicateGrid(newname)
 
         # else create a new grid and copy metadata
         else:
@@ -1363,7 +1363,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         :::
         """
         if self._status_=="closed":
-            raise CDMSError, FileWasClosed + self.id
+            raise CDMSError(FileWasClosed + self.id)
         cufile = self._file_
         if datatype in CdDatatypes:
             numericType = cdmsNode.CdToNumericType.get(datatype)
@@ -1387,7 +1387,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             cuvar = cufile.createVariable(name,numericType,tuple(dimensions))
         except Exception,err:
             print err
-            raise CDMSError, "Creating variable "+name
+            raise CDMSError("Creating variable "+name)
         var = FileVariable(self,name,cuvar)
         var.initDomain(self.axes)
         self.variables[name] = var
@@ -1399,7 +1399,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
 ##         if newname is None: newname=var.id
 ##         if self.variables.has_key(newname):
-##             raise DuplicateVariable, newname
+##             raise DuplicateVariable(newname)
 
 
 ##         # Create axes if necessary
@@ -1419,7 +1419,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 ##                     except DuplicateAxisError:
 ##                         continue
 
-##                 if setit==0: raise DuplicateAxisError, DuplicateAxis+axis.id
+##                 if setit==0: raise DuplicateAxisError(DuplicateAxis+axis.id)
 
 ##             axislist.append(newaxis)
 
@@ -1594,7 +1594,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         if id is not None:
             newname = id
         if self.variables.has_key(newname):
-            raise DuplicateVariable, newname
+            raise DuplicateVariable(newname)
 
         # Determine the extended axis name if any
         if axes is None:
@@ -1632,7 +1632,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                         except DuplicateAxisError:
                             continue
 
-                    if setit==0: raise DuplicateAxisError, DuplicateAxis+axis.id
+                    if setit==0: raise DuplicateAxisError(DuplicateAxis+axis.id)
             else:
                 newaxis = self.copyAxis(axis, unlimited=1, index=index, extbounds=extbounds)
 
@@ -1738,7 +1738,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             varid = id
         if self.variables.has_key(varid):
             if pack:
-              raise CDMSError, "You cannot pack an existing variable %s " % varid
+              raise CDMSError("You cannot pack an existing variable %s " % varid)
             v = self.variables[varid]
         else:
           if pack is not False:
@@ -1794,7 +1794,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                 if bounds1 is not None:
                     vec2.setBounds(bounds1, persistent=1, index=index)
             else:
-                raise CDMSError,'Cannot write variable %s: the values of dimension %s=%s, do not overlap the extended dimension %s values: %s'%(varid, vec1.id,`vec1[:]`,vec2.id,`vec2[:]`)
+                raise CDMSError('Cannot write variable %s: the values of dimension %s=%s, do not overlap the extended dimension %s values: %s'%(varid, vec1.id,`vec1[:]`,vec2.id,`vec2[:]`))
 
         # pack implementation source: https://www.unidata.ucar.edu/software/netcdf/docs/BestPractices.html
         if pack:
