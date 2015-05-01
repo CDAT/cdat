@@ -38,7 +38,10 @@ class ColorPicker(object):
         self.style = vtk.vtkInteractorStyleUser()
         inter.SetInteractorStyle(self.style)
         inter.SetRenderWindow(self.render_window)
-
+        manager = vcs.vtk_ui.manager.get_manager(inter)
+        self.render_window.AddRenderer(manager.renderer)
+        self.render_window.AddRenderer(manager.actor_renderer)
+        manager.elevate()
         self.render_window.Render()
 
         self.on_save = on_save
