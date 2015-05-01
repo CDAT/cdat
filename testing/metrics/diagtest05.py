@@ -16,7 +16,7 @@ varid = 'T'
 seasonid = 'ANN'
 modeldir = 'cam_output'
 obsdir = 'obs_atmos'
-dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid, extra_parts=["--varopts 850 "] )
+dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
