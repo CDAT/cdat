@@ -149,7 +149,7 @@ class ColorPicker(object):
 
         x, y = inter.GetEventPosition()
 
-        renderer = self.topRendererAtPoint(x, y)
+        renderer = self.color_renderer
 
         if renderer:
             picker = vtk.vtkCellPicker()
