@@ -11,9 +11,13 @@ test_str = 'Test 4\n'
 example = "./diagtest04.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
 
 plotset = 4
-obstype = 'NCEP'
+filterid = 'f_contains'
+obsid = 'NCEP'
 varid = 'T'
-season = 'JJA'
+seasonid = 'JJA'
+modeldir = 'cam_output'
+obsdir = 'obs_atmos'
+dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
@@ -27,4 +31,4 @@ ncfiles['T_JJA_(2)_None.nc'] = ['rv_T_JJA_ft1_None']
 rtol = 1.0e-3
 atol = 1.0e-2   # suitable for temperatures
 
-diags_test.execute(test_str, plotset, obstype, varid, season, imagefilename, imagethreshold, ncfiles, rtol, atol)
+dt.execute(test_str, imagefilename, imagethreshold, ncfiles, rtol, atol)

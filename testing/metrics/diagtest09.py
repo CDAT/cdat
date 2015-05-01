@@ -1,30 +1,30 @@
 #!/usr/bin/env python
 """" In this file the inputs for the test are defined and passed to diags_test.execute"""
 import diags_test
-from metrics.packages.amwg.amwg import amwg_plot_set5
+from metrics.packages.amwg.amwg import amwg_plot_set9
 
-print amwg_plot_set5.name
+print amwg_plot_set9.name
 
-test_str = 'Test 05\n'
+test_str = 'Test 09\n'
 #run this from command line to get the files required
-example = "./diagtest05.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
+example = "./diagtest09.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
 
-plotset = 5
+plotset = 9
 filterid = 'f_contains'
 obsid = 'NCEP'
 varid = 'T'
 seasonid = 'ANN'
 modeldir = 'cam_output'
 obsdir = 'obs_atmos'
-dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid, extra_parts=["--varopts 850 "] )
+dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
-imagefilename = 'set5_Global_ANN_T-combined.png'
+imagefilename = 'set9_Global_ANN_T-combined.png'
 imagethreshold = 1.0e6
 ncfiles = {}
-ncfiles['T_ANN_(1)_None.nc'] = ['rv_T_ANN_ft0_None']
-ncfiles['T_ANN_(2)_None.nc'] = ['rv_T_ANN_ft1_None']
+ncfiles['rv_T_DJF_ft0_None__DJF-JJA_.nc'] = ['rv_T_DJF_ft0_None']
+ncfiles['rv_T_JJA_ft1_None__DJF-JJA_.nc'] = ['rv_T_JJA_ft1_None']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3

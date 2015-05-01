@@ -1,0 +1,30 @@
+Each test is named diags_test_xx; for example xx = 09.  Each test refers to a python script such as diagtest09.py.
+These scripts setup the inputs that will be executed in the DiagTest method execute.
+To create a new one, copy one that works into a new file: for example diagtest10.py. This file needs to be modified
+in order for it to execute properly.  Modify the inputs plotset, filterid, obsid, etc in such a way that  the plot set would 
+run to completion without fatal errors. In the casel plot set 10, filterid = 'f_contains', obsid = 'NCEP', etc.  
+
+In uvcdat/testing/metrics run
+./diagtest10.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True
+This will create a string and execute the string; note the script should run from the command line. It would look like
+diags  --outputdir /var/folders/r0/bt1s3__x5yjfntcc1_xt8qd8000696/T/tmpoOrv7K/  --model path=~/uvcmetrics_test_data/cam_output,climos=no  
+    --obs path=~/uvcmetrics_test_data/obs_atmos,filter="f_contains('NCEP')",climos=yes  --package AMWG  --set 10  --var T --seasons ANN
+When complete it displays the temp directory where the output of the plot set is put. Without --keep, this 
+directory is deleted.  It is of the form
+output directory is =  /var/folders/r0/bt1s3__x5yjfntcc1_xt8qd8000696/T/tmpFBJhqQ/
+Move to this temp directory and delete those files that start with figure or end with xml; they are unnecessary for the test.
+In ~/uvcdat-testdata/baselines/metrics create a directory plotset10 and copy the files from /var/folders/r0/bt1s3__x5yjfntcc1_xt8qd8000696/T/tmpFBJhqQ/
+into plotset10. 
+
+In the script plotset10 copy the name of the combined png into imagefilename and the nc file names as keys to the dictionary ncfiles.  
+The values of these latter are obtained by doing ncdump -h on the file, such as ncdump -h "CLISCCP_ANN_Global_(1)_None.nc"
+
+Once complete rerun diagtest10 without the keep flag: 
+./diagtest10.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/
+This just simply test to see if you get the same answers that you got when you generated the output files. 
+There should be no errors once complete.
+
+Next change CMakeLists.txt and add the new test; it has the same form as the others. Run cmake . in the build directory. 
+This will pick up the new CMakeLists.txt.  Also in the build directory move to uvcdat-testdata/baselines/metrics and create 
+a subdirectory plotset10. Move into this new directory and copy the files from ~/uvcdat-testdata/baselines/metrics/plotset10
+into this plotset10.  Then in the build directory run ctest -V -R diags_test_15.  There should be no errors and the test passes.
