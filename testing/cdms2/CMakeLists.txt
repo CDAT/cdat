@@ -1,10 +1,6 @@
 
 # cdms2 tests
 
-cdat_add_test("test_cdms2_file_greater_2Gb"
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/cdms2/test_file_greater_2Gb.py
-  )
 cdat_add_test("test_ascontiguous_regrid_nan_issue"
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/cdms2/test_ascontiguous_regrid_nan_issue.py
