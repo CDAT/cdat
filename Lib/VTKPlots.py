@@ -1035,7 +1035,7 @@ class VTKVCSBackend(object):
               if isinstance(gm,vcs.meshfill.Gfm):
                   doCellPointForScalar = True
               else:
-                  doCellPointForScalr = False
+                  doCellPointForScalar = False
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
