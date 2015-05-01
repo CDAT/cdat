@@ -636,3 +636,4 @@ cdat_add_test(vcs_test_colorpicker_appearance
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
 )
 add_subdirectory(vtk_ui)
+add_subdirectory(editors)
