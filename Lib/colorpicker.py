@@ -117,7 +117,7 @@ class ColorPicker(object):
         self.close()
 
     def selectCell(self, cellId):
-        if cellId == -1:
+        if cellId in (None, -1):
             return
         ids = vtk.vtkIdTypeArray();
         ids.SetNumberOfComponents(1);
