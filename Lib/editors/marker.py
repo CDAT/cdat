@@ -202,10 +202,6 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         self.tooltip.detach()
 
     def delete(self):
-        del self.marker.x[self.index]
-        del self.marker.y[self.index]
-        del self.marker.type[self.index]
-        del self.marker.color[self.index]
         self.actor.SetVisibility(0)
         self.configurator.deactivate(self)
 
