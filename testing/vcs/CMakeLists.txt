@@ -631,3 +631,4 @@ cdat_add_test(vcs_test_configurator_click_marker
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_marker.py
 )
 add_subdirectory(vtk_ui)
+add_subdirectory(editors)
