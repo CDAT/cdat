@@ -3,5 +3,5 @@ set(TEST_DIR "${cdat_SOURCE_DIR}/testing/vcs/editors")
 
 cdat_add_test(vcs_test_editor_marker_delete
   "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_editor_marker_delete.py
+  ${TEST_DIR}/test_vcs_editor_marker_delete.py
 )
