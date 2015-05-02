@@ -7,6 +7,9 @@ class Widget(object):
         self.widget = widget
         self.widget.SetInteractor(interactor)
         self.repr = widget.GetRepresentation()
+        # By default, VTK will map the 'i' key to activating a widget.
+        # This was doing weird things and making buttons disappear.
+        self.widget.SetKeyPressActivation(False)
         self.subscriptions = {}
         self.manager = get_manager(interactor)
         self.manager.add_widget(self)
@@ -97,6 +100,9 @@ class WidgetReprShim(object):
 
     def GetCurrentRenderer(self):
         return self._ren
+
+    def SetKeyPressActivation(self, value):
+        pass
 
     def SetCurrentRenderer(self, renderer):
         """

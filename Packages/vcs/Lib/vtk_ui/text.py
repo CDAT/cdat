@@ -354,7 +354,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         pass
 
     def render(self):
-        self.manager.queue_render()
+        if self.manager:
+            self.manager.queue_render()
 
     def in_bounds(self, x, y):
         if x < 1 and y < 1:
