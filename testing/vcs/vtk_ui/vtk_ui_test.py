@@ -64,6 +64,12 @@ class vtk_ui_test(object):
         self.inter.LeftButtonPressEvent()
         self.inter.LeftButtonReleaseEvent()
 
+    def key_event(self, keycode, control=False, shift=False):
+        self.win.Render()
+        self.inter.SetKeyEventInformation(keycode, control, shift)
+        self.inter.KeyPressEvent()
+        self.inter.KeyReleaseEvent()
+
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
 

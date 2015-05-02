@@ -4,7 +4,8 @@
 # Helper macro that sets the environment correctly
 macro (cdat_add_test name python_exe script)
   #string (REPLACE ";" " " TEST_ARGS "${ARGN}")
-  add_test (${name} "${python_exe}" ${script} ${ARGN})
+  add_test(${name} "${CMAKE_INSTALL_PREFIX}/bin/runtest"
+           ${script} ${ARGN})
   if(DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
     set_tests_properties (${name}
       PROPERTIES ENVIRONMENT "UVCDAT_ANONYMOUS_LOG=$ENV{UVCDAT_ANONYMOUS_LOG}"
