@@ -628,6 +628,11 @@ cdat_add_test(vcs_test_endconfigure
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
 )
 
+cdat_add_test(vcs_test_colorpicker_selection
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_selection.py
+)
+
 cdat_add_test(vcs_test_configurator_click_text
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_text.py
