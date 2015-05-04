@@ -172,3 +172,21 @@ cdat_add_test(test_vtk_ui_textbox_blank_text
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py
 )
+
+add_test(test_vtk_ui_toolbar_label
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_label.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_label.png
+)
+
+add_test(test_vtk_ui_toolbar_open
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_open.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_open.png
+)
+
+add_test(test_vtk_ui_toolbar_close
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_close.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_close.png
+)
