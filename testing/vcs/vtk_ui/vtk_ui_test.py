@@ -98,5 +98,5 @@ class vtk_ui_test(object):
 
         self.win.Finalize()
         self.inter.TerminateApp()
-        print sys.argv[0], "passed" if self.passed == 0 else "failed"
-        sys.exit(self.passed)
+	print sys.argv[0], "passed" if self.passed == 0 else "failed"
+	sys.exit(self.passed)
