@@ -284,6 +284,7 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
+option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " OFF)
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
@@ -538,7 +539,9 @@ include(udunits2_pkg)
 include(uuid_pkg)
 # IF we build the UVCDAT Metrics package
 if (CDAT_BUILD_UVCMETRICSPKG)
-  set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
+  if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
+    set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
+  endif()
   include(uvcmetrics_pkg)
 endif()
 include(vistrails_pkg)
