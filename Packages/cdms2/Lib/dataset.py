@@ -130,7 +130,7 @@ def setNetcdfDeflateFlag(value):
 def setNetcdfDeflateLevelFlag(value):
     """ Sets NetCDF deflate level flag value"""
     if value not in [0,1,2,3,4,5,6,7,8,9]:
-        raise CDMSError, "Error NetCDF deflate_level flag must be an integer < 10"
+        raise CDMSError("Error NetCDF deflate_level flag must be an integer < 10")
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
 
 def getNetcdfClassicFlag():
@@ -245,14 +245,14 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 file = CdmsFile(uri,mode)
                 return file
             except:
-                raise CDMSError("Error in DODS open of: ",uri)
+                raise CDMSError("Error in DODS open of: "+uri)
         else:
             try:
                 datanode = loadURI(uri)
                 return datanode
             except:
                 datanode = loadURI(uri)
-                raise CDMSError("Error in loadURI of: ",uri)
+                raise CDMSError("Error in loadURI of: "+uri)
             
     else:
         raise SchemeNotSupported(scheme)
