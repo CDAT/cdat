@@ -14,7 +14,9 @@ class test_vtk_ui_toolbar_open(vtk_ui_test):
 		toolbar.add_button(["Test Button"])
 		toolbar.add_button(["Other Test"])
 		toolbar.__on__()
+		assert toolbar.open == True
 		toolbar.show()
+
 
 		self.test_file = "test_vtk_ui_toolbar_open.png"
 

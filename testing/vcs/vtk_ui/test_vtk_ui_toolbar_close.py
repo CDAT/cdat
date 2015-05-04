@@ -15,6 +15,7 @@ class test_vtk_ui_toolbar_close(vtk_ui_test):
 		toolbar.add_button(["Other Test"])
 		toolbar.__on__()
 		toolbar.__off__()
+		assert toolbar.open == False
 		toolbar.show()
 
 		self.test_file = "test_vtk_ui_toolbar_close.png"
