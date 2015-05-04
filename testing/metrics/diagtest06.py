@@ -15,7 +15,7 @@ obsid = 'ERS'
 varid = 'STRESS'
 seasonid = 'ANN'
 modeldir = 'cam35_data'
-obsdir = 'obs_data_20140804'
+obsdir = 'obs_data_5.6'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
