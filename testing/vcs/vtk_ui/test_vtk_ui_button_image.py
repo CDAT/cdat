@@ -15,4 +15,5 @@ class test_vtk_ui_button_image(vtk_ui_test):
         b.show()
         self.test_file = "test_vtk_ui_button_image.png"
 
-test_vtk_ui_button_image().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_image().test()

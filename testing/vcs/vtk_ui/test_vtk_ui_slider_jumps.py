@@ -26,4 +26,5 @@ class test_vtk_ui_slider_jumps(vtk_ui_test):
         if value < 4:
             self.failed = True
 
-test_vtk_ui_slider_jumps().test()
+if __name__ == "__main__":
+    test_vtk_ui_slider_jumps().test()

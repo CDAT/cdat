@@ -24,4 +24,5 @@ class test_vtk_ui_button_tooltip_show(vtk_ui_test):
         self.hover(5, 95, .3)
         self.test_file = "test_vtk_ui_button_tooltip_show.png"
 
-test_vtk_ui_button_tooltip_show().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_tooltip_show().test()

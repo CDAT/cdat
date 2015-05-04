@@ -24,4 +24,5 @@ class test_vtk_ui_button_dimensions(vtk_ui_test):
 
         self.test_file = "test_vtk_ui_button_dimensions.png"
 
-test_vtk_ui_button_dimensions().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_dimensions().test()

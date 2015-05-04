@@ -132,4 +132,5 @@ class test_vtk_ui_contrasting_colors(vtk_ui_test):
         else:
             self.passed = 1
 
-test_vtk_ui_contrasting_colors().test()
+if __name__ == "__main__":
+    test_vtk_ui_contrasting_colors().test()
