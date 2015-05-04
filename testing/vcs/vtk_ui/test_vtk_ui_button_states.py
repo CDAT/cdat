@@ -18,4 +18,5 @@ class test_vtk_ui_button_states(vtk_ui_test):
             button.show()
         self.test_file = "test_vtk_ui_button_states.png"
 
-test_vtk_ui_button_states().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_states().test()
