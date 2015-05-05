@@ -340,7 +340,7 @@ class ToggleButton(Button):
         self.label = label
 
     def get_text(self):
-		return self.label
+        return self.label
 
     def toggle(self, state):
         if state == 1:
