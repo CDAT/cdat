@@ -1032,6 +1032,10 @@ class VTKVCSBackend(object):
               mapper.SetScalarModeToUseCellData()
               mappers.append([mapper,])
           else:
+              if isinstance(gm,vcs.meshfill.Gfm):
+                  doCellPointForScalar = True
+              else:
+                  doCellPointForScalar = False
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
@@ -1047,7 +1051,7 @@ class VTKVCSBackend(object):
                   lut.SetTableValue(0,r/100.,g/100.,b/100.)
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
-                  luts.append([lut,[l[j],l[j+1],False]])
+                  luts.append([lut,[l[j],l[j+1],doCellPointForScalar]])
                   ## Store the mapper only if it's worth it?
                   ## Need to do it with the whole slab min/max for animation purposes
                   if not(l[j+1]<wmn or l[j]>wmx):
