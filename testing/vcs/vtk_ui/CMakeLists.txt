@@ -190,3 +190,8 @@ add_test(test_vtk_ui_toolbar_close
   ${TEST_DIR}/test_vtk_ui_toolbar_close.py
   ${BASELINE_DIR}/test_vtk_ui_toolbar_close.png
 )
+
+add_test(test_vtk_ui_toggle_button_get_text
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
+)
