@@ -168,6 +168,11 @@ cdat_add_test(test_vtk_ui_white_or_black
   ${TEST_DIR}/test_vtk_ui_white_or_black.py
 )
 
+cdat_add_test(test_vtk_ui_manager_resize
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_manager_resize.py
+  ${BASELINE_DIR}/test_vtk_ui_manager_resize.png
+)
 cdat_add_test(test_vtk_ui_textbox_blank_text
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py

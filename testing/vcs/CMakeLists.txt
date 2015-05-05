@@ -645,6 +645,12 @@ cdat_add_test(vcs_test_configurator_click_marker
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_marker.py
 )
+cdat_add_test(vcs_test_configurator_resize
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_resize.py
+  ${BASELINE_DIR}/test_vcs_configurator_resize.png
+)
+
 cdat_add_test(vcs_test_colorpicker_appearance
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
