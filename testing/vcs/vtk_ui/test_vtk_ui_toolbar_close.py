@@ -13,8 +13,8 @@ class test_vtk_ui_toolbar_close(vtk_ui_test):
 		toolbar = vcs.vtk_ui.Toolbar(self.inter, "Test Bar")
 		toolbar.add_button(["Test Button"])
 		toolbar.add_button(["Other Test"])
-		toolbar.__on__()
-		toolbar.__off__()
+		toolbar.label.__advance__(1)
+		toolbar.label.__advance__(0)
 		assert toolbar.open == False
 		toolbar.show()
 
