@@ -729,6 +729,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
+  ${CMAKE_INSTALL_PREFIX}/bin/runtest
+  @ONLY
+)
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
