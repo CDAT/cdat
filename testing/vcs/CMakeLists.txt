@@ -266,6 +266,11 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_meshfill_regular_grid
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
+      "${BASELINE_DIR}/test_meshfill_regular_grid.png"
+    )
     cdat_add_test(test_vcs_plot_unstructured_via_boxfill
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_plot_unstructured_via_boxfill.py
@@ -581,6 +586,11 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
       )
+    cdat_add_test(vcs_test_animate_meshfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_meshfill.py
+      ${BASELINE_DIR}
+      )
     cdat_add_test(vcs_test_animate_isofill
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isofill.py
@@ -618,6 +628,11 @@ cdat_add_test(vcs_test_endconfigure
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
 )
 
+cdat_add_test(vcs_test_colorpicker_selection
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_selection.py
+)
+
 cdat_add_test(vcs_test_configurator_click_text
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_text.py
@@ -636,4 +651,10 @@ cdat_add_test(vcs_test_configurator_resize
   ${BASELINE_DIR}/test_vcs_configurator_resize.png
 )
 
+cdat_add_test(vcs_test_colorpicker_appearance
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
+  ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
+)
 add_subdirectory(vtk_ui)
+add_subdirectory(editors)

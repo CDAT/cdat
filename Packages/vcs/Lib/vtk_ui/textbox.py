@@ -374,8 +374,10 @@ class Textbox(Label):
         self.cursor.hide()
         if self.blank:
             self.text = ""
-        self.on_editing_end(self)
-        self.text = " "
+        if self.on_editing_end:
+            self.on_editing_end(self)
+        if self.blank:
+            self.text = " "
 
     def place(self):
         super(Textbox, self).place()

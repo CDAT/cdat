@@ -38,7 +38,10 @@ class ColorPicker(object):
         self.style = vtk.vtkInteractorStyleUser()
         inter.SetInteractorStyle(self.style)
         inter.SetRenderWindow(self.render_window)
-
+        manager = vcs.vtk_ui.manager.get_manager(inter)
+        self.render_window.AddRenderer(manager.renderer)
+        self.render_window.AddRenderer(manager.actor_renderer)
+        manager.elevate()
         self.render_window.Render()
 
         self.on_save = on_save
@@ -117,7 +120,7 @@ class ColorPicker(object):
         self.close()
 
     def selectCell(self, cellId):
-        if cellId == -1:
+        if cellId in (None, -1):
             return
         ids = vtk.vtkIdTypeArray();
         ids.SetNumberOfComponents(1);
@@ -149,7 +152,7 @@ class ColorPicker(object):
 
         x, y = inter.GetEventPosition()
 
-        renderer = self.topRendererAtPoint(x, y)
+        renderer = self.color_renderer
 
         if renderer:
             picker = vtk.vtkCellPicker()
