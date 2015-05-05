@@ -195,3 +195,15 @@ add_test(test_vtk_ui_toggle_button_get_text
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
 )
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_open
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_open.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_open.png
+)
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_closed
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.png
+)
