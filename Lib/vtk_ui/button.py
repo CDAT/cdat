@@ -135,12 +135,20 @@ class Button(Widget):
         self.states.append(ButtonState(label=label, image=image, bgcolor=bgcolor, fgcolor=fgcolor, opacity=opacity))
 
     def place(self):
+
         width, height = self.get_dimensions()
         x, y = self.get_position()
         bounds = (x, x + width, y - height, y, 0, 0)
-
         self.repr.SetPlaceFactor(1)
         self.repr.PlaceWidget(bounds)
+        self.repr.Modified()
+        if self.showing():
+            # This One Weird Hack will make your Buttons Go In the Right Place - Developers hate it!
+            # Buttons weren't always getting properly placed (toolbars in toolbars being the canonical example)
+            # This makes them show up correctly. Weird, but it works.
+            h_state = self.repr.GetHighlightState()
+            self.repr.Highlight((h_state + 1) % 3)
+            self.repr.Highlight(h_state)
 
         text_width, text_height = self.text_widget.get_dimensions()
         swidth, sheight = self.interactor.GetRenderWindow().GetSize()
@@ -289,7 +297,7 @@ class Button(Widget):
     def __advance__(self, point):
         state = self.repr.GetState()
         self.set_state( (state + 1) % len(self.states) )
-        #self.clicked(self.widget, "StateChangedEvent") Do we need to call this? I bet we don't.
+        self.clicked(self.widget, "StateChangedEvent")
 
     def clicked(self, obj, event):
         state = self.get_state()
