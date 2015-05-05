@@ -101,6 +101,7 @@ class MultiVarPointCollection():
             return axis_order.index(coord)
         except ValueError, err:
             print>>sys.stderr, "Can't find axis %s in axis order spec '%s' " % ( coord, axis_order )
+            return None
 
 
     def getCoordDataBlock( self, var ):
@@ -109,42 +110,74 @@ class MultiVarPointCollection():
     def getDataBlock( self, var ):
         np_var_data_block = None
         iTimeIndex = self.getCoordIndex( var, 't' )
-        if iTimeIndex <> 0:
-            print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
-        else:
-            if self.lev == None:
-                if len( var.shape ) == 2:
-                    np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ].data
-                    if self.roi_mask <> None:
-                        np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
-                elif len( var.shape ) == 3:
-                    np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
-                    np_var_data_block = np_var_data_block.reshape( [ np_var_data_block.shape[0] * np_var_data_block.shape[1], ] )
-                self.nLevels = 1
+        try:
+            if iTimeIndex > 0:
+                print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+            elif iTimeIndex is None:
+                if self.lev == None:
+                    if len( var.shape ) == 1:
+                        np_var_data_block = var[ self.istart::self.istep ].data
+                        if self.roi_mask <> None:
+                            np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
+                    elif len( var.shape ) == 2:
+                        np_var_data_block = var[ :, self.istart::self.istep ].data
+                        np_var_data_block = np_var_data_block.reshape( [ np_var_data_block.shape[0] * np_var_data_block.shape[1], ] )
+                    self.nLevels = 1
+                else:
+                    iLevIndex = self.getCoordIndex( var, 'z' )
+                    if len( var.shape ) == 2:
+                        if iLevIndex == 0:
+                            np_var_data_block = var[ :, self.istart::self.istep ].data
+                        elif iLevIndex == 1:
+                            np_var_data_block = var[  self.istart::self.istep, : ].data
+                            np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
+                        else:
+                            print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                        if not isNone( np_var_data_block ):
+                            if not isNone( self.roi_mask ):
+                                np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
+                    elif len( var.shape ) == 3:
+                        lev_data_arrays = []
+                        for ilev in range( var.shape[1] ):
+                            data_z_slice = var[ ilev ].flatten()
+                            lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
+                        np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )
             else:
-                iLevIndex = self.getCoordIndex( var, 'z' )
-                if len( var.shape ) == 3:
-                    if iLevIndex == 1:
+                if self.lev == None:
+                    if len( var.shape ) == 2:
+                        np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ].data
+                        if self.roi_mask <> None:
+                            np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
+                    elif len( var.shape ) == 3:
                         np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
-                    elif iLevIndex == 2:
-                        np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, : ].data
-                        np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
-                    else:
-                        print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
-                    if not isNone( np_var_data_block ):
-                        if not isNone( self.roi_mask ):
-                            np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
-                elif len( var.shape ) == 4:
-                    lev_data_arrays = []
-                    for ilev in range( var.shape[1] ):
-                        data_z_slice = var[ self.iTimeStep, ilev ].flatten()
-                        lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
-                    np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )
-#            print " GetDataBlock, var.shape = %s, grid = %s, ts = %d, newshape = %s, type = %s " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep, str(np_var_data_block.shape), np_var_data_block.__class__.__name__ )
+                        np_var_data_block = np_var_data_block.reshape( [ np_var_data_block.shape[0] * np_var_data_block.shape[1], ] )
+                    self.nLevels = 1
+                else:
+                    iLevIndex = self.getCoordIndex( var, 'z' )
+                    if len( var.shape ) == 3:
+                        if iLevIndex == 1:
+                            np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
+                        elif iLevIndex == 2:
+                            np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, : ].data
+                            np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
+                        else:
+                            print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                        if not isNone( np_var_data_block ):
+                            if not isNone( self.roi_mask ):
+                                np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
+                    elif len( var.shape ) == 4:
+                        lev_data_arrays = []
+                        for ilev in range( var.shape[1] ):
+                            data_z_slice = var[ self.iTimeStep, ilev ].flatten()
+                            lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
+                        np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )
+        except Exception, err:
+            print " Error in GetDataBlock, var.shape = %s, grid = %s, ts = %d " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep )
+            print str(err)
 
-            if not isNone( np_var_data_block ):
-                if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
-                else:                   np_var_data_block = np_var_data_block.flatten()
+        if not isNone( np_var_data_block ):
+            if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
+            else:                   np_var_data_block = np_var_data_block.flatten()
 
         return np_var_data_block
 

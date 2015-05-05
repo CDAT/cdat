@@ -11,7 +11,6 @@ from ConfigurationFunctions import *
 from StructuredDataset import *
 
 def getVarName( var ):
-    if hasattr( var,'outvar'): return var.outvar.name
     if hasattr( var,'name'): return var.name
     if hasattr( var,'name_in_file'): return var.name_in_file
     if hasattr( var,'id'): return var.id
@@ -110,10 +109,10 @@ class StructuredDataReader:
                     self.varSpecs = [ var.name_in_file for var in self.vars ]
                     self.df = cdms2.open( self.fileSpecs )
                 else:
-                    self.varSpecs = [ var.name for var in self.vars ]
+                    self.varSpecs = [ var.id for var in self.vars ]
                     plot_attributes = args.get( 'plot_attributes', None )
                     if plot_attributes <> None:
-                        self.datasetId = plot_attributes.get( 'filename', self.vars[0].name )
+                        self.datasetId = plot_attributes.get( 'filename', self.vars[0].id )
                         for file_attribute_name in ['url', 'filename', 'file' ]:
                             self.fileSpecs = plot_attributes.get( file_attribute_name, None )
                             if self.fileSpecs <> None: break
@@ -122,8 +121,8 @@ class StructuredDataReader:
                             print>>sys.stderr, "Warning, can't open data file '%s'" % self.fileSpecs
                             self.df = None
                     else:
-                        self.datasetId = self.vars[0].name
-                        self.fileSpecs = self.vars[0].name
+                        self.datasetId = self.vars[0].id
+                        self.fileSpecs = self.vars[0].id
                         self.df = None
 
         self.referenceTimeUnits = None
@@ -371,7 +370,7 @@ class StructuredDataReader:
 
     def generateVariableOutput( self, cdms_var ):
         print str(cdms_var.var)
-        self.set3DOutput( name=cdms_var.name,  output=cdms_var.var )
+        self.set3DOutput( name=cdms_var.id,  output=cdms_var.var )
 
     def refreshVersion(self):
         portData = self.getPortData()
