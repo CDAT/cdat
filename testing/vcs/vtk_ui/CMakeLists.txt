@@ -177,3 +177,43 @@ cdat_add_test(test_vtk_ui_textbox_blank_text
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py
 )
+
+cdat_add_test(test_vtk_ui_toolbar_label
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_label.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_label.png
+)
+
+cdat_add_test(test_vtk_ui_toolbar_open
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_open.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_open.png
+)
+
+cdat_add_test(test_vtk_ui_toolbar_close
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_close.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_close.png
+)
+
+cdat_add_test(test_vtk_ui_toggle_button_get_text
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
+)
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_open
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_open.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_open.png
+)
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_closed
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.png
+)
+
+cdat_add_test(test_vtk_ui_button_state_advance
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_button_state_advance.py
+)
