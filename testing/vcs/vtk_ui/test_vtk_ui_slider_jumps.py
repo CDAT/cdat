@@ -8,7 +8,6 @@ from vtk_ui_test import vtk_ui_test
 class test_vtk_ui_slider_jumps(vtk_ui_test):
     def __init__(self):
         self.failed = False
-        self.updated = False
         super(test_vtk_ui_slider_jumps, self).__init__()
     def do_test(self):
         self.win.SetSize(100, 100)
