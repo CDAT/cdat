@@ -2,7 +2,7 @@ from button import ToggleButton, SliderButton, ButtonState, Button
 
 class Toolbar(object):
 
-    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", on_open=None, close_label="Close", button_margin=5, parent=None, save=None):
+    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", on_open=None, close_label="Close", on_close=None, button_margin=5, parent=None, save=None):
 
         self.save = save
         self.interactor = interactor
@@ -12,13 +12,13 @@ class Toolbar(object):
         self.top = top
         self.label = ToggleButton(self.interactor, label, on=self.__on__, off=self.__off__, on_prefix=open_label, off_prefix=close_label, left=self.left - self.margin, top=self.top)
         self.on_open = on_open
+        self.on_close = on_close
         self.vertical = vertical
 
         self.open = False
 
         # Increment this as widgets are added
         self.width, self.height = self.label.get_dimensions()
-        self.height += button_margin
 
         self.widgets = []
         self.bars = {}
@@ -47,13 +47,15 @@ class Toolbar(object):
 
     def __on__(self):
         self.open = True
+        self.show_widgets()
         if self.on_open is not None:
             self.on_open()
-        self.show_widgets()
 
     def __off__(self):
         self.open = False
         self.hide_widgets()
+        if self.on_close is not None:
+            self.on_close()
 
     def copy(self, interactor):
         t = Toolbar(interactor, self.label.label, vertical=self.vertical, left=self.left - self.margin, top=self.top, button_margin=self.margin)
@@ -87,9 +89,6 @@ class Toolbar(object):
             self.width += self.margin
 
         for widget in self.widgets:
-
-            widget_width, widget_height = widget.get_dimensions()
-
             if self.vertical:
                 widget.left = self.left
                 widget.top = self.top + self.height
@@ -107,6 +106,7 @@ class Toolbar(object):
                 self.height += widget_height + self.margin
             else:
                 self.width += widget_width + self.margin
+        self.label.manager.queue_render()
 
     def get_dimensions(self):
         """
@@ -136,10 +136,9 @@ class Toolbar(object):
         self.hide_widgets()
 
     def show_widgets(self):
+        self.place()
         for widget in self.widgets:
             widget.show()
-
-        self.place()
 
     def hide_widgets(self):
         """
@@ -182,7 +181,6 @@ class Toolbar(object):
             kwargs["top"] = self.top
 
         b = Button(self.interactor, **kwargs)
-
         if self.open:
             b.show()
 
@@ -192,6 +190,7 @@ class Toolbar(object):
             self.width = kwargs["left"] + b.get_dimensions()[0]
 
         self.widgets.append(b)
+
         return b
 
 
@@ -211,6 +210,18 @@ class Toolbar(object):
 
         if "vertical" not in kwargs:
             kwargs["vertical"] = self.vertical
+        _open = kwargs.get("on_open", None)
+        def hook_open():
+            self.place()
+            if _open:
+                _open()
+        _close = kwargs.get("on_close", None)
+        def hook_close():
+            self.place()
+            if _close:
+                _close()
+        kwargs["on_open"] = hook_open
+        kwargs["on_close"] = hook_close
 
         toolbar = Toolbar(self.interactor, label, **kwargs)
 

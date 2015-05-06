@@ -487,6 +487,7 @@ include(dateutils_pkg)
 include(pyparsing_pkg)
 include(md5_pkg)
 include(mpi4py_pkg)
+include(pep8_pkg)
 include(pyopenssl_pkg)
 include(setuptools_pkg)
 include(myproxyclient_pkg)
@@ -726,6 +727,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/cdat
+  @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
+  ${CMAKE_INSTALL_PREFIX}/bin/runtest
   @ONLY
 )
 
