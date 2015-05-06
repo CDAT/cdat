@@ -246,3 +246,8 @@ cdat_add_test(test_vtk_ui_slider_place
   ${TEST_DIR}/test_vtk_ui_slider_place.py
   ${BASELINE_DIR}/test_vtk_ui_slider_place.png
 )
+
+cdat_add_test(test_vtk_ui_behavior_keyable
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_behavior_keyable.py
+)
