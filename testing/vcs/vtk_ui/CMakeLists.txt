@@ -217,3 +217,21 @@ cdat_add_test(test_vtk_ui_button_state_advance
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_button_state_advance.py
 )
+
+cdat_add_test(test_vtk_ui_slider_value_func
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_value_func.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_value_func.png
+)
+
+cdat_add_test(test_vtk_ui_slider_values
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_values.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_values.png
+)
+
+cdat_add_test(test_vtk_ui_slider_appearance
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_appearance.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_appearance.png
+)
