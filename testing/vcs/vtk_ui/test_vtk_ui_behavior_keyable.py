@@ -50,6 +50,11 @@ class test_vtk_ui_behavior_keyable(vtk_ui_test):
         keyable.expecting = modified
         self.key_up()
 
+        symbol_char = ("Delete", False, False, False)
+        self.set_key(*symbol_char)
+        keyable.expecting = symbol_char
+        self.key_down()
+
         self.passed = 0
 
 if __name__ == "__main__":

@@ -66,7 +66,11 @@ class vtk_ui_test(object):
         self.inter.LeftButtonReleaseEvent()
 
     def set_key(self, key, shift=False, alt=False, control=False):
-        self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, key, 1, None)
+        if len(key) > 1:
+            # key is a symbol
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, '', 1, key)
+        else:
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, key, 1, None)
         self.inter.SetAltKey(alt)
 
     def key_down(self):
