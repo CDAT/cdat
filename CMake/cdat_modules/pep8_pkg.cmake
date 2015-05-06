@@ -3,7 +3,7 @@ set( PEP8_MINOR 6 )
 set( PEP8_PATCH 2)
 set( PEP8_VERSION ${PEP8_MAJOR}.${PEP8_MINOR}.${PEP8_PATCH} )
 set( PEP8_URL ${LLNL_URL} )
-set( PEP8_GZ pep8-${PEP8_VERSION}.tarz )
+set( PEP8_GZ pep8-${PEP8_VERSION}.tar.gz )
 set( PEP8_MD5 c7a3f57d832484a6295164661fbb1335 )
 
 set (nm PEP8)
