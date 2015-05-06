@@ -240,3 +240,9 @@ cdat_add_test(test_vtk_ui_slider_callbacks
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_slider_callbacks.py
 )
+
+cdat_add_test(test_vtk_ui_slider_place
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_place.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_place.png
+)
