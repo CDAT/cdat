@@ -61,6 +61,7 @@ class Slider(Widget):
     def place(self):
         self.repr.GetPoint1Coordinate().SetValue((self.x1, self.y1, 0))
         self.repr.GetPoint2Coordinate().SetValue((self.x2, self.y2, 0))
+        self.repr.Modified()
 
     def set_value(self, value):
         f = float(value)  # Ensure value is floating-point
