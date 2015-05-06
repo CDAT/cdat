@@ -41,7 +41,7 @@ class Slider(Widget):
         self.repr.SetMinimumValue(float(min_val))
         self.repr.SetMaximumValue(float(max_val))
         if callable(value):
-            self.repr.SetValue(float(value()))
+            self.set_value(value())
             self.value_func = value
         else:
             self.repr.SetValue(float(value))
@@ -67,9 +67,23 @@ class Slider(Widget):
         self.repr.GetPoint1Coordinate().SetValue((self.x1, self.y1, 0))
         self.repr.GetPoint2Coordinate().SetValue((self.x2, self.y2, 0))
 
+    def set_value(self, value):
+        f = float(value)  # Ensure value is floating-point
+        minimum = self.repr.GetMinimumValue()
+        maximum = self.repr.GetMaximumValue()
+
+        # Make sure value is between min and max
+        if f < minimum:
+            raise ValueError("Value for slider should be >= %f; received %f" % (minimum, f))
+        if f > maximum:
+            raise ValueError("Value for slider should be <= %f; received %f" % (maximum, f))
+
+        self.repr.SetValue(f)
+
     def show(self):
         if self.value_func:
-            self.repr.SetValue(float(self.value_func()))
+            f = self.value_func()
+            self.set_value(f)
         super(Slider, self).show()
 
     def end_slide(self, obj, event):
