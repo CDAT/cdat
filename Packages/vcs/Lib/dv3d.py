@@ -184,7 +184,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         print 'name =',self.name
         print 'axes =',self.axes
         for pname in self.parameter_names:
-            print ' = '.join( [ pname, self.getParameter( pname ) ] )
+            pval = self.getParameter( pname )
+            print pname,'=',repr(pval)
 
 class Gf3Dvector(Gfdv3d):
 
