@@ -1,5 +1,5 @@
 """
-Test slider basic appearance
+Test slider value logic
 """
 import vcs.vtk_ui
 from vtk_ui_test import vtk_ui_test
