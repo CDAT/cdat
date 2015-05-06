@@ -735,8 +735,11 @@ class Canvas(object,AutoAPI.AutoAPI):
         _process_keyword(tv, 'name', 'name', keyargs, default=tv.id)
         time = keyargs.get('time')
         if time is not None:
-            ctime = time.tocomp()
-            ar.date = str(ctime)
+            if isinstance(time,(str,unicode)):
+                ctime = cdtime.s2c(str(time))
+            else:
+                ctime = time.tocomp()
+            tv.date = str(ctime)
         _process_keyword(tv, 'units', 'units', keyargs)
         _process_keyword(tv, 'date', 'ymd', keyargs)
         # If date has still not been set, try to get it from the first
@@ -885,8 +888,10 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         is_canvas = len(vcs.return_display_names()[0])
 
+        ## TODO get rid of all these gui_canvas_closed I think the code is not even here anymore
+        ## I believe it was for the old editor style
         if gui_canvas_closed == 1:
-           showerror( "Error Message to User", "There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
+           raise RuntimeError("There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
            return
 
         self.winfo_id = -99
