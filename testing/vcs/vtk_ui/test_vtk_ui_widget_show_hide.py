@@ -33,15 +33,16 @@ class test_vtk_ui_widget_show_hide(vtk_ui_test):
         if self.args:
             self.passed = self.check_image(self.args[0])
             if self.passed == 1:
-                self.win.SetOffScreenRendering(0)
-                self.win.Render()
-                raw_input()
                 print "Failed to show correctly"
                 return
         else:
             generate_png(self.win, self.test_file)
 
+        assert w.showing(), "showing() thinks hidden while showing"
+
         w.hide()
+
+        assert w.showing() == False, "showing() thinks showing while hidden"
 
         self.test_file = "test_vtk_ui_widget_hide.png"
         if len(self.args) > 1:
