@@ -59,7 +59,6 @@ import cdtime,vcs
 import os
 import sys
 import random
-import genutil
 from cdms2.grid import AbstractRectGrid
 import shutil, inspect
 import VCS_validation_functions
@@ -739,12 +738,12 @@ class Canvas(object,AutoAPI.AutoAPI):
                 ctime = cdtime.s2c(str(time))
             else:
                 ctime = time.tocomp()
-            tv.date = str(ctime)
+            tv.user_date = str(ctime)
         _process_keyword(tv, 'units', 'units', keyargs)
         _process_keyword(tv, 'date', 'ymd', keyargs)
         # If date has still not been set, try to get it from the first
         # time value if present
-        if not hasattr(tv, 'date') and not hasattr(tv, 'time'):
+        if not hasattr(tv, 'user_date') and not hasattr(tv, 'date') and not hasattr(tv, 'time'):
             change_date_time(tv, 0)
 
         # Draw continental outlines if specified.
