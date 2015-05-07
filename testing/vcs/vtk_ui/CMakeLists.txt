@@ -78,11 +78,23 @@ cdat_add_test(test_vtk_ui_textbox_highlight
   ${BASELINE_DIR}/test_vtk_ui_textbox_highlight.png
 )
 
+cdat_add_test(test_vtk_ui_textbox_appearance
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_appearance.py
+  ${BASELINE_DIR}/test_vtk_ui_textbox_appearance.png
+)
+
+cdat_add_test(test_vtk_ui_textbox_blank_text
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py
+)
+
 cdat_add_test(test_vtk_ui_label_top
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_label_top.py
   ${BASELINE_DIR}/test_vtk_ui_label_top.png
 )
+
 cdat_add_test(test_vtk_ui_label_y
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_label_y.py
@@ -172,10 +184,6 @@ cdat_add_test(test_vtk_ui_manager_resize
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_manager_resize.py
   ${BASELINE_DIR}/test_vtk_ui_manager_resize.png
-)
-cdat_add_test(test_vtk_ui_textbox_blank_text
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py
 )
 
 cdat_add_test(test_vtk_ui_toolbar_label
