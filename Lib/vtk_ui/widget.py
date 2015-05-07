@@ -20,7 +20,7 @@ class Widget(object):
 
     def subscribe(self, event, action):
         if event in self.subscriptions:
-            raise Exception("%s already subscribed to %s's %s event." % (action, self.widget, event))
+            raise KeyError("%s already subscribed to %s's %s event." % (action, self.widget, event))
 
         self.subscriptions[event] = self.widget.AddObserver(event, action)
 
@@ -34,7 +34,7 @@ class Widget(object):
 
         for event in events:
             if event not in self.subscriptions:
-                raise Exception("%s not subscribed to %s's %s event." % (self, self.widget, event))
+                raise KeyError("%s not subscribed to %s's %s event." % (self, self.widget, event))
 
         for event in events:
             self.widget.RemoveObserver(self.subscriptions[event])
