@@ -24,6 +24,9 @@ class Widget(object):
 
         self.subscriptions[event] = self.widget.AddObserver(event, action)
 
+    def place(self):
+        pass
+
     def unsubscribe(self, *events):
         """
         Will unsubscribe from all or none events. If any events are not subscribed to, there will be an exception.
