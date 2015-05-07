@@ -251,3 +251,15 @@ cdat_add_test(test_vtk_ui_behavior_keyable
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_behavior_keyable.py
 )
+
+cdat_add_test(test_vtk_ui_widget_init
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_widget_init.py
+)
+
+cdat_add_test(test_vtk_ui_widget_show_hide
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_widget_show_hide.py
+  ${BASELINE_DIR}/test_vtk_ui_widget_show.png
+  ${BASELINE_DIR}/test_vtk_ui_widget_hide.png
+)
