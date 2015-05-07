@@ -15,8 +15,14 @@ class test_vtk_ui_textbox_blank_text(vtk_ui_test):
         textbox.show()
         textbox.start_editing()
         textbox.stop_editing()
-        if textbox.text == "Test String":
-            self.passed = 0
+        assert textbox.text == "Test String", "Start/stop editing altered text"
+
+        textbox.text = ""
+        textbox.start_editing()
+        textbox.stop_editing()
+        assert textbox.text == "", "Start/stop editing altered empty string"
+
+        self.passed = 0
 
 if __name__ == "__main__":
     test_vtk_ui_textbox_blank_text().test()
