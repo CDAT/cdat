@@ -268,3 +268,8 @@ cdat_add_test(test_vtk_ui_widget_subscribe_unsubscribe
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_widget_subscribe_unsubscribe.py
 )
+
+cdat_add_test(test_vtk_ui_widget_detach
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_widget_detach.py
+)
