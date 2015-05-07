@@ -1311,8 +1311,8 @@ class VTKVCSBackend(object):
         self.canvas.display_names.remove(d.name)
         del(vcs.elements["display"][d.name])
     ## Sometimes user passes "date" as an attribute to replace date
-    if hasattr(data,"date"):
-        taxis = cdms2.createAxis([cdtime.s2r(data.date,"days since 1900").value])
+    if hasattr(data,"user_date"):
+        taxis = cdms2.createAxis([cdtime.s2r(data.user_date,"days since 1900").value])
         taxis.designateTime()
         taxis.units="days since 1900"
         if zaxis is not None and zaxis.isTime():
@@ -1350,7 +1350,7 @@ class VTKVCSBackend(object):
         del(vcs.elements["texttable"][tt.name])
         del(vcs.elements["textorientation"][to.name])
         del(vcs.elements["textcombined"][crtime.name])
-      except Exception,err:
+      except:
           pass
     if zaxis is not None:
       try:
