@@ -20,6 +20,7 @@ class test_vtk_ui_textbox_detach(vtk_ui_test):
         assert self.inter.GetTimerDuration(t.blink_timer) == 0, "Timer not destroyed"
         assert self.inter.GetCommand(t.blink_observer) is None, "Blink observer not destroyed"
         assert self.inter.GetCommand(t.keyboard_observer) is None, "Keyboard observer not destroyed"
+        self.passed = 0
 
 if __name__ == "__main__":
     test_vtk_ui_textbox_detach().test()
