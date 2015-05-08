@@ -2,6 +2,7 @@ set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs/vtk_ui")
 set(TEST_DIR "${cdat_SOURCE_DIR}/testing/vcs/vtk_ui")
 
 # Button tests
+
 cdat_add_test(test_vtk_ui_button_draw
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_button_draw.py
@@ -66,11 +67,17 @@ cdat_add_test(test_vtk_ui_button_tooltip_hide
   ${BASELINE_DIR}/test_vtk_ui_button_tooltip_hide.png
 )
 
-cdat_add_test(test_vtk_ui_slider_jumps
+cdat_add_test(test_vtk_ui_button_state_advance
   "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_slider_jumps.py
-  ${BASELINE_DIR}/test_vtk_ui_slider_jumps.png
+  ${TEST_DIR}/test_vtk_ui_button_state_advance.py
 )
+
+cdat_add_test(test_vtk_ui_toggle_button_get_text
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
+)
+
+# Textbox Tests
 
 cdat_add_test(test_vtk_ui_textbox_highlight
   "${PYTHON_EXECUTABLE}"
@@ -89,6 +96,14 @@ cdat_add_test(test_vtk_ui_textbox_blank_text
   ${TEST_DIR}/test_vtk_ui_textbox_blank_text.py
 )
 
+cdat_add_test(test_vtk_ui_textbox_cursor
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_cursor.py
+  ${BASELINE_DIR}/test_vtk_ui_textbox_cursor.png
+)
+
+# Label tests
+
 cdat_add_test(test_vtk_ui_label_top
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_label_top.py
@@ -99,16 +114,6 @@ cdat_add_test(test_vtk_ui_label_y
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_label_y.py
   ${BASELINE_DIR}/test_vtk_ui_label_y.png
-)
-
-cdat_add_test(test_vtk_ui_contrasting_colors
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_contrasting_colors.py
-)
-
-cdat_add_test(test_vtk_ui_hsv_rgb
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_hsv_rgb.py
 )
 
 cdat_add_test(test_vtk_ui_label_behaviors
@@ -165,6 +170,18 @@ cdat_add_test(test_vtk_ui_label_x
   ${BASELINE_DIR}/test_vtk_ui_label_x.png
 )
 
+# Text Utility Tests
+
+cdat_add_test(test_vtk_ui_contrasting_colors
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_contrasting_colors.py
+)
+
+cdat_add_test(test_vtk_ui_hsv_rgb
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_hsv_rgb.py
+)
+
 cdat_add_test(test_vtk_ui_set_font
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_set_font.py
@@ -180,10 +197,18 @@ cdat_add_test(test_vtk_ui_white_or_black
   ${TEST_DIR}/test_vtk_ui_white_or_black.py
 )
 
-cdat_add_test(test_vtk_ui_manager_resize
+# Toolbar Tests
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_open
   "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_manager_resize.py
-  ${BASELINE_DIR}/test_vtk_ui_manager_resize.png
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_open.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_open.png
+)
+
+cdat_add_test(test_vtk_ui_toolbar_in_toolbar_closed
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.py
+  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.png
 )
 
 cdat_add_test(test_vtk_ui_toolbar_label
@@ -204,27 +229,7 @@ cdat_add_test(test_vtk_ui_toolbar_close
   ${BASELINE_DIR}/test_vtk_ui_toolbar_close.png
 )
 
-cdat_add_test(test_vtk_ui_toggle_button_get_text
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
-)
-
-cdat_add_test(test_vtk_ui_toolbar_in_toolbar_open
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_open.py
-  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_open.png
-)
-
-cdat_add_test(test_vtk_ui_toolbar_in_toolbar_closed
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.py
-  ${BASELINE_DIR}/test_vtk_ui_toolbar_in_toolbar_closed.png
-)
-
-cdat_add_test(test_vtk_ui_button_state_advance
-  "${PYTHON_EXECUTABLE}"
-  ${TEST_DIR}/test_vtk_ui_button_state_advance.py
-)
+# Slider tests
 
 cdat_add_test(test_vtk_ui_slider_value_func
   "${PYTHON_EXECUTABLE}"
@@ -254,6 +259,22 @@ cdat_add_test(test_vtk_ui_slider_place
   ${TEST_DIR}/test_vtk_ui_slider_place.py
   ${BASELINE_DIR}/test_vtk_ui_slider_place.png
 )
+
+cdat_add_test(test_vtk_ui_slider_jumps
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_slider_jumps.py
+  ${BASELINE_DIR}/test_vtk_ui_slider_jumps.png
+)
+
+# Manager Tests
+
+cdat_add_test(test_vtk_ui_manager_resize
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_manager_resize.py
+  ${BASELINE_DIR}/test_vtk_ui_manager_resize.png
+)
+
+# Base class tests
 
 cdat_add_test(test_vtk_ui_behavior_keyable
   "${PYTHON_EXECUTABLE}"
