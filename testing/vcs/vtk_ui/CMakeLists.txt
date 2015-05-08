@@ -107,6 +107,16 @@ cdat_add_test(test_vtk_ui_textbox_typing
   ${TEST_DIR}/test_vtk_ui_textbox_typing.py
 )
 
+cdat_add_test(test_vtk_ui_textbox_coordinate_editing
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_coordinate_editing.py
+)
+
+cdat_add_test(test_vtk_ui_textbox_detach
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_detach.py
+)
+
 # Label tests
 
 cdat_add_test(test_vtk_ui_label_top
