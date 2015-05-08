@@ -78,11 +78,11 @@ class Textbox(Label):
         row = rows[self.row]
 
         if self.column >= len(row):
-            if self.blank:
-                self.blank = False
-                row = character
-            else:
-                row += character
+            # It shouldn't be possible for self.blank to be true here
+            # self.column will only be >= len(row) if we're navigating
+            # up from another row (indicating that blank is false, because
+            # there's text on another line)
+            row += character
             rows[self.row] = row
             if character == "\n":
                 self.column = 0
@@ -124,7 +124,7 @@ class Textbox(Label):
                 self.column -= 1
             else:
                 rows[self.row] = row[:-1]
-                self.column = len(row)
+                self.column = len(row) - 1
 
         self.text = "\n".join(rows)
         if self.text == "":
@@ -172,8 +172,11 @@ class Textbox(Label):
                     else:
                         self.column = min(self.column + 1, len(rows[self.row]))
                 elif c == "Up":
-                    self.row = max(0, self.row - 1)
-                    self.column = min(len(rows[self.row]), self.column)
+                    if self.row == 0:
+                        self.column = 0
+                    else:
+                        self.row = self.row - 1
+                        #self.column = min(len(rows[self.row]), self.column)
                 elif c == "Down":
                     if self.row == len(rows) - 1:
                         self.column = len(rows[self.row])
@@ -323,7 +326,7 @@ class Textbox(Label):
                     row_at_point = rows.index(row)
 
         if row_at_point is None:
-            row_at_point = len(rows) - 1
+            row_at_point = 0
 
         # List was assembled backwards
         row_bounds.reverse()
@@ -362,7 +365,8 @@ class Textbox(Label):
         # Start from left
         w = 0
         ind = 1
-        while row_left + w < x:
+
+        while row_left + w < x and ind < len(text):
             w, _ = text_dimensions(text[:ind], prop, dpi)
             ind += 1
 
