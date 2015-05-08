@@ -43,6 +43,7 @@ class Textbox(Label):
 
         self.last_blink = datetime.now()
         if self.editing:
+            self.place_cursor()
             if self.cursor.showing:
                 self.cursor.hide()
             else:
@@ -51,6 +52,7 @@ class Textbox(Label):
 
     def show_cursor(self):
         self.last_blink = datetime.now()
+        self.place_cursor()
         self.cursor.show()
         self.manager.queue_render()
 
