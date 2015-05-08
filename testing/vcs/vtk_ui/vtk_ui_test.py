@@ -82,6 +82,7 @@ class vtk_ui_test(object):
     def key_event(self, key, shift=False, alt=False, control=False):
         self.set_key(key, shift, alt, control)
         self.key_down()
+        self.set_key(key, shift, alt, control)
         self.key_up()
 
     def do_test(self):

@@ -102,6 +102,11 @@ cdat_add_test(test_vtk_ui_textbox_cursor
   ${BASELINE_DIR}/test_vtk_ui_textbox_cursor.png
 )
 
+cdat_add_test(test_vtk_ui_textbox_typing
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_textbox_typing.py
+)
+
 # Label tests
 
 cdat_add_test(test_vtk_ui_label_top
