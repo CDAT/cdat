@@ -7,7 +7,7 @@ from vtk_ui_test import vtk_ui_test
 
 class test_vtk_ui_textbox_cursor(vtk_ui_test):
     def do_test(self):
-        self.win.SetSize(575, 75)
+        self.win.SetSize(815, 75)
 
         # Cursor showing
         left = 0
@@ -175,6 +175,36 @@ class test_vtk_ui_textbox_cursor(vtk_ui_test):
             t.column = 1
             p = t.actor.GetTextProperty()
             p.SetJustification(h)
+            t.show()
+            t.show_cursor()
+
+            w, _ = t.get_dimensions()
+            left += w
+
+        # Use all vertical justifications to test these:
+        for v in range(3):
+            # Shorter text on second line
+            t = vcs.vtk_ui.Textbox(self.inter, "CD\nE", fgcolor=(0,0,0))
+            t.left = left + 25 * v
+            t.top = 25
+            t.row = 1
+            t.column = 1
+            p = t.actor.GetTextProperty()
+            p.SetVerticalJustification(v)
+            t.show()
+            t.show_cursor()
+
+            w, _ = t.get_dimensions()
+            left += w
+
+            # Shorter text on first line
+            t = vcs.vtk_ui.Textbox(self.inter, "F\nGH", fgcolor=(0,0,0))
+            t.left = left + 25 * v
+            t.top = 25
+            t.row = 0
+            t.column = 1
+            p = t.actor.GetTextProperty()
+            p.SetVerticalJustification(v)
             t.show()
             t.show_cursor()
 
