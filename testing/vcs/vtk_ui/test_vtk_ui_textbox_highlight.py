@@ -20,4 +20,5 @@ class test_vtk_ui_textbox_highlight(vtk_ui_test):
 
         self.test_file = "test_vtk_ui_textbox_highlight.png"
 
-test_vtk_ui_textbox_highlight().test()
+if __name__ == "__main__":
+    test_vtk_ui_textbox_highlight().test()

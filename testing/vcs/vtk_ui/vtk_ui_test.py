@@ -64,11 +64,25 @@ class vtk_ui_test(object):
         self.inter.LeftButtonPressEvent()
         self.inter.LeftButtonReleaseEvent()
 
-    def key_event(self, keycode, control=False, shift=False):
-        self.win.Render()
-        self.inter.SetKeyEventInformation(keycode, control, shift)
-        self.inter.KeyPressEvent()
-        self.inter.KeyReleaseEvent()
+    def set_key(self, key, shift=False, alt=False, control=False):
+        if len(key) > 1:
+            # key is a symbol
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, '', 1, key)
+        else:
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, key, 1, None)
+        self.inter.SetAltKey(alt)
+
+    def key_down(self):
+        self.inter.InvokeEvent("KeyPressEvent")
+
+    def key_up(self):
+        self.inter.InvokeEvent("KeyReleaseEvent")
+
+    def key_event(self, key, shift=False, alt=False, control=False):
+        self.set_key(key, shift, alt, control)
+        self.key_down()
+        self.set_key(key, shift, alt, control)
+        self.key_up()
 
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
@@ -98,5 +112,5 @@ class vtk_ui_test(object):
 
         self.win.Finalize()
         self.inter.TerminateApp()
-        print sys.argv[0], "passed" if self.passed == 0 else "failed"
-        sys.exit(self.passed)
+	print sys.argv[0], "passed" if self.passed == 0 else "failed"
+	sys.exit(self.passed)

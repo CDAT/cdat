@@ -15,4 +15,5 @@ class test_vtk_ui_button_corner_radius(vtk_ui_test):
             button.show()
         self.test_file = "test_vtk_ui_button_corner_radius.png"
 
-test_vtk_ui_button_corner_radius().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_corner_radius().test()
