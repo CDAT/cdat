@@ -58,12 +58,23 @@ class vtk_ui_test(object):
         self.inter.InvokeEvent("TimerEvent")
         self.win.Render()
 
-    def click_event(self, x, y):
-        self.win.Render()
+    def mouse_down(self, x, y):
+        self.inter.SetEventInformation(x, y)
+        self.inter.LeftButtonPressEvent()
+
+    def mouse_move(self, x, y):
         self.inter.SetEventInformation(x, y)
         self.inter.MouseMoveEvent()
-        self.inter.LeftButtonPressEvent()
+
+    def mouse_up(self, x, y):
+        self.inter.SetEventInformation(x, y)
         self.inter.LeftButtonReleaseEvent()
+
+    def click_event(self, x, y):
+        self.win.Render()
+        self.mouse_move(x, y)
+        self.mouse_down(x, y)
+        self.mouse_up(x, y)
 
     def set_key(self, key, shift=False, alt=False, control=False):
         if len(key) > 1:

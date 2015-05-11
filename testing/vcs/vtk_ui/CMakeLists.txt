@@ -1,6 +1,8 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs/vtk_ui")
 set(TEST_DIR "${cdat_SOURCE_DIR}/testing/vcs/vtk_ui")
 
+# WIDGET TESTS
+
 # Button tests
 
 cdat_add_test(test_vtk_ui_button_draw
@@ -75,6 +77,30 @@ cdat_add_test(test_vtk_ui_button_state_advance
 cdat_add_test(test_vtk_ui_toggle_button_get_text
   "${PYTHON_EXECUTABLE}"
   ${TEST_DIR}/test_vtk_ui_toggle_button_get_text.py
+)
+
+# Handle tests
+
+cdat_add_test(test_vtk_ui_handle_appearance
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_handle_appearance.py
+  ${BASELINE_DIR}/test_vtk_ui_handle_appearance.png
+)
+
+cdat_add_test(test_vtk_ui_handle_normalize
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_handle_normalize.py
+)
+
+cdat_add_test(test_vtk_ui_handle_sizing
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_handle_sizing.py
+  ${BASELINE_DIR}/test_vtk_ui_handle_sizing.png
+)
+
+cdat_add_test(test_vtk_ui_handle_interaction
+  "${PYTHON_EXECUTABLE}"
+  ${TEST_DIR}/test_vtk_ui_handle_interaction.py
 )
 
 # Textbox Tests
