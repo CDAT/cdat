@@ -349,8 +349,44 @@ def checkIntFloat(self,name,value):
 ##           return value
 ##      else:
 ##           raise ValueError, 'The '+name+' attribute must be either an integer or a float value.'
-     
+
+def checkBoolean(self, name, value):
+    """Strictly checks for True/False only. See also: checkFuzzyBoolean."""
+    checkName(self, name, value)
+    if isinstance(value, bool):
+        return value
+    checkedRaise(self, value, ValueError,
+          "The '%s' attribute must be either True of False, got %s."
+          %(name, value))
+
+fuzzy_boolean_true_strings = ['on', '1', 'true', 'y', 'yes']
+fuzzy_boolean_false_strings = ['off', '0', 'false', 'n', 'no']
+fuzzy_boolean_valid_value_string = "True/False, 'True'/'False', 1/0, " \
+                                   "'1'/'0', 'y'/'n', 'yes'/'no', 'on'/'off'"
+def checkFuzzyBoolean(self, name, value):
+    """Checks if a value can be interpreted as true or false.
+
+    Accepted values are %s.
+    """%fuzzy_boolean_valid_value_string
+    checkName(self, name, value)
+    if isinstance(value, str):
+        if value.lower() in fuzzy_boolean_true_strings:
+            return True
+        elif value.lower() in fuzzy_boolean_false_strings:
+            return False
+    elif isinstance(value, int):
+        if value == 1:
+            return True
+        elif value == 0:
+            return False
+    elif isinstance(value, bool):
+        return value
+    checkedRaise(self, value, ValueError,
+          "The '%s' attribute must be one of: %s. Got %s."
+          %(name, fuzzy_boolean_valid_value_string, value))
+
 def checkTrueFalse(self,name,value):
+  """Strictly checks for True/False or 1/0 only. See also: checkFuzzyBoolean."""
   checkName(self,name,value)
   if value in [True,False,1,0]:
     return value==True
@@ -358,6 +394,10 @@ def checkTrueFalse(self,name,value):
     checkedRaise(self,value, ValueError, "The '%s' attribute must be True or False" % name)
 
 def checkOnOff(self,name,value,return_string=0):
+     """Checks for some true/false inputs and returns various true/false outputs.
+
+     See also: checkFuzzyBoolean.
+     """
      checkName(self,name,value)
      if isinstance(value,unicode):
        value = str(value)
@@ -391,6 +431,10 @@ def checkOnOff(self,name,value,return_string=0):
           return value
      
 def checkYesNo(self,name,value):
+     """Checks various true/false inputs and returns 'y'/'n'.
+
+     See also: checkFuzzyBoolean.
+     """
      checkName(self,name,value)
      if isinstance(value,unicode):
        value = str(value)

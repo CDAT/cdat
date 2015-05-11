@@ -34,6 +34,7 @@ except Warning:
     failed = True
 except:
     failed = False
+    raise
 
 if not failed:
     raise RuntimeError("This test did not issue warning as expected")

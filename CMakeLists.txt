@@ -284,6 +284,7 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
+option(CDAT_BUILD_PARAVIEW "Build ParaView rather than just VTK" OFF)
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
@@ -498,7 +499,7 @@ include(osmesa_pkg)
 include(python_pkg)
 include(seawater_pkg)
 include(vacumm_pkg)
-if (CDAT_BUILD_PARALLEL)
+if (CDAT_BUILD_PARAVIEW)
   include(paraview_pkg)
 else()
   include(vtk_pkg)

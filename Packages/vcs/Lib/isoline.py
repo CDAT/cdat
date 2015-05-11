@@ -540,7 +540,7 @@ class Gi(object,AutoAPI.AutoAPI):
     def _getlabel(self):
          return self._label
     def _setlabel(self,value):
-         value = VCS_validation_functions.checkYesNo(self,'label',value)
+         value = VCS_validation_functions.checkFuzzyBoolean(self,'label',value)
          self._label=value
     label=property(_getlabel,_setlabel)
 
