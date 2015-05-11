@@ -3,7 +3,7 @@ pth = os.path.dirname(os.path.abspath(__file__))
 
 if cdat_info.CDMS_INCLUDE_DAP=='yes':
     print 'Testing Dap'
-    f=cdms2.open('http://esgcet.llnl.gov/dap/ipcc4/20c3m/ncar_ccsm3_0/pcmdi.ipcc4.ncar_ccsm3_0.20c3m.run6.atm.mo.xml')
+    f=cdms2.open('http://test.opendap.org/opendap/hyrax/netcdf/examples/ECMWF_ERA-40_subset.nc')
     print f.listvariables()
 else:
     print 'CDMS not built with DAP support, skipped DAP test'
