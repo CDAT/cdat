@@ -134,7 +134,6 @@ def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
     ppV = numpy_to_vtk_wrapper(m3,deep=deep)
     pts.SetData(ppV)
   else:
-    print "THis guy?"
     xm,xM,ym,yM,tmp,tmp2 = grid.GetPoints().GetBounds()
     vg = grid
   projection = vcs.elements["projection"][gm.projection]
@@ -355,7 +354,6 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
   return out
 
 def getRange(gm,xm,xM,ym,yM):
-    print "IN:",xm,xM,ym,yM
     # Also need to make sure it fills the whole space
     rtype= type(cdtime.reltime(0,"days since 2000"))
     X1,X2 = gm.datawc_x1,gm.datawc_x2
@@ -374,7 +372,6 @@ def getRange(gm,xm,xM,ym,yM):
       y1,y2 = Y1,Y2
     else:
       y1,y2 = ym,yM
-    print "RANGE:",x1,x2,y1,y2
     return x1,x2,y1,y2
 
 ## Continents first
