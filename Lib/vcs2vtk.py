@@ -87,6 +87,10 @@ def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
     if grid is None:
       x = g.getLongitude()[:]
       y = g.getLatitude()[:]
+      xm = x[0]
+      xM = x[-1]
+      ym = y[0]
+      yM = y[-1]
     continents=True
     wrap=[0,360]
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
@@ -97,6 +101,10 @@ def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
     if grid is None:
       x=data1.getAxis(-1)[:]
       y=data1.getAxis(-2)[:]
+      xm = x[0]
+      xM = x[-1]
+      ym = y[0]
+      yM = y[-1]
 
   if grid is None:
     if x.ndim==1:
@@ -109,10 +117,14 @@ def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
     x=numpy.reshape(x,sh)
     y=numpy.reshape(y,sh)
     #Ok we have our points in 2D let's create unstructured points grid
-    xm=x.min()
-    xM=x.max()
-    ym=y.min()
-    yM=y.max()
+    if xm is None:
+        xm=x.min()
+    if xM is None:
+        xM=x.max()
+    if ym is None:
+        ym=y.min()
+    if yM is None:
+        yM=y.max()
     z = numpy.zeros(x.shape)
     m3 = numpy.concatenate((x,y),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
@@ -122,6 +134,7 @@ def genGridOnPoints(data1,gm,deep=True,grid=None,geo=None):
     ppV = numpy_to_vtk_wrapper(m3,deep=deep)
     pts.SetData(ppV)
   else:
+    print "THis guy?"
     xm,xM,ym,yM,tmp,tmp2 = grid.GetPoints().GetBounds()
     vg = grid
   projection = vcs.elements["projection"][gm.projection]
@@ -342,6 +355,7 @@ def genGrid(data1,data2,gm,deep=True,grid=None,geo=None):
   return out
 
 def getRange(gm,xm,xM,ym,yM):
+    print "IN:",xm,xM,ym,yM
     # Also need to make sure it fills the whole space
     rtype= type(cdtime.reltime(0,"days since 2000"))
     X1,X2 = gm.datawc_x1,gm.datawc_x2
@@ -360,6 +374,7 @@ def getRange(gm,xm,xM,ym,yM):
       y1,y2 = Y1,Y2
     else:
       y1,y2 = ym,yM
+    print "RANGE:",x1,x2,y1,y2
     return x1,x2,y1,y2
 
 ## Continents first
