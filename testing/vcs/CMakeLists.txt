@@ -314,6 +314,16 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_more_than_number_levels.py
       )
+    cdat_add_test(test_vcs_user_passed_date
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date.py
+      "${BASELINE_DIR}/test_vcs_user_passed_date.png"
+      )
+    cdat_add_test(test_vcs_user_passed_date_as_string
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date_as_string.py
+      "${BASELINE_DIR}/test_vcs_user_passed_date_as_string.png"
+      )
     cdat_add_test(test_vcs_auto_time_labels
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
