@@ -222,6 +222,7 @@ if(BUILD_TESTING)
   set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
     CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
   set(REPO_URL "")
+  set(REPO_TAG "uvcdat-2.2.0")
   if(GIT_PROTOCOL MATCHES "http://")
     set(REPO_URL "http://github.com/UV-CDAT/uvcdat-testdata.git")
   else()
@@ -231,6 +232,7 @@ if(BUILD_TESTING)
   add_custom_target(update-testdata ALL
     COMMAND "${CMAKE_COMMAND}"
       "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+      "-DTESTDATA_TAG=${REPO_TAG}"
       "-DTESTDATA_URL=${REPO_URL}"
       "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
       -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
