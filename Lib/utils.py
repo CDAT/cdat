@@ -23,6 +23,7 @@ import tempfile
 import colormap
 import vcsaddons
 import cdms2
+import genutil
 
 indent = 1
 sort_keys = True
