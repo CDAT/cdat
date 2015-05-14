@@ -581,6 +581,13 @@ class VTKVCSBackend(object):
               returned["vtk_backend_%s_text_actor" % d.backend["vtk_backend_template_attribute"]] = t
         self.canvas.display_names.remove(d.name)
         del(vcs.elements["display"][d.name])
+    ## Sometimes user passes "date" as an attribute to replace date
+    if hasattr(data,"user_date"):
+        taxis = cdms2.createAxis([cdtime.s2r(data.user_date,"days since 1900").value])
+        taxis.designateTime()
+        taxis.units="days since 1900"
+        if zaxis is not None and zaxis.isTime():
+            zaxis=taxis
     if taxis is not None:
       try:
         tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
