@@ -1,6 +1,11 @@
 set(netcdf_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf")
 set(netcdf_install "${cdat_EXTERNALS}")
-set(netcdf_configure_args "--enable-netcdf-4")
+if (CDAT_BUILD_PARALLEL)
+  message("[INFO] Building NetCDF with parallel ON")
+  set(netcdf_configure_args "--enable-netcdf-4^^--enable-pnetcdf")
+else()
+  set(netcdf_configure_args "--enable-netcdf-4")
+endif()
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/netcdf_patch_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/netcdf_patch_step.cmake
