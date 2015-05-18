@@ -605,8 +605,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_st
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdatmpi_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdatmpi_configure_step.cmake
     @ONLY
 )
 
