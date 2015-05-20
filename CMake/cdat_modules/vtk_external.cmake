@@ -5,7 +5,52 @@ set(vtk_install "${cdat_EXTERNALS}")
 set(GIT_CMD_STR GIT_REPOSITORY "${VTK_SOURCE}")
 
 set(_vtk_modules
-  "vtkRenderingImage;vtkRenderingVolume;vtkRenderingLabel;vtkRenderingFreeType;vtkRenderingFreeTypeOpenGL;vtkRenderingVolumeOpenGL;vtkRenderingCore;vtkRenderingOpenGL;vtkGeovisCore;vtkViewsCore;vtkViewsGeovis;vtkInteractionImage;vtkInteractionStyle;vtkInteractionWidgets;vtkCommonTransforms;vtkCommonCore;vtkCommonComputationalGeometry;vtkCommonExecutionModel;vtkCommonSystem;vtkCommonMisc;vtkFiltersFlowPaths;vtkFiltersStatistics;vtkFiltersAMR;vtkFiltersGeneric;vtkFiltersSources;vtkFiltersModeling;vtkFiltersExtraction;vtkFiltersSelection;vtkFiltersSMP;vtkFiltersCore;vtkFiltersHybrid;vtkFiltersTexture;vtkFiltersGeneral;vtkFiltersImaging;vtkFiltersGeometry;vtkIOImage;vtkIOCore;vtkIOExport;vtkIOImport;vtkIOGeometry;vtkImagingColor;vtkImagingSources;vtkImagingCore;vtkImagingGeneral;vtkImagingMath;vtkImagingStencil")
+  vtkRenderingImage
+  vtkRenderingVolume
+  vtkRenderingLabel
+  vtkRenderingFreeType
+  vtkRenderingFreeTypeOpenGL
+  vtkRenderingVolumeOpenGL
+  vtkRenderingCore
+  vtkRenderingOpenGL
+  vtkGeovisCore
+  vtkViewsCore
+  vtkViewsGeovis
+  vtkInteractionImage
+  vtkInteractionStyle
+  vtkInteractionWidgets
+  vtkCommonTransforms
+  vtkCommonCore
+  vtkCommonComputationalGeometry
+  vtkCommonExecutionModel
+  vtkCommonSystem
+  vtkCommonMisc
+  vtkFiltersFlowPaths
+  vtkFiltersStatistics
+  vtkFiltersAMR
+  vtkFiltersGeneric
+  vtkFiltersSources
+  vtkFiltersModeling
+  vtkFiltersExtraction
+  vtkFiltersSelection
+  vtkFiltersSMP
+  vtkFiltersCore
+  vtkFiltersHybrid
+  vtkFiltersTexture
+  vtkFiltersGeneral
+  vtkFiltersImaging
+  vtkFiltersGeometry
+  vtkIOImage
+  vtkIOCore
+  vtkIOExport
+  vtkIOImport
+  vtkIOGeometry
+  vtkImagingColor
+  vtkImagingSources
+  vtkImagingCore
+  vtkImagingGeneral
+  vtkImagingMath
+)
 
 if(NOT CDAT_BUILD_LEAN)
   list(APPEND _vtk_modules "vtkIOFFMPEG")
