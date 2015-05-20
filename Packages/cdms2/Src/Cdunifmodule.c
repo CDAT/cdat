@@ -13,6 +13,9 @@
 #include "Python.h"
 #include "numpy/ndarrayobject.h"
 #include "netcdf.h"
+#ifdef PARALLEL
+#include "mpi.h"
+#endif
 
 #define _CDUNIF_MODULE
 #include "Cdunifmodule.h"
@@ -29,6 +32,9 @@ int cdms_classic = 1;
 int cdms_shuffle = 0 ;
 int cdms_deflate = 1 ;
 int cdms_deflate_level = 1 ;
+
+/* NC_CLASSIC requires special API */
+int USE_PNETCDF=0;
 
 staticforward int
 Cdunif_file_init(PyCdunifFileObject *self);
@@ -256,7 +262,16 @@ static int cdattname(PyCdunifFileObject *file, int varid, int attnum, char* name
 }
 static int cdclose(PyCdunifFileObject *file){
 	if (file->filetype==CuNetcdf)
-		return ncclose(file->id);
+      if (USE_PNETCDF == 1) {
+        return ncmpi_close(file->id);
+      }
+      else {
+        int ret;
+        ret = nc_close(file->id);
+        fprintf(stderr,"got nc ret code: %i\n",ret);
+        fprintf(stderr,"error means: %s\n",nc_strerror(ret));
+        return ret;
+      }
 	else
 		return cuclose(file->id);
 }
@@ -418,7 +433,7 @@ static int cddiminq(PyCdunifFileObject *file, int dimid, char* dimname, char *di
 }
 static int cdendef(PyCdunifFileObject *file){
 	if (file->filetype==CuNetcdf)
-		return ncendef(file->id);
+		return nc_enddef(file->id);
 	else
 		return 0;
 }
@@ -607,63 +622,137 @@ nc_put_var1_any(int ncid, int varid, nc_type xtype, const size_t *indexp,
 {
   switch (xtype) {
   case NC_BYTE:
-    return nc_put_var1_uchar(ncid, varid, indexp, (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_uchar(ncid, varid, indexp, (unsigned char *)data);
+    }
+    else {
+      return nc_put_var1_uchar(ncid, varid, indexp, (unsigned char *)data);
+    }
     break;
   case NC_CHAR:
-    return nc_put_var1_text(ncid, varid, indexp, (char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_text(ncid, varid, indexp, (char *)data);
+    }
+    else {
+      return nc_put_var1_text(ncid, varid, indexp, (char *)data);
+    }
     break;
   case NC_SHORT:
-    return nc_put_var1_short(ncid, varid, indexp, (short *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_short(ncid, varid, indexp, (short *)data);
+    }
+    else {
+      return nc_put_var1_short(ncid, varid, indexp, (short *)data);
+    }
     break;
   case NC_INT:
-    return nc_put_var1_int(ncid, varid, indexp, (int *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_int(ncid, varid, indexp, (int *)data);
+    }
+    else {
+      return nc_put_var1_int(ncid, varid, indexp, (int *)data);
+    }
     break;
   case NC_FLOAT:
-    return nc_put_var1_float(ncid, varid, indexp, (float *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_float(ncid, varid, indexp, (float *)data);
+    }
+    else {
+      return nc_put_var1_float(ncid, varid, indexp, (float *)data);
+    }
     break;
   case NC_DOUBLE:
-    return nc_put_var1_double(ncid, varid, indexp, (double *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_double(ncid, varid, indexp, (double *)data);
+    }
+    else {
+      return nc_put_var1_double(ncid, varid, indexp, (double *)data);
+    }
     break;
     /* need the following #ifdef for linking against netcdf3 */
 #ifdef NC_UBYTE
   case NC_UBYTE:
-    return nc_put_var1_ubyte(ncid, varid, indexp,
-			     (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return nc_put_var1_ubyte(ncid, varid, indexp,
+                   (unsigned char *)data);
+    }
+    else {
+      return nc_put_var1_ubyte(ncid, varid, indexp,
+                   (unsigned char *)data);
+    }
     break;   
 #endif
 #ifdef NC_USHORT 
   case NC_USHORT:
-    return nc_put_var1_ushort(ncid, varid, indexp,
-			     (unsigned short *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_ushort(ncid, varid, indexp,
+                   (unsigned short *)data);
+    }
+    else {
+      return nc_put_var1_ushort(ncid, varid, indexp,
+                   (unsigned short *)data);
+    }
     break;   
 #endif
 #ifdef NC_UINT 
   case NC_UINT:
-    return nc_put_var1_uint(ncid, varid, indexp,
-			     (unsigned int *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_uint(ncid, varid, indexp,
+                   (unsigned int *)data);
+    }
+    else {
+      return nc_put_var1_uint(ncid, varid, indexp,
+                   (unsigned int *)data);
+    }
     break;   
 #endif
 #ifdef NC_INT64
   case NC_INT64:
-    return nc_put_var1_longlong(ncid, varid, indexp,
-			     (long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_longlong(ncid, varid, indexp,
+          (long long *)data);
+    }
+    else {
+      return nc_put_var1_longlong(ncid, varid, indexp,
+          (long long *)data);
+    }
     break;
 #endif
 #ifdef NC_UINT64
   case NC_UINT64:
-    return nc_put_var1_ulonglong(ncid, varid, indexp,
-			     (unsigned long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_var1_ulonglong(ncid, varid, indexp,
+                   (unsigned long long *)data);
+    }
+    else {
+      return nc_put_var1_ulonglong(ncid, varid, indexp,
+                   (unsigned long long *)data);
+    }
     break;
 #endif
 #ifdef NC_STRING
   case NC_STRING:
-    return nc_put_var1_string(ncid, varid, indexp,
-			     (char **)data);
+    if (USE_PNETCDF == 1) {
+      return nc_put_var1_string(ncid, varid, indexp,
+          (char **)data);
+    }
+    else {
+      return nc_put_var1_string(ncid, varid, indexp,
+          (char **)data);
+    }
     break;
 #endif
   default:
     return NC_EINVAL;
   }
+}
+static int cdms2_nc_put_var1_any(int ncid, int varid, nc_type xtype, const size_t *indexp,
+            const void *data) {
+  fprintf(stderr,"nc_put_var1_any %i, type: %i\n",myrank(),xtype);
+  int ret;
+  ret = nc_put_var1_any(ncid, varid, xtype, indexp, data);
+  fprintf(stderr,"nc_put_var1_any %i done ierr: %i\n",myrank(),ret);
+  return ret;
 }
 
 static int
@@ -673,67 +762,136 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 {
   switch (xtype) {
   case NC_BYTE:
-    return nc_put_vars_uchar(ncid, varid, start, count, stride,
-			     (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_uchar(ncid, varid, start, count, stride,
+                   (unsigned char *)data);
+    }
+    else {
+      return nc_put_vars_uchar(ncid, varid, start, count, stride,
+                   (unsigned char *)data);
+    }
     break;
   case NC_CHAR:
-    return nc_put_vars_text(ncid, varid, start, count, stride,
-			     (char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_text(ncid, varid, start, count, stride,
+                   (char *)data);
+    }
+    else {
+      return nc_put_vars_text(ncid, varid, start, count, stride,
+                   (char *)data);
+    }
     break;
   case NC_SHORT:
-    return nc_put_vars_short(ncid, varid, start, count, stride,
-			     (short *)data);
-    break;
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_short(ncid, varid, start, count, stride,
+                   (short *)data);
+    }
+    else {
+      return nc_put_vars_short(ncid, varid, start, count, stride,
+                   (short *)data);
+    }
     break;
   case NC_INT:
-    return nc_put_vars_int(ncid, varid, start, count, stride,
-			   (int *)data);
-    break;
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_int(ncid, varid, start, count, stride,
+                 (int *)data);
+    }
+    else {
+      return nc_put_vars_int(ncid, varid, start, count, stride,
+                 (int *)data);
+    }
     break;
   case NC_FLOAT:
-    return nc_put_vars_float(ncid, varid, start, count, stride,
-			     (float *)data);
-    break;
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_float(ncid, varid, start, count, stride,
+                   (float *)data);
+    }
+    else {
+      return nc_put_vars_float(ncid, varid, start, count, stride,
+                   (float *)data);
+    }
     break;
   case NC_DOUBLE:
-    return nc_put_vars_double(ncid, varid, start, count, stride,
-			      (double *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_double(ncid, varid, start, count, stride,
+                    (double *)data);
+    }
+    else {
+      return nc_put_vars_double(ncid, varid, start, count, stride,
+                    (double *)data);
+    }
     break;
     /* need the following #ifdef for linking against netcdf3 */
 #ifdef NC_UBYTE
   case NC_UBYTE:
-    return nc_put_vars_ubyte(ncid, varid,start, count, stride,
-			     (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return nc_put_vars_ubyte(ncid, varid,start, count, stride,
+                   (unsigned char *)data);
+    }
+    else {
+      return nc_put_vars_ubyte(ncid, varid,start, count, stride,
+                   (unsigned char *)data);
+    }
     break;  
 #endif
 #ifdef NC_USHORT  
   case NC_USHORT:
-    return nc_put_vars_ushort(ncid, varid,start, count, stride,
-			     (unsigned short *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_ushort(ncid, varid,start, count, stride,
+                   (unsigned short *)data);
+    }
+    else {
+      return nc_put_vars_ushort(ncid, varid,start, count, stride,
+                   (unsigned short *)data);
+    }
     break; 
 #endif
 #ifdef NC_UINT   
   case NC_UINT:
-    return nc_put_vars_uint(ncid, varid,start, count, stride,
-			     (unsigned int *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_uint(ncid, varid,start, count, stride,
+                   (unsigned int *)data);
+    }
+    else {
+      return nc_put_vars_uint(ncid, varid,start, count, stride,
+                   (unsigned int *)data);
+    }
     break;  
 #endif
 #ifdef NC_INT64  
   case NC_INT64:
-    return nc_put_vars_longlong(ncid, varid,start, count, stride,
-				(long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_longlong(ncid, varid,start, count, stride,
+                  (long long *)data);
+    }
+    else {
+      return nc_put_vars_longlong(ncid, varid,start, count, stride,
+                  (long long *)data);
+    }
     break;
 #endif
 #ifdef NC_UINT64
   case NC_UINT64:
-    return nc_put_vars_ulonglong(ncid, varid,start, count, stride,
-			     (unsigned long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_put_vars_ulonglong(ncid, varid,start, count, stride,
+                   (unsigned long long *)data);
+    }
+    else {
+      return nc_put_vars_ulonglong(ncid, varid,start, count, stride,
+                   (unsigned long long *)data);
+    }
     break;
 #endif
 #ifdef NC_STRING
   case NC_STRING:
-    return nc_put_vars_string(ncid, varid,start, count, stride,
-			     (char **)data);
+    if (USE_PNETCDF == 1) {
+      return nc_put_vars_string(ncid, varid,start, count, stride,
+                   (char **)data);
+    }
+    else {
+      return nc_put_vars_string(ncid, varid,start, count, stride,
+                   (char **)data);
+    }
     break;
 #endif
   default:
@@ -742,63 +900,138 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 }
 
 static int
+cdms2_nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
+		const size_t count[], const ptrdiff_t stride[],
+		const void *data)
+{
+  fprintf(stderr,"nc_put_vars_any\n");
+  return nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
+}
+
+static int
 nc_get_att_any(int ncid, int varid, const char *name,
 	       nc_type xtype, void *data)
 {
   switch (xtype) {
   case NC_BYTE:
-    return nc_get_att_uchar(ncid, varid, name, (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_uchar(ncid, varid, name, (unsigned char *)data);
+    }
+    else {
+      return nc_get_att_uchar(ncid, varid, name, (unsigned char *)data);
+    }
     break;
   case NC_CHAR:
-    return nc_get_att_text(ncid, varid, name, (char *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_text(ncid, varid, name, (char *)data);
+    }
+    else {
+      return nc_get_att_text(ncid, varid, name, (char *)data);
+    }
     break;
   case NC_SHORT:
-    return nc_get_att_short(ncid, varid, name, (short *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_short(ncid, varid, name, (short *)data);
+    }
+    else {
+      return nc_get_att_short(ncid, varid, name, (short *)data);
+    }
     break;
   case NC_INT:
-    return nc_get_att_int(ncid, varid, name, (int *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_int(ncid, varid, name, (int *)data);
+    }
+    else {
+      return nc_get_att_int(ncid, varid, name, (int *)data);
+    }
     break;
   case NC_FLOAT:
-    return nc_get_att_float(ncid, varid, name, (float *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_float(ncid, varid, name, (float *)data);
+    }
+    else {
+      return nc_get_att_float(ncid, varid, name, (float *)data);
+    }
     break;
   case NC_DOUBLE:
-    return nc_get_att_double(ncid, varid, name, (double *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_double(ncid, varid, name, (double *)data);
+    }
+    else {
+      return nc_get_att_double(ncid, varid, name, (double *)data);
+    }
     break;
     /* need the following #ifdef for linking against netcdf3 */
 #ifdef NC_UBYTE
   case NC_UBYTE:
-    return nc_get_att_ubyte(ncid, varid, name,
-			     (unsigned char *)data);
+    if (USE_PNETCDF == 1) {
+      return nc_get_att_ubyte(ncid, varid, name,
+                   (unsigned char *)data);
+    }
+    else {
+      return nc_get_att_ubyte(ncid, varid, name,
+                   (unsigned char *)data);
+    }
     break; 
 #endif
 #ifdef NC_USHORT   
   case NC_USHORT:
-    return nc_get_att_ushort(ncid, varid, name,
-			     (unsigned short *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_ushort(ncid, varid, name,
+                   (unsigned short *)data);
+    }
+    else {
+      return nc_get_att_ushort(ncid, varid, name,
+                   (unsigned short *)data);
+    }
     break;   
 #endif
 #ifdef NC_UINT 
   case NC_UINT:
-    return nc_get_att_uint(ncid, varid, name,
-			     (unsigned int *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_uint(ncid, varid, name,
+          (unsigned int *)data);
+    }
+    else {
+      return nc_get_att_uint(ncid, varid, name,
+          (unsigned int *)data);
+    }
     break;   
 #endif
 #ifdef NC_INT64 
   case NC_INT64:
-    return nc_get_att_longlong(ncid, varid, name,
-			     (long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_longlong(ncid, varid, name,
+                   (long long *)data);
+    }
+    else {
+      return nc_get_att_longlong(ncid, varid, name,
+                   (long long *)data);
+    }
     break;
 #endif
 #ifdef NC_UINT64
   case NC_UINT64:
-    return nc_get_att_ulonglong(ncid, varid, name,
-			     (unsigned long long *)data);
+    if (USE_PNETCDF == 1) {
+      return ncmpi_get_att_ulonglong(ncid, varid, name,
+          (unsigned long long *)data);
+    }
+    else {
+      return nc_get_att_ulonglong(ncid, varid, name,
+          (unsigned long long *)data);
+    }
     break;
 #endif
 #ifdef NC_STRING
   case NC_STRING:
-    return nc_get_att_string(ncid, varid, name,
-			     (char **)data);
+    if (USE_PNETCDF == 1) {
+      return nc_get_att_string(ncid, varid, name,
+          (char **)data);
+    }
+    else {
+      return nc_get_att_string(ncid, varid, name,
+          (char **)data);
+    }
     break;
 #endif
   default:
@@ -1032,6 +1265,29 @@ collect_attributes(PyCdunifFileObject *file, int varid, PyObject *attributes, in
     }
   }
 }
+int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *string) {
+  int ret;
+  fprintf(stderr,"nc_put_att_text\n");
+  if (USE_PNETCDF==1) {
+    ret = ncmpi_put_att_text(fileid, varid, name, len, string);
+  }
+  else {
+    ret = nc_put_att_text(fileid, varid, name, len, string);
+  }
+  return ret;
+}
+
+int cdms2_nc_put_att_any(int fileid, int varid, char *name, int type, int len, void *data) {
+  int ret;
+  fprintf(stderr,"nc_put_att_any, att: %s, rk: %i\n",name,myrank());
+  if (USE_PNETCDF ==1 ) {
+      ret = nc_put_att_any(fileid, varid, name, type, len, data);
+  }
+  else {
+      ret = nc_put_att_any(fileid, varid, name, type, len, data);
+  }
+  return ret;
+}
 
 static int
 set_attribute(int fileid, int varid, PyObject *attributes,
@@ -1040,13 +1296,14 @@ set_attribute(int fileid, int varid, PyObject *attributes,
   if (value==Py_None) {
     return 0;
   }
+  fprintf(stderr,"ok in set_attribute for %s\n",name);
   if (PyString_Check(value)) {
     int len = PyString_Size(value);
     char *string = PyString_AsString(value);
     int ret;
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    ret = nc_put_att_text(fileid, varid, name, len, string);
+    ret = cdms2_nc_put_att_text(fileid, varid, name, len, string);
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     if (ret != NC_NOERR) {
@@ -1073,7 +1330,7 @@ set_attribute(int fileid, int varid, PyObject *attributes,
       }
       Py_BEGIN_ALLOW_THREADS;
       acquire_Cdunif_lock();
-      ret = nc_put_att_any(fileid, varid, name, type, len, array->data);
+      ret = cdms2_nc_put_att_any(fileid, varid, name, type, len, array->data);
       release_Cdunif_lock();
       Py_END_ALLOW_THREADS;
       if (ret != NC_NOERR) {
@@ -1129,9 +1386,30 @@ PyCdunifFileObject_dealloc(PyCdunifFileObject *self)
   Py_XDECREF(self->diminfo);
   PyObject_Del(self);			     /* PyMem_Del segfaults in 2.5 */
 }
+int myrank() {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  return rank;
+}
 
 /* Create file object */
 
+int cdms2_nccreate(char *filename, int ncmode) {
+#ifdef PARALLEL
+    int ierrnc,selfncid;
+    int size,rank;
+    if (USE_PNETCDF == 1) {
+      ierrnc = ncmpi_create(MPI_COMM_WORLD,filename,ncmode,MPI_INFO_NULL,&selfncid);
+    }
+    else {
+      ierrnc = nc_create_par(filename, ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&selfncid);
+      }
+    printf("GOT NC ID: %i, %i\n",selfncid,ierrnc);
+#else
+    selfncid = nccreate(filename, ncmode);
+#endif
+    return selfncid;
+}
 static PyCdunifFileObject *
 PyCdunifFile_Open(char *filename, char *mode)
 {
@@ -1158,16 +1436,27 @@ PyCdunifFile_Open(char *filename, char *mode)
   if (mode[0] == 'w') {
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    ncmode = NC_CLOBBER|NC_64BIT_OFFSET;
-#ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
+      printf("NC4 is on\n");
       ncmode = NC_CLOBBER|NC_NETCDF4;
+#ifdef PARALLEL
+      ncmode = ncmode | NC_MPIIO;
+      USE_PNETCDF=0;
+#endif
+    }
+    else {
+      ncmode = NC_CLOBBER | NC_64BIT_OFFSET;
+      printf("CLOBBER MODE\n");
+#ifdef PARALLEL
+      USE_PNETCDF=1;
+#endif
     }
     if (cdms_classic==1) {
+      printf("Adding the classic ebit\n");
       ncmode = ncmode | NC_CLASSIC_MODEL;
+      USE_PNETCDF=1;
     }
-#endif
-    self->id = nccreate(filename, ncmode);
+    self->id = cdms2_nccreate(filename,ncmode);
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     self->define = 1;
@@ -1185,15 +1474,13 @@ PyCdunifFile_Open(char *filename, char *mode)
     self->define = 0;
     if (self->id == -1) {
     ncmode = NC_NOCLOBBER;
-#ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
       ncmode = NC_NOCLOBBER|NC_NETCDF4;
     }
     if (cdms_classic==1) {
       ncmode = ncmode | NC_CLASSIC_MODEL;
     }
-#endif
-      self->id = nccreate(filename, ncmode);
+      self->id = cdms2_nccreate(filename, ncmode);
       self->filetype = CuNetcdf;
       self->define = 1;
     }
@@ -1403,6 +1690,19 @@ static char createDimension_doc[] = "";
 
 /* Create variable */
 
+int cdms2_nc_def_var(int id,char *name, int ntype, int ndim, int *dimids, int *i) {
+  int ret;
+  fprintf(stderr,"nc_defvar %i\n",myrank());
+  if (USE_PNETCDF ==1 ) {
+    ret = ncmpi_def_var(id, name, ntype, ndim, dimids, i);
+  }
+  else {
+    ret = nc_def_var(id, name, ntype, ndim, dimids, i);
+  }
+  fprintf(stderr,"nc_defvar done %i\n",myrank());
+  return ret;
+}
+
 static PyCdunifVariableObject *
 PyCdunifFile_CreateVariable(PyCdunifFileObject *file, char *name, int typecode,
 			    char **dimension_names, int ndim)
@@ -1440,7 +1740,8 @@ PyCdunifFile_CreateVariable(PyCdunifFileObject *file, char *name, int typecode,
     ntype = cdunif_type_from_code((char)typecode);
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    ret = nc_def_var(file->id, name, ntype, ndim, dimids, &i);
+    i=-999;
+    ret = cdms2_nc_def_var(file->id, name, ntype, ndim, dimids, &i);
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     if (ret != NC_NOERR) {
@@ -1449,7 +1750,6 @@ PyCdunifFile_CreateVariable(PyCdunifFileObject *file, char *name, int typecode,
 	free(dimids);
       return NULL;
     }
-#ifndef NONC4
     Py_BEGIN_ALLOW_THREADS;
     /* try some compression thing here */
     if (((cdms_shuffle!=0) || (cdms_deflate!=0))&& (ndim!=0)) {
@@ -1458,7 +1758,6 @@ PyCdunifFile_CreateVariable(PyCdunifFileObject *file, char *name, int typecode,
       release_Cdunif_lock();
     }
     Py_END_ALLOW_THREADS;
-#endif
     if (ret != NC_NOERR) {
       cdunif_signalerror(ret);
       if (dimids != NULL)
@@ -1611,10 +1910,6 @@ PyCdunifFileObject_read_dimension(PyCdunifFileObject *self, PyObject *args){
 			Py_DECREF(array);
 			array=NULL;
 		}
-					     /* This is ugly, concatenate fails otherwise */
-#ifdef PCMDI_NUMERICS
-		generate_pcmdi_dims(&array,"DimensionArray");
-#endif		
 		return (PyObject *)array;
 	}
 	else {
@@ -1982,7 +2277,6 @@ PyObject *
 PyCdunifVariableObject_setslice(PyCdunifVariableObject *self, PyObject *args) {
   int low, high;
   PyObject *value;
-
   if (!PyArg_ParseTuple(args, "iiO", &low, &high, &value))
 	  return NULL;
   if (PyCdunifVariableObject_ass_slice(self,low,high,value) != -1){
@@ -2328,6 +2622,7 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
   int nitems;
   int error = 0;
   int ret = 0;
+  fprintf(stderr,"ok in write array thing\n");
   d = 0;
   nitems = 1;
   if (!check_if_open(self->file, 1)) {
@@ -2384,7 +2679,7 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
       size_t zero = 0;
       Py_BEGIN_ALLOW_THREADS;
       acquire_Cdunif_lock();
-      error = nc_put_var1_any(self->file->id, self->id,
+      error = cdms2_nc_put_var1_any(self->file->id, self->id,
 			      cdunif_type_from_type(self->type), &zero,
 			      array->data);
       release_Cdunif_lock();
@@ -2449,7 +2744,7 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
 	acquire_Cdunif_lock();
 	error = NC_NOERR;
 	while (repeat--) {
-	  error = nc_put_vars_any(self->file->id, self->id,
+	  error = cdms2_nc_put_vars_any(self->file->id, self->id,
 				  cdunif_type_from_type(self->type),
 				  start, count1, stride, array->data);
 	  if (error != NC_NOERR)
@@ -2510,6 +2805,7 @@ PyCdunifVariable_WriteString(PyCdunifVariableObject *self,
 			     PyStringObject *value)
 {
   long len;
+  fprintf(stderr,"ok in write istring thing\n");
   if (self->type != NPY_CHAR || self->nd != 1) {
     PyErr_SetString(PyExc_IOError, "cdunif: not a string variable");
     return -1;
@@ -2526,7 +2822,7 @@ PyCdunifVariable_WriteString(PyCdunifVariableObject *self,
     define_mode(self->file, 0);
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    ret = nc_put_var_text(self->file->id, self->id,
+    ret = cdms2_nc_put_var_text(self->file->id, self->id,
 			  PyString_AsString((PyObject *)value));
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
@@ -2538,6 +2834,17 @@ PyCdunifVariable_WriteString(PyCdunifVariableObject *self,
   }
   else
     return -1;
+}
+int cdms2_nc_put_var_text(int fileid, int id, char *value) {
+  int ret;
+  fprintf(stderr,"nc_put_var_text\n");
+  if (USE_PNETCDF == 1) {
+    ret = ncmpi_put_var_text(fileid, id, value);
+  }
+  else {
+    ret = nc_put_var_text(fileid, id, value);
+  }
+  return ret;
 }
 
 static PyObject *

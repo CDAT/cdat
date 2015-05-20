@@ -18,13 +18,21 @@ import cdat_info
 import numpy
 
 macros = []
+try:
+    import mpi4py
+    ## Ok we have mpi4py let's build with support for it
+    macros.append(("PARALLEL",None))
+    os.environ["CC"]="mpicc"
+    os.environ["CFLAGS"]="-w -g"
+except:
+    pass
 import cdat_info
 ## if cdat_info.CDMS_INCLUDE_DAP=='yes':
 ##     macros.append(("NONC4",None))
     
 setup (name = "cdms2",
        version='5.0',
-       description = "Clima1te Data Management System, Numpy version",
+       description = "Climate Data Management System, Numpy version",
        url = "http://cdat.sf.net",
        packages = ['cdms2'],
        package_dir = {'cdms2': 'Lib'},
