@@ -158,8 +158,6 @@ class VTKAnimate(animate_helper.AnimationController):
         self.renderers = []
         self.last_size = None
         self.modified_listener = None
-        import atexit
-        atexit.register(self.close)
 
     def modified(self, obj, event):
         # Use this to sync canvas sizes and to prevent configureEvent from
