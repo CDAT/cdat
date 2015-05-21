@@ -980,6 +980,29 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
 
+        # Call close when exiting python.
+        #
+        # This is required to clean up dangling references. This is far from
+        # ideal (see commit message for details), but this should work, and
+        # follows an existing pattern in vcs. I've tried to mitigate the ill
+        # effects by using a weakref, but at the moment the object will never
+        # be cleaned up before exit due to other dangling references:
+
+        # Create a weak reference to self:
+        import weakref
+        weakSelf = weakref.ref(self)
+
+        # Create a closure that tests the weakref and closes the canvas if
+        # still valid:
+        def canvasCleanupClosure():
+            self = weakSelf()
+            if self is not None:
+                self.close()
+
+        # Run the closure when the interpreter exits:
+        import atexit
+        atexit.register(canvasCleanupClosure)
+
     def configure(self):
         for display in self.display_names:
             d = vcs.elements["display"][display]

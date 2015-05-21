@@ -402,6 +402,11 @@ class VTKVCSBackend(object):
     self.clear()
     self.renWin.Finalize()
     self.renWin = None
+    # This is needed to free VTK objects properly. Otherwise they get cleaned up
+    # in Python's Finalize function, which leads to calling Python/C API methods
+    # after the interpretor is gone, which ultimately results in segfaults.
+    for dp in self.canvas.animate_info:
+        dp[0].backend.clear()
 
   def geometry(self,x,y,*args):
       self.renWin.SetSize(x,y)
