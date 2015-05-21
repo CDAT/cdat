@@ -748,10 +748,10 @@ nc_put_var1_any(int ncid, int varid, nc_type xtype, const size_t *indexp,
 }
 static int cdms2_nc_put_var1_any(int ncid, int varid, nc_type xtype, const size_t *indexp,
             const void *data) {
-  fprintf(stderr,"nc_put_var1_any %i, type: %i\n",myrank(),xtype);
+  fprintf(stderr,"nc_put_var1_any %i, type: %i\n",my_mpi_rank(),xtype);
   int ret;
   ret = nc_put_var1_any(ncid, varid, xtype, indexp, data);
-  fprintf(stderr,"nc_put_var1_any %i done ierr: %i\n",myrank(),ret);
+  fprintf(stderr,"nc_put_var1_any %i done ierr: %i\n",my_mpi_rank(),ret);
   return ret;
 }
 
@@ -904,7 +904,41 @@ cdms2_nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 		const size_t count[], const ptrdiff_t stride[],
 		const void *data)
 {
-  fprintf(stderr,"nc_put_vars_any\n");
+  fprintf(stderr,"nc_put_vars_any, rank %i\n",my_mpi_rank());
+  int rk = my_mpi_rank();
+  int sz = my_mpi_size();
+  int i,ndims;
+  /* how many dimensions do we have ? */
+  nc_inq_varndims(ncid,varid,&ndims);
+  /* ok we are going to do parallel over the first dim
+   * but if nidms < number proc (for example
+   * if we write only 1 or 2 time slices)
+   * then we will go on to the next dims and so on
+   * because we want to write slices with as much contiguous
+   * data as possible, less disk acces */
+  int ndims_split =0 ;
+  int nindx = 1 ;
+  for (i=0;i<ndims;i++) {
+    /* ok how many indices does this dimension add */
+    nindx *= count[i];
+    if (nindx > sz) {
+      /* ok we are good more indices than ranks */
+      break;
+    }
+  }
+  nindx = i;
+  fprintf(stderr,"ok we will split the mpi write over the %i first dims, rk: %i\n", nindx,rk);
+  int is = 0;
+  int ic = 0;
+  for (i=0;i<ndims;i++) {
+    if (i<nindx) {
+      is = rk % count[i];
+    }
+    else {
+      is = -99;
+    };
+    fprintf(stderr,"rk %i: dim: %i, start %i, count %i, new_start: %i\n",rk,i,start[i],count[i],is);
+  }
   return nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
 }
 
@@ -1279,7 +1313,7 @@ int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *stri
 
 int cdms2_nc_put_att_any(int fileid, int varid, char *name, int type, int len, void *data) {
   int ret;
-  fprintf(stderr,"nc_put_att_any, att: %s, rk: %i\n",name,myrank());
+  fprintf(stderr,"nc_put_att_any, att: %s, rk: %i\n",name,my_mpi_rank());
   if (USE_PNETCDF ==1 ) {
       ret = nc_put_att_any(fileid, varid, name, type, len, data);
   }
@@ -1386,7 +1420,12 @@ PyCdunifFileObject_dealloc(PyCdunifFileObject *self)
   Py_XDECREF(self->diminfo);
   PyObject_Del(self);			     /* PyMem_Del segfaults in 2.5 */
 }
-int myrank() {
+int my_mpi_size() {
+  int size;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  return size;
+}
+int my_mpi_rank() {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   return rank;
@@ -1699,14 +1738,14 @@ static char createDimension_doc[] = "";
 
 int cdms2_nc_def_var(int id,char *name, int ntype, int ndim, int *dimids, int *i) {
   int ret;
-  fprintf(stderr,"nc_defvar %i\n",myrank());
+  fprintf(stderr,"nc_defvar %i\n",my_mpi_rank());
   if (USE_PNETCDF ==1 ) {
     ret = ncmpi_def_var(id, name, ntype, ndim, dimids, i);
   }
   else {
     ret = nc_def_var(id, name, ntype, ndim, dimids, i);
   }
-  fprintf(stderr,"nc_defvar done %i\n",myrank());
+  fprintf(stderr,"nc_defvar done %i\n",my_mpi_rank());
   return ret;
 }
 
