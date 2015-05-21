@@ -736,12 +736,14 @@ class AnimationController(animate_obj_old):
   def __init__(self, vcs_self):
     animate_obj_old.__init__(self, vcs_self)
     self.create_thread = None
+    self.create_canvas = None
     self.playback_thread = None
 
     self.animation_created = False
     self.playback_running = False
     self.animation_files = []
     self.animation_seed = None
+    self.animate_info = []
     self.frame_num = 0
     self.create_params = AnimationCreateParams()
     self.playback_params = AnimationPlaybackParams()
@@ -750,6 +752,13 @@ class AnimationController(animate_obj_old):
     self.AnimationCreate = AnimationCreate
     self.AnimationPlayback = AnimationPlayback
     self._number_of_frames = None
+
+  def close(self, preserve_pngs = False):
+      if self.create_canvas:
+          self.create_canvas.close()
+          self.create_canvas = None
+      self.animate_info = []
+      return super(AnimationController, self).close(preserve_pngs)
 
   def set_signals(self, signals):
     self.signals = signals
