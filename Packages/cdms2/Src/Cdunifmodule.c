@@ -923,21 +923,38 @@ cdms2_nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
     nindx *= count[i];
     if (nindx > sz) {
       /* ok we are good more indices than ranks */
+      ndims_split = i+1;
       break;
     }
   }
-  nindx = i;
-  fprintf(stderr,"ok we will split the mpi write over the %i first dims, rk: %i\n", nindx,rk);
-  int is = 0;
-  int ic = 0;
+  int is[20];
+  int offset = 0;
+  int ic[20];
   for (i=0;i<ndims;i++) {
-    if (i<nindx) {
-      is = rk % count[i];
+    is[i]=0;
+    ic[i]=0;
+  }
+  int j=ndims-1;
+  int k;
+  for (i=0;i<nindx;i++) {
+    if (i % sz == rk) {
+      fprintf(stderr,"rk %i triggered\n",rk);
+      for (k=0;k<ndims_split;k++) {
+        fprintf(stderr,"\trk: %i, s=dim: %i, start: %i\n",rk,k,is[k]);
+      }
     }
-    else {
-      is = -99;
-    };
-    fprintf(stderr,"rk %i: dim: %i, start %i, count %i, new_start: %i\n",rk,i,start[i],count[i],is);
+    is[j]+=1;
+    if (is[j]>count[j]) { /*ok we wrote all  splits for this dim */
+      is[j]=0; /* reinit */
+      if (j==0) {/* oops already at last bit */
+        offset += 1;
+        j=ndims-1;
+      }
+      else {
+        j-=1;
+      }
+    }
+    //fprintf(stderr,"rk %i: dim: %i, start %i, count %i, new_start: %i\n",rk,i,start[i],count[i],is);
   }
   return nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
 }
