@@ -218,7 +218,11 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             # If the doesn't exist allow it to be created
-            if not os.path.exists(path): return CdmsFile(path,mode)
+            if not os.path.exists(path):
+              return CdmsFile(path,mode)
+            elif mode=="w":
+              os.remove(path)
+              return CdmsFile(path,mode)
             
             # The file exists
             file1 = CdmsFile(path,"r")
