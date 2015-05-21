@@ -4029,8 +4029,8 @@ Options:::
 """
         if self.configurator:
             self.endconfigure()
-        # Close the VCS Canvas
         a = self.backend.close(*args, **kargs)
+        self.animate_info = []
 
         return a
 
