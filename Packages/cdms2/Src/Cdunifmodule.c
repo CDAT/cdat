@@ -1396,6 +1396,7 @@ int myrank() {
 
 int cdms2_nccreate(char *filename, int ncmode) {
 #ifdef PARALLEL
+    nc_set_log_level(3);
     int ierrnc,selfncid;
     int size,rank;
     if (USE_PNETCDF == 1) {
