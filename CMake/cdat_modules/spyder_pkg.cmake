@@ -6,4 +6,4 @@ set(SPYDER_ZIP spyder-${SPYDER_MAJOR_SRC}.${SPYDER_MINOR_SRC}.${SPYDER_PATCH_SRC
 set(SPYDER_SOURCE ${SPYDER_URL}/${SPYDER_ZIP})
 set(SPYDER_MD5 e751f19b0c872cdfad6b1e3a69250f20)
 
-add_cdat_package_dependent(spyder "" "" OFF "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(spyder "" "" OFF "CDAT_BUILD_GUI" OFF) 
