@@ -1,6 +1,9 @@
 import cdms2
 import numpy
-
+cdms2.setNetcdfClassicFlag(0)
+cdms2.setNetcdfShuffleFlag(0)
+cdms2.setNetcdfDeflateFlag(0)
+cdms2.setNetcdfDeflateLevelFlag(0)
 
 a=numpy.array([1,2,3,4,5,6,7,8.])
 
