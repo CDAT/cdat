@@ -905,57 +905,6 @@ cdms2_nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 		const void *data)
 {
   fprintf(stderr,"nc_put_vars_any, rank %i\n",my_mpi_rank());
-  int rk = my_mpi_rank();
-  int sz = my_mpi_size();
-  int i,ndims;
-  /* how many dimensions do we have ? */
-  nc_inq_varndims(ncid,varid,&ndims);
-  /* ok we are going to do parallel over the first dim
-   * but if nidms < number proc (for example
-   * if we write only 1 or 2 time slices)
-   * then we will go on to the next dims and so on
-   * because we want to write slices with as much contiguous
-   * data as possible, less disk acces */
-  int ndims_split =0 ;
-  int nindx = 1 ;
-  for (i=0;i<ndims;i++) {
-    /* ok how many indices does this dimension add */
-    nindx *= count[i];
-    if (nindx > sz) {
-      /* ok we are good more indices than ranks */
-      ndims_split = i+1;
-      break;
-    }
-  }
-  int is[20];
-  int offset = 0;
-  int ic[20];
-  for (i=0;i<ndims;i++) {
-    is[i]=0;
-    ic[i]=0;
-  }
-  int j=ndims-1;
-  int k;
-  for (i=0;i<nindx;i++) {
-    if (i % sz == rk) {
-      fprintf(stderr,"rk %i triggered\n",rk);
-      for (k=0;k<ndims_split;k++) {
-        fprintf(stderr,"\trk: %i, s=dim: %i, start: %i\n",rk,k,is[k]);
-      }
-    }
-    is[j]+=1;
-    if (is[j]>count[j]) { /*ok we wrote all  splits for this dim */
-      is[j]=0; /* reinit */
-      if (j==0) {/* oops already at last bit */
-        offset += 1;
-        j=ndims-1;
-      }
-      else {
-        j-=1;
-      }
-    }
-    //fprintf(stderr,"rk %i: dim: %i, start %i, count %i, new_start: %i\n",rk,i,start[i],count[i],is);
-  }
   return nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
 }
 
