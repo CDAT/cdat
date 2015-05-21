@@ -218,10 +218,19 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             # If the doesn't exist allow it to be created
+            ##Ok mpi has issues with bellow we need to test this only with 1 rank
+            try:
+              import mpi4py
+              rk = mpi4py.MPI.COMM_WORLD.Get_rank()
+            except:
+              #no mpi
+              rk = 0
+
             if not os.path.exists(path):
               return CdmsFile(path,mode)
             elif mode=="w":
-              os.remove(path)
+              if rk == 0 :
+                os.remove(path)
               return CdmsFile(path,mode)
             
             # The file exists
