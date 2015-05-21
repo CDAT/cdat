@@ -1437,27 +1437,33 @@ PyCdunifFile_Open(char *filename, char *mode)
   if (mode[0] == 'w') {
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
-      printf("NC4 is on\n");
+    /* use netcdf4 is not using shuffle or not cdms classic */
+    if ((cdms_classic == 0) || (cdms_shuffle !=0 ) || (cdms_deflate !=0 )) {
       ncmode = NC_CLOBBER|NC_NETCDF4;
 #ifdef PARALLEL
-      ncmode = ncmode | NC_MPIIO;
+      /* ok we can only use MPIIO if not using shuffle or deflate for reason
+       * why
+       * see http://www.hdfgroup.org/hdf5-quest.html#p5comp */
+      if ((cdms_shuffle==0) && (cdms_deflate == 0 )) {
+        ncmode = ncmode | NC_MPIIO;
+        fprintf(stderr,"using mpiio\n");
+      }
       USE_PNETCDF=0;
 #endif
     }
     else {
       ncmode = NC_CLOBBER | NC_64BIT_OFFSET;
-      printf("CLOBBER MODE\n");
 #ifdef PARALLEL
       USE_PNETCDF=1;
 #endif
     }
     if (cdms_classic==1) {
-      printf("Adding the classic ebit\n");
       ncmode = ncmode | NC_CLASSIC_MODEL;
       USE_PNETCDF=1;
     }
+    fprintf(stderr,"ok about to create file\n");
     self->id = cdms2_nccreate(filename,ncmode);
+    fprintf(stderr,"ok just created file\n");
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     self->define = 1;
