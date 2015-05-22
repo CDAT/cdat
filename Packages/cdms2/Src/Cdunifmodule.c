@@ -295,7 +295,9 @@ static int cdclose(PyCdunifFileObject *file){
 	if (file->filetype==CuNetcdf) {
 #ifdef PARALLEL
       if (use_pnetcdf(file->id) == 1) {
-        return ncmpi_close(file->id);
+        int ierr;
+        ierr = ncmpi_close(file->id);
+        return ierr;
       }
       else {
         int ret;
@@ -419,7 +421,7 @@ static int cddiminq(PyCdunifFileObject *file, int dimid, char* dimname, char *di
         int ierr;
         if (use_pnetcdf(cdfid) == 1) {
           ierr = ncmpi_inq_dim(cdfid, dimid, dimname, &len);
-          fprintf(stderr,"used mpi di inq ierr: %i, name: %s\n",ierr,dimname);
+          fprintf(stderr,"used mpi di inq ierr: %i, name: %s, len: %d\n",ierr,dimname,len);
         }
         else {
           ierr = nc_inq_dim(cdfid, dimid, dimname, &len);
@@ -493,8 +495,24 @@ static int cddiminq(PyCdunifFileObject *file, int dimid, char* dimname, char *di
 	}
 }
 static int cdendef(PyCdunifFileObject *file){
-	if (file->filetype==CuNetcdf)
+	if (file->filetype==CuNetcdf) {
+      if ( use_pnetcdf(file->id) == 1 ) {
+        int ierr;
+        int ret;
+        ret = ncmpi_enddef(file->id);
+        ierr = ncmpi_begin_indep_data(file->id);
+        if (ierr != NC_NOERR ) {
+          fprintf(stderr,"could not begin indep ierr: %i which means %s\n",ierr,nc_strerror(ierr));
+        }
+        else {
+          fprintf(stderr, "entered indep data\n");
+        }
+        return ret;
+      }
+      else {
 		return nc_enddef(file->id);
+      }
+    }
 	else
 		return 0;
 }
@@ -558,8 +576,24 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
 	}
 }
 static int cdredef(PyCdunifFileObject *file){
-	if (file->filetype==CuNetcdf)
-		return ncredef(file->id);
+	if (file->filetype==CuNetcdf) {
+      if (use_pnetcdf(file->id) == 1) {
+        int ierr;
+        ierr = ncmpi_end_indep_data(file->id);
+        if (ierr != NC_NOERR ) {
+          fprintf(stderr,"could not end indep ierr: %i which means %s\n",ierr,nc_strerror(ierr));
+        }
+        else {
+          fprintf(stderr, "ended indep data\n");
+        }
+        int ret;
+        ret = ncmpi_redef(file->id);
+        return ret;
+      }
+      else {
+        return nc_redef(file->id);
+      }
+    }
 	else
 		return 0;
 }
@@ -877,6 +911,7 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
     break;
   case NC_SHORT:
     if (use_pnetcdf(ncid) == 1) {
+      fprintf(stderr,"putting in short\n");
       return ncmpi_put_vars_short(ncid, varid, start, count, stride,
                    (short *)data);
     }
@@ -887,6 +922,7 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
     break;
   case NC_INT:
     if (use_pnetcdf(ncid) == 1) {
+      fprintf(stderr,"putting in int\n");
       return ncmpi_put_vars_int(ncid, varid, start, count, stride,
                  (int *)data);
     }
@@ -907,8 +943,11 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
     break;
   case NC_DOUBLE:
     if (use_pnetcdf(ncid) == 1) {
-      return ncmpi_put_vars_double(ncid, varid, start, count, stride,
+      fprintf(stderr,"putting in double\n");
+      int ierr;
+      ierr = ncmpi_put_vars_double(ncid, varid, start, count, stride,
                     (double *)data);
+      return ierr;
     }
     else {
       return nc_put_vars_double(ncid, varid, start, count, stride,
@@ -919,6 +958,7 @@ nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 #ifdef NC_UBYTE
   case NC_UBYTE:
     if (use_pnetcdf(ncid) == 1) {
+      fprintf(stderr,"putting in ubyte\n");
       return nc_put_vars_ubyte(ncid, varid,start, count, stride,
                    (unsigned char *)data);
     }
@@ -998,8 +1038,16 @@ cdms2_nc_put_vars_any(int ncid, int varid, nc_type xtype, const size_t start[],
 		const size_t count[], const ptrdiff_t stride[],
 		const void *data)
 {
-  //fprintf(stderr,"nc_put_vars_any, rank %i\n",my_mpi_rank());
-  return nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
+  fprintf(stderr,"nc_put_vars_any, rank %i\n",my_mpi_rank());
+  int ierr;
+  ierr = nc_put_vars_any(ncid, varid, xtype, start, count, stride, data);
+  if (ierr != NC_NOERR) {
+    fprintf(stderr,"got an error writing data %i i.e: %s\n",ierr,nc_strerror(ierr));
+  }
+  else {
+    fprintf(stderr,"put varsany went ok\n");
+  }
+  return ierr;
 }
 
 static int
