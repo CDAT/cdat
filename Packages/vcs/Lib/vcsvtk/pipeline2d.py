@@ -42,7 +42,9 @@ class IPipeline2D(Pipeline):
         - _useCellScalars: True if data is applied to cell, false if data is
             applied to points.
         - _scalarRange: The range of _data1 as tuple(float min, float max)
+        - _maskedDataColor: The color (rgb tuple) used to render masked data.
         - _maskedDataMapper: The mapper used to render masked data.
+        - _maskedDataActor: The actor used to render masked data.
     """
 
     def __init__(self, context_):
@@ -67,7 +69,9 @@ class IPipeline2D(Pipeline):
         self._dataWrapModulo = None
         self._useCellScalars = None
         self._scalarRange = None
+        self._maskedDataColor = None
         self._maskedDataMapper = None
+        self._maskedDataActor = None
 
     def _updateScalarData(self):
         """Create _data1 and _data2 from _originalData1 and _originalData2."""
@@ -183,13 +187,13 @@ class Pipeline2D(IPipeline2D):
 
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
-        color = getattr(self._gm, "missing", None)
-        if color is not None:
-            color = self._colorMap.index[color]
+        self._maskedDataColor = getattr(self._gm, "missing", None)
+        if self._maskedDataColor is not None:
+            self._maskedDataColor = self._colorMap.index[self._maskedDataColor]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
-              self._data1, self._vtkDataSet, color, self._useCellScalars,
-              deep=False)
+              self._data1, self._vtkDataSet, self._maskedDataColor,
+              self._useCellScalars, deep=False)
 
         self._resultDict["vtk_backend_missing_mapper"] = (self._maskedDataMapper,
-                                                          color,
+                                                          self._maskedDataColor,
                                                           self._useCellScalars)

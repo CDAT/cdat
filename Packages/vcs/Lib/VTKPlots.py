@@ -190,6 +190,9 @@ class VTKVCSBackend(object):
       self.clickRenderer = None
 
   def configureEvent(self,obj,ev):
+    if not self.renWin:
+        return
+
     cursor = self.renWin.GetCurrentCursor()
     if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
       self.oldCursor = cursor
@@ -1119,7 +1122,11 @@ class VTKVCSBackend(object):
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
-      if vtkobjects.has_key("vtk_backend_grid"):
+      # Let the pipeline implementation update itself:
+      if "vtk_backend_pipeline" in vtkobjects:
+          pipeline = vtkobjects["vtk_backend_pipeline"]
+          pipeline.update_input(array1, array2)
+      elif vtkobjects.has_key("vtk_backend_grid"):
           ## Ok ths is where we update the input data
           vg=vtkobjects["vtk_backend_grid"]
           data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)

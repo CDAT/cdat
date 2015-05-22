@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -67,6 +68,10 @@ class MeshfillPipeline(Pipeline2D):
             self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
 
     def _plotInternal(self):
+        # TODO Once this is covered by all pipelines, move this to a more
+        # generic place:
+        self._resultDict["vtk_backend_pipeline"] = self
+
         tmpLevels = []
         tmpColors = []
         indices = self._gm.fillareaindices
@@ -114,7 +119,6 @@ class MeshfillPipeline(Pipeline2D):
 
         mappers = []
         luts = []
-        cots = []
         geos = []
         for i,l in enumerate(tmpLevels):
           # Ok here we are trying to group together levels can be, a join will
@@ -146,8 +150,6 @@ class MeshfillPipeline(Pipeline2D):
                   mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"]=luts
-        if len(cots) > 0:
-            self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos
 
@@ -181,7 +183,6 @@ class MeshfillPipeline(Pipeline2D):
         if self._maskedDataMapper is not None:
             # Note that this is different for meshfill -- others prepend.
             mappers.append(self._maskedDataMapper)
-
         # This is also different for meshfill, others use
         # vcs.utils.getworldcoordinates
         x1, x2, y1, y2 = vcs2vtk.getRange(self._gm,
@@ -224,11 +225,19 @@ class MeshfillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not sure
                 # why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1,x2,y1,y2], self._dataWrapModulo)
+
+                # DL: Create and configure wrap filter, then insert it into the
+                # pipeline before the mapper:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo)
+
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
 
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1,x2,y1,y2]])
+                self._maskedDataActor = act
             else:
                 actors.append([act, [x1,x2,y1,y2]])
 
@@ -288,3 +297,30 @@ class MeshfillPipeline(Pipeline2D):
             projection = vcs.elements["projection"][self._gm.projection]
             self._context.plotContinents(x1, x2, y1, y2, projection,
                                          self._dataWrapModulo, self._template)
+
+    def update_input(self, array1, array2):
+        """TODO docs / interface stub."""
+
+        # Update the scalar array:
+        data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
+        if self._useCellScalars:
+            self._vtkDataSet.GetCellData().SetScalars(data)
+        else:
+            self._vtkDataSet.GetPointData().SetScalars(data)
+
+        # Regenerate the mask data mapper for the new array:
+        # TODO It'd be ideal to rework this function to preserve the pipeline.
+        # Then we won't need to regenerate all of this and just reexecute the
+        # existing pipeline.
+        self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
+              array1, self._vtkDataSet, self._maskedDataColor,
+              self._useCellScalars, deep=False)
+
+        # Connect or disconnect the actor depending on whether the masked
+        # mapper was generated.
+        if self._maskedDataMapper is not None:
+            if self._maskedDataActor is None:
+                self._maskedDataActor = vtk.vtkActor()
+            self._maskedDataActor.SetMapper(self._maskedDataMapper)
+        elif self._maskedDataActor is not None:
+            self._maskedDataActor.SetMapper(0)

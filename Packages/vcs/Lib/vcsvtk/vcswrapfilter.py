@@ -35,6 +35,22 @@ class VCSWrapFilter(VTKPythonAlgorithmBase):
         self._wrap_modulo = wrapModulo
         self._fast_clip = fastClip
 
+        print "Created new filter!"
+
+        import weakref
+        weakFilter = weakref.ref(self)
+        def printRefs():
+            filter = weakFilter()
+            if filter is None:
+                print "Searching for filter ref holders: Already gc'd!"
+            else:
+                print "\n\nFilter ref holders:"
+                import gc
+                for i,ref in enumerate(gc.get_referrers(filter)):
+                    print "\n############%d###########\n%s"%(i, str(ref))
+        import atexit
+        atexit.register(printRefs)
+
     @property
     def world_coordinate(self):
         return self._world_coordinate

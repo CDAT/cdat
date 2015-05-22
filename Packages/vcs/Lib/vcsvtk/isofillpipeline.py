@@ -129,7 +129,6 @@ class IsofillPipeline(Pipeline2D):
 
         luts = []
         cots = []
-        geos = []
         mappers = []
         for i,l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join will
@@ -160,8 +159,6 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
             self._resultDict["vtk_backend_contours"] = cots
-        if len(geos) > 0:
-            self._resultDict["vtk_backend_geofilters"] = geos
 
         numLevels = len(self._contourLevels)
         if mappers == []: # ok didn't need to have special banded contours
@@ -211,6 +208,7 @@ class IsofillPipeline(Pipeline2D):
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1,x2,y1,y2]])
+                self._maskedDataActor = act
             else:
                 actors.append([act, [x1,x2,y1,y2]])
 
