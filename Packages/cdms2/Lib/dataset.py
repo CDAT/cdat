@@ -100,6 +100,15 @@ def setCompressionWarnings(value=None):
         raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
     return _showCompressWarnings
 
+def setNetcdf4Flag(value):
+    """ Sets NetCDF classic flag value"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error NetCDF4 flag must be 1/0 or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("netcdf4",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("netcdf4",1)
+
 def setNetcdfClassicFlag(value):        
     """ Sets NetCDF classic flag value"""
     if value not in [True,False,0,1]:
@@ -132,6 +141,10 @@ def setNetcdfDeflateLevelFlag(value):
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError("Error NetCDF deflate_level flag must be an integer < 10")
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
+
+def getNetcdf4Flag():
+    """ Returns NetCDF4 flag value"""
+    return Cdunif.CdunifGetNCFLAGS("netcdf4")
 
 def getNetcdfClassicFlag():
     """ Returns NetCDF classic flag value"""
@@ -1734,7 +1747,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         if _showCompressWarnings:
             if  (Cdunif.CdunifGetNCFLAGS("shuffle")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate_level")!=0):
                 import warnings
-                warnings.warn("Since CDAT Version 5.2 File are now written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\n",Warning)
+                warnings.warn("Files are written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\nvalue = 0\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\nTo Force NetCDF4 output with classic format and no compressing use:\ncdms2.setNetcdf4Flag(1)",Warning)
                 
         # Make var an AbstractVariable
         if dtype is None and typecode is not None:

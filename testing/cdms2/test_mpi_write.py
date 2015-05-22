@@ -5,7 +5,8 @@ import mpi4py
 sz = mpi4py.MPI.COMM_WORLD.Get_size()
 rk = mpi4py.MPI.COMM_WORLD.Get_rank()
 
-cdms2.setNetcdfClassicFlag(0)
+#cdms2.setNetcdfClassicFlag(0)
+#cdms2.setNetcdf4Flag(1)
 cdms2.setNetcdfShuffleFlag(0)
 cdms2.setNetcdfDeflateFlag(0)
 cdms2.setNetcdfDeflateLevelFlag(0)
