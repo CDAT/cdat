@@ -20,14 +20,12 @@ import numpy
 macros = []
 try:
     import mpi4py
-    a = bdffddfgfhhggfh
     ## Ok we have mpi4py let's build with support for it
     macros.append(("PARALLEL",None))
     os.environ["CC"]="mpicc"
     os.environ["CFLAGS"]="-w -g"
 except:
     os.environ["CFLAGS"]="-w -g"
-    print "error in mpi4y test"
     pass
 import cdat_info
 ## if cdat_info.CDMS_INCLUDE_DAP=='yes':
