@@ -268,8 +268,8 @@ int nc_flag_on(int mode, int flag) {
  * API for PNETCDF
  * i.e. NC3 format and PARALLEL defined
  */
-int use_pnetcdf(int ncid) {
 #ifdef PARALLEL
+int use_pnetcdf(int ncid) {
   int format;
   int ncmode;
   int ierr;
@@ -289,11 +289,8 @@ int use_pnetcdf(int ncid) {
     fprintf(stderr,"USING PNETCDF 2\n");
     return 1;
   }
-#else
-    fprintf(stderr,"NOT USING PNETCDF2\n");
-  return 0;
-#endif
 }
+#endif
 
 static int cdclose(PyCdunifFileObject *file){
 	if (file->filetype==CuNetcdf) {
@@ -348,7 +345,7 @@ static int cddimget(PyCdunifFileObject *file, int dimid, void *values){
 #ifdef PARALLEL
         }
 #endif
-		if(ierr == -1){
+		if(ierr != NC_NOERR ){
 			return -1;
 		}
 		
@@ -402,6 +399,9 @@ static int cddimid(PyCdunifFileObject *file, const char* name){
       else {
 #endif
         ierr = nc_inq_dimid(file->id,name,&dimid);
+        if ( ierr != NC_NOERR ) {
+          fprintf(stderr,"ERROR IN CDDIMID\n");
+        }
 #ifdef PARALLEL
       }
 #endif
@@ -543,19 +543,28 @@ static int cdgeterr(PyCdunifFileObject *file){
 		return cugeterr();
 }
 static int cdinquire(PyCdunifFileObject *file, int* ngdims, int* nvars, int* natts, int* recdim){
-	if (file->filetype==CuNetcdf)
+    int ierr;
+	if (file->filetype==CuNetcdf) {
 #ifdef PARALLEL
       if (use_pnetcdf(file->id) == 1) {
         fprintf(stderr,"using mpi inq\n");
-        return ncmpi_inq(file->id,ngdims,nvars,natts,recdim);
+        ierr = ncmpi_inq(file->id,ngdims,nvars,natts,recdim);
       }
       else {
         fprintf(stderr,"using inq %d %d\n",file->id,use_pnetcdf(file->id));
 #endif
-		return nc_inq(file->id,ngdims,nvars,natts,recdim);
+		ierr = nc_inq(file->id,ngdims,nvars,natts,recdim);
 #ifdef PARALLEL
       }
 #endif
+      if (ierr != NC_NOERR ) {
+        fprintf(stderr,"ERR IN NCINQ\n");
+        return -1;
+      }
+      else {
+        return ierr;
+      }
+    }
 	else
 		return cuinquire(file->id,ngdims,nvars,natts,recdim);
 }
@@ -657,19 +666,27 @@ static int cdvarinq(PyCdunifFileObject *file, int varid, char* name, nc_type* da
 	CuType cutype;
 	int err;
 	
-	if (file->filetype==CuNetcdf)
+	if (file->filetype==CuNetcdf) {
 #ifdef PARALLEL
       if (use_pnetcdf(file->id) == 1) {
         fprintf(stderr,"using mpi inqvar %d %d\n",file->id,use_pnetcdf(file->id));
-        return ncmpi_inq_var(file->id,varid,name,datatype,ndims,dimids,natts);
+        err = ncmpi_inq_var(file->id,varid,name,datatype,ndims,dimids,natts);
       }
       else {
         fprintf(stderr,"using normal inqvar\n");
 #endif
-		return nc_inq_var(file->id,varid,name,datatype,ndims,dimids,natts);
+		err = nc_inq_var(file->id,varid,name,datatype,ndims,dimids,natts);
 #ifdef PARALLEL
       }
 #endif
+      if (err != NC_NOERR ) {
+        fprintf(stderr,"Error in ncvarinq\n");
+        return -1;
+      }
+      else {
+        return err;
+      }
+    }
 	else{
 		err = cuvarinq(file->id,varid,name,&cutype,ndims,dimids,natts);
 		if (datatype != NULL)
@@ -1604,12 +1621,7 @@ int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *stri
 int cdms2_nc_put_att_any(int fileid, int varid, char *name, int type, int len, void *data) {
   int ret;
   //fprintf(stderr,"nc_put_att_any, att: %s, rk: %i\n",name,my_mpi_rank());
-  if (use_pnetcdf(fileid) ==1 ) {
-      ret = nc_put_att_any(fileid, varid, name, type, len, data);
-  }
-  else {
-      ret = nc_put_att_any(fileid, varid, name, type, len, data);
-  }
+  ret = nc_put_att_any(fileid, varid, name, type, len, data);
   return ret;
 }
 
@@ -1749,6 +1761,7 @@ int cdms2_nccreate(char *filename, int ncmode) {
     }
 #else
     fprintf(stderr,"file created with regular netcdf interface build does not have // enabled\n");
+    fprintf(stderr,"ncmode is: %i\n",ncmode);
     selfncid = nccreate(filename, ncmode);
 #endif
     return selfncid;
@@ -1781,6 +1794,7 @@ PyCdunifFile_Open(char *filename, char *mode)
     acquire_Cdunif_lock();
     /* use netcdf4 is not using shuffle or not cdms classic */
     if ((cdms_classic == 0) || (cdms_shuffle !=0 ) || (cdms_deflate !=0 ) || (cdms_netcdf4 == 1)) {
+      fprintf(stderr,"ok putting nc4 flag\n");
       ncmode = NC_CLOBBER|NC_NETCDF4;
 #ifdef PARALLEL
       /* ok we can only use MPIIO if not using shuffle or deflate for reason
@@ -1794,9 +1808,11 @@ PyCdunifFile_Open(char *filename, char *mode)
 #endif
     }
     else {
+      fprintf(stderr,"64bit offset\n");
       ncmode = NC_CLOBBER | NC_64BIT_OFFSET;
     }
     if (cdms_classic==1) {
+      fprintf(stderr,"nc classic on\n");
       ncmode = ncmode | NC_CLASSIC_MODEL;
     }
     //fprintf(stderr,"ok about to create file\n");
@@ -2000,6 +2016,9 @@ PyCdunifFile_CreateDimension(PyCdunifFileObject *file, char *name, long size)
 #ifdef PARALLEL
     }
 #endif
+    if ( ierr != NC_NOERR ) {
+      id = -1;
+    }
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     if (id == -1) {

@@ -1,9 +1,14 @@
 import cdms2
 import numpy
-import mpi4py
+try:
+  import mpi4py
 
-sz = mpi4py.MPI.COMM_WORLD.Get_size()
-rk = mpi4py.MPI.COMM_WORLD.Get_rank()
+  sz = mpi4py.MPI.COMM_WORLD.Get_size()
+  rk = mpi4py.MPI.COMM_WORLD.Get_rank()
+except:
+  # not mpi enabled
+  sz = 1
+  rk = 1
 
 #cdms2.setNetcdfClassicFlag(0)
 #cdms2.setNetcdf4Flag(1)
