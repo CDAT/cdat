@@ -9,10 +9,12 @@ from vtk_ui_test import vtk_ui_test
 class test_vtk_ui_label_bounds(vtk_ui_test):
     def do_test(self):
         self.win.SetSize(130, 40)
+        dpi = self.win.GetDPI()
 
         l = vcs.vtk_ui.Label(self.inter, "Testing", fgcolor=(0, 0, 0), size=24, font="Arial")
         l.show()
-        w, h = vcs.vtk_ui.text.text_dimensions("Testing", l.actor.GetTextProperty())
+        w, h = vcs.vtk_ui.text.text_dimensions("Testing",
+                                               l.actor.GetTextProperty(), dpi)
 
         left = l.left
 

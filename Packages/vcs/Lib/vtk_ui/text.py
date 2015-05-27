@@ -172,13 +172,13 @@ def text_actor(string, fgcolor, size, font):
     return actor
 
 
-def text_dimensions(text, text_prop, at_angle=0):
+def text_dimensions(text, text_prop, dpi, at_angle=0):
     ren = vtkTextRenderer()
     bounds = [0, 0, 0, 0]
     p = vtkTextProperty()
     p.ShallowCopy(text_prop)
     p.SetOrientation(at_angle)
-    ren.GetBoundingBox(p, text, bounds)
+    ren.GetBoundingBox(p, text, bounds, dpi)
     return bounds[1] - bounds[0] + 1, bounds[3] - bounds[2] + 1
 
 
@@ -253,7 +253,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         if halign == "Left":
             return self.x
 
-        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        dpi = self.interactor.GetRenderWindow().GetDPI()
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
         if halign == "Centered":
             return self.x - math.floor(w / 2.)
 
@@ -266,7 +267,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         if halign == "Left":
             self.x = l
 
-        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        dpi = self.interactor.GetRenderWindow().GetDPI()
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
         if halign == "Centered":
             self.x = l + math.floor(w / 2.)
 
@@ -276,7 +278,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
     @property
     def top(self):
         """The top side of the text actor, adjusted by height/justification"""
-        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        dpi = self.interactor.GetRenderWindow().GetDPI()
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
         valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
         y = self.y
         # Adjust from alignment point to top of the actor
@@ -296,7 +299,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         Sets actor y using distance in pixels from top of window to top of actor
         """
         # Get the text's size to adjust for alignment
-        w, h = text_dimensions(self.text, self.actor.GetTextProperty())
+        dpi = self.interactor.GetRenderWindow().GetDPI()
+        w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
 
         valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
         # Adjust position based on alignment
