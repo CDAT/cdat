@@ -1434,35 +1434,6 @@ def generateVectorArray(data1,data2,vtk_grid):
     w.SetName("vectors")
     return w
 
-def stripGrid(vtk_grid):
-    # Strip out masked points.
-    if vtk_grid.IsA("vtkStructuredGrid"):
-        if vtk_grid.GetCellBlanking():
-            visArray = vtk_grid.GetCellVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_grid.GetCellData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_grid)
-            thresh.ThresholdByUpper(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_grid = thresh.GetOutput()
-        elif vtk_grid.GetPointBlanking():
-            visArray = vtk_grid.GetPointVisibilityArray()
-            visArray.SetName("BlankingArray")
-            vtk_grid.GetPointData().AddArray(visArray)
-            thresh = vtk.vtkThreshold()
-            thresh.SetInputData(vtk_grid)
-            thresh.SetUpperThreshold(0.5)
-            thresh.SetInputArrayToProcess(0, 0, 0,
-                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
-                                          "BlankingArray")
-            thresh.Update()
-            vtk_grid = thresh.GetOutput()
-    return vtk_grid
-
 def vtkIterate(iterator):
     iterator.InitTraversal()
     obj = iterator.GetNextItem()
