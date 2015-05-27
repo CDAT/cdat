@@ -37,7 +37,6 @@ class FileVariable(DatasetVariable):
         for dimname in self._obj_.dimensions:
             axis = axisdict.get(dimname)
             start = 0
-            print "AXIS:",axis,dimname
             length = len(axis)
             truelen = length
             self.domain.append((axis,start,length,truelen))
