@@ -74,7 +74,6 @@ Cdunif_seterror(void)
     error = "No error";
     break;
   case NC_EBADID:
-    fprintf(stderr,"yes we come here for error settingi %i\n",NC_EBADID);
     error = "Not a Cdunif id";
     break;
   case NC_ENFILE:
@@ -297,7 +296,6 @@ static int cddimget(PyCdunifFileObject *file, int dimid, void *values){
         int ierr;
         ierr = nc_inq_dim(cdfid, dimid, dimname, &length);
 		if(ierr != NC_NOERR ){
-          fprintf(stderr,"error in ncdiminq\n");
 			return -1;
 		}
 		
@@ -345,9 +343,6 @@ static int cddimid(PyCdunifFileObject *file, const char* name){
       int ierr;
       int dimid;
       ierr = nc_inq_dimid(file->id,name,&dimid);
-      if ( ierr != NC_NOERR ) {
-        fprintf(stderr,"ERROR IN CDDIMID\n");
-      }
       return dimid;
     }
 	else
@@ -376,7 +371,6 @@ static int cddiminq(PyCdunifFileObject *file, int dimid, char* dimname, char *di
         int ierr;
         ierr = nc_inq_dim(cdfid, dimid, dname, &len);
 		if(ierr != NC_NOERR){
-          fprintf(stderr,"error here in ncdiminq\n");
 			return -1;
 		}
 		if(dimname) strncpy(dimname,dname,CU_MAX_NAME);
@@ -462,7 +456,6 @@ static int cdinquire(PyCdunifFileObject *file, int* ngdims, int* nvars, int* nat
 	if (file->filetype==CuNetcdf) {
       ierr = nc_inq(file->id,ngdims,nvars,natts,recdim);
       if (ierr != NC_NOERR ) {
-        fprintf(stderr,"ERR IN NCINQ\n");
         return -1;
       }
       else {
@@ -488,7 +481,6 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
       int ncid;
         ierr = nc_open_par(controlpath,mode,&ncid);
         if (ierr != NC_NOERR ) { /* ok it failed again*/
-          fprintf(stderr,"couldnot open file for parallel\n");
           ierr = nc_open(controlpath,mode,&ncid);
         }
       return ncid;
@@ -549,7 +541,6 @@ static int cdvarinq(PyCdunifFileObject *file, int varid, char* name, nc_type* da
 	if (file->filetype==CuNetcdf) {
       err = nc_inq_var(file->id,varid,name,datatype,ndims,dimids,natts);
       if (err != NC_NOERR ) {
-        fprintf(stderr,"Error in ncvarinq\n");
         return -1;
       }
       else {
@@ -595,7 +586,6 @@ static int
 nc_put_att_any(int ncid, int varid, const char *name,
 	       nc_type xtype, size_t len, const void *data)
 {
-  fprintf(stderr,"nc put att any %s on var: %i, type: %i\n",name,varid,xtype);
   switch (xtype) {
   case NC_BYTE:
       return nc_put_att_uchar(ncid, varid, name, xtype, len,
@@ -877,7 +867,6 @@ define_mode(PyCdunifFileObject *file, int define_flag)
       ierr = cdendef(file);
     else
       ierr = cdredef(file);
-    fprintf(stderr,"OK IN DEF MODE: %i\n",ierr);
     release_Cdunif_lock();
     file->define = define_flag;
     Py_END_ALLOW_THREADS;
@@ -1094,7 +1083,6 @@ collect_attributes(PyCdunifFileObject *file, int varid, PyObject *attributes, in
 }
 int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *string) {
   int ret;
-  //fprintf(stderr,"nc_put_att_text\n");
     ret = nc_put_att_text(fileid, varid, name, len, string);
   return ret;
 }
@@ -1106,7 +1094,6 @@ set_attribute(int fileid, int varid, PyObject *attributes,
   if (value==Py_None) {
     return 0;
   }
-  //fprintf(stderr,"ok in set_attribute for %s\n",name);
   if (PyString_Check(value)) {
     int len = PyString_Size(value);
     char *string = PyString_AsString(value);
@@ -1229,7 +1216,6 @@ int cdms2_nccreate(char *filename, int ncmode) {
 #endif
   }
   else {
-    fprintf(stderr,"64bit offset\n");
     ncmode = ncmode | NC_64BIT_OFFSET;
   }
   if (cdms_classic==1) {
@@ -1238,18 +1224,13 @@ int cdms2_nccreate(char *filename, int ncmode) {
 #ifdef PARALLEL
     nc_set_log_level(3);
     int ierrnc;
-    fprintf(stderr,"in nccreate got mode: %d\n",ncmode);
     if (nc_flag_on(ncmode,NC_MPIIO)) {
-      fprintf(stderr,"file created with parallel netcdf4/hdf5 interface\n");
       ierrnc = nc_create_par(filename, ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&selfncid);
     }
     else {
-      fprintf(stderr,"file created with regular netcdf no parallel interface\n");
       selfncid = nccreate(filename, ncmode);
     }
 #else
-    fprintf(stderr,"file created with regular netcdf interface build does not have // enabled\n");
-    fprintf(stderr,"ncmode is: %i\n",ncmode);
     selfncid = nccreate(filename, ncmode);
 #endif
     return selfncid;
@@ -1281,9 +1262,7 @@ PyCdunifFile_Open(char *filename, char *mode)
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
     ncmode = NC_CLOBBER;
-    //fprintf(stderr,"ok about to create file\n");
     self->id = cdms2_nccreate(filename,ncmode);
-    //fprintf(stderr,"ok just created file\n");
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     self->define = 1;
@@ -1462,7 +1441,6 @@ PyCdunifFile_CreateDimension(PyCdunifFileObject *file, char *name, long size)
     acquire_Cdunif_lock();
     int ierr;
     ierr = nc_def_dim(file->id, name, (size == 0) ? NC_UNLIMITED : size, &id);
-    fprintf(stderr,"in create dim: id: %i, size: %i, ierr: %i\n",id,size,ierr);
     if ( ierr != NC_NOERR ) {
       id = -1;
     }
@@ -1479,7 +1457,6 @@ PyCdunifFile_CreateDimension(PyCdunifFileObject *file, char *name, long size)
       }
       else {
 	size_ob = PyInt_FromLong(size);
-    fprintf(stderr,"SETTING DIM DICT %s to len: %i\n",name,size);
 	PyDict_SetItemString(file->dimensions, name, size_ob);
 	Py_DECREF(size_ob);
       }
@@ -1519,12 +1496,7 @@ static char createDimension_doc[] = "";
 
 int cdms2_nc_def_var(int id,char *name, int ntype, int ndim, int *dimids, int *i) {
   int ret;
-  fprintf(stderr,"nc_defvar %s\n",name);
-  fprintf(stderr,"ndims: %i\n",ndim);
-  int j;
-  for (j=0;j<ndim;j++) fprintf(stderr,"Dim %i id is: %i\n",j,dimids[j]);
   ret = nc_def_var(id, name, ntype, ndim, dimids, i);
-  //fprintf(stderr,"nc_defvar done %i\n",my_mpi_rank());
   return ret;
 }
 
@@ -2094,7 +2066,6 @@ PyCdunifVariableObject_getslice(PyCdunifVariableObject *self, PyObject *args) {
 
   if (!PyArg_ParseTuple(args, "ii", &low, &high))
 	  return NULL;
-  fprintf(stderr,"ok is this this get slice\n");
   return PyCdunifVariableObject_slice(self,low,high);
 }
 
@@ -2293,13 +2264,10 @@ PyCdunifVariable_ReadAsArray(PyCdunifVariableObject *self,
   int error = 0;
   d = 0;
   nitems = 1;
-  fprintf(stderr,"just before check if open\n");
   if (!check_if_open(self->file, -1)) {
     free(indices);
-    fprintf(stderr,"check failed\n");
     return NULL;
   }
-  fprintf(stderr,"ok might have worked going to define mode\n");
   define_mode(self->file, 0);
   if (self->nd == 0)
     dims = NULL;
@@ -2349,7 +2317,6 @@ PyCdunifVariable_ReadAsArray(PyCdunifVariableObject *self,
       int ret;
       Py_BEGIN_ALLOW_THREADS;
       acquire_Cdunif_lock();
-      fprintf(stderr,"ok cdvarget1\n");
       ret = cdvarget1(self->file, self->id, &zero, array->data);
       release_Cdunif_lock();
       Py_END_ALLOW_THREADS;
@@ -2375,9 +2342,7 @@ PyCdunifVariable_ReadAsArray(PyCdunifVariableObject *self,
 	}
 	Py_BEGIN_ALLOW_THREADS;
 	acquire_Cdunif_lock();
-    fprintf(stderr,"ok cdvargets\n");
 	ret = cdvargets(self->file, self->id, start, count, stride, array->data);
-    fprintf(stderr,"back from cdvargets\n");
 	release_Cdunif_lock();
 	Py_END_ALLOW_THREADS;
 	if (ret == -1) {
@@ -2454,7 +2419,6 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
   int nitems;
   int error = 0;
   int ret = 0;
-  //fprintf(stderr,"ok in write array thing\n");
   d = 0;
   nitems = 1;
   if (!check_if_open(self->file, 1)) {
@@ -2576,7 +2540,6 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
 	acquire_Cdunif_lock();
 	error = NC_NOERR;
 	while (repeat--) {
-      fprintf(stderr,"REPEAT VARPUTS IS: %i\n",repeat);
 	  error = nc_put_vars_any(self->file->id, self->id,
 				  cdunif_type_from_type(self->type),
 				  start, count1, stride, array->data);
@@ -2624,7 +2587,6 @@ PyCdunifVariable_WriteArray(PyCdunifVariableObject *self,
     Py_DECREF(array);
     free(dims);
     free(indices);
-    fprintf(stderr,"done here\n");
     return ret;
   }
   else {
@@ -2639,7 +2601,6 @@ PyCdunifVariable_WriteString(PyCdunifVariableObject *self,
 			     PyStringObject *value)
 {
   long len;
-  //fprintf(stderr,"ok in write istring thing\n");
   if (self->type != NPY_CHAR || self->nd != 1) {
     PyErr_SetString(PyExc_IOError, "cdunif: not a string variable");
     return -1;
@@ -2671,7 +2632,6 @@ PyCdunifVariable_WriteString(PyCdunifVariableObject *self,
 }
 int cdms2_nc_put_var_text(int fileid, int id, char *value) {
   int ret;
-  //fprintf(stderr,"nc_put_var_text\n");
   ret = nc_put_var_text(fileid, id, value);
   return ret;
 }
@@ -2706,7 +2666,6 @@ PyCdunifVariableObject_slice(PyCdunifVariableObject *self, Py_ssize_t low, Py_ss
   if (indices != NULL) {
     indices[0].start = low;
     indices[0].stop = high;
-    fprintf(stderr,"almsot there slice\n");
     return PyArray_Return(PyCdunifVariable_ReadAsArray(self, indices));
   }
   return NULL;
