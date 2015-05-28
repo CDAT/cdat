@@ -3,6 +3,7 @@ from .. import vcs2vtk
 
 import vcs
 
+
 class IPipeline2D(Pipeline):
     """Interface class for Pipeline2D.
 
@@ -27,8 +28,8 @@ class IPipeline2D(Pipeline):
         - _data2: The _originalData2 object modified for this pipeline.
         - _contourLevels: List of contour levels.
         - _contourColors: List of contour colors.
-        - _vtkDataSet: The vtkDataSet object with _trimmedData[1|2] set as point
-            or cell scalars.
+        - _vtkDataSet: The vtkDataSet object with _trimmedData[1|2] set as
+            point or cell scalars.
         - _vtkGeoTransform: The vtkGeoTransform object associated with this
             pipeline.
         - _vtkDataSetBounds: The bounds of _vtkDataSet as
@@ -48,7 +49,11 @@ class IPipeline2D(Pipeline):
     def __init__(self, context_):
         super(IPipeline2D, self).__init__(context_)
 
-        # TODO This should be replaced by getters that retrieve the info needed.
+        # TODO This should be replaced by getters that retrieve the info
+        # needed, or document the members of the map somewhere. Much of this
+        # map can be replaced by setting up and maintaining a pipeline, as most
+        # objects in this map are used by VTKPlots.update_input to manually
+        # reexecute visualization operations.
         self._resultDict = None
 
         self._gm = None
@@ -190,6 +195,5 @@ class Pipeline2D(IPipeline2D):
               self._data1, self._vtkDataSet, color, self._useCellScalars,
               deep=False)
 
-        self._resultDict["vtk_backend_missing_mapper"] = (self._maskedDataMapper,
-                                                          color,
-                                                          self._useCellScalars)
+        self._resultDict["vtk_backend_missing_mapper"] = (
+            self._maskedDataMapper, color, self._useCellScalars)

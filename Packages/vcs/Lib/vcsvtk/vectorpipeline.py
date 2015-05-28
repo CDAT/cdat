@@ -4,6 +4,7 @@ import vcs
 from vcs import vcs2vtk
 import vtk
 
+
 class VectorPipeline(Pipeline):
     """Implementation of the Pipeline interface for VCS vector plots."""
 
@@ -12,7 +13,7 @@ class VectorPipeline(Pipeline):
 
     def plot(self, data1, data2, tmpl, gm, grid, transform):
         """Overrides baseclass implementation."""
-        #Preserve time and z axis for plotting these inof in rendertemplate
+        # Preserve time and z axis for plotting these inof in rendertemplate
         returned = {}
         taxis = data1.getTime()
         if data1.ndim > 2:
@@ -20,7 +21,7 @@ class VectorPipeline(Pipeline):
         else:
             zaxis = None
 
-        data1 = self._context.trimData2D(data1) # Ok get3 only the last 2 dims
+        data1 = self._context.trimData2D(data1)  # Ok get3 only the last 2 dims
         data2 = self._context.trimData2D(data2)
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, gm, deep=False, grid=grid,
@@ -43,19 +44,19 @@ class VectorPipeline(Pipeline):
 
         grid.GetPointData().AddArray(w)
 
-        ## Vector attempt
+        # Vector attempt
         l = gm.line
         if l is None:
             l = "default"
         try:
-          l = vcs.getline(l)
-          lwidth = l.width[0]
-          lcolor = l.color[0]
-          lstyle = l.type[0]
+            l = vcs.getline(l)
+            lwidth = l.width[0]
+            lcolor = l.color[0]
+            lstyle = l.type[0]
         except:
-          lstyle = "solid"
-          lwidth = 1.
-          lcolor = 0
+            lstyle = "solid"
+            lwidth = 1.
+            lcolor = 0
         if gm.linewidth is not None:
             lwidth = gm.linewidth
         if gm.linecolor is not None:
@@ -93,12 +94,12 @@ class VectorPipeline(Pipeline):
 
         cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
         r, g, b = cmap.index[lcolor]
-        act.GetProperty().SetColor(r / 100.,g / 100.,b / 100.)
+        act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm, data1.getAxis(-1),
                                                        data1.getAxis(-2))
 
-        act = vcs2vtk.doWrap(act, [x1,x2,y1,y2], wrap)
+        act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], wrap)
         ren = self._context.fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
                                                 tmpl.data.y1, tmpl.data.y2],
                                           [x1, x2, y1, y2],
@@ -108,13 +109,14 @@ class VectorPipeline(Pipeline):
               self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
 
         if self._context.canvas._continents is None:
-          continents = False
+            continents = False
         if continents:
             projection = vcs.elements["projection"][gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection, wrap, tmpl)
+            self._context.plotContinents(x1, x2, y1, y2, projection, wrap,
+                                         tmpl)
 
-        returned["vtk_backend_actors"] = [[act, [x1,x2,y1,y2]],]
-        returned["vtk_backend_glyphfilters"] = [glyphFilter,]
-        returned["vtk_backend_luts"] = [[None, None],]
+        returned["vtk_backend_actors"] = [[act, [x1, x2, y1, y2]]]
+        returned["vtk_backend_glyphfilters"] = [glyphFilter]
+        returned["vtk_backend_luts"] = [[None, None]]
 
         return returned
