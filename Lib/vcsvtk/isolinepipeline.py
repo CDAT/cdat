@@ -15,7 +15,8 @@ class IsolinePipeline(Pipeline2D):
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
-        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm, deep=False,
+        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm,
+                                              deep=False,
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
@@ -30,10 +31,10 @@ class IsolinePipeline(Pipeline2D):
         # Contour values:
         self._contourLevels = self._gm.levels
         if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-              numpy.allclose(self._contourLevels, 1.e20):
+           numpy.allclose(self._contourLevels, 1.e20):
             self._contourLevels = vcs.mkscale(self._scalarRange[0],
                                               self._scalarRange[1])
-            if len(self._contourLevels) == 1: # constant value ?
+            if len(self._contourLevels) == 1:  # constant value ?
                 self._contourLevels = [self._contourLevels[0],
                                        self._contourLevels[0] + .00001]
         else:
@@ -54,7 +55,7 @@ class IsolinePipeline(Pipeline2D):
             c2p = vtk.vtkCellDataToPointData()
             c2p.SetInputData(self._vtkDataSet)
             c2p.Update()
-            #For contouring duplicate points seem to confuse it
+            # For contouring duplicate points seem to confuse it
             self._vtkPolyDataFilter.SetInputConnection(c2p.GetOutputPort())
         else:
             self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
@@ -95,7 +96,7 @@ class IsolinePipeline(Pipeline2D):
             tpropMap.SetNumberOfComponents(1)
             tpropMap.SetNumberOfTuples(numLevels)
             for i, val in enumerate(self._contourLevels):
-                tpropMap.SetTuple(i, [val,])
+                tpropMap.SetTuple(i, [val])
 
             # Prep text properties:
             tprops = vtk.vtkTextPropertyCollection()
@@ -139,12 +140,12 @@ class IsolinePipeline(Pipeline2D):
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
-            else: # No text properties specified. Use the default:
+            else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
                 vcs2vtk.prepTextProperty(tprop, self._context.renWin.GetSize())
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
-                  tprops
+                tprops
 
             mapper = vtk.vtkLabeledContourMapper()
             mapper.SetTextProperties(tprops)
@@ -156,14 +157,15 @@ class IsolinePipeline(Pipeline2D):
             self._resultDict["vtk_backend_labeled_luts"] = [
                   [lut,
                    [self._contourLevels[0], self._contourLevels[-1], False]]]
-        else: # No isoline labels:
+        else:  # No isoline labels:
             mapper = vtk.vtkPolyDataMapper()
             pdMapper = mapper
-            self._resultDict["vtk_backend_luts"] = [[lut,
-                                             [self._contourLevels[0],
-                                              self._contourLevels[-1], False]]]
+            self._resultDict["vtk_backend_luts"] = \
+                [[lut, [self._contourLevels[0],
+                        self._contourLevels[-1], False]]]
         pdMapper.SetLookupTable(lut)
-        pdMapper.SetScalarRange(self._contourLevels[0], self._contourLevels[-1])
+        pdMapper.SetScalarRange(self._contourLevels[0],
+                                self._contourLevels[-1])
         pdMapper.SetScalarModeToUsePointData()
 
         stripper = vtk.vtkStripper()
@@ -172,7 +174,7 @@ class IsolinePipeline(Pipeline2D):
         # TODO remove update, make pipeline
         stripper.Update()
         mappers.append(mapper)
-        self._resultDict["vtk_backend_contours"] = [cot,]
+        self._resultDict["vtk_backend_contours"] = [cot]
 
         if self._maskedDataMapper is not None:
             mappers.insert(0, self._maskedDataMapper)
@@ -188,15 +190,16 @@ class IsolinePipeline(Pipeline2D):
             act.SetMapper(mapper)
 
             if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not sure
-                # why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1,x2,y1,y2], self._dataWrapModulo)
+                # If using geofilter on wireframed does not get wrppaed not
+                # sure why so sticking to many mappers
+                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                                     self._dataWrapModulo)
 
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1,x2,y1,y2]])
+                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             else:
-                actors.append([act, [x1,x2,y1,y2]])
+                actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
