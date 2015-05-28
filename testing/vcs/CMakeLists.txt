@@ -671,5 +671,15 @@ cdat_add_test(vcs_test_colorpicker_appearance
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
 )
+
+# Run pep8 to check code style:
+add_test(vcs_pep8
+  "${CMAKE_INSTALL_PREFIX}/bin/pep8"
+  # --count is needed so that the exit code is nonzero when errors are found.
+  --count
+  # Add more file/dir paths or modify this one to expand the coverage:
+  "${cdat_SOURCE_DIR}/Packages/vcs/Lib/vcsvtk/"
+)
+
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
