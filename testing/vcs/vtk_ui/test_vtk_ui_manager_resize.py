@@ -1,7 +1,7 @@
 """
 Test window resizing placing widgets correctly
 """
-import vcs.vtk_ui
+import vcs.vtk_ui,time
 
 from vtk_ui_test import vtk_ui_test
 
@@ -19,6 +19,7 @@ class test_vtk_ui_manager_resize(vtk_ui_test):
         self.win.SetSize(200, 50)
 
         self.win.Modified()
+        time.sleep(3)
 
         self.test_file = "test_vtk_ui_manager_resize.png"
 
