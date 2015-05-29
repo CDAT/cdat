@@ -17,9 +17,9 @@ class test_vtk_ui_manager_resize(vtk_ui_test):
         button.show()
 
         self.win.SetSize(200, 50)
-
-        self.win.Modified()
         time.sleep(3)
+        
+        self.win.Modified()
 
         self.test_file = "test_vtk_ui_manager_resize.png"
 
