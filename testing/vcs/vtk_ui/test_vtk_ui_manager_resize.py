@@ -17,7 +17,7 @@ class test_vtk_ui_manager_resize(vtk_ui_test):
         button.show()
 
         self.win.SetSize(200, 50)
-        time.sleep(3)
+        time.sleep(2) ; # Added delay to prevent race condition - test being triggered before resize is complete
         
         self.win.Modified()
 
