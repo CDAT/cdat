@@ -30,6 +30,11 @@ int nc_def_var_chunking(int i,int j,int k,size_t *l) {return 0;};
 
 int cdms_classic = 1 ;
 int cdms_netcdf4 = 0 ;
+#ifdef PARALLEL
+int cdms_use_parallel = 1 ; /* 0 (do not use) or 1 (can use) */
+#else
+int cdms_use_parallel = 0 ; /* 0 (do not use) or 1 (can use) */
+#endif
 int cdms_shuffle = 0 ;
 int cdms_deflate = 1 ;
 int cdms_deflate_level = 1 ;
@@ -1210,7 +1215,9 @@ int cdms2_nccreate(char *filename, int ncmode) {
      * see http://www.hdfgroup.org/hdf5-quest.html#p5comp
      * also classic and 64bit offset cannot be used for parallel
      * see: https://www.unidata.ucar.edu/software/netcdf/docs/parallel_io.html */
-    if ((cdms_classic==0) && (cdms_shuffle==0) && (cdms_deflate == 0 )) {
+    if ((cdms_classic==0) && (cdms_shuffle==0) && (cdms_deflate == 0 ) &&
+        (cdms_use_parallel == 1)
+        ) {
       ncmode = ncmode | NC_MPIIO;
     }
 #endif
@@ -2979,6 +2986,14 @@ PyCdunif_setncflags(PyObject *self, PyObject *args) {
     }
     cdms_deflate_level = flagval;
   }
+  else if (strcmp(flagname,"use_parallel") == 0) {
+    if (flagval>1) {
+      sprintf(msg,"invalid flag for use_parallel: '%i' valid flags are: 0 (do not use) or 1 (can use)",flagval);
+      PyErr_SetString(PyExc_TypeError, msg);
+      return NULL;
+    }
+    cdms_use_parallel = flagval;
+  }
   else if (strcmp(flagname,"netcdf4") == 0) {
     if (flagval>1) {
       sprintf(msg,"invalid flag for necdf 4: '%i' valid flags are: 0 or 1",flagval);
@@ -3016,6 +3031,9 @@ PyCdunif_getncflags(PyObject *self, PyObject *args) {
   }
   else if (strcmp(flagname,"netcdf4") == 0) {
       return Py_BuildValue("i",cdms_netcdf4);
+  }
+  else if (strcmp(flagname,"use_parallel") == 0) {
+      return Py_BuildValue("i",cdms_use_parallel);
   }
   else {
     sprintf(msg,"invalid compression flag: '%s' valid flags are: shuffle, deflate, deflate_level",flagname);

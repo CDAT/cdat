@@ -100,6 +100,15 @@ def setCompressionWarnings(value=None):
         raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
     return _showCompressWarnings
 
+def setNetcdfUseParallelFlag(value):
+    """ Sets NetCDF classic flag value"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error UseParallel flag must be 1(can use)/0(do not use) or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("use_parallel",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("use_parallel",1)
+
 def setNetcdf4Flag(value):
     """ Sets NetCDF classic flag value"""
     if value not in [True,False,0,1]:
@@ -141,6 +150,10 @@ def setNetcdfDeflateLevelFlag(value):
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError("Error NetCDF deflate_level flag must be an integer < 10")
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
+
+def getNetcdfUseParallelFlag():
+    """ Returns NetCDF UseParallel flag value"""
+    return Cdunif.CdunifGetNCFLAGS("use_parallel")
 
 def getNetcdf4Flag():
     """ Returns NetCDF4 flag value"""
@@ -1161,7 +1174,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         if self._status_=="closed":
             raise CDMSError(FileWasClosed + self.id)
         cufile = self._file_
-        if ar is None or unlimited==1:
+        if ar is None or (unlimited==1 and getNetcdfUseParallelFlag()==0):
             cufile.createDimension(name,None)
             if ar is None:
                 typecode = numpy.float
@@ -1245,7 +1258,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             if newaxis.isVirtual():
                 if len(axis)!=len(newaxis):
                     raise DuplicateAxisError(DuplicateAxis+newname)
-            elif unlimited==0:
+            elif unlimited==0 or (unlimited==1 and getNetcdfUseParallelFlag()==0):
                 if len(axis)!=len(newaxis) or numpy.alltrue(numpy.less(numpy.absolute(newaxis[:]-axis[:]),1.e-5))==0:
                     raise DuplicateAxisError(DuplicateAxis+newname)
             else:
