@@ -60,3 +60,5 @@ sources/
 version
 /.hooks-config
 /.idea
+.coverage
+covhtml

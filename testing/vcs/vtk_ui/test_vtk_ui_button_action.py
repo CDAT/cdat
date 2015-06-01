@@ -17,4 +17,5 @@ class test_vtk_ui_button_action(vtk_ui_test):
         button.show()
         button.clicked(None, None)
 
-test_vtk_ui_button_action().test()
+if __name__ == "__main__":
+	test_vtk_ui_button_action().test()

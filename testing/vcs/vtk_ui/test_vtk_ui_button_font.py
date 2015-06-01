@@ -14,4 +14,6 @@ class test_vtk_ui_button_font(vtk_ui_test):
             b = vcs.vtk_ui.Button(self.inter, label="Font Test", font=font, top=ind * 25, size=sizes[ind])
             b.show()
         self.test_file = "test_vtk_ui_button_font.png"
-test_vtk_ui_button_font().test()
+
+if __name__ == "__main__":
+    test_vtk_ui_button_font().test()
