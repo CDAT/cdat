@@ -6,6 +6,7 @@ import vcs
 import vtk
 import warnings
 
+
 class BoxfillPipeline(Pipeline2D):
     """Implementation of the Pipeline interface for VCS boxfill plots.
 
@@ -42,7 +43,6 @@ class BoxfillPipeline(Pipeline2D):
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
 
-
     def _updateContourLevelsAndColorsForBoxfill(self):
         """Set contour information for a standard boxfill."""
         # Compute levels
@@ -51,30 +51,30 @@ class BoxfillPipeline(Pipeline2D):
            numpy.allclose(self._gm.level_2, 1.e20):
             self._contourLevels = vcs.mkscale(self._scalarRange[0],
                                               self._scalarRange[1])
-            if len(self._contourLevels) == 1: # constant value ?
+            if len(self._contourLevels) == 1:  # constant value ?
                 self._contourLevels = [self._contourLevels[0],
                                        self._contourLevels[0] + .00001]
             self._contourLabels = vcs.mklabels(self._contourLevels)
             dx = (self._contourLevels[-1] - self._contourLevels[0]) / nlev
             self._contourLevels = numpy.arange(self._contourLevels[0],
-                                               self._contourLevels[-1] + dx, dx)
+                                               self._contourLevels[-1] + dx,
+                                               dx)
         else:
             if self._gm.boxfill_type == "log10":
                 levslbls = vcs.mkscale(numpy.ma.log10(self._gm.level_1),
                                        numpy.ma.log10(self._gm.level_2))
-                self._contourLevels = \
-                      vcs.mkevenlevels(numpy.ma.log10(self._gm.level_1),
-                                       numpy.ma.log10(self._gm.level_2),
-                                       nlev=nlev)
+                self._contourLevels = vcs.mkevenlevels(
+                      numpy.ma.log10(self._gm.level_1),
+                      numpy.ma.log10(self._gm.level_2), nlev=nlev)
             else:
                 levslbls = vcs.mkscale(self._gm.level_1, self._gm.level_2)
                 self._contourLevels = vcs.mkevenlevels(self._gm.level_1,
                                                        self._gm.level_2,
                                                        nlev=nlev)
             if len(self._contourLevels) > 25:
-                ## Too many colors/levels need to prettyfy this for legend
+                # Too many colors/levels need to prettyfy this for legend
                 self._contourLabels = vcs.mklabels(levslbls)
-                ## Make sure extremes are in
+                # Make sure extremes are in
                 legd2 = vcs.mklabels([self._contourLevels[0],
                                       self._contourLevels[-1]])
                 self._contourLabels.update(legd2)
@@ -96,17 +96,17 @@ class BoxfillPipeline(Pipeline2D):
         self._contourLevels = self._gm.levels
 
         if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-              numpy.allclose(self._contourLevels, 1.e20):
+           numpy.allclose(self._contourLevels, 1.e20):
             levs2 = vcs.mkscale(self._scalarRange[0],
                                 self._scalarRange[1])
-            if len(levs2) == 1: # constant value ?
+            if len(levs2) == 1:  # constant value ?
                 levs2 = [levs2[0], levs2[0] + .00001]
             self._contourLevels = []
             if self._gm.ext_1:
-                ## user wants arrow at the end
+                # user wants arrow at the end
                 levs2[0] = -1.e20
             if self._gm.ext_2:
-                ## user wants arrow at the end
+                # user wants arrow at the end
                 levs2[-1] = 1.e20
             for i in range(len(levs2) - 1):
                 self._contourLevels.append([levs2[i], levs2[i+1]])
@@ -157,18 +157,19 @@ class BoxfillPipeline(Pipeline2D):
             act.SetMapper(mapper)
 
             if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not sure
-                # why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1,x2,y1,y2], self._dataWrapModulo)
+                # If using geofilter on wireframed does not get wrppaed not
+                # sure why so sticking to many mappers
+                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                                     self._dataWrapModulo)
 
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
             # why.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1,x2,y1,y2]])
+                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             else:
-                actors.append([act, [x1,x2,y1,y2]])
+                actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
@@ -195,26 +196,27 @@ class BoxfillPipeline(Pipeline2D):
         if self._gm.ext_1:
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
-                    ## Ok we need to add the ext levels
+                    # Ok we need to add the ext levels
                     self._contourLevels.insert(0, [-1.e20, levs[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
-                    ## need to add an ext
+                    # need to add an ext
                     self._contourLevels.insert(0, -1.e20)
         if self._gm.ext_2:
-            if isinstance(self._contourLevels[-1],list):
+            if isinstance(self._contourLevels[-1], list):
                 if numpy.less(abs(self._contourLevels[-1][1]), 1.e20):
-                    ## need ext
+                    # need ext
                     self._contourLevels.append([self._contourLevels[-1][1],
                                                 1.e20])
             else:
                 if numpy.less(abs(self._contourLevels[-1]), 1.e20):
-                    ## need exts
+                    # need exts
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
               self._context.renderColorBar(self._template, self._contourLevels,
-                                           self._contourColors, self._contourLabels,
+                                           self._contourColors,
+                                           self._contourLabels,
                                            self._colorMap))
 
         if self._context.canvas._continents is None:
@@ -226,14 +228,14 @@ class BoxfillPipeline(Pipeline2D):
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
-        #Prep mapper
+        # Prep mapper
         mapper = vtk.vtkPolyDataMapper()
-        self._mappers = [mapper,]
+        self._mappers = [mapper]
 
         if self._gm.ext_1 and self._gm.ext_2:
             mapper.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
             self._resultDict["vtk_backend_geofilters"] = \
-                  [self._vtkPolyDataFilter,]
+                [self._vtkPolyDataFilter]
         else:
             thr = vtk.vtkThreshold()
             thr.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
@@ -248,31 +250,31 @@ class BoxfillPipeline(Pipeline2D):
             geoFilter2 = vtk.vtkDataSetSurfaceFilter()
             geoFilter2.SetInputConnection(thr.GetOutputPort())
             mapper.SetInputConnection(geoFilter2.GetOutputPort())
-            self._resultDict["vtk_backend_geofilters"] = [geoFilter2,]
+            self._resultDict["vtk_backend_geofilters"] = [geoFilter2]
 
-        ## Colortable bit
+        # Colortable bit
         # make sure length match
         numLevels = len(self._contourLevels)
         while len(self._contourColors) < numLevels:
-          self._contourColors.append(self._contourColors[-1])
+            self._contourColors.append(self._contourColors[-1])
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(numLevels)
         for i in range(numLevels):
-          r, g, b = self._colorMap.index[self._contourColors[i]]
-          lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b = self._colorMap.index[self._contourColors[i]]
+            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
         mapper.SetLookupTable(lut)
         if numpy.allclose(self._contourLevels[0], -1.e20):
-          lmn = mn - 1.
+            lmn = mn - 1.
         else:
-          lmn = self._contourLevels[0]
+            lmn = self._contourLevels[0]
         if numpy.allclose(self._contourLevels[-1], 1.e20):
-          lmx = mx + 1.
+            lmx = mx + 1.
         else:
-          lmx = self._contourLevels[-1]
+            lmx = self._contourLevels[-1]
         mapper.SetScalarRange(lmn, lmx)
-        self._resultDict["vtk_backend_luts"] = [[lut, [lmn, lmx, True]],]
+        self._resultDict["vtk_backend_luts"] = [[lut, [lmn, lmx, True]]]
 
     def _plotInternalCustomBoxfill(self):
         """Implements the logic to render a custom boxfill."""
@@ -281,7 +283,7 @@ class BoxfillPipeline(Pipeline2D):
         tmpColors = []
         indices = self._gm.fillareaindices
         if indices is None:
-            indices = [1,]
+            indices = [1]
         while len(indices) < len(self._contourColors):
             indices.append(indices[-1])
         if len(self._contourLevels) > len(self._contourColors):
@@ -289,7 +291,8 @@ class BoxfillPipeline(Pipeline2D):
                   "You asked for %i levels but provided only %i colors\n"
                   "Graphic Method: %s of type %s\nLevels: %s"
                   % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name), repr(self._contourLevels))
+                     self._gm.name, self._gm.g_name,
+                     repr(self._contourLevels)))
         elif len(self._contourLevels) < len(self._contourColors) - 1:
             warnings.warn(
                   "You asked for %i lgridevels but provided %i colors, "
@@ -299,13 +302,13 @@ class BoxfillPipeline(Pipeline2D):
 
         for i, l in enumerate(self._contourLevels):
             if i == 0:
-                C = [self._contourColors[i],]
+                C = [self._contourColors[i]]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
-                    ## ok it's an extension arrow
+                    # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
                 else:
                     L = list(self._contourLevels[i])
-                I = [indices[i],]
+                I = [indices[i]]
             else:
                 if l[0] == L[-1] and I[-1] == indices[i]:
                     # Ok same type lets keep going
@@ -314,12 +317,12 @@ class BoxfillPipeline(Pipeline2D):
                     else:
                         L.append(l[1])
                     C.append(self._contourColors[i])
-                else: # ok we need new contouring
+                else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
-                    C = [self._contourColors[i],]
+                    C = [self._contourColors[i]]
                     L = self._contourLevels[i]
-                    I = [indices[i],]
+                    I = [indices[i]]
         tmpLevels.append(L)
         tmpColors.append(C)
 
@@ -327,13 +330,13 @@ class BoxfillPipeline(Pipeline2D):
         cots = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
-        for i,l in enumerate(tmpLevels):
-            # Ok here we are trying to group together levels can be, a join will
-            # happen if: next set of levels contnues where one left off AND
-            # pattern is identical
+        for i, l in enumerate(tmpLevels):
+            # Ok here we are trying to group together levels can be, a join
+            # will happen if: next set of levels contnues where one left off
+            # AND pattern is identical
 
             # TODO this should really just be a single polydata/mapper/actor:
-            for j,color in enumerate(tmpColors[i]):
+            for j, color in enumerate(tmpColors[i]):
                 mapper = vtk.vtkPolyDataMapper()
                 lut = vtk.vtkLookupTable()
                 th = vtk.vtkThreshold()
@@ -349,13 +352,13 @@ class BoxfillPipeline(Pipeline2D):
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j+1])
                 luts.append([lut, [l[j], l[j+1], False]])
-                ## Store the mapper only if it's worth it?
-                ## Need to do it with the whole slab min/max for animation
+                # Store the mapper only if it's worth it?
+                # Need to do it with the whole slab min/max for animation
                 # purposes
                 if not (l[j+1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
 
-        self._resultDict["vtk_backend_luts"]=luts
+        self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
             self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
