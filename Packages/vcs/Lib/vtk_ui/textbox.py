@@ -201,16 +201,14 @@ class Textbox(Label):
 
         rows = self.text.split("\n")
 
-        dpi = self.interactor.GetRenderWindow().GetDPI()
-        width, height = text_dimensions(self.text, prop, dpi)
+        width, height = text_dimensions(self.text, prop)
         line_height = float(height) / len(rows)
 
-        column_adjustment, _ = text_dimensions(rows[self.row][:self.column],
-                                               prop, dpi)
+        column_adjustment, _ = text_dimensions(rows[self.row][:self.column], prop)
 
         x += column_adjustment
 
-        row_width, _ = text_dimensions(rows[self.row], prop, dpi)
+        row_width, _ = text_dimensions(rows[self.row], prop)
 
         # Adjust for blank space caused by justifications
         halign = prop.GetJustificationAsString()
@@ -258,8 +256,7 @@ class Textbox(Label):
         rows = self.text.split("\n")
         prop = self.actor.GetTextProperty()
 
-        dpi = self.interactor.GetRenderWindow().GetDPI()
-        text_width, text_height = text_dimensions(self.text, prop, dpi)
+        text_width, text_height = text_dimensions(self.text, prop)
 
         # Viewport coordinates of widget
         sw, sh = self.interactor.GetRenderWindow().GetSize()
@@ -295,7 +292,7 @@ class Textbox(Label):
             else:
                 dim_row = row
 
-            w, h = text_dimensions(dim_row, prop, dpi)
+            w, h = text_dimensions(dim_row, prop)
             row_bounds.append((w, h))
 
             if w > max_width:
@@ -347,7 +344,7 @@ class Textbox(Label):
         w = 0
         ind = 1
         while row_left + w < x:
-            w, _ = text_dimensions(text[:ind], prop, dpi)
+            w, _ = text_dimensions(text[:ind], prop)
             ind += 1
 
         return row_at_point, ind - 1

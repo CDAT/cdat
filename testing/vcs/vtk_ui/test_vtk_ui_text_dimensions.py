@@ -12,22 +12,18 @@ class test_vtk_ui_text_dimensions(vtk_ui_test):
         text_property = vtk.vtkTextProperty()
         text_property.SetFontFamilyToArial()
         text_property.SetFontSize(24)
-        dpi = self.win.GetDPI()
 
-        w, h = vcs.vtk_ui.text.text_dimensions("no descenders", text_property,
-                                               dpi)
+        w, h = vcs.vtk_ui.text.text_dimensions("no descenders", text_property)
         if w != 175 or h != 24:
             print "no descenders width/height changed"
             return
 
-        w, h = vcs.vtk_ui.text.text_dimensions("couple good descenders",
-                                               text_property, dpi)
+        w, h = vcs.vtk_ui.text.text_dimensions("couple good descenders", text_property)
         if w != 299 or h != 24:
             print "couple good descenders width/height changed"
             return
 
-        w, h = vcs.vtk_ui.text.text_dimensions(
-              "This one\nis on\nmultiple lines", text_property, dpi)
+        w, h = vcs.vtk_ui.text.text_dimensions("This one\nis on\nmultiple lines", text_property)
         if w != 151 or h != 76:
             print "Multi-line width/height changed"
             return

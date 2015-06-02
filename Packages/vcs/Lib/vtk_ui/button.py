@@ -180,7 +180,6 @@ class Button(Widget):
 
     def update(self):
         self.repr.SetNumberOfStates(len(self.states))
-        dpi = self.interactor.GetRenderWindow().GetDPI()
 
         max_width = 0
         max_height = 0
@@ -198,9 +197,7 @@ class Button(Widget):
                 max_width = max(max_width, w)
 
             elif label_text:
-                l_w, l_h = text_dimensions(
-                      label_text, self.text_widget.actor.GetTextProperty(),
-                      dpi)
+                l_w, l_h = text_dimensions(label_text, self.text_widget.actor.GetTextProperty())
 
                 max_height = max(max_height, l_h)
                 max_width = max(max_width, l_w)

@@ -93,9 +93,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             del self.textboxes
 
         self.textboxes = []
-        renWin = self.interactor.GetRenderWindow()
-        w, h = renWin.GetSize()
-        dpi = renWin.GetDPI()
+        w, h = self.interactor.GetRenderWindow().GetSize()
         cmap = vcs.getcolormap()
 
         prop = vtkTextProperty()
@@ -108,8 +106,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             y = self.text.y[ind]
             string = self.text.string[ind]
 
-            text_width, text_height = text_dimensions(self.text, ind, (w, h),
-                                                      dpi)
+            text_width, text_height = text_dimensions(self.text, ind, (w, h))
 
             x = x * w
             y = y * h
@@ -294,7 +291,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.render()
 
 
-def text_dimensions(text, index, winsize, dpi):
+def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
     vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
-    return vcs.vtk_ui.text.text_dimensions(text.string[index], prop, dpi)
+    return vcs.vtk_ui.text.text_dimensions(text.string[index], prop)

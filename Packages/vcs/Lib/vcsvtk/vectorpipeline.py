@@ -62,6 +62,8 @@ class VectorPipeline(Pipeline):
         if gm.linecolor is not None:
             lcolor = gm.linecolor
 
+        grid = vcs2vtk.stripGrid(grid)
+
         arrow = vtk.vtkGlyphSource2D()
         arrow.SetGlyphTypeToArrow()
         arrow.FilledOff()
