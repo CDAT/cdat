@@ -6,7 +6,6 @@ Created on Jun 18, 2014
 
 import Canvas
 import VCS_validation_functions
-import AutoAPI
 import xmldocs
 import cdtime, multiprocessing
 import vcs
@@ -14,7 +13,7 @@ import time
 import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
 
-class Gfdv3d(object,AutoAPI.AutoAPI):
+class Gfdv3d(object):
 
     __slots__ = [
          '__doc__',

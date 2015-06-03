@@ -27,7 +27,6 @@
 #                                                                             #
 ###############################################################################
 import vcs, VCS_validation_functions, cdtime
-import AutoAPI
 import xmldocs
 import numpy
 
@@ -140,7 +139,7 @@ def process_src(nm,code):
         g.fillareastyle = fas[0]
 
 
-class Gfi(object,AutoAPI.AutoAPI):
+class Gfi(object):
     """
     Options:::
 %s
@@ -530,9 +529,6 @@ Class: Gfi				# Isofill
           for att in ['projection' ,'colormap','xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,"_"+att,getattr(src,"_"+att))
 
-        self.info = AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        #self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.isofill_doc)
         vcs.elements["isofill"][self.name]=self
         #                                                         #

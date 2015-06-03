@@ -1,6 +1,5 @@
 import cdms2
 import urllib2
-import AutoAPI
 import xml.etree.ElementTree
 try:
     import genutil
@@ -22,7 +21,7 @@ class esgfFilesException(Exception):
     ##     print msg
     ##     return msg
 
-class FacetConnection(object,AutoAPI.AutoAPI):
+class FacetConnection(object):
     def __init__(self,host='pcmdi9.llnl.gov'):
         self.rqst="http://%s/esg-search/search?facets=*&type=Dataset&limit=1&latest=true" % host
         self.rqst_count="http://%s/esg-search/search?facets=*&type=File&limit=0&latest=true" % host
@@ -80,9 +79,8 @@ class FacetConnection(object,AutoAPI.AutoAPI):
         return count
 
 validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
-class esgfConnection(object,AutoAPI.AutoAPI):
+class esgfConnection(object):
     def __init__(self,host,port=80,timeout=15,limit=None,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
-        self.autoApiInfo = AutoAPI.Info(self)
         self.port=port
         url=str(host).replace("://","^^^---^^^")
         sp= url.split("/")
@@ -522,7 +520,7 @@ class esgfDataset(esgfConnection):
         return esgfFiles(self._extractFiles(self.resp,**keys),self)
 
 
-class esgfFiles(object,AutoAPI.AutoAPI):
+class esgfFiles(object):
     def __init__(self,files,parent,mapping=None,datasetids=None,fileids=None):
         self._files=files
         if not isinstance(parent,esgfDataset):
@@ -689,9 +687,8 @@ class esgfFiles(object,AutoAPI.AutoAPI):
             thismapping = savedmapping
         ## if verbose: print "################ REMAPPED: %s #############################" % (thismapping,)
 
-class esgfFile(object,AutoAPI.AutoAPI):
+class esgfFile(object):
     def __init__(self,**keys):
-        self.autoApiInfo = AutoAPI.Info(self)
         self.__items__=keys
         self.keys = self.__items__.keys
         self.items = self.__items__.items

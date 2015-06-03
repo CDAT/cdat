@@ -10,7 +10,6 @@ import re
 import string
 import sys
 import types
-import AutoAPI
 #import internattr
 
 # Data types
@@ -440,7 +439,7 @@ def searchPredicate(objlist, predicate, tag=None):
 # Classes
 
 # Generic CDMS object has a tree node, attributes
-class CdmsObj (object,AutoAPI.AutoAPI):
+class CdmsObj (object):
 ##     def __setattr__(self,name,value):
 ##         object.__setattr__(self,name,value)
 ##         if not name in self.__cdms_internals__ and not name[0]=='_':
@@ -497,8 +496,6 @@ class CdmsObj (object,AutoAPI.AutoAPI):
                                 raise RuntimeError,"%s=%s must be an integer"%(attname,attval)
                 adict[attname] = attval
                 self.attributes[attname] = attval
-        self.autoApiInfo = AutoAPI.Info(self)
-        self.autoApiInfo.expose=set(["dump","searchone","matchone","searchPattern","matchPattern","searchPredicate"])
 
 
     def searchone(self, pattern, attname):

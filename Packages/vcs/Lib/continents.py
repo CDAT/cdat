@@ -25,7 +25,6 @@
 import queries,VCS_validation_functions
 import Canvas
 from types import *
-import AutoAPI
 import xmldocs
 
 #################################################################################
@@ -101,7 +100,7 @@ def renameGcon(self, old_name, new_name):
      return _vcs.renameGcon(old_name, new_name)
 rename = renameGcon
 
-class Gcon(object,AutoAPI.AutoAPI):
+class Gcon(object):
     """
     Options:::
 %s
@@ -405,8 +404,6 @@ class Gcon(object,AutoAPI.AutoAPI):
         
         self.type=getmember(self, 'type')
         
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core_notime,xmldocs.linedoc)
 ##         #                                                         #
 ##         ###########################################################
