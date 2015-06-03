@@ -215,7 +215,7 @@ class G1d(object):
      yxx.markersize=300
      yxx.markersize=None
 
-"""
+""" % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
@@ -474,7 +474,6 @@ class G1d(object):
 	    # appropriate Python Object.                              #
         ###########################################################
 	    #                                                         #
-        self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
         if name in vcs.elements["1d"]:
           raise ValueError,"The 1D method '%s' already exists"
         self.g_name='G1d'

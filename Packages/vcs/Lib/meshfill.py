@@ -246,7 +246,7 @@ Class:	Gfm                       	# Meshfill
     ext_2='y'
     mesh.exts('n', 'y' )  		# Will set them both
     missing=241                         # Color index value range 0 to 255
-"""
+""" % (xmldocs.graphics_method_core,xmldocs.meshfill_doc)
     #############################################################################
     #                                                                           #
     # Initialize the meshfill attributes.                                        #
