@@ -1141,7 +1141,6 @@ class VTKVCSBackend(object):
             ports=vtkobjects["vtk_backend_glyphfilters"]
             w = vcs2vtk.generateVectorArray(array1,array2,vg)
             vg.GetPointData().AddArray(w)
-            vg = vcs2vtk.stripGrid(vg)
             ports[0].SetInputData(vg)
 
           if vtkobjects.has_key("vtk_backend_actors"):
