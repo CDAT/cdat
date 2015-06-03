@@ -293,7 +293,7 @@ class Gi(object):
         iso.textcolors=([22,33,44,55,66,77])
 	iso.textcolors=(16,19,33,44)
 	iso.textcolors=None	        	# Turns off the text color index
-"""
+""" % (xmldocs.graphics_method_core,xmldocs.linesdoc,xmldocs.textsdoc)
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
@@ -625,7 +625,6 @@ class Gi(object):
           src =vcs.elements["isoline"][Gi_name_src]
           for att in ['label','colormap', 'projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'level' ,'datawc_timeunits' ,'datawc_calendar',"line","linecolors","linewidths","text","textcolors","clockwise","scale","angle","spacing"]:
             setattr(self,att,getattr(src,att))
-        self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.linesdoc,xmldocs.textsdoc)
         vcs.elements["isoline"][Gi_name] = self
 
 # 
