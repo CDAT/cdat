@@ -10,6 +10,7 @@ def init():
 
     win.SetNumberOfLayers(3)
     win.SetSize(100, 250)
+    win.SetMultiSamples(0)
 
     inter = vtk.vtkRenderWindowInteractor()
     inter.SetRenderWindow(win)
