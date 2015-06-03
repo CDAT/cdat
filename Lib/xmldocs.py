@@ -121,6 +121,17 @@ scriptdoc = """ Input:::
  mode :: (str) ('a') mode to open the file 'a' or 'w' (overwrite)
  :::"""
 
+meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
+    fillareacolors :: ([int,...]) ([241]) colors to use for each level
+    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch 
+    fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
+    legend :: ({float:str}) (None) replaces the legend values in the dictionary keys with their associated string
+    ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
+    ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
+    missing :: (int) (241) color to use for missing value or values not in defined ranges
+    legend :: (None/{float:str}) (None) replaces the legend values in the dictionary keys with their associated string
+"""
+
 isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
     fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch 
