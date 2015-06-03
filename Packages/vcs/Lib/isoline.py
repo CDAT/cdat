@@ -28,7 +28,6 @@
 #################################################################################
 import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
-import AutoAPI
 import xmldocs
 import genutil
 def load(nm,json_dict = {}):
@@ -170,7 +169,7 @@ def process_src(nm,code):
         g.clockwise = clock
       except:
         g.clockwise = gd.clockwise
-class Gi(object,AutoAPI.AutoAPI):
+class Gi(object):
     """
     Options:::
 %s
@@ -626,9 +625,6 @@ class Gi(object,AutoAPI.AutoAPI):
           src =vcs.elements["isoline"][Gi_name_src]
           for att in ['label','colormap', 'projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'level' ,'datawc_timeunits' ,'datawc_calendar',"line","linecolors","linewidths","text","textcolors","clockwise","scale","angle","spacing"]:
             setattr(self,att,getattr(src,att))
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        #self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.linesdoc,xmldocs.textsdoc)
         vcs.elements["isoline"][Gi_name] = self
 

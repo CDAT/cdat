@@ -23,7 +23,6 @@
 #
 import Canvas
 import VCS_validation_functions
-import AutoAPI
 import xmldocs
 import cdtime
 import vcs
@@ -144,7 +143,7 @@ def process_src(nm,code):
 #                                                                           #
 #############################################################################
 #class Gfm(graphics_method_core):
-class Gfm(object,AutoAPI.AutoAPI):
+class Gfm(object):
     """
     Options:::
 %s

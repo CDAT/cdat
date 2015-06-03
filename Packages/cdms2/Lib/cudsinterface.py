@@ -7,22 +7,10 @@ from error import CDMSError
 from dataset import openDataset, createDataset
 from tvariable import createVariable
 import numpy
-import AutoAPI
 
-class cuDataset(AutoAPI.AutoAPI):
+class cuDataset():
     "A mixin class to support the old cu interface"
     def __init__ (self):
-        if not hasattr(self,"autoApiInfo"):
-            self.autoApiInfo=AutoAPI.Info(self)
-        if not hasattr(self.autoApiInfo,"expose"):
-            self.autoApiInfo.expose=set()
-        self.autoApiInfo.expose.update([
-            "listall","listattribute","listdimension","listglobal","listvariable",
-            "showglobal","showvariable","showattribute","showdimension","showall",
-            "dimensionobject","dimensionarray",
-            "getdimensionunits","getglobal","getattribute","getslab",
-            "readScripGrid",
-            ])
         self.cleardefault()
 
     def __call__ (self, id, *args, **kwargs):
