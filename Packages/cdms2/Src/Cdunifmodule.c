@@ -12,11 +12,11 @@
 /*#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION*/
 #include "Python.h"
 #include "numpy/ndarrayobject.h"
-#include "netcdf.h"
 #ifdef PARALLEL
 #include "mpi.h"
 #include "netcdf_par.h"
 #endif
+#include "netcdf.h"
 
 #define _CDUNIF_MODULE
 #include "Cdunifmodule.h"
