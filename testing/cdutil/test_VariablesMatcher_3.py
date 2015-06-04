@@ -36,7 +36,7 @@ Ref.weightedGridMaker=ECMWFGrid
 # Test
 tstmsk = os.path.join(cdat_info.get_sampledata_path(),'sftlf_ccsr.nc')
 M=cdutil.WeightsMaker(tstmsk, var='sftlf_ccsr', values=[1.])
-tst = os.path.join(cdutil.__path__[0],'..','..','..','..','sample_data','tas_ccsr-95a.xml')
+tst = os.path.join(cdat_info.get_sampledata_path(),'tas_ccsr-95a.xml')
 Tst=cdutil.VariableConditioner(tst, weightsMaker=M)
 Tst.var='tas'
 Tst.id='NCEP'

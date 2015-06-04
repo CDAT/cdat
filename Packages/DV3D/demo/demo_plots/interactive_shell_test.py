@@ -14,7 +14,7 @@ __author__ = 'tpmaxwel'
 print 'Creating a simple 3D plot canvas...\n'
 
 x = vcs.init()
-f = cdms2.open(sys.prefix+"/sample_data/clt.nc")
+f = cdms2.open(vcs.sample_data+"/clt.nc")
 v = f("clt", time=slice(0,10))
 dv3d = vcs.get3d_scalar()
 x.plot( v, dv3d )

@@ -11,7 +11,7 @@ x.drawlogooff()
 
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",slice(0,1),latitude=(30,70),longitude=(-130,-60))
 s2=MV2.masked_greater(s,65.)
 
