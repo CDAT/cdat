@@ -6,7 +6,7 @@ bg=support.bg
 
 x=vcs.init()
 
-fnmirr = os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','sampleGenGrid3.nc')
+fnmirr = os.path.join(vcs.sample_data,'sampleGenGrid3.nc')
 
 f=cdms.open(fnmirr)
 gen=f('sample')

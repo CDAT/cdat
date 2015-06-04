@@ -1,7 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs,cdms2 as cdms,MV2 as MV,sys,support,os
 bg=support.bg
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt',slice(0,5),latitude=(0.,0.,'cob'),squeeze=1)
 
 nt=s.shape[0]

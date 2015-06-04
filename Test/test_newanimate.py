@@ -43,7 +43,7 @@ import vcs,cdms2 as cdms,sys,os,support
 support.dogui = True
 if support.dogui:
 
-    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+    f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
     u=f('u')
     v=f("v")
     s=f("clt")
