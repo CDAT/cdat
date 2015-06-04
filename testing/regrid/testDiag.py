@@ -30,7 +30,7 @@ class Test(unittest.TestCase):
         srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
         diag = {'numValid': None, 'numDstPoints': None}
         soInterp = so.regrid(clt.getGrid(), 
                              regridTool = 'libcf', 
@@ -56,7 +56,7 @@ class Test(unittest.TestCase):
         srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
         diag = {'srcAreas': None, 'dstAreas': None,
                 'srcAreaFractions': None, 'dstAreaFractions': None}
         soInterp = so.regrid(clt.getGrid(), 
@@ -91,7 +91,7 @@ class Test(unittest.TestCase):
         srcF = cdms2.open(cdat_info.get_prefix() + \
                               '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
         diag = {'srcAreas': None, 'dstAreas': None,
                 'srcAreaFractions': None, 'dstAreaFractions': None}
 

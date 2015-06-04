@@ -115,7 +115,7 @@ class TestESMPRegridderConserve(unittest.TestCase):
         print 'Source Corner'
         srcXYZCorner = convertToXYZ(soLtBd1, soLnBd1, soLvBd1)
 
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         cltBounds = clt.getGrid().getBounds()
 
         # Destination grid dimensions 

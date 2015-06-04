@@ -16,7 +16,7 @@ class TestTasRegrid(unittest.TestCase):
 
     def setUp(self):
 
-        self.clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
+        self.clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
         self.tas = cdms2.open(cdat_info.get_prefix() + \
                                   '/sample_data/tas_ecm_1979.nc')('tas')[0, ...]
 

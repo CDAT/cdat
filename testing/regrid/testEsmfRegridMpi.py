@@ -31,7 +31,7 @@ class Test(unittest.TestCase):
         f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         tic = time.time()
         soInterp = so.regrid(clt.getGrid(), regridTool='ESMF') #, periodicity=1)
         soInterpInterp = soInterp.regrid(so.getGrid(), regridTool='ESMF')
@@ -57,7 +57,7 @@ class Test(unittest.TestCase):
         f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         tic = time.time()
         # assume so and clt are cell centered
         srcGrid = regrid2.esmf.EsmfStructGrid(so.shape, 

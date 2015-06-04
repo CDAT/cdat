@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
         srcCells = [so.getLatitude(), so.getLongitude()]
         srcNodes = [srcLatCorner, srcLonCorner]
 
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         cltBounds = clt.getGrid().getBounds()
 
         ny, nx = clt.shape

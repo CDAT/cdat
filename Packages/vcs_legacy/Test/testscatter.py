@@ -30,7 +30,7 @@
 def test():
    import vcs_legacy,cdms2,time,os,sys,support                # import vcs_legacy and cu
    bg=support.bg
-   f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+   f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
    u=f('u')                             # get slab u
    v=f('v')                             # get slab v
    x=vcs_legacy.init()                         # construct vcs_legacy canvas

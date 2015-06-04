@@ -31,7 +31,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         Set up the grids to pass to mvGenericRegrid
         """
         self.doPlots = False
-        self.clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
+        self.clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
         # Convert to curvilinear
         cds, cds_forBounds = [], []
         cds.append(self.clt.getLatitude())
@@ -298,7 +298,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         """
         Interpolate over one level/time
         """
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         clt = f('clt')
         v = f('v')
         
@@ -342,7 +342,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         """
         Interpolate over level/time in addition to lat-lon
         """
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         clt = f('clt')
         v = f('v')
         

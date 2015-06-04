@@ -2,7 +2,7 @@
 import cdms2,vcs,cdutil.continent_fill,sys,os
 import vcs.test.support
 bg= vcs.test.support
-f = cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f = cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt')
 x=vcs.init()
 #x.ratio=0

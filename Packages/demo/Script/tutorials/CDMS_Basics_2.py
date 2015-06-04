@@ -2,7 +2,7 @@
 import cdms2 as cdms,sys
 import cdat_info
 
-f=cdms.open(cdat_info.get_prefix()+'/sample_data/clt.nc')
+f=cdms.open(cdat_info.get_sampledata_path()+'/clt.nc')
 
 # Query "file" attributes
 print f.listglobal()

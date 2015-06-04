@@ -31,7 +31,7 @@ class Test(unittest.TestCase):
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
 
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         cltBounds = clt.getGrid().getBounds()
 
         tic = time.time()
@@ -249,7 +249,7 @@ class Test(unittest.TestCase):
         f = cdms2.open(cdat_info.get_prefix() + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         tic = time.time()
         soInterp = so.regrid(clt.getGrid(), regridTool='ESMF', regridMethod='Conservative')
         soInterpInterp = soInterp.regrid(so.getGrid(), regridTool='ESMF', 

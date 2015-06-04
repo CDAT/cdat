@@ -19,7 +19,7 @@ except:
 
 
 import cdutil,cdms2 as cdms
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt')
 cdutil.setTimeBoundsMonthly(s)
 try:

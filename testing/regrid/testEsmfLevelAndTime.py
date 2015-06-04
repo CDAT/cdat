@@ -14,7 +14,7 @@ class TestLevelRegridLibCfAndESMP(unittest.TestCase):
         self.soTime = fso('so')[:,0,...]
         self.so = fso('so')[:,0:5,...]
 
-        fclt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        fclt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         self.clt = fclt('clt')
 
     def test_ESMPTimeLevel2D(self):

@@ -3,7 +3,7 @@ src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
-f=cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",longitude=slice(34,35),squeeze=1)
 x=vcs.init()
 x.drawlogooff()
