@@ -232,6 +232,7 @@ if(BUILD_TESTING)
       "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
       "-DTESTDATA_URL=${REPO_URL}"
       "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
+      "-DSOURCE_DIR=${cdat_SOURCE_DIR}"
       -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
     COMMENT "Updating uvcdat-testdata repo."
   )
