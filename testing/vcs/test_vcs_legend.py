@@ -54,7 +54,7 @@ else:
     else:
         levels = [300,500,800,1000,1200]
     gm.levels=levels
-    gm.colors = vcs.getcolors(levels)
+    #gm.fillareacolors = vcs.getcolors(levels)
 tmpl = x.createtemplate()
 if args.orientation=="vertical":
     tmpl.data.x2=.8
