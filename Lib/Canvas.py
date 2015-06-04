@@ -372,6 +372,7 @@ class Canvas(object):
         '__last_plot_keyargs',
         '_continents',
         '_savedcontinentstype',
+        '__weakref__',
         ]
 
 #     def applicationFocusChanged(self, old, current ):
