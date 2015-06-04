@@ -274,6 +274,14 @@ def get_prefix():
   except KeyError:
     raise RuntimeError("UVCDAT environment not configured. Please source the setup_runtime script.")
 
+def get_sampledata_path():
+  import os
+  try:
+    return os.path.join(os.environ["UVCDAT_SETUP_PATH"],
+                        "share", "uvcdat", "sample_data")
+  except KeyError:
+    raise RuntimeError("UVCDAT environment not configured. Please source the setup_runtime script.")
+
 def runCheck():
     import cdat_info,os
     if cdat_info.ping_checked is False:
