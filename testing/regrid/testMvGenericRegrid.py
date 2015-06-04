@@ -43,8 +43,8 @@ class TestMvGenericRegrid(unittest.TestCase):
         self.cltInterpInterp = numpy.array(self.clt) * 0.0 + self.clt.missing_value
 
         # Salinity check
-        f = cdms2.open(cdat_info.get_prefix() + \
-                           '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+                           '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.so = f('so')
         soGrid = []
         soGrid.append(self.so.getLatitude())

@@ -18,8 +18,8 @@ class Test(unittest.TestCase):
         """
         Test cdutil.generateLandSeaMask
         """
-        f = cdms2.open(cdat_info.get_prefix() + \
-                           "/sample_data/so_Omon_GISS-E2-R_historicalNat_r5i1p1_185001-187512_2timesteps.nc")
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+                           "/so_Omon_GISS-E2-R_historicalNat_r5i1p1_185001-187512_2timesteps.nc")
         s = f("so")
         print s.shape
         print dir(cdutil.create_landsea_mask)
@@ -30,7 +30,7 @@ class Test(unittest.TestCase):
         """
         Test cdutil.generateLandSeaMask, using a smaller dataset
         """
-        f = cdms2.open(cdat_info.get_prefix() + "/sample_data/clt.nc")
+        f = cdms2.open(cdat_info.get_sampledata_path() + "/clt.nc")
         s = f("clt")
         print s.shape
         print dir(cdutil.create_landsea_mask)

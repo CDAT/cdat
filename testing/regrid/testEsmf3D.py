@@ -69,8 +69,8 @@ class TestESMPRegridderConserve(unittest.TestCase):
         pass
     def test_3D_Native(self):
         print 'running test_3d_esmf_native...'
-        f = cdms2.open(cdat_info.get_prefix() + \
-			       '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+			       '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, ...]
 
         # Coords

@@ -18,22 +18,22 @@ import sys
 class TestESMPRegridding(unittest.TestCase):
 
     def setUp(self):
-        filename = cdat_info.get_prefix() + \
-            "/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc"
+        filename = cdat_info.get_sampledata_path() + \
+            "/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc"
         h=cdms2.open(filename)
         self.hso = h('so')[0, 0, ...]
         self.hGrid = [self.hso.getLatitude(), self.hso.getLongitude()]
         h2D = self.hso.getGrid()
         self.hGrid2D = [h2D.getLatitude(), h2D.getLongitude()]
 
-        filename = cdat_info.get_prefix() + "/sample_data/clt.nc"
+        filename = cdat_info.get_sampledata_path() + "/clt.nc"
         f=cdms2.open(filename)
         self.fclt = f('clt')
         self.fGrid = [self.fclt.getLatitude(), self.fclt.getLongitude()]
         g2D = self.fclt.getGrid().toCurveGrid()
         self.fGrid2D = [g2D.getLatitude()[:], g2D.getLongitude()[:]]
 
-        filename = cdat_info.get_prefix() + "/sample_data/era40_tas_sample.nc"
+        filename = cdat_info.get_sampledata_path() + "/era40_tas_sample.nc"
         g=cdms2.open(filename)
         self.gtas = g('tas')
         self.gGrid = [self.gtas.getLatitude(), self.gtas.getLongitude()]

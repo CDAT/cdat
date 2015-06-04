@@ -27,8 +27,8 @@ class Test(unittest.TestCase):
         pass
  
     def Xtest1_libcf(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
         diag = {'numValid': None, 'numDstPoints': None}
@@ -53,8 +53,8 @@ class Test(unittest.TestCase):
     def test2_varRegrid(self):
         print
         print 'test2_varRegrid'
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
         diag = {'srcAreas': None, 'dstAreas': None,
@@ -88,8 +88,8 @@ class Test(unittest.TestCase):
     def Xtest3_esmf(self):
         print
         print 'test3_esmf'
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
         diag = {'srcAreas': None, 'dstAreas': None,

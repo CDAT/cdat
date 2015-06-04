@@ -275,8 +275,8 @@ class Test(unittest.TestCase):
 
 
     def XXtest1_esmf(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value), numpy.int32)
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0,...]
@@ -357,8 +357,8 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMMax, so.max())
 
     def XXtest2_ESMFRegrid(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF['so']
         srcGridMask = numpy.array((so[0, 0,...] == so.missing_value) , numpy.int32)
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
@@ -426,8 +426,8 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMax, so[0,0,...].max())
 
     def XXtest3_genericRegrid(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value) , numpy.int32)
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
@@ -471,8 +471,8 @@ class Test(unittest.TestCase):
             self.assertLess(dstDataMax, so.max())
 
     def test4_cdmsRegrid(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         srcGridMask = numpy.array((so == so.missing_value) , numpy.int32)
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
@@ -502,8 +502,8 @@ class Test(unittest.TestCase):
 
 
     def XXtest5_regrid(self):
-        srcF = cdms2.open(cdat_info.get_prefix() + \
-                              '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        srcF = cdms2.open(cdat_info.get_sampledata_path() + \
+                              '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = srcF('so')[0, 0, ...]
         clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')
         dstData = so.regrid(clt.getGrid(), 
