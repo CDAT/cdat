@@ -120,9 +120,8 @@ command.
 
 ### Making changes
 Before making your code changes, it is often necessary to build the code
-that was just checked out. There are two primary methods of doing this.
-
-The best way to develop *UV-CDAT* is to build using default settings:
+that was just checked out. The best way to develop *UV-CDAT* is to build
+using default settings:
 
         mkdir uvcdat-build
         cmake uvcdat-path-to-source
