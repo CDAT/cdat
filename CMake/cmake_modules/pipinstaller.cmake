@@ -1,7 +1,7 @@
 # create an external project to install MyProxyClient,
 # and configure and build it
 
-include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+include(${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake)
 string(TOUPPER ${nm} uc_nm)
 
 if(NOPREFIXOPT )
@@ -33,7 +33,7 @@ ExternalProject_Add(${nm}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND env PYTHONPATH=${PYTHONPATH} ${USR_ENVS} ${PYTHON_EXECUTABLE} setup.py install ${PRFX}
+  INSTALL_COMMAND env PKG_CONFIG_PATH=$ENV{PKG_CONFIG_PATH} PYTHONPATH=${PYTHONPATH} ${USR_ENVS} ${PYTHON_EXECUTABLE} setup.py install ${PRFX}
   DEPENDS ${${nm}_deps}
   ${ep_log_options}
 )
