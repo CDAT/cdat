@@ -10,7 +10,7 @@ enhancements and ideas are welcome.
 If you are simply looking to start working with the *UV-CDAT* codebase,
 navigate to the [GitHub "issues"
 tab](https://github.com/UV-CDAT/uvcdat/issues) and start looking through
-interesting issues. 
+interesting issues.
 
 Feel free to ask questions on [mailing
 list](uvcdat-users@llnl.gov)
@@ -91,7 +91,7 @@ button. You will want to clone your fork to your machine: :
     git clone git://github.com/UV-CDAT/uvcdat.git UV-CDAT-yourname
     cd UV-CDAT-yourname
     git remote add myuvcdat git@github.com:your-user-name/uvcdat.git
-    
+
 This creates the directory UV-CDAT-yourname and connects your repository
 to the upstream (main project) *UV-CDAT* repository.
 
@@ -136,7 +136,7 @@ Contributing to the documentation
 
 If you're not the developer type, contributing to the documentation is
 still of huge value. You don't even have to be an expert on *UV-CDAT* to
-do so! Something as simple as 
+do so! Something as simple as
 
 Contributing to the code base
 -----------------------------
@@ -175,30 +175,32 @@ time so this is never an issue.
 
 All tests should go into the *tests* subdirectory of the specific
 package. There are probably many examples already there and looking to
-these for inspiration is suggested. 
+these for inspiration is suggested.
 
-The `UV-CDAT.util.testing` module has many special `assert` functions
-that make it easier to make statements about whether Series or DataFrame
-objects are equivalent. The easiest way to verify that your code is
-correct is to explicitly construct the result you expect, then compare
-the actual result to the expected correct result:
+The `testing.checkimage.py` module has special `check_result_image` function
+that make it easier to check whether plot produced after data extraction and
+transformation are equivalent to baseline. For an example see below:
 
-    def test_pivot(self):
-        data = {
-            'index' : ['A', 'B', 'C', 'C', 'B', 'A'],
-            'columns' : ['One', 'One', 'One', 'Two', 'Two', 'Two'],
-            'values' : [1., 2., 3., 3., 2., 1.]
-        }
+    import cdms2,sys,vcs,sys,os
+    src = sys.argv[1]
+    pth = os.path.join(os.path.dirname(__file__),"..")
+    sys.path.append(pth)
+    import checkimage
+    x = vcs.init()
+    x.drawlogooff() // It is important to disable logo for testing
+    f = cdms2.open(vcs.prefix+"/sample_data/clt.nc")
+    s = f("clt",slice(0,1),squeeze=1)
+    b = x.createboxfill()
+    b.level_1 = .5
+    b.level_2 = 14.5
+    x.plot(s,b,bg = 1)
 
-        frame = DataFrame(data)
-        pivoted = frame.pivot(index='index', columns='columns', values='values')
+    fnm = "test_boxfill_lev1_lev2.png"
 
-        expected = DataFrame({
-            'One' : {'A' : 1., 'B' : 2., 'C' : 3.},
-            'Two' : {'A' : 1., 'B' : 2., 'C' : 3.}
-        })
+    x.png(fnm)
 
-        assert_frame_equal(pivoted, expected)
+    ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+    sys.exit(ret)
 
 #### Running the test suite
 
@@ -217,7 +219,7 @@ constructs:
 
     ctest -R test-name
     ctest -R regex*
-    
+
 #### Running the performance test suite
 
 TODO
@@ -297,7 +299,7 @@ GitHub. You can see the remote repositories :
 If you added the upstream repository as described above you will see
 something like :
 
-    origin  git://github.com/UV-CDAT/uvcdat.git 
+    origin  git://github.com/UV-CDAT/uvcdat.git
     myuvcdat git@github.com:yourname/uvcdat.git (fetch)
     myuvcdat git@github.com:yourname/uvcdat.git (fetch)
 
