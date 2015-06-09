@@ -1,11 +1,9 @@
 set(netcdf_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf")
 set(netcdf_install "${cdat_EXTERNALS}")
+set(netcdf_configure_args "--enable-netcdf-4")
 if (CDAT_BUILD_PARALLEL)
-  message("[INFO] Building NetCDF with parallel ON")
-  set(netcdf_configure_args "--enable-netcdf-4^^--enable-pnetcdf^^--enable-logging")
   set(configure_file "cdatmpi_configure_step.cmake")
 else()
-  set(netcdf_configure_args "--enable-netcdf-4")
   set(configure_file "cdat_configure_step.cmake")
 endif()
 
