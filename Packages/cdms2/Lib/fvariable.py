@@ -51,6 +51,7 @@ class FileVariable(DatasetVariable):
         if self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
         if numpy.ma.isMaskedArray(data):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             saveFill = data.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -58,6 +59,7 @@ class FileVariable(DatasetVariable):
                 data.set_fill_value(self.getMissing())
         self._obj_.assignValue(numpy.ma.filled(data))
         if numpy.ma.isMaskedArray(data):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             data.set_fill_value(saveFill)
 
     def expertSlice (self, initslicelist):
@@ -94,6 +96,7 @@ class FileVariable(DatasetVariable):
         if self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
         if numpy.ma.isMaskedArray(value):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             saveFill = value.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -101,6 +104,7 @@ class FileVariable(DatasetVariable):
                 value.set_fill_value(self.getMissing())
         apply(self._obj_.setitem,(index,numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             value.set_fill_value(saveFill)
 
     def __setslice__(self, low, high, value):
@@ -111,6 +115,7 @@ class FileVariable(DatasetVariable):
         high = min(Max32int, high)
         
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             saveFill = value.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -118,6 +123,7 @@ class FileVariable(DatasetVariable):
                 value.set_fill_value(self.getMissing())
         apply(self._obj_.setslice,(low,high,numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             value.set_fill_value(saveFill)
 
     def _getShape (self):
