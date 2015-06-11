@@ -113,6 +113,8 @@ class FileVariable(DatasetVariable):
 
         # Hack to prevent netCDF overflow error on 64-bit architectures
         high = min(Max32int, high)
+        if high == Max32int and self.rank()==0:
+          high=1
         
         if numpy.ma.isMaskedArray(value):
           if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):

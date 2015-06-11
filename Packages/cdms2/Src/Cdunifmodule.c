@@ -2786,10 +2786,12 @@ PyCdunifVariableObject_ass_slice(PyCdunifVariableObject *self,
     PyErr_SetString(PyExc_ValueError, "Can't delete elements.");
     return -1;
   }
-  if (self->nd == 0) {
+  /* I tweaked the python to send 0/1 and it works we don't need this anymore
+   * */
+  /*if (self->nd == 0) {
     PyErr_SetString(PyExc_TypeError, "Not a sequence");
     return -1;
-  }
+  }*/
   if (low < -(long)self->dimensions[0])
     low = -self->dimensions[0];
   if (low < 0)
