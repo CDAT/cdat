@@ -683,6 +683,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/lib64 "
   "lib "
 )
 string(REPLACE ";" " " SETUP_LIBRARY_PATHS ${SETUP_LIBRARY_PATHS})
