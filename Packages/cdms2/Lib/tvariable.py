@@ -264,6 +264,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 ##         if data.getattr('mask',None) is not numpy.ma.nomask:
 ##             mask = data.mask
 ##         print 'passing:',mask.shape,data.shape,numpy.shape(cls)
+#        if fill_value is None: fill_value = 999999.0
         self = numpy.ma.MaskedArray.__new__(cls, data, dtype = dtype,
                                       copy = ncopy,
                                       mask = mask,

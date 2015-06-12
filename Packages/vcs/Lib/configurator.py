@@ -2,8 +2,10 @@ import vcs
 import datetime
 import editors
 import vtk_ui
-import os, sys
+import os
+import sys
 import vtk
+from vcs2vtk import vtkIterate
 
 CREATING_FILL = "fill"
 CREATING_LINE = "line"
@@ -19,134 +21,66 @@ CLICKS_TO_CREATE = {
 
 import copy
 
+
 def sync_template(src, target):
-    target.orientation=src.orientation
-    target.file=copy.copy(src.file)
-    target.function=copy.copy(src.function)
-    target.logicalmask=copy.copy(src.logicalmask)
-    target.transformation=copy.copy(src.transformation)
-    target.source=copy.copy(src.source)
-    target.dataname=copy.copy(src.dataname)
-    target.title=copy.copy(src.title)
-    target.units=copy.copy(src.units)
-    target.crdate=copy.copy(src.crdate)
-    target.crtime=copy.copy(src.crtime)
-    target.comment1=copy.copy(src.comment1)
-    target.comment2=copy.copy(src.comment2)
-    target.comment3=copy.copy(src.comment3)
-    target.comment4=copy.copy(src.comment4)
-    target.xname=copy.copy(src.xname)
-    target.yname=copy.copy(src.yname)
-    target.zname=copy.copy(src.zname)
-    target.tname=copy.copy(src.tname)
-    target.xunits=copy.copy(src.xunits)
-    target.yunits=copy.copy(src.yunits)
-    target.zunits=copy.copy(src.zunits)
-    target.tunits=copy.copy(src.tunits)
-    target.xvalue=copy.copy(src.xvalue)
-    target.yvalue=copy.copy(src.yvalue)
-    target.zvalue=copy.copy(src.zvalue)
-    target.tvalue=copy.copy(src.tvalue)
-    target.mean=copy.copy(src.mean)
-    target.min=copy.copy(src.min)
-    target.max=copy.copy(src.max)
-    target.xtic1=copy.copy(src.xtic1)
-    target.xtic2=copy.copy(src.xtic2)
-    target.xmintic1=copy.copy(src.xmintic1)
-    target.xmintic2=copy.copy(src.xmintic2)
-    target.ytic1=copy.copy(src.ytic1)
-    target.ytic2=copy.copy(src.ytic2)
-    target.ymintic1=copy.copy(src.ymintic1)
-    target.ymintic2=copy.copy(src.ymintic2)
-    target.xlabel1=copy.copy(src.xlabel1)
-    target.xlabel2=copy.copy(src.xlabel2)
-    target.ylabel1=copy.copy(src.ylabel1)
-    target.ylabel2=copy.copy(src.ylabel2)
-    target.box1=copy.copy(src.box1)
-    target.box2=copy.copy(src.box2)
-    target.box3=copy.copy(src.box3)
-    target.box4=copy.copy(src.box4)
-    target.line1=copy.copy(src.line1)
-    target.line2=copy.copy(src.line2)
-    target.line3=copy.copy(src.line3)
-    target.line4=copy.copy(src.line4)
-    target.legend=copy.copy(src.legend)
-    target.data=copy.copy(src.data)
+    target.orientation = src.orientation
+    target.file = copy.copy(src.file)
+    target.function = copy.copy(src.function)
+    target.logicalmask = copy.copy(src.logicalmask)
+    target.transformation = copy.copy(src.transformation)
+    target.source = copy.copy(src.source)
+    target.dataname = copy.copy(src.dataname)
+    target.title = copy.copy(src.title)
+    target.units = copy.copy(src.units)
+    target.crdate = copy.copy(src.crdate)
+    target.crtime = copy.copy(src.crtime)
+    target.comment1 = copy.copy(src.comment1)
+    target.comment2 = copy.copy(src.comment2)
+    target.comment3 = copy.copy(src.comment3)
+    target.comment4 = copy.copy(src.comment4)
+    target.xname = copy.copy(src.xname)
+    target.yname = copy.copy(src.yname)
+    target.zname = copy.copy(src.zname)
+    target.tname = copy.copy(src.tname)
+    target.xunits = copy.copy(src.xunits)
+    target.yunits = copy.copy(src.yunits)
+    target.zunits = copy.copy(src.zunits)
+    target.tunits = copy.copy(src.tunits)
+    target.xvalue = copy.copy(src.xvalue)
+    target.yvalue = copy.copy(src.yvalue)
+    target.zvalue = copy.copy(src.zvalue)
+    target.tvalue = copy.copy(src.tvalue)
+    target.mean = copy.copy(src.mean)
+    target.min = copy.copy(src.min)
+    target.max = copy.copy(src.max)
+    target.xtic1 = copy.copy(src.xtic1)
+    target.xtic2 = copy.copy(src.xtic2)
+    target.xmintic1 = copy.copy(src.xmintic1)
+    target.xmintic2 = copy.copy(src.xmintic2)
+    target.ytic1 = copy.copy(src.ytic1)
+    target.ytic2 = copy.copy(src.ytic2)
+    target.ymintic1 = copy.copy(src.ymintic1)
+    target.ymintic2 = copy.copy(src.ymintic2)
+    target.xlabel1 = copy.copy(src.xlabel1)
+    target.xlabel2 = copy.copy(src.xlabel2)
+    target.ylabel1 = copy.copy(src.ylabel1)
+    target.ylabel2 = copy.copy(src.ylabel2)
+    target.box1 = copy.copy(src.box1)
+    target.box2 = copy.copy(src.box2)
+    target.box3 = copy.copy(src.box3)
+    target.box4 = copy.copy(src.box4)
+    target.line1 = copy.copy(src.line1)
+    target.line2 = copy.copy(src.line2)
+    target.line3 = copy.copy(src.line3)
+    target.line4 = copy.copy(src.line4)
+    target.legend = copy.copy(src.legend)
+    target.data = copy.copy(src.data)
 
-def array_strings(template, array):
-    attrs = [
-        "file",
-        "function",
-        "logicalmask",
-        "transformation",
-        "source",
-        "dataname",
-        "title",
-        "units",
-        "crdate",
-        "crtime",
-        "comment1",
-        "comment2",
-        "comment3",
-        "comment4",
-        "xname",
-        "yname",
-        "zname",
-        "tname",
-        "xunits",
-        "yunits",
-        "zunits",
-        "tunits",
-        "xvalue",
-        "yvalue",
-        "zvalue",
-        "tvalue",
-        "mean",
-        "min",
-        "max",
-        "xtic1",
-        "xtic2",
-        "xmintic1",
-        "xmintic2",
-        "ytic1",
-        "ytic2",
-        "ymintic1",
-        "ymintic2",
-        "xlabel1",
-        "xlabel2",
-        "ylabel1",
-        "ylabel2",
-        "box1",
-        "box2",
-        "box3",
-        "box4",
-        "line1",
-        "line2",
-        "line3",
-        "line4",
-        "legend",
-        "data",
-    ]
-
-    template = t(template)
-
-    strings = {}
-    for attr in attrs:
-        try:
-            attribute = getattr(template, attr)
-
-            if is_label(attribute):
-                strings[attr] = editors.label.get_label_text(attribute, array)
-        except AttributeError:
-            pass
-
-    return strings
 
 class Configurator(object):
-    def __init__(self, canvas, show_on_update=False):
+    def __init__(self, canvas):
         self.canvas = canvas
         self.backend = canvas.backend
-        self.show_on_update = show_on_update
         self.interactor = None
         self.display_strings = {}
         self.displays = []
@@ -160,15 +94,47 @@ class Configurator(object):
         self.line_button = None
         self.marker_button = None
         self.initialized = False
-        self.animation_speed = 250
+        self.animation_speed = 5
         self.animation_timer = None
+        self.save_timer = None
+        self.save_listener = None
+        self.save_anim_button = None
+        self.anim_button = None
         self.listeners = []
         self.animation_last_frame_time = datetime.datetime.now()
+        self.picker = vtk.vtkPropPicker()
         # Map custom templates to their source template
         self.templates = {}
 
         self.creating = False
         self.click_locations = None
+
+    @property
+    def render_window(self):
+        if self.interactor is not None:
+            return self.interactor.GetRenderWindow()
+        return self.backend.renWin
+
+    def get_save_path(self, default_name='', dialog_name="Save File"):
+        import os.path
+        user_home = os.path.expanduser("~")
+
+        output_dir = os.path.join(user_home, ".uvcdat", "animation")
+        if os.path.exists(output_dir) == False:
+            os.mkdir(output_dir)
+        # We'll just use .uvcdat– this is a headless install
+        path = os.path.join(output_dir, default_name)
+
+        p_index = 0
+        directory, filename = os.path.split(path)
+        filename, extension = os.path.splitext(filename)
+        while os.path.exists(path):
+            path = os.path.join(directory, filename + "_" + str(p_index) + extension)
+            p_index += 1
+        print "Saving to " + path
+
+        return path
+
 
     def shift(self):
         return self.interactor.GetShiftKey() == 1
@@ -176,73 +142,38 @@ class Configurator(object):
     def update(self):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
-            self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
-            self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
-            self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
-            self.init_buttons()
-            self.init_toolbar()
-
-        self.place()
+            if self.interactor is not None:
+                self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
+                self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
+                self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
+                self.init_buttons()
+                self.init_toolbar()
 
         self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
-
         for display in self.displays:
 
             if display._template_origin in self.templates:
-                # Adjust data coords if display.ratio is not none
-                if display.ratio is not None:
-                    t = vcs.gettemplate(display.template)
-                    orig = vcs.gettemplate(self.templates[display._template_origin])
-                    t.data._ratio  = -999.
-                    t.data._x1     = orig.data._x1
-                    t.data._x2     = orig.data._x2
-                    t.data._y1     = orig.data._y1
-                    t.data._y2     = orig.data._y2
-                    t.box1._x1     = orig.box1._x1
-                    t.box1._x2     = orig.box1._x2
-                    t.box1._y1     = orig.box1._y1
-                    t.box1._y2     = orig.box1._y2
-                    t.xlabel1._y   = orig.xlabel1._y
-                    t.xlabel2._y   = orig.xlabel2._y
-                    t.xtic2._y1    = orig.xtic2._y1
-                    t.ylabel1._x   = orig.ylabel1._x
-                    t.ytic1._x1    = orig.ytic1._x1
-                    t.ylabel2._x   = orig.ylabel2._x
-                    t.ytic2._x1    = orig.ytic2._x1
-                    t.xtic1._y2    = orig.xtic1._y2
-                    t.xtic1._y1    = orig.xtic1._y1
-                    t.data._y1     = orig.data._y1
-                    t.xtic1.y1     = orig.xtic1.y1
-                    t.xtic2._y2    = orig.xtic2._y2
-                    t.data._y2     = orig.data._y2
-                    t.xtic2.y1     = orig.xtic2.y1
-                    t.xmintic1._y2 = orig.xmintic1._y2
-                    t.xmintic1._y1 = orig.xmintic1._y1
-                    t.xmintic2._y2 = orig.xmintic2._y2
-                    t.xmintic2._y1 = orig.xmintic2._y1
-                    t.ytic1._x2    = orig.ytic1._x2
-                    t.data._x1     = orig.data._x1
-                    t.ytic2._x2    = orig.ytic2._x2
-                    t.data._x2     = orig.data._x2
-                    t.ymintic1._x2 = orig.ymintic1._x2
-                    t.ymintic1._x1 = orig.ymintic1._x1
-                    t.ymintic2._x2 = orig.ymintic2._x2
-                    t.ymintic2._x1 = orig.ymintic2._x1
-                # It already has a template we created
                 continue
-            # Manufacture a placeholder template to use for updates
-            new_template = vcs.createtemplate(source=display.template)
-            self.templates[new_template.name] = display.template
-            display.template = new_template.name
-            # This is an attribute used internally; might break
-            display._template_origin = new_template.name
 
-        if self.show_on_update:
-            self.show()
-            self.show_on_update = False
+            if display.ratio is not None:
+                # Ratio'd displays already have a temporary template
+                self.templates[display.template] = display._template_origin
+            else:
+                # Manufacture a placeholder template to use for updates
+                new_template = vcs.createtemplate(source=display.template)
+                self.templates[new_template.name] = display.template
+                display.template = new_template.name
+                # This is an attribute used internally; might break
+                display._template_origin = new_template.name
 
     def detach(self):
+        if self.interactor is None:
+            return
+
+        if self.animation_timer is not None:
+            self.stop_animating()
+
         if self.toolbar is not None:
             self.toolbar.detach()
             self.toolbar = None
@@ -259,50 +190,111 @@ class Configurator(object):
             self.marker_button.detach()
             self.marker_button = None
 
+        if self.target is not None:
+            self.target.detach()
+            self.target = None
+
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
+
+        # if all of the widgets have been cleaned up correctly, this will delete the manager
+        vtk_ui.manager.delete_manager(self.interactor)
+        self.render_window.Render()
 
     def release(self, object, event):
         if self.clicking is None:
             return
 
         if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
-
             point = self.clicking[0]
             self.clicking = None
+
             if self.creating:
                 self.click_locations.append(point)
                 if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
                     self.create()
                 return
 
-            if self.target and self.shift() == False and self.target.handle_click(point):
+            if self.target and self.shift() is False and self.target.handle_click(point):
                 return
 
             if self.shift() and type(self.target) != editors.group.GroupEditor:
                 self.target = editors.group.GroupEditor(self.interactor, (self.target,))
 
-            clicked = None
-            display_clicked = None
-            for display in self.displays:
-                obj = self.in_display_plot(point, display)
-                if obj is not None and (clicked is None or obj.priority >= clicked.priority):
-                    clicked = obj
-                    display_clicked = display
-            if clicked:
-                if self.target is None or self.target.is_object(clicked) == False:
-                    self.activate(clicked, display_clicked)
-                elif self.shift() and self.target.contains_object(clicked):
-                    self.target.remove_object(clicked)
-                    if len(self.target.targets) == 0:
-                        self.target.detach()
-                        self.target = None
-                        self.save()
-            elif self.target is not None and self.shift() == False:
+            clicked_actor = self.actor_at_point(*point)
+
+            if clicked_actor is None and self.target:
                 self.deactivate(self.target)
-            self.interactor.GetRenderWindow().Render()
+                return
+
+            if clicked_actor is None:
+                return
+
+            display, key = self.display_and_key_for_actor(clicked_actor)
+            if editable_type(display, key):
+                # Some methods (markers) have more than one actor per displayed item
+                if clicked_actor != display.backend[key] and clicked_actor not in display.backend[key]:
+                    for group in display.backend[key]:
+                        if clicked_actor in group:
+                            clicked_actor = group
+                            break
+
+                self.activate(display, clicked_actor, key)
 
         self.clicking = None
+
+    def display_and_key_for_actor(self, actor):
+        """
+        Iterates across the displays, and tries to find the actor in the backend.
+        """
+        for display in self.displays:
+            for key in display.backend:
+                try:
+                    """
+                    display.backend[key] will contain either:
+                        A) An actor
+                        B) A list of actors
+                        C) A list of tuples that include actors
+                    """
+                    actor_in_backend = actor == display.backend[key]
+                    if not actor_in_backend:
+                        actor_in_backend = actor in display.backend[key]
+                    if not actor_in_backend:
+                        actor_in_backend = len([True for group in display.backend[key] if actor in group]) > 0
+                except TypeError:
+                    actor_in_backend = False
+                if actor_in_backend:
+                    return display, key
+            else:
+                continue
+            break
+        else:
+            return None, None
+
+
+    def actor_at_point(self, x, y):
+        """
+        Iterates all renderers, checks if there's an actor at the point
+        """
+        obj = None
+        layer_obj = 0
+
+        for ren in vtkIterate(self.render_window.GetRenderers()):
+            layer = ren.GetLayer()
+
+            if self.interactor is not None:
+                manager = vcs.vtk_ui.manager.get_manager(self.interactor)
+                if ren == manager.actor_renderer or ren == manager.renderer:
+                    continue
+
+            if obj is not None and layer < layer_obj:
+                continue
+
+            if self.picker.PickProp(x, y, ren):
+                obj = self.picker.GetViewProp()
+                layer_obj = layer
+
+        return obj
 
     def hover(self, object,event):
         if self.clicking is not None:
@@ -310,38 +302,41 @@ class Configurator(object):
 
         point = self.interactor.GetEventPosition()
 
-        if self.target:
-            if self.target.handle_click(point):
-                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_CROSSHAIR)
-                else:
-                    self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
-                return
+        actor = self.actor_at_point(*point)
+        window = self.render_window
+
+        new_cursor = vtk.VTK_CURSOR_DEFAULT
+        if actor is None:
+            man = vtk_ui.manager.get_manager(self.interactor)
+            if man.widget_at_point(*point):
+                new_cursor = vtk.VTK_CURSOR_HAND
         else:
-            if self.toolbar.in_toolbar(*point):
-                return
+            if self.target and self.target.handle_click(point):
+                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
+                    new_cursor = vtk.VTK_CURSOR_CROSSHAIR
+                else:
+                    new_cursor = vtk.VTK_CURSOR_HAND
+            else:
+                display, key = self.display_and_key_for_actor(actor)
 
-        if self.marker_button.in_bounds(*point) or self.text_button.in_bounds(*point):
-            return
+                if display is not None and editable_type(display, key):
+                    new_cursor = vtk.VTK_CURSOR_HAND
 
-        for display in self.displays:
-            obj = self.in_display_plot(point, display)
-            if obj is not None:
-                self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_HAND)
-                return
-
-        self.interactor.GetRenderWindow().SetCurrentCursor(vtk.VTK_CURSOR_DEFAULT)
-
+        window.SetCurrentCursor(new_cursor)
 
     def click(self, object, event):
         self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
 
     def show(self):
-        if len(self.displays) == 0:
+        if self.interactor is None:
             return
+        self.place()
         self.toolbar.show()
         self.marker_button.show()
         self.text_button.show()
+        man = vtk_ui.manager.get_manager(self.interactor)
+        man.elevate()
+        self.interactor.Render()
         #self.fill_button.show()
         #self.line_button.show()
 
@@ -375,35 +370,26 @@ class Configurator(object):
         if self.target:
             self.target.place()
 
-    def activate(self, obj, display):
-        if self.target is not None and self.shift() == False:
+    def activate(self, display, actor, key):
+        if self.target is not None and self.shift() is False:
             self.deactivate(self.target)
 
         self.toolbar.hide()
 
-        if display.g_type == "fillarea":
-            editor = editors.fillarea.FillEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "line":
-            editor = editors.line.LineEditor(self.interactor, obj, self.clicked_info, self)
-        elif display.g_type == "marker":
-            editor = editors.marker.MarkerEditor(self.interactor, obj, self.clicked_info, display, self)
+        if display.g_type == "marker":
+            l = display.backend[key]
+            # Actor is actually a group of VTK objects
+            index = l.index(actor)
+            editor = editors.marker.MarkerEditor(self.interactor, vcs.getmarker(display.g_name), index, display, self)
         elif display.g_type == "text":
-            editor = editors.text.TextEditor(self.interactor, obj, self.clicked_info, display, self)
+            l = display.backend[key]
+            index = l.index(actor)
+            editor = editors.text.TextEditor(self.interactor, vcs.gettext(display.g_name), index, display, self)
+        elif is_label(key):
+            obj = get_attribute(display, key)
+            editor = editors.label.LabelEditor(self.interactor, obj, display, self)
         else:
-            if is_box(obj):
-                if obj.member == "legend":
-                    editor = editors.legend.LegendEditor(self.interactor, t(display.template), self)
-                elif obj.member == "data":
-                    editor = editors.data.DataEditor(self.interactor, vcs.getgraphicsmethod(display.g_type, display.g_name), t(display.template), self)
-                else:
-                    editor = editors.box.BoxEditor(self.interactor, obj, self)
-            else:
-                if is_label(obj):
-                    editor = editors.label.LabelEditor(self.interactor, obj, display, self)
-                elif is_point(obj):
-                    editor = editors.point.PointEditor(self.interactor, obj, self)
-                else:
-                    editor = None
+            editor = None
 
         if self.target:
             self.target.add_target(editor)
@@ -411,50 +397,13 @@ class Configurator(object):
             self.target = editor
 
 
-
-    def in_display_plot(self, point, dp):
-        #Normalize the point
-        x, y = point
-        w, h = self.interactor.GetRenderWindow().GetSize()
-        if x > 1 or y > 1:
-            point = (x / float(w), y / float(h))
-            x, y = point
-
-        if dp.g_type == "fillarea":
-            fill = vcs.getfillarea(dp.g_name)
-            info = editors.fillarea.inside_fillarea(fill, *point)
-            if info is not None:
-                self.clicked_info = info
-                return fill
-        elif dp.g_type == "line":
-            l = vcs.getline(dp.g_name)
-            # Uses screen_height to determine how much buffer space there is around the line
-            info = editors.line.inside_line(l, *point, screen_height=h)
-            if info is not None:
-                self.clicked_info = info
-                return l
-        elif dp.g_type == "marker":
-            m = vcs.getmarker(dp.g_name)
-            info = editors.marker.inside_marker(m, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return m
-        elif dp.g_type == "text":
-            tc = vcs.gettextcombined(dp.g_name)
-            info = editors.text.inside_text(tc, point[0], point[1], w, h)
-            if info is not None:
-                self.clicked_info = info
-                return tc
-        else:
-            fudge = 5 / float(w)
-            return in_template(point, t(dp.template), dp, (w, h), fudge=fudge)
-
     def save(self):
         if self.changed:
             self.canvas.update()
             self.changed = False
         else:
-            self.interactor.GetRenderWindow().Render()
+            self.render_window.Render()
+        self.canvas.animate.reset()
 
     def init_toolbar(self):
         self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)
@@ -503,38 +452,118 @@ class Configurator(object):
           logo_button.set_state(1)
 
     def setup_animation(self):
-        self.canvas.animate.create()
-        if self.initialized == False:
+        if self.initialized is False and [True for d in self.displays if display_supports_animation(d)]:
+            self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
-            anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
-            anim_toolbar.add_slider_button(0, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
-            anim_toolbar.add_slider_button(4, 1, 30, "Frames Per Second", update=self.set_animation_speed)
+            self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
+            anim_toolbar.add_button(["Step Backward"], action=self.step_back)
+
+            def get_frame():
+                return self.canvas.animate.frame_num
+            anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
+            anim_toolbar.add_slider_button(self.animation_speed, 1, 100, "Speed (Step Delay)", update=self.set_animation_speed)
+            self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
+
+    def step_forward(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+
+    def step_back(self, state):
+        if self.animation_timer is not None:
+            self.stop_animating()
+        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+
+    def save_animation_press(self, state):
+        if state == 1:
+            if self.animation_timer:
+                self.stop_animating()
+                self.anim_button.set_state(0)
+            self.save_listener = self.interactor.AddObserver("TimerEvent", self.save_tick)
+            self.save_timer = self.interactor.CreateRepeatingTimer(10)
+        else:
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+            self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+
+
+    def save_animation(self):
+        # Save the animation
+        self.canvas.animate.fps(int(1000.0 / self.animation_speed))
+
+        data_titles = {}
+        name_to_type = {}
+        # Iterate the displays and create a name for the animation
+        for display in self.displays:
+            name_to_type[display.g_name] = display.g_type
+
+            for array in display.array:
+                if array is not None:
+                    if display.g_name not in data_titles:
+                        data_titles[display.g_name] = []
+                    data_titles[display.g_name].append("_".join(array.title.split()))
+
+        plot_names = [name_to_type[d_name]+ "_" + "-".join(data_titles[d_name]) for d_name in data_titles]
+        name = "__".join(plot_names) + ".mp4"
+        save_path = self.get_save_path(name)
+        if save_path == '':
+            return
+
+        self.canvas.animate.save(save_path)
+        self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+        self.save_anim_button.set_state(0)
+
+
+    def save_tick(self, obj, event):
+        if self.save_timer is None or self.save_listener is None:
+            return
+
+        if self.canvas.animate.number_of_frames() == len(self.canvas.animate.animation_files):
+            self.save_animation()
+            if self.save_timer:
+                self.interactor.DestroyTimer(self.save_timer)
+                self.save_timer = None
+            if self.save_listener:
+                self.interactor.RemoveObserver(self.save_listener)
+                self.save_listener = None
+        else:
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
+
 
     def set_animation_speed(self, value):
         v = int(value)
-        self.animation_speed = int(1000.0 / v)
+        self.animation_speed = 10 * v
         if self.animation_timer is not None:
             self.interactor.DestroyTimer(self.animation_timer)
             self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, int(.9 * self.animation_speed)):
+        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
             self.animation_last_frame_time = datetime.datetime.now()
-            self.canvas.animate.draw_frame(self.canvas.animate.frame_num + 1)
-            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
 
     def start_animating(self):
-        self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+        if self.animation_timer is None:
+            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
 
     def stop_animating(self):
-        self.interactor.DestroyTimer(self.animation_timer)
-        self.animation_timer = None
+        if self.animation_timer is not None:
+            t, self.animation_timer = self.animation_timer, None
+            self.interactor.DestroyTimer(t)
+            self.anim_button.set_state(0)
 
     def set_animation_frame(self, value):
+        if self.animation_timer is not None:
+            self.stop_animating()
         value = int(value)
-        self.canvas.animate.draw_frame(value)
+        self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
         return value
 
     def set_background_red(self, value):
@@ -573,11 +602,7 @@ class Configurator(object):
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
 
-        #self.fill_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix,"share","vcs","fill_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.fill_click)
         self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click, tooltip="Create Text: click to place.", tooltip_property=prop)
-
-        #self.line_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "line_icon.png"), top=10, left=116, halign=vtk_ui.button.RIGHT_ALIGN, action=self.line_click)
-
         self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click, tooltip="Create Marker: click to place.", tooltip_property=prop)
 
 
@@ -585,7 +610,7 @@ class Configurator(object):
         if self.target is not None:
             self.deactivate(self.target)
 
-        buttons = [self.fill_button, self.text_button, self.line_button, self.marker_button]
+        buttons = [self.text_button, self.marker_button]
         buttons.remove(button)
 
         if self.creating:
@@ -635,7 +660,7 @@ class Configurator(object):
             self.creator_disabled(self.fill_button)
 
     def create(self):
-        w, h = self.interactor.GetRenderWindow().GetSize()
+        w, h = self.render_window.GetSize()
 
         x = []
         y = []
@@ -644,155 +669,51 @@ class Configurator(object):
             x.append(point[0] / float(w))
             y.append(point[1] / float(h))
 
-        created = None
-
-        if self.creating == CREATING_FILL:
-            fill = self.canvas.createfillarea()
-            fill.x = x
-            fill.y = y
-            created = fill
-            self.fill_button.set_state(0)
-            dp = self.canvas.fillarea(fill)
-        elif self.creating == CREATING_TEXT:
+        if self.creating == CREATING_TEXT:
             t = self.canvas.createtextcombined()
             t.x = x
             t.y = y
-            t.string = ["New Text"]
-            created = t
+            t.string = ["Click to Edit"]
             self.text_button.set_state(0)
             dp = self.canvas.text(t)
+            key = "vtk_backend_text_actors"
         elif self.creating == CREATING_MARKER:
             m = self.canvas.createmarker()
             m.x = x
             m.y = y
             m.size = [10]
-            created = m
             self.marker_button.set_state(0)
             dp = self.canvas.marker(m)
-        elif self.creating == CREATING_LINE:
-            l = self.canvas.createline()
-            l.x = x
-            l.y = y
-            created = l
-            self.line_button.set_state(0)
-            dp = self.canvas.line(l)
+            key = "vtk_backend_marker_actors"
 
         # Activate an editor for the new object
-        self.clicked_info = 0
-        self.activate(created, dp)
+        self.activate(dp, dp.backend[key][0], key)
 
         self.creating = False
         self.click_locations = None
 
+def get_attribute(display, backend_key):
+    key = backend_key.split("_")[2]
+    template = vcstemp(display.template)
+    if key in ("Min", "Max", "Mean"):
+        return getattr(template, key.lower())
+    else:
+        return getattr(template, key)
 
-def t(name):
+
+def vcstemp(name):
+    """
+    Retrieves template by name
+    """
     return vcs.gettemplate(name)
 
-def is_label(obj):
-    return type(obj) in (vcs.Pformat.Pf, vcs.Ptext.Pt)
 
-def in_template(point, template, dp, window_size, fudge=None):
-    x, y = point
+def display_supports_animation(d):
+    return d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")
 
-    attrs = [
-        "file",
-        "function",
-        "logicalmask",
-        "transformation",
-        "source",
-        "dataname",
-        "title",
-        "units",
-        "crdate",
-        "crtime",
-        "comment1",
-        "comment2",
-        "comment3",
-        "comment4",
-        "xname",
-        "yname",
-        "zname",
-        "tname",
-        "xunits",
-        "yunits",
-        "zunits",
-        "tunits",
-        "xvalue",
-        "yvalue",
-        "zvalue",
-        "tvalue",
-        "mean",
-        "min",
-        "max",
-        "xtic1",
-        "xtic2",
-        "xmintic1",
-        "xmintic2",
-        "ytic1",
-        "ytic2",
-        "ymintic1",
-        "ymintic2",
-        "xlabel1",
-        "xlabel2",
-        "ylabel1",
-        "ylabel2",
-        "box1",
-        "box2",
-        "box3",
-        "box4",
-        "line1",
-        "line2",
-        "line3",
-        "line4",
-        "legend",
-        "data",
-    ]
 
-    intersecting = None
-
-    for attr in attrs:
-        attribute = getattr(template, attr)
-        if attribute.priority == 0 or (intersecting is not None and intersecting.priority > attribute.priority):
-            # 0 is turned off
-            continue
-        t_x = safe_get(attribute, "x")
-        t_y = safe_get(attribute, "y")
-
-        if t_x is not None or t_y is not None:
-            if t_x is not None and t_y is not None:
-                # It's probably a text blob
-                if is_label(attribute):
-                    text = editors.label.get_label_text(attribute, dp)
-                    if text == '':
-                        continue
-                    if editors.label.inside_label(attribute, text, x, y, *window_size):
-                        intersecting = attribute
-                elif is_point_in_box((x, y), ((t_x - fudge, t_y - fudge), (t_x + fudge, t_y + fudge))):
-                    intersecting = attribute
-            else:
-                pass
-                """ Uncomment to enable axis editors
-                # It's probably the labels for an axis
-                if t_x is not None and t_x < x + fudge and t_x > x - fudge:
-                    intersecting = attribute
-                elif t_y is not None and t_y < y + fudge and t_y > y - fudge:
-                    intersecting = attribute
-                """
-        else:
-            pass
-            """ Uncomment to reenable the box editors
-            x1 = safe_get(attribute, "x1")
-            y1 = safe_get(attribute, "y1")
-            x2 = safe_get(attribute, "x2")
-            y2 = safe_get(attribute, "y2")
-
-            if None in (x1, y1, x2, y2):
-                continue
-            else:
-                if is_point_in_box((x, y), ((min(x1, x2), min(y1, y2)), (max(x1, x2), max(y1, y2)))):
-                    intersecting = attribute
-            """
-    return intersecting
+def is_label(key):
+    return "_text_actor" == key[-11:]
 
 def is_box(member):
     x1 = safe_get(member, "x1")
@@ -829,3 +750,6 @@ def safe_get(obj, attr, sentinel=None):
         return getattr(obj, attr)
     except AttributeError:
         return sentinel
+
+def editable_type(display, key):
+    return display.g_type in ("marker", "text") or is_label(key)

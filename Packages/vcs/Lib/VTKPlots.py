@@ -50,14 +50,15 @@ class VTKVCSBackend(object):
     self._plot_keywords = [ 'renderer','vtk_backend_grid','vtk_backend_geo', 'cdmsfile', 'cell_coordinates' ]
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
+    self.clickRenderer = None
 
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
+
     if sys.platform == "darwin":
         self.reRender = False
-        self.clickRenderer = None
         self.oldCursor = None
 
 
@@ -84,6 +85,7 @@ class VTKVCSBackend(object):
           warnings.warn("Cannot start interaction. Blank plot?")
           return
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
+      self.showGUI()
       interactor.Start()
 
   def endEvent(self,obj,event):
@@ -112,7 +114,7 @@ class VTKVCSBackend(object):
         continue
       t=vcs.elements["template"][d.template]
       gm = vcs.elements[d.g_type][d.g_name]
-      if t.data.x1<=x<=t.data.x2 and t.data.y1<=y<=t.data.y2:
+      if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
         ## Ok we clicked within template
         if numpy.allclose(gm.datawc_x1,1.e20):
           x1 = d.array[0].getAxis(-1)[0]
@@ -150,6 +152,8 @@ class VTKVCSBackend(object):
                 st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
         except:
             st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
+    if st == "":
+        return
     ren = vtk.vtkRenderer()
     ren.SetBackground(.96,.96,.86)
     ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
@@ -173,7 +177,7 @@ class VTKVCSBackend(object):
     ren.AddActor(a2d)
     ren.AddActor(a)
     ren.ResetCamera()
-    self.clickRenderer= ren
+    self.clickRenderer = ren
     self.renWin.AddRenderer(ren)
     self.renWin.Render()
 
@@ -182,6 +186,7 @@ class VTKVCSBackend(object):
       self.clickRenderer.RemoveAllViewProps()
       self.renWin.RemoveRenderer(self.clickRenderer)
       self.renWin.Render()
+      self.clickRenderer = None
 
   def configureEvent(self,obj,ev):
     cursor = self.renWin.GetCurrentCursor()
@@ -197,13 +202,12 @@ class VTKVCSBackend(object):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
-      if self.renWin is not None and sys.platform == "darwin":
-        self.renWin.Render()
       return
-    interactor = self.renWin.GetInteractor()
+
     self._lastSize = sz
     plots_args = []
     key_args =[]
+
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       parg = []
@@ -222,43 +226,45 @@ class VTKVCSBackend(object):
     # Have to pull out the UI layer so it doesn't get borked by the clear
     self.hideGUI()
 
-    self.canvas.clear()
-    for i, pargs in enumerate(plots_args):
-      self.canvas.plot(*pargs,**key_args[i])
+    self.canvas.clear(render=False)
 
-    if self.canvas.animate.created():
-      self.canvas.animate.draw_frame()
+    for i, pargs in enumerate(plots_args):
+      self.canvas.plot(*pargs, render = False, **key_args[i])
+
+    if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
+      self.canvas.animate.draw_frame(allow_static = False, render_offscreen=False)
 
     self.showGUI()
 
     if self.renWin.GetSize()!=(0,0):
       self.scaleLogo()
-    if self.renWin is not None and sys.platform == "darwin":
-      self.renWin.Render()
-    if sys.platform == "darwin":
-        ## On mac somehow we need to issue an extra Render after resize
-        # If ev is None, then the update() was called, and we only need to render once.
-        if ev is not None:
-          self.reRender = True
 
-  def clear(self):
+    self.renWin.Render()
+
+  def clear(self, render=True):
     if self.renWin is None: #Nothing to clear
           return
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     hasValidRenderer = True if ren is not None else False
+
+    for gm in self.plotApps:
+      app = self.plotApps[gm]
+      app.plot.quit()
+
+    self.hideGUI()
     while ren is not None:
-        if not ren in self.plotRenderers:
-            ren.RemoveAllViewProps()
-            if not ren.GetLayer()==0:
-              self.renWin.RemoveRenderer(ren)
-            else:
-              #Update background color
-              r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
-              ren.SetBackground(r,g,b)
+        ren.RemoveAllViewProps()
+        if not ren.GetLayer()==0:
+          self.renWin.RemoveRenderer(ren)
+        else:
+          #Update background color
+          r,g,b = [c / 255. for c in self.canvas.backgroundcolor]
+          ren.SetBackground(r,g,b)
         ren = renderers.GetNextItem()
-    if hasValidRenderer and self.renWin.IsDrawable():
+    self.showGUI()
+    if hasValidRenderer and self.renWin.IsDrawable() and render:
         self.renWin.Render()
     self.numberOfPlotCalls = 0
     self.logoRenderer = None
@@ -291,9 +297,11 @@ class VTKVCSBackend(object):
 
     if self.renderer == None:
       self.renderer = self.createRenderer()
-      if self.bg is False:
+      if self.bg != True:
           self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
+    if "open" in kargs and kargs["open"]:
+      self.renWin.Render()
 
   def createRenderer(self, *args, **kargs):
       # For now always use the canvas background
@@ -305,7 +313,27 @@ class VTKVCSBackend(object):
   def update(self, *args, **kargs):
     self._lastSize=-1
     if self.renWin:
-      self.configureEvent(None,None)
+      if self.get3DPlot():
+        plots_args = []
+        key_args =[]
+        for dnm in self.canvas.display_names:
+          d=vcs.elements["display"][dnm]
+          parg = []
+          for a in d.array:
+            if a is not None:
+              parg.append(a)
+          parg.append(d._template_origin)
+          parg.append(d.g_type)
+          parg.append(d.g_name)
+          plots_args.append(parg)
+          if d.ratio is not None:
+              key_args.append({"ratio":d.ratio})
+          else:
+              key_args.append({})
+        for i, args in enumerate(plots_args):
+            self.canvas.plot(*args, **key_args[i])
+      else:
+        self.configureEvent(None,None)
 
   def canvasinfo(self):
     if self.renWin is None:
@@ -362,6 +390,7 @@ class VTKVCSBackend(object):
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+      self._lastSize = (self.canvas.bgX, self.canvas.bgY)
 
   def open(self):
     self.createRenWin( open=True )
@@ -434,13 +463,13 @@ class VTKVCSBackend(object):
       returned.update(self.plot3D(data1,data2,tpl,gm,ren,**kargs))
     elif gtype in ["text"]:
       if tt.priority!=0:
-        if not (None,None,None) in self._renderers.keys():
-            ren = self.createRenderer()
-            self.renWin.AddRenderer(ren)
-            self.setLayer(ren,1)
-            self._renderers[(None,None,None)]=ren
-        else:
-            ren = self._renderers[(None,None,None)]
+        #if not (None,None,None) in self._renderers.keys():
+        ren = self.createRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,1)
+        #    self._renderers[(None,None,None)]=ren
+        #else:
+        #    ren = self._renderers[(None,None,None)]
         returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(ren,to=to,tt=tt)
         self.setLayer(ren,tt.priority)
     elif gtype=="line":
@@ -448,28 +477,22 @@ class VTKVCSBackend(object):
         actors = vcs2vtk.prepLine(self.renWin,gm)
         returned["vtk_backend_line_actors"]=actors
         for act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-            ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
     elif gtype=="marker":
       if gm.priority!=0:
         actors = vcs2vtk.prepMarker(self.renWin,gm)
         returned["vtk_backend_marker_actors"]=actors
         for g,gs,pd,act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-            ren.AddActor(act)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
             if pd is None and act.GetUserTransform():
               vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
-            self.setLayer(ren,gm.priority)
 
     elif gtype=="fillarea":
       if gm.priority!=0:
         actors = vcs2vtk.prepFillarea(self.renWin,gm)
         returned["vtk_backend_fillarea_actors"]=actors
         for act,geo in actors:
-            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo)
-            ren.AddActor(act)
-            self.setLayer(ren,gm.priority)
+            ren = self.fitToViewport(act,gm.viewport,wc=gm.worldcoordinate,geo=geo,priority=gm.priority)
     elif gtype=="1d":
       #self.renWin.AddRenderer(ren)
       returned.update(self.plot1D(data1,data2,tpl,gm))
@@ -478,7 +501,7 @@ class VTKVCSBackend(object):
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.scaleLogo()
-    if not kargs.get("donotstoredisplay",False):
+    if not kargs.get("donotstoredisplay",False) and kargs.get("render", True):
       self.renWin.Render()
     return returned
 
@@ -587,11 +610,10 @@ class VTKVCSBackend(object):
     return {}
 
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*10000 + 1
+    n = self.numberOfPlotCalls + (priority-1)*200 + 1
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
-    pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
@@ -701,11 +723,7 @@ class VTKVCSBackend(object):
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs.utils.getworldcoordinates(gm,data1.getAxis(-1),data1.getAxis(-2))
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-    ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-    if tmpl.data.priority!=0:
-        ren.AddActor(act)
-        self.setLayer(ren,tmpl.data.priority)
-    ren.AddActor(act)
+    ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2],priority=tmpl.data.priority)
     returned.update(self.renderTemplate(tmpl,data1,gm,taxis,zaxis))
     if self.canvas._continents is None:
       continents = False
@@ -802,16 +820,24 @@ class VTKVCSBackend(object):
           cot.SetInputData(vtk_backend_grid)
 
       levs = gm.levels
-      if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
-        levs = vcs.mkscale(mn,mx)
-        if len(levs)==1: # constant value ?
-          levs = [levs[0],levs[0]+.00001]
-        Ncolors = len(levs)
-        if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
+      if numpy.allclose( levs[0],[0.,1.e20]) or numpy.allclose(levs,1.e20):
+        if isinstance(gm,isoline.Gi):
+            levs = vcs.mkscale(mn,mx)
+            if len(levs)==1: # constant value ?
+              levs = [levs[0],levs[0]+.00001]
+            Ncolors = len(levs)
+        else:
           levs2 = vcs.mkscale(mn,mx)
           if len(levs2)==1: # constant value ?
             levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
+          # using "y"/1/True for bacwrad compatibility
+          if gm.ext_1 in ["y",1,True]:
+            ## user wants arrow at the end
+            levs2[0]=-1.e20
+          if gm.ext_2 in ["y",1,True]:
+            ## user wants arrow at the end
+            levs2[-1]=1.e20
           for i in range(len(levs2)-1):
             levs.append([levs2[i],levs2[i+1]])
       else:
@@ -853,63 +879,81 @@ class VTKVCSBackend(object):
           cot.SetValue(i,levs[i])
         cot.SetValue(Nlevs,levs[-1])
         cot.Update()
-        mappers = []
+
+        lut = vtk.vtkLookupTable()
+        lut.SetNumberOfTableValues(len(cols))
+        for icol,col in enumerate(cols):
+            r,g,b = cmap.index[col]
+            lut.SetTableValue(icol,r/100.,g/100.,b/100.)
+
         if gm.label=="y":
+            # Setup label mapping array:
+            tpropMap = vtk.vtkDoubleArray()
+            tpropMap.SetNumberOfComponents(1)
+            tpropMap.SetNumberOfTuples(Nlevs)
+            for i, val in enumerate(levs):
+                tpropMap.SetTuple(i, [val,])
+
+            # Prep text properties:
+            tprops = vtk.vtkTextPropertyCollection()
+            if gm.text or gm.textcolors:
+               colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
+               texts = gm.text if gm.text else [None] * len(gm.textcolors)
+               while len(texts) < Nlevs:
+                   texts.append(texts[-1])
+               while len(colorOverrides)<Nlevs:
+                   colorOverrides.append(colorOverrides[-1])
+               for tc,colorOverride in zip(texts, colorOverrides):
+                   if vcs.queries.istextcombined(tc):
+                       tt, to = tuple(tc.name.split(":::"))
+                   elif tc is None:
+                       tt = "default"
+                       to = "default"
+                   elif vcs.queries.istexttable(tc):
+                       tt = tc.name
+                       to = "default"
+                   elif vcs.queries.istextorientation(tc):
+                       to = tc.name
+                       tt = "default"
+                   if colorOverride is not None:
+                       tt = vcs.createtexttable(None, tt)
+                       tt.color = colorOverride
+                       tt = tt.name
+                   tprop = vtk.vtkTextProperty()
+                   vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
+                   tprops.AddItem(tprop)
+                   if colorOverride is not None:
+                       del(vcs.elements["texttable"][tt])
+            else:
+               # No text properties specified. Use the default:
+               tprop = vtk.vtkTextProperty()
+               vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
+               tprops.AddItem(tprop)
+            returned["vtk_backend_contours_labels_text_properties"] = tprops
+
             mapper = vtk.vtkLabeledContourMapper()
+            mapper.SetTextProperties(tprops)
+            mapper.SetTextPropertyMapping(tpropMap)
+            mapper.SetLabelVisibility(1)
+
+            pdMapper = mapper.GetPolyDataMapper()
+
+            returned["vtk_backend_labeled_luts"] = [[lut, [levs[0], levs[-1],
+                                                           False]]]
         else:
             mapper = vtk.vtkPolyDataMapper()
-        lut = vtk.vtkLookupTable()
-        lut.SetNumberOfTableValues(1)
-        lut.SetTableValue(0, 0, 0, 0)
-        if gm.label=="y":
-            mapper.GetPolyDataMapper().SetLookupTable(lut)
-            mapper.SetLabelVisibility(1)
-        else:
-            mapper.SetLookupTable(lut)
+            pdMapper = mapper
+            returned["vtk_backend_luts"] = [[lut, [levs[0],levs[-1], False]]]
 
-        # Create text properties.
-        if gm.label=="y":
-         if gm.text or gm.textcolors:
-          colorOverrides = gm.textcolors if gm.textcolors else [None] * len(gm.text)
-          texts = gm.text if gm.text else [None] * len(gm.textcolors)
-          while len(texts)<Nlevs:
-              texts.append(texts[-1])
-          while len(colorOverrides)<Nlevs:
-              colorOverrides.append(colorOverrides[-1])
-          tprops = vtk.vtkTextPropertyCollection()
-          for tc,colorOverride in zip(texts, colorOverrides):
-              if vcs.queries.istextcombined(tc):
-                  tt,to = tuple(tc.name.split(":::"))
-              elif tc is None:
-                  tt="default"
-                  to="default"
-              elif vcs.queries.istexttable(tc):
-                  tt=tc.name
-                  to="default"
-              elif vcs.queries.istextorientation(tc):
-                  to=tc.name
-                  tt="default"
-              if colorOverride is not None:
-                  tt=vcs.createtexttable(None,tt)
-                  tt.color = colorOverride
-                  tt=tt.name
-              tprop = vtk.vtkTextProperty()
-              vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize(), to, tt)
-              tprops.AddItem(tprop)
-              if colorOverride is not None:
-                  del(vcs.elements["texttable"][tt])
-
-              mapper.SetTextProperties(tprops)
-         else:
-            # No text properties specified. Use the default:
-            tprop = vtk.vtkTextProperty()
-            vcs2vtk.prepTextProperty(tprop, self.renWin.GetSize())
-            mapper.SetTextProperty(tprop)
+        pdMapper.SetLookupTable(lut)
+        pdMapper.SetScalarRange(levs[0], levs[-1])
+        pdMapper.SetScalarModeToUsePointData()
 
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
         mapper.SetInputConnection(stripper.GetOutputPort())
         stripper.Update()
+        mappers = []
         mappers.append([mapper,])
         returned["vtk_backend_contours"]=[cot,]
       else:
@@ -922,6 +966,12 @@ class VTKVCSBackend(object):
             indices=[1,]
         while len(indices)<len(cols):
             indices.append(indices[-1])
+        if len(levs)>len(cols):
+            raise RuntimeError("You asked for %i levels but provided only %i colors\n\
+                Graphic Method: %s of type %s\nLevels: %s" % (len(levs),len(cols),gm.name,gm.g_name,repr(levs)))
+        elif len(levs)<len(cols)-1:
+            warnings.warn("You asked for %i levels but provided %i colors, extra ones will be ignored\n\
+            Graphic Method: %s of type %s" % (len(levs),len(cols),gm.name,gm.g_name))
         for i,l in enumerate(levs):
             if i==0:
                 C = [cols[i],]
@@ -982,6 +1032,10 @@ class VTKVCSBackend(object):
               mapper.SetScalarModeToUseCellData()
               mappers.append([mapper,])
           else:
+              if isinstance(gm,vcs.meshfill.Gfm):
+                  doCellPointForScalar = True
+              else:
+                  doCellPointForScalar = False
               for j,color in enumerate(COLS[i]):
                   mapper = vtk.vtkPolyDataMapper()
                   lut = vtk.vtkLookupTable()
@@ -997,7 +1051,7 @@ class VTKVCSBackend(object):
                   lut.SetTableValue(0,r/100.,g/100.,b/100.)
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
-                  luts.append([lut,[l[j],l[j+1],False]])
+                  luts.append([lut,[l[j],l[j+1],doCellPointForScalar]])
                   ## Store the mapper only if it's worth it?
                   ## Need to do it with the whole slab min/max for animation purposes
                   if not(l[j+1]<wmn or l[j]>wmx):
@@ -1008,8 +1062,8 @@ class VTKVCSBackend(object):
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
           #T=vtk.vtkTexture()
           #T.SetInputConnection(png.GetOutputPort())
-          if isinstance(gm,isofill.Gfi):
-              mappers.append([mapper,])
+          #if isinstance(gm,isofill.Gfi):
+          #    mappers.append([mapper,])
         returned["vtk_backend_luts"]=luts
         if len(cots)>0:
            returned["vtk_backend_contours"]=cots
@@ -1103,7 +1157,7 @@ class VTKVCSBackend(object):
       else:
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
-      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,False]],]
+      returned["vtk_backend_luts"]=[[lut,[lmn,lmx,True]],]
 
     if missingMapper is not None:
       if isinstance(gm,meshfill.Gfm):
@@ -1168,10 +1222,8 @@ class VTKVCSBackend(object):
           pass
         # create a new renderer for this mapper
         # (we need one for each mapper because of cmaera flips)
-        ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
-        if tmpl.data.priority>0:
-            ren.AddActor(act)
-            self.setLayer(ren,tmpl.data.priority)
+        ren = self.fitToViewport(act,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
+                wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
       returned["vtk_backend_actors"] = actors
 
     if isinstance(gm,meshfill.Gfm):
@@ -1184,17 +1236,28 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
+      if gm.ext_1 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[0],list) and numpy.less_equal(levs[0][0],-1.e20)):
-            levs.insert(0,-1.e20)
-      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
+          if isinstance(levs[0],list):
+            if numpy.less(abs(levs[0][0]),1.e20):
+              ## Ok we need to add the ext levels
+              levs.insert(0,[-1.e20,levs[0][0]])
+          else:
+            if numpy.less(abs(levs[0]),1.e20):
+              ## need to add an ext
+              levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True]:
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          if not (isinstance(levs[-1],list) and numpy.greater_equal(levs[-1][-1],1.e20)):
-            levs.append(1.e20)
-
+          if isinstance(levs[-1],list):
+            if numpy.less(abs(levs[-1][1]),1.e20):
+              ## need ext
+              levs.append([levs[-1][1],1.e20])
+          else:
+            if numpy.less(abs(levs[-1]),1.e20):
+              ## need exts
+              levs.append(1.e20)
       returned.update(self.renderColorBar(tmpl,levs,cols,legend,cmap))
     if self.canvas._continents is None:
       continents = False
@@ -1224,13 +1287,8 @@ class VTKVCSBackend(object):
       else:
           geo=None
 
-      ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
-      if tmpl.data.priority!=0:
-        self.setLayer(ren,tmpl.data.priority)
-        ren.AddActor(contActor)
-        col = ren.GetActors()
-        col.InitTraversal()
-        n=col.GetNextActor()
+      ren = self.fitToViewport(contActor,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],
+              wc=[x1,x2,y1,y2],geo=geo,priority=tmpl.data.priority)
       return {}
 
   def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
@@ -1381,6 +1439,7 @@ class VTKVCSBackend(object):
       return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
 
   def put_img_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+    self.hideGUI()
     readerFactory = vtk.vtkImageReader2Factory()
     reader = readerFactory.CreateImageReader2(filename)
     reader.SetFileName(filename)
@@ -1406,34 +1465,40 @@ class VTKVCSBackend(object):
     cam.SetFocalPoint(xc+xoff,yc+yoff,0.)
     cam.SetPosition(xc+xoff,yc+yoff,d)
     ren.AddActor(a)
+    layer = max(self.renWin.GetNumberOfLayers() - 2, 0)
+    ren.SetLayer(layer)
     self.renWin.AddRenderer(ren)
+    self.showGUI(render=False)
     self.renWin.Render()
     return
 
   def hideGUI(self):
     plot = self.get3DPlot()
+
     if plot:
         plot.hideWidgets()
-    elif self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-      if manager:
-        self.renWin.RemoveRenderer(manager.renderer)
+    elif self.bg != True:
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
+          self.renWin.RemoveRenderer(manager.renderer)
+          self.renWin.RemoveRenderer(manager.actor_renderer)
 
-  def showGUI(self):
+  def showGUI(self, render=True):
     plot = self.get3DPlot()
+
     if plot:
         plot.showWidgets()
-    elif self.bg is False:
-      from vtk_ui.manager import get_manager
-      manager = get_manager(self.renWin.GetInteractor())
-      if manager:
-        # Set the UI renderer's layer on top of what's there right now
-        layer = self.renWin.GetNumberOfLayers() + 1
-        self.renWin.SetNumberOfLayers(layer)
-        manager.renderer.SetLayer(layer - 1)
-        # Re-add the UI layer
-        self.renWin.AddRenderer(manager.renderer)
+    elif self.bg != True:
+      from vtk_ui.manager import get_manager, manager_exists
+      if manager_exists(self.renWin.GetInteractor()):
+          manager = get_manager(self.renWin.GetInteractor())
+          self.renWin.AddRenderer(manager.renderer)
+          self.renWin.AddRenderer(manager.actor_renderer)
+          # Bring the manager's renderer to the top of the stack
+          manager.elevate()
+      if render:
+          self.renWin.Render()
 
   def get3DPlot(self):
     from dv3d import Gfdv3d
@@ -1511,8 +1576,6 @@ class VTKVCSBackend(object):
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
 
-        self.hideGUI()
-
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
 
@@ -1521,8 +1584,7 @@ class VTKVCSBackend(object):
         except:
           pass
 
-        plot = self.get3DPlot()
-        if plot: plot.hideWidgets()
+
         #if width is not None and height is not None:
         #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
@@ -1535,14 +1597,16 @@ class VTKVCSBackend(object):
           imgfiltr.SetInputBufferTypeToRGB()
         else:
           imgfiltr.SetInputBufferTypeToRGBA()
+
+        self.hideGUI()
         imgfiltr.Update()
+        self.showGUI()
+        self.renWin.Render()
+
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
-        if plot: plot.showWidgets()
-
-        self.showGUI()
 
   def cgm(self,file):
         if self.renWin is None:
@@ -1622,8 +1686,10 @@ class VTKVCSBackend(object):
             self.setLayer(self.logoRenderer,1)
             self.renWin.AddRenderer(self.logoRenderer)
 
-  def fitToViewport(self,Actor,vp,wc=None,geo=None):
+  def fitToViewport(self,Actor,vp,wc=None,geo=None,priority=None):
       ## Data range in World Coordinates
+      if priority==0:
+          return None
       vp=tuple(vp)
       if wc is None:
         Xrg = list(Actor.GetXRange())
@@ -1631,65 +1697,97 @@ class VTKVCSBackend(object):
       else:
         Xrg=[float(wc[0]),float(wc[1])]
         Yrg=[float(wc[2]),float(wc[3])]
-      if Yrg[0]>Yrg[1]:
-        #Yrg=[Yrg[1],Yrg[0]]
-        #T.RotateY(180)
-        Yrg=[Yrg[1],Yrg[0]]
-        flipY = True
-      else:
-        flipY = False
-      if Xrg[0]>Xrg[1]:
-        Xrg=[Xrg[1],Xrg[0]]
-        flipX=True
-      else:
-        flipX=False
 
-      if geo is not None:
-       pt = vtk.vtkPoints()
-       pt.SetNumberOfPoints(1)
-       Xrg2 = [1.e20,-1.e20]
-       Yrg2 = [1.e20,-1.e20]
-       Npts=50.
-       for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
-         for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
-           pt.SetPoint(0,x,y,0)
-           pts = vtk.vtkPoints()
-           geo.TransformPoints(pt,pts)
-           b = pts.GetBounds()
-           xm,xM,ym,yM=b[:4]
-           if xm!=-numpy.inf:
-             Xrg2[0]=min(Xrg2[0],xm)
-           if xM!=numpy.inf:
-             Xrg2[1]=max(Xrg2[1],xM)
-           if ym!=-numpy.inf:
-             Yrg2[0]=min(Yrg2[0],ym)
-           if yM!=numpy.inf:
-             Yrg2[1]=max(Yrg2[1],yM)
-       Xrg=Xrg2
-       Yrg=Yrg2
+      wc_used = (float(Xrg[0]),float(Xrg[1]),float(Yrg[0]),float(Yrg[1]))
       sc = self.renWin.GetSize()
-      wRatio = float(sc[0])/float(sc[1])
-      dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
-      vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
 
-
-      if wRatio>1.: #landscape orientated window
-          yScale = 1.
-          xScale = vRatio*wRatio/dRatio
-      else:
-          xScale = 1.
-          yScale = dRatio/(vRatio*wRatio)
-      ## Ok now we know scaling and vp, let's see if we did this already.
-      if (vp,xScale,yScale) in self._renderers.keys():
+      # Ok at this point this is all the info we need
+      # we can determine if it's a unique renderer or not
+      # let's see if we did this already.
+      if (vp,wc_used,sc,priority) in self._renderers.keys():
         #yep already have one, we will use this Renderer
-        Renderer = self._renderers[(vp,xScale,yScale)]
+        Renderer,xScale,yScale = self._renderers[(vp,wc_used,sc,priority)]
         didRenderer = True
       else:
         Renderer = self.createRenderer()
         self.renWin.AddRenderer(Renderer)
-        self._renderers[(vp,xScale,yScale)]=Renderer
         Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
         didRenderer = False
+
+        if Yrg[0]>Yrg[1]:
+          #Yrg=[Yrg[1],Yrg[0]]
+          #T.RotateY(180)
+          Yrg=[Yrg[1],Yrg[0]]
+          flipY = True
+        else:
+          flipY = False
+        if Xrg[0]>Xrg[1]:
+          Xrg=[Xrg[1],Xrg[0]]
+          flipX=True
+        else:
+          flipX=False
+
+        if geo is not None:
+         pt = vtk.vtkPoints()
+         Xrg2 = [1.e20,-1.e20]
+         Yrg2 = [1.e20,-1.e20]
+         if geo.GetDestinationProjection().GetName() in ["aeqd",]:
+             ## These need more precision to compute actual range
+             Npts=250
+         else:
+             Npts=50
+         NGridCover=0
+         pt.SetNumberOfPoints(Npts*Npts)
+         for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
+           for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
+             pt.InsertPoint(NGridCover,x,y,0)
+             NGridCover+=1
+         pts = vtk.vtkPoints()
+         #pts.SetNumberOfPoints(Npts*Npts)
+         geo.TransformPoints(pt,pts)
+         b = pts.GetBounds()
+         xm,xM,ym,yM=b[:4]
+         if xm!=-numpy.inf:
+           Xrg2[0]=min(Xrg2[0],xm)
+         if xM!=numpy.inf:
+           Xrg2[1]=max(Xrg2[1],xM)
+         if ym!=-numpy.inf:
+           Yrg2[0]=min(Yrg2[0],ym)
+         if yM!=numpy.inf:
+           Yrg2[1]=max(Yrg2[1],yM)
+         Xrg=Xrg2
+         Yrg=Yrg2
+        wRatio = float(sc[0])/float(sc[1])
+        dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
+        vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
+
+
+        if wRatio>1.: #landscape orientated window
+            yScale = 1.
+            xScale = vRatio*wRatio/dRatio
+        else:
+            xScale = 1.
+            yScale = dRatio/(vRatio*wRatio)
+        self.setLayer(Renderer,priority)
+        self._renderers[(vp,wc_used,sc,priority)] = Renderer,xScale,yScale
+
+        xc = xScale*float(Xrg[1]+Xrg[0])/2.
+        yc = yScale*float(Yrg[1]+Yrg[0])/2.
+        xd = xScale*float(Xrg[1]-Xrg[0])/2.
+        yd = yScale*float(Yrg[1]-Yrg[0])/2.
+        cam = Renderer.GetActiveCamera()
+        cam.ParallelProjectionOn()
+        cam.SetParallelScale(yd)
+        cd = cam.GetDistance()
+        cam.SetPosition(xc,yc,cd)
+        cam.SetFocalPoint(xc,yc,0.)
+        if geo is None:
+          if flipY:
+            cam.Elevation(180.)
+            cam.Roll(180.)
+            pass
+          if flipX:
+            cam.Azimuth(180.)
 
       T = vtk.vtkTransform()
       T.Scale(xScale,yScale,1.)
@@ -1734,24 +1832,7 @@ class VTKVCSBackend(object):
               plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
               plane = planeCollection.GetNextItem()
 
-      if not didRenderer:
-        xc = xScale*float(Xrg[1]+Xrg[0])/2.
-        yc = yScale*float(Yrg[1]+Yrg[0])/2.
-        xd = xScale*float(Xrg[1]-Xrg[0])/2.
-        yd = yScale*float(Yrg[1]-Yrg[0])/2.
-        cam = Renderer.GetActiveCamera()
-        cam.ParallelProjectionOn()
-        cam.SetParallelScale(yd)
-        cd = cam.GetDistance()
-        cam.SetPosition(xc,yc,cd)
-        cam.SetFocalPoint(xc,yc,0.)
-        if geo is None:
-          if flipY:
-            cam.Elevation(180.)
-            cam.Roll(180.)
-            pass
-          if flipX:
-            cam.Azimuth(180.)
+      Renderer.AddActor(Actor)
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
@@ -1795,11 +1876,31 @@ class VTKVCSBackend(object):
                       mapper = missingMapper2
                       wrp = a[2]
                   else:
-                      mapper = vtk.vtkPolyDataMapper()
-                      mapper.SetInputConnection(ports[i].GetOutputPort())
-                      lut,rg = vtkobjects["vtk_backend_luts"][i]
-                      if lut is not None:
-                          mapper.SetLookupTable(lut)
+                      ## Labeled contours are a different kind
+                      if vtkobjects.has_key("vtk_backend_luts"):
+                          lut,rg = vtkobjects["vtk_backend_luts"][i]
+                          mapper = vtk.vtkPolyDataMapper()
+                      elif vtkobjects.has_key("vtk_backend_labeled_luts"):
+                          lut,rg = vtkobjects["vtk_backend_labeled_luts"][i]
+                          mapper = vtk.vtkLabeledContourMapper()
+                      if lut is None:
+                          mapper.SetInputConnection(ports[i].GetOutputPort())
+                      else:
+                          if mapper.IsA("vtkPolyDataMapper"):
+                              mapper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetLookupTable(lut)
+                              mapper.SetScalarModeToUsePointData()
+                          else:
+                              stripper = vtk.vtkStripper()
+                              stripper.SetInputConnection(ports[i].GetOutputPort())
+                              mapper.SetInputConnection(stripper.GetOutputPort())
+                              stripper.Update()
+                              tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
+                              mapper.GetPolyDataMapper().SetLookupTable(lut)
+                              mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
+                              mapper.GetPolyDataMapper().SetScalarRange(rg[0],rg[1])
+                              mapper.SetLabelVisibility(1)
+                              mapper.SetTextProperties(tprops)
                           if rg[2]:
                               mapper.SetScalarModeToUseCellData()
                           mapper.SetScalarRange(rg[0],rg[1])
@@ -1844,21 +1945,4 @@ class VTKVCSBackend(object):
                           t.SetInput("%g" % l[0])
 
       if update:
-        ##Ok let's go thru all renderers
-        renderers = self.renWin.GetRenderers()
-        renderers.InitTraversal()
-        ren = renderers.GetNextItem()
-        i=0
-        while ren:
-          i+=1
-          actors = ren.GetActors()
-          actors.InitTraversal()
-          actor = actors.GetNextItem()
-          j=0
-          while actor:
-            j+=1
-            m = actor.GetMapper()
-            m.Update()
-            actor=actors.GetNextItem()
-          ren=renderers.GetNextItem()
         self.renWin.Render()

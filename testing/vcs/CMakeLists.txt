@@ -1,5 +1,6 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
+
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -27,6 +28,18 @@ cdat_add_test(vcs_verify_init
 cdat_add_test(vcs_mkscale_great_range
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mkscale_great_range.py
+)
+cdat_add_test(vcs_verify_set_ext_2_on_default
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_ext_2_setting.py
+)
+cdat_add_test(vcs_verify_levels_extensions_order_setting
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_ext_1_n_triggers_1e20.py
+  )
+cdat_add_test(vcs_verify_read_a_isofill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_read_a_isofill.py
 )
 cdat_add_test(vcs_verify_boxfill_basics
   "${PYTHON_EXECUTABLE}"
@@ -247,12 +260,75 @@ cdat_add_test(vcs_test_taylor_2_quads
   cdat_add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_marker_not_shown_if_xaxis_flipped.py
-    ${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png
+    "${BASELINE_DIR}/test_1d_marker_not_shown_if_xaxis_flipped.png"
     )
 
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    cdat_add_test(test_vcs_meshfill_regular_grid
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
+      "${BASELINE_DIR}/test_meshfill_regular_grid.png"
+    )
+    cdat_add_test(test_vcs_plot_unstructured_via_boxfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_plot_unstructured_via_boxfill.py
+      "${BASELINE_DIR}/test_plot_unstructured_via_boxfill.png"
+    )
+    cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_box_custom_as_def_vistrails_exts.py
+      "${BASELINE_DIR}/test_box_custom_as_def_vistrails_exts.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom.py
+      "${BASELINE_DIR}/test_boxfill_custom.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_non_default_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_non_default_levels.py
+      "${BASELINE_DIR}/test_boxfill_custom_no_default_levels.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext1
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext1.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext1.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext2
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext2.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext2.png"
+      )
+    cdat_add_test(test_vcs_boxfill_custom_ext1_ext2
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_custom_ext1_ext2.py
+      "${BASELINE_DIR}/test_boxfill_custom_ext1_ext2.png"
+      )
+    cdat_add_test(test_vcs_boxfill_number_color_less_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_less_than_number_levels.py
+      )
+    cdat_add_test(test_vcs_boxfill_number_color_more_than_number_levels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_number_color_more_than_number_levels.py
+      )
+    cdat_add_test(test_vcs_auto_time_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
+      "${BASELINE_DIR}/test_vcs_auto_time_labels.png"
+      )
+    cdat_add_test(test_vcs_lon_axes_freak_out
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_lon_axes_freak_out.py
+      "${BASELINE_DIR}/test_lon_axes_freak_out.png"
+      )
+    cdat_add_test(test_vcs_isofill_mask_cell_shift
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
+      "${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png"
+      )
     cdat_add_test(vcs_test_bad_time_units
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
@@ -261,6 +337,23 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
       )
+    FOREACH(gm boxfill isofill meshfill)
+      FOREACH(ori horizontal vertical)
+        FOREACH(ext1 y n)
+          FOREACH(ext2 y n)
+            cdat_add_test(vcs_test_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
+              "${PYTHON_EXECUTABLE}"
+              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py
+              --gm_type=${gm}
+              --orientation=${ori}
+              --ext1=${ext1}
+              --ext2=${ext2}
+              "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
+              )
+          ENDFOREACH(ext2)
+        ENDFOREACH(ext1)
+      ENDFOREACH(ori)
+    ENDFOREACH(gm)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
@@ -287,7 +380,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
       )
-    FOREACH(gm boxfill isofill isoline vector meshfill )
+    FOREACH(gm boxfill isofill isoline meshfill )
      FOREACH(ptype 0 -3 aeqd)
       cdat_add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
         "${PYTHON_EXECUTABLE}"
@@ -493,4 +586,75 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
       ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
       )
+    cdat_add_test(vcs_test_animate_meshfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_meshfill.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isofill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isofill.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_boxfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_boxfill.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_text_labels
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
+      ${BASELINE_DIR}
+      )
+    cdat_add_test(vcs_test_animate_isoline_text_labels_colored
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
+      ${BASELINE_DIR}
+      )
   endif()
+
+cdat_add_test(vcs_test_endconfigure
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_endconfigure.py
+)
+
+cdat_add_test(vcs_test_colorpicker_selection
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_selection.py
+)
+
+cdat_add_test(vcs_test_configurator_click_text
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_text.py
+)
+cdat_add_test(vcs_test_configurator_click_label
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_label.py
+)
+cdat_add_test(vcs_test_configurator_click_marker
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_marker.py
+)
+cdat_add_test(vcs_test_configurator_resize
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_resize.py
+  ${BASELINE_DIR}/test_vcs_configurator_resize.png
+)
+
+cdat_add_test(vcs_test_colorpicker_appearance
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
+  ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
+)
+add_subdirectory(vtk_ui)
+add_subdirectory(editors)

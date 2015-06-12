@@ -43,6 +43,10 @@ class animate_obj_old(object):
       self.run_flg = 0
       self.continents_value = 0
       self.continents_hold_value = 1
+      ## We need to store this because if user close
+      ## anim with preserve_pngs = True
+      ## it still gets deleted at python exit time
+      self.preserve_pngs = False
       
    ##############################################################################
    # Create the animation images. If min or max is None, then			#
@@ -559,7 +563,9 @@ class animate_obj_old(object):
         png_names=glob.glob(
             os.path.join(os.environ["HOME"],".uvcdat",self._unique_prefix,"anim_*.png")
             )
-        if not preserve_pngs:
+        if preserve_pngs:
+            self.preserve_pngs = True
+        if not self.preserve_pngs:
           for f in png_names:
               os.remove(f)
           if len(png_names)>0:
@@ -676,7 +682,10 @@ class AnimationPlaybackParams(object):
 
   def zoom(self,value):
     """Zoom factor for the animation"""
-    self.zoom_factor = value
+    if value > 0:
+        self.zoom_factor = value
+    else:
+        raise Exception("Zoom must be greater than 0")
 
   def horizontal(self,value):
     """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"
@@ -792,8 +801,11 @@ class AnimationController(animate_obj_old):
   def stop(self):
     if self.is_playing():
       self.playback_thread.stop()
+      self.playback_thread.join()
+      self.playback_thread = None
     else:
       self.create_thread.stop()
+      self.create_thread.join()
 
   def playback_pause(self):
     if self.is_playing():
@@ -997,7 +1009,7 @@ class AnimationController(animate_obj_old):
     self.create_canvas.png(fn,draw_white_background=1)
     return displays
 
-  def draw_frame(self):
+  def draw_frame(self, frame_num = None):
     if frame_num is not None:
       self.frame_num = frame_num
     self.vcs_self.backend.clear()
@@ -1012,19 +1024,14 @@ class AnimationController(animate_obj_old):
   def save(self,movie,bitrate=1024, rate=None, options=''):
     """Save animation to a file"""
     if self.created():
-        started = False
         while len(self.animation_files)!=self.number_of_frames():
-            if not self.playback_running:
-                # if not runnnig getting it going so we can use the pngs
-                self.run()
-                started = True
-        if started:
-            # ok we can stop it nw
-            self.stop()
+            self.draw_frame()
+            self.frame_num = (self.frame_num + 1) % self.number_of_frames()
         if rate is None:
             rate = self.playback_params.fps()
         files = os.path.join(os.path.dirname(self.animation_files[0]),"anim_%d.png")
         self.vcs_self.ffmpeg(movie, files, bitrate, rate, options)
+        self.animation_files = []
 
   def fps(self, value=None):
     """Animation desired number of frame per seconds (might not be

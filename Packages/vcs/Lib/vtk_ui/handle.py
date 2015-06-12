@@ -48,15 +48,6 @@ class Handle(Widget):
             vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
         """
 
-    def show(self):
-        if self.widget.GetEnabled() == False:
-            self.widget.On()
-            self.place()
-
-    def hide(self):
-        if self.widget.GetEnabled():
-            self.widget.Off()
-
     def __get_position__(self):
         if self.normalize:
             w, h = self.interactor.GetRenderWindow().GetSize()

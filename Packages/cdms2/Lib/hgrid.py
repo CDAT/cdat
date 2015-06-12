@@ -237,7 +237,6 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
             if (transpose is not None) and (transpose[1]==0):
                 latbounds = numpy.transpose(latbounds, (1,0,2))
                 lonbounds = numpy.transpose(lonbounds, (1,0,2))
-            print latbounds.shape
             mesh = numpy.zeros((self.size(),2,latbounds.shape[-1]),latbounds.dtype.char)
             mesh[:,LAT,:] = numpy.reshape(latbounds,(self.size(),latbounds.shape[-1]))
             mesh[:,LON,:]  = numpy.reshape(lonbounds,(self.size(),latbounds.shape[-1]))

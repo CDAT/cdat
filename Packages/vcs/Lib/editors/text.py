@@ -1,12 +1,13 @@
 from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
 from vcs.colorpicker import ColorPicker
-from vtk import vtkTextProperty
+from vtk import vtkTextProperty, vtkPropPicker, vtkPropCollection
 from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
-from vcs.vcs2vtk import genTextActor
-from functools import partial
+from vcs.vcs2vtk import genTextActor, vtkIterate
+from font import FontEditor
+import sys
 
 __valign_map__ = {
     0: 0,
@@ -15,6 +16,7 @@ __valign_map__ = {
     3: 2,
     4: 2,
 }
+
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
     """
@@ -47,27 +49,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         valign.set_state(__valign_map__[self.text.valign])
 
         self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle)
-        self.fonts = sorted(vcs.elements["font"].keys())
 
-        font_toolbar = self.toolbar.add_toolbar("Fonts")
-
-        self.font_buttons = {}
-
-        def font_setter(font):
-            return partial(self.set_font, font)
-
-        deactivate = font_setter("default")
-
-        for ind, font in enumerate(self.fonts):
-
-            if font[:4] != "Math":
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
-            else:
-                button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
-
-            if vcs.elements["fontNumber"][self.text.font] == font:
-                button.set_state(1)
-            self.font_buttons[font] = button
+        font_editor = FontEditor(self.toolbar, self.set_font, vcs.elements["fontNumber"][self.text.font])
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -77,7 +60,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
-        self.tooltip = Label(self.interactor, "Ctrl + Click to place new text.", textproperty=prop)
+        prop.SetVerticalJustificationToTop()
+        self.tooltip = Label(self.interactor, "%s + Click to place new text." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
         self.tooltip.left = 0
         self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
@@ -86,11 +70,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.update()
 
     def set_font(self, font):
-        current_font = vcs.getfontname(self.text.font)
-        if font != current_font:
-            self.font_buttons[current_font].set_state(0)
         self.text.font = font
-        self.font_buttons[font].set_state(1)
         self.update()
 
     def get_object(self):
@@ -127,25 +107,21 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             string = self.text.string[ind]
 
             text_width, text_height = text_dimensions(self.text, ind, (w, h))
+
             x = x * w
-            y = h - y * h # mirror the y axis for widgets
-
-            if self.text.halign in ("right", 2):
-                x -= text_width
-            elif self.text.halign in ("center", 1):
-                x -= text_width / 2.0
-
-            if self.text.valign in ("half", 2):
-                y -= text_height / 2.0
-            elif self.text.valign in ("top", 0):
-                y -= text_height
+            y = y * h
 
             box_prop = vtkTextProperty()
             vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
             box_prop.SetOrientation(-1 * self.text.angle)
+            text_color = box_prop.GetColor()
+            highlight_color = vcs.vtk_ui.text.contrasting_color(*text_color)
 
-            textbox = Textbox(self.interactor, string, left=x, top=y, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox = Textbox(self.interactor, string, highlight_color=highlight_color, highlight_opacity=.8, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox.x = x
+            textbox.y = y
             textbox.show()
+            textbox.show_highlight()
 
             if ind == self.index:
                 textbox.start_editing()
@@ -154,15 +130,35 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def finished_editing(self, textbox):
         index = self.textboxes.index(textbox)
-        self.text.string[index] = textbox.text
-        self.actors[index].SetInput(textbox.text)
+        if textbox.text == "":
+            del self.text.string[index]
+            del self.text.x[index]
+            del self.text.y[index]
+            del self.actors[index]
+            textbox.detach()
+            del self.textboxes[index]
+            if len(self.text.string) == 0:
+                self.deactivate()
+                return
+        else:
+            self.text.string[index] = textbox.text
+            self.actors[index].SetInput(textbox.text)
+
+    def get_box_at_point(self, x, y):
+        for box in self.textboxes:
+            if box.in_bounds(x, y):
+                return box
+        return None
 
     def in_bounds(self, x, y):
-        return inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize(), index=self.index) is not None
+        return self.get_box_at_point(x, y) is not None
 
     def click_release(self):
         x, y = self.event_position()
-        text_index = inside_text(self.text, x, y, *self.interactor.GetRenderWindow().GetSize())
+        w, h = self.interactor.GetRenderWindow().GetSize()
+        box = self.get_box_at_point(x * w, y * h)
+
+        text_index = None if box is None else self.textboxes.index(box)
 
         self.process_click(text_index, x, y)
 
@@ -184,7 +180,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             return
         else:
             self.textboxes[self.index].stop_editing()
-
             if text_index is not None:
                 # Change which one we're editing
                 self.index = text_index
@@ -199,9 +194,9 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
                     self.text.x.append(x)
                     self.text.y.append(y)
-                    self.text.string.append("New Text")
+                    self.text.string.append("Click to Edit")
 
-                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["New Text"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
+                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["Click to Edit"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
                     new_actor.SetVisibility(0)
                     self.actors.append(new_actor)
                     self.index = new_index
@@ -209,12 +204,11 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                     self.update()
 
     def textbox_clicked(self, point):
-        x, y = point
+        for ind, box in enumerate(self.textboxes):
+            if box.in_bounds(*point):
+                clicked_on = ind
 
-        winsize = self.interactor.GetRenderWindow().GetSize()
-
-        clicked_on = inside_text(self.text, x, y, *winsize)
-        self.process_click(clicked_on, x, y)
+        self.process_click(clicked_on, *point)
 
     def deactivate(self):
         self.configurator.deactivate(self)
@@ -263,7 +257,7 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         elif state == 1:
             self.text.valign = 2
         elif state == 2:
-            self.text.valign = 3
+            self.text.valign = 4
         self.update()
 
     def update_angle(self, value):
@@ -301,51 +295,3 @@ def text_dimensions(text, index, winsize):
     prop = vtkTextProperty()
     vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop)
-
-def inside_text(text, x, y, screen_width, screen_height, index=None):
-    import math
-
-    winsize = (screen_width, screen_height)
-
-    if x > 1:
-        x = x / float(screen_width)
-    if y > 1:
-        y = y / float(screen_height)
-
-    for ind, xcoord in enumerate(text.x):
-        if index is not None:
-            if ind != index:
-                continue
-
-        ycoord = text.y[ind]
-        text_width, text_height = text_dimensions(text, ind, winsize)
-        text_width = text_width / float(screen_width)
-        text_height = text_height / float(screen_height)
-
-        local_x, local_y = x, y
-        # Adjust X, Y for angle
-        if text.angle != 0:
-            # Translate to the origin
-            translated_x, translated_y = x - xcoord, y - ycoord
-            # Rotate about the origin
-            theta = math.radians(text.angle)
-            txrot = translated_x * math.cos(theta) - translated_y * math.sin(theta)
-            tyrot = translated_x * math.sin(theta) + translated_y * math.cos(theta)
-            # Translate back to the point
-            local_x, local_y = txrot + xcoord, tyrot + ycoord
-
-        # Adjust for alignments
-        if text.valign in ("half", 2):
-            ycoord -= text_height / 2.0
-        elif text.valign in ("top", 0):
-            ycoord -= text_height
-
-        if text.halign in ("right", 2):
-            xcoord -= text_width
-        elif text.halign in ("center", 1):
-            xcoord -= text_width / 2.0
-
-        if local_x > xcoord and local_x < xcoord + text_width and local_y < ycoord + text_height and local_y > ycoord:
-            return ind
-
-    return None

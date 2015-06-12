@@ -41,6 +41,7 @@ class DV3DApp:
     def update( self, tmpl ):
         if self.plot <> None:
             self.plot.updateModule()
+            self.plot.initCamera()
 
     def onClosing(self, cell ):
         if self.plot <> None:
