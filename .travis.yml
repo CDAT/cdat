@@ -10,8 +10,6 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew outdated cmake || brew upgrade cmake ; fi
     - cmake --version
 
-before_script: travis_wait
-
 script:
     - git submodule init
     - git submodule update
