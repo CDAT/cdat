@@ -125,6 +125,11 @@ cdat_add_test("test_cdms2_full_averagering_full_missing"
   ${cdat_SOURCE_DIR}/testing/cdms2/test_full_averaging.py
   )
 
+cdat_add_test("CDMS_Test_write_extended_dimension"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/test_simple_write.py)
+
+
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
 

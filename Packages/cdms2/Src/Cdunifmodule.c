@@ -866,7 +866,7 @@ static void
 define_mode(PyCdunifFileObject *file, int define_flag)
 {
   if (file->define != define_flag) {
-/*    Py_BEGIN_ALLOW_THREADS;
+    Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
     int ierr;
     if (file->define)
@@ -874,9 +874,8 @@ define_mode(PyCdunifFileObject *file, int define_flag)
     else
       ierr = cdredef(file);
     release_Cdunif_lock();
-*/
     file->define = define_flag;
-   // Py_END_ALLOW_THREADS;
+    Py_END_ALLOW_THREADS;
   }
 }
 
