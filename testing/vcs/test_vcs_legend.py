@@ -1,4 +1,3 @@
-
 import sys,os
 import argparse
 
@@ -45,16 +44,25 @@ if gm_type=="meshfill":
 else:
     s=f("clt",**xtra)
 
+
 if gm_type=="boxfill":
     gm.level_1=20
     gm.level_2=80
+    if args.ext1=="y":
+        gm.ext_1="y"
+    if args.ext2=="y":
+        gm.ext_2="y"
 else:
     if gm_type=="isofill":
         levels = [20, 30, 40, 50, 60, 70, 80]
     else:
         levels = [300,500,800,1000,1200]
     gm.levels=levels
-    #gm.fillareacolors = vcs.getcolors(levels)
+    if args.ext1=="y":
+        gm.ext_1="y"
+    if args.ext2=="y":
+        gm.ext_2="y"
+    gm.fillareacolors = vcs.getcolors(gm.levels)
 tmpl = x.createtemplate()
 if args.orientation=="vertical":
     tmpl.data.x2=.8
@@ -66,10 +74,6 @@ if args.orientation=="vertical":
     tmpl.legend.y1=.3
     tmpl.legend.y2=.8
 
-if args.ext1=="y":
-    gm.ext_1="y"
-if args.ext2=="y":
-    gm.ext_2="y"
 x.plot(s,gm,tmpl,bg=bg)
 
 fnm = "test_vcs_legend_%s_%s_ext1_%s_ext2_%s" % (gm_type.lower(),args.orientation,args.ext1,args.ext2)
