@@ -153,7 +153,7 @@ def createTransientVariable( hfile, phase_var_name, data_var_name, phase_range=N
         return v
 
 if __name__ == "__main__":
-    data_file="/Users/tpmaxwel/Dropbox/Data/GPM/2A.GPM.Ku.V520140829.20150201-S011128-E014127.V03B.RT-H5"
+    data_file="/Users/tpmaxwel/Dropbox/Tom/Data/GPM/2A.GPM.Ku.V520140829.20150201-S011128-E014127.V03B.RT-H5"
     phase_varname =  "/NS/DSD/phase"
     data_varname = "/NS/SLV/precipRate"
     singleCore = False

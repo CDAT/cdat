@@ -2776,8 +2776,8 @@ Options:::
 
 ##                         arglist[4]=copy_mthd.name
         # Ok let's check for meshfill needed
-        if inGrid is not None and (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(arglist[0].getGrid(),cdms2.grid.AbstractRectGrid)) and arglist[3] not in ["meshfill",]:
-          raise RuntimeError("You are attempting to plot unstructured grid with a method that is not meshfill")
+        if inGrid is not None and (arglist[0] is not None and isinstance(arglist[0],cdms2.avariable.AbstractVariable) and not isinstance(arglist[0].getGrid(),cdms2.grid.AbstractRectGrid)) and arglist[3] not in ["meshfill","3d_scalar"]:
+          raise RuntimeError("You are attempting to plot unstructured grid with a method that is neither meshfill nor 3D")
         # preprocessing for extra keyword (at-plotting-time options)
         cmds={}
         # First of all a little preprocessing for legend !

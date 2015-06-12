@@ -4,7 +4,7 @@ Created on Sep 18, 2013
 @author: tpmaxwel
 '''
 import sys, math
-import numpy
+import numpy, traceback
 import cdms2, cdutil
 
 class InterfaceType:
@@ -179,8 +179,8 @@ class MultiVarPointCollection():
             if iTimeIndex > 0:
                 print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
             elif iTimeIndex is None:
-                try: var = numpy.ma.MaskedArray( var.data, var.mask )
-                except: pass
+#                try: var = numpy.ma.MaskedArray( var.data, var.mask )
+#                except: pass
                 if self.lev == None:
                     if len( var.shape ) == 1:
                         np_var_data_block = var[ self.istart::self.istep ].data
@@ -238,22 +238,23 @@ class MultiVarPointCollection():
                         except: top_to_bottom = False
                         lev_data_arrays = []
                         for ilev in range( *self.level_range ):
-                            if   iLevIndex == 1: data_z_slice = var[ self.iTimeStep, ilev, :, :  ].flatten()
-                            elif iLevIndex == 2: data_z_slice = var[ self.iTimeStep, :, ilev, :  ].flatten()
-                            elif iLevIndex == 3: data_z_slice = var[ self.iTimeStep, :, :, ilev  ].flatten()
+                            if   iLevIndex == 1: data_z_slice = var[ self.iTimeStep, ilev, :, :  ].flatten().data
+                            elif iLevIndex == 2: data_z_slice = var[ self.iTimeStep, :, ilev, :  ].flatten().data
+                            elif iLevIndex == 3: data_z_slice = var[ self.iTimeStep, :, :, ilev  ].flatten().data
                             if top_to_bottom:   lev_data_arrays.insert( 0, data_z_slice[self.istart::self.istep] )
                             else:               lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                         np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )
 
-            if not isNone( np_var_data_block ):
-                np_var_data_block = self.applyVariableValueMask( np_var_data_block )
-                np_var_data_block = np_var_data_block.flatten()
-                min_val = np_var_data_block.min()
-                max_val = np_var_data_block.max()
+            # if not isNone( np_var_data_block ):
+            #     np_var_data_block = self.applyVariableValueMask( np_var_data_block )
+            #     np_var_data_block = np_var_data_block.flatten()
+            #     min_val = np_var_data_block.min()
+            #     max_val = np_var_data_block.max()
 
         except Exception, err:
             print " Error in GetDataBlock, var.shape = %s, grid = %s, ts = %d " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep )
             print str(err)
+            traceback.print_exc()
 
         if not isNone( np_var_data_block ):
             if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
