@@ -486,18 +486,8 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
       int ierr;
       int ncid;
       ierr = nc_open_par(controlpath,NC_WRITE|NC_MPIIO,MPI_COMM_WORLD,MPI_INFO_NULL,&ncid);
-      if (ierr != NC_NOERR ) { /* ok it failed again*/
-        fprintf(stderr,"nc_open_par failed with err code: %i\n",ierr);
+      if (ierr != NC_NOERR ) { /* ok it failed opening in regular netcdf*/
         ierr = nc_open(controlpath,mode,&ncid);
-        if (ierr != NC_NOERR ) { /* ok it failed again*/
-          fprintf(stderr,"regular open failed as well\n");
-        }
-        else {
-          fprintf(stderr,"regular open used instead\n");
-        }
-      }
-      else {
-        fprintf(stderr,"file opened w/o error in //\n");
       }
       return ncid;
 #else
