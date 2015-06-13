@@ -87,7 +87,8 @@ local repository and GitHub.
 You may want to fork UV-CDAT to work on the code if you have access to the repository,
 then just create a branch there instead. If you don't then follow these guidelines
 for forking UV-CDAT. Go to the [UV-CDAT project page](https://github.com/UV-CDAT/uvcdat)
-and hit the *fork* button. You will want to clone your fork to your machine:
+and hit the *fork* button. You will want to clone your fork to your machine: (HTTPS
+or SSH is preferred to git:// for security reasons).
 
     git clone git://github.com/UV-CDAT/uvcdat.git UV-CDAT-yourname
     cd UV-CDAT-yourname
@@ -96,10 +97,9 @@ and hit the *fork* button. You will want to clone your fork to your machine:
 This creates the directory UV-CDAT-yourname and connects your repository
 to the upstream (main project) *UV-CDAT* repository.
 
-You will also need to hook up Travis-CI to your GitHub repository so the
-suite is automatically run when a Pull Request is submitted.
-Instructions are
-[here](http://about.travis-ci.org/docs/user/getting-started/).
+You will also need to hook up Travis-CI to your GitHub (if you have forked)
+repository so the suite is automatically run when a Pull Request is submitted.
+Instructions are [here](http://about.travis-ci.org/docs/user/getting-started/).
 
 ### Creating a Branch
 
@@ -128,15 +128,13 @@ using default settings:
         cmake uvcdat-path-to-source
         make -jN
 
-    If you startup the Python interpreter in the *UV-CDAT* source
-    directory you will call the built C extensions
-
 Contributing to the documentation
 ---------------------------------
 
 If you're not the developer type, contributing to the documentation is
 still of huge value. You don't even have to be an expert on *UV-CDAT* to
-do so! Something as simple as
+do so! Something as simple as pointing missing information or broken links
+will be of great value.
 
 Contributing to the code base
 -----------------------------
@@ -266,13 +264,15 @@ The following defines how a commit message should be structured. Please
 reference the relevant GitHub issues in your commit message using GH1234
 or \#1234. Either style is fine, but the former is generally preferred:
 
-> -   a subject line with \< 80 chars.
+> -   a subject line with \< 80 chars (50-char subject, 72-char rest).
 > -   One blank line.
-> -   Optionally, a commit message body.
+> -   Optionally, a commit message body (72-char).
 
 Now you can commit your changes in your local repository:
 
-    git commit -m
+    git commit -a
+or
+    git commit -a -m "Message..Here"
 
 If you have multiple commits, it is common to want to combine them into
 one commit, often referred to as "squashing" or "rebasing". This is a
