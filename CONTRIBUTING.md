@@ -84,9 +84,10 @@ local repository and GitHub.
 
 ### Forking
 
-You will need your own fork to work on the code. Go to the [UV-CDAT
-project page](https://github.com/UV-CDAT/uvcdat) and hit the *fork*
-button. You will want to clone your fork to your machine: :
+You may want to fork UV-CDAT to work on the code if you have access to the repository,
+then just create a branch there instead. If you don't then follow these guidelines
+for forking UV-CDAT. Go to the [UV-CDAT project page](https://github.com/UV-CDAT/uvcdat)
+and hit the *fork* button. You will want to clone your fork to your machine:
 
     git clone git://github.com/UV-CDAT/uvcdat.git UV-CDAT-yourname
     cd UV-CDAT-yourname
