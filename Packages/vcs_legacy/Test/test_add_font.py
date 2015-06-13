@@ -27,7 +27,7 @@ print 'font %i is now:' %anb ,x.getfontname(anb)
 x.setdefaultfont(anb)
 
 import cdms2 as cdms,sys
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt')
 x.plot(s,bg=bg)
 support.check_plot(x)

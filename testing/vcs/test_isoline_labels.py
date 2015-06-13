@@ -7,7 +7,7 @@ pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 
-dataset = cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
+dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")
 
 canvas = vcs.init()

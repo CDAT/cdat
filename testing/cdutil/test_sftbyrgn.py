@@ -12,7 +12,7 @@ Newsftbyrgn
 
 import cdms2,cdutil,MV2,os,sys,cdat_info
 bg=0
-din=cdms2.open(os.path.join(cdat_info.get_prefix(),"sample_data","clt.nc"))("clt",slice(0,1))
+din=cdms2.open(os.path.join(cdat_info.get_sampledata_path(),"clt.nc"))("clt",slice(0,1))
 print 'generating mask'
 sftlf = cdutil.generateLandSeaMask(din)*100.
 

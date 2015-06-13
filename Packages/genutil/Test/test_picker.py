@@ -6,7 +6,7 @@ import vcs.test.support
 bg=vcs.test.support.bg
 cdms.setAutoBounds('on')
 #f=cdms.open('/pcmdi/obs/mo/ta/rnl_ncep/ta.rnl_ncep.ctl')
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','ta_ncep_87-6-88-4.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'ta_ncep_87-6-88-4.nc'))
 
 levels = [1000,700,800]
 try:

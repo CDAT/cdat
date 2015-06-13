@@ -8,7 +8,7 @@ x.drawlogooff()
 
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x = vcs.init()
-f = cdms2.open(os.path.join(vcs.prefix, "sample_data", "clt.nc"))
+f = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 s = f("clt")
 x.meshfill(s,bg=1)
 fnm = "test_meshfill_regular_grid.png"

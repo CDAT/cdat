@@ -32,7 +32,7 @@ def test():
 
    bg=support.bg
    
-   f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+   f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
    s1=f.getslab('clt')			# get slab clt
    s2=f.getslab('clt',4,4,-45,45,-90,90)
    s3=f.getslab('clt',6,6,0,90,0,180)

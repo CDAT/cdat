@@ -7,7 +7,7 @@ sys.path.append(pth)
 
 import checkimage
 
-f = cdms2.open(os.path.join(vcs.prefix,"sample_data","sampleCurveGrid4.nc"))
+f = cdms2.open(os.path.join(vcs.sample_data,"sampleCurveGrid4.nc"))
 s = f("sample")
 x = vcs.init()
 x.drawlogooff()

@@ -5,7 +5,7 @@ import cdutil
 import numpy
 import cdat_info
 
-f=cdms2.open(cdat_info.get_prefix()+"/sample_data/clt.nc")
+f=cdms2.open(cdat_info.get_sampledata_path()+"/clt.nc")
 s=f("clt")
 assert(numpy.allclose(s.missing_value,1.e20))
 s.set_fill_value(1.e36)

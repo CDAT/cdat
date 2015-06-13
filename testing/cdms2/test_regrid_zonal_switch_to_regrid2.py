@@ -1,7 +1,7 @@
-import cdms2
+import cdms2,vcs
 import os,sys
 
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 
 s=f("clt",slice(0,1))
 

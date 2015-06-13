@@ -37,9 +37,9 @@ exec("gm=vcs.create%s()" % gm_type)
 nm_xtra=""
 xtra = {'time':slice(0,1),'squeeze':1}
 if gm_type=="meshfill":
-    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','sampleCurveGrid4.nc'))
+    f=cdms2.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
 else:
-    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
+    f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 if gm_type=="meshfill":
     s=f("sample")
 else:

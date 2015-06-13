@@ -3,7 +3,7 @@ import cdms2,sys,vcs
 import vcs.test.support
 bg= vcs.test.support.bg
 
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt',slice(0,1))
 f.close()
 x=vcs.init()

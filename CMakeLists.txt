@@ -541,7 +541,7 @@ include(uuid_pkg)
 # IF we build the UVCDAT Metrics package
 if (CDAT_BUILD_UVCMETRICSPKG)
   if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
-    set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
+    set(UVCMETRICS_TEST_DATA_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/uvcmetrics/test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
   endif()
   include(uvcmetrics_pkg)
 endif()

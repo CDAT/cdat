@@ -42,7 +42,7 @@ if support.dogui:
 
     T=EzTemplate.Multi(rows=2,columns=1)
 
-    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+    f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 
     global s,t2,t1
 

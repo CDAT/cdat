@@ -1,7 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2 as cdms,sys,os
 
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt')
 
 import genutil

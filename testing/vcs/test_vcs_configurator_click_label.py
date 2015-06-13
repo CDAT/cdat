@@ -5,7 +5,7 @@ import os
 
 x = vcs.init()
 
-cltfile = cdms2.open(os.path.join(vcs.prefix, "sample_data", "clt.nc"))
+cltfile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt = cltfile("clt")
 
 # Create a template to use

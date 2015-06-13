@@ -28,7 +28,7 @@ ESMP.ESMP_LogSet(True)
 class TestGrid(unittest.TestCase):
 
   def setUp(self):
-    dir = cdat_info.get_prefix() + "/sample_data/"
+    dir = cdat_info.get_sampledata_path() + "/"
     filename = dir + "so_Omon_MPI-ESM-LR_1pctCO2_r1i1p1_185001-185912_2timesteps.nc"
     g = cdms2.open(filename)
     self.so = g('so')[0,0,:,:254]

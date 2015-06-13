@@ -7,7 +7,7 @@ l.x=[.2,.2,.5,.8,.8]
 l.y=[.2,.8,.7,.8,.2]
 l.width=6
 
-f=cdms2.open(sys.prefix+'/sample_data/clt.nc')
+f=cdms2.open(vcs.sample_data+'/clt.nc')
 
 s=f("clt")
 s2=s*.8
