@@ -367,9 +367,3 @@ feature branch has not actually been merged.
 The branch will still exist on GitHub, so to delete it there do :
 
     git push origin --delete shiny-new-feature
-
-
-
-
-
-
