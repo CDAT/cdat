@@ -5,18 +5,18 @@
 
 import cdutil,os,sys,numpy,cdat_info
 # First let's creates the mask (it is the same for NCEP and ECMWF since they are on the same grid).
-refmsk = os.path.join(cdat_info.get_prefix(),'sample_data','sftlf_dnm.nc')
+refmsk = os.path.join(cdat_info.get_sampledata_path(),'sftlf_dnm.nc')
 M=cdutil.WeightsMaker(refmsk, var='sftlf_dnm', values=[1.])
 # Reference
-ref = os.path.join(cdat_info.get_prefix(),'sample_data','tas_dnm-95a.xml')
+ref = os.path.join(cdat_info.get_sampledata_path(),'tas_dnm-95a.xml')
 Ref=cdutil.VariableConditioner(ref, weightsMaker=M)
 Ref.var='tas'
 Ref.id='D1'
 Ref.cdmsKeywords={'time':('1979','1980','co')}
 # Test
-tstmsk = os.path.join(cdat_info.get_prefix(),'sample_data','sftlf_ccsr.nc')
+tstmsk = os.path.join(cdat_info.get_sampledata_path(),'sftlf_ccsr.nc')
 M=cdutil.WeightsMaker(tstmsk, var='sftlf_ccsr', values=[1.])
-tst = os.path.join(cdat_info.get_prefix(),'sample_data','tas_ccsr-95a.xml')
+tst = os.path.join(cdat_info.get_sampledata_path(),'tas_ccsr-95a.xml')
 Tst=cdutil.VariableConditioner(tst, weightsMaker=M)
 Tst.var='tas'
 Tst.id='D2'

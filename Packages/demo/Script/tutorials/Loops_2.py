@@ -4,7 +4,7 @@ import sys
 import cdat_info
 
 # Creates string for path to data
-pth=cdat_info.get_prefix()+'/sample_data/'
+pth=cdat_info.get_sampledata_path()+'/'
 
 # Creates list containg path to files
 files = [ pth+'u_2000.nc',

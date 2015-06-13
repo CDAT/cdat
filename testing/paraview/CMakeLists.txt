@@ -1,7 +1,4 @@
-set (sampledata_path "${CMAKE_INSTALL_PREFIX}/sample_data")
-if (APPLE)
-  set (sampledata_path "${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/2.7/sample_data")
-endif()
+set (sampledata_path "${CMAKE_INSTALL_PREFIX}/share/uvcdat/sample_data")
 
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/paraview")
 

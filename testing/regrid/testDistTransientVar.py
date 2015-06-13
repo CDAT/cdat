@@ -20,7 +20,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Test size, rank etc.
         """
-        da = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')('clt')
+        da = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc', 'r')('clt')
         rk = da.getMPIRank()
         sz = da.getMPISize()
         # make the data rank dependent
@@ -48,7 +48,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Test case with domain decomposition
         """
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc', 'r')
         cltVar = f['clt']
 
         # global sizes
@@ -147,7 +147,7 @@ class TestDistTransientVar(unittest.TestCase):
         """
         Apply the laplacian finite difference operator to clt
         """
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc', 'r')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc', 'r')
         cltVar = f['clt']
 
         # global sizes

@@ -4,7 +4,7 @@ bg=support.bg
 
 t0=cdtime.comptime(1999)
 t1=cdtime.comptime(2005)
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','test.xml'))
+f=cdms.open(os.path.join(vcs.sample_data,'test.xml'))
 
 s=f('u',latitude=slice(5,6),squeeze=1)
 s2=f('v',latitude=slice(5,6),squeeze=1)

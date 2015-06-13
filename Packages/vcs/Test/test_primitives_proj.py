@@ -30,7 +30,7 @@ t.scale(.9)
 #t.data.list()
 
 
-fi=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','tas_cru_1979.nc'))
+fi=cdms2.open(os.path.join(vcs.sample_data,'tas_cru_1979.nc'))
 s=fi('tas',slice(0,1),squeeze=1,longitude=(Lon1,Lon2),latitude=(Lat1,Lat2))
 isof=x.createisofill('new')
 isof.projection=proj

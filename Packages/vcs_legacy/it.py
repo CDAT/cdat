@@ -82,9 +82,8 @@ if drawtext:
     if domultiple: y.plot(t)
 if drawdata:
     import cdms2,sys
-    #print sys.prefix+'/sample_data/clt.nc'
     pth=sys.prefix.split(os.path.sep)
-    f=cdms2.open("%s/sample_data/clt.nc" % os.path.sep.join(pth))
+    f=cdms2.open("%s/clt.nc" % vcs.sample_data)
     s=f("clt",slice(0,12))
     t=x.createtemplate("noX")
     print "back from template"

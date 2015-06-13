@@ -2,7 +2,7 @@
 import cdms2 as cdms,vcs,os,sys,support
 
 if support.dogui is True:
-    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','sampleCurveGrid4.nc'))
+    f=cdms.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
     
     s=f('sample')
     s=cdms.MV2.masked_greater(s,280.)

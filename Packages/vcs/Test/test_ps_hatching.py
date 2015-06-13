@@ -5,7 +5,7 @@ bg=support.bg
 x=vcs.init()
 x.portrait()
 #x.setdefaultfont(2)
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt')
 iso = x.createisofill('my')
 

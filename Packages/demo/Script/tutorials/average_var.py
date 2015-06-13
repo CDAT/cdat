@@ -23,7 +23,7 @@ import sys, os
 ## potential IOAPI files  of interest,
 ## can use regular expression syntex
 searchStr = "CCTM_ACONC.D1.*"
-searchStr = os.path.join (cdat_info.get_prefix(),'sample_data/' + searchStr)
+searchStr = os.path.join (cdat_info.get_sampledata_path(), searchStr)
 
 ## dates of interest: (year, month, day, hour)
 ## should be have #hrs as a multiple of 24

@@ -31,7 +31,7 @@ def test():
    import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cu
    bg=support.bg
    
-   f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
+   f=cdms.open(os.path.join(vcs.sample_data,'clt.nc')) # open clt file
    u=f.getslab('u',':',':',-10.,0.,0,10)# get slab u
    v=f.getslab('v',':',':',-10.,0.,0,10)# get slab v
    x=vcs.init()                         # construct vcs canvas

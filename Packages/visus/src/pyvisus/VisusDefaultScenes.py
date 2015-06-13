@@ -1180,10 +1180,10 @@ def sphereSlice(data=None,**keywords):
 
 if __name__ == "__main__":
 
-  from sys import executable as exe
+  import os
   from os.path import join,isdir,split
 
-  sample_dir = join(split(exe)[0],"..","sample_data")
+  sample_dir = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data")
 
   if isdir(sample_dir):
     fid2 = cdms2.open( join(sample_dir,'clt.nc'))

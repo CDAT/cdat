@@ -222,11 +222,11 @@ Variable 3: Iso-surface around the earth
     if self._mask != 0:
 
       if filename == None:
-        from sys import executable
+        import os
         from os.path import split,join
 
-      filename = join(split(executable)[0],"..","sample_data","sftlf_visus.nc")
-       # filename = join(split(executable)[0],"..","sample_data","sftlf_dnm.nc")
+        filename = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data", "sftlf_visus.nc")
+        #filename = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data", "sftlf_dnm.nc")
         #filename = 'sftlf_A1.20C3M.CCSM.atmm.nc'
 
       longitude = dataArray.getLongitude().getData();
@@ -446,10 +446,10 @@ Variable 3: Iso-surface around the earth
   def setUpMasking( self,image=None):
 
     if image == None:
-      from sys import executable
+      import os
       from os.path import split,join
       
-      image = join(split(executable)[0],"..","sample_data","BlueMarble.ppm")
+      image = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data", "BlueMarble.ppm")
     
     # Open the default or passed in image
     #maskPic = Image.open(image)

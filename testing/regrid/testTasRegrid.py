@@ -16,9 +16,9 @@ class TestTasRegrid(unittest.TestCase):
 
     def setUp(self):
 
-        self.clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, ...]
-        self.tas = cdms2.open(cdat_info.get_prefix() + \
-                                  '/sample_data/tas_ecm_1979.nc')('tas')[0, ...]
+        self.clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, ...]
+        self.tas = cdms2.open(cdat_info.get_sampledata_path() + \
+                                  '/tas_ecm_1979.nc')('tas')[0, ...]
 
         if PLOT:
             lllat = self.clt.getLatitude()[:].min()
@@ -43,8 +43,8 @@ class TestTasRegrid(unittest.TestCase):
         """
         2D
         """
-        tas = cdms2.open(cdat_info.get_prefix() + \
-                             '/sample_data/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[0, 0,...]
+        tas = cdms2.open(cdat_info.get_sampledata_path() + \
+                             '/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[0, 0,...]
         tasInterp = tas.regrid( tas.getGrid() )
         print numpy.all(tasInterp.mask)
         if not numpy.all(tasInterp.mask):
@@ -56,8 +56,8 @@ class TestTasRegrid(unittest.TestCase):
         """
         2D + time
         """
-        tas = cdms2.open(cdat_info.get_prefix() + \
-                             '/sample_data/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[:, 0,...]
+        tas = cdms2.open(cdat_info.get_sampledata_path() + \
+                             '/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[:, 0,...]
         tasInterp = tas.regrid( tas.getGrid() )
         if not numpy.all(tasInterp.mask):
             n = reduce(lambda x,y: x*y, tasInterp.shape)
@@ -68,8 +68,8 @@ class TestTasRegrid(unittest.TestCase):
         """
         2D + level
         """
-        tas = cdms2.open(cdat_info.get_prefix() + \
-                             '/sample_data/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[0, :,...]
+        tas = cdms2.open(cdat_info.get_sampledata_path() + \
+                             '/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[0, :,...]
         tasInterp = tas.regrid( tas.getGrid() )
         if not numpy.all(tasInterp.mask):
             n = reduce(lambda x,y: x*y, tasInterp.shape)
@@ -80,8 +80,8 @@ class TestTasRegrid(unittest.TestCase):
         """
         2D + level + time
         """
-        tas = cdms2.open(cdat_info.get_prefix() + \
-                             '/sample_data/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[:, :,...]
+        tas = cdms2.open(cdat_info.get_sampledata_path() + \
+                             '/tas_ccsr-95a_1979.01-1979.12.nc')('tas')[:, :,...]
         tasInterp = tas.regrid( tas.getGrid() )
         if not numpy.all(tasInterp.mask):
             tasInterp[0,0,...]

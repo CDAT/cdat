@@ -17,7 +17,7 @@ import ESMP
 
 home = os.getenv("HOME") + "/"
 install_prefix = cdat_info.get_prefix() + '/'
-sample_data_dir = cdat_info.get_prefix() + '/sample_data/'
+sample_data_dir = cdat_info.get_sampledata_path() + '/'
 
 class dataNoPeri:
     def __init__(self, nx, ny, xCrdLimits, yCrdLimits):

@@ -39,7 +39,7 @@ import sys
 import os
 import support
 
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','meshfill.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'meshfill.nc'))
 M=f('Mesh')
 s=f('Data')
 

@@ -19,7 +19,7 @@ c.sources = ['WCL (World Coast Line) (designed for 1:5,000,000)','International 
 c.colors = [241,241,244,241]
 c.widths=[2,2,1]
 c.lines=['solid','solid','solid','dot']
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f("clt",latitude=(lat1,lat2),longitude=(lon1,lon2),time=slice(0,1))
 t=x.createtemplate()
 iso=x.createisofill()
