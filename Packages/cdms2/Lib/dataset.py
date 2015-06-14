@@ -1258,7 +1258,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             if newaxis.isVirtual():
                 if len(axis)!=len(newaxis):
                     raise DuplicateAxisError(DuplicateAxis+newname)
-            elif unlimited==0 or (unlimited==1 and getNetcdfUseParallelFlag()==0):
+            elif unlimited==0 or (unlimited==1 and getNetcdfUseParallelFlag()!=0):
                 if len(axis)!=len(newaxis) or numpy.alltrue(numpy.less(numpy.absolute(newaxis[:]-axis[:]),1.e-5))==0:
                     raise DuplicateAxisError(DuplicateAxis+newname)
             else:
