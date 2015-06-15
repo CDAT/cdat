@@ -66,6 +66,18 @@ if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
     --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
     --baseline=${BASELINE_DIR}/metrics/ )
 
+  cdat_add_test("diags_test_11"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/metrics/diagtest11.py
+    --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
+    --baseline=${BASELINE_DIR}/metrics/ )
+    
+  cdat_add_test("diags_test_12"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/metrics/diagtest12.py
+    --datadir=${UVCMETRICS_TEST_DATA_DIRECTORY}/
+    --baseline=${BASELINE_DIR}/metrics/ )
+
   cdat_add_test("diags_test_13"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/metrics/diagtest13.py
