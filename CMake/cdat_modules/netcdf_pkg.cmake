@@ -5,6 +5,10 @@ set(NC4_URL ${LLNL_URL})
 set(NC4_GZ netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
 set(NC4_MD5 5c9dad3705a3408d27f696e5b31fb88c )
 
+set(NC4_GIT_REPO https://github.com/UV-CDAT/netcdf-c.git )
+set(NC4_GIT_CMD GIT_REPOSITORY ${NC4_GIT_REPO})
+set(NC4_GIT_TAG GIT_TAG master)
+
 set (nm NC4)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
