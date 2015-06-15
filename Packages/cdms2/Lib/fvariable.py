@@ -140,7 +140,7 @@ class FileVariable(DatasetVariable):
     def __setattr__(self, name, value):
         if hasattr(self, "parent") and self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
-        if (not name in self.__cdms_internals__) and (value is not None) and (name[0]!='_'):
+        if (not name in self.__cdms_internals__) and (value is not None):
             try:
                 setattr(self._obj_, name, value)
             except CdunifError:

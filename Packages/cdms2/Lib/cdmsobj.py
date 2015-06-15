@@ -464,7 +464,11 @@ class CdmsObj (object,AutoAPI.AutoAPI):
         
     def __init__(self, node = None):
         if not hasattr(self,'___cdms_internals__'):
-            self.__dict__['___cdms_internals__']=['__cdms_internals__','___cdms_internals__','_node_','parent','attributes','shape','autoApiInfo']
+            self.__dict__['___cdms_internals__']=[
+                '__cdms_internals__','___cdms_internals__',
+                '_node_','_obj_',
+                '_numericType_',
+                'parent','attributes','shape','autoApiInfo']
         self.attributes={}
         self._node_ = node
         if node is not None:
