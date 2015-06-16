@@ -96,7 +96,7 @@ class FileVariable(DatasetVariable):
         if self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
         if numpy.ma.isMaskedArray(value):
-          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             saveFill = value.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -104,7 +104,7 @@ class FileVariable(DatasetVariable):
                 value.set_fill_value(self.getMissing())
         apply(self._obj_.setitem,(index,numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
-          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             value.set_fill_value(saveFill)
 
     def __setslice__(self, low, high, value):
