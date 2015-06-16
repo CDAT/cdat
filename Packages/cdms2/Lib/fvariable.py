@@ -144,10 +144,7 @@ class FileVariable(DatasetVariable):
             try:
                 setattr(self._obj_, name, value)
             except CdunifError:
-                print "Error setting:",name,value
                 raise CDMSError, "Setting %s.%s=%s"%(self.id,name,`value`)
-            except Exception,err:
-                print "Error setting:",name,value
             self.attributes[name]=value
         self.__dict__[name] = value
 
