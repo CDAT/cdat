@@ -100,6 +100,15 @@ def setCompressionWarnings(value=None):
         raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
     return _showCompressWarnings
 
+def setNetcdfUseNCSwitchModeFlag(value):
+    """ Tells cdms2 to switch constantly between netcdf define/write modes"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error UseNCSwitchMode flag must be 1(can use)/0(do not use) or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("use_define_mode",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("use_define_mode",1)
+
 def setNetcdfUseParallelFlag(value):
     """ Sets NetCDF classic flag value"""
     if value not in [True,False,0,1]:
@@ -150,6 +159,10 @@ def setNetcdfDeflateLevelFlag(value):
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError("Error NetCDF deflate_level flag must be an integer < 10")
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
+
+def getNetcdfUseNCSwitchModeFlag():
+    """ Returns NetCDF UseParallel flag value"""
+    return Cdunif.CdunifGetNCFLAGS("use_define_mode")
 
 def getNetcdfUseParallelFlag():
     """ Returns NetCDF UseParallel flag value"""

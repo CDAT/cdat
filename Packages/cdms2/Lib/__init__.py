@@ -30,6 +30,7 @@ from grid import createGenericGrid, createGlobalMeanGrid, createRectGrid, create
 from dataset import createDataset, openDataset, useNetcdf3, \
         getNetcdfClassicFlag, getNetcdfShuffleFlag, getNetcdfDeflateFlag, getNetcdfDeflateLevelFlag,\
         setNetcdfClassicFlag, setNetcdfShuffleFlag, setNetcdfDeflateFlag, setNetcdfDeflateLevelFlag,\
+        setNetcdfUseNCSwitchModeFlag,getNetcdfUseNCSwitchModeFlag,\
         setCompressionWarnings,\
         setNetcdf4Flag, getNetcdf4Flag,\
         setNetcdfUseParallelFlag, getNetcdfUseParallelFlag
