@@ -31,6 +31,7 @@ int nc_def_var_chunking(int i,int j,int k,size_t *l) {return 0;};
 
 int cdms_classic = 1 ;
 int cdms_netcdf4 = 0 ;
+int cdms_use_define_mode = 1 ; /* 0 (do not use) or 1 (can use) */
 #ifdef PARALLEL
 int cdms_use_parallel = 1 ; /* 0 (do not use) or 1 (can use) */
 #else
@@ -865,7 +866,7 @@ nc_get_att_any(int ncid, int varid, const char *name,
 static void
 define_mode(PyCdunifFileObject *file, int define_flag)
 {
-  if (file->define != define_flag) {
+  if ((cdms_use_define_mode == 1) && (file->define != define_flag)) {
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
     int ierr;
@@ -2989,6 +2990,14 @@ PyCdunif_setncflags(PyObject *self, PyObject *args) {
     }
     cdms_deflate_level = flagval;
   }
+  else if (strcmp(flagname,"use_define_mode") == 0) {
+    if (flagval>1) {
+      sprintf(msg,"invalid flag for use_define_mode: '%i' valid flags are: 0 (do not use) or 1 (use)",flagval);
+      PyErr_SetString(PyExc_TypeError, msg);
+      return NULL;
+    }
+    cdms_use_define_mode = flagval;
+  }
   else if (strcmp(flagname,"use_parallel") == 0) {
     if (flagval>1) {
       sprintf(msg,"invalid flag for use_parallel: '%i' valid flags are: 0 (do not use) or 1 (can use)",flagval);
@@ -3034,6 +3043,9 @@ PyCdunif_getncflags(PyObject *self, PyObject *args) {
   }
   else if (strcmp(flagname,"netcdf4") == 0) {
       return Py_BuildValue("i",cdms_netcdf4);
+  }
+  else if (strcmp(flagname,"use_define_mode") == 0) {
+      return Py_BuildValue("i",cdms_use_define_mode);
   }
   else if (strcmp(flagname,"use_parallel") == 0) {
       return Py_BuildValue("i",cdms_use_parallel);
