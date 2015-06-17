@@ -30,7 +30,7 @@ int nc_def_var_chunking(int i,int j,int k,size_t *l) {return 0;};
 #endif
 
 int cdms_classic = 1 ;
-int cdms_netcdf4 = 0 ;
+int cdms_netcdf4 = 1 ;
 int cdms_use_define_mode = 1 ; /* 0 (do not use) or 1 (can use) */
 #ifdef PARALLEL
 int cdms_use_parallel = 1 ; /* 0 (do not use) or 1 (can use) */
