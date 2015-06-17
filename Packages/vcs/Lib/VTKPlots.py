@@ -8,7 +8,7 @@ from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
 import os, traceback, sys
 import cdms2
-import DV3D
+#import DV3D
 import MV2
 import cdtime
 import inspect

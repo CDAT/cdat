@@ -17,14 +17,14 @@ class IsofillPipeline(Pipeline2D):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
         genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm,
-                                              deep=False,
+                                              deep=True,
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
+                                            deep=True)
         self._vtkDataSet.GetPointData().SetScalars(data)
 
     def _updateContourLevelsAndColors(self):

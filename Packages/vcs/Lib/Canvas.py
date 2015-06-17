@@ -73,6 +73,84 @@ import vcs.manageElements
 import configurator
 from projection import round_projections
 
+def clean_val(value):
+    if numpy.allclose(value,0.):
+        return 0.
+    elif value<0:
+        sign=-1
+        value=-value
+    else:
+        sign=1
+    i=int(numpy.log10(value))
+    if i>0:
+        j=i
+        k=10.
+    else:
+        j=i-1
+        k=10.
+    v=int(value/numpy.power(k,j))*numpy.power(k,j)
+    return v*sign
+
+def mkdic(method,values):
+    if method=='area_wt':
+        func=numpy.sin
+        func2=numpy.arcsin
+    elif method=='exp':
+        func=numpy.exp
+        func2=numpy.log
+    elif method=='ln':
+        func=numpy.log
+        func2=numpy.exp
+    elif method=='log10':
+        func=numpy.log10
+    vals=[]
+    for v in values:
+        if method=='area_wt':
+            vals.append(func(v*numpy.pi/180.))
+        else:
+            vals.append(func(v))
+    min,max=vcs.minmax(vals)
+    levs=vcs.mkscale(min,max)
+##             levs=vcs.mkevenlevels(min,max)
+    vals=[]
+    for l in levs:
+        if method=='log10':
+            v=numpy.power(10,l)
+        elif method=='area_wt':
+            v=func2(l)/numpy.pi*180.
+        else:
+            v=func2(l)
+        vals.append(clean_val(v))
+    dic=vcs.mklabels(vals)
+    dic2={}
+    for k in dic.keys():
+        try:
+            if method=='area_wt':
+                dic2[func(k*numpy.pi/180.)]=dic[k]
+            else:
+                dic2[func(k)]=dic[k]
+        except:
+            pass
+    return dic2
+
+def set_convert_labels(copy_mthd,test=0):
+    did_something = False
+    for axc in ['x','y']:
+        try:
+            mthd=getattr(copy_mthd,axc+'axisconvert')
+            if mthd!='linear':
+                for num in ['1','2']:
+                    if getattr(copy_mthd,axc+'ticlabels'+num)=='*':
+                        if axc=='x':
+                            axn=-1
+                        else:
+                            axn=-2
+                        dic=mkdic(mthd,arglist[0].getAxis(axn)[:])
+                        if test==0 : setattr(copy_mthd,axc+'ticlabels'+num,dic)
+                        did_something = True
+        except:
+            pass
+    return did_something
 class SIGNAL(object):
 
     def __init__( self, name = None ):
@@ -3329,84 +3407,6 @@ Options:::
             except:
                 pass
 
-        def clean_val(value):
-            if numpy.allclose(value,0.):
-                return 0.
-            elif value<0:
-                sign=-1
-                value=-value
-            else:
-                sign=1
-            i=int(numpy.log10(value))
-            if i>0:
-                j=i
-                k=10.
-            else:
-                j=i-1
-                k=10.
-            v=int(value/numpy.power(k,j))*numpy.power(k,j)
-            return v*sign
-
-        def mkdic(method,values):
-            if method=='area_wt':
-                func=numpy.sin
-                func2=numpy.arcsin
-            elif method=='exp':
-                func=numpy.exp
-                func2=numpy.log
-            elif method=='ln':
-                func=numpy.log
-                func2=numpy.exp
-            elif method=='log10':
-                func=numpy.log10
-            vals=[]
-            for v in values:
-                if method=='area_wt':
-                    vals.append(func(v*numpy.pi/180.))
-                else:
-                    vals.append(func(v))
-            min,max=vcs.minmax(vals)
-            levs=vcs.mkscale(min,max)
-##             levs=vcs.mkevenlevels(min,max)
-            vals=[]
-            for l in levs:
-                if method=='log10':
-                    v=numpy.power(10,l)
-                elif method=='area_wt':
-                    v=func2(l)/numpy.pi*180.
-                else:
-                    v=func2(l)
-                vals.append(clean_val(v))
-            dic=vcs.mklabels(vals)
-            dic2={}
-            for k in dic.keys():
-                try:
-                    if method=='area_wt':
-                        dic2[func(k*numpy.pi/180.)]=dic[k]
-                    else:
-                        dic2[func(k)]=dic[k]
-                except:
-                    pass
-            return dic2
-
-        def set_convert_labels(copy_mthd,test=0):
-            did_something = False
-            for axc in ['x','y']:
-                try:
-                    mthd=getattr(copy_mthd,axc+'axisconvert')
-                    if mthd!='linear':
-                        for num in ['1','2']:
-                            if getattr(copy_mthd,axc+'ticlabels'+num)=='*':
-                                if axc=='x':
-                                    axn=-1
-                                else:
-                                    axn=-2
-                                dic=mkdic(mthd,arglist[0].getAxis(axn)[:])
-                                if test==0 : setattr(copy_mthd,axc+'ticlabels'+num,dic)
-                                did_something = True
-                except:
-                    pass
-            return did_something
 
         if set_convert_labels(check_mthd,test=1):
             if copy_mthd is None:

@@ -226,10 +226,10 @@ marker.Tm("default")
 meshfill.Gfm("default")
 colormap.Cp("default")
 displayplot.Dp("default")
-dv3d.Gf3Dvector("default")
-dv3d.Gf3Dscalar("default")
-dv3d.Gf3Dscalar("Hovmoller3D")  
-dv3d.Gf3DDualScalar("default")
+#dv3d.Gf3Dvector("default")
+#dv3d.Gf3Dscalar("default")
+#dv3d.Gf3Dscalar("Hovmoller3D")
+#dv3d.Gf3DDualScalar("default")
 
 on = { 'state' : 1 }
 off = { 'state' : 0 }
