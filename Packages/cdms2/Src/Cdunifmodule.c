@@ -866,14 +866,16 @@ nc_get_att_any(int ncid, int varid, const char *name,
 static void
 define_mode(PyCdunifFileObject *file, int define_flag)
 {
-  if ((cdms_use_define_mode == 1) && (file->define != define_flag)) {
+  if (file->define != define_flag) {
     Py_BEGIN_ALLOW_THREADS;
     acquire_Cdunif_lock();
-    int ierr;
-    if (file->define)
-      ierr = cdendef(file);
-    else
-      ierr = cdredef(file);
+    if (cdms_use_define_mode == 1) {
+      int ierr;
+      if (file->define)
+        ierr = cdendef(file);
+      else
+        ierr = cdredef(file);
+    }
     release_Cdunif_lock();
     file->define = define_flag;
     Py_END_ALLOW_THREADS;
