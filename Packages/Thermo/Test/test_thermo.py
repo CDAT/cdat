@@ -57,7 +57,7 @@ template.ylabel1.y=template.data.x1*.9
 
 
 ## Open the file, read the T
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','thermo.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'thermo.nc'))
 t=f('t')
 
 ## P axis must be in Pa
@@ -84,7 +84,7 @@ template.ylabel1.y=template.data.x1*.9
 
 
 ## Read winds from a file
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','thermo.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'thermo.nc'))
 u=f('ua',time=slice(0,1),longitude=0,latitude=0,squeeze=1)
 v=f('va',time=slice(0,1),longitude=0,latitude=0,squeeze=1)
 

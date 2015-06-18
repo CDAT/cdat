@@ -5,7 +5,7 @@ import os
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
-f = cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
+f = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 clt = f("clt",latitude=(80.0, 38.0),squeeze=1,longitude=(-180.0, 180.0),time=slice(0,1))
 x = vcs.init()
 gm = vcs.createisofill()

@@ -21,19 +21,19 @@ class Test(unittest.TestCase):
         pass
 
     def test_1(self):
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         clt = f('clt')[0, :, :]
         cltInterp = clt.regrid(clt.getGrid(), regridTool='regrid2')
         self.assertLess(numpy.sum(clt - cltInterp), 1.e-3)
 
     def test_2(self):
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         clt = f('clt')[:, :, :]
         cltInterp = clt.regrid(clt.getGrid(), regridTool='regrid2')
         self.assertLess(numpy.sum(clt - cltInterp), 5.e-3)
 
     def test_3(self):
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')
         clt = f('clt')[:, :, :]
         u = f('u')[:, :, :]
         cltInterp = clt.regrid(u.getGrid(), regridTool='regrid2')

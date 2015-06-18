@@ -83,8 +83,8 @@ class Test(unittest.TestCase):
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG # ESMP.ESMP_COORDSYS_CART fails
 
-        inFile = cdat_info.get_prefix() + \
-            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
+        inFile = cdat_info.get_sampledata_path() + \
+            '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
         srcF = scipy.io.netcdf.netcdf_file(inFile)
         #so = srcF.variables['so'][0, 0,...]
         missing_value = 1.e20
@@ -292,8 +292,8 @@ class Test(unittest.TestCase):
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG # ESMP.ESMP_COORDSYS_CART fails
 
-        inFile = cdat_info.get_prefix() + \
-            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
+        inFile = cdat_info.get_sampledata_path() + \
+            '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
         # dtype of a numpy 'float64' in scipy is '>f4' ...
         # switching to cdms2
         startBegin = time.time()

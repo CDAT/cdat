@@ -5,7 +5,7 @@ bg=support.bg
 
 t0=cdtime.comptime(2000,7,15)
 t1=cdtime.comptime(2000,11)
-f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','ta_ncep_87-6-88-4.nc'))
+f=cdms.open(os.path.join(vcs.sample_data,'ta_ncep_87-6-88-4.nc'))
 
 s=f('ta',latitude=slice(5,6),level=slice(0,1),longitude=slice(6,7),squeeze=1)
 s2=f('ta',latitude=slice(5,6),level=slice(0,1),longitude=slice(18,19),squeeze=1)

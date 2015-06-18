@@ -6,7 +6,7 @@ tp = vcs_legacy.init()
 
 tp.portrait()
 
-fnm=os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')
+fnm=os.path.join(vcs.sample_data,'clt.nc')
 f=cdms.open(fnm)
 s=f('clt')
 tp.plot(s,bg=bg)

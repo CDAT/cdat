@@ -4,7 +4,7 @@ import cdms2 as cdms,sys
 import cdat_info
 
 # Construct the string containing the path to the data_file
-file_name=cdat_info.get_prefix()+'/sample_data/clt.nc'
+file_name=cdat_info.get_sampledata_path()+'/clt.nc'
 
 # open the file with the cdms interface
 file=cdms.open(file_name)

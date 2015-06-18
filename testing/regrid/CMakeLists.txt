@@ -51,7 +51,7 @@ if(CDAT_DOWNLOAD_SAMPLE_DATA)
   cdat_add_test("testWrite"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/regrid/testWrite.py
-    ${CMAKE_INSTALL_DIR}/sample_data)
+    ${CMAKE_INSTALL_DIR}/share/uvcdat/sample_data)
 endif()
 cdat_add_test("testMvCdmsRegrid"
          "${PYTHON_EXECUTABLE}"
@@ -248,7 +248,7 @@ cdat_add_test("testSo2Tas"
 cdat_add_test("testWrite"
          "${PYTHON_EXECUTABLE}"
          ${cdat_SOURCE_DIR}/testing/regrid/testWrite.py
-         ${CMAKE_INSTALL_DIR}/sample_data)
+         ${CMAKE_INSTALL_DIR}/share/uvcdat/sample_data)
 cdat_add_test("testMvCdmsRegrid"
          "${PYTHON_EXECUTABLE}"
          ${cdat_SOURCE_DIR}/testing/regrid/testMvCdmsRegrid.py)

@@ -132,7 +132,7 @@ class Test(unittest.TestCase):
             'esmf': ['linear', 'patch', 'conserve'],
             }
     
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/swan.four.nc')
         vari = f('HS')
         f.close()
         gridi = vari.getGrid()
@@ -205,7 +205,7 @@ class Test(unittest.TestCase):
             'esmf': ['conserve', 'patch', 'linear'],
             }
     
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/swan.four.nc')
         vari = f('HS')
         gridi = vari.getGrid()
         lati = vari.getLatitude()
@@ -243,7 +243,7 @@ class Test(unittest.TestCase):
             'esmf': ['conserve', 'patch', 'linear'],
             }
     
-        f = cdms2.open(cdat_info.get_prefix() + '/sample_data/swan.four.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + '/swan.four.nc')
         vari = f('HS')
         gridi = vari.getGrid()
         lati = vari.getLatitude()

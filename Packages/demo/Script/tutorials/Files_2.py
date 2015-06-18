@@ -4,7 +4,7 @@ import cdat_info
 
 # First of all we need to open the ASCII file
 # For this we used the Python built-in command "open"
-f=open(cdat_info.get_prefix()+'/sample_data/test_col.asc')
+f=open(cdat_info.get_sampledata_path()+'/test_col.asc')
 
 # Now we need to read its content
 # To read all of its content we use the "readlines" command

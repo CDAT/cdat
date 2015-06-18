@@ -3,7 +3,7 @@ import cdms2,genutil,cdutil,os,sys
 
 #fnm='/pcmdi/obs/mo/tas/rnl_ncep/tas.rnl_ncep.ctl'
 #f=cdms2.open(fnm)
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','tas_cru_1979.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'tas_cru_1979.nc'))
 s=f('tas',time=slice(0,2))
 
 # last test should fail !
@@ -27,7 +27,7 @@ v=genutil.statistics.variance(s,axis='12',weights='weighted')
 print v.shape
 
 print "####################### Test 3 ################################"
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 clt=f('clt')
 v=genutil.statistics.covariance(clt,clt,axis='(latitude)(longitude)',weights=['generate','generate'])
 print v.shape

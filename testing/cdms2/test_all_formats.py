@@ -24,7 +24,7 @@ else:
 
 #if cdat_info.CDMS_INCLUDE_DRS=='yes':
 #    print 'Testing DRS'
-#    f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','ta_300_850_PCM_O_mm_xy_wa_r0000_0000.dic'))
+#    f=cdms2.open(os.path.join(vcs.sample_data,'ta_300_850_PCM_O_mm_xy_wa_r0000_0000.dic'))
 #    print f.listvariables()
 #else:
 #    print 'CDMS not built with DRS support, skipped DRS test'
@@ -45,7 +45,7 @@ print f.listvariables()
     
 #if cdat_info.CDMS_INCLUDE_DRS=='yes':
 #    print 'Testing cdms2/ql ?'
-#    f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','test.cdms2'))
+#    f=cdms2.open(os.path.join(vcs.sample_data,'test.cdms2'))
 #    print f.listvariables()
 #else:
 #    print 'CDMS not built with PSQL support, skipped PSQL test'
