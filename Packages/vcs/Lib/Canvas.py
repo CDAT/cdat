@@ -2675,8 +2675,8 @@ Options:::
 ###############################################################################################################
 
 """
-        self.__last_plot_actual_args = actual_args
-        self.__last_plot_keyargs = keyargs
+        #self.__last_plot_actual_args = actual_args
+        #self.__last_plot_keyargs = keyargs
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
