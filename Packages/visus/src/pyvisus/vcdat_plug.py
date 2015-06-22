@@ -105,11 +105,11 @@ class create_visus_tools_menu:
       
 
    def demoScene(self):
-     from sys import executable
+     import os
      from os.path import split,join
      import cdms2
      
-     sample_dir = join(split(executable)[0],"..","sample_data")
+     sample_dir = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data")
      
      mean = cdms2.open(join(sample_dir,"mean_1900_1_1900_12.nc"))['tas']
      std  = cdms2.open(join(sample_dir,"std_1900_1_1900_12.nc"))['tas']
@@ -138,11 +138,11 @@ class create_visus_tools_menu:
 if __name__ == "__main__":
   #global gRootNode
 
-  from sys import executable
+  import os
   from os.path import split,join
   import cdms2
   
-  sample_dir = join(split(executable)[0],"..","sample_data")
+  sample_dir = join(os.environ["UVCDAT_SETUP_PATH"], "share", "uvcdat", "sample_data")
   
   mean = cdms2.open(join(sample_dir,"mean_1900_1_1900_12.nc"))['tas']
   std  = cdms2.open(join(sample_dir,"std_1900_1_1900_12.nc"))['tas']

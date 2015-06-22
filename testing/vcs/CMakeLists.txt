@@ -673,8 +673,14 @@ cdat_add_test(vcs_test_colorpicker_appearance
 )
 
 # Run pep8 to check code style:
+set(PEP8 "${CMAKE_INSTALL_PREFIX}")
+if (APPLE)
+  set(PEP8 "${PEP8}/Library/Frameworks/Python.framework/Versions/${PYVER}")
+endif()
+
+set(PEP8 "${PEP8}/bin/pep8")
 add_test(vcs_pep8
-  "${CMAKE_INSTALL_PREFIX}/bin/pep8"
+  "${PEP8}"
   # --count is needed so that the exit code is nonzero when errors are found.
   --count
   # Add more file/dir paths or modify this one to expand the coverage:

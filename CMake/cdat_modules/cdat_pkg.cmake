@@ -12,7 +12,7 @@ execute_process(
 
 if (NOT ${res} EQUAL 0) 
     set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
-    message("[WARNING] Couldn't get version from git setting from values in cdat_pkg.cmake ${cdat_VERSION}")
+    message("[WARNING] Couldn't get version from git. Setting from values in cdat_pkg.cmake: ${cdat_VERSION}")
 else ()
     STRING(REGEX REPLACE "(\r?\n)+$" "" ver "${ver}")
     set(cdat_VERSION ${ver})

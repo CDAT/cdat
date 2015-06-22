@@ -1,1 +1,1 @@
-set(FFMPEG_deps ${pkgconfig_pkg} ${yasm_pkg})
+set(FFMPEG_deps ${pkgconfig_pkg} )

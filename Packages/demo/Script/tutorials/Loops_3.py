@@ -3,7 +3,7 @@ import cdms2 as cdms, MV2 as MV, genutil
 import sys
 import cdat_info
 
-pth=cdat_info.get_prefix()+'/sample_data/'
+pth=cdat_info.get_sampledata_path()+'/'
 
 files = [ pth+'u_2000.nc',
           pth+'u_2001.nc',

@@ -91,6 +91,12 @@ class vtk_ui_test(object):
         self.do_test()
 
         if self.test_file:
+            if self.win.GetOffScreenRendering() == 0:
+                # There was a race condition where resizing might take longer
+                # than rendering, so the image was coming out weird. This
+                # should fix that.
+                from time import sleep
+                sleep(2)
             if self.args:
                 src = self.args[0]
                 self.passed = self.check_image(src)

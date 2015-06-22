@@ -20,7 +20,7 @@ class vcsTest:
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
-        self.file_path = os.path.join( vcs.prefix, "sample_data", filename )
+        self.file_path = os.path.join( vcs.sample_data, filename )
         self.file = cdms2.open( self.file_path )
         self.roi =  args.get( 'roi', None )
         self.ptype = args.get( 'type', '3d_scalar' )

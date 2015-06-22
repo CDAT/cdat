@@ -3,7 +3,7 @@ import cdms2 as cdms
 import sys
 import cdat_info
 
-path=cdat_info.get_prefix()+'/sample_data/'
+path=cdat_info.get_sampledata_path()+'/'
 
 files = [ path+'u_2000.nc',
 	  path+'u_2001.nc',

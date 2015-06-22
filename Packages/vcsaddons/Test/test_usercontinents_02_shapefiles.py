@@ -16,7 +16,7 @@ c.sources = ['../Data/fe_2007_06075_edges',]
 c.colors = [241,246,244,241]
 c.widths=[1,2,1]
 c.lines=['solid','solid','solid','dot']
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f("clt",latitude=(lat1-5,lat2+5),longitude=(lon1-5,lon2+5),time=slice(0,1))
 t=x.createtemplate()
 iso=x.createisofill()

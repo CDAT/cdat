@@ -2,7 +2,7 @@
 import vcs,cdms2,sys,support,os
 bg=support.bg
 
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f('clt',time=slice(0,2))
 g=s.getGrid()
 

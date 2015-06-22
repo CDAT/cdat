@@ -1,6 +1,6 @@
 import cdms2,cdutil,sys,MV2,numpy,os,cdat_info
 
-f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','clt.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'clt.nc'))
 s=f("clt")
 cdutil.setTimeBoundsMonthly(s)
 

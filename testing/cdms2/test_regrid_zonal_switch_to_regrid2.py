@@ -1,7 +1,8 @@
 import cdms2
-import os,sys
+import cdat_info
+import os
 
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(cdat_info.get_sampledata_path(),"clt.nc"))
 
 s=f("clt",slice(0,1))
 

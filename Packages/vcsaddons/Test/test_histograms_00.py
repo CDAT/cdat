@@ -6,7 +6,7 @@ h = vcsaddons.createhistogram()
 
 import sys,cdms2
 cdms2.setAutoBounds("on")
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f("clt")
 
 h.datawc_x1=-.5

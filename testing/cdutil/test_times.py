@@ -2,14 +2,14 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 
 var='tas'
-import cdtime,cdms2,os,sys,vcs
+import cdtime,cdms2,os,sys,cdat_info
 from cdutil import times
 import MV2
 
 cdms2.setAutoBounds('on')
 
-f   = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_mo.nc'))
-fsc = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_mo_clim.nc'))
+f   = cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'tas_mo.nc'))
+fsc = cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'tas_mo_clim.nc'))
 
 print "Step #0 : Reading data"
 s=f(var,longitude=(0,360,'co'))
@@ -28,7 +28,7 @@ fsc.close()
 a=cdtime.comptime(1980)
 b=cdtime.comptime(1980,5)
 
-f = cdms2.open(os.path.join(vcs.prefix,'sample_data','tas_6h.nc'))
+f = cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'tas_6h.nc'))
 s=f(var,time=(a,b,'co'),squeeze=1)
 
 print "Test #2 : 6hourly AND get"
