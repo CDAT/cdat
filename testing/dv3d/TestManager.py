@@ -48,17 +48,12 @@ class TestManager:
             print>>sys.stderr, "Can't find test named '%s'" % testName
             print>>sys.stderr, " Defined Tests = %s " % str( TestManager.DefinedTests.items() )
             return -1
-        baseline_file_path = os.path.join(TestingDir,".baseline_path")
         if baselinedir is not None:
-            text_file = open(baseline_file_path, "w")
-            text_file.write( baselinedir )
-            text_file.close()
-        else:
-            text_file = open(baseline_file_path, "r")
-            baselinedir = text_file.read()
-            text_file.close()
-        test.test_dir = baselinedir
-        test.image_name = os.path.join( test.test_dir, 'images', '.'.join( [ test.name, 'png' ] )  )
+            test.test_dir = baselinedir
+            test.image_name = os.path.join( test.test_dir, 'images',\
+                '.'.join( [ test.name, 'png' ] )  )
+        print "Running test %s, interactive= %s, baselinedir= %s" % ( testName,\
+                str(interactive), str(baselinedir) )
         test.test( ast.literal_eval(interactive) )
 
 
