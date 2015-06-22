@@ -126,15 +126,11 @@ class vcsTest:
         self.build()
 #        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
-        ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
-        try:
-            print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
-            shutil.copy( self.image_name, ref_image )
-            ret = checkimage.check_result_image( test_image, ref_image, checkimage.defaultThreshold+3. )
-        except IOError:
-            print "No ref image '%s' found." % ref_image
-            ret = 0
+
+        ret = checkimage.check_result_image( test_image, self.image_name,\
+                checkimage.defaultThreshold+3. )
+
         if  interactive:
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )."
             sys.stdout.flush()
