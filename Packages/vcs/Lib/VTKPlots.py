@@ -674,8 +674,8 @@ class VTKVCSBackend(object):
 
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
-    if tmpl.legend.priority>0:
-      tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
+    #if tmpl.legend.priority>0:
+    #  tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
     return {}
 
   def cleanupData(self,data):
