@@ -61,11 +61,6 @@ def check_result_image(fname, baselinefname, threshold, baseline = False, cleanu
     else:
         baselinefnames = [baselinefname,]
 
-    for b in baselinefnames:
-        if not os.path.isfile(b):
-            print "ERROR: ImageNotFound '%s'" %b
-            return -1
-
     print "Found Baselines:"
     for baselinefname in baselinefnames:
         print "- %s"%baselinefname
