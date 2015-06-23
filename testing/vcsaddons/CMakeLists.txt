@@ -1,5 +1,11 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcsaddons")
 
+add_test(flake8_vcsaddons
+  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/vcsaddons/Lib/"
+  --show-source # Show context for detected errors
+  --statistics  # Show summary of errors at end of output
+)
+
 cdat_add_test(vcs_addons_preview_2x2
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcsaddons_preview_2x2.py
