@@ -52,6 +52,8 @@ class VTKVCSBackend(object):
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
     self.clickRenderer = None
+    # Turn off anti-aliasing by default
+    self.antiAliasing = 0
 
     if renWin is not None:
       self.renWin = renWin
@@ -293,7 +295,7 @@ class VTKVCSBackend(object):
       self.renWin.SetStencilCapable(1)
       ## turning off antialiasing by default
       ## mostly so that pngs are same accross platforms
-      self.renWin.SetMultiSamples(0)
+      self.renWin.SetMultiSamples(self.antiAliasing)
       self.initialSize()
 
     if self.renderer == None:
@@ -926,16 +928,12 @@ class VTKVCSBackend(object):
       warnings.warn("Please implement gettextextent for VTK Backend")
 
   def getantialiasing(self):
-    if self.renWin is None:
-      return 0
-    else:
-      return self.renWin.GetMultiSamples()
+     return self.antiAliasing
 
   def setantialiasing(self,antialiasing):
-    if self.renWin is None:
-      warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
-    else:
-      self.renWin.SetMultiSamples(antialiasing)
+    if self.renWin is not None:
+        warnings.warn("RenderWindow already created. setantialiasing call would have no effect here.")
+    self.antiAliasing = antialiasing
 
   def createLogo(self):
     if self.canvas.drawLogo:
