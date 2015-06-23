@@ -1,5 +1,10 @@
-
 # cdms2 tests
+
+add_test(flake8_cdms2
+  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/cdms2/Lib/"
+  --show-source # Show context for detected errors
+  --statistics  # Show summary of errors at end of output
+)
 
 cdat_add_test("test_ascontiguous_regrid_nan_issue"
   "${PYTHON_EXECUTABLE}"
@@ -127,5 +132,3 @@ cdat_add_test("test_cdms2_full_averagering_full_missing"
 
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
-
-
