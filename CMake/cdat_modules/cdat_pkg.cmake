@@ -1,8 +1,7 @@
 set(cdat_VERSION_MAJOR 2)
-set(cdat_VERSION_MINOR 1)
+set(cdat_VERSION_MINOR 2)
 set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
-option(CDAT_BUILD_VCS_LEGACY "Build the legacy (xgks/cairo/qt based vcs in addition to the newer VTK-based vcs" OFF)
 
 execute_process(
     COMMAND ${GIT_EXECUTABLE} describe --tags
@@ -13,7 +12,7 @@ execute_process(
 
 if (NOT ${res} EQUAL 0) 
     set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
-    message("Couldn't get version from git setting from values in cdat_pkg.cmake ${cdat_VERSION}")
+    message("[WARNING] Couldn't get version from git. Setting from values in cdat_pkg.cmake: ${cdat_VERSION}")
 else ()
     STRING(REGEX REPLACE "(\r?\n)+$" "" ver "${ver}")
     set(cdat_VERSION ${ver})

@@ -50,7 +50,6 @@ else:
 # List of packages to be built
 packages = [ 
     "Packages/pydebug",
-    "Packages/AutoAPI",
     "Packages/cdtime",
     "Packages/demo",
     "Packages/help",
@@ -70,7 +69,3 @@ packages = [
     "Packages/gui_support",
     "Packages/distarray",
     ]
-
-if "--enable-vcs-legacy" in sys.argv:
-  packages.append("Packages/vcs_legacy")
-

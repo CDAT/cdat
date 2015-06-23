@@ -62,7 +62,6 @@ import random
 from cdms2.grid import AbstractRectGrid
 import shutil, inspect
 import VCS_validation_functions
-import AutoAPI
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
 # Flag to set if the initial attributes file has aready been read in
 called_initial_attributes_flg = 0
@@ -308,7 +307,7 @@ def finish_queued_X_server_requests( self ):
            self.canvas.xsync_discard()
            break
 
-class Canvas(object,AutoAPI.AutoAPI):
+class Canvas(object):
     """
  Function: Canvas                     # Construct a VCS Canvas class Object
 
@@ -331,7 +330,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         '_worldcoordinate',
         '_winfo_id',
         '_varglist',
-	'_canvas_gui',
+        '_canvas_gui',
         '_animate_info',
         '_canvas_template_editor',
         '_isplottinggridded',
@@ -339,6 +338,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         '_user_actions',
         '_animate',
         '_canvas',
+        '_canvas_id',
         'mode',
         'pause_time',
         'viewport',
@@ -356,6 +356,23 @@ class Canvas(object,AutoAPI.AutoAPI):
         'user_actions',
         'size',
         'canvas_guianimate_info',
+        'ParameterChanged',
+        'colormap',
+        'backgroundcolor',
+        'bgX',
+        'bgY',
+        'display_names',
+        '_dotdir',
+        '_dotdirenv',
+        'drawLogo',
+        'enableLogo',
+        'backend',
+        'configurator',
+        '__last_plot_actual_args',
+        '__last_plot_keyargs',
+        '_continents',
+        '_savedcontinentstype',
+        '__weakref__',
         ]
 
 #     def applicationFocusChanged(self, old, current ):
@@ -868,8 +885,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.bgY = 606
         ## displays plotted
         self.display_names = []
-        self.info = AutoAPI.Info(self)
-        self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
         found = False
         for p in ospath.split(":"):

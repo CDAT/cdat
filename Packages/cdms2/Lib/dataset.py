@@ -28,7 +28,6 @@ from tvariable import asVariable
 from cdmsNode import CdDatatypes
 import convention
 import typeconv
-import AutoAPI
 
 try:
     import gsHost
@@ -861,7 +860,7 @@ class Dataset(CdmsObj, cuDataset):
 ##                                             'uri',
 ##                                             'mode')
 
-class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
+class CdmsFile(CdmsObj, cuDataset):
     def __init__(self, path, mode, hostObj = None):
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)
@@ -874,7 +873,6 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                                 'default_variable_name',
                                 'id',
                                 'parent',
-                                'autoApiInfo',
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
@@ -894,10 +892,6 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
-        self.autoApiInfo.expose.update(["sync","close","createAxis","createVirtualAxis", \
-            "copyAxis","createRectGrid","copyGrid","createVariable","searchPattern",     \
-            "matchPattern","searchPredicate","createVariableCopy","write","getVariable", \
-            "getVariables","getAxis","getGrid","getBoundsAxis"])
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
