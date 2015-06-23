@@ -467,7 +467,7 @@ class CdmsObj (object,AutoAPI.AutoAPI):
             self.__dict__['___cdms_internals__']=[
                 '__cdms_internals__','___cdms_internals__',
                 '_node_','_obj_',
-                '_numericType_','_grid_',
+                '_numericType_','_grid_','_bounds_',
                 'parent','attributes','shape','autoApiInfo']
         self.attributes={}
         self._node_ = node
