@@ -315,7 +315,7 @@ def scriptrun_scr(*args):
           slab_name = scr_str.split('(')[0][2:]
           a=scr_str.split('",')
           for j in range(len(a)):
-             b=string.split(a[j],'="')
+             b=a[j].split('="')
              if b[0][-4:].lower() == 'file':
                 fcdms=cdms2.open(b[1])                       # Open CDMS file
              elif b[0][-8:].lower() == 'function':
@@ -842,7 +842,7 @@ def mklabels(vals,output='dict'):
   >>> vcs.mklabels ( [.00002,.00005],output='list')
   ['2E-5', '5E-5']
   '''
-  import string,numpy.ma
+  import numpy.ma
   if isinstance(vals[0],list) or isinstance(vals[0],tuple):
     vals=__split2contiguous(vals)
   vals=numpy.ma.asarray(vals)
@@ -853,7 +853,7 @@ def mklabels(vals,output='dict'):
   # Finds maximum number to write
   amax=float(numpy.ma.maximum(numpy.ma.absolute(vals)))
   if amax==0 :
-    if string.lower(output[:3])=='dic' :
+    if output[:3].lower()=='dic' :
       return {0:'0'}
     else:
       return ['0']
@@ -866,7 +866,7 @@ def mklabels(vals,output='dict'):
         lbls.append(mklabels([vals[i]],output='list')[0])
       else:
         lbls.append('0')
-    if string.lower(output[:3])=='dic':
+    if output[:3].lower()=='dic':
       dic={}
       for i in range(len(vals)):
         dic[float(vals[i])]=lbls[i]
@@ -900,8 +900,8 @@ def mklabels(vals,output='dict'):
         aa=str(vals[i]/numpy.ma.power(10.,idigleft-1))
         ii=1
         if vals[i]<0. : ii=2
-        aa=string.ljust(aa,idig+ii)
-        aa=string.replace(aa,' ','0')
+        aa=aa.ljust(idig+ii)
+        aa=aa.replace(' ','0')
         lbls.append(aa+'E'+str(idigleft-1))
   elif idigleft>0 and idigleft>=idig:  #F format
     for i in range(nvals):
@@ -920,7 +920,7 @@ def mklabels(vals,output='dict'):
     vals=-vals
     for i in range(len(lbls)):
       lbls[i]='-'+lbls[i]
-  if string.lower(output[:3])=='dic':
+  if output[:3].lower()=='dic':
     dic={}
     for i in range(len(vals)):
       dic[float(vals[i])]=str(lbls[i])
@@ -962,7 +962,6 @@ def getcolors(levs,colors=range(16,240),split=1,white=240):
    [16, 48, 80, 112, 143, 175, 207, 239] 
 '''
 
- import string
  
  if len(levs)==1: return [colors[0]]
  if isinstance(levs[0],list) or isinstance(levs[0],tuple):
@@ -982,7 +981,7 @@ def getcolors(levs,colors=range(16,240),split=1,white=240):
      else :
          split=1
  # Take care of argument white
- if isinstance(white,str): white=string.atoi(white)
+ if isinstance(white,str): white=int(white)
  
  # Gets first and last value, and adjust if extensions
  mn=levs[0]

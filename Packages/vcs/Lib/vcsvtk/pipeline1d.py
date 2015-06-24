@@ -3,6 +3,7 @@ from .pipeline import Pipeline
 import numpy
 import vcs
 
+
 class Pipeline1D(Pipeline):
     """Implementation of the Pipeline interface for 1D VCS plots."""
 
@@ -13,7 +14,7 @@ class Pipeline1D(Pipeline):
         """Overrides baseclass implementation."""
         Y = self._context.trimData1D(data1)
         if data2 is None:
-            X=Y.getAxis(0)
+            X = Y.getAxis(0)
         else:
             X = Y
             data1._yname = data2.id
@@ -25,7 +26,7 @@ class Pipeline1D(Pipeline):
             X = tmp
 
         if gm.smooth is not None:
-            Y = smooth(Y,gm.smooth)
+            Y = smooth(Y, gm.smooth)
 
         l = self._context.canvas.createline()
         Xs = X[:].tolist()
@@ -34,7 +35,7 @@ class Pipeline1D(Pipeline):
         ys = []
         prev = None
         for i, v in enumerate(Ys):
-            if v is not None and Xs[i] is not None: # Valid data
+            if v is not None and Xs[i] is not None:  # Valid data
                 if prev is None:
                     prev = []
                     prev2 = []
@@ -83,19 +84,19 @@ class Pipeline1D(Pipeline):
             m._viewport = l.viewport
             m._worldcoordinate = l.worldcoordinate
 
-        if not (Y[:].min() > max(y1, y2) or Y[:].max() < min(y1, y2) \
-             or X[:].min() > max(x1, x2) or X[:].max() < min(x1, x2)):
+        if not (Y[:].min() > max(y1, y2) or Y[:].max() < min(y1, y2) or
+                X[:].min() > max(x1, x2) or X[:].max() < min(x1, x2)):
             if l.priority > 0:
-                  self._context.canvas.plot(l, donotstoredisplay=True)
+                self._context.canvas.plot(l, donotstoredisplay=True)
             if gm.marker is not None and m.priority > 0:
-                  self._context.canvas.plot(m, donotstoredisplay=True)
+                self._context.canvas.plot(m, donotstoredisplay=True)
 
         ren2 = self._context.createRenderer()
         self._context.renWin.AddRenderer(ren2)
         tmpl.plot(self._context.canvas, data1, gm, bg=self._context.bg,
                   renderer=ren2, X=X, Y=Y)
         if hasattr(data1, "_yname"):
-          del(data1._yname)
+            del(data1._yname)
         del(vcs.elements["line"][l.name])
         if gm.marker is not None:
             del(vcs.elements["marker"][m.name])
@@ -103,7 +104,7 @@ class Pipeline1D(Pipeline):
         if tmpl.legend.priority > 0:
             legd = self._context.canvas.createline()
             legd.x = [tmpl.legend.x1, tmpl.legend.x2]
-            legd.y = [tmpl.legend.y1, tmpl.legend.y1] # [y1, y1] intentional.
+            legd.y = [tmpl.legend.y1, tmpl.legend.y1]  # [y1, y1] intentional.
             legd.color = l.color
             legd.width = l.width
             legd.type = l.type

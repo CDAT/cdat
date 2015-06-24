@@ -6,6 +6,7 @@ import vcs
 import vtk
 import warnings
 
+
 class IsofillPipeline(Pipeline2D):
     """Implementation of the Pipeline interface for VCS isofill plots."""
 
@@ -15,14 +16,15 @@ class IsofillPipeline(Pipeline2D):
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
-        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm, deep=False,
+        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm,
+                                              deep=True,
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
+                                            deep=True)
         self._vtkDataSet.GetPointData().SetScalars(data)
 
     def _updateContourLevelsAndColors(self):
@@ -33,14 +35,14 @@ class IsofillPipeline(Pipeline2D):
                 numpy.allclose(self._contourLevels, 1.e20):
             levs2 = vcs.mkscale(self._scalarRange[0],
                                 self._scalarRange[1])
-            if len(levs2) == 1: # constant value ?
-                levs2 = [levs2[0], levs2[0]+ .00001]
+            if len(levs2) == 1:  # constant value ?
+                levs2 = [levs2[0], levs2[0] + .00001]
             self._contourLevels = []
             if self._gm.ext_1:
-                ## user wants arrow at the end
+                # user wants arrow at the end
                 levs2[0] = -1.e20
             if self._gm.ext_2:
-                ## user wants arrow at the end
+                # user wants arrow at the end
                 levs2[-1] = 1.e20
             for i in range(len(levs2) - 1):
                 self._contourLevels.append([levs2[i], levs2[i+1]])
@@ -56,13 +58,13 @@ class IsofillPipeline(Pipeline2D):
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
 
-        ## Figure out colors
+        # Figure out colors
         self._contourColors = self._gm.fillareacolors
-        if self._contourColors == [1,]:
+        if self._contourColors == [1]:
             # TODO BUG It's possible that levs2 may not exist here...
             self._contourColors = vcs.getcolors(levs2, split=0)
             if isinstance(self._contourColors, (int, float)):
-                self._contourColors = [self._contourColors,]
+                self._contourColors = [self._contourColors]
 
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
@@ -72,7 +74,7 @@ class IsofillPipeline(Pipeline2D):
             c2p = vtk.vtkCellDataToPointData()
             c2p.SetInputData(self._vtkDataSet)
             c2p.Update()
-            #For contouring duplicate points seem to confuse it
+            # For contouring duplicate points seem to confuse it
             self._vtkPolyDataFilter.SetInputConnection(c2p.GetOutputPort())
         else:
             self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
@@ -85,7 +87,7 @@ class IsofillPipeline(Pipeline2D):
         tmpColors = []
         indices = self._gm.fillareaindices
         if indices is None:
-            indices = [1,]
+            indices = [1]
         while len(indices) < len(self._contourColors):
             indices.append(indices[-1])
         if len(self._contourLevels) > len(self._contourColors):
@@ -93,7 +95,8 @@ class IsofillPipeline(Pipeline2D):
                   "You asked for %i levels but provided only %i colors\n"
                   "Graphic Method: %s of type %s\nLevels: %s"
                   % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name), repr(self._contourLevels))
+                     self._gm.name, self._gm.g_name,
+                     repr(self._contourLevels)))
         elif len(self._contourLevels) < len(self._contourColors) - 1:
             warnings.warn(
                   "You asked for %i lgridevels but provided %i colors, extra "
@@ -103,13 +106,13 @@ class IsofillPipeline(Pipeline2D):
 
         for i, l in enumerate(self._contourLevels):
             if i == 0:
-                C = [self._contourColors[i],]
+                C = [self._contourColors[i]]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
-                    ## ok it's an extension arrow
+                    # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
                 else:
                     L = list(self._contourLevels[i])
-                I = [indices[i],]
+                I = [indices[i]]
             else:
                 if l[0] == L[-1] and I[-1] == indices[i]:
                     # Ok same type lets keep going
@@ -118,22 +121,22 @@ class IsofillPipeline(Pipeline2D):
                     else:
                         L.append(l[1])
                     C.append(self._contourColors[i])
-                else: # ok we need new contouring
+                else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
-                    C = [self._contourColors[i],]
+                    C = [self._contourColors[i]]
                     L = tmpLevels[i]
-                    I = [indices[i],]
+                    I = [indices[i]]
         tmpLevels.append(L)
         tmpColors.append(C)
 
         luts = []
         cots = []
         mappers = []
-        for i,l in enumerate(tmpLevels):
-            # Ok here we are trying to group together levels can be, a join will
-            # happen if: next set of levels contnues where one left off AND
-            # pattern is identical
+        for i, l in enumerate(tmpLevels):
+            # Ok here we are trying to group together levels can be, a join
+            # will happen if: next set of levels contnues where one left off
+            # AND pattern is identical
             mapper = vtk.vtkPolyDataMapper()
             lut = vtk.vtkLookupTable()
             cot = vtk.vtkBandedPolyDataContourFilter()
@@ -141,8 +144,8 @@ class IsofillPipeline(Pipeline2D):
             cot.SetInputData(self._vtkPolyDataFilter.GetOutput())
             cot.SetNumberOfContours(len(l))
             cot.SetClipTolerance(0.)
-            for j,v in enumerate(l):
-               cot.SetValue(j,v)
+            for j, v in enumerate(l):
+                cot.SetValue(j, v)
             cot.Update()
             cots.append(cot)
             mapper.SetInputConnection(cot.GetOutputPort())
@@ -161,10 +164,10 @@ class IsofillPipeline(Pipeline2D):
             self._resultDict["vtk_backend_contours"] = cots
 
         numLevels = len(self._contourLevels)
-        if mappers == []: # ok didn't need to have special banded contours
+        if mappers == []:  # ok didn't need to have special banded contours
             mapper = vtk.vtkPolyDataMapper()
-            mappers = [mapper,]
-            ## Colortable bit
+            mappers = [mapper]
+            # Colortable bit
             # make sure length match
             while len(self._contourColors) < len(self._contourLevels):
                 self._contourColors.append(self._contourColors[-1])
@@ -185,7 +188,7 @@ class IsofillPipeline(Pipeline2D):
             else:
                 lmx = self._contourLevels[-1]
             mapper.SetScalarRange(lmn, lmx)
-            self._resultDict["vtk_backend_luts"] = [[lut, [lmn, lmx, True]],]
+            self._resultDict["vtk_backend_luts"] = [[lut, [lmn, lmx, True]]]
 
         if self._maskedDataMapper is not None:
             mappers.insert(0, self._maskedDataMapper)
@@ -201,16 +204,17 @@ class IsofillPipeline(Pipeline2D):
             act.SetMapper(mapper)
 
             if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not sure
-                # why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1,x2,y1,y2], self._dataWrapModulo)
+                # If using geofilter on wireframed does not get wrppaed not
+                # sure why so sticking to many mappers
+                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                                     self._dataWrapModulo)
 
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1,x2,y1,y2]])
                 self._maskedDataActor = act
             else:
-                actors.append([act, [x1,x2,y1,y2]])
+                actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
@@ -237,21 +241,21 @@ class IsofillPipeline(Pipeline2D):
         if self._gm.ext_1:
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
-                    ## Ok we need to add the ext levels
+                    # Ok we need to add the ext levels
                     self._contourLevels.insert(0, [-1.e20, levs[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
-                    ## need to add an ext
+                    # need to add an ext
                     self._contourLevels.insert(0, -1.e20)
         if self._gm.ext_2:
-            if isinstance(self._contourLevels[-1],list):
+            if isinstance(self._contourLevels[-1], list):
                 if numpy.less(abs(self._contourLevels[-1][1]), 1.e20):
-                    ## need ext
+                    # need ext
                     self._contourLevels.append([self._contourLevels[-1][1],
                                                 1.e20])
             else:
                 if numpy.less(abs(self._contourLevels[-1]), 1.e20):
-                    ## need exts
+                    # need exts
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(

@@ -32,7 +32,6 @@ import isofill
 import cdtime
 from types import *
 import VCS_validation_functions
-import AutoAPI
 import xmldocs
 #### from gm_core import * No need to import
 
@@ -148,7 +147,7 @@ def process_src(nm,code):
 #                                                                           #
 #############################################################################
 #class Gfb(graphics_method_core):
-class Gfb(object,AutoAPI.AutoAPI):
+class Gfb(object):
     """
     Options:::
     %s
@@ -270,7 +269,7 @@ class Gfb(object,AutoAPI.AutoAPI):
                 fill.style='hatch'                       # change style
                 fill.color=241                           # change color
                 fill.index=3                             # change style index
-"""
+""" % xmldocs.graphics_method_core
     def rename(self,newname):
       if newname == "default":
         raise Exception,"You cannot overwrite the default boxfill graphic method"
@@ -441,9 +440,6 @@ class Gfb(object,AutoAPI.AutoAPI):
           self._datawc_calendar=src.datawc_calendar
           self._legend=src.legend
           self._colormap = src.colormap
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        self.__doc__ = self.__doc__ % xmldocs.graphics_method_core
         vcs.elements["boxfill"][Gfb_name]=self
 
     ###########################################################################

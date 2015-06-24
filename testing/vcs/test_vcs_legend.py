@@ -1,4 +1,3 @@
-
 import sys,os
 import argparse
 
@@ -37,24 +36,33 @@ exec("gm=vcs.create%s()" % gm_type)
 nm_xtra=""
 xtra = {'time':slice(0,1),'squeeze':1}
 if gm_type=="meshfill":
-    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','sampleCurveGrid4.nc'))
+    f=cdms2.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
 else:
-    f=cdms2.open(os.path.join(vcs.prefix,'sample_data','clt.nc'))
+    f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 if gm_type=="meshfill":
     s=f("sample")
 else:
     s=f("clt",**xtra)
 
+
 if gm_type=="boxfill":
     gm.level_1=20
     gm.level_2=80
+    if args.ext1=="y":
+        gm.ext_1="y"
+    if args.ext2=="y":
+        gm.ext_2="y"
 else:
     if gm_type=="isofill":
         levels = [20, 30, 40, 50, 60, 70, 80]
     else:
         levels = [300,500,800,1000,1200]
     gm.levels=levels
-    gm.colors = vcs.getcolors(levels)
+    if args.ext1=="y":
+        gm.ext_1="y"
+    if args.ext2=="y":
+        gm.ext_2="y"
+    gm.fillareacolors = vcs.getcolors(gm.levels)
 tmpl = x.createtemplate()
 if args.orientation=="vertical":
     tmpl.data.x2=.8
@@ -66,10 +74,6 @@ if args.orientation=="vertical":
     tmpl.legend.y1=.3
     tmpl.legend.y2=.8
 
-if args.ext1=="y":
-    gm.ext_1="y"
-if args.ext2=="y":
-    gm.ext_2="y"
 x.plot(s,gm,tmpl,bg=bg)
 
 fnm = "test_vcs_legend_%s_%s_ext1_%s_ext2_%s" % (gm_type.lower(),args.orientation,args.ext1,args.ext2)

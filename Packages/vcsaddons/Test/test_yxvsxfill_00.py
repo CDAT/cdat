@@ -6,7 +6,7 @@ h = vcsaddons.createyxvsxfill()
 
 import sys,cdms2,MV2,cdutil
 cdms2.setAutoBounds("on")
-f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f("clt")
 
 d1=MV2.max(s,axis=0)

@@ -24,7 +24,6 @@
 import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
 from types import *
-import AutoAPI
 import xmldocs
 
 ###############################################################################
@@ -98,7 +97,7 @@ getmember = getGfomember
 def renameGfo(self, old_name, new_name):
      return _vcs.renameGfo(old_name, new_name)
 
-class Gfo(object,AutoAPI.AutoAPI):
+class Gfo(object):
     """
     Options:::
 %s
@@ -467,9 +466,6 @@ class Gfo(object,AutoAPI.AutoAPI):
         self._outfill=getmember(self,'outfill')
         self._datawc_timeunits=getmember(self, 'datawc_timeunits')
         self._datawc_calendar=getmember(self, 'datawc_calendar')
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        #self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.fillareadoc,xmldocs.outfilldoc)
 
 

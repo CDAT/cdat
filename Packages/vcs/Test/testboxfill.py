@@ -40,7 +40,7 @@ def test():
    import vcs,cdms2 as cdms,time,os,sys,support		# import vcs and cdms
    bg=support.bg
 
-   f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+   f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
    s=f('clt')			        # get slab clt
    x=vcs.init()				# construct vcs canvas
    

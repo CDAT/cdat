@@ -28,10 +28,10 @@ class Test(unittest.TestCase):
 
     def test_2d_esmf(self):
         #print 'running test_2d_esmf...'
-        f = cdms2.open(cdat_info.get_prefix() + \
-                           '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+                           '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         tic = time.time()
         soInterp = so.regrid(clt.getGrid(), regridTool='ESMF') #, periodicity=1)
         soInterpInterp = soInterp.regrid(so.getGrid(), regridTool='ESMF')
@@ -54,10 +54,10 @@ class Test(unittest.TestCase):
 
     def test_2d_esmf_interface(self):
         #print 'running test_2d_esmf_interface...'
-        f = cdms2.open(cdat_info.get_prefix() + \
-                           '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+                           '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         tic = time.time()
         # assume so and clt are cell centered
         srcGrid = regrid2.esmf.EsmfStructGrid(so.shape, 

@@ -62,7 +62,6 @@ import random
 from cdms2.grid import AbstractRectGrid
 import shutil, inspect
 import VCS_validation_functions
-import AutoAPI
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
 # Flag to set if the initial attributes file has aready been read in
 called_initial_attributes_flg = 0
@@ -74,6 +73,84 @@ import vcs.manageElements
 import configurator
 from projection import round_projections
 
+def clean_val(value):
+    if numpy.allclose(value,0.):
+        return 0.
+    elif value<0:
+        sign=-1
+        value=-value
+    else:
+        sign=1
+    i=int(numpy.log10(value))
+    if i>0:
+        j=i
+        k=10.
+    else:
+        j=i-1
+        k=10.
+    v=int(value/numpy.power(k,j))*numpy.power(k,j)
+    return v*sign
+
+def mkdic(method,values):
+    if method=='area_wt':
+        func=numpy.sin
+        func2=numpy.arcsin
+    elif method=='exp':
+        func=numpy.exp
+        func2=numpy.log
+    elif method=='ln':
+        func=numpy.log
+        func2=numpy.exp
+    elif method=='log10':
+        func=numpy.log10
+    vals=[]
+    for v in values:
+        if method=='area_wt':
+            vals.append(func(v*numpy.pi/180.))
+        else:
+            vals.append(func(v))
+    min,max=vcs.minmax(vals)
+    levs=vcs.mkscale(min,max)
+##             levs=vcs.mkevenlevels(min,max)
+    vals=[]
+    for l in levs:
+        if method=='log10':
+            v=numpy.power(10,l)
+        elif method=='area_wt':
+            v=func2(l)/numpy.pi*180.
+        else:
+            v=func2(l)
+        vals.append(clean_val(v))
+    dic=vcs.mklabels(vals)
+    dic2={}
+    for k in dic.keys():
+        try:
+            if method=='area_wt':
+                dic2[func(k*numpy.pi/180.)]=dic[k]
+            else:
+                dic2[func(k)]=dic[k]
+        except:
+            pass
+    return dic2
+
+def set_convert_labels(copy_mthd,test=0):
+    did_something = False
+    for axc in ['x','y']:
+        try:
+            mthd=getattr(copy_mthd,axc+'axisconvert')
+            if mthd!='linear':
+                for num in ['1','2']:
+                    if getattr(copy_mthd,axc+'ticlabels'+num)=='*':
+                        if axc=='x':
+                            axn=-1
+                        else:
+                            axn=-2
+                        dic=mkdic(mthd,arglist[0].getAxis(axn)[:])
+                        if test==0 : setattr(copy_mthd,axc+'ticlabels'+num,dic)
+                        did_something = True
+        except:
+            pass
+    return did_something
 class SIGNAL(object):
 
     def __init__( self, name = None ):
@@ -308,7 +385,7 @@ def finish_queued_X_server_requests( self ):
            self.canvas.xsync_discard()
            break
 
-class Canvas(object,AutoAPI.AutoAPI):
+class Canvas(object):
     """
  Function: Canvas                     # Construct a VCS Canvas class Object
 
@@ -331,7 +408,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         '_worldcoordinate',
         '_winfo_id',
         '_varglist',
-	'_canvas_gui',
+        '_canvas_gui',
         '_animate_info',
         '_canvas_template_editor',
         '_isplottinggridded',
@@ -339,6 +416,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         '_user_actions',
         '_animate',
         '_canvas',
+        '_canvas_id',
         'mode',
         'pause_time',
         'viewport',
@@ -356,6 +434,23 @@ class Canvas(object,AutoAPI.AutoAPI):
         'user_actions',
         'size',
         'canvas_guianimate_info',
+        'ParameterChanged',
+        'colormap',
+        'backgroundcolor',
+        'bgX',
+        'bgY',
+        'display_names',
+        '_dotdir',
+        '_dotdirenv',
+        'drawLogo',
+        'enableLogo',
+        'backend',
+        'configurator',
+        '__last_plot_actual_args',
+        '__last_plot_keyargs',
+        '_continents',
+        '_savedcontinentstype',
+        '__weakref__',
         ]
 
 #     def applicationFocusChanged(self, old, current ):
@@ -868,8 +963,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.bgY = 606
         ## displays plotted
         self.display_names = []
-        self.info = AutoAPI.Info(self)
-        self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
         found = False
         for p in ospath.split(":"):
@@ -2605,8 +2698,8 @@ Options:::
 ###############################################################################################################
 
 """
-        self.__last_plot_actual_args = actual_args
-        self.__last_plot_keyargs = keyargs
+        #self.__last_plot_actual_args = actual_args
+        #self.__last_plot_keyargs = keyargs
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
@@ -3337,84 +3430,6 @@ Options:::
             except:
                 pass
 
-        def clean_val(value):
-            if numpy.allclose(value,0.):
-                return 0.
-            elif value<0:
-                sign=-1
-                value=-value
-            else:
-                sign=1
-            i=int(numpy.log10(value))
-            if i>0:
-                j=i
-                k=10.
-            else:
-                j=i-1
-                k=10.
-            v=int(value/numpy.power(k,j))*numpy.power(k,j)
-            return v*sign
-
-        def mkdic(method,values):
-            if method=='area_wt':
-                func=numpy.sin
-                func2=numpy.arcsin
-            elif method=='exp':
-                func=numpy.exp
-                func2=numpy.log
-            elif method=='ln':
-                func=numpy.log
-                func2=numpy.exp
-            elif method=='log10':
-                func=numpy.log10
-            vals=[]
-            for v in values:
-                if method=='area_wt':
-                    vals.append(func(v*numpy.pi/180.))
-                else:
-                    vals.append(func(v))
-            min,max=vcs.minmax(vals)
-            levs=vcs.mkscale(min,max)
-##             levs=vcs.mkevenlevels(min,max)
-            vals=[]
-            for l in levs:
-                if method=='log10':
-                    v=numpy.power(10,l)
-                elif method=='area_wt':
-                    v=func2(l)/numpy.pi*180.
-                else:
-                    v=func2(l)
-                vals.append(clean_val(v))
-            dic=vcs.mklabels(vals)
-            dic2={}
-            for k in dic.keys():
-                try:
-                    if method=='area_wt':
-                        dic2[func(k*numpy.pi/180.)]=dic[k]
-                    else:
-                        dic2[func(k)]=dic[k]
-                except:
-                    pass
-            return dic2
-
-        def set_convert_labels(copy_mthd,test=0):
-            did_something = False
-            for axc in ['x','y']:
-                try:
-                    mthd=getattr(copy_mthd,axc+'axisconvert')
-                    if mthd!='linear':
-                        for num in ['1','2']:
-                            if getattr(copy_mthd,axc+'ticlabels'+num)=='*':
-                                if axc=='x':
-                                    axn=-1
-                                else:
-                                    axn=-2
-                                dic=mkdic(mthd,arglist[0].getAxis(axn)[:])
-                                if test==0 : setattr(copy_mthd,axc+'ticlabels'+num,dic)
-                                did_something = True
-                except:
-                    pass
-            return did_something
 
         if set_convert_labels(check_mthd,test=1):
             if copy_mthd is None:

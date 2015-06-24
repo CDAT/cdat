@@ -4,7 +4,7 @@ import sys
 import vcs
 
 # Load the clt data:
-dataFile = cdms2.open(os.path.join(vcs.prefix, "sample_data/clt.nc"))
+dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt = dataFile("clt")
 clt = clt(latitude=(-90.0, 90.0), longitude=(-180., 175.), squeeze=1,
           time=('1979-1-1 0:0:0.0', '1988-12-1 0:0:0.0'))

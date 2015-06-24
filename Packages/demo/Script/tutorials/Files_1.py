@@ -2,7 +2,7 @@
 import cdms2 as cdms, sys
 import cdat_info
 
-file=cdat_info.get_prefix()+'/sample_data/clt.nc'
+file=cdat_info.get_sampledata_path()+'/clt.nc'
 
 # Open the file via cdms
 f=cdms.open(file)

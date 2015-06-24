@@ -1,5 +1,6 @@
 import vcs
 
+
 def createPipeline(graphics_method, context):
     """Create and initialize a Pipeline subclass from a graphics method.
 

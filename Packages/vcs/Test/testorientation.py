@@ -68,7 +68,7 @@ def test():
    # prints in location mode
    # I feel this is correct!
    #
-   f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+   f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
    s=f('clt')
    x=vcs.init()
    t=x.createtemplate('new')

@@ -23,7 +23,6 @@
 #
 import Canvas
 import VCS_validation_functions
-import AutoAPI
 import xmldocs
 import cdtime
 import vcs
@@ -144,7 +143,7 @@ def process_src(nm,code):
 #                                                                           #
 #############################################################################
 #class Gfm(graphics_method_core):
-class Gfm(object,AutoAPI.AutoAPI):
+class Gfm(object):
     """
     Options:::
 %s
@@ -247,7 +246,7 @@ Class:	Gfm                       	# Meshfill
     ext_2='y'
     mesh.exts('n', 'y' )  		# Will set them both
     missing=241                         # Color index value range 0 to 255
-"""
+""" % (xmldocs.graphics_method_core,xmldocs.meshfill_doc)
     #############################################################################
     #                                                                           #
     # Initialize the meshfill attributes.                                        #

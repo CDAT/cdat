@@ -6,12 +6,13 @@ endif()
 
 set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
 
-if (CDAT_BUILD_YASM)
-  set(_yasmexe  --yasmexe=@cdat_EXTERNALS@/bin/yasm)
-endif()
+#if (CDAT_BUILD_YASM)
+#  set(_yasmexe  --yasmexe=@cdat_EXTERNALS@/bin/yasm)
+#endif()
 
 EXECUTE_PROCESS(
-  COMMAND sh configure ${_yasmexe}  --extra-cxxflags=@ffmpeg_source@ --enable-shared --enable-zlib --prefix=@ffmpeg_install@
+  COMMAND sh configure --disable-yasm  --extra-cxxflags=@ffmpeg_source@ --enable-shared --enable-zlib --prefix=@ffmpeg_install@
+  #COMMAND sh configure ${_yasmexe}  --extra-cxxflags=@ffmpeg_source@ --enable-shared --enable-zlib --prefix=@ffmpeg_install@
   #COMMAND sh configure --prefix=@ffmpeg_install@ ${_yasmexe} --extra-cxxflags=@ffmpeg_source@
   WORKING_DIRECTORY "@ffmpeg_source@"
   RESULT_VARIABLE rv

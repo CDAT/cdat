@@ -29,12 +29,12 @@ class Test(unittest.TestCase):
 
         mype = MPI.COMM_WORLD.Get_rank()
 
-        f = cdms2.open(cdat_info.get_prefix() + \
-                           '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
+        f = cdms2.open(cdat_info.get_sampledata_path() + \
+                           '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         so = f('so')[0, 0, :, :]
 
-        h = cdms2.open(cdat_info.get_prefix() + \
-                           '/sample_data/so_Omon_HadGEM2-CC_historical_r1i1p1_185912-186911_2timesteps.nc')
+        h = cdms2.open(cdat_info.get_sampledata_path() + \
+                           '/so_Omon_HadGEM2-CC_historical_r1i1p1_185912-186911_2timesteps.nc')
         hadGEM2Model = h('so')[0,0,...]
 
         ny, nx = so.shape
@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
         srcCells = [so.getLatitude(), so.getLongitude()]
         srcNodes = [srcLatCorner, srcLonCorner]
 
-        clt = cdms2.open(cdat_info.get_prefix() + '/sample_data/clt.nc')('clt')[0, :, :]
+        clt = cdms2.open(cdat_info.get_sampledata_path() + '/clt.nc')('clt')[0, :, :]
         cltBounds = clt.getGrid().getBounds()
 
         ny, nx = clt.shape

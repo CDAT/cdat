@@ -4,10 +4,11 @@
 
 import cdutil,cdat_info
 
-import cdms2 as cdms,vcs,sys,os
+import cdms2
+import os
 bg = 0
 
-f = cdms.open(os.path.join(cdat_info.get_prefix(),'sample_data','vertical.nc'))
+f = cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'vertical.nc'))
 Ps=f('PS')
 U=f('U')
 B=f('hybm')

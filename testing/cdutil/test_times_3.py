@@ -3,7 +3,7 @@
 
 import cdms2,cdutil,os,sys,cdat_info
 
-f=cdms2.open(os.path.join(cdat_info.get_prefix(),'sample_data','tas_mo.nc'))
+f=cdms2.open(os.path.join(cdat_info.get_sampledata_path(),'tas_mo.nc'))
 s=f('tas')
 tc=s.getTime().asComponentTime()
 

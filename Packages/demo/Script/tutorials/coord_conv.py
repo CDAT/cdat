@@ -33,7 +33,7 @@ import cdat_info
 ## Setup
 ## input file
 iFile = "CCTM_ACONC.D1.001"
-iFile = os.path.join (cdat_info.get_prefix(),'sample_data/' + iFile)
+iFile = os.path.join (cdat_info.get_sampledata_path(), iFile)
 
 ## variable of interest
 varName = "o3"

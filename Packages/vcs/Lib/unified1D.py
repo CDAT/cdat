@@ -22,7 +22,6 @@
 #
 #
 import VCS_validation_functions, cdtime
-import AutoAPI
 import xmldocs
 import vcs
 
@@ -120,7 +119,7 @@ def process_src(nm,code,typ):
     gm.linewidth=0
     vcs.elements["scatter"][onm]=gm
 
-class G1d(object,AutoAPI.AutoAPI):
+class G1d(object):
     """
     Options:::
 %s
@@ -216,7 +215,7 @@ class G1d(object,AutoAPI.AutoAPI):
      yxx.markersize=300
      yxx.markersize=None
 
-"""
+""" % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
@@ -475,9 +474,6 @@ class G1d(object,AutoAPI.AutoAPI):
 	    # appropriate Python Object.                              #
         ###########################################################
 	    #                                                         #
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
         if name in vcs.elements["1d"]:
           raise ValueError,"The 1D method '%s' already exists"
         self.g_name='G1d'

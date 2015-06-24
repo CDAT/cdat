@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
+        filename = cdat_info.get_sampledata_path() + '/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -100,7 +100,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
+        filename = cdat_info.get_sampledata_path() + '/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -154,7 +154,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
+        filename = cdat_info.get_sampledata_path() + '/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -191,7 +191,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
+        filename = cdat_info.get_sampledata_path() + '/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 
@@ -220,7 +220,7 @@ class Test(unittest.TestCase):
         import cdms2 as cdms
         import numpy as np
 
-        filename = cdat_info.get_prefix() + '/sample_data/clt.nc'
+        filename = cdat_info.get_sampledata_path() + '/clt.nc'
         a=cdms.open(filename)
         data=a('clt')[0,...]
 

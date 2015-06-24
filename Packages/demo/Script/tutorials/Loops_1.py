@@ -2,7 +2,7 @@
 import cdms2 as cdms,sys,os
 import cdat_info
 
-path=cdat_info.get_prefix()+'/sample_data/'
+path=cdat_info.get_sampledata_path()+'/'
 
 # List files in sample_data directory
 my_files=os.listdir(path)

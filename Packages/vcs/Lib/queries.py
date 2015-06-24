@@ -28,7 +28,7 @@
 """
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill
 import unified1D, vector, continents, line, marker, fillarea
-import texttable, textorientation, textcombined, template, dv3d
+import texttable, textorientation, textcombined, template#, dv3d
 import displayplot, projection
 import vcs
 import vcsaddons
@@ -59,12 +59,12 @@ def isgraphicsmethod(gobj):
             return 1
         elif (isinstance(gobj,isofill.Gfi)):
             return 1
-        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
-            return 1
-        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
-            return 1
-        elif (isinstance(gobj,dv3d.Gf3Dvector)):
-            return 1
+#        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
+#            return 1
+#        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
+#            return 1
+#        elif (isinstance(gobj,dv3d.Gf3Dvector)):
+#            return 1
         elif (isinstance(gobj,isoline.Gi)):
             return 1
         elif (isinstance(gobj,outfill.Gfo)):
@@ -127,12 +127,12 @@ def graphicsmethodtype(gobj):
             return 'boxfill'
         elif (isinstance(gobj,isofill.Gfi)):
             return 'isofill'
-        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
-            return '3d_scalar'
-        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
-            return '3d_dual_scalar'
-        elif (isinstance(gobj,dv3d.Gf3Dvector)):
-            return '3d_vector'
+#        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
+#            return '3d_scalar'
+#        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
+#            return '3d_dual_scalar'
+#        elif (isinstance(gobj,dv3d.Gf3Dvector)):
+#            return '3d_vector'
         elif (isinstance(gobj,isoline.Gi)):
             return 'isoline'
         elif (isinstance(gobj,outfill.Gfo)):

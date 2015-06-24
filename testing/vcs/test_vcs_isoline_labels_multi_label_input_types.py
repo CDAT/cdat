@@ -4,7 +4,7 @@ import os,sys
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
-f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
+f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt")
 x=vcs.init()
 x.drawlogooff()

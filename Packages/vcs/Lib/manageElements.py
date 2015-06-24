@@ -15,7 +15,7 @@ from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,\
 import random
 import warnings
 from error import vcsError
-import dv3d
+#import dv3d
 
 def check_name_source(name,source,typ):
   """makes ure it is a unique name for this type or generates a name for user"""
@@ -1699,7 +1699,7 @@ plot=a.create3d_scalar()
 """
 #    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     name,source = check_name_source(name,source,'3d_scalar')
-    return dv3d.Gf3Dscalar(name, source)
+    return #dv3d.Gf3Dscalar(name, source)
 
 def get3d_dual_scalar(Gfdv3d_name_src='default'):
     """
@@ -1751,7 +1751,7 @@ plot=a.create3d_dual_scalar()
 """
 #    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     name,source = check_name_source(name,source,'3d_dual_scalar')
-    return dv3d.Gf3DDualScalar(name, source)
+    return #dv3d.Gf3DDualScalar(name, source)
 
 
 def get3d_vector(Gfdv3d_name_src='default'):
@@ -1803,7 +1803,7 @@ a.show('3Dvector')
 plot=a.create3d_vector()
 """
     name,source = check_name_source(name,source,'3d_vector')
-    return dv3d.Gf3Dvector(name, source)
+    return #dv3d.Gf3Dvector(name, source)
 
 #############################################################################
 #                                                                           #

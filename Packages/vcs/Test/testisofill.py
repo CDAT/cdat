@@ -31,7 +31,7 @@ def test():
 
    bg = support.bg
 
-   f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
+   f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
    s=f('clt')                           # get slab clt
    x=vcs.init()                         # construct vcs canvas
    
@@ -56,7 +56,7 @@ def test():
       support.check_plot(x)
    
    # open and plot a missing data with isofill
-   f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','tas_cru_1979.nc'))
+   f=cdms.open(os.path.join(vcs.sample_data,'tas_cru_1979.nc'))
    s=f('tas',longitude=(-180, 180),latitude=(-90,90))+273.15
    x.clear()				# clear the VCS Canvas
    x.plot(s,'default','isofill','quick',bg=bg)# plot missing value slabe the old way
