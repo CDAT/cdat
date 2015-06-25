@@ -5,7 +5,7 @@ set(${uc_nm}_MAJOR 2)
 set(${uc_nm}_MINOR 4)
 set(${uc_nm}_PATCH 1)
 set(${uc_nm}_VERSION ${${uc_nm}_MAJOR}.${${uc_nm}_MINOR}.${${uc_nm}_PATCH})
-set(${uc_nm}_URL ${LLNL_URL}
+set(${uc_nm}_URL ${LLNL_URL})
 set(${uc_nm}_GZ ${nm}-${${uc_nm}_VERSION}.tar.gz)
 set(${uc_nm}_MD5 ed45d3db81a3b7c88bd63c6e37ca1d65)
 
