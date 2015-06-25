@@ -296,6 +296,7 @@ if (CDAT_BUILD_ESGF)
 endif()
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
 set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
+message([INFO] BUILD MODE} ${CDAT_BUILD_MODE})
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -304,9 +305,11 @@ if (CDAT_BUILD_MODE STREQUAL "LEAN")
 elseif (CDAT_BUILD_MODE STREQUAL "ALL")
   set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL ON)
-else()
+elseif (CDAT_BUILD_MODE STREQUAL "DEFAULT")
   set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL OFF)
+else()
+  message(FATAL_ERROR "[ERROR] Unknown CDAT_BUILD_MODE \"${CDAT_BUILD_MODE}\" VALID MODES ARE \"DEFAULT\" \"ALL\" \"LEAN\"")
 endif()
 
 # First of all if LEAN then turn OFF GRAPHICS and PARALLEL
@@ -486,8 +489,12 @@ include(libcf_pkg)
 include(libdrs_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
+include(cryptography_pkg)
+include(cffi_pkg)
+include(ffi_pkg)
 include(dateutils_pkg)
 include(pyparsing_pkg)
+include(pycparser_pkg)
 include(md5_pkg)
 include(mpi4py_pkg)
 include(pyopenssl_pkg)
@@ -601,8 +608,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_st
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdatmpi_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdatmpi_configure_step.cmake
     @ONLY
 )
 
@@ -675,6 +682,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/lib64 "
   "lib "
 )
 string(REPLACE ";" " " SETUP_LIBRARY_PATHS ${SETUP_LIBRARY_PATHS})

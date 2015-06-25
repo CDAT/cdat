@@ -99,6 +99,33 @@ def setCompressionWarnings(value=None):
         raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
     return _showCompressWarnings
 
+def setNetcdfUseNCSwitchModeFlag(value):
+    """ Tells cdms2 to switch constantly between netcdf define/write modes"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error UseNCSwitchMode flag must be 1(can use)/0(do not use) or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("use_define_mode",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("use_define_mode",1)
+
+def setNetcdfUseParallelFlag(value):
+    """ Sets NetCDF classic flag value"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error UseParallel flag must be 1(can use)/0(do not use) or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("use_parallel",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("use_parallel",1)
+
+def setNetcdf4Flag(value):
+    """ Sets NetCDF classic flag value"""
+    if value not in [True,False,0,1]:
+        raise CDMSError("Error NetCDF4 flag must be 1/0 or true/False")
+    if value in [0,False]:
+        Cdunif.CdunifSetNCFLAGS("netcdf4",0)
+    else:
+        Cdunif.CdunifSetNCFLAGS("netcdf4",1)
+
 def setNetcdfClassicFlag(value):        
     """ Sets NetCDF classic flag value"""
     if value not in [True,False,0,1]:
@@ -131,6 +158,18 @@ def setNetcdfDeflateLevelFlag(value):
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError("Error NetCDF deflate_level flag must be an integer < 10")
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
+
+def getNetcdfUseNCSwitchModeFlag():
+    """ Returns NetCDF UseParallel flag value"""
+    return Cdunif.CdunifGetNCFLAGS("use_define_mode")
+
+def getNetcdfUseParallelFlag():
+    """ Returns NetCDF UseParallel flag value"""
+    return Cdunif.CdunifGetNCFLAGS("use_parallel")
+
+def getNetcdf4Flag():
+    """ Returns NetCDF4 flag value"""
+    return Cdunif.CdunifGetNCFLAGS("netcdf4")
 
 def getNetcdfClassicFlag():
     """ Returns NetCDF classic flag value"""
@@ -217,7 +256,20 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             # If the doesn't exist allow it to be created
-            if not os.path.exists(path): return CdmsFile(path,mode)
+            ##Ok mpi has issues with bellow we need to test this only with 1 rank
+            try:
+              import mpi4py
+              rk = mpi4py.MPI.COMM_WORLD.Get_rank()
+            except:
+              #no mpi
+              rk = 0
+
+            if not os.path.exists(path):
+              return CdmsFile(path,mode)
+            elif mode=="w":
+              if rk == 0 :
+                os.remove(path)
+              return CdmsFile(path,mode)
             
             # The file exists
             file1 = CdmsFile(path,"r")
@@ -1129,7 +1181,7 @@ class CdmsFile(CdmsObj, cuDataset):
         if self._status_=="closed":
             raise CDMSError(FileWasClosed + self.id)
         cufile = self._file_
-        if ar is None or unlimited==1:
+        if ar is None or (unlimited==1 and getNetcdfUseParallelFlag()==0):
             cufile.createDimension(name,None)
             if ar is None:
                 typecode = numpy.float
@@ -1213,7 +1265,7 @@ class CdmsFile(CdmsObj, cuDataset):
             if newaxis.isVirtual():
                 if len(axis)!=len(newaxis):
                     raise DuplicateAxisError(DuplicateAxis+newname)
-            elif unlimited==0:
+            elif unlimited==0 or (unlimited==1 and getNetcdfUseParallelFlag()!=0):
                 if len(axis)!=len(newaxis) or numpy.alltrue(numpy.less(numpy.absolute(newaxis[:]-axis[:]),1.e-5))==0:
                     raise DuplicateAxisError(DuplicateAxis+newname)
             else:
@@ -1715,7 +1767,7 @@ class CdmsFile(CdmsObj, cuDataset):
         if _showCompressWarnings:
             if  (Cdunif.CdunifGetNCFLAGS("shuffle")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate_level")!=0):
                 import warnings
-                warnings.warn("Since CDAT Version 5.2 File are now written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\n",Warning)
+                warnings.warn("Files are written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\nvalue = 0\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\nTo Force NetCDF4 output with classic format and no compressing use:\ncdms2.setNetcdf4Flag(1)\nNetCDF4 file with no shuffling or defalte and noclassic will be open for parallel i/o",Warning)
                 
         # Make var an AbstractVariable
         if dtype is None and typecode is not None:
