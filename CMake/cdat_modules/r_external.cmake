@@ -8,6 +8,11 @@ else ()
     set(WITHX "yes")
 endif()
 
+list(APPEND USR_ENVS
+  "CPPFLAGS=-I${cdat_EXTERNALS}/include $ENV{CPPFLAGS}"
+  "LDFLAGS=-L${cdat_EXTERNALS}/lib"
+  )
+
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${R_source}
@@ -16,7 +21,8 @@ ExternalProject_Add(R
   URL_MD5 ${R_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --without-readline --with-x=${WITHX}
+  DEPENDS ${R_deps}
+  CONFIGURE_COMMAND env ${USR_ENVS} <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --with-x=${WITHX}
   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
   ${ep_log_options}
 )
