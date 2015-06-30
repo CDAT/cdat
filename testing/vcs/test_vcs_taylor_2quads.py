@@ -20,6 +20,7 @@ data = MV2.array([[-0.50428531,-0.8505522 ,],
  [ 1.14083397,-0.78326507,]])
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 
 if bg:

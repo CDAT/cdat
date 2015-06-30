@@ -13,6 +13,7 @@ print s.shape,s3.shape
 
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 

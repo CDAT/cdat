@@ -7,6 +7,7 @@ import checkimage
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 T=f('clt')
 v = vcs.init()
+v.setantialiasing(0)
 v.setbgoutputdimensions(1200,1091,units="pixels")
 v.plot(T,bg=1)
 # This will write a blank plot to a file:

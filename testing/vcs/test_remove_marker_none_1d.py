@@ -12,6 +12,7 @@ import checkimage
 dummy_data = numpy.arange(50, dtype=numpy.float32)
 
 x = vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 

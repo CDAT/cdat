@@ -8,6 +8,7 @@ import checkimage
 s= numpy.sin(numpy.arange(100))
 s=numpy.reshape(s,(10,10))
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.plot(s,bg=1)

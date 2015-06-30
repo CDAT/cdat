@@ -6,6 +6,7 @@ sys.path.append(pth)
 import checkimage
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 

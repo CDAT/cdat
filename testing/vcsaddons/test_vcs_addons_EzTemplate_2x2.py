@@ -16,6 +16,7 @@ bg = True
 
 M=vcsaddons.EzTemplate.Multi(rows=2,columns=2)
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
