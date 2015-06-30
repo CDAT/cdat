@@ -52,8 +52,9 @@ class VTKVCSBackend(object):
     self.numberOfPlotCalls = 0
     self.renderWindowSize=None
     self.clickRenderer = None
-    # Turn off anti-aliasing by default
-    self.antialiasing = 0
+    # Turn on anti-aliasing by default
+    # Initially set to 16x Multi-Sampled Anti-Aliasing
+    self.antialiasing = 16
 
     if renWin is not None:
       self.renWin = renWin
