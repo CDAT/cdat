@@ -827,7 +827,12 @@ install(CODE "
   set (resolved_programs \"\")
   foreach (program \${programs})
     get_filename_component(res_program \"\${program}\" REALPATH)
-    list (APPEND resolved_programs \"\${res_program}\")
+    #    get_filename_component(py_script \"\$res_program}\" EXT)
+    set (bad_link \"\")
+    file (STRINGS \"\${res_program}\" bad_link REGEX \"#!${CMAKE_INSTALL_PREFIX}\")
+    if (\"\${bad_link}\" STREQUAL \"\")
+      list (APPEND resolved_programs \"\${res_program}\")
+    endif ()
   endforeach()
 
   file(INSTALL FILES \${resolved_programs} DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
