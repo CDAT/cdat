@@ -780,7 +780,6 @@ add_custom_target(wrappers ALL DEPENDS
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
 
-
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
 set(CPACK_PACKAGE_NAME "UVCDAT")
@@ -808,6 +807,7 @@ endif()
 include(CPack)
 
 install(CODE "
+  set(CMAKE_INSTALL_PREFIX \"/usr/local/uvcdat\")
   set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
   set(SB_LIB_DIR ${SB_LIB_DIR})
   set(PYVER ${PYVER})
@@ -815,6 +815,10 @@ install(CODE "
   set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
   set(VISIT_VERSION ${VISIT_VERSION})
   set(CDAT_BUILD_PARAVIEW ${CDAT_BUILD_PARAVIEW})
+  set(SETUP_EXECUTABLE_PATHS \"${SETUP_EXECUTABLE_PATHS}\")
+  set(SETUP_PYTHON_PATHS \"${SETUP_PYTHON_PATHS}\")
+  set(SETUP_LIBRARY_PATHS \"${SETUP_LIBRARY_PATHS}\")
+  set(CMAKE_INSTALL_RPATH \"\${CMAKE_INSTALL_PREFIX}/Externals/lib\")
 
   file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
@@ -864,7 +868,33 @@ install(CODE "
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/lib\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/lib\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_LIB_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  # Patch cgi.py to look for installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\")
+    file (READ \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\" CGI_FILE)
+    SET (SEARCH_REGEX \"\\\#! /usr/local/bin/python\")
+    SET (REPLACEMENT_TEXT \"#! /usr/bin/env python\")
+    STRING (REGEX REPLACE \"\${SEARCH_REGEX}\" \"\${REPLACEMENT_TEXT}\"
+      MODIFIED_FILE \"\${CGI_FILE}\")
+    file (WRITE \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\"
+      \"\${MODIFIED_FILE}\")
+  endif ()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/share\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/share\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/share DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/wrappers\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/wrappers\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/wrappers DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
@@ -892,7 +922,7 @@ install(CODE "
   # (e.g. RH6) in which case this might break something
   set(QT_LIB_DIR)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
+    \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh\"
     @ONLY
   )
 
