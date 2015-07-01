@@ -4,15 +4,24 @@ set(R_install "${cdat_EXTERNALS}")
 if (APPLE)
     message("[INFO] Building R without X support for MacOS")
     set(WITHX "no")
+    set(WITH_AQUA "yes")
 else ()
     set(WITHX "yes")
+    set(WITH_AQUA "no")
 endif()
+
+if (CDAT_BUILD_PARALLEL)
+  message([INFO] Enabling openmp for R)
+  set(R_OPENMP "--enable-openmp")
+else ()
+  message([INFO] Disabling openmp for R)
+  set(R_OPENMP "--disable-openmp")
+endif ()
 
 list(APPEND USR_ENVS
   "CPPFLAGS=-I${cdat_EXTERNALS}/include $ENV{CPPFLAGS}"
   "LDFLAGS=-L${cdat_EXTERNALS}/lib"
   )
-
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${R_source}
@@ -22,8 +31,8 @@ ExternalProject_Add(R
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   DEPENDS ${R_deps}
-  CONFIGURE_COMMAND env ${USR_ENVS} <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --with-x=${WITHX}
-  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
+  CONFIGURE_COMMAND env ${USR_ENVS} <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib ${R_OPENMP} --without-cairo --without-ICU --without-system-xz --with-aqua=${WITH_AQUA} --without-tcltk --with-x=${WITHX}
+  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM}  install
   ${ep_log_options}
 )
 if(APPLE)
