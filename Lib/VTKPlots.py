@@ -201,6 +201,9 @@ class VTKVCSBackend(object):
             self.clickRenderer = None
 
     def configureEvent(self, obj, ev):
+        if not self.renWin:
+            return
+
         cursor = self.renWin.GetCurrentCursor()
         if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
             self.oldCursor = cursor
