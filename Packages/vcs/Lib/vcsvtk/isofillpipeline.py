@@ -212,6 +212,7 @@ class IsofillPipeline(Pipeline2D):
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                self._maskedDataActor = act
             else:
                 actors.append([act, [x1, x2, y1, y2]])
 

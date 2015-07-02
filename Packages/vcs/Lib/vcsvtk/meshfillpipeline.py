@@ -231,12 +231,6 @@ class MeshfillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
                                      self._dataWrapModulo)
 
-            # TODO See comment in boxfill.
-            if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
-            else:
-                actors.append([act, [x1, x2, y1, y2]])
-
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             ren = self._context().fitToViewport(
@@ -246,6 +240,13 @@ class MeshfillPipeline(Pipeline2D):
                         self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            # TODO See comment in boxfill.
+            if mapper is self._maskedDataMapper:
+                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                self._maskedDataActor = act
+            else:
+                actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
 
