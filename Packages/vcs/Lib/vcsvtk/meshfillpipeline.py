@@ -17,7 +17,7 @@ class MeshfillPipeline(Pipeline2D):
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
         # We don't trim _data2 for meshfill:
-        self._data1 = self._context.trimData2D(self._originalData1)
+        self._data1 = self._context().trimData2D(self._originalData1)
         self._data2 = self._originalData2
 
     def _updateContourLevelsAndColors(self):
@@ -240,7 +240,7 @@ class MeshfillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context.fitToViewport(
+            self._context().fitToViewport(
                 act, [self._template.data.x1,
                       self._template.data.x2,
                       self._template.data.y1,
@@ -251,8 +251,8 @@ class MeshfillPipeline(Pipeline2D):
 
         self._resultDict["vtk_backend_actors"] = actors
 
-        self._template.plot(self._context.canvas, self._data1, self._gm,
-                            bg=self._context.bg,
+        self._template.plot(self._context().canvas, self._data1, self._gm,
+                            bg=self._context().bg,
                             X=numpy.arange(self._vtkDataSetBounds[0],
                                            self._vtkDataSetBounds[1] * 1.1,
                                            (self._vtkDataSetBounds[1] -
@@ -286,13 +286,14 @@ class MeshfillPipeline(Pipeline2D):
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
-            self._context.renderColorBar(self._template, self._contourLevels,
-                                         self._contourColors, legend,
-                                         self._colorMap))
+            self._context().renderColorBar(self._template, self._contourLevels,
+                                           self._contourColors, legend,
+                                           self._colorMap))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)

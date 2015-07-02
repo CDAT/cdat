@@ -1,3 +1,6 @@
+import weakref
+
+
 class Pipeline(object):
 
     """Base class for a VTK pipeline implementation of a VCS plot command.
@@ -9,9 +12,10 @@ class Pipeline(object):
     def __init__(self, context_):
         """Initialize the pipeline object.
 
-        context is the VTKVCSBackend object that created this Pipeline.
+        _context is a weakref of the VTKVCSBackend object that created this
+            Pipeline.
         """
-        self._context = context_
+        self._context = weakref.ref(context_)
 
     # For now, we'll just throw everything at plot. This might need to be
     # broken up into set_data, set_template, etc methods...

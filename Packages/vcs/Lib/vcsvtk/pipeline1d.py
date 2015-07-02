@@ -23,13 +23,13 @@ class Pipeline1D(Pipeline):
 
     def plot(self, data1, data2, tmpl, gm, grid, transform):
         """Overrides baseclass implementation."""
-        Y = self._context.trimData1D(data1)
+        Y = self._context().trimData1D(data1)
         if data2 is None:
             X = Y.getAxis(0)
         else:
             X = Y
             data1._yname = data2.id
-            Y = self._context.trimData1D(data2)
+            Y = self._context().trimData1D(data2)
 
         if gm.flip:
             tmp = Y
@@ -39,7 +39,7 @@ class Pipeline1D(Pipeline):
         if gm.smooth is not None:
             Y = smooth(Y, gm.smooth)
 
-        l = self._context.canvas.createline()
+        l = self._context().canvas.createline()
         Xs = X[:].tolist()
         Ys = Y[:].tolist()
         xs = []
@@ -83,7 +83,7 @@ class Pipeline1D(Pipeline):
             x2 += .0001
         l._worldcoordinate = [x1, x2, y1, y2]
         if gm.marker is not None:
-            m = self._context.canvas.createmarker()
+            m = self._context().canvas.createmarker()
             m.type = gm.marker
             m.color = gm.markercolor
             if gm.markersize > 0:
@@ -98,13 +98,13 @@ class Pipeline1D(Pipeline):
         if not (Y[:].min() > max(y1, y2) or Y[:].max() < min(y1, y2) or
                 X[:].min() > max(x1, x2) or X[:].max() < min(x1, x2)):
             if l.priority > 0:
-                self._context.canvas.plot(l, donotstoredisplay=True)
+                self._context().canvas.plot(l, donotstoredisplay=True)
             if gm.marker is not None and m.priority > 0:
-                self._context.canvas.plot(m, donotstoredisplay=True)
+                self._context().canvas.plot(m, donotstoredisplay=True)
 
-        ren2 = self._context.createRenderer()
-        self._context.renWin.AddRenderer(ren2)
-        tmpl.plot(self._context.canvas, data1, gm, bg=self._context.bg,
+        ren2 = self._context().createRenderer()
+        self._context().renWin.AddRenderer(ren2)
+        tmpl.plot(self._context().canvas, data1, gm, bg=self._context().bg,
                   renderer=ren2, X=X, Y=Y)
         if hasattr(data1, "_yname"):
             del(data1._yname)
@@ -113,23 +113,23 @@ class Pipeline1D(Pipeline):
             del(vcs.elements["marker"][m.name])
 
         if tmpl.legend.priority > 0:
-            legd = self._context.canvas.createline()
+            legd = self._context().canvas.createline()
             legd.x = [tmpl.legend.x1, tmpl.legend.x2]
             legd.y = [tmpl.legend.y1, tmpl.legend.y1]  # [y1, y1] intentional.
             legd.color = l.color
             legd.width = l.width
             legd.type = l.type
-            t = self._context.canvas.createtext(
+            t = self._context().canvas.createtext(
                 To_source=tmpl.legend.textorientation,
                 Tt_source=tmpl.legend.texttable)
             t.x = tmpl.legend.x2
             t.y = tmpl.legend.y2
             t.string = data1.id
-            self._context.canvas.plot(t, donotstoredisplay=True)
+            self._context().canvas.plot(t, donotstoredisplay=True)
             sp = t.name.split(":::")
             del(vcs.elements["texttable"][sp[0]])
             del(vcs.elements["textorientation"][sp[1]])
             del(vcs.elements["textcombined"][t.name])
-            self._context.canvas.plot(legd, donotstoredisplay=True)
+            self._context().canvas.plot(legd, donotstoredisplay=True)
             del(vcs.elements["line"][legd.name])
         return {}
