@@ -330,7 +330,6 @@ class BoxfillPipeline(Pipeline2D):
         tmpColors.append(C)
 
         luts = []
-        cots = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         for i, l in enumerate(tmpLevels):
@@ -362,7 +361,5 @@ class BoxfillPipeline(Pipeline2D):
                     self._mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
-        if len(cots) > 0:
-            self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos
