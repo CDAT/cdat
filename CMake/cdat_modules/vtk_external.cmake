@@ -40,6 +40,7 @@ set(_vtk_modules
   vtkFiltersGeneral
   vtkFiltersImaging
   vtkFiltersGeometry
+  vtkFiltersPython
   vtkIOImage
   vtkIOCore
   vtkIOExport
