@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -141,7 +142,7 @@ class IsofillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             cot = vtk.vtkBandedPolyDataContourFilter()
             cot.ClippingOn()
-            cot.SetInputData(self._vtkPolyDataFilter.GetOutput())
+            cot.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
             cot.SetNumberOfContours(len(l))
             cot.SetClipTolerance(0.)
             for j, v in enumerate(l):
@@ -203,12 +204,6 @@ class IsofillPipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
-                                     self._dataWrapModulo)
-
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
@@ -223,6 +218,13 @@ class IsofillPipeline(Pipeline2D):
                         self._template.data.y1, self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            if self._vtkGeoTransform is None:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo,
+                                           transform=act.GetMatrix())
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
 
         self._resultDict["vtk_backend_actors"] = actors
 

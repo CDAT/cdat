@@ -20,3 +20,7 @@ class Pipeline(object):
     # broken up into set_data, set_template, etc methods...
     def plot(self, data1, data2, template, graphics_method, grid, transform):
         raise NotImplementedError("Missing override.")
+
+    def update_input(self, data1, data2):
+        """Update the input to this pipeline."""
+        raise NotImplementedError("Missing override.")

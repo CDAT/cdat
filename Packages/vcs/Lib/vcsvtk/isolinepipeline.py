@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -77,8 +78,6 @@ class IsolinePipeline(Pipeline2D):
         for i in range(numLevels):
             cot.SetValue(i, self._contourLevels[i])
         cot.SetValue(numLevels, self._contourLevels[-1])
-        # TODO remove update
-        cot.Update()
 
         mappers = []
 
@@ -173,8 +172,6 @@ class IsolinePipeline(Pipeline2D):
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
         mapper.SetInputConnection(stripper.GetOutputPort())
-        # TODO remove update, make pipeline
-        stripper.Update()
         mappers.append(mapper)
         self._resultDict["vtk_backend_contours"] = [cot]
 
@@ -191,12 +188,6 @@ class IsolinePipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
-                                     self._dataWrapModulo)
-
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
@@ -211,6 +202,14 @@ class IsolinePipeline(Pipeline2D):
                         self._template.data.y1, self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            if self._vtkGeoTransform is None:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo,
+                                           transform=act.GetMatrix())
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
+                mapper.Update()
 
         self._resultDict["vtk_backend_actors"] = actors
 

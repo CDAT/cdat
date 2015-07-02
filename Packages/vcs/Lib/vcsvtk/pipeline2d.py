@@ -202,3 +202,30 @@ class Pipeline2D(IPipeline2D):
         self._resultDict["vtk_backend_missing_mapper"] = (self._maskedDataMapper,
                                                           self._maskedDataColor,
                                                           self._useCellScalars)
+
+    def update_input(self, array1, array2):
+        """Reimplemented from base class."""
+
+        # Update the scalar array:
+        data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
+        if self._useCellScalars:
+            self._vtkDataSet.GetCellData().SetScalars(data)
+        else:
+            self._vtkDataSet.GetPointData().SetScalars(data)
+
+        # Regenerate the mask data mapper for the new array:
+        # TODO It'd be ideal to rework this function to preserve the pipeline.
+        # Then we won't need to regenerate all of this and just reexecute the
+        # existing pipeline.
+        self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
+              array1, self._vtkDataSet, self._maskedDataColor,
+              self._useCellScalars, deep=False)
+
+        # Connect or disconnect the actor depending on whether the masked
+        # mapper was generated.
+        if self._maskedDataMapper is not None:
+            if self._maskedDataActor is None:
+                self._maskedDataActor = vtk.vtkActor()
+            self._maskedDataActor.SetMapper(self._maskedDataMapper)
+        elif self._maskedDataActor is not None:
+            self._maskedDataActor.SetMapper(0)

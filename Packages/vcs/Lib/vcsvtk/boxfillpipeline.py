@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -156,12 +157,6 @@ class BoxfillPipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
-                                     self._dataWrapModulo)
-
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
@@ -179,6 +174,13 @@ class BoxfillPipeline(Pipeline2D):
                         self._template.data.y1, self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            if self._vtkGeoTransform is None:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo,
+                                           transform=act.GetMatrix())
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
 
         self._resultDict["vtk_backend_actors"] = actors
 
