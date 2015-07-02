@@ -116,7 +116,6 @@ class MeshfillPipeline(Pipeline2D):
 
         mappers = []
         luts = []
-        cots = []
         geos = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
@@ -148,8 +147,6 @@ class MeshfillPipeline(Pipeline2D):
                     mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
-        if len(cots) > 0:
-            self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos
 
