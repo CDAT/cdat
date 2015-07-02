@@ -828,11 +828,15 @@ install(CODE "
   set (resolved_programs \"\")
   foreach (program \${programs})
     get_filename_component(res_program \"\${program}\" REALPATH)
-    #    get_filename_component(py_script \"\$res_program}\" EXT)
-    set (bad_link \"\")
-    file (STRINGS \"\${res_program}\" bad_link REGEX \"#!${CMAKE_INSTALL_PREFIX}\")
-    if (\"\${bad_link}\" STREQUAL \"\")
-      list (APPEND resolved_programs \"\${res_program}\")
+    set (regex_match \"\")
+    # Do not install uuid as its dependencies are not resolved when using
+    # RPMBuild
+    file (STRINGS \"\${res_program}\" regex_match REGEX \"uuid\")
+    if (\"\${regex_match}\" STREQUAL \"\")
+      file (STRINGS \"\${res_program}\" regex_match REGEX \"#!${CMAKE_INSTALL_PREFIX}\")
+      if (\"\${regex_match}\" STREQUAL \"\")
+        list (APPEND resolved_programs \"\${res_program}\")
+      endif ()
     endif ()
   endforeach()
 
@@ -853,8 +857,10 @@ install(CODE "
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Externals\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Externals\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX}
-         PERMISSIONS USE_SOURCE_PERMISSIONS
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+      PERMISSIONS USE_SOURCE_PERMISSIONS
+      REGEX \"uuid\" EXCLUDE
     )
   endif()
 
