@@ -85,7 +85,8 @@ class IsolinePipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+        cmap = self._context().canvas.getcolormapname()
+        cmap = vcs.elements["colormap"][cmap]
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
             lut.SetTableValue(i, r / 100., g / 100., b / 100.)
@@ -136,14 +137,15 @@ class IsolinePipeline(Pipeline2D):
                         tt = tt.name
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
-                                             self._context.renWin.GetSize(),
+                                             self._context().renWin.GetSize(),
                                              to, tt)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
             else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
-                vcs2vtk.prepTextProperty(tprop, self._context.renWin.GetSize())
+                vcs2vtk.prepTextProperty(tprop,
+                                         self._context().renWin.GetSize())
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops
@@ -204,7 +206,7 @@ class IsolinePipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context.fitToViewport(
+            self._context().fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
@@ -219,13 +221,14 @@ class IsolinePipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)
