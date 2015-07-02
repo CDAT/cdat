@@ -130,7 +130,7 @@ class Pipeline2D(IPipeline2D):
         self._vtkDataSet = grid
         self._vtkGeoTransform = transform
         self._colorMap = \
-            vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+            vcs.elements["colormap"][self._context().canvas.getcolormapname()]
 
         # Preprocess the input scalar data:
         self._updateScalarData()
@@ -160,8 +160,8 @@ class Pipeline2D(IPipeline2D):
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
-        self._data1 = self._context.trimData2D(self._originalData1)
-        self._data2 = self._context.trimData2D(self._originalData2)
+        self._data1 = self._context().trimData2D(self._originalData1)
+        self._data2 = self._context().trimData2D(self._originalData2)
         self._min = self._data1.min()
         self._max = self._data1.max()
 

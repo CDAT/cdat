@@ -23,8 +23,9 @@ class VectorPipeline(Pipeline):
         else:
             zaxis = None
 
-        data1 = self._context.trimData2D(data1)  # Ok get3 only the last 2 dims
-        data2 = self._context.trimData2D(data2)
+        # Ok get3 only the last 2 dims
+        data1 = self._context().trimData2D(data1)
+        data2 = self._context().trimData2D(data2)
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, gm, deep=False, grid=grid,
                                               geo=transform)
@@ -93,7 +94,8 @@ class VectorPipeline(Pipeline):
         act = vtk.vtkActor()
         act.SetMapper(mapper)
 
-        cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+        cmap = self._context().canvas.getcolormapname()
+        cmap = vcs.elements["colormap"][cmap]
         r, g, b = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
@@ -108,14 +110,14 @@ class VectorPipeline(Pipeline):
                                     create_renderer=True)
 
         returned.update(
-            self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
+            self._context().renderTemplate(tmpl, data1, gm, taxis, zaxis))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             continents = False
         if continents:
             projection = vcs.elements["projection"][gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection, self._dataWrapModulo,
-                                         tmpl)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo, tmpl)
 
         returned["vtk_backend_actors"] = [[act, [x1, x2, y1, y2]]]
         returned["vtk_backend_glyphfilters"] = [glyphFilter]
