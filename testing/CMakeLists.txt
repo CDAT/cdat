@@ -34,6 +34,11 @@ endif()
 #  add_subdirectory(paraview)
 #endif()
 
+# Test RPY2
+if (CDAT_BUILD_RPY2)
+  add_subdirectory(rpy2)
+endif()
+
 # CMake module tests:
 # Test that out-of-source build detection is working:
 add_test(cmake_checkBuildOutOfSource
