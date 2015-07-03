@@ -1,1 +1,1 @@
-set(R_deps)
+set(R_deps ${readline_pkg})
