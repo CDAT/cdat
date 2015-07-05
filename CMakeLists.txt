@@ -949,6 +949,16 @@ install(CODE "
     @ONLY
   )
 
+  # Finally, create a symlink for python to point to point to installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      AND
+      NOT EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\")
+    execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\"
+      )
+  endif ()
+
   if (APPLE)
     configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
       ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
