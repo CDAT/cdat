@@ -796,6 +796,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt"
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_RPM_PACAKGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
 set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${cdat_BINARY_DIR}/link_python.sh")
 set(CPACK_DESTINATION_BIN_PREFIX "bin")
 
@@ -809,6 +810,7 @@ if (APPLE)
 endif()
 
 include(CPack)
+
 
 install(CODE "
   set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
@@ -844,6 +846,7 @@ install(CODE "
       endif ()
     endif ()
   endforeach()
+  
 
   file(INSTALL FILES \${resolved_programs} DESTINATION
     \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
@@ -931,6 +934,8 @@ install(CODE "
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
+  
+  file(INSTALL FILES ${cdat_BINARY_DIR}/build_info.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/info)
 
   # Unset QT_LIB_DIR as we need to use the one in user's environment
   # We need to keep in ming that we might need to build Qt on some systems
@@ -982,3 +987,4 @@ install(CODE "
 
   COMPONENT superbuild
 )
+
