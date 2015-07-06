@@ -14,8 +14,8 @@ filterid = 'f_startswith'
 obsid = 'RAOBS'
 varid = 'T'
 seasonid = 'JAN'
-modeldir = 'esg_data/f.e11.F2000C5.f09_f09.control.001/'
-obsdir = 'obs_data'
+modeldir = 'model_data_12' #'esg_data/f.e11.F2000C5.f09_f09.control.001/'
+obsdir = 'obs_data_12' #'obs_data'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid, extra_parts=['--varopts "SanFrancisco_CA" '] )
 
 # Test of graphics (png) file match:

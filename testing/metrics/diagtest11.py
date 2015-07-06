@@ -11,11 +11,11 @@ example = "./diagtest11.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat
 
 plotset = 11
 filterid = 'f_startswith'
-obsid = 'CERES-EBAF'
+obsid = 'NCEP'
 varid = 'LWCF'
 seasonid = 'JAN'
 modeldir = 'cam35_data'
-obsdir = 'obs_data'
+obsdir = 'obs'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:

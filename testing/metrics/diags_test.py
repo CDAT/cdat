@@ -58,13 +58,16 @@ class DiagTest(object):
     def closeness( self, varname, filename, rtol, atol ):
         #pdb.set_trace()
         testfname = os.path.join( self.outpath, filename )
+        print '>>>>>>>>>>>>>>>>>>> ', testfname
         baselinefname = os.path.join( self.baselinepath, filename )
+        print '>>>>>>>>>>>>>>>>>>> ', baselinefname
         f = cdms2.open( testfname )
         g = cdms2.open( baselinefname )
         fvar = f(varname)
+        #fvar = f('dv_CLISCCP_ANN_ft0_None_None')
         gvar = g(varname)
-        #print 'fvar', fvar.shape
-        #print 'gvar', gvar.shape
+        print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
+        print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
         close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
     
         if close:
@@ -99,26 +102,34 @@ class DiagTest(object):
             
             imagefname = os.path.join( self.outpath, imagefilename )
             imagebaselinefname = os.path.join( self.baselinepath, imagefilename )
+            #pdb.set_trace()
             graphics_result = checkimage.check_result_image( imagefname, imagebaselinefname, imagethreshold )
             print "Graphics file", imagefname, "match difference:", graphics_result
             
+            #initialize to successful graphics check
+            GR_CLOSE = (graphics_result == 0)
+            assert(GR_CLOSE), 'graphic images are not close'
+            
             # Test of NetCDF data (nc) file match:
-            CLOSE = True
+            NC_CLOSE = True
             for ncfilename, ncvars in ncfiles.items():
                 for var in ncvars:
                     #print ncfilename, var
                     try:
+                        print ">>>>>>>>>>>>>", var, ncfilename
                         close = self.closeness( var, ncfilename, rtol, atol )
                         if not close:
                             print var, ' in ', ncfilename, ' is not close.'
                     except:
                         print 'comparison failed for ', var, ' in file: ', ncfilename
                         close = False
-                    CLOSE = CLOSE and close
-                    
+                    NC_CLOSE = NC_CLOSE and close
+            assert(NC_CLOSE), 'NetCDF files are not close'
+            
             #cleanup the temp files
-            shutil.rmtree(self.outpath)
-            assert(CLOSE), 'data are not close'
+            if GR_CLOSE and NC_CLOSE:
+                shutil.rmtree(self.outpath)
+    
 if __name__ == "__main__":
     dt = diag_test('a', 'b', 1, 'c', 'd', 'e', 'f')
     print dt.modelpath
