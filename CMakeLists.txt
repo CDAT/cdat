@@ -523,6 +523,8 @@ include(pyspharm_pkg)
 include(pytables_pkg)
 include(readline_pkg)
 include(r_pkg)
+include(rpy2_pkg)
+include(singledispatch_pkg)
 include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
