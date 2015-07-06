@@ -498,7 +498,7 @@ def getStringXY(self, name):
 def checkAngle(self, name, value):
     """ checks angles in degrees """
     if not isNumber(value):
-        raise ValuerError(name + ' must be a number between 0. and 360.')
+        raise ValueError(name + ' must be a number between 0. and 360.')
     if not 0 <= value <= 360.:
         raise ValuerError(name + ' must be a number between 0. and 360.')
     return value
