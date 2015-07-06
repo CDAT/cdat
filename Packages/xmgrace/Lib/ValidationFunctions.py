@@ -1,3 +1,10 @@
+def checkInt(self, name, value, minvalue=None, maxvalue=None):
+    n = checkNumber(self, name, value, minvalue=minvalue, maxvalue=maxvalue)
+    if not isinstance(n, int):
+        raise ValueError(name + ' must be an integer')
+    return n
+
+
 def checkString(self, name, value):
     if not isinstance(value, str):
         raise ValueError(name + ' must be a string')
@@ -500,7 +507,7 @@ def checkAngle(self, name, value):
     if not isNumber(value):
         raise ValueError(name + ' must be a number between 0. and 360.')
     if not 0 <= value <= 360.:
-        raise ValuerError(name + ' must be a number between 0. and 360.')
+        raise ValueError(name + ' must be a number between 0. and 360.')
     return value
 
 

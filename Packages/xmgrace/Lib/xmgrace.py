@@ -59,7 +59,6 @@ __doc__ files, and __str__
 """
 import ValidationFunctions
 import time
-import types
 from genutil import colors
 import atexit
 
@@ -156,9 +155,9 @@ class REGION(object):
         print 'linewidth =', self.linewidth
         print 'color =', self.color
         print 'link =', self.link
-        if xy is not None:
+        if self.xy is not None:
             print 'xy =', self.xy
-        if line is not None:
+        if self.line is not None:
             print 'line =', self.line
 
     __slots__ = ['status', 'type', 'linestyle', 'linewidth',
@@ -2552,7 +2551,7 @@ class init(object):
         self.close()
         try:
             os.remove(self.pipe_file)
-        except Exception as err:
+        except Exception:
             pass
 
     def __init__(self, xmgrace_args='', pipe_file=None, new_pipe=1,
@@ -4121,9 +4120,10 @@ class init(object):
         try:
             self.pipe.write(cmd + '\n')
         except IOError as err:
+            import errno
             if err.errno == errno.EPIPE:
                 self.pipe.close()
-                raise Disconnected()
+                raise RuntimeError("Disconnected pipe")
             else:
                 raise
 
@@ -4133,10 +4133,11 @@ class init(object):
         try:
             self.pipe.flush()
         except IOError as err:
+            import errno
             if err.errno == errno.EPIPE:
                 # grace is no longer reading from the pipe:
                 self.pipe.close()
-                raise Disconnected()
+                raise RuntimeError("Disconnected pipe")
             else:
                 raise
 
@@ -4207,6 +4208,7 @@ class init(object):
             try:
                 os.kill(self.pid, signal.SIGTERM)
             except OSError as err:
+                import errno
                 if err.errno == errno.ESRCH:
                     # No such process; it must already be dead
                     self.pid = None
@@ -4267,7 +4269,7 @@ class init(object):
         """move sets definitions and possibly set if presents.
         Destination must exist"""
         self.Graph[G1].Set[S1] = self.Graph[G0].Set[S0]
-        pop(self.Graph[G0].Set, S0)
+        self.Graph[G0].Set.pop(S0)
         self.nset -= 1
         self.__call__(
             "MOVE G" +
