@@ -58,16 +58,15 @@ class DiagTest(object):
     def closeness( self, varname, filename, rtol, atol ):
         #pdb.set_trace()
         testfname = os.path.join( self.outpath, filename )
-        print '>>>>>>>>>>>>>>>>>>> ', testfname
+        #print '>>>>>>>>>>>>>>>>>>> ', testfname
         baselinefname = os.path.join( self.baselinepath, filename )
-        print '>>>>>>>>>>>>>>>>>>> ', baselinefname
+        #print '>>>>>>>>>>>>>>>>>>> ', baselinefname
         f = cdms2.open( testfname )
         g = cdms2.open( baselinefname )
         fvar = f(varname)
-        #fvar = f('dv_CLISCCP_ANN_ft0_None_None')
         gvar = g(varname)
-        print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
-        print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
+        #print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
+        #print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
         close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
     
         if close:
@@ -116,7 +115,7 @@ class DiagTest(object):
                 for var in ncvars:
                     #print ncfilename, var
                     try:
-                        print ">>>>>>>>>>>>>", var, ncfilename
+                        #print ">>>>>>>>>>>>>", var, ncfilename
                         close = self.closeness( var, ncfilename, rtol, atol )
                         if not close:
                             print var, ' in ', ncfilename, ' is not close.'
