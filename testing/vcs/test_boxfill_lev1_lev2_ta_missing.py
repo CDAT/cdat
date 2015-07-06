@@ -5,6 +5,7 @@ pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 f=cdms2.open(vcs.sample_data+"/ta_ncep_87-6-88-4.nc")

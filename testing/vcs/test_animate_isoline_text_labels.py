@@ -11,6 +11,7 @@ f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",slice(0,12)) # read only 12 times steps to speed up things
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 

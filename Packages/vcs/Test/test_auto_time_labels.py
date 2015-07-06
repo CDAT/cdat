@@ -10,6 +10,7 @@ f=cdms2.open(os.path.join(vcs.sample_data,'ta_ncep_87-6-88-4.nc'))
 s=f('ta',latitude=slice(5,6),level=slice(0,1),squeeze=1)
 ## s.info()
 x=vcs.init()
+x.setantialiasing(0)
 
 
 b=x.createboxfill('new2')

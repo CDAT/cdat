@@ -24,6 +24,7 @@ s2.setGrid(s.getGrid())
 for i in range(4):
     s2[i]=s2[i]*(1+float(i)/10.)
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
