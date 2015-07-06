@@ -183,6 +183,7 @@ class VTKAnimate(animate_helper.AnimationController):
 
         be.hideGUI()
 
+        self.create_thread.canvas.setantialiasing(be.getantialiasing())
         self.plot_to_canvas(self.create_thread.canvas, self.vcs_self.display_names, bg=1)
 
         renderers = be.renWin.GetRenderers()
