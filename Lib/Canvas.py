@@ -2679,11 +2679,25 @@ Options:::
         except Exception,err:
             print err
 
+    def __new_elts(self,original,new):
+      for e in vcs.elements.keys():
+        for k in vcs.elements[e].keys():
+          if k not in original[e]:
+            new[e].append(k)
+      return new
+
     def __plot (self, arglist, keyargs):
 
         # This routine has five arguments in arglist from _determine_arg_list
         # It adds one for bg and passes those on to Canvas.plot as its sixth arguments.
 
+        # First of all let's remember which elets we have before comin in here
+        # so that anything added (temp objects) can be removed at clear time
+        original_elts = {}
+        new_elts = {}
+        for k in vcs.elements.keys():
+          original_elts[k] = vcs.elements[k].keys()
+          new_elts[k] = []
         ## First of all try some cleanup
         assert len(arglist) == 6
         xtrakw=arglist.pop(5)
@@ -3520,6 +3534,8 @@ Options:::
                     delattr(arglist[0],p)
                 else:
                     setattr(arglist[0],p,tmp)
+            dn.newelements = self.__new_elts(original_elts, new_elts)
+
             return dn
         else: #not taylor diagram
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
@@ -3724,6 +3740,7 @@ Options:::
             if dn is not None:
               dn._template_origin = template_origin
               dn.ratio=Doratio
+              dn.newelements = self.__new_elts(original_elts, new_elts)
 
             if self.mode!=0 :
               #self.update()
@@ -3879,6 +3896,15 @@ Options:::
         self.animate.update_animate_display_list( )
         self.backend.clear(*args,**kargs)
         for nm in self.display_names:
+          ## Lets look at elements created by dispaly production
+          dn = vcs.elements["display"][nm]
+          new_elts = getattr(dn,"newelements",{})
+          for e in new_elts.keys():
+            if e == "display":
+              continue
+            for k in new_elts[e]:
+              if k in vcs.elements[e].keys():
+                del(vcs.elements[e][k])
           del(vcs.elements["display"][nm])
         self.display_names=[]
         return
