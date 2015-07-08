@@ -137,6 +137,7 @@ class vcsTest:
             line = sys.stdin.readline()
             if line[0] <> 'n':
                 self.update_image()
+        self.canvas.close()
         sys.exit(ret)
 
     def update_image(self):

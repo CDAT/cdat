@@ -18,5 +18,5 @@ x.png(fnm)
 
 src=sys.argv[1]
 ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
-
+x.close()
 sys.exit(ret)

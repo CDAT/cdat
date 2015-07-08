@@ -14,3 +14,5 @@ for gm in gms:
     print "Asserting %s is not %s" % (gm,gm2)
     exec("res = vcs.is%s(g)" % gm2)
     assert(res==0)
+
+x.close()

@@ -10,3 +10,5 @@ for obj in ["boxfill","isofill","isoline","meshfill","taylordiagram","vector",
   exec("Ocr = x.create%s()" % obj)
   exec("Ogt = x.get%s(Ocr.name)" %obj)
   assert Ocr.name == Ogt.name
+
+x.close()

@@ -135,4 +135,5 @@ print "src:",src
 ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
+x.close()
 sys.exit(ret)

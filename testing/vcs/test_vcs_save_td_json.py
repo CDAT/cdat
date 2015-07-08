@@ -31,5 +31,4 @@ td.script("vcs_test_save_td_to_json","w")
 assert(filecmp.cmp("vcs_test_save_td_to_json.json",src_json))
 td.script("vcs_test_save_td_to_py.py","w")
 assert(filecmp.cmp("vcs_test_save_td_to_py.py",src_py))
-
-
+x.close()

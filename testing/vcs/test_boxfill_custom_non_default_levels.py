@@ -37,4 +37,5 @@ testFile = "test_boxfill_custom_no_default_levels.png"
 canvas.png(testFile)
 ret = checkimage.check_result_image(testFile, baseline,
                                     checkimage.defaultThreshold)
+canvas.close()
 sys.exit(ret)

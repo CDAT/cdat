@@ -20,4 +20,5 @@ if line.y[2] != [.5, .5]:
   print "line.y[2] should be [.5, .5]; is %s" % line.y[2]
   sys.exit(-1)
 
+x.close()
 sys.exit(0)

@@ -34,4 +34,5 @@ if fake.detached == False:
     print "x.onClosing() did not detach configurator"
     sys.exit(1)
 
+x.close()
 sys.exit(0)

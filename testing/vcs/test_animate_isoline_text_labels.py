@@ -32,4 +32,5 @@ for p in pngs:
 if ret == 0:
     os.removedirs(os.path.split(p)[0])
     os.remove("%s.mp4" % prefix)
+x.close()
 sys.exit(ret)

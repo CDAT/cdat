@@ -26,4 +26,6 @@ if len(sys.argv) > 1:
     import checkimage
     src = sys.argv[1]
     ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+    x.close()
     sys.exit(ret)
+x.close()
