@@ -3897,14 +3897,16 @@ Options:::
         self.backend.clear(*args,**kargs)
         for nm in self.display_names:
           ## Lets look at elements created by dispaly production
-          dn = vcs.elements["display"][nm]
-          new_elts = getattr(dn,"newelements",{})
-          for e in new_elts.keys():
-            if e == "display":
-              continue
-            for k in new_elts[e]:
-              if k in vcs.elements[e].keys():
-                del(vcs.elements[e][k])
+          # Apparently when updating we shouldn't be clearing these elemnts yet
+          if kargs.get("render",True):
+            dn = vcs.elements["display"][nm]
+            new_elts = getattr(dn,"newelements",{})
+            for e in new_elts.keys():
+              if e == "display":
+                continue
+              for k in new_elts[e]:
+                if k in vcs.elements[e].keys():
+                  del(vcs.elements[e][k])
           del(vcs.elements["display"][nm])
         self.display_names=[]
         return
