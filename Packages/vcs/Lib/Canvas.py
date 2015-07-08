@@ -287,26 +287,6 @@ def _process_keyword(obj, target, source, keyargs, default=None):
         setattr(obj, target, getattr(obj, source))
     return arg
 
-def finish_queued_X_server_requests( self ):
-    """ Wait for the X server to execute all pending events.
-
-        If working with C routines, then use BLOCK_X_SERVER
-        found in the VCS module routine to stop the X server
-        from continuing. Thus, eliminating the asynchronous
-        errors.
-    """
-    x_num = self.canvas.xpending()
-    count = 0
-    while x_num != 0:
-        x_num = self.canvas.xpending()
-        count += 1
-        # Move on already! The X sever must be completed by this point!
-        # If count of 1000 is reached, then discard all events from
-        # this point on in the queue.
-        if count > 1000:
-           self.canvas.xsync_discard()
-           break
-
 class Canvas(object):
     """
  Function: Canvas                     # Construct a VCS Canvas class Object
@@ -1069,15 +1049,12 @@ class Canvas(object):
     #                                                                           #
     #############################################################################
     def _update_continents_check(self, *args):
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
 
         a = apply(self.canvas.updatecanvas_continents, args)
         self.flush() # update the canvas by processing all the X events
         self.backing_store()
         pause (self.pause_time)
 
-        self.canvas.UNBLOCK_X_SERVER()
         return a
 
     #############################################################################
@@ -3748,11 +3725,6 @@ Options:::
 #            self.animate.update_animate_display_list( )
 
 
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        #if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
-        #    thread.start_new_thread( self.canvas.startxmainloop, ( ) )
-
         # Now executes output commands
         for cc in cmds.keys():
             c=cc.lower()
@@ -3904,8 +3876,6 @@ Options:::
 """
         #global gui_canvas_closed
 
-        #finish_queued_X_server_requests( self )
-        #self.canvas.BLOCK_X_SERVER()
 
         #   Hide the GUI
         #if (self.canvas_gui is not None):
@@ -3915,10 +3885,6 @@ Options:::
             self.endconfigure()
         # Close the VCS Canvas
         a = self.backend.close(*args,**kargs)
-
-        # Stop the (thread) execution of the X main loop (if it is running).
-        #self.canvas.stopxmainloop( )
-        #self.canvas.UNBLOCK_X_SERVER()
 
         return a
 
@@ -3942,21 +3908,10 @@ Options:::
 """
         import gc
 
-        # Now stop the X main loop and its thread. Also close the VCS Canvas if it
-	# is visible.
-#        self.canvas.stopxmainloop( )
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
 
         del self
         gc.garbage
         gc.collect()
-# This is in contruction...... I have not yet completed this. This function
-# generates a segmentation fault.
-#        try:
-#           apply(self.canvas.destroy)
-#        except:
-#           pass
 
 
 
@@ -4102,13 +4057,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def _select_one(self, template_name,attr_name,X1,X2,Y1,Y2):
-        # flush and block the X main loop
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         self.canvas._select_one(template_name,attr_name,X1,X2,Y1,Y2)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     #############################################################################
     #                                                                           #
@@ -4116,13 +4065,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def _unselect_one(self, template_name,attr_name,X1,X2,Y1,Y2):
-        # flush and block the X main loop
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         self.canvas._unselect_one(template_name,attr_name,X1,X2,Y1,Y2)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     #############################################################################
     #                                                                           #
@@ -4131,13 +4074,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def _select_all(self):
-        # flush and block the X main loop
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         self.canvas._select_all()
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     #############################################################################
     #                                                                           #
@@ -4146,13 +4083,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def _unselect_all(self):
-        # flush and block the X main loop
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         self.canvas._unselect_all()
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     #############################################################################
     #                                                                           #
@@ -4240,37 +4171,6 @@ Options:::
 """
         return apply(self.backend.flush, args)
 
-    #############################################################################
-    #                                                                           #
-    # Return how many events are in the que.                                    #
-    #                                                                           #
-    #############################################################################
-    def xpending(self, *args):
-        return apply(self.canvas.xpending, args)
-
-    #############################################################################
-    #                                                                           #
-    # Block the X server. It may NOT process do X11 commands.                   #
-    #                                                                           #
-    #############################################################################
-    def BLOCK_X_SERVER(self, *args):
-        return apply(self.canvas.BLOCK_X_SERVER, args)
-
-    #############################################################################
-    #                                                                           #
-    # Unblock the X server. It may now proceed to do X11 commands.              #
-    #                                                                           #
-    #############################################################################
-    def UNBLOCK_X_SERVER(self, *args):
-        return apply(self.canvas.UNBLOCK_X_SERVER, args)
-
-    #############################################################################
-    #                                                                           #
-    # Return whether or not it is threaded.                                     #
-    #                                                                           #
-    #############################################################################
-    def THREADED(self, *args):
-        return apply(self.canvas.THREADED, args)
 
     #############################################################################
     #                                                                           #
@@ -4408,12 +4308,7 @@ Options:::
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
 """
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         p = apply(self.canvas.grid, args)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
         return p
 
@@ -4451,12 +4346,12 @@ Options:::
 """
         if (self.orientation() == 'landscape'): return
 
-        if ( ((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
-             ((not isinstance(x, IntType))) or ((not isinstance(y, IntType))) or
+        if ( ((not isinstance(width, int))) or ((not isinstance(height, int))) or
+             ((not isinstance(x, int))) or ((not isinstance(y, int))) or
              ((width != -99) and (width < 0)) or ( (height != -99) and (height < 0)) or
               ((x != -99) and  (x < 0)) or ((y != -99) and (y <0)) ):
            raise ValueError, 'If specified, width, height, x, and y must be integer values greater than or equal to 0.'
-        if ( ((not isinstance(clear, IntType))) and (clear not in [0,1])):
+        if ( ((not isinstance(clear, int))) and (clear not in [0,1])):
            raise ValueError, "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'."
 
         if ( (width==-99) and (height==-99) and (x==-99) and (y==-99) and (clear==0) ):
@@ -4469,13 +4364,8 @@ Options:::
             y=dict.get('y',-99)
         self.flush() # update the canvas by processing all the X events
 
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
         args = (width, height, x, y, clear)
-        l = apply(self.canvas.landscape, args)
-
-        self.canvas.UNBLOCK_X_SERVER()
+        l = self.backend.landscape(*args)
 
         return l
 
@@ -4518,12 +4408,9 @@ Options:::
     a=vcs.init()
     x.updateorientation()
 """
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
 
         a = apply(self.canvas.updateorientation, args)
 
-        self.canvas.UNBLOCK_X_SERVER()
         return a
 
     #############################################################################
@@ -4545,11 +4432,6 @@ Options:::
 """
 
         a = self.backend.open(*args,**kargs)
-
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        #if ( self.canvas.THREADED() == 0 ):
-        #  thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         return a
 
@@ -4602,12 +4484,8 @@ Options:::
     a.plot(array)
     a.page()      # Change the VCS Canvas orientation and set object flag to portrait
 """
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
 
         l = apply(self.canvas.page, args)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
         return l
 
@@ -4663,13 +4541,9 @@ Options:::
             y=dict.get('y',-99)
         self.flush() # update the canvas by processing all the X events
 
-        #finish_queued_X_server_requests( self )
-        #self.canvas.BLOCK_X_SERVER()
-
         args = (width, height, x, y, clear)
         p = self.backend.portrait(*args)
 
-        #self.canvas.UNBLOCK_X_SERVER()
         return p
 
     ##########################################################################
@@ -5285,11 +5159,6 @@ Options:::
 """
         a = apply(self.canvas.showbg, args)
 
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        if ( self.canvas.THREADED() == 0 ):
-          thread.start_new_thread( self.canvas.startxmainloop, ( ) )
-
         return a
 
     #############################################################################
@@ -5407,20 +5276,6 @@ Options:::
     a.plot(array)
 """
         return apply(self.canvas.set, args)
-
-    #############################################################################
-    #                                                                           #
-    # Touch all segements displayed on the VCS Canvas.                          #
-    #                                                                           #
-    #############################################################################
-    #def updateVCSsegments(self, *args):
-    #    finish_queued_X_server_requests( self )
-    #    self.canvas.BLOCK_X_SERVER()
-#
-#        a = apply(self.canvas.updateVCSsegments, args)
-#
-#        self.canvas.UNBLOCK_X_SERVER()
-#        return a
 
     #############################################################################
     #                                                                           #

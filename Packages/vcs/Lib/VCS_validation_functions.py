@@ -568,9 +568,9 @@ def checkLineType(self,name,value):
      elif value in ('long-dash', 4):
           hvalue = 'long-dash'
      elif (queries.isline(value)==1):
-          hvalue = value.name
+          hvalue = value.type[0]
      else:
-          checkedRaise(self,value,ValueError, 'The '+name+' can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), (0, 1, 2, 3, 4), or a line object.')
+       checkedRaise(self,value,ValueError, 'The '+name+' can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), (0, 1, 2, 3, 4), or a line object. You provided: %s' % value)
      return hvalue
 
 def checkLinesList(self,name,value):

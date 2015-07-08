@@ -374,6 +374,20 @@ class VTKVCSBackend(object):
     else:
       return "portrait"
 
+  def landscape(self,W,H,x,y,clear):
+      if clear:
+          self.clear()
+      if self.renWin is None:
+          if W!=-99:
+              self.canvas.bgX = W
+              self.canvas.bgY = H
+          else:
+              W = self.canvas.bgX
+              self.canvas.bgX = self.canvas.bgY
+              self.canvas.bgY = W
+      else:
+          self.renWin.SetSize(W,H)
+
   def portrait(self,W,H,x,y,clear):
       if clear:
           self.clear()
