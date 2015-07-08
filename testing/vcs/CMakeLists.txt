@@ -7,7 +7,7 @@ cdat_add_test(vcs_verify_import
 )
 cdat_add_test(vcs_no_xtra_elts
   "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_test_no_extra_elements.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_no_extra_elements.py
 )
 cdat_add_test(vcs_line_duplicate_points_fix
   "${PYTHON_EXECUTABLE}"
