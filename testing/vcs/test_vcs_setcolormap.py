@@ -29,4 +29,5 @@ x.png(testFilename)
 ret = checkimage.check_result_image(testFilename,
                                     baselineFilename,
                                     checkimage.defaultThreshold)
+x.close()
 sys.exit(ret)

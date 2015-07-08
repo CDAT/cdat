@@ -27,4 +27,5 @@ x.png("test_vcs_isoline_labels_multi_label_input_types.png")
 src=sys.argv[1]
 
 ret = checkimage.check_result_image('test_vcs_isoline_labels_multi_label_input_types.png',src,checkimage.defaultThreshold)
+x.close()
 sys.exit(ret)

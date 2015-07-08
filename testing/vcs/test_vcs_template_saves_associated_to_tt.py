@@ -17,3 +17,4 @@ if os.path.exists(fnm):
 t.script(fnm)
 
 assert filecmp.cmp(fnm,good)
+x.close()

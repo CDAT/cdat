@@ -16,6 +16,7 @@ class TestVcs(unittest.TestCase):
         w = vcs.init()
         w.plot(u)
         w.png("u")
+        w.close()
 
         
 if __name__ == '__main__':

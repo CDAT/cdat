@@ -38,3 +38,4 @@ if display != dp:
 if actor != display.backend[key] and actor not in display.backend[key]:
     print "Found wrong key for actor"
     sys.exit(1)
+x.close()

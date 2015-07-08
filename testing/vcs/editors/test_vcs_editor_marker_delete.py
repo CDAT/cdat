@@ -31,14 +31,17 @@ c.release(None, None)
 editor = c.target
 if editor is None:
     print "Did not activate an editor"
+    x.close()
     sys.exit(1)
 print "Editor activated"
 if type(editor) != vcs.editors.marker.MarkerEditor:
     print "Did not activate a marker editor"
+    x.close()
     sys.exit(1)
 print "Editor is a marker editor"
 if editor.marker != m:
     print "Did not activate the correct marker editor, expected", m.name, "received", editor.marker.name
+    x.close()
     sys.exit(1)
 print "Marker editor is editing the correct marker"
 
@@ -48,10 +51,12 @@ editor.right_release()
 # Make sure the editor has been deactivated
 if c.target == editor:
     print "Did not deactivate editor"
+    x.close()
     sys.exit(1)
 print "Marker editor deactivated"
 # Make sure the marker was deleted
 if len(m.x) != len(m.y) != len(m.type) != len(m.color) != 0:
     print "Did not delete all attributes on marker"
+    x.close()
     sys.exit(1)
 print "Deleted all attributes on marker"

@@ -38,4 +38,5 @@ testFile = "test_boxfill_custom_ext2.png"
 canvas.png(testFile)
 ret = checkimage.check_result_image(testFile, baseline,
                                     checkimage.defaultThreshold)
+canvas.close()
 sys.exit(ret)
