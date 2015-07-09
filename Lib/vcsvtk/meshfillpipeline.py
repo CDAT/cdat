@@ -248,7 +248,8 @@ class MeshfillPipeline(Pipeline2D):
                         self._template.data.y1,
                         self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
-                  priority=self._template.data.priority)
+                  priority=self._template.data.priority,
+                  create_renderer=True)
 
         self._resultDict["vtk_backend_actors"] = actors
 
