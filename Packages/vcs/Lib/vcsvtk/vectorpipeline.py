@@ -6,10 +6,15 @@ import vtk
 
 
 class VectorPipeline(Pipeline):
-    """Implementation of the Pipeline interface for VCS vector plots."""
+    """Implementation of the Pipeline interface for VCS vector plots.
+
+    Internal variables:
+        - _vtkDataSet: The vtkDataSet object at the source of the pipeline.
+    """
 
     def __init__(self, context_):
         super(VectorPipeline, self).__init__(context_)
+        self._vtkDataSet = None
 
     def plot(self, data1, data2, tmpl, gm, grid, transform):
         """Overrides baseclass implementation."""
@@ -30,20 +35,20 @@ class VectorPipeline(Pipeline):
         for k in ['vtk_backend_grid', 'xm', 'xM', 'ym', 'yM', 'continents',
                   'wrap', 'geo']:
             exec("%s = gridGenDict['%s']" % (k, k))
-        grid = gridGenDict['vtk_backend_grid']
+        self._vtkDataSet = gridGenDict['vtk_backend_grid']
 
-        returned["vtk_backend_grid"] = grid
+        returned["vtk_backend_grid"] = self._vtkDataSet
         returned["vtk_backend_geo"] = geo
-        missingMapper = vcs2vtk.putMaskOnVTKGrid(data1, grid, None, False,
-                                                 deep=False)
+        missingMapper = vcs2vtk.putMaskOnVTKGrid(data1, self._vtkDataSet, None,
+                                                 False, deep=False)
 
         # None/False are for color and cellData
         # (sent to vcs2vtk.putMaskOnVTKGrid)
         returned["vtk_backend_missing_mapper"] = (missingMapper, None, False)
 
-        w = vcs2vtk.generateVectorArray(data1, data2, grid)
+        w = vcs2vtk.generateVectorArray(data1, data2, self._vtkDataSet)
 
-        grid.GetPointData().AddArray(w)
+        self._vtkDataSet.GetPointData().AddArray(w)
 
         # Vector attempt
         l = gm.line
@@ -68,7 +73,7 @@ class VectorPipeline(Pipeline):
         arrow.FilledOff()
 
         glyphFilter = vtk.vtkGlyph2D()
-        glyphFilter.SetInputData(grid)
+        glyphFilter.SetInputData(self._vtkDataSet)
         glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vectors")
         glyphFilter.SetSourceConnection(arrow.GetOutputPort())
         glyphFilter.SetVectorModeToUseVector()
@@ -120,3 +125,10 @@ class VectorPipeline(Pipeline):
         returned["vtk_backend_luts"] = [[None, None]]
 
         return returned
+
+    def update_input(self, array1, array2):
+        """Reimplemented from base class."""
+
+        # Update the scalar array:
+        w = vcs2vtk.generateVectorArray(array1, array2, self._vtkDataSet)
+        self._vtkDataSet.GetPointData().AddArray(w)
