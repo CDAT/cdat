@@ -380,7 +380,7 @@ Class: Gfi				# Isofill
     def _getmissing(self):
          return self._missing
     def _setmissing(self,value):
-         value=VCS_validation_functions.checkColor(self,'missing',value)
+         value=VCS_validation_functions.checkColor(self,'missing',value,NoneOk=True)
          self._missing=value
     missing=property(_getmissing,_setmissing)
 
