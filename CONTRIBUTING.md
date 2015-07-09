@@ -13,7 +13,7 @@ tab](https://github.com/UV-CDAT/uvcdat/issues) and start looking through
 interesting issues.
 
 Feel free to ask questions on [mailing
-list](uvcdat-users@llnl.gov)
+list](uvcdat-users@llnl.gov) or [askbot](http://askbot-uvcdat.llnl.gov/questions)
 
 Bug Reports/Enhancement Requests
 --------------------------------
@@ -140,13 +140,8 @@ Contributing to the code base
 -----------------------------
 ### Code Standards
 
-*UV-CDAT* uses the [PEP8](http://www.python.org/dev/peps/pep-0008/)
-standard. There are several tools to ensure you abide by this standard.
-
-Alternatively, use [flake8](http://pypi.python.org/pypi/flake8) tool for
-checking the style of your code. Additional standards are outlined on
-the [code style wiki
-page](LINK HERE).
+*UV-CDAT* uses [flake8](http://pypi.python.org/pypi/flake8) tool for
+checking the style of your code.
 
 Please try to maintain backward-compatibility. *UV-CDAT* has lots of
 users with lots of existing code, so don't break it if at all possible.
@@ -175,6 +170,8 @@ All tests should go into the *tests* subdirectory of the specific
 package. There are probably many examples already there and looking to
 these for inspiration is suggested.
 
+#### Regression testing
+
 The `testing.checkimage.py` module has special `check_result_image` function
 that make it easier to check whether plot produced after data extraction and
 transformation are equivalent to baseline. For an example see below:
@@ -202,7 +199,7 @@ transformation are equivalent to baseline. For an example see below:
 
 #### Running the test suite
 
-The tests can then be run directly inside your build tree by typing::
+The tests can then be run directly inside your build tree (directory) by typing::
 
     ctest
 
@@ -217,14 +214,6 @@ constructs:
 
     ctest -R test-name
     ctest -R regex*
-
-#### Running the performance test suite
-
-TODO
-
-### Documenting your code
-
-TODO
 
 Contributing your changes to *UV-CDAT*
 -------------------------------------
@@ -348,7 +337,7 @@ automatically updated. Pushing them to GitHub again is done by:
 This will automatically update your Pull Request with the latest code
 and restart the Travis-CI tests.
 
-### Delete your merged branch (optional)
+### Delete your merged branch from your fork (optional)
 
 Once your feature branch is accepted into upstream, you'll probably want
 to get rid of the branch. First, merge upstream master into your branch
