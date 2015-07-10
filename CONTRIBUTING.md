@@ -176,25 +176,25 @@ The `testing.checkimage` module has a special `check_result_image()` function
 that make it easy to check whether a plot produced after data extraction and
 transformation is equivalent to baseline. For an example see below:
 
-    import cdms2,sys,vcs,sys,os
+    import cdms2, sys, vcs, os
     src = sys.argv[1]
-    pth = os.path.join(os.path.dirname(__file__),"..")
+    pth = os.path.join(os.path.dirname(__file__), "..")
     sys.path.append(pth)
     import checkimage
     x = vcs.init()
     x.drawlogooff()  # It is important to disable logo for testing
-    f = cdms2.open(vcs.prefix+"/sample_data/clt.nc")
-    s = f("clt",slice(0,1),squeeze=1)
+    f = cdms2.open(vcs.prefix + "/sample_data/clt.nc")
+    s = f("clt",slice(0, 1), squeeze=1)
     b = x.createboxfill()
-    b.level_1 = .5
+    b.level_1 = 0.5
     b.level_2 = 14.5
-    x.plot(s,b,bg = 1)
+    x.plot(s, b, bg=1)
 
     fnm = "test_boxfill_lev1_lev2.png"
 
     x.png(fnm)
 
-    ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+    ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
     sys.exit(ret)
 
 #### Running the test suite
