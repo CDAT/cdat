@@ -96,8 +96,8 @@ to both the upstream (main project) *UV-CDAT* repository and your new fork.
 
 ### Creating a Branch
 
-You want your master branch to reflect only production-ready code, so
-create a feature branch for making your changes. For example:
+You want your changes to appear in separate pull requests, so remember to
+create a separate feature branch for changes. For example:
 
     git branch shiny-new-feature
     git checkout shiny-new-feature
