@@ -94,10 +94,6 @@ or SSH is preferred to git:// for security reasons).
 This creates the directory UV-CDAT-yourname and connects your repository
 to both the upstream (main project) *UV-CDAT* repository and your new fork.
 
-You will also need to hook up Travis-CI to your GitHub (if you have forked)
-repository so the suite is automatically run when a Pull Request is submitted.
-Instructions are [here](http://about.travis-ci.org/docs/user/getting-started/).
-
 ### Creating a Branch
 
 You want your master branch to reflect only production-ready code, so
