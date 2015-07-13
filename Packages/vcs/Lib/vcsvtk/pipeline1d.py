@@ -5,6 +5,7 @@ import vcs
 
 
 class Pipeline1D(Pipeline):
+
     """Implementation of the Pipeline interface for 1D VCS plots."""
 
     def __init__(self, context_):
@@ -109,8 +110,8 @@ class Pipeline1D(Pipeline):
             legd.width = l.width
             legd.type = l.type
             t = self._context.canvas.createtext(
-                  To_source=tmpl.legend.textorientation,
-                  Tt_source=tmpl.legend.texttable)
+                To_source=tmpl.legend.textorientation,
+                Tt_source=tmpl.legend.texttable)
             t.x = tmpl.legend.x2
             t.y = tmpl.legend.y2
             t.string = data1.id

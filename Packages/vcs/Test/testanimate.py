@@ -39,21 +39,25 @@
 #                                                                          #
 ############################################################################
 
-import vcs,cdms2 as cdms,sys,os,support
+import vcs
+import cdms2 as cdms
+import sys
+import os
+import support
 support.dogui = True
 if support.dogui:
 
-    f=cdms.open(os.path.join(vcs.sample_data,'clt.nc'))
-    s=f('clt')
-    s=s[0:12,:]
+    f = cdms.open(os.path.join(vcs.sample_data, 'clt.nc'))
+    s = f('clt')
+    s = s[0:12, :]
 
-    x=vcs.init()
+    x = vcs.init()
 #    y=vcs.init()
 
-    b=x.createboxfill('new')
-    x.plot(s,b)
+    b = x.createboxfill('new')
+    x.plot(s, b)
 
-    #x.animate.create(thread_it=1)
+    # x.animate.create(thread_it=1)
     #raw_input("press enter")
     x.animate.create()
     x.animate.run()

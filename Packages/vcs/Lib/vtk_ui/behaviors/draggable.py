@@ -39,7 +39,8 @@ class DraggableMixin(Behavior):
     def drag_moved(self, obj, event):
         x, y = self.event_position()
 
-        if self.drag_origin is None or datetime.datetime.now() - self.drag_started < self.drag_interval:
+        if self.drag_origin is None or datetime.datetime.now(
+        ) - self.drag_started < self.drag_interval:
             return
 
         if self.drag_position is None:
@@ -48,7 +49,8 @@ class DraggableMixin(Behavior):
             w, h = self.interactor.GetRenderWindow().GetSize()
             x_buff = self.drag_buffer / float(w)
             y_buff = self.drag_buffer / float(h)
-            if x0 + x_buff < x or x0 - x_buff > x or y0 + y_buff < y or y0 - y_buff > y:
+            if x0 + x_buff < x or x0 - x_buff > x or y0 + \
+                    y_buff < y or y0 - y_buff > y:
                 self.drag_position = self.drag_origin
             else:
                 return
@@ -62,7 +64,8 @@ class DraggableMixin(Behavior):
         return
 
     def drag_released(self, obj, event):
-        if self.drag_origin is not None or self.drag_position is not None and datetime.datetime.now() - self.drag_started > datetime.timedelta(0, .25):
+        if self.drag_origin is not None or self.drag_position is not None and datetime.datetime.now(
+        ) - self.drag_started > datetime.timedelta(0, .25):
             self.drag_stop()
             self.drag_origin = None
             self.drag_position = None

@@ -6,6 +6,7 @@ import vtk
 
 
 class VectorPipeline(Pipeline):
+
     """Implementation of the Pipeline interface for VCS vector plots."""
 
     def __init__(self, context_):
@@ -104,7 +105,7 @@ class VectorPipeline(Pipeline):
                                           priority=tmpl.data.priority)
 
         returned.update(
-              self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
+            self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
 
         if self._context.canvas._continents is None:
             continents = False

@@ -8,6 +8,7 @@ import warnings
 
 
 class MeshfillPipeline(Pipeline2D):
+
     """Implementation of the Pipeline interface for VCS meshfill plots."""
 
     def __init__(self, context_):
@@ -36,7 +37,7 @@ class MeshfillPipeline(Pipeline2D):
                 # user wants arrow at the end
                 levs2[-1] = 1.e20
             for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i+1]])
+                self._contourLevels.append([levs2[i], levs2[i + 1]])
         else:
             if not isinstance(self._contourLevels[0], (list, tuple)):
                 self._contourLevels = []
@@ -44,7 +45,7 @@ class MeshfillPipeline(Pipeline2D):
                 if numpy.allclose(levs2[0], 1.e20):
                     levs2[0] = -1.e20
                 for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i+1]])
+                    self._contourLevels.append([levs2[i], levs2[i + 1]])
 
         # Contour colors:
         self._contourColors = self._gm.fillareacolors
@@ -77,17 +78,17 @@ class MeshfillPipeline(Pipeline2D):
             indices.append(indices[-1])
         if len(self._contourLevels) > len(self._contourColors):
             raise RuntimeError(
-                  "You asked for %i levels but provided only %i colors\n"
-                  "Graphic Method: %s of type %s\nLevels: %s"
-                  % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name,
-                     repr(self._contourLevels)))
+                "You asked for %i levels but provided only %i colors\n"
+                "Graphic Method: %s of type %s\nLevels: %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name,
+                   repr(self._contourLevels)))
         elif len(self._contourLevels) < len(self._contourColors) - 1:
             warnings.warn(
-                  "You asked for %i lgridevels but provided %i colors, extra "
-                  "ones will be ignored\nGraphic Method: %s of type %s"
-                  % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name))
+                "You asked for %i lgridevels but provided %i colors, extra "
+                "ones will be ignored\nGraphic Method: %s of type %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name))
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 C = [self._contourColors[i]]
@@ -129,7 +130,7 @@ class MeshfillPipeline(Pipeline2D):
                 mapper = vtk.vtkPolyDataMapper()
                 lut = vtk.vtkLookupTable()
                 th = vtk.vtkThreshold()
-                th.ThresholdBetween(l[j], l[j+1])
+                th.ThresholdBetween(l[j], l[j + 1])
                 th.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
                 geoFilter2 = vtk.vtkDataSetSurfaceFilter()
                 geoFilter2.SetInputConnection(th.GetOutputPort())
@@ -137,14 +138,14 @@ class MeshfillPipeline(Pipeline2D):
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
                 r, g, b = self._colorMap.index[color]
-                lut.SetTableValue(0, r/100., g/100., b/100.)
+                lut.SetTableValue(0, r / 100., g / 100., b / 100.)
                 mapper.SetLookupTable(lut)
-                mapper.SetScalarRange(l[j], l[j+1])
-                luts.append([lut, [l[j], l[j+1], True]])
+                mapper.SetScalarRange(l[j], l[j + 1])
+                luts.append([lut, [l[j], l[j + 1], True]])
                 # Store the mapper only if it's worth it?
                 # Need to do it with the whole slab min/max for animation
                 # purposes
-                if not (l[j+1] < wholeDataMin or l[j] > wholeDataMax):
+                if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
@@ -243,12 +244,12 @@ class MeshfillPipeline(Pipeline2D):
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             ren = self._context.fitToViewport(
-                  act, [self._template.data.x1,
-                        self._template.data.x2,
-                        self._template.data.y1,
-                        self._template.data.y2],
-                  wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
-                  priority=self._template.data.priority)
+                act, [self._template.data.x1,
+                      self._template.data.x2,
+                      self._template.data.y1,
+                      self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority)
 
         self._resultDict["vtk_backend_actors"] = actors
 

@@ -2,21 +2,64 @@ from vcs import vtk_ui
 from vcs.vtk_ui import behaviors
 import priority
 
+
 class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
+
     """
     Editor for any "box" object in VCS; anything with an x1, x2, y1, y2.
 
     Places a handle on each corner of the box, allows box to be dragged (moves handles with drag), will manipulate priority using up/down arrows and delete key to set to 0.
     """
+
     def __init__(self, interactor, box, configurator):
         self.box = box
         self.interactor = interactor
         self.configurator = configurator
 
-        self.top_left = vtk_ui.Handle(self.interactor, (box.x1, box.y1), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
-        self.top_right = vtk_ui.Handle(self.interactor, (box.x2, box.y1), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
-        self.bottom_left = vtk_ui.Handle(self.interactor, (box.x1, box.y2), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
-        self.bottom_right = vtk_ui.Handle(self.interactor, (box.x2, box.y2), dragged=self.drag_handle, released=self.adjust, color=(0,0,0), normalize=True)
+        self.top_left = vtk_ui.Handle(
+            self.interactor,
+            (box.x1,
+             box.y1),
+            dragged=self.drag_handle,
+            released=self.adjust,
+            color=(
+                0,
+                0,
+                0),
+            normalize=True)
+        self.top_right = vtk_ui.Handle(
+            self.interactor,
+            (box.x2,
+             box.y1),
+            dragged=self.drag_handle,
+            released=self.adjust,
+            color=(
+                0,
+                0,
+                0),
+            normalize=True)
+        self.bottom_left = vtk_ui.Handle(
+            self.interactor,
+            (box.x1,
+             box.y2),
+            dragged=self.drag_handle,
+            released=self.adjust,
+            color=(
+                0,
+                0,
+                0),
+            normalize=True)
+        self.bottom_right = vtk_ui.Handle(
+            self.interactor,
+            (box.x2,
+             box.y2),
+            dragged=self.drag_handle,
+            released=self.adjust,
+            color=(
+                0,
+                0,
+                0),
+            normalize=True)
         self.drag_buffer = 3
         self.top_left.show()
         self.top_right.show()
@@ -33,7 +76,11 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
         return b == self.box
 
     def in_bounds(self, x, y):
-        x1, y1, x2, y2 = min(self.box.x1, self.box.x2), min(self.box.y1, self.box.y2), max(self.box.x1, self.box.x2), max(self.box.y1, self.box.y2)
+        x1, y1, x2, y2 = min(
+            self.box.x1, self.box.x2), min(
+            self.box.y1, self.box.y2), max(
+            self.box.x1, self.box.x2), max(
+                self.box.y1, self.box.y2)
         return x > x1 and x < x2 and y > y1 and y < y2
 
     def drag_handle(self, handle, dx, dy):
@@ -47,7 +94,11 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
         else:
             self.bottom_right.x, self.top_right.x = handle.x, handle.x
 
-        handles = [self.top_left, self.top_right, self.bottom_left, self.bottom_right]
+        handles = [
+            self.top_left,
+            self.top_right,
+            self.bottom_left,
+            self.bottom_right]
         handles.remove(handle)
 
         for h in handles:
@@ -73,7 +124,6 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
         self.bottom_left.y += d_y
         self.bottom_right.y += d_y
 
-
         self.top_left.x = bounds(self.top_left.x)
         self.top_left.y = bounds(self.top_left.y)
 
@@ -95,7 +145,6 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
         self.box.y1 = self.top_left.y
         self.box.x2 = self.bottom_right.x
         self.box.y2 = self.bottom_right.y
-
 
     def double_release(self):
         self.configurator.deactivate(self)
@@ -121,6 +170,7 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
         self.bottom_left.place()
         self.top_right.place()
         self.bottom_right.place()
+
 
 def bounds(value, max_val=1, min_val=0):
     return min(max(value, min_val), max_val)

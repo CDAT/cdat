@@ -71,7 +71,8 @@ def contrasting_color(red, green, blue):
     while contrast < 4.5 and iterations < maximum_iterations:
 
         contrast = contrast_ratio((red, green, blue), (r, g, b))
-        # Allows us to jump out in case of infinite loop, and still use the best contrast we've seen
+        # Allows us to jump out in case of infinite loop, and still use the
+        # best contrast we've seen
         if contrast > best_contrast:
             best_color = r, g, b
             best_contrast = contrast
@@ -188,14 +189,19 @@ from behaviors import DraggableMixin, ClickableMixin
 
 class Label(Widget, DraggableMixin, ClickableMixin):
 
-    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, fgcolor=(1, 1, 1), size=24, font="Arial", left=0, top=0, textproperty=None):
+    def __init__(self, interactor, string, movable=False, on_move=None, on_drag=None, on_click=None, fgcolor=(
+            1, 1, 1), size=24, font="Arial", left=0, top=0, textproperty=None):
 
         if textproperty is not None:
             self.actor = vtkTextActor()
             self.actor.SetInput(string)
             self.actor.SetTextProperty(textproperty)
             if textproperty.GetBackgroundColor() == textproperty.GetColor():
-                textproperty.SetBackgroundColor(*white_or_black(*textproperty.GetColor()))
+                textproperty.SetBackgroundColor(
+                    *
+                    white_or_black(
+                        *
+                        textproperty.GetColor()))
         else:
             self.actor = text_actor(string, fgcolor, size, font)
 
@@ -280,7 +286,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         """The top side of the text actor, adjusted by height/justification"""
         dpi = self.interactor.GetRenderWindow().GetDPI()
         w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
-        valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+        valign = self.actor.GetTextProperty(
+        ).GetVerticalJustificationAsString()
         y = self.y
         # Adjust from alignment point to top of the actor
         if valign == "Top":
@@ -289,7 +296,8 @@ class Label(Widget, DraggableMixin, ClickableMixin):
             y += math.floor(h / 2.) + 1
         if valign == "Bottom":
             y += h
-        # Transform from y position to distance from top of screen to top of actor
+        # Transform from y position to distance from top of screen to top of
+        # actor
         w, h = self.interactor.GetRenderWindow().GetSize()
         return h - y
 
@@ -302,11 +310,13 @@ class Label(Widget, DraggableMixin, ClickableMixin):
         dpi = self.interactor.GetRenderWindow().GetDPI()
         w, h = text_dimensions(self.text, self.actor.GetTextProperty(), dpi)
 
-        valign = self.actor.GetTextProperty().GetVerticalJustificationAsString()
+        valign = self.actor.GetTextProperty(
+        ).GetVerticalJustificationAsString()
         # Adjust position based on alignment
         if valign == "Top":
             y = t
-        # Since it's not top-aligned, alignment point will be lower (and we're in units from top)
+        # Since it's not top-aligned, alignment point will be lower (and we're
+        # in units from top)
         elif valign == "Centered":
             y = t + math.floor(h / 2.) + 1
         elif valign == "Bottom":
@@ -394,5 +404,5 @@ class Label(Widget, DraggableMixin, ClickableMixin):
             self.x = dx + self.x
             self.y = dy + self.y
             self.place()
-            self.dragged(self, dx/w, dy/h)
+            self.dragged(self, dx / w, dy / h)
             self.manager.queue_render()

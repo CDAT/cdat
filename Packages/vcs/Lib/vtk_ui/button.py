@@ -7,11 +7,15 @@ from datetime import datetime, timedelta
 
 BUTTON_MARGIN = 3
 
+
 def __kwargs_to_dict__(**kwargs):
     return kwargs
 
+
 class ButtonState(object):
-    def __init__(self, label = '', image = None, bgcolor = None, fgcolor = None, opacity = None):
+
+    def __init__(
+            self, label='', image=None, bgcolor=None, fgcolor=None, opacity=None):
         self.label = label
         self.image = image
         self.bgcolor = bgcolor
@@ -32,9 +36,11 @@ CENTER_ALIGN = "CENTER"
 TOP_ALIGN = "TOP"
 BOTTOM_ALIGN = "BOTTOM"
 
+
 class Button(Widget):
+
     def __init__(self, interactor, action=None, corner_radius=5, width=None, font="Arial",
-                 height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5), fgcolor=(1,1,1),
+                 height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5), fgcolor=(1, 1, 1),
                  opacity=1, size=14, states = None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, tooltip=None, tooltip_property=None):
         """
         @kwargs:
@@ -61,11 +67,13 @@ class Button(Widget):
         self.action = action
 
         if halign not in (LEFT_ALIGN, RIGHT_ALIGN, CENTER_ALIGN):
-            raise TypeError("halign must be one of LEFT_ALIGN, RIGHT_ALIGN, or CENTER_ALIGN")
+            raise TypeError(
+                "halign must be one of LEFT_ALIGN, RIGHT_ALIGN, or CENTER_ALIGN")
         self.halign = halign
 
         if valign not in (TOP_ALIGN, BOTTOM_ALIGN, CENTER_ALIGN):
-            raise TypeError("valign must be one of TOP_ALIGN, BOTTOM_ALIGN, or CENTER_ALIGN")
+            raise TypeError(
+                "valign must be one of TOP_ALIGN, BOTTOM_ALIGN, or CENTER_ALIGN")
         self.valign = valign
         if image:
             self.image = load_image(image)
@@ -75,8 +83,14 @@ class Button(Widget):
         self.__placing__ = False
 
         text = states[0].label if states else label
-        # Text widget will be placed over the button; clicks on it have to propogate down
-        self.text_widget = Label(interactor, text, on_click = self.__advance__, size=size, font=font)
+        # Text widget will be placed over the button; clicks on it have to
+        # propogate down
+        self.text_widget = Label(
+            interactor,
+            text,
+            on_click=self.__advance__,
+            size=size,
+            font=font)
 
         self.label = label
         self.size = size
@@ -97,13 +111,20 @@ class Button(Widget):
         if tooltip:
             if tooltip_property is not None:
                 tooltip_property.SetVerticalJustificationToTop()
-            self.tooltip_label = Label(interactor, tooltip, textproperty=tooltip_property)
-            self.hover_handler = self.interactor.AddObserver("MouseMoveEvent", self.hover)
+            self.tooltip_label = Label(
+                interactor,
+                tooltip,
+                textproperty=tooltip_property)
+            self.hover_handler = self.interactor.AddObserver(
+                "MouseMoveEvent",
+                self.hover)
             self.hover_timer = None
-            self.timer_handler = self.interactor.AddObserver("TimerEvent", self.still_hovering)
+            self.timer_handler = self.interactor.AddObserver(
+                "TimerEvent",
+                self.still_hovering)
 
         self.update()
-        self.subscribe( 'StateChangedEvent', self.clicked)
+        self.subscribe('StateChangedEvent', self.clicked)
 
     def hover(self, obj, event):
         if self.widget.GetEnabled() == 0:
@@ -131,8 +152,15 @@ class Button(Widget):
     def get_text(self):
         return self.text_widget.get_text()
 
-    def add_state(self, label=None, image=None, bgcolor=None, fgcolor=None, opacity=None):
-        self.states.append(ButtonState(label=label, image=image, bgcolor=bgcolor, fgcolor=fgcolor, opacity=opacity))
+    def add_state(
+            self, label=None, image=None, bgcolor=None, fgcolor=None, opacity=None):
+        self.states.append(
+            ButtonState(
+                label=label,
+                image=image,
+                bgcolor=bgcolor,
+                fgcolor=fgcolor,
+                opacity=opacity))
 
     def place(self):
 
@@ -171,7 +199,6 @@ class Button(Widget):
         except AttributeError:
             pass
 
-
     def get_dimensions(self):
         image = self.repr.GetButtonTexture(self.repr.GetState())
         width, height, _ = image.GetDimensions()
@@ -199,8 +226,8 @@ class Button(Widget):
 
             elif label_text:
                 l_w, l_h = text_dimensions(
-                      label_text, self.text_widget.actor.GetTextProperty(),
-                      dpi)
+                    label_text, self.text_widget.actor.GetTextProperty(),
+                    dpi)
 
                 max_height = max(max_height, l_h)
                 max_width = max(max_width, l_w)
@@ -224,7 +251,8 @@ class Button(Widget):
                 width = self.width if self.width else int(max_width)
                 height = self.height if self.height else int(max_height)
 
-            # Optimization can be done here; can use the same image for everything with same bgcolor + h/w
+            # Optimization can be done here; can use the same image for
+            # everything with same bgcolor + h/w
             bg_image = rounded_rect(width, height, self.radius, bgcolor)
             if image is not None:
                 image = pad_image(image, max_width, max_height)
@@ -299,24 +327,28 @@ class Button(Widget):
 
     def __advance__(self, point):
         state = self.repr.GetState()
-        self.set_state( (state + 1) % len(self.states) )
+        self.set_state((state + 1) % len(self.states))
         self.clicked(self.widget, "StateChangedEvent")
 
     def clicked(self, obj, event):
         state = self.get_state()
         button_state = self.states[state]
 
-        self.text_widget.set_text( button_state.label if button_state.label else self.label )
-        self.text_widget.set_font_color( button_state.fgcolor if button_state.fgcolor else self.fgcolor )
+        self.text_widget.set_text(
+            button_state.label if button_state.label else self.label)
+        self.text_widget.set_font_color(
+            button_state.fgcolor if button_state.fgcolor else self.fgcolor)
         self.place()
         if self.action:
             self.action(state)
 
-    def copy(self, interactor, button_type=None, button_args=None, button_kwargs=None, skip_args=None):
-        # In the future, we'll want to do some optimization with states and images here.
+    def copy(self, interactor, button_type=None, button_args=None,
+             button_kwargs=None, skip_args=None):
+        # In the future, we'll want to do some optimization with states and
+        # images here.
         b = Button(interactor, action=self.action, corner_radius=self.radius, width=self.width,
-             height=self.height, left=self.left, top=self.top, image=self.image, label=self.label, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
-             opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
+                   height=self.height, left=self.left, top=self.top, image=self.image, label=self.label, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
+                   opacity=self.opacity, size=self.size, states=self.states, halign=self.halign, valign=self.valign)
 
         state = self.get_state()
         if state != 0:
@@ -327,16 +359,18 @@ class Button(Widget):
 
 
 class ToggleButton(Button):
+
     """
     Displays a button with 2 states, that will call different callbacks when clicked based on current state.
     """
+
     def __init__(self, interactor, label, on=None, off=None, corner_radius=5, width=None,
-                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
+                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1, 1, 1), font="Arial",
                  opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, on_prefix="Enable", off_prefix="Disable"):
 
         super(ToggleButton, self).__init__(interactor, action=self.toggle, corner_radius=corner_radius, width=width,
-                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
-                 opacity=opacity, size=size, states=states if states else [ButtonState(label="%s %s" % (on_prefix, label)), ButtonState(label="%s %s" % (off_prefix, label))], halign=halign, valign=valign)
+                                           height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
+                                           opacity=opacity, size=size, states=states if states else [ButtonState(label="%s %s" % (on_prefix, label)), ButtonState(label="%s %s" % (off_prefix, label))], halign=halign, valign=valign)
 
         self.on = on
         self.off = off
@@ -358,8 +392,8 @@ class ToggleButton(Button):
 
     def copy(self, interactor):
         b = ToggleButton(interactor, self.label, on=self.on, off=self.off, corner_radius=self.radius, width=self.width,
-                 height=self.height, left=self.left, top=self.top, image=self.image, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
-                 opacity=self.opacity, size=self.size, states = self.states, halign=self.halign, valign=self.valign)
+                         height=self.height, left=self.left, top=self.top, image=self.image, bgcolor=self.bgcolor, fgcolor=self.fgcolor,
+                         opacity=self.opacity, size=self.size, states=self.states, halign=self.halign, valign=self.valign)
 
         state = self.repr.GetState()
 
@@ -371,15 +405,26 @@ class ToggleButton(Button):
 
 
 class SliderButton(ToggleButton):
+
     """
     Displays a button that will show a slider when toggled on, and hide it when toggled off.
     Provides a callback to receive the value of the slider, and one for when the sliding has stopped.
     """
-    def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, corner_radius=5, width=None,
-                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1,1,1), font="Arial",
-                 opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, point1=(0,.1), point2=(1,.1)):
 
-        self.slider = Slider(interactor, update=update, end=end, title= label, value=value, min_val=min_val, max_val=max_val, point1=point1, point2=point2)
+    def __init__(self, interactor, value, min_val, max_val, label, on_show_slider=None, update=None, end=None, corner_radius=5, width=None,
+                 height=None, left=0, top=0, image=None, bgcolor=(.5, .5, .5), fgcolor=(1, 1, 1), font="Arial",
+                 opacity=1, size=14, states=None, halign=LEFT_ALIGN, valign=CENTER_ALIGN, point1=(0, .1), point2=(1, .1)):
+
+        self.slider = Slider(
+            interactor,
+            update=update,
+            end=end,
+            title=label,
+            value=value,
+            min_val=min_val,
+            max_val=max_val,
+            point1=point1,
+            point2=point2)
 
         def _show_slider():
             if on_show_slider:
@@ -387,8 +432,8 @@ class SliderButton(ToggleButton):
             self.slider.show()
 
         super(SliderButton, self).__init__(interactor, label, on=_show_slider, off=self.slider.hide, corner_radius=corner_radius, width=width,
-                 height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
-                 opacity=opacity, size=size, states= states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
+                                           height=height, left=left, top=top, image=image, bgcolor=bgcolor, fgcolor=fgcolor, font=font,
+                                           opacity=opacity, size=size, states=states, on_prefix="Show", off_prefix="Hide", halign=halign, valign=valign)
 
     def get_value(self):
         return self.slider.repr.GetValue()
@@ -419,9 +464,9 @@ class SliderButton(ToggleButton):
         p2x, p2y, _ = self.slider.repr.GetPoint2Coordinate().GetValue()
 
         b = SliderButton(interactor, value, min_val, max_val, self.label, update=self.slider.update_callback, end=self.slider.end_callback,
-                          corner_radius=self.radius, width=self.width, height=self.height, left=self.left, top=self.top, image=self.image,
+                         corner_radius=self.radius, width=self.width, height=self.height, left=self.left, top=self.top, image=self.image,
                          bgcolor=self.bgcolor, fgcolor=self.fgcolor, opacity=self.opacity, size=self.size, states=self.states, halign=self.halign, valign=self.valign,
-                         point1=(p1x,p1y), point2=(p2x, p2y))
+                         point1=(p1x, p1y), point2=(p2x, p2y))
 
         state = self.repr.GetState()
         if state != 0:
