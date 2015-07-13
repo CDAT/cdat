@@ -19,11 +19,13 @@ __valign_map__ = {
 
 
 class TextEditor(ClickableMixin, priority.PriorityEditor):
+
     """
     Editor for `textcombined` objects
 
     Click a text box to edit the text, config toolbar, draggable textboxes (using the vtk_ui.textbox widget).
     """
+
     def __init__(self, interactor, text, index, dp, configurator):
 
         self.interactor = interactor
@@ -41,16 +43,32 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.textboxes = None
 
         self.toolbar = Toolbar(self.interactor, "Text Options")
-        self.toolbar.add_slider_button(text.height, 1, 100, "Height", update=self.update_height)
+        self.toolbar.add_slider_button(
+            text.height,
+            1,
+            100,
+            "Height",
+            update=self.update_height)
 
-        halign = self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
-        valign = self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+        halign = self.toolbar.add_button(
+            ["Left Align", "Center Align", "Right Align"], action=self.halign)
+        valign = self.toolbar.add_button(
+            ["Top Align", "Half Align", "Bottom Align"], action=self.valign)
         halign.set_state(self.text.halign)
         valign.set_state(__valign_map__[self.text.valign])
 
-        self.toolbar.add_slider_button(text.angle, 0, 360, "Angle", update=self.update_angle)
+        self.toolbar.add_slider_button(
+            text.angle,
+            0,
+            360,
+            "Angle",
+            update=self.update_angle)
 
-        font_editor = FontEditor(self.toolbar, self.set_font, vcs.elements["fontNumber"][self.text.font])
+        font_editor = FontEditor(
+            self.toolbar,
+            self.set_font,
+            vcs.elements["fontNumber"][
+                self.text.font])
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -61,9 +79,14 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
         prop.SetVerticalJustificationToTop()
-        self.tooltip = Label(self.interactor, "%s + Click to place new text." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
+        self.tooltip = Label(
+            self.interactor,
+            "%s + Click to place new text." %
+            ("Cmd" if sys.platform == "darwin" else "Ctrl"),
+            textproperty=prop)
         self.tooltip.left = 0
-        self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
+        self.tooltip.top = self.interactor.GetRenderWindow(
+        ).GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
         super(TextEditor, self).__init__()
         self.register()
@@ -99,7 +122,13 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         cmap = vcs.getcolormap()
 
         prop = vtkTextProperty()
-        vcs.vcs2vtk.prepTextProperty(prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
+        vcs.vcs2vtk.prepTextProperty(
+            prop,
+            (w,
+             h),
+            to=self.text,
+            tt=self.text,
+            cmap=cmap)
         prop.SetOrientation(-1 * self.text.angle)
 
         for ind, x in enumerate(self.text.x):
@@ -115,12 +144,27 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             y = y * h
 
             box_prop = vtkTextProperty()
-            vcs.vcs2vtk.prepTextProperty(box_prop, (w, h), to=self.text, tt=self.text, cmap=cmap)
+            vcs.vcs2vtk.prepTextProperty(
+                box_prop,
+                (w,
+                 h),
+                to=self.text,
+                tt=self.text,
+                cmap=cmap)
             box_prop.SetOrientation(-1 * self.text.angle)
             text_color = box_prop.GetColor()
             highlight_color = vcs.vtk_ui.text.contrasting_color(*text_color)
 
-            textbox = Textbox(self.interactor, string, highlight_color=highlight_color, highlight_opacity=.8, movable=True, on_editing_end=self.finished_editing, on_drag=self.moved_textbox, textproperty=box_prop, on_click=self.textbox_clicked)
+            textbox = Textbox(
+                self.interactor,
+                string,
+                highlight_color=highlight_color,
+                highlight_opacity=.8,
+                movable=True,
+                on_editing_end=self.finished_editing,
+                on_drag=self.moved_textbox,
+                textproperty=box_prop,
+                on_click=self.textbox_clicked)
             textbox.x = x
             textbox.y = y
             textbox.show()
@@ -169,11 +213,19 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.text.x[self.index] += dx
         self.text.y[self.index] += dy
         w, h = self.interactor.GetRenderWindow().GetSize()
-        self.actors[self.index].SetPosition(w * self.text.x[self.index], h * self.text.y[self.index])
+        self.actors[
+            self.index].SetPosition(
+            w *
+            self.text.x[
+                self.index],
+            h *
+            self.text.y[
+                self.index])
 
     def handle_click(self, point):
         x, y = point
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["control"]
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(
+            x, y) or self.current_modifiers()["control"]
 
     def process_click(self, text_index, x, y):
 
@@ -192,14 +244,24 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
                     self.textboxes[self.index].stop_editing()
 
-                    # Add a new text item to self.text, update, and start editing
-                    new_index = max(len(self.text.x), len(self.text.y), len(self.text.string))
+                    # Add a new text item to self.text, update, and start
+                    # editing
+                    new_index = max(len(self.text.x),
+                                    len(self.text.y),
+                                    len(self.text.string))
 
                     self.text.x.append(x)
                     self.text.y.append(y)
                     self.text.string.append("Click to Edit")
 
-                    new_actor = genTextActor(self.actors[0].GetConsumer(0), string=["Click to Edit"], x=[x], y=[y],to=self.text,tt=self.text,cmap=vcs.getcolormap())[0]
+                    new_actor = genTextActor(
+                        self.actors[0].GetConsumer(0),
+                        string=["Click to Edit"],
+                        x=[x],
+                        y=[y],
+                        to=self.text,
+                        tt=self.text,
+                        cmap=vcs.getcolormap())[0]
                     new_actor.SetVisibility(0)
                     self.actors.append(new_actor)
                     self.index = new_index
@@ -224,13 +286,20 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = ColorPicker(500, 500, vcs.getcolormap(), self.text.color, parent_interactor=self.interactor, on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = ColorPicker(
+                500,
+                500,
+                vcs.getcolormap(),
+                self.text.color,
+                parent_interactor=self.interactor,
+                on_save=self.set_color,
+                on_cancel=self.cancel_color)
 
     def set_color(self, cmap, color):
         self.text.color = color
         self.update()
         self.picker = None
-        #text colormap is currently not in place, will be later.
+        # text colormap is currently not in place, will be later.
         #self.text.colormap = cmap
 
     def cancel_color(self):
@@ -284,7 +353,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
-        new_layer = self.text.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        new_layer = self.text.priority * 10000 + 1 + \
+            self.configurator.displays.index(self.display)
         if new_layer + 1 > maxLayers:
             self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
 

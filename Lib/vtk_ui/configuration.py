@@ -1,10 +1,13 @@
 from resize_box import ResizeBox
 from handle import Handle
 
+
 class ConfigTypes(object):
     LIST, BOOL, FLOAT, BOX = range(4)
 
+
 class ConfigOption(object):
+
     def __init__(self, name, setter, getter):
         self.setter = setter
         self.getter = getter
@@ -19,7 +22,9 @@ class ConfigOption(object):
     def add_to_toolbar(self, toolbar):
         toolbar.add_button(self.name, self)
 
+
 class BoxOption(ConfigOption):
+
     def __init__(self, name, setter, getter, normalize=False):
         self.resizer = None
         self.normalize = normalize
@@ -43,10 +48,21 @@ class BoxOption(ConfigOption):
             self.resizer.hide()
 
         points = self()
-        self.resizer = ResizeBox(toolbar.interactor, points[0], points[1], normalize=self.normalize)
-        toolbar.add_toggle_button(self.name, on=self.on, off=self.off, on_prefix="Transform", off_prefix="Save")
+        self.resizer = ResizeBox(
+            toolbar.interactor,
+            points[0],
+            points[1],
+            normalize=self.normalize)
+        toolbar.add_toggle_button(
+            self.name,
+            on=self.on,
+            off=self.off,
+            on_prefix="Transform",
+            off_prefix="Save")
+
 
 class PointOption(ConfigOption):
+
     def __init__(self, name, setter, getter, normalize=False):
         super(PointOption, self).__init__(name, setter, getter)
         self.handle = None
@@ -67,10 +83,24 @@ class PointOption(ConfigOption):
             self.handle.hide()
 
         point = self()
-        self.handle = Handle(toolbar.interactor, point, color=(0,0,0), normalize=self.normalize)
-        toolbar.add_toggle_button(self.name, on=self.on, off=self.off, on_prefix="Move", off_prefix="Save")
+        self.handle = Handle(
+            toolbar.interactor,
+            point,
+            color=(
+                0,
+                0,
+                0),
+            normalize=self.normalize)
+        toolbar.add_toggle_button(
+            self.name,
+            on=self.on,
+            off=self.off,
+            on_prefix="Move",
+            off_prefix="Save")
+
 
 class BoolOption(ConfigOption):
+
     def __init__(self, name, setter, getter):
         super(BoolOption, self).__init__(name, setter, getter)
 
@@ -85,7 +115,9 @@ class BoolOption(ConfigOption):
         if self():
             toolbar.widgets[-1].set_state(1)
 
+
 class ListOption(ConfigOption):
+
     def __init__(self, name, setter, getter, values=None):
         self.values = values
         super(ListOption, self).__init__(name, setter, getter)
@@ -100,20 +132,31 @@ class ListOption(ConfigOption):
         else:
             return self.getter()
 
+
 class FloatOption(ConfigOption):
-    def __init__(self, name, setter, getter, finalize=None, min_val=0, max_val=1, value=0):
+
+    def __init__(
+            self, name, setter, getter, finalize=None, min_val=0, max_val=1, value=0):
         self.finalize = finalize
         self.min = min_val
         self.max = max_val
         super(FloatOption, self).__init__(name, setter, getter)
 
     def add_to_toolbar(self, toolbar):
-        toolbar.add_slider_button(self(), self.min, self.max, self.name, update = self, end = self.finalize)
+        toolbar.add_slider_button(
+            self(),
+            self.min,
+            self.max,
+            self.name,
+            update=self,
+            end=self.finalize)
         toolbar.widgets[-1].set_value(self())
 
 from toolbar import Toolbar
 
+
 class AutoConfToolbar(Toolbar):
+
     def __init__(self, interactor, name, *configs, **kwargs):
         super(AutoConfToolbar, self).__init__(interactor, name, **kwargs)
         for config in configs:

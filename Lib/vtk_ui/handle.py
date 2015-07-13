@@ -2,10 +2,10 @@ from vtk import vtkHandleWidget, vtkPointHandleRepresentation2D
 from widget import Widget
 
 
-
-
 class Handle(Widget):
-    def __init__(self, interactor, point, width=10, height=10, opacity=1, color=(0, 0, 0), clicked=None, dragged=None, released=None, normalize=False):
+
+    def __init__(self, interactor, point, width=10, height=10, opacity=1, color=(
+            0, 0, 0), clicked=None, dragged=None, released=None, normalize=False):
 
         self.x, self.y = point
         self.color = color
@@ -56,7 +56,6 @@ class Handle(Widget):
 
         return self.x * float(w), self.y * float(h)
 
-
     def place(self):
         x, y = self.__get_position__()
 
@@ -102,6 +101,7 @@ class Handle(Widget):
             if self.dragged:
                 # Need to get the point that we're dragged to here
                 self.dragged(self, dx, dy)
+
 
 def quad_poly_data(width, height):
     from vtk import vtkPoints, vtkQuad, vtkCellArray, vtkPolyData
