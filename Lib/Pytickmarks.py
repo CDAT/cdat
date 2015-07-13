@@ -2,7 +2,7 @@
 """
 # Template Y - Tick Marks (Pyt) module
 """
-#################################################################################
+##########################################################################
 #                                                                               #
 # Module:       Template Y - Tick Marks (Pyt) module                            #
 #                                                                               #
@@ -18,7 +18,7 @@
 #                                                                               #
 # Version:      4.0                                                             #
 #                                                                               #
-#################################################################################
+##########################################################################
 #
 #
 #
@@ -30,20 +30,23 @@ from types import *
 # Template text (Pyt) Class.                                                #
 #                                                                           #
 #############################################################################
+
+
 class Pyt(object):
+
     '''
  Class:	Pyt				# Template text
 
  Description of Pyt Class:
-    The Template text object allows the manipulation of line type, width, and color index. 
+    The Template text object allows the manipulation of line type, width, and color index.
 
     This class is used to define an line table entry used in VCS, or it
     can be used to change some or all of the line attributes in an
     existing line table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
-	     a.show('line')		# Show predefined line objects
+             a=vcs.init()		# Constructor
+             a.show('line')		# Show predefined line objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
                                           0, then use update function to
@@ -69,40 +72,50 @@ class Pyt(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 '''
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # Initialize the line attributes.                                           #
     #                                                                           #
-    #############################################################################
-    __slots__ = ["line","priority","x1","x2","member","_line","_priority","_x1","_x2"]
+    ##########################################################################
+    __slots__ = [
+        "line",
+        "priority",
+        "x1",
+        "x2",
+        "member",
+        "_line",
+        "_priority",
+        "_x1",
+        "_x2"]
+
     def __init__(self, member):
-#    def __init__(self, template, member=None):
-	#                                                         #
+        #    def __init__(self, template, member=None):
+        #                                                         #
         ###########################################################
-	# Initialize the line class and its members               #
+        # Initialize the line class and its members               #
         #							  #
-	# The getPytmember function retrieves the values of the    #
+        # The getPytmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
-	# appropriate Python Object.                              #
+        # appropriate Python Object.                              #
         ###########################################################
-	#                                                         #
-        self.member=member
+        #                                                         #
+        self.member = member
         self.line = "default"
         self.priority = 1
         if member == "ytic1":
-          self.x1 = 0.0500000007451
-          self.x2 = 0.0399999991059
+            self.x1 = 0.0500000007451
+            self.x2 = 0.0399999991059
         elif member == "ytic2":
-          self.x1 = 0.949999988079
-          self.x2 = 0.959999978542
+            self.x1 = 0.949999988079
+            self.x2 = 0.959999978542
         elif member == "ymintic1":
-          self.priority = 0
-          self.x1 = 0.0500000007451
-          self.x2 = 0.0450000017881
+            self.priority = 0
+            self.x1 = 0.0500000007451
+            self.x2 = 0.0450000017881
         elif member == "ymintic2":
-          self.priority = 0
-          self.x1 = 0.949999988079
-          self.x2 = 0.954999983311
+            self.priority = 0
+            self.x1 = 0.949999988079
+            self.x2 = 0.954999983311
         self.line = "default"
 
     priority = VCS_validation_functions.priority
@@ -110,11 +123,11 @@ class Pyt(object):
     x2 = VCS_validation_functions.x2
     line = VCS_validation_functions.line
 
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # List out template text members (attributes).                              #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def list(self):
         print "member = ", self.member
         print "     priority =", self.priority
@@ -123,6 +136,6 @@ class Pyt(object):
         print "     line =", self.line
 
 
-#################################################################################
+##########################################################################
 #        END OF FILE								#
-#################################################################################
+##########################################################################

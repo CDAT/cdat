@@ -1,14 +1,26 @@
-## This file aims at removing elets creation from dpeending on a Canvas, we will try to simply have 
+# This file aims at removing elets creation from dpeending on a Canvas, we will try to simply have
 ## b = vcs.createboxfill()
-## rather than
-## x=vcs.init()
-## b=x.createboxfill()
+# rather than
+# x=vcs.init()
+# b=x.createboxfill()
 import vcs
-import boxfill,meshfill,isofill,isoline,unified1D,template,projection
+import boxfill
+import meshfill
+import isofill
+import isoline
+import unified1D
+import template
+import projection
 import colormap
-import fillarea,marker,line,texttable,textorientation,textcombined,vector
-from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,\
-    xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output,\
+import fillarea
+import marker
+import line
+import texttable
+import textorientation
+import textcombined
+import vector
+from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert,\
+    xaxisconvert, yaxisconvert, plot_1D_input, plot_2D_input, plot_output,\
     plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, \
     isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output,\
     scatter_output, outfill_output, outline_output, plot_2_1D_options
@@ -17,34 +29,42 @@ import warnings
 from error import vcsError
 import dv3d
 
-def check_name_source(name,source,typ):
-  """makes ure it is a unique name for this type or generates a name for user"""
-  elts = vcs.listelements(typ)
-  if name is None:
-      rnd = random.randint(0,1000000000000000)
-      name = '__%s_%i' % (typ,rnd)
-      while name in elts:
-          rnd = random.randint(0,1000000000000000)
-          name = '__%s_%i' % (typ,rnd)
-  if isinstance(name,unicode):
-      name = str(name)
-  if not isinstance(name,str):
-      raise vcsError, '%s object name must be a string or %s name' % (typ,typ)
 
-  if not isinstance(source,str):
-      exec("ok = vcs.is%s(source)" % (typ,))
-  else:
-      ok=0
-  if (not isinstance(source,str)) and ok==0:
-      raise vcsError,'Error %s object source must be a string or a %s object' % (typ,typ)
-  elif ok:
-      source=source.name
+def check_name_source(name, source, typ):
+    """makes ure it is a unique name for this type or generates a name for user"""
+    elts = vcs.listelements(typ)
+    if name is None:
+        rnd = random.randint(0, 1000000000000000)
+        name = '__%s_%i' % (typ, rnd)
+        while name in elts:
+            rnd = random.randint(0, 1000000000000000)
+            name = '__%s_%i' % (typ, rnd)
+    if isinstance(name, unicode):
+        name = str(name)
+    if not isinstance(name, str):
+        raise vcsError(
+            '%s object name must be a string or %s name' %
+            (typ, typ))
 
-  if name in elts:
-      raise vcsError, "Error %s object named %s already exists" % (typ,name)
-  if not source in elts and typ!="display":
-      raise vcsError, "Error source %s object (%s) does not exist!" % (typ,source)
-  return name,source
+    if not isinstance(source, str):
+        exec("ok = vcs.is%s(source)" % (typ,))
+    else:
+        ok = 0
+    if (not isinstance(source, str)) and ok == 0:
+        raise vcsError(
+            'Error %s object source must be a string or a %s object' %
+            (typ, typ))
+    elif ok:
+        source = source.name
+
+    if name in elts:
+        raise vcsError("Error %s object named %s already exists" % (typ, name))
+    if not source in elts and typ != "display":
+        raise vcsError(
+            "Error source %s object (%s) does not exist!" %
+            (typ, source))
+    return name, source
+
 
 def createtemplate(name=None, source='default'):
     """
@@ -60,13 +80,14 @@ If the name provided already exists, then a error will be returned. Template
 names must be unique.
 
 Example of Use:
-con=vcs.createtemplate('example1') # create 'example1' template from 'default' template 
+con=vcs.createtemplate('example1') # create 'example1' template from 'default' template
 vcs.listelements('template')                       # Show all the existing templates
 con=vcs.createtemplate('example2','quick') # create 'example2' from 'quick' template
 """
-    name,source = check_name_source(name,source,'template')
+    name, source = check_name_source(name, source, 'template')
 
     return template.P(name, source)
+
 
 def gettemplate(Pt_name_src='default'):
     """
@@ -87,11 +108,11 @@ templt=vcs.gettemplate()              # templt instance of 'default' template
 templt2=vcs.gettemplate('quick')      # templt2 contains 'quick' template
 """
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Pt_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Pt_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Pt_name_src in vcs.elements["template"].keys():
-      raise ValueError, "template '%s' does not exists" % Pt_name_src
+        raise ValueError("template '%s' does not exists" % Pt_name_src)
     return vcs.elements["template"][Pt_name_src]
 
 
@@ -117,8 +138,9 @@ p=vcs.createprojection('example2','quick')
 vcs.show('projection')
 """
 
-    name,source = check_name_source(name,source,'projection')
+    name, source = check_name_source(name, source, 'projection')
     return projection.Proj(name, source)
+
 
 def getprojection(Proj_name_src='default'):
     """
@@ -130,7 +152,7 @@ projection class object from an existing VCS projection method. If
 no projection name is given, then projection 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createprojection function.)
 
 Example of Use:
@@ -142,12 +164,13 @@ p2=vcs.getprojection('quick')          # box2 instance of existing 'quick' proje
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Proj_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Proj_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Proj_name_src in vcs.elements["projection"]:
-      raise vcsError,"No such projection '%s'" % Proj_name_src
+        raise vcsError("No such projection '%s'" % Proj_name_src)
     return vcs.elements["projection"][Proj_name_src]
+
 
 def createboxfill(name=None, source='default'):
     """
@@ -190,9 +213,11 @@ vcs.show('boxfill')
 
 """
 
-    name,source = check_name_source(name,source,'boxfill')
+    name, source = check_name_source(name, source, 'boxfill')
     return boxfill.Gfb(name, source)
-createboxfill.__doc__ = createboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, boxfill_output) 
+createboxfill.__doc__ = createboxfill.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, boxfill_output)
+
 
 def getboxfill(Gfb_name_src='default'):
     """
@@ -215,7 +240,7 @@ boxfill class object from an existing VCS boxfill graphics method. If
 no boxfill name is given, then boxfill 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createboxfill function.)
 
 Example of Use:
@@ -233,13 +258,15 @@ box2=vcs.getboxfill('quick')          # box2 instance of existing 'quick' boxfil
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfb_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfb_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfb_name_src in vcs.elements["boxfill"].keys():
-      raise "The boxfill method: '%s' does not seem to exist"
+        raise "The boxfill method: '%s' does not seem to exist"
     return vcs.elements["boxfill"][Gfb_name_src]
-getboxfill.__doc__ = getboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, boxfill_output) 
+getboxfill.__doc__ = getboxfill.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, boxfill_output)
+
 
 def createtaylordiagram(name=None, source='default'):
     """
@@ -262,14 +289,21 @@ vcs.show('taylordiagram')
 td=vcs.createtaylordiagram('example2','quick')
 vcs.show('taylordiagram')
 """
-    
-    name,source = check_name_source(name,source,'taylordiagram')
+
+    name, source = check_name_source(name, source, 'taylordiagram')
     if name in vcs.elements["taylordiagram"].keys():
-      raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
+        raise vcsError(
+            'Error creating taylordiagram graphic method: ' +
+            Gtd_name +
+            ' already exist')
     if not source in vcs.elements["taylordiagram"].keys():
-      raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
-    n=vcs.taylor.Gtd(name,source)
+        raise vcsError(
+            'Error creating taylordiagram graphic method ' +
+            Gtd_name_src +
+            ' does not exist')
+    n = vcs.taylor.Gtd(name, source)
     return n
+
 
 def gettaylordiagram(Gtd_name_src='default'):
     """
@@ -281,7 +315,7 @@ taylordiagram class object from an existing VCS taylordiagram graphics method. I
 no taylordiagram name is given, then taylordiagram 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createboxfill function.)
 
 Example of Use:
@@ -291,16 +325,18 @@ td=vcs.gettaylordiagram()                    # td instance of 'default' taylordi
 td2=vcs.gettaylordiagram('default')          # td2 instance of existing 'default' taylordiagram
                                            #         graphics method
                                     """
-    
-    
+
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gtd_name_src,str):
-        raise vcsError, 'The argument must be a string.'
-    
+    if not isinstance(Gtd_name_src, str):
+        raise vcsError('The argument must be a string.')
+
     if not Gtd_name_src in vcs.elements["taylordiagram"].keys():
-        raise vcsError("The taylordiagram graphic method %s does not exists" % Gtd_name_src)
+        raise vcsError(
+            "The taylordiagram graphic method %s does not exists" %
+            Gtd_name_src)
     else:
         return vcs.elements["taylordiagram"][Gtd_name_src]
+
 
 def createmeshfill(name=None, source='default'):
     """
@@ -323,8 +359,9 @@ vcs.show('meshfill')
 mesh=vcs.createmeshfill('example2','quick')
 vcs.show('meshfill')
 """
-    name,source = check_name_source(name,source,'meshfill')
+    name, source = check_name_source(name, source, 'meshfill')
     return meshfill.Gfm(name, source)
+
 
 def getmeshfill(Gfm_name_src='default'):
     """
@@ -336,7 +373,7 @@ meshfill class object from an existing VCS meshfill graphics method. If
 no meshfill name is given, then meshfill 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createmeshfill function.)
 
 Example of Use:
@@ -349,13 +386,14 @@ mesh2=a.getmeshfill('quick')          # mesh2 instance of existing 'quick' meshf
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfm_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfm_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfm_name_src in vcs.elements["meshfill"]:
-      raise ValueError,"meshfill '%s' does not exists" % Gfm_name_src
+        raise ValueError("meshfill '%s' does not exists" % Gfm_name_src)
 
     return vcs.elements["meshfill"][Gfm_name_src]
+
 
 def createisofill(name=None, source='default'):
     """
@@ -398,9 +436,11 @@ vcs.show('isofill')
 
 """
 
-    name,source = check_name_source(name,source,'isofill')
+    name, source = check_name_source(name, source, 'isofill')
     return isofill.Gfi(name, source)
-createisofill.__doc__ = createisofill.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
+createisofill.__doc__ = createisofill.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
+
 
 def getisofill(Gfi_name_src='default'):
     """
@@ -442,13 +482,15 @@ iso2=vcs.getisofill('quick')          # iso2 instance of existing 'quick' isofil
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfi_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfi_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfi_name_src in vcs.elements["isofill"]:
-      raise ValueError,"The isofill '%s' does not exists" % Gfi_name_src
+        raise ValueError("The isofill '%s' does not exists" % Gfi_name_src)
     return vcs.elements["isofill"][Gfi_name_src]
-getisofill.__doc__ = getisofill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isofill_output)
+getisofill.__doc__ = getisofill.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, isofill_output)
+
 
 def createisoline(name=None, source='default'):
     """
@@ -492,9 +534,11 @@ vcs.show('isoline')
 
 """
 
-    name,source = check_name_source(name,source,'isoline')
+    name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
-createisoline.__doc__ = createisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, isoline_output)
+createisoline.__doc__ = createisoline.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isoline_output)
+
 
 def getisoline(Gi_name_src='default'):
     """
@@ -536,25 +580,29 @@ gm.linewidth=0
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gi_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gi_name_src, str):
+        raise vcsError('The argument must be a string.')
     if not Gi_name_src in vcs.elements["isoline"]:
-       raise ValueError,"The isoline '%s' does not exists" % Gi_name_src
+        raise ValueError("The isoline '%s' does not exists" % Gi_name_src)
     return vcs.elements["isoline"][Gi_name_src]
-getisoline.__doc__ = getisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isoline_output)
+getisoline.__doc__ = getisoline.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, isoline_output)
 
-def create1d(name=None,source='default'):
-    name,source = check_name_source(name,source,'1d')
-    return unified1D.G1d(name,source)
+
+def create1d(name=None, source='default'):
+    name, source = check_name_source(name, source, '1d')
+    return unified1D.G1d(name, source)
+
 
 def get1d(name):
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(name,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(name, str):
+        raise vcsError('The argument must be a string.')
 
     if not name in vcs.elements["1d"]:
-      raise ValueError,"The 1d '%s' graphics method does not exists" % name
+        raise ValueError("The 1d '%s' graphics method does not exists" % name)
     return vcs.elements["1d"][name]
+
 
 def createxyvsy(name=None, source='default'):
     """
@@ -599,15 +647,17 @@ vcs.show('xyvsy')
 
 """
 
-    if source[-7:]=="_xyvsy_":
-      source = source[:-7]
-    name,source = check_name_source(name,source,'xyvsy')
+    if source[-7:] == "_xyvsy_":
+        source = source[:-7]
+    name, source = check_name_source(name, source, 'xyvsy')
 
-    gm = unified1D.G1d(name+"_xyvsy_", source+"_xyvsy_")
+    gm = unified1D.G1d(name + "_xyvsy_", source + "_xyvsy_")
     gm.flip = True
-    vcs.elements["xyvsy"][name]=gm
+    vcs.elements["xyvsy"][name] = gm
     return gm
-createxyvsy.__doc__ = createxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output) 
+createxyvsy.__doc__ = createxyvsy.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output)
+
 
 def getxyvsy(GXy_name_src='default'):
     """
@@ -650,15 +700,19 @@ xyy2=vcs.getxyvsy('quick')            # xyy2 instance of existing 'quick' Xyvsy
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(GXy_name_src,str):
-       raise vcsError, 'The argument must be a string.'
-    if GXy_name_src[-7:]=="_xyvsy_":
-      GXy_name_src = GXy_name_src[:-7]
+    if not isinstance(GXy_name_src, str):
+        raise vcsError('The argument must be a string.')
+    if GXy_name_src[-7:] == "_xyvsy_":
+        GXy_name_src = GXy_name_src[:-7]
 
     if not GXy_name_src in vcs.elements["xyvsy"]:
-      raise ValueError,"The xyvsy '%s' graphics method does not exists" % GXy_name_src
+        raise ValueError(
+            "The xyvsy '%s' graphics method does not exists" %
+            GXy_name_src)
     return vcs.elements["xyvsy"][GXy_name_src]
-getxyvsy.__doc__ = getxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output) 
+getxyvsy.__doc__ = getxyvsy.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output)
+
 
 def createyxvsx(name=None, source='default'):
     """
@@ -703,14 +757,16 @@ vcs.show('yxvsx')
 
 """
 
-    if source[-7:]=="_yxvsx_":
-      source = source[:-7]
-    name,source = check_name_source(name,source,'yxvsx')
+    if source[-7:] == "_yxvsx_":
+        source = source[:-7]
+    name, source = check_name_source(name, source, 'yxvsx')
 
-    gm = unified1D.G1d(name+"_yxvsx_", source+"_yxvsx_")
-    vcs.elements["yxvsx"][name]=gm
+    gm = unified1D.G1d(name + "_yxvsx_", source + "_yxvsx_")
+    vcs.elements["yxvsx"][name] = gm
     return gm
-createyxvsx.__doc__ = createyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output) 
+createyxvsx.__doc__ = createyxvsx.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output)
+
 
 def getyxvsx(GYx_name_src='default'):
     """
@@ -753,16 +809,20 @@ yxx2=vcs.getyxvsx('quick')            # yxx2 instance of existing 'quick' Yxvsx
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(GYx_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(GYx_name_src, str):
+        raise vcsError('The argument must be a string.')
     if GYx_name_src[-7:] == "_yxvsx_":
-      GYx_name_src=GYx_name_src[:-7]
+        GYx_name_src = GYx_name_src[:-7]
     if not GYx_name_src in vcs.elements["yxvsx"]:
-      raise ValueError,"The Yxvsx '%s' graphics method does not exists" % GYx_name_src
+        raise ValueError(
+            "The Yxvsx '%s' graphics method does not exists" %
+            GYx_name_src)
     return vcs.elements["yxvsx"][GYx_name_src]
-getyxvsx.__doc__ = getyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output) 
+getyxvsx.__doc__ = getyxvsx.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output)
 
-def createxvsy( name=None, source='default'):
+
+def createxvsy(name=None, source='default'):
     """
 Options:::
 %s
@@ -804,13 +864,15 @@ vcs.show('xvsy')
 
 """
 
-    if source[-6:]=="_xvsy_":
-      source = source[:-6]
-    name,source = check_name_source(name,source,'xvsy')
-    gm = unified1D.G1d(name+"_xvsy_", source+"_xvsy_")
-    vcs.elements["xvsy"][name]=gm
+    if source[-6:] == "_xvsy_":
+        source = source[:-6]
+    name, source = check_name_source(name, source, 'xvsy')
+    gm = unified1D.G1d(name + "_xvsy_", source + "_xvsy_")
+    vcs.elements["xvsy"][name] = gm
     return gm
-createxvsy.__doc__ = createxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output) 
+createxvsy.__doc__ = createxvsy.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output)
+
 
 def getxvsy(GXY_name_src='default'):
     """
@@ -854,17 +916,21 @@ xy2=vcs.getxvsy('quick')              # xy2 instance of existing 'quick' XvsY
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(GXY_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(GXY_name_src, str):
+        raise vcsError('The argument must be a string.')
     if GXY_name_src[-6:] == "_xvsy_":
-      GXY_name_src=GXY_name_src[:-6]
+        GXY_name_src = GXY_name_src[:-6]
     if not GXY_name_src in vcs.elements["xvsy"]:
-      raise ValueError,"The xvsy '%s' graphics method does not exists" % GXY_name_src
+        raise ValueError(
+            "The xvsy '%s' graphics method does not exists" %
+            GXY_name_src)
 
     return vcs.elements["xvsy"][GXY_name_src]
-getxvsy.__doc__ = getxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output) 
+getxvsy.__doc__ = getxvsy.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output)
 
-def createvector( name=None, source='default'):
+
+def createvector(name=None, source='default'):
     """
 Function: createvector                # Construct a new vector graphics method
 
@@ -886,8 +952,9 @@ vcs.show('vector')
 vec=vcs.createvector('example2','quick')
 vcs.show('vector')
 """
-    name,source = check_name_source(name,source,'vector')
+    name, source = check_name_source(name, source, 'vector')
     return vector.Gv(name, source)
+
 
 def getvector(Gv_name_src='default'):
     """
@@ -912,13 +979,14 @@ vec2=vcs.getvector('quick')          # vec2 instance of existing 'quick' vector
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gv_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gv_name_src, str):
+        raise vcsError('The argument must be a string.')
     if not Gv_name_src in vcs.elements["vector"]:
-      raise ValueError, "The vector '%s' does not exist" % Gv_name_src
+        raise ValueError("The vector '%s' does not exist" % Gv_name_src)
     return vcs.elements["vector"][Gv_name_src]
 
-def createscatter( name=None, source='default'):
+
+def createscatter(name=None, source='default'):
     """
 Options:::
 %s
@@ -960,14 +1028,16 @@ vcs.show('scatter')
 
 """
     if source[-9:] == "_scatter_":
-      source=source[:-9]
-    name,source = check_name_source(name,source,'scatter')
+        source = source[:-9]
+    name, source = check_name_source(name, source, 'scatter')
 
-    gm = unified1D.G1d(name+"_scatter_", source+"_scatter_")
-    gm.linewidth=0
-    vcs.elements["scatter"][name]=gm
+    gm = unified1D.G1d(name + "_scatter_", source + "_scatter_")
+    gm.linewidth = 0
+    vcs.elements["scatter"][name] = gm
     return gm
-createscatter.__doc__ = createscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, scatter_output)
+createscatter.__doc__ = createscatter.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, scatter_output)
+
 
 def getscatter(GSp_name_src='default'):
     """
@@ -1010,20 +1080,24 @@ sct2=vcs.getscatter('quick')          # sct2 instance of existing 'quick' scatte
 
 """
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(GSp_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(GSp_name_src, str):
+        raise vcsError('The argument must be a string.')
     if GSp_name_src[-9:] == "_scatter_":
-      GSp_name_src=GSp_name_src[:-9]
+        GSp_name_src = GSp_name_src[:-9]
 
     if not GSp_name_src in vcs.elements["scatter"]:
-      raise ValueError,"The scatter '%s' graphics method does not exists" % GSp_name_src
+        raise ValueError(
+            "The scatter '%s' graphics method does not exists" %
+            GSp_name_src)
     return vcs.elements["scatter"][GSp_name_src]
-getscatter.__doc__ = getscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, scatter_output)
+getscatter.__doc__ = getscatter.__doc__ % (
+    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, scatter_output)
 
-def createline(name=None, source='default', ltype=None, 
-             width=None, color=None, priority=None,
-             viewport=None, worldcoordinate=None,
-             x=None, y=None, projection=None):
+
+def createline(name=None, source='default', ltype=None,
+               width=None, color=None, priority=None,
+               viewport=None, worldcoordinate=None,
+               x=None, y=None, projection=None):
     """
 Function: createline                       # Construct a new line secondary method
 
@@ -1034,7 +1108,7 @@ secondary method name is given, then the default line secondary method
 will be used as the secondary method to which the attributes will be
 copied from.
 
-If the name provided already exists, then a error will be returned. 
+If the name provided already exists, then a error will be returned.
 Secondary method names must be unique.
 
 Example of Use:
@@ -1052,7 +1126,7 @@ ln2=vcs.createline(name='new', name_src='red',ltype='dash', width=2,
 vcs.line(ln2)                      # Plot using specified line object
 """
 
-    name,source = check_name_source(name,source,'line')
+    name, source = check_name_source(name, source, 'line')
 
     ln = line.Tl(name, source)
     if (ltype is not None):
@@ -1072,13 +1146,14 @@ vcs.line(ln2)                      # Plot using specified line object
     if (y is not None):
         ln.y = y
     if (projection is not None):
-        ln.projection=projection
+        ln.projection = projection
     return ln
 
+
 def getline(name='default', ltype=None, width=None, color=None,
-             priority=None, viewport=None,
-             worldcoordinate=None,
-             x=None, y=None):
+            priority=None, viewport=None,
+            worldcoordinate=None,
+            x=None, y=None):
     """
 Function: getline        # Construct a new line secondary method
 
@@ -1107,36 +1182,37 @@ vcs.line(ln3)                      # Plot using specified line object
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(name,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(name, str):
+        raise vcsError('The argument must be a string.')
 
     if not name in vcs.elements["line"]:
-      raise ValueError,"The line '%s' does not exists" % name
+        raise ValueError("The line '%s' does not exists" % name)
     ln = vcs.elements["line"][name]
-    if ltype is not None and ln.name!='default':
-        ln.type=ltype
-    if width is not None and ln.name!='default':
+    if ltype is not None and ln.name != 'default':
+        ln.type = ltype
+    if width is not None and ln.name != 'default':
         ln.width = width
-    if color is not None and ln.name!='default':
-        ln.color=color
-    if priority is not None and ln.name!='default':
-        ln.priority=priority
-    if viewport is not None and ln.name!='default':
-        ln.viewport=viewport
-    if worldcoordinate is not None and ln.name!='default':
-        ln.worldcooridnate = worldcoordinate
-    if viewport is not None and ln.name!='default':
+    if color is not None and ln.name != 'default':
+        ln.color = color
+    if priority is not None and ln.name != 'default':
+        ln.priority = priority
+    if viewport is not None and ln.name != 'default':
         ln.viewport = viewport
-    if x is not None and ln.name!='default':
+    if worldcoordinate is not None and ln.name != 'default':
+        ln.worldcooridnate = worldcoordinate
+    if viewport is not None and ln.name != 'default':
+        ln.viewport = viewport
+    if x is not None and ln.name != 'default':
         ln.x = x
-    if y is not None and ln.name!='default':
+    if y is not None and ln.name != 'default':
         ln.y = y
     return ln
 
+
 def createmarker(name=None, source='default', mtype=None,
-             size=None, color=None,priority=None,
-             viewport=None, worldcoordinate=None,
-             x=None, y=None,projection=None):
+                 size=None, color=None, priority=None,
+                 viewport=None, worldcoordinate=None,
+                 x=None, y=None, projection=None):
     """
 Function: createmarker                   # Construct a new marker secondary method
 
@@ -1165,13 +1241,13 @@ mrk2=vcs.createmarker(name='new', name_src='red',mtype='dash', size=2,
 vcs.marker(mrk2)                      # Plot using specified marker object
 """
 
-    name,source = check_name_source(name,source,'marker')
+    name, source = check_name_source(name, source, 'marker')
 
     mrk = marker.Tm(name, source)
     if (mtype is not None):
         mrk.type = mtype
     if (size is not None):
-        mrk.size = size 
+        mrk.size = size
     if (color is not None):
         mrk.color = color
     if (priority is not None):
@@ -1185,13 +1261,14 @@ vcs.marker(mrk2)                      # Plot using specified marker object
     if (y is not None):
         mrk.y = y
     if (projection is not None):
-        mrk.projection=projection
+        mrk.projection = projection
     return mrk
 
+
 def getmarker(name='default', mtype=None, size=None, color=None,
-             priority=None, viewport=None,
-             worldcoordinate=None,
-             x=None, y=None):
+              priority=None, viewport=None,
+              worldcoordinate=None,
+              x=None, y=None):
     """
 Function: getmarker                      # Construct a new marker secondary method
 
@@ -1220,11 +1297,11 @@ vcs.marker(mrk3)                      # Plot using specified marker object
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(name,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(name, str):
+        raise vcsError('The argument must be a string.')
 
     if not name in vcs.elements["marker"]:
-      raise ValueError,"The marker object '%s' does not exists"
+        raise ValueError("The marker object '%s' does not exists")
     mrk = vcs.elements["marker"][name]
     if (mtype is not None) and (mrk.name != "default"):
         mrk.type = mtype
@@ -1244,10 +1321,11 @@ vcs.marker(mrk3)                      # Plot using specified marker object
         mrk.y = y
     return mrk
 
+
 def createfillarea(name=None, source='default', style=None,
-             index=None, color=None, priority=None,
-             viewport=None, worldcoordinate=None,
-             x=None, y=None):
+                   index=None, color=None, priority=None,
+                   viewport=None, worldcoordinate=None,
+                   x=None, y=None):
     """
 Function: createfillarea     # Construct a new fillarea secondary method
 
@@ -1275,7 +1353,7 @@ fa2=vcs.createmarker(name='new', name_src='red',style=1, index=1,
 vcs.fillarea(fa2)                      # Plot using specified fill area object
 """
 
-    name,source = check_name_source(name,source,'fillarea')
+    name, source = check_name_source(name, source, 'fillarea')
 
     fa = fillarea.Tf(name, source)
     if (style is not None):
@@ -1298,10 +1376,10 @@ vcs.fillarea(fa2)                      # Plot using specified fill area object
 
 
 def getfillarea(name='default', style=None,
-             index=None, color=None,
-             priority=None, viewport=None,
-             worldcoordinate=None,
-             x=None, y=None):
+                index=None, color=None,
+                priority=None, viewport=None,
+                worldcoordinate=None,
+                x=None, y=None):
     """
 Function: getfillarea              # Construct a new fillarea secondary method
 
@@ -1329,10 +1407,10 @@ vcs.fillarea(fa3)                      # Plot using specified fill area object
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(name,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(name, str):
+        raise vcsError('The argument must be a string.')
     if not name in vcs.elements["fillarea"].keys():
-        raise vcsError,"Fillarea '%s' doe not exists" % (name)
+        raise vcsError("Fillarea '%s' doe not exists" % (name))
 
     fa = vcs.elements["fillarea"][name]
     if (style is not None) and (fvcs.name != "default"):
@@ -1353,10 +1431,11 @@ vcs.fillarea(fa3)                      # Plot using specified fill area object
         fvcs.y = y
     return fa
 
+
 def createtexttable(name=None, source='default', font=None,
-             spacing=None, expansion=None, color=None, priority=None,
-             viewport=None, worldcoordinate=None,
-             x=None, y=None):
+                    spacing=None, expansion=None, color=None, priority=None,
+                    viewport=None, worldcoordinate=None,
+                    x=None, y=None):
     """
 Function: createtexttable            # Construct a new texttable secondary method
 
@@ -1385,37 +1464,38 @@ tt=vcs.createtexttable(name='new',name_src='red',font=1,spacing=1,expansion=1,
 vcs.texttable(tt)                      # Plot using specified texttable object
 """
 
-    name,source = check_name_source(name,source,'texttable')
+    name, source = check_name_source(name, source, 'texttable')
 
     tt = texttable.Tt(name, source)
     try:
-       if (font is not None):
-          tt.font = font
-       if (spacing is not None):
-          tt.spacing = spacing
-       if (expansion is not None):
-          tt.expansion = expansion
-       if (color is not None):
-          tt.color = color
-       if (priority is not None):
-          tt.priority = priority
-       if (viewport is not None):
-             tt.viewport = viewport
-       if (worldcoordinate is not None):
-             tt.worldcoordinate = worldcoordinate
-       if (x is not None):
-          tt.x = x
-       if (y is not None):
-          tt.y = y
-       return tt
+        if (font is not None):
+            tt.font = font
+        if (spacing is not None):
+            tt.spacing = spacing
+        if (expansion is not None):
+            tt.expansion = expansion
+        if (color is not None):
+            tt.color = color
+        if (priority is not None):
+            tt.priority = priority
+        if (viewport is not None):
+            tt.viewport = viewport
+        if (worldcoordinate is not None):
+            tt.worldcoordinate = worldcoordinate
+        if (x is not None):
+            tt.x = x
+        if (y is not None):
+            tt.y = y
+        return tt
     except:
-       pass
+        pass
+
 
 def gettexttable(name='default', font=None,
-             spacing=None, expansion=None, color=None,
-             priority=None, viewport=None,
-             worldcoordinate=None,
-             x=None, y=None):
+                 spacing=None, expansion=None, color=None,
+                 priority=None, viewport=None,
+                 worldcoordinate=None,
+                 x=None, y=None):
     """
 Function: gettexttable           # Construct a new texttable secondary method
 
@@ -1444,19 +1524,20 @@ vcs.texttable(tt3)                      # Plot using specified texttable object
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(name,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(name, str):
+        raise vcsError('The argument must be a string.')
 
     if not name in vcs.elements["texttable"]:
-      raise ValueError,"The texttable '%s' does not exists" % name
+        raise ValueError("The texttable '%s' does not exists" % name)
     return vcs.elements["texttable"][name]
+
 
 def createtextorientation(name=None, source='default'):
     """
 Function: createtextorientation   # Construct a new textorientation secondary method
 
 Description of Function:
-Create a new textorientation secondary method given the the name and 
+Create a new textorientation secondary method given the the name and
 the existing textorientation secondary method to copy the attributes
 from. If no existing textorientation secondary method name is given,
 then the default textorientation secondary method will be used as the
@@ -1473,9 +1554,10 @@ to=vcs.createtextorientation('example2','black')
 vcs.show('textorientation')
 """
 
-    name,source = check_name_source(name,source,'textorientation')
+    name, source = check_name_source(name, source, 'textorientation')
 
     return textorientation.To(name, source)
+
 
 def gettextorientation(To_name_src='default'):
     """
@@ -1484,7 +1566,7 @@ Function: gettextorientation       # Construct a new textorientation secondary m
 Description of Function:
 VCS contains a list of secondary methods. This function will create
 a textorientation class object from an existing VCS textorientation
-secondary method. If no textorientation name is given, then 
+secondary method. If no textorientation name is given, then
 textorientation 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute sets.
@@ -1501,19 +1583,23 @@ to2=vcs.gettextorientation('quick')  # to2 instance of existing 'quick' textorie
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(To_name_src,str):
-       raise vcsError, 'The argument must be a string.'
+    if not isinstance(To_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not To_name_src in vcs.elements["textorientation"]:
-      raise ValueError,"The textorientation '%s' does not exists" % To_name_src
+        raise ValueError(
+            "The textorientation '%s' does not exists" %
+            To_name_src)
     return vcs.elements["textorientation"][To_name_src]
 
-def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+
+def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None,
+                       priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
     """
 Function: createtext or createtextcombined  # Construct a new text combined secondary method
 
 Description of Function:
-Create a new textcombined secondary method given the the names and 
+Create a new textcombined secondary method given the the names and
 the existing texttable and textorientation secondary methods to copy
 the attributes from. If no existing texttable and textorientation
 secondary method names are given, then the default texttable and
@@ -1530,11 +1616,12 @@ tc=vcs.createtextcombined('example1','std','example1','7left')
 vcs.show('texttable')
 vcs.show('textorientation')
 """
-    ## Check if to is defined
+    # Check if to is defined
     if To_name is None:
-        To_name=Tt_name
-    Tt_name,Tt_source = check_name_source(Tt_name,Tt_source,'texttable')
-    To_name,To_source = check_name_source(To_name,To_source,'textorientation')
+        To_name = Tt_name
+    Tt_name, Tt_source = check_name_source(Tt_name, Tt_source, 'texttable')
+    To_name, To_source = check_name_source(
+        To_name, To_source, 'textorientation')
 
     tc = textcombined.Tc(Tt_name, Tt_source, To_name, To_source)
     if (font is not None):
@@ -1572,14 +1659,16 @@ vcs.show('textorientation')
 # Set alias for the secondary createtextcombined.
 createtext = createtextcombined
 
-def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+
+def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None,
+                    priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
     """
 Function: gettext or gettextcombined   # Construct a new textcombined secondary method
 
 Description of Function:
 VCS contains a list of secondary methods. This function will create
 a textcombined class object from an existing VCS texttable secondary
-method and an existing VCS textorientation secondary method. If no 
+method and an existing VCS textorientation secondary method. If no
 texttable or textorientation names are given, then the 'default' names
 will be used in both cases.
 
@@ -1597,22 +1686,24 @@ if istextcombined(tc):               # Check to see if tc is a textcombined
    tc.list()                         # Print out all its attriubtes
 """
 
-
     # Check to make sure the arguments passed in are a STRINGS
-    if not isinstance(Tt_name_src,str):
-        raise vcsError, 'The first argument must be a string.'
+    if not isinstance(Tt_name_src, str):
+        raise vcsError('The first argument must be a string.')
     if To_name_src is None:
-        sp=Tt_name_src.split(":::")
-        if len(sp)==2:
+        sp = Tt_name_src.split(":::")
+        if len(sp) == 2:
             Tt_name_src = sp[0]
             To_name_src = sp[1]
-    if not isinstance(To_name_src,str):
-        raise vcsError, 'The second argument must be a string.'
-    
-    tc = vcs.elements["textcombined"].get("%s:::%s" % (Tt_name_src,To_name_src),None)
-    if tc is None:
-      raise Exception,"No usch text combined: %s:::%s" % (Tt_name_src,To_name_src)
+    if not isinstance(To_name_src, str):
+        raise vcsError('The second argument must be a string.')
 
+    tc = vcs.elements["textcombined"].get(
+        "%s:::%s" %
+        (Tt_name_src, To_name_src), None)
+    if tc is None:
+        raise Exception(
+            "No usch text combined: %s:::%s" %
+            (Tt_name_src, To_name_src))
 
     if (string is not None) and (tc.Tt_name != "default"):
         tc.string = string
@@ -1649,6 +1740,7 @@ if istextcombined(tc):               # Check to see if tc is a textcombined
 # Set alias for the secondary gettextcombined.
 gettext = gettextcombined
 
+
 def get3d_scalar(Gfdv3d_name_src='default'):
     """
 Function: get3d_scalar                        # Construct a new 3Dscalar graphics method
@@ -1659,7 +1751,7 @@ dv3d class object from an existing VCS dv3d graphics method. If
 no dv3d name is given, then dv3d 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dscalar function.)
 
 Example of Use:
@@ -1669,11 +1761,11 @@ plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graph
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfdv3d_name_src,str):
-        raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfdv3d_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfdv3d_name_src in vcs.elements["3d_scalar"]:
-        raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+        raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_scalar"][Gfdv3d_name_src]
 
@@ -1697,9 +1789,12 @@ a=vcs.init()
 a.show('3d_scalar')
 plot=a.create3d_scalar()
 """
-#    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    name,source = check_name_source(name,source,'3d_scalar')
+# print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# create3d_scalar
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    name, source = check_name_source(name, source, '3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
+
 
 def get3d_dual_scalar(Gfdv3d_name_src='default'):
     """
@@ -1711,7 +1806,7 @@ dv3d class object from an existing VCS dv3d graphics method. If
 no dv3d name is given, then dv3d 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dscalar function.)
 
 Example of Use:
@@ -1721,11 +1816,11 @@ plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d 
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfdv3d_name_src,str):
-        raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfdv3d_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfdv3d_name_src in vcs.elements["3d_dual_scalar"]:
-        raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+        raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_dual_scalar"][Gfdv3d_name_src]
 
@@ -1749,8 +1844,10 @@ a=vcs.init()
 a.show('3d_dual_scalar')
 plot=a.create3d_dual_scalar()
 """
-#    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    name,source = check_name_source(name,source,'3d_dual_scalar')
+# print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# create3d_scalar
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    name, source = check_name_source(name, source, '3d_dual_scalar')
     return dv3d.Gf3DDualScalar(name, source)
 
 
@@ -1764,7 +1861,7 @@ dv3d class object from an existing VCS dv3d graphics method. If
 no dv3d name is given, then dv3d 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a 
+sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dvector function.)
 
 Example of Use:
@@ -1774,11 +1871,11 @@ plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graph
 """
 
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Gfdv3d_name_src,str):
-        raise vcsError, 'The argument must be a string.'
+    if not isinstance(Gfdv3d_name_src, str):
+        raise vcsError('The argument must be a string.')
 
     if not Gfdv3d_name_src in vcs.elements["3d_vector"]:
-        raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+        raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_vector"][Gfdv3d_name_src]
 
@@ -1802,7 +1899,7 @@ a=vcs.init()
 a.show('3Dvector')
 plot=a.create3d_vector()
 """
-    name,source = check_name_source(name,source,'3d_vector')
+    name, source = check_name_source(name, source, '3d_vector')
     return dv3d.Gf3Dvector(name, source)
 
 #############################################################################
@@ -1810,6 +1907,8 @@ plot=a.create3d_vector()
 # Colormap functions for VCS.                                               #
 #                                                                           #
 #############################################################################
+
+
 def createcolormap(Cp_name=None, Cp_name_src='default'):
     """
 Function: createcolormap               # Construct a new colormap secondary method
@@ -1832,8 +1931,9 @@ cp=a.createcolormap('example2','AMIP')
 a.show('colormap')
 
 """
-    Cp_name,Cp_name_src = check_name_source(Cp_name,Cp_name_src,'colormap')
+    Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
     return colormap.Cp(Cp_name, Cp_name_src)
+
 
 def getcolormap(Cp_name_src='default'):
     """
@@ -1857,8 +1957,7 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' color
                                         #       secondary method
 """
     # Check to make sure the argument passed in is a STRING
-    if not isinstance(Cp_name_src,str):
-       raise ValueError, 'Error -  The argument must be a string.'
+    if not isinstance(Cp_name_src, str):
+        raise ValueError('Error -  The argument must be a string.')
 
     return vcs.elements["colormap"][Cp_name_src]
-
