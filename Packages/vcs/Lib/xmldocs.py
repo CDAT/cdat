@@ -62,10 +62,10 @@ graphics_method_core_notime = """
     datawc_y2 :: (float) (1.E20) second value of yaxis on plot
 """
 graphics_method_core = """%s
-%s""" % (graphics_method_core_notime , data_time)
+%s""" % (graphics_method_core_notime, data_time)
 axisconvert = """    %saxisconvert :: (str) ('linear') converting %saxis linear/log/log10/ln/exp/area_wt\n """
-xaxisconvert = axisconvert % ("x","x")
-yaxisconvert = axisconvert % ("y","y")
+xaxisconvert = axisconvert % ("x", "x")
+yaxisconvert = axisconvert % ("y", "y")
 axesconvert = xaxisconvert + yaxisconvert
 colorsdoc = """Options:::
            color1 :: (int) (16) value for color_1
@@ -73,7 +73,7 @@ colorsdoc = """Options:::
            :::
            Sets the color_1 and color_2 values on the object
            """
-    
+
 extsdoc = """Options:::
            ext1 :: (str) ('n') value for ext_1
            ext2 :: (str) ('n') value for ext_2
@@ -86,8 +86,8 @@ ticlabeldoc = """Options:::
            :::
            Sets the %sticlabels1 and %sticlabels2 values on the object
            """
-xticlabelsdoc = ticlabeldoc % (('x',)*6)
-yticlabelsdoc = ticlabeldoc % (('y',)*6)
+xticlabelsdoc = ticlabeldoc % (('x',) * 6)
+yticlabelsdoc = ticlabeldoc % (('y',) * 6)
 
 mticsdoc = """Options:::
            %smt1 :: ({float:str}) ('') value for %smtics1
@@ -95,8 +95,8 @@ mticsdoc = """Options:::
            :::
            Sets the %smtics1 and %smtics2 values on the object
            """
-xmticsdoc = mticsdoc % (('x',)*6)
-ymticsdoc = mticsdoc % (('y',)*6)
+xmticsdoc = mticsdoc % (('x',) * 6)
+ymticsdoc = mticsdoc % (('y',) * 6)
 
 datawcdoc = """Options:::
            dsp1 :: (float) (1e20) datawc_y1
@@ -123,7 +123,7 @@ scriptdoc = """ Input:::
 
 meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
-    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch 
+    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
     fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
     legend :: ({float:str}) (None) replaces the legend values in the dictionary keys with their associated string
     ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
@@ -134,7 +134,7 @@ meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],))
 
 isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
-    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch 
+    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
     fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
     legend :: ({float:str}) (None) replaces the legend values in the dictionary keys with their associated string
     ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
@@ -146,17 +146,17 @@ isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) 
 outfilldoc = """outfill ([int,...]) ([1]) values to outfill """
 outlinerdoc = """outline ([int,...]) ([1]) values to outline """
 
-fillareadoc ="""
+fillareadoc = """
     fillareacolor :: (int) (None) color to use for outfilling
-    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch 
+    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
     fillareaindex :: (int) (None) pattern to use when filling a level and using pattern/hatch
 """
 
-linesdoc ="""    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
+linesdoc = """    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolors :: ([int,...]) ([241]) colors to use for each isoline
     linewidths :: ([float,...]) ([1.0]) list of width for each isoline
     """
-linedoc ="""    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
+linedoc = """    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolor :: (int) (241) colors to use for each isoline
     linewidth :: (float) (1.0) list of width for each isoline
     """
