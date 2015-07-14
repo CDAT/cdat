@@ -52,7 +52,6 @@ def white_or_black(red, green, blue):
 def contrasting_color(red, green, blue):
     hue, saturation, value = rgb_to_hsv(red, green, blue)
 
-    #saturation /= 2.
     r, g, b = red, green, blue
     phi = .61803398875
 

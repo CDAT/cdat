@@ -40,12 +40,12 @@ long_name :: (str) () replaces long_name on plot
 grid :: (cdms2.grid.TransientRectGrid) () replaces array grid (if exists)
 bg :: (bool/int) () plots in background mode
 ratio :: (int/str) () sets the y/x ratio ,if passed as a string with 't' at the end, will aslo moves the ticks
-"""
+"""  # noqa
 
 data_time = """
     datawc_timeunits :: (str) ('days since 2000') units to use when disaplaying time dimension auto tick
     datawc_calendar:: (int) (135441) calendar to use when displaying time dimension auto tick, default is proleptic gregorian calendar
-"""
+"""  # noqa
 graphics_method_core_notime = """
     xmtics1 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 1st side of y axis
     xmtics2 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 2nd side of y axis
@@ -60,7 +60,7 @@ graphics_method_core_notime = """
     datawc_x2 :: (float) (1.E20) second value of xaxis on plot
     datawc_y1 :: (float) (1.E20) first value of yaxis on plot
     datawc_y2 :: (float) (1.E20) second value of yaxis on plot
-"""
+"""  # noqa
 graphics_method_core = """%s
 %s""" % (graphics_method_core_notime, data_time)
 axisconvert = """    %saxisconvert :: (str) ('linear') converting %saxis linear/log/log10/ln/exp/area_wt\n """
@@ -130,7 +130,7 @@ meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],))
     ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
     missing :: (int) (241) color to use for missing value or values not in defined ranges
     legend :: (None/{float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-"""
+"""  # noqa
 
 isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
@@ -141,30 +141,27 @@ isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) 
     ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
     missing :: (int) (241) color to use for missing value or values not in defined ranges
     legend :: (None/{float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-"""
-
-outfilldoc = """outfill ([int,...]) ([1]) values to outfill """
-outlinerdoc = """outline ([int,...]) ([1]) values to outline """
+"""  # noqa
 
 fillareadoc = """
     fillareacolor :: (int) (None) color to use for outfilling
     fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
     fillareaindex :: (int) (None) pattern to use when filling a level and using pattern/hatch
-"""
+"""  # noqa
 
 linesdoc = """    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolors :: ([int,...]) ([241]) colors to use for each isoline
     linewidths :: ([float,...]) ([1.0]) list of width for each isoline
-    """
+    """  # noqa
 linedoc = """    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolor :: (int) (241) colors to use for each isoline
     linewidth :: (float) (1.0) list of width for each isoline
-    """
+    """  # noqa
 
 textsdoc = """
     text :: (None/[vcs.textcombined.Tc,...]) (None) text objects or text objects names to use for each countour labels
     textcolors :: (None/[int,...]) (None) colors to use for each countour labels
-"""
+"""  # noqa
 
 markerdoc = """
     marker :: (None/int/str/vcs.marker.Tm) (None) markers type to use
@@ -181,28 +178,28 @@ markerdoc = """
 create_GM_input = """
     new_GM_name :: (str) (0) name of the new graphics method object. If no name is given, then one will be created for use.
     source_GM_name :: (str) (1) copy the contents of the source object to the newly created one. If no name is given, then the 'default' graphics methond contents is copied over to the new object.
-"""
+"""  # noqa
 
 get_GM_input = """
     GM_name :: (str) (0) retrieve the graphics method object of the given name. If no name is given, then retrieve the 'default' graphics method.
-"""
+"""  # noqa
 
 plot_1D_input = """
        slab :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 1D, last dimension will be plotted
-"""
+"""  # noqa
 
 plot_2D_input = """
        slab :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 2D, last 2 dimensions will be plotted
-"""
+"""  # noqa
 
 plot_2_1D_input = """
        slab_or_primary_object :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc) (None) Data at least 1D, last dimension(s) will be plotted, or primary vcs object
-"""
+"""  # noqa
 plot_2_1D_options = """
        slab2 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (None) Data at least 1D, last dimension(s) will be plotted
        template :: (str/vcs.template.P) ('default') vcs template
        gm :: (str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.xvsy.GXY/vcs.xyvsy.GXy/vcs.yxvsx.GYx/vcsaddons.core.VCSaddon/vcs.continents.Gcon) ('default') graphic method to use
-"""
+"""  # noqa
 #############################################################################
 #                                                                           #
 # Graphics Methon output section.                                           #
