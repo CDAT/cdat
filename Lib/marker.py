@@ -21,7 +21,6 @@
 #
 #
 #
-import Canvas
 import VCS_validation_functions
 import vcs
 import genutil
@@ -48,11 +47,11 @@ def process_src(nm, code):
         try:
             # int will be converted
             setattr(gm, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(gm, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(gm, nm, sp[1])
@@ -83,7 +82,7 @@ def process_src(nm, code):
                     elif att == "mci":
                         gm.color = values
                     elif att == "vp":
-                        gmviewport = values
+                        gm.viewport = values
                     elif att == "wc":
                         gm.worldcoordinate = values
                     else:
@@ -204,7 +203,7 @@ class Tm(object):
     def _setfillareacolors(self, value):
         if isinstance(value, int):
             value = [value, ]
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'color',
@@ -356,7 +355,6 @@ class Tm(object):
                 #                                                         #
                 ###########################################################
                 # Initialize the marker class and its members             #
-                #							  #
                 # The getTmmember function retrieves the values of the    #
                 # marker members in the C structure and passes back the   #
                 # appropriate Python Object.                              #
@@ -380,7 +378,7 @@ class Tm(object):
         else:
             if isinstance(Tm_name_src, Tm):
                 Tm_name_src = Tm_name_src.name
-            if not Tm_name_src in vcs.elements['marker']:
+            if Tm_name_src not in vcs.elements['marker']:
                 raise ValueError(
                     "The marker object '%s' does not exists" %
                     Tm_name_src)
