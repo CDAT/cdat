@@ -77,15 +77,15 @@ def process_src(nm, code, typ):
         try:
             # int will be converted
             setattr(gm, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(gm, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(gm, nm, sp[1])
-                except Exception as err:
+                except:
                     pass  # oh well we stick to default value
     # Datawc
     idwc = code.find("datawc(")
@@ -482,7 +482,7 @@ class G1d(object):
         return self._linewidth
 
     def _setlinewidth(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkNumber(
                 self,
                 'linewidth',
@@ -496,7 +496,7 @@ class G1d(object):
         return self._linecolor
 
     def _setlinecolor(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColor(
                 self,
                 'linecolor',
@@ -508,7 +508,7 @@ class G1d(object):
         return self._line
 
     def _setline(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkLineType(self, 'line', value)
         self._line = value
     line = property(_getline, _setline)
@@ -517,7 +517,7 @@ class G1d(object):
         return self._marker
 
     def _setmarker(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkMarker(self, 'marker', value)
         self._marker = value
     marker = property(_getmarker, _setmarker)
@@ -526,7 +526,7 @@ class G1d(object):
         return self._markersize
 
     def _setmarkersize(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkInt(
                 self,
                 'markersize',
@@ -540,7 +540,7 @@ class G1d(object):
         return self._markercolor
 
     def _setmarkercolor(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColor(
                 self,
                 'markercolor',
@@ -573,7 +573,7 @@ class G1d(object):
             #                                                         #
             ###########################################################
             # Initialize the Yxvsx class and its members              #
-            #							                              #
+            #                                                         #
             # The getGYxmember function retrieves the values of the   #
             # Yxvsx members in the C structure and passes back the    #
             # appropriate Python Object.                              #
@@ -613,13 +613,15 @@ class G1d(object):
         else:
             if isinstance(name_src, G1d):
                 name_src = name_src.name
-            if not name_src in vcs.elements['1d']:
+            if name_src not in vcs.elements['1d']:
                 raise ValueError(
                     "The oneD method '%s' does not exists" %
                     name_src)
             src = vcs.elements["1d"][name_src]
-            for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'line', 'linecolor', 'linewidth', 'marker', 'markercolor', 'markersize', 'datawc_timeunits', 'datawc_calendar', 'smooth', 'flip']:
+            for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
+                        'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
+                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'line', 'linecolor', 'linewidth', 'marker',
+                        'markercolor', 'markersize', 'datawc_timeunits', 'datawc_calendar', 'smooth', 'flip']:
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
         vcs.elements["1d"][name] = self

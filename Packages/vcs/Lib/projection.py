@@ -2,21 +2,15 @@
 # Projection (Proj) module
 """
 ###############################################################################
-#									      #
 # Module:	projection (Proj) module				      #
-#							      		      #
 # Copyright:    2000, Regents of the University of California		      #
 #               This software may not be distributed to others without	      #
 #               permission of the author.				      #
-#									      #
 # Author:       PCMDI Software Team                                           #
 #               Lawrence Livermore NationalLaboratory:                        #
 #               support@pcmdi.llnl.gov                                        #
-#								      	      #
 # Description:	Python command wrapper for VCS's projection secondary method. #
-#									      #
 # Version:      4.0							      #
-#									      #
 ###############################################################################
 import VCS_validation_functions
 import vcs
@@ -31,7 +25,7 @@ round_projections = ['polar (non gctp)', 'stereographic',
 def process_src(nm, code):
     try:
         gm = Proj(nm)
-    except Exception as err:
+    except:
         gm = vcs.elements["projection"][nm]
     i = code.find("(")
     j = code.find(")")
@@ -265,17 +259,15 @@ class Proj(object):
     ##########################################################################
 
     def __init__(self, Proj_name=None, Proj_name_src='default'):
-        #                                                         #
-        ###########################################################
-        # Initialize the projection class and its members            #
-        #							  #
-        # The getProjmember function retrieves the values of the   #
-        # projection members in the C structure and passes back the  #
-        # appropriate Python Object.                              #
-        ###########################################################
+
+        # Initialize the projection class and its members
+        # The getProjmember function retrieves the values of the
+        # projection members in the C structure and passes back the
+        # appropriate Python Object.
+
         if isinstance(Proj_name_src, Proj):
             Proj_name_src = Proj_name_src.name
-        if Proj_name_src != "default" and not Proj_name_src in vcs.elements[
+        if Proj_name_src != "default" and Proj_name_src not in vcs.elements[
                 "projection"].keys():
             raise ValueError("Projection '%s' does not exists" % Proj_name_src)
         if (Proj_name is None):
