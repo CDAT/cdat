@@ -20,7 +20,6 @@ import colormap
 import json
 import os
 import tempfile
-import colormap
 import vcsaddons
 import cdms2
 import genutil
@@ -41,19 +40,20 @@ def dumpToDict(obj, skipped=[], must=[]):
         del(associated["line"])
     associated_keys = associated.keys()
     for a in obj.__slots__:
-        if (not a in skipped) and (a[0] != "_" or a in must):
+        if (a not in skipped) and (a[0] != "_" or a in must):
             try:
                 val = getattr(obj, a)
             except:
                 continue
-            if a in associated_keys and not val in [
+            if a in associated_keys and val not in [
                     "default", "defup", "defcenter", "defright"]:
                 if a == "line" and isinstance(
                         obj, (vcs.isoline.Gi, vcs.unified1D.G1d)):
                     continue
                 associated[a].add(val)
-            if not isinstance(
-                    val, (unicode, str, tuple, list, int, long, float, dict)) and val is not None:
+            if not isinstance(val,
+                              (unicode, str, tuple, list, int, long, float, dict)) and \
+                    val is not None:
                 val, asso = dumpToDict(val, skipped, must)
                 for k in associated_keys:
                     for v in asso[k]:
@@ -79,7 +79,8 @@ def dumpToJson(obj, fileout, skipped=[
                     f.seek(0)
                     D = json.load(f)
                 except Exception as err:
-                    print "Error reading json file, will be overwritten", fileout, err
+                    print "Error reading json file," +\
+                        "will be overwritten", fileout, err
                     D = {}
             else:
                 D = {}
@@ -115,7 +116,7 @@ def dumpToJson(obj, fileout, skipped=[
 
 
 def getfontname(number):
-    if not number in vcs.elements["fontNumber"]:
+    if number not in vcs.elements["fontNumber"]:
         raise Exception("Error font number not existing %i" % number)
     return vcs.elements["fontNumber"][number]
 
@@ -176,9 +177,10 @@ def process_src_element(code):
 def listelements(typ=None):
     if typ is None:
         return sorted(vcs.elements.keys())
-    if not typ in vcs.elements.keys():
+    if typ not in vcs.elements.keys():
         raise Exception(
-            "Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" %
+            "Error: '%s' is not a valid vcs element\n"
+            "Valid vcs elements are: %s" %
             (typ, vcs.elements.keys()))
     return sorted(vcs.elements[typ].keys())
 
@@ -211,14 +213,16 @@ a.show('text')
             m = max([len(e) for e in elts]) + 1
         except:
             m = 4
-        print "*******************%s Names List**********************" % args[0].capitalize()
+        print "*******************%s Names List**********************" % (
+            args[0].capitalize())
         for i, e in enumerate(elts):
             print ("%s" % e).ljust(m),
             if (i + 1) % 3 == 0:
                 print
         if len(elts) > 0 and (i + 1) % 3 != 0:
             print
-        print "*******************End %s Names List**********************" % args[0].capitalize()
+        print "*******************End %s Names List**********************" % (
+            args[0].capitalize())
         return
 
 
@@ -230,7 +234,11 @@ def _scriptrun(script, canvas=None):
     for l in f:
         if l[:6] == "color(" and canvas is not None:
             canvas.setcolormap(l.strip()[6:-1])
-        elif l[:2] in ["P_", "L_", "C_"] or l[:3] in ["Tm_", "Gv_", "Gi_", "Tl_", "To_", "Tt_", "Tf_", ] or l[:4] in ['GXy_', 'GYx_', 'GXY_', 'GSp_', 'Gtd_', 'Gfb_', "Gfm_", "Gfi_"] or l[:5] in ["Proj_", ]:
+        elif l[:2] in ["P_", "L_", "C_"] or \
+                l[:3] in ["Tm_", "Gv_", "Gi_", "Tl_", "To_", "Tt_", "Tf_", ] or\
+                l[:4] in ['GXy_', 'GYx_', 'GXY_', 'GSp_',
+                          'Gtd_', 'Gfb_', "Gfm_", "Gfi_"] or \
+                l[:5] in ["Proj_", ]:
             # We found a graphic method
             processing = True
             opened = 0
@@ -253,7 +261,7 @@ def _scriptrun(script, canvas=None):
         for att in ["line", "textcolors", "text"]:
             try:
                 setattr(g, att, getattr(g, att))
-            except Exception as err:
+            except:
                 lst = []
                 if att == "line":
                     for e in g.line:
@@ -279,7 +287,7 @@ def _scriptrun(script, canvas=None):
                             lst.append(e)
                 try:
                     setattr(g, att, lst)
-                except Exception as err:
+                except:
                     setattr(g, att, getattr(gd, att))
 
 #############################################################################
@@ -291,8 +299,6 @@ def _scriptrun(script, canvas=None):
 
 def scriptrun_scr(*args):
     import __main__
-    # Following comented by C. Doutriaux seems to be useless
-    ## from cdms2.selectors import Selector
 
     # Open VCS script file for reading and read all lines into a Python list
     fin = open(args[0], 'r')
@@ -300,7 +306,8 @@ def scriptrun_scr(*args):
     line_ct = len(l)
     i = 0
 
-    # Check to see if it is a VCS generated Python script file. If it is, then simply
+    # Check to see if it is a VCS generated Python script file.
+    # If it is, then simply
     # call the execfile function to execute the script and close the file.
     if ((l[0][0:37] == "#####################################") and
             (l[1][0:35] == "#                                 #") and
@@ -337,7 +344,7 @@ def scriptrun_scr(*args):
             slab_name = scr_str.split('(')[0][2:]
             a = scr_str.split('",')
             for j in range(len(a)):
-                b = string.split(a[j], '="')
+                b = a[j].split('="')
                 if b[0][-4:].lower() == 'file':
                     # Open CDMS file
                     fcdms = cdms2.open(b[1])
@@ -365,31 +372,10 @@ def scriptrun_scr(*args):
                     comment3 = b[1]
                 elif b[0][-9:].lower() == 'comment#4':
                     comment4 = b[1]
-# Comented out by C. Doutriaux, shouldn't print anything
-# print 'function = ', function
-# print 'source = ', source
-# print 'name = ', name
-# print 'units = ', units
-# print 'title = ', title
-# print 'lon_name = ', lon_name
-# print 'lat_name = ', lat_name
-# print 'comment1 = ', comment1
-# print 'comment2 = ', comment2
-# print 'comment3 = ', comment3
-# print 'comment4 = ', comment4
-
             if function != '':
                 b = function.split('(')
-                ftype = b[0]
                 V = b[1].split(',')[0]
-# Comented out by C. Doutriaux, shouldn't print anything
-# print 'ftype = ', ftype
-# print 'V = ', V
-# print 'slab_name = ', slab_name
                 __main__.__dict__[slab_name] = __main__.__dict__[V] * 1000.
-#                 __main__.__dict__[ slab_name ] = cdutil.averager(
-#                    __main__.__dict__[ V ], axis='( %s )' % 'zeros_ones_dim_1',
-#                       weight='equal')
                 continue
 
             a = scr_str.split(',')
@@ -468,6 +454,13 @@ def scriptrun_scr(*args):
 
             # Now store the _TransientVariable in the main dictionary for use
             # later
+            V.units = units
+            V.source = source
+            V.title = title
+            V.comment1 = comment1
+            V.comment2 = comment2
+            V.comment3 = comment3
+            V.comment4 = comment4
             __main__.__dict__[slab_name] = V(*(), **data_dict)
 
             fcdms.close()                                     # Close CDMS file
@@ -478,9 +471,9 @@ def scriptrun_scr(*args):
             for j in range(len(a)):
                 b = a[j].split('=')
                 if b[0][-3:].lower() == 'off':
-                    off = int(b[1])
+                    continue
                 elif b[0].lower() == 'priority':
-                    priority = int(b[1])
+                    continue
                 elif b[0].lower() == 'type':
                     graphics_type = b[1]
                 elif b[0].lower() == 'template':
@@ -507,17 +500,18 @@ def scriptrun_scr(*args):
             arglist.append(graphics_name)
 
             if (a_name is not None) and (graphics_type != 'continents'):
-                dn = CANVAS.__plot(arglist, {'bg': 0})
+                CANVAS = vcs.init()
+                CANVAS.plot(*arglist, bg=False)
 
         elif vcs_cmd.lower() == 'canvas':
             warnings.warn("Please implement vcs 'canvas' function")
         elif vcs_cmd.lower() == 'page':
-            orientation = scr_str.split('(')[1][:-1].lower()
             warnings.warn("Please implement vcs 'page' function")
         else:  # Send command to VCS interpreter
             if (len(scr_str) > 1) and (scr_str[0] != '#'):
-                # Save command to a temporary file first, then read script command
-                # This is the best solution. Aviods rewriting C code that I
+                # Save command to a temporary file first,
+                # then read script command
+                # This is the best solution. Avoids rewriting C code that I
                 # know works!
                 temporary_file_name = tempfile.mktemp('.scr')
                 fout = open(temporary_file_name, 'w')
@@ -551,7 +545,9 @@ def saveinitialfile():
         e = vcs.elements[k]
         for nm, g in e.iteritems():
             if nm != "default" and not nm[:2] == "__" \
-                    and not nm in ["default_scatter_", "default_xvsy_", "default_xyvsy_", "default_yxvsx_"]:  # skip defaults and temp ones
+                    and nm not in ["default_scatter_",
+                                   "default_xvsy_", "default_xyvsy_",
+                                   "default_yxvsx_"]:  # skip defaults and temp ones
                 try:
                     g.script(fnm)
                 except Exception as err:
@@ -624,7 +620,7 @@ def scriptrun(script):
 def loadTemplate(nm, vals):
     try:
         t = vcs.gettemplate(nm)
-    except Exception as err:
+    except Exception:
         t = vcs.createtemplate(nm)
     for k, v in vals.iteritems():
         A = getattr(t, k)
@@ -652,7 +648,7 @@ def loadVCSItem(typ, nm, json_dict={}):
 
     if nm in vcs.elements[tp]:
         # skip defaults and temp ones
-        if not nm in ["default_scatter_", "default_xvsy_",
+        if nm not in ["default_scatter_", "default_xvsy_",
                       "default_xyvsy_", "default_yxvsx_"]:
             gm = vcs.elements[tp][nm]
     else:
@@ -680,7 +676,6 @@ def loadVCSItem(typ, nm, json_dict={}):
 
 
 def return_display_names():
-    #warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
     return [""], [""]
 
 
@@ -704,7 +699,8 @@ def minmax(*data):
     '''
     Function : minmax
     Description of Function
-      Return the minimum and maximum of a serie of array/list/tuples (or combination of these)
+      Return the minimum and maximum of a serie of array/list/tuples
+      (or combination of these)
       You can combined list/tuples/... pretty much any combination is allowed
 
     Examples of Use
@@ -875,8 +871,8 @@ def __split2contiguous(levels):
         if il != 0:
             lv2 = levels[il - 1]
             if lv2[1] != lv[0]:
-                raise VCSUtilsError(
-                    "Error intervals are NOT contiguous from " + str(lv2[1]) + " to " + str(lv[0]))
+                raise VCSUtilsError("Error intervals are NOT contiguous from "
+                                    + str(lv2[1]) + " to " + str(lv[0]))
         tmplevs.append(lv[0])
     tmplevs.append(levels[-1][1])
     return tmplevs
@@ -887,12 +883,15 @@ def mklabels(vals, output='dict'):
     Function : mklabels
 
     Description of Function:
-      This function gets levels and output strings for nice display of the levels values, returns a dictionary unless output="list" specified
+      This function gets levels and output strings for nice display of the
+      levels values,
+      returns a dictionary unless output="list" specified
 
     Examples of use:
     >>> a=vcs.mkscale(2,20,zero=2)
     >>> vcs.mklabels (a)
-    {20.0: '20', 18.0: '18', 16.0: '16', 14.0: '14', 12.0: '12', 10.0: '10', 8.0: '8', 6.0: '6', 4.0: '4', 2.0: '2', 0.0: '0'}
+    {20.0: '20', 18.0: '18', 16.0: '16', 14.0: '14', 12.0: '12',
+        10.0: '10', 8.0: '8', 6.0: '6', 4.0: '4', 2.0: '2', 0.0: '0'}
     >>> vcs.mklabels ( [5,.005])
     {0.0050000000000000001: '0.005', 5.0: '5.000'}
     >>> vcs.mklabels ( [.00002,.00005])
@@ -907,8 +906,6 @@ def mklabels(vals, output='dict'):
     vals = numpy.ma.asarray(vals)
     nvals = len(vals)
     ineg = 0
-    ext1 = 0
-    ext2 = 0
     # Finds maximum number to write
     amax = float(numpy.ma.maximum(numpy.ma.absolute(vals)))
     if amax == 0:
@@ -1005,17 +1002,25 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
 
     Description of Function:
       For isofill/boxfill purposes
-      Given a list of levels this function returns the colors that would best spread a list of "user-defined" colors (default is 16 to 239 , i.e 224 colors), always using the first and last color. Optionally the color range can be split into 2 equal domain to represent <0 and >0 values.
-      If the colors are split an interval goes from <0 to >0 then this is assigned the "white" color
+      Given a list of levels this function returns the colors that would
+      best spread a list of "user-defined" colors (default is 16 to 239,
+      i.e 224 colors), always using the first and last color.
+      Optionally the color range can be split into 2 equal domain to
+      represent <0 and >0 values.
+      If the colors are split an interval goes from <0 to >0
+      then this is assigned the "white" color
     Usage:
       levs : levels defining the color ranges
-      colors (default= range(16,240) ) : A list/tuple of the of colors you wish to use
+      colors (default= range(16,240) ) : A list/tuple of the of colors
+            you wish to use
       split # parameter to split the colors between 2 equal domain:
       one for positive values and one for  negative values
             0 : no split
             1 : split if the levels go from <0 to >0
             2 : split even if all the values are positive or negative
-      white (=240) # If split is on and an interval goes from <0 to >0 this color number will be used within this interval (240 is white in the default VCS palette color)
+      white (=240) # If split is on and an interval goes from <0 to >0
+             this color number will be used within this interval
+             (240 is white in the default VCS palette color)
 
       Examples of Use:
       >>> a=[0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
@@ -1084,7 +1089,6 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
     # Number of colors passed
     ncols = len(colors)
 
-    k = 0  # ???
     col = []
     # Counts the number of negative colors
     nn = 0  # initialize
@@ -1117,8 +1121,6 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
             cv = i * cinc
             col.append(colors[int(round(cv))])
     else:
-        colp = []
-        coln = []
         col = []
         for i in xrange(nc):
             if levs[i] < 0:
@@ -1131,10 +1133,11 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
                 else:
                     col.append(colors[int(round(cv))])
             else:
+                # if only 1 pos then use the middle of the pos colors
                 if np == 1:
                     cv = 3 * \
                         len(colors) / \
-                        4.  # if only 1 pos then use the middle of the pos colors
+                        4.
                 cv = ncols / 2. + (i - nn - isplit) * cincp
                 col.append(colors[int(round(cv))])
     if col[0] == white and levs[0] < -9.E19:
@@ -1144,27 +1147,32 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
 
 def generate_time_labels(d1, d2, units, calendar=cdtime.DefaultCalendar):
     """ generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar)
-    returns a dictionary of time labels for an interval of time, in a user defined units system
-    d1 and d2 must be cdtime object, if not they will be assumed to be in "units"
+    returns a dictionary of time labels for an interval of time,
+    in a user defined units system
+    d1 and d2 must be cdtime object,
+    if not they will be assumed to be in "units"
 
     Example:
     lbls = generate_time_labels(cdtime.reltime(0,'months since 2000'),
                                 cdtime.reltime(12,'months since 2000'),
                                 'days since 1800',
                                 )
-    This generated a dictionary of nice time labels for the year 2000 in units of 'days since 1800'
+    This generated a dictionary of nice time labels for the year 2000
+                                        in units of 'days since 1800'
 
     lbls = generate_time_labels(cdtime.reltime(0,'months since 2000'),
                                 cdtime.comptime(2001),
                                 'days since 1800',
                                 )
-    This generated a dictionary of nice time labels for the year 2000 in units of 'days since 1800'
+    This generated a dictionary of nice time labels for the year 2000
+                                        in units of 'days since 1800'
 
     lbls = generate_time_labels(0,
                                 12,
                                 'months since 2000',
                                 )
-    This generated a dictionary of nice time labels for the year 2000 in units of 'months since 2000'
+    This generated a dictionary of nice time labels for the year 2000
+                                        in units of 'months since 2000'
 
     """
     if isinstance(d1, (int, long, float)):
@@ -1292,10 +1300,11 @@ def prettifyAxisLabels(ticks, axis):
     return ticks
 
 
-def setTicksandLabels(
-        gm, copy_gm, datawc_x1, datawc_x2, datawc_y1, datawc_y2, x=None, y=None):
+def setTicksandLabels(gm, copy_gm, datawc_x1, datawc_x2,
+                      datawc_y1, datawc_y2, x=None, y=None):
     """ Sets the labels and ticks for a graphics method made in python
-    Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
+    Usage setTicksandLabels(gm,datawc_x1,datawc_x2,
+                               datawc_y1,datawc_y2,x=None,y=None)
     datawc are world coordinates
 
     """
@@ -1322,9 +1331,6 @@ def setTicksandLabels(
         else:
             ticks = vcs.mkscale(datawc_x1, datawc_x2)
             ticks = prettifyAxisLabels(vcs.mklabels(ticks), x)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-        # del(ticks[k])
         setattr(gm, 'xticlabels1', ticks)
         dic['xticlabels1'] = True
     # xmtics1
@@ -1340,9 +1346,6 @@ def setTicksandLabels(
         for i in range(len(ticks) - 1):
             tick2.append((ticks[i] + ticks[i + 1]) / 2.)
         ticks = prettifyAxisLabels(vcs.mklabels(tick2), x)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-        # del(ticks[k])
         setattr(gm, 'xmtics1', ticks)
         dic['xmtics1'] = True
     # xticklabels2
@@ -1356,10 +1359,6 @@ def setTicksandLabels(
         else:
             ticks = vcs.mkscale(datawc_x1, datawc_x2)
             ticks = prettifyAxisLabels(vcs.mklabels(ticks), x)
-        # for k in ticks.keys():
-        # ticks[k]=''
-        # if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-        # del(ticks[k])
         setattr(gm, 'xticlabels2', ticks)
         dic['xticlabels2'] = True
     # xmtics2
@@ -1375,9 +1374,6 @@ def setTicksandLabels(
         for i in range(len(ticks) - 1):
             tick2.append((ticks[i] + ticks[i + 1]) / 2.)
         ticks = prettifyAxisLabels(vcs.mklabels(tick2), x)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-        # del(ticks[k])
         setattr(gm, 'xmtics2', ticks)
         dic['xmtics2'] = True
     # yticklabels1
@@ -1390,9 +1386,6 @@ def setTicksandLabels(
         else:
             ticks = vcs.mkscale(datawc_y1, datawc_y2)
             ticks = prettifyAxisLabels(vcs.mklabels(ticks), y)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-        # del(ticks[k])
         setattr(gm, 'yticlabels1', ticks)
         dic['yticlabels1'] = True
     # ymtics1
@@ -1408,9 +1401,6 @@ def setTicksandLabels(
         for i in range(len(ticks) - 1):
             tick2.append((ticks[i] + ticks[i + 1]) / 2.)
         ticks = prettifyAxisLabels(vcs.mklabels(tick2), y)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-        # del(ticks[k])
         setattr(gm, 'ymtics1', ticks)
         dic['ymtics1'] = True
     # yticklabels2
@@ -1424,10 +1414,6 @@ def setTicksandLabels(
         else:
             ticks = vcs.mkscale(datawc_y1, datawc_y2)
             ticks = prettifyAxisLabels(vcs.mklabels(ticks), y)
-        # for k in ticks.keys():
-        # ticks[k]=''
-        # if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-        # del(ticks[k])
         setattr(gm, 'yticlabels2', ticks)
         dic['yticlabels2'] = True
     # ymtics2
@@ -1443,9 +1429,6 @@ def setTicksandLabels(
         for i in range(len(ticks) - 1):
             tick2.append((ticks[i] + ticks[i + 1]) / 2.)
         ticks = prettifyAxisLabels(vcs.mklabels(tick2), y)
-        # for k in ticks.keys() : # make sure you're in the range
-        # if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-        # del(ticks[k])
         setattr(gm, 'ymtics2', ticks)
         dic['ymtics2'] = True
     return copy_gm
@@ -1453,7 +1436,8 @@ def setTicksandLabels(
 
 def getcolormap(Cp_name_src='default'):
     """
-Function: getcolormap                      # Construct a new colormap secondary method
+Function: getcolormap
+      # Construct a new colormap secondary method
 
 Description of Function:
 VCS contains a list of secondary methods. This function will create a
@@ -1466,10 +1450,13 @@ different name can be modified. (See the createcolormap function.)
 
 Example of Use:
 a=vcs.init()
-a.show('colormap')                      # Show all the existing colormap secondary methods
-cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
+a.show('colormap')                      # Show all the existing colormap
+                                                secondary methods
+cp=a.getcolormap()                      # cp instance of 'default'
+                                                colormap secondary
                                         #       method
-cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' colormap
+cp2=a.getcolormap('quick')              # cp2 instance of existing
+                                          'quick' colormap
                                         #       secondary method
 """
     # Check to make sure the argument passed in is a STRING
@@ -1495,7 +1482,8 @@ Description of Function:
 Set a individual color cell in the active colormap. If default is
 the active colormap, then return an error string.
 
-If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
+If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor,
+then a redrawing
 of the VCS Canvas is made evertime the color cell is changed.
 
 Note, the user can only change color cells 0 through 239 and R,G,B
@@ -1522,9 +1510,12 @@ vcs.setcolorcell("AMIP",61,70,70,70)
 
 def match_color(color, colormap=None):
     """
-Function: cmatch_color                          # Returns the color in the colormap that is closet from the required color
+Function: cmatch_color
+       Returns the color in the colormap that is
+       closet from the required color
 Description of Function:
-       Given a color (defined as rgb values -0/100 range- or a string name) and optionally a colormap name,
+       Given a color (defined as rgb values -0/100 range- or a string name)
+       and optionally a colormap name,
        returns the color number that is closet from the requested color
        (using rms difference between rgb values)
        if colormap is not map use the currently used colormap
@@ -1615,7 +1606,8 @@ def creategraphicsmethod(gtype, name):
 
 
 def getworldcoordinates(gm, X, Y):
-    """Given a graphics method and two axes figures out correct world coordinates"""
+    """Given a graphics method and two axes
+    figures out correct world coordinates"""
     # compute the spanning in x and y, and adjust for the viewport
     wc = [0, 1, 0, 1]
     try:
@@ -1647,8 +1639,12 @@ def getworldcoordinates(gm, X, Y):
             wc[1] = gm.datawc_x2
     except:
         return wc
-    if (((not isinstance(X, cdms2.axis.TransientAxis) and isinstance(Y, cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(X[:])) and numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20))\
-            or (hasattr(gm, "projection") and vcs.elements["projection"][gm.projection].type != "linear"):
+    if (((not isinstance(X, cdms2.axis.TransientAxis) and
+          isinstance(Y, cdms2.axis.TransientAxis)) or
+         not vcs.utils.monotonic(X[:])) and
+        numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20))\
+            or (hasattr(gm, "projection") and
+                vcs.elements["projection"][gm.projection].type != "linear"):
         wc[0] = X[:].min()
         wc[1] = X[:].max()
     if gm.datawc_y1 > 9.E19:
@@ -1657,7 +1653,7 @@ def getworldcoordinates(gm, X, Y):
             try:
                 while Y[:][i].count() == 0:
                     i += 1
-            except Exception as err:
+            except Exception:
                 pass
             wc[2] = Y[:][i]
         except:
@@ -1677,8 +1673,15 @@ def getworldcoordinates(gm, X, Y):
             wc[3] = Y[:].max()
     else:
         wc[3] = gm.datawc_y2
-    if (((not isinstance(Y, cdms2.axis.TransientAxis) and isinstance(X, cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(Y[:])) and numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20)) \
-            or (hasattr(gm, "projection") and vcs.elements["projection"][gm.projection].type.lower().split()[0] not in ["linear", "polar"] and numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20) and numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20)):
+    if (((not isinstance(Y, cdms2.axis.TransientAxis) and
+          isinstance(X, cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(Y[:])) and
+        numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20)) \
+            or (hasattr(gm, "projection") and
+                vcs.elements["projection"][
+                gm.projection].type.lower().split()[0]
+                not in ["linear", "polar"] and
+                numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20) and
+                numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20)):
         wc[2] = Y[:].min()
         wc[3] = Y[:].max()
     if wc[3] == wc[2]:

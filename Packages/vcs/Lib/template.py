@@ -25,16 +25,15 @@
 import copy
 import vcs
 import numpy
-from Ptext import *
-from Pformat import *
-from Pxtickmarks import *
-from Pytickmarks import *
-from Pxlabels import *
-from Pylabels import *
-from Pboxeslines import *
-from Plegend import *
-from Pdata import *
-from types import *
+from Ptext import *  # noqa
+from Pformat import *  # noqa
+from Pxtickmarks import *  # noqa
+from Pytickmarks import *  # noqa
+from Pxlabels import *  # noqa
+from Pylabels import *  # noqa
+from Pboxeslines import *  # noqa
+from Plegend import *  # noqa
+from Pdata import *  # noqa
 import inspect
 import cdutil
 from projection import round_projections
@@ -61,13 +60,18 @@ def process_src(nm, code):
     """Takes VCS script code (string) as input and generates boxfill gm from it"""
     try:
         t = P(nm)
-    except Exception as err:
+    except:
         t = vcs.elements["template"][nm]
-    for sub in ["File", "Function", "LogicalMask", "Transform", "name", "title", "units", "crdate", "crtime", "comment#1",
-                "comment#2", "comment#3", "comment#4", "xname", "yname", "zname", "tname", "xvalue", "yvalue", "zvalue", "tvalue", "xunits",
-                "yunits", "zunits", "tunits", "mean", "min", "max", "xtic#1", "xtic#2", "xmintic#a", "xmintic#b",
-                "ytic#1", "ytic#2", "ymintic#a", "ymintic#b", "xlabel#1", "xlabel#2", "ylabel#1", "ylabel#2",
-                "box#1", "box#2", "box#3", "box#4", "line#1", "line#2", "line#3", "line#4", "legend", "data"]:
+    for sub in ["File", "Function", "LogicalMask", "Transform", "name", "title", "units",
+                "crdate", "crtime", "comment#1",
+                "comment#2", "comment#3", "comment#4", "xname", "yname", "zname", "tname",
+                "xvalue", "yvalue", "zvalue", "tvalue", "xunits",
+                "yunits", "zunits", "tunits", "mean", "min", "max", "xtic#1", "xtic#2",
+                "xmintic#a", "xmintic#b",
+                "ytic#1", "ytic#2", "ymintic#a", "ymintic#b", "xlabel#1", "xlabel#2",
+                "ylabel#1", "ylabel#2",
+                "box#1", "box#2", "box#3", "box#4",
+                "line#1", "line#2", "line#3", "line#4", "legend", "data"]:
         # isolate that segment
         i = code.find("%s(" % sub)
         if i == -1:
@@ -154,19 +158,31 @@ class P(object):
     To Modify an existing template use:
      tpl=a.gettemplate('AMIP')
 """
-    __slots__ = ["name", "_name", "_p_name", "p_name", "_orientation", "_orientation", "_file", "file",
-                 "_function", "function", "_logicalmask", "logicalmask", "_transformation", "transformation",
-                 "source", "_source", "dataname", "_dataname", "title", "_title", "units", "_units", "_crdate", "crdate",
-                 "crtime", "_crtime", "_comment1", "comment1", "comment2", "_comment2", "_comment3", "comment3",
+    __slots__ = ["name", "_name", "_p_name", "p_name",
+                 "_orientation", "_orientation", "_file", "file",
+                 "_function", "function",
+                 "_logicalmask", "logicalmask",
+                 "_transformation", "transformation",
+                 "source", "_source", "dataname", "_dataname",
+                 "title", "_title", "units", "_units", "_crdate", "crdate",
+                 "crtime", "_crtime", "_comment1", "comment1",
+                 "comment2", "_comment2", "_comment3", "comment3",
                  "_comment4", "comment4",
                  "xname", "yname", "zname", "tname", "xunits", "yunits", "zunits", "tunits",
-                 "xvalue", "zvalue", "yvalue", "tvalue", "mean", "min", "max", "xtic1", "xtic2", "xmintic1", "xmintic2",
-                 "ytic1", "ytic2", "ymintic1", "ymintic2", "xlabel1", "xlabel2", "box1", "box2", "box3", "box4",
+                 "xvalue", "zvalue", "yvalue", "tvalue",
+                 "mean", "min", "max", "xtic1", "xtic2", "xmintic1", "xmintic2",
+                 "ytic1", "ytic2", "ymintic1", "ymintic2",
+                 "xlabel1", "xlabel2", "box1", "box2", "box3", "box4",
                  "ylabel1", "ylabel2", "line1", "line2", "line3", "line4", "legend", "data",
-                 "_xname", "_yname", "_zname", "_tname", "_xunits", "_yunits", "_zunits", "_tunits",
-                 "_xvalue", "_zvalue", "_yvalue", "_tvalue", "_mean", "_min", "_max", "_xtic1", "_xtic2", "_xmintic1", "_xmintic2",
-                 "_ytic1", "_ytic2", "_ymintic1", "_ymintic2", "_xlabel1", "_xlabel2", "_box1", "_box2", "_box3", "_box4",
-                 "_ylabel1", "_ylabel2", "_line1", "_line2", "_line3", "_line4", "_legend", "_data", "_scaledFont"]
+                 "_xname", "_yname", "_zname", "_tname",
+                 "_xunits", "_yunits", "_zunits", "_tunits",
+                 "_xvalue", "_zvalue", "_yvalue", "_tvalue",
+                 "_mean", "_min", "_max", "_xtic1", "_xtic2", "_xmintic1", "_xmintic2",
+                 "_ytic1", "_ytic2", "_ymintic1", "_ymintic2",
+                 "_xlabel1", "_xlabel2", "_box1", "_box2", "_box3", "_box4",
+                 "_ylabel1", "_ylabel2",
+                 "_line1", "_line2", "_line3", "_line4",
+                 "_legend", "_data", "_scaledFont"]
 
     def _getName(self):
         return self._name
@@ -179,7 +195,7 @@ class P(object):
         if self.name == "default":
             raise ValueError("You cannot change the default template")
         value = VCS_validation_functions.checkInt(self, "orientation", value)
-        if not value in [0, 1]:
+        if value not in [0, 1]:
             raise ValueError(
                 "The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).")
         self._orientation = value
@@ -402,7 +418,7 @@ class P(object):
         else:
             if isinstance(Pic_name_src, P):
                 Pic_name_src = P.name
-            if not Pic_name_src in vcs.elements["template"].keys():
+            if Pic_name_src not in vcs.elements["template"].keys():
                 raise ValueError(
                     "The source template '%s' does not seem to exists" %
                     Pic_name_src)
@@ -496,8 +512,8 @@ class P(object):
             raise ValueError('This instance has been removed from VCS.')
 
         if (single is None):
-            print "", "----------Template (P) member (attribute) listings ----------"
-            # print 'Canvas Mode =',self.mode
+            print "----------Template (P) member " +\
+                "(attribute) listings ----------"
             print "method =", self.p_name
             print "name =", self.name
             print "orientation =", self.orientation
@@ -733,16 +749,20 @@ class P(object):
               where: scriptfile_name is the output name of the script file.
                      mode is either "w" for replace or "a" for append.
 
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
+              Note: If the the filename has a ".py" at the end,
+                    it will produce a
+                    Python script. If the filename has a ".scr"
+                    at the end, it will
+                    produce a VCS script. If neither extensions
+                    are give, then by default a Python script
+                    will be produced.
 
     a=vcs.init()
     templt=a.createtemplate('temp')   # create a template object
     templt.script('filename.py')      # Append to a Python file "filename.py"
     templt.script('filename.scr')     # Append to a VCS file "filename.scr"
-    templt.script('filename','w')     # Create or overwrite to a Python file "filename.py"
+    templt.script('filename','w')     # Create or overwrite to a
+                                        Python file "filename.py"
 '''
         if (script_filename is None):
             raise ValueError(
@@ -785,7 +805,8 @@ class P(object):
 
             unique_name = '__P__' + self.name
             fp.write(
-                "#----------Template (P) member (attribute) listings ----------\n")
+                "#----------Template (P) member "
+                "(attribute) listings ----------\n")
             fp.write("p_list=v.listelements('template')\n")
             fp.write("if ('%s' in p_list):\n" % self.name)
             fp.write(
@@ -821,8 +842,10 @@ class P(object):
                 self.yunits,
                 self.zunits,
                 self.tunits]
-            for i in ('file', 'function', 'logicalmask', 'transformation', 'source', 'dataname', 'title', 'units', 'crdate', 'crtime',
-                      'comment1', 'comment2', 'comment3', 'comment4', 'xname', 'yname', 'zname', 'tname', 'xunits', 'yunits', 'zunits', 'tunits'):
+            for i in ('file', 'function', 'logicalmask', 'transformation',
+                      'source', 'dataname', 'title', 'units', 'crdate', 'crtime',
+                      'comment1', 'comment2', 'comment3', 'comment4', 'xname',
+                      'yname', 'zname', 'tname', 'xunits', 'yunits', 'zunits', 'tunits'):
                 fp.write("# member = %s\n" % i)
                 fp.write(
                     "%s.%s.priority = %g\n" %
@@ -848,7 +871,8 @@ class P(object):
                 self.min,
                 self.max]
             for i in (
-                    'xvalue', 'yvalue', 'zvalue', 'tvalue', 'mean', 'min', 'max'):
+                    'xvalue', 'yvalue', 'zvalue',
+                    'tvalue', 'mean', 'min', 'max'):
                 fp.write("# member = %s\n" % i)
                 fp.write(
                     "%s.%s.priority = %g\n" %
@@ -937,8 +961,8 @@ class P(object):
                 self.line2,
                 self.line3,
                 self.line4]
-            for i in (
-                    'box1', 'box2', 'box3', 'box4', 'line1', 'line2', 'line3', 'line4'):
+            for i in ('box1', 'box2', 'box3', 'box4',
+                      'line1', 'line2', 'line3', 'line4'):
                 fp.write("# member = %s\n" % i)
                 fp.write(
                     "%s.%s.priority = %g\n" %
@@ -988,11 +1012,12 @@ class P(object):
     # Adding the drawing functionnality to plot all these attributes on the
     # Canvas
 
-    def drawTicks(
-            self, slab, gm, x, axis, number, vp, wc, bg=0, X=None, Y=None, **kargs):
+    def drawTicks(self, slab, gm, x, axis, number,
+                  vp, wc, bg=0, X=None, Y=None, **kargs):
         """Draws the ticks for the axis x number number
         using the label passed by the graphic  method
-        vp and wc are from the actual canvas, they have been reset when they get here...
+        vp and wc are from the actual canvas, they have
+        been reset when they get here...
         """
         kargs["donotstoredisplay"] = True
         if X is None:
@@ -1027,16 +1052,6 @@ class P(object):
         # Make sure the label passed are not outside the world coordinates
         dw1 = 1.E20
         dw2 = 1.E20
-# if getattr(gm,'datawc_'+axis+'1')<9.9E19:
-# dw1=getattr(gm,'datawc_'+axis+'1')
-# dw2=getattr(gm,'datawc_'+axis+'2')
-# for k in loc.keys():
-# if getattr(gm,'datawc_'+axis+'2')>getattr(gm,'datawc_'+axis+'1'):
-# if not (getattr(gm,'datawc_'+axis+'1')<=loc[k]<=getattr(gm,'datawc_'+axis+'2')):
-# del(loc[k])
-# else:
-# if not (getattr(gm,'datawc_'+axis+'1')>=loc[k]>=getattr(gm,'datawc_'+axis+'2')):
-# del(loc[k])
 
         if axis == 'x':
             dw1, dw2 = wc[0], wc[1]
@@ -1119,14 +1134,18 @@ class P(object):
                     if vcs.elements["projection"][
                             gm.projection].type == "linear":
                         xs.append(
-                            [(l - wc[0]) / dx + vp[0], (l - wc[0]) / dx + vp[0]])
+                            [(l - wc[0]) / dx +
+                                vp[0], (l - wc[0]) / dx +
+                                vp[0]])
                         ys.append([obj.y1, obj.y2])
                         txs.append((l - wc[0]) / dx + vp[0])
                         tys.append(objlabl.y)
                     else:
                         xs.append([l, l])
                         end = wc[
-                            2] + (wc[3] - wc[2]) * (obj.y2 - obj.y1) / (self.data._y2 - self._data.y1)
+                            2] + (wc[3] - wc[2]) *\
+                            (obj.y2 - obj.y1) /\
+                            (self.data._y2 - self._data.y1)
                         ys.append([wc[2], end])
                         txs.append(l)
                         tys.append(wc[3])
@@ -1136,16 +1155,20 @@ class P(object):
                     if vcs.elements["projection"][
                             gm.projection].type == "linear":
                         ys.append(
-                            [(l - wc[2]) / dy + vp[2], (l - wc[2]) / dy + vp[2]])
+                            [(l - wc[2]) / dy +
+                                vp[2], (l - wc[2]) / dy + vp[2]])
                         xs.append([obj.x1, obj.x2])
                         tys.append((l - wc[2]) / dy + vp[2])
                         txs.append(objlabl.x)
                     else:
                         ys.append([l, l])
                         end = wc[
-                            0] + (wc[1] - wc[0]) * (obj._x2 - obj._x1) / (self._data._x2 - self._data.x1)
+                            0] + (wc[1] - wc[0]) *\
+                            (obj._x2 - obj._x1) /\
+                            (self._data._x2 - self._data.x1)
                         if vcs.elements["projection"][
-                                gm.projection].type != "linear" and end < -180.:
+                            gm.projection].type != "linear" and\
+                                end < -180.:
                             end = wc[0]
                         xs.append([wc[0], end])
                         tys.append(l)
@@ -1164,26 +1187,32 @@ class P(object):
                             if vcs.elements["projection"][
                                     gm.projection].type == "linear":
                                 xs.append(
-                                    [(l - wc[0]) / dx + vp[0], (l - wc[0]) / dx + vp[0]])
+                                    [(l - wc[0]) / dx +
+                                        vp[0], (l - wc[0]) / dx + vp[0]])
                                 ys.append([obj.y1, obj.y2])
                                 tstring.append(a)
                             else:
                                 xs.append([l, l])
                                 ys.append([wc[2],
-                                           wc[2] + (wc[3] - wc[2]) * (obj._y - ynum) / (self._data._y2 - self._data._y1)])
+                                           wc[2] + (wc[3] - wc[2]) *
+                                           (obj._y - ynum) /
+                                           (self._data._y2 - self._data._y1)])
                                 tstring.append(a)
                     elif axis == 'y':
                         if ymn <= l <= ymx:
                             if vcs.elements["projection"][
                                     gm.projection].type == "linear":
                                 ys.append(
-                                    [(l - wc[2]) / dy + vp[2], (l - wc[2]) / dy + vp[2]])
+                                    [(l - wc[2]) / dy +
+                                        vp[2], (l - wc[2]) / dy + vp[2]])
                                 xs.append([obj.x1, obj.x2])
                                 tstring.append(a)
                             else:
                                 ys.append([l, l])
                                 xs.append([wc[0],
-                                           wc[0] + (wc[1] - wc[0]) * (obj._x - xnum) / (self._data._x2 - self._data._x1)])
+                                           wc[0] +
+                                           (wc[1] - wc[0]) * (obj._x - xnum) /
+                                           (self._data._x2 - self._data._x1)])
                                 tstring.append(a)
 
         if txs != []:
@@ -1214,8 +1243,8 @@ class P(object):
         elif isinstance(attribute, str):
             attribute = [attribute, ]
         elif not isinstance(attribute, (list, tuple)):
-            raise Exception(
-                "template.blank function argument must be None, string or list")
+            raise Exception("template.blank function argument "
+                            "must be None, string or list")
         for a in attribute:
             try:
                 elt = getattr(self, a)
@@ -1226,10 +1255,12 @@ class P(object):
 
     def reset(self, sub_name, v1, v2, ov1=None, ov2=None):
         """
-        this function reset all the attribute who have a sub attribute named name1 or name2 or name
+        this function reset all the attribute who have a
+        sub attribute named name1 or name2 or name
         also respect how far from original position you are
         i.e you move to x1,x2 from old_x1, old_x2
-        if your current x1 value is not == to old_x1_value, then respect how far from it you  were
+        if your current x1 value is not == to old_x1_value,
+        then respect how far from it you  were
         usage:
         reset(sub_name,v1,v2,ov1=None,ov2=None)
         Example:
@@ -1242,7 +1273,6 @@ class P(object):
         for a in Attr:
             if a[0] != "_":
                 attr.append(a)
-        n = len(sub_name)
         # computes the ratio
         if ov1 is not None:
             odv = ov2 - ov1
@@ -1279,7 +1309,7 @@ class P(object):
                             if ov2 is not None:
                                 delta = (ov - ov2) * ratio
                             setattr(v, sub_name, min(1, max(0, v2 + delta)))
-                except Exception as err:
+                except:
                     pass
 
     def move(self, p, axis):
@@ -1293,7 +1323,7 @@ class P(object):
         t.move(.2,'x') # move everything right by 20%
         t.move(.2,'y') # move everything down by 20%
         """
-        if not axis in ['x', 'y']:
+        if axis not in ['x', 'y']:
             raise 'Error you can move the template only the x or y axis'
         # p/=100.
         ov1 = getattr(self.data, axis + '1')
@@ -1345,7 +1375,7 @@ class P(object):
         reference is t.data.x1/y1
 
         """
-        if not axis in ['x', 'y', 'xy']:
+        if axis not in ['x', 'y', 'xy']:
             raise 'Error you can move the template only the x or y axis'
         # p/=100.
         if axis == 'xy':
@@ -1389,7 +1419,8 @@ class P(object):
 
     def plot(self, x, slab, gm, bg=0, min=None,
              max=None, X=None, Y=None, **kargs):
-        """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
+        """ This plots the template stuff on the Canvas,
+        it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
         kargs["donotstoredisplay"] = True
@@ -1405,15 +1436,12 @@ class P(object):
         # x.mode=0 # this should disable the replot but it doesn't work....
         # figures out the min and max and set them as atributes...
         smn, smx = vcs.minmax(slab)
-        if min is None or max is None:
-            mn, mx = smn, smx
-        else:
-            mn, mx = min, max
 
         attributes = ['file', 'function', 'logicalmask', 'transformation',
                       'source', 'id', 'title', 'units', 'crdate', 'crtime',
                       'comment1', 'comment2', 'comment3', 'comment4',
-                      'zname', 'tname', 'zunits', 'tunits', 'xvalue', 'yvalue', 'zvalue',
+                      'zname', 'tname', 'zunits', 'tunits',
+                      'xvalue', 'yvalue', 'zvalue',
                       'tvalue', 'mean', 'min', 'max', 'xname', 'yname', ]
 
         if isinstance(gm, vcs.taylor.Gtd):
@@ -1443,9 +1471,11 @@ class P(object):
                         meanstring = 'Mean ' + str(getattr(slab, s))
                     else:
                         try:
-                            meanstring = 'Mean %.4g' % float(cdutil.averager(slab,
-                                                                             axis=" ".join(["(%s)" % S for S in slab.getAxisIds()])))
-                        except Exception as err:
+                            meanstring = 'Mean %.4g' % \
+                                float(cdutil.averager(slab,
+                                                      axis=" ".join(["(%s)" %
+                                                                     S for S in slab.getAxisIds()])))
+                        except:
                             meanstring = 'Mean %.4g' % slab.mean()
                     tt.string = meanstring
                 else:
@@ -1473,7 +1503,8 @@ class P(object):
             nms = ["x", "y", "z", "t"]
             for i, ax in enumerate(slab.getAxisList()[::-1]):
                 if nms[i] in ["x", "y"] and hasattr(gm, "projection") and \
-                        vcs.elements["projection"][gm.projection].type in round_projections:
+                        vcs.elements["projection"][gm.projection].type \
+                        in round_projections:
                     continue
                 nm = nms[i] + "name"
                 sub = getattr(self, nm)
@@ -1575,7 +1606,9 @@ class P(object):
                         if tp == "line":
                             l._x = [wc2[0], wc2[0] + dx]
                             l._y = [wc2[2], wc2[2] + dy]
-                        elif tp == "box" and vcs.elements["projection"][l.projection].type in round_projections:
+                        elif tp == "box" and \
+                                vcs.elements["projection"][l.projection].type in\
+                                round_projections:
                             l._x = [[-180., 180], [-180., 180]]
                             l._y = [wc2[3], wc2[3]], [wc2[2], wc2[2]]
                         else:
@@ -1602,12 +1635,14 @@ class P(object):
         return displays
 
     def drawColorBar(self, colors, levels, legend=None, ext_1='n',
-                     ext_2='n', x=None, bg=0, priority=None, cmap=None, **kargs):
+                     ext_2='n', x=None,
+                     bg=0, priority=None, cmap=None, **kargs):
         """
         This function, draws the colorbar, it needs:
         colors : The colors to be plotted
         levels : The levels that each color represent
-        legend : To overwrite, saying just draw box at certain values and display some specific text instead of the value
+        legend : To overwrite, saying just draw box at
+        certain values and display some specific text instead of the value
         ext_1 and ext_2: to draw the arrows
         x : the canvas where to plot it
         bg: background mode ?
@@ -1698,7 +1733,8 @@ class P(object):
                     dlongarrow = dlong
                 # Draws the little arrow at the begining
                 L.append(
-                    [startlong, startlong + dlongarrow, startlong + dlongarrow])
+                    [startlong, startlong + dlongarrow,
+                     startlong + dlongarrow])
                 S.append(
                     [startshrt + dshrt / 2., startshrt + dshrt, startshrt])
                 # Now readjust startlong if necessary
@@ -1879,10 +1915,12 @@ class P(object):
         x._worldcoordinate = wc
         return displays
 
-    def ratio_linear_projection(
-            self, lon1, lon2, lat1, lat2, Rwished=None, Rout=None, box_and_ticks=0, x=None):
+    def ratio_linear_projection(self, lon1, lon2, lat1, lat2,
+                                Rwished=None, Rout=None,
+                                box_and_ticks=0, x=None):
         '''
-        Computes ratio to shrink the data area of a template in order that the overall area
+        Computes ratio to shrink the data area of a template in order
+        that the overall area
         has the least possible deformation in linear projection
 
         Version: 1.1
@@ -1895,7 +1933,8 @@ class P(object):
         Optional arguments:
           Rwished: Ratio y/x wished, None=automagic
           Rout: Ratio of output (default is US Letter=11./8.5)
-                Also you can pass a string: "A4","US LETTER", "X"/"SCREEN", the latest uses the window information
+                Also you can pass a string: "A4","US LETTER", "X"/"SCREEN",
+                the latest uses the window information
           box_and_ticks: Also redefine box and ticks to the new region
         Returned:
           vcs template object
@@ -1933,7 +1972,8 @@ class P(object):
 
     def ratio(self, Rwished, Rout=None, box_and_ticks=0, x=None):
         '''
-        Computes ratio to shrink the data area of a template to have an y/x ratio of Rwished
+        Computes ratio to shrink the data area of a template
+        to have an y/x ratio of Rwished
         has the least possible deformation in linear projection
 
         Version: 1.1
@@ -1942,7 +1982,8 @@ class P(object):
           Rwished: Ratio y/x wished
         Optional arguments:
           Rout: Ratio of output (default is US Letter=11./8.5)
-                Also you can pass a string: "A4","US LETTER", "X"/"SCREEN", the latest uses the window information
+                Also you can pass a string: "A4","US LETTER",
+                "X"/"SCREEN", the latest uses the window information
           box_and_ticks: Also redefine box and ticks to the new region
         Returned:
           vcs template object
@@ -1958,7 +1999,8 @@ class P(object):
                 Rout = 29.7 / 21.
                 if x.isportrait():
                     Rout = 1. / Rout
-            elif Rout.lower() in ['us letter', 'letter', 'us_letter', 'usletter']:
+            elif Rout.lower() in ['us letter', 'letter',
+                                  'us_letter', 'usletter']:
                 Rout = 11. / 8.5
                 if x.isportrait():
                     Rout = 1. / Rout
@@ -1974,7 +2016,7 @@ class P(object):
             try:
                 info = x.canvasinfo()
                 Rout = float(info['width']) / float(info['height'])
-            except Exception as err:
+            except:
                 Rout = 1. / .758800507
                 if x.isportrait():
                     Rout = 1. / Rout

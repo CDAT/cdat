@@ -21,11 +21,9 @@
 #
 #
 #
-import queries
 import vcs
 import VCS_validation_functions
 import cdtime
-import Canvas
 
 
 def load(nm, json_dict={}):
@@ -36,7 +34,7 @@ def process_src(nm, code):
     """Takes VCS script code (string) as input and generates vector gm from it"""
     try:
         gm = Gv(nm)
-    except Exception as err:
+    except:
         gm = vcs.elements["vector"][nm]
     # process attributes with = as assignement
     for att in ["projection",
@@ -82,11 +80,11 @@ def process_src(nm, code):
         try:
             # int will be converted
             setattr(gm, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(gm, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(gm, nm, sp[1])
@@ -428,7 +426,7 @@ class Gv(object):
         return self._datawc_x1
 
     def _setdatawc_x1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
         self._datawc_x1 = value
     datawc_x1 = property(_getdatawc_x1, _setdatawc_x1)
 
@@ -436,7 +434,7 @@ class Gv(object):
         return self._datawc_x2
 
     def _setdatawc_x2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
         self._datawc_x2 = value
     datawc_x2 = property(_getdatawc_x2, _setdatawc_x2)
 
@@ -444,7 +442,7 @@ class Gv(object):
         return self._datawc_y1
 
     def _setdatawc_y1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
         self._datawc_y1 = value
     datawc_y1 = property(_getdatawc_y1, _setdatawc_y1)
 
@@ -452,7 +450,7 @@ class Gv(object):
         return self._datawc_y2
 
     def _setdatawc_y2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
@@ -476,7 +474,7 @@ class Gv(object):
         return self._linewidth
 
     def _setlinewidth(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkNumber(
                 self,
                 'linewidth',
@@ -490,7 +488,7 @@ class Gv(object):
         return self._linecolor
 
     def _setlinecolor(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColor(
                 self,
                 'linecolor',
@@ -502,7 +500,7 @@ class Gv(object):
         return self._line
 
     def _setline(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkLineType(self, 'line', value)
         self._line = value
     line = property(_getline, _setline)
@@ -530,7 +528,7 @@ class Gv(object):
                 #                                                         #
                 ###########################################################
                 # Initialize the vector class and its members             #
-                #							  #
+                #                                                         #
                 # The getGvmember function retrieves the values of the    #
                 # vector members in the C structure and passes back the   #
                 # appropriate Python Object.                              #
@@ -568,13 +566,19 @@ class Gv(object):
         else:
             if isinstance(Gv_name_src, Gv):
                 Gv_name_src = Gv_name_src.name
-            if not Gv_name_src in vcs.elements['vector']:
+            if Gv_name_src not in vcs.elements['vector']:
                 raise ValueError(
                     "The vector method '%s' does not exists" %
                     Gv_name_src)
             src = vcs.elements["vector"][Gv_name_src]
-            for att in ['projection', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'line', 'linecolor', 'linewidth', 'datawc_timeunits', 'datawc_calendar', 'scale', 'alignment', 'type', 'reference']:
+            for att in ['projection',
+                        'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
+                        'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2',
+                        'datawc_y1', 'datawc_y2', 'datawc_x1',
+                        'datawc_x2', 'xaxisconvert', 'yaxisconvert',
+                        'line', 'linecolor', 'linewidth',
+                        'datawc_timeunits', 'datawc_calendar',
+                        'scale', 'alignment', 'type', 'reference']:
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
         vcs.elements["vector"][Gv_name] = self
@@ -695,8 +699,8 @@ class Gv(object):
         scr_type = script_filename[
             len(script_filename) -
             4:len(script_filename)]
-        if (scr_type == '.scr'):
-            print _vcs.scriptGv(self.name, script_filename, mode)
+        if scr_type == '.scr':
+            raise DeprecationWarning("scr script are no longer generated")
         else:
             mode = mode + '+'
             py_type = script_filename[

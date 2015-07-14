@@ -26,24 +26,16 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
-import __main__
 import warnings
-#import Tkinter
 from pauser import pause
-import thread
 import numpy.ma
 import MV2
 import numpy
 import cdutil
-from queries import *
+from queries import *  # noqa
 import boxfill
 import isofill
 import isoline
-import outfill
-import outline
-import taylor
-import meshfill
-import projection
 import vector
 import continents
 import line
@@ -53,22 +45,11 @@ import texttable
 import textorientation
 import textcombined
 import template
-import colormap
-import unified1D
-#import colormapgui as _colormapgui
-#import canvasgui as _canvasgui
 import displayplot
 import vtk
 from VTKPlots import VTKVCSBackend
 from weakref import WeakSet, WeakKeyDictionary
-import time
 
-#import animationgui as _animationgui
-#import graphicsmethodgui as _graphicsmethodgui
-#import templateeditorgui as _templateeditorgui
-#import gui_template_editor as _gui_template_editor
-#import pagegui as _pagegui
-#import projectiongui as _projectiongui
 from error import vcsError
 import cdms2
 import copy
@@ -81,12 +62,13 @@ from cdms2.grid import AbstractRectGrid
 import shutil
 import inspect
 import VCS_validation_functions
-from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisconvert, yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
+from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisconvert, \
+    plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, \
+    plot_2_1D_options
 # Flag to set if the initial attributes file has aready been read in
 called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
-#import Pmw
 import vcsaddons
 import vcs.manageElements
 import configurator
@@ -287,8 +269,8 @@ def _determine_arg_list(g_name, actual_args):
                 g = arglist[0].getGrid()
                 if not isinstance(g, (cdms2.gengrid.AbstractGenericGrid,
                                       cdms2.hgrid.AbstractCurveGrid, cdms2.grid.TransientRectGrid)):
-                    raise vcsError(
-                        "Meshfill requires 2 slab if first slab doesn't have a Rectilinear, Curvilinear or Generic Grid type")
+                    raise vcsError("Meshfill requires 2 slab if first slab doesn't have a "
+                                   "Rectilinear, Curvilinear or Generic Grid type")
         elif ((arglist[igraphics_method] == 'continents') or
               (arglist[igraphics_method] == 'line') or
               (arglist[igraphics_method] == 'marker') or
@@ -324,27 +306,6 @@ def _process_keyword(obj, target, source, keyargs, default=None):
     elif hasattr(obj, source):
         setattr(obj, target, getattr(obj, source))
     return arg
-
-
-def finish_queued_X_server_requests(self):
-    """ Wait for the X server to execute all pending events.
-
-        If working with C routines, then use BLOCK_X_SERVER
-        found in the VCS module routine to stop the X server
-        from continuing. Thus, eliminating the asynchronous
-        errors.
-    """
-    x_num = self.canvas.xpending()
-    count = 0
-    while x_num != 0:
-        x_num = self.canvas.xpending()
-        count += 1
-        # Move on already! The X sever must be completed by this point!
-        # If count of 1000 is reached, then discard all events from
-        # this point on in the queue.
-        if count > 1000:
-            self.canvas.xsync_discard()
-            break
 
 
 class Canvas(object):
@@ -581,10 +542,6 @@ class Canvas(object):
             gm = self.getisofill(arglist[4])
         elif arglist[3] == 'isoline':
             gm = self.getisoline(arglist[4])
-        elif arglist[3] == 'outfill':
-            gm = self.getoutfill(arglist[4])
-        elif arglist[3] == 'outline':
-            gm = self.getoutline(arglist[4])
         elif arglist[3] == 'continents':
             gm = self.getcontinents(arglist[4])
         elif arglist[3] == 'scatter':
@@ -664,7 +621,7 @@ class Canvas(object):
 
         ARRAY_1 = 0
         ARRAY_2 = 1
-        TEMPLATE = 2
+        # TEMPLATE = 2
         GRAPHICS_METHOD = 3
         GRAPHICS_OPTION = 4
 
@@ -687,9 +644,9 @@ class Canvas(object):
         dimmap = {}
         dimmap['x'] = xdim = rank - 1
         dimmap['y'] = ydim = rank - 2
-        dimmap['z'] = zdim = rank - 3
-        dimmap['t'] = tdim = rank - 4
-        dimmap['w'] = wdim = rank - 5
+        dimmap['z'] = rank - 3
+        dimmap['t'] = rank - 4
+        dimmap['w'] = rank - 5
 
         # Process grid keyword
         grid = keyargs.get('grid')
@@ -752,11 +709,6 @@ class Canvas(object):
         if arglist[GRAPHICS_METHOD] == "default" or\
                 (arglist[GRAPHICS_METHOD] == 'boxfill' and arglist[GRAPHICS_METHOD + 1] == "default"):
                         # See _determine_arg_list
-            try:
-                nomesh = 0
-                m = grid.getMesh()
-            except:
-                nomesh = 1
 
             if grid is None:
                 if tv.ndim == 1:
@@ -819,26 +771,7 @@ class Canvas(object):
         # Ravel the last two dimensions for meshfill if necessary
         # value to know if we're plotting a grided meshfill
         self.isplottinggridded = False
-        # if (arglist[GRAPHICS_METHOD]=='meshfill') and (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-        #    tvshape = tv.shape
-        #    if isgridded:
-        #        ny, nx = grid.shape
-        #        if nx*ny==arglist[ARRAY_2].shape[-3]:
-        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-        #            xdim=ydim
-        #            self.isplottinggridded=True
-        #        else:
-        #            ny, nx = tvshape[-2:]
-        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-        #    else:
-        #        ny, nx = tvshape[-2:]
-        #    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-        #    tv = MV2.reshape(tv, ravelshape)
-        #    xdim=ydim
-        #    self.isplottinggridded=True
-        #    if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-        #        raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
-        # else:
+
         if isgridded and (arglist[GRAPHICS_METHOD] == 'meshfill'):
             self.isplottinggridded = True
 
@@ -851,12 +784,12 @@ class Canvas(object):
         _process_keyword(tv, 'time', 'hms', keyargs)
         _process_keyword(tv, 'title', 'long_name', keyargs)
         _process_keyword(tv, 'name', 'name', keyargs, default=tv.id)
-        time = keyargs.get('time')
-        if time is not None:
-            if isinstance(time, (str, unicode)):
-                ctime = cdtime.s2c(str(time))
+        tim = keyargs.get('time')
+        if tim is not None:
+            if isinstance(tim, (str, unicode)):
+                ctime = cdtime.s2c(str(tim))
             else:
-                ctime = time.tocomp()
+                ctime = tim.tocomp()
             tv.user_date = str(ctime)
         _process_keyword(tv, 'units', 'units', keyargs)
         _process_keyword(tv, 'date', 'ymd', keyargs)
@@ -893,21 +826,8 @@ class Canvas(object):
         # By default, latitudes on the y-axis are plotted S-N
         # levels on the y-axis are plotted with decreasing pressure
         if ydim >= 0:
-            yaxis = tv.getAxis(ydim)
-            yrev = 0
-# -- This code forces the latitude axis to alway be shown from -90 (South) to
-# 90 (North). This causes a problem when wanting to view polar plots from
-# the North. So this feature has been removed.
-##
-##             if yaxis.isLatitude() and yaxis[0]>yaxis[-1]: yrev=1
-##             if yaxis.isLevel() and yaxis[0]<yaxis[-1]: yrev=1
-
-            yrev = keyargs.get('yrev', yrev)
+            yrev = keyargs.get('yrev', 0)
             if yrev == 1:
-                ##                 yarray = copy.copy(yaxis[:])
-                ##                 ybounds = yaxis.getBounds()
-                ##                 yaxis[:] = yarray[::-1]
-                # yaxis.setBounds(ybounds[::-1,::-1])
                 tv = tv[..., ::-1, :].clone()
 
 
@@ -947,41 +867,6 @@ class Canvas(object):
     ##########################################################################
     def __init__(self, gui=0, mode=1, pause_time=0,
                  call_from_gui=0, size=None, backend="vtk"):
-        #######################################################################
-        #                                                                           #
-        # The two Tkinter calls were needed for earlier versions of CDAT using      #
-        # tcl/tk 8.3 and Python 2.2. In these earlier version of CDAT, Tkinter must #
-        # be called before "_vcs.init()", which uses threads. That is,              #
-        # "_vcs.init()" calls "XInitThreads()" which causes Tkinter keyboard events #
-        # to hang. By calling Tkinter.Tk() first solves the problem.                #
-        #                                                                           #
-        # The code must have "XInitThreads()". Without this function, Xlib produces #
-        # asynchronous errors. This X thread function can be found in the           #
-        # vcsmodule.c file located in the "initialize_X routine.                    #
-        #                                                                           #
-        # Graphics User Interface Mode:                                             #
-        #        gui = 0|1    if ==1, create the canvas with GUI controls           #
-        #                     (Default setting is *not* to display GUI controls)    #
-        #                                                                           #
-        # Note:                                                                     #
-        #     For version 4.0, which uses tcl/tk 8.4 and Python 2.3, the below      #
-        #     Tkinter.Tk() calls are not necessary.                                 #
-        #                                                                           #
-        #     The code will remain here, but commented out in case the bug in       #
-        #     tcl/tk reappears.                                                     #
-        #                                                                           #
-        # if (call_from_gui == 0):
-        # try:
-        # print ' NO local host'
-        # rt = Tkinter.Tk() # Use the default  DISPLAY and screen
-        # print ' I have a rt', rt
-        # except:
-        # print ' :0.0 local host'
-        #########      rt = Tkinter.Tk(":0.0") # Use the localhost:0.0 for the DISPLAY and screen ###
-        # rt.withdraw()
-        # rt.destroy()
-        #                                                                           #
-        #######################################################################
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
@@ -1004,18 +889,8 @@ class Canvas(object):
         global called_initial_attributes_flg
         global gui_canvas_closed
         global canvas_closed
-##         import gui_support
-        import time
-##         from tkMessageBox import showerror
 
         is_canvas = len(vcs.return_display_names()[0])
-
-        # TODO get rid of all these gui_canvas_closed I think the code is not even here anymore
-        # I believe it was for the old editor style
-        if gui_canvas_closed == 1:
-            raise RuntimeError(
-                "There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
-            return
 
         self.winfo_id = -99
         self.varglist = []
@@ -1023,7 +898,6 @@ class Canvas(object):
         self.isplottinggridded = False
         self.canvas_guianimate_info = None
 # DEAN or CHARLES -- remove the one line below for VCS Canvas GUI to work
-        #gui = 0
         if is_canvas == 0:
             if ((gui == 1) and (gui_canvas_closed == 0)):
                 no_root = 0
@@ -1073,7 +947,8 @@ class Canvas(object):
             self.backend = VTKVCSBackend(self, renWin=backend)
         else:
             warnings.warn(
-                "Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" %
+                "Unknown backend type: '%s'\nAssiging 'as is' to "
+                "backend, no warranty about anything working from this point on" %
                 backend)
             self.backend = backend
 
@@ -1189,15 +1064,12 @@ class Canvas(object):
     #                                                                           #
     ##########################################################################
     def _update_continents_check(self, *args):
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         a = self.canvas.updatecanvas_continents(*args)
         self.flush()  # update the canvas by processing all the X events
         self.backing_store()
         pause(self.pause_time)
 
-        self.canvas.UNBLOCK_X_SERVER()
         return a
 
     ##########################################################################
@@ -1243,10 +1115,6 @@ class Canvas(object):
                 isofill.Gfi.script(obj, script_filename, mode)
             elif (obj.g_name == 'Gi'):
                 isoline.Gi.script(obj, script_filename, mode)
-            elif (obj.g_name == 'Go'):
-                outline.Go.script(obj, script_filename, mode)
-            elif (obj.g_name == 'Gfo'):
-                outfill.Gfo.script(obj, script_filename, mode)
             elif (obj.g_name == 'GXy'):
                 xyvsy.GXy.script(obj, script_filename, mode)
             elif (obj.g_name == 'GYx'):
@@ -1446,14 +1314,7 @@ class Canvas(object):
                                     break
                         if destroy:
                             self.removeobject(o)
-# try:
-##                             exec("o = self.get%s(obj)" % objtype)
-# print 'stayed'
-# except:
-# print 'gone'
-                    except Exception as err:
-                        # print 'Error for:',o.name,err
-                        ##                         raise vcsError,err
+                    except:
                         pass
 
         return
@@ -1599,7 +1460,7 @@ Options:::
         return vcs.getmeshfill(Gfm_name_src)
     getmeshfill.__doc__ = vcs.manageElements.getmeshfill.__doc__
 
-    def meshfill(self, *args, **parms):
+    def meshfill(self, *args, **parms):  # noqa
         """
  Function: meshfill               # Generate an meshfill plot
 
@@ -1611,9 +1472,14 @@ Options:::
 
     Format:
     This function expects 1D data (any extra dimension will be used for animation)
-    In addition the mesh array must be of the same shape than data with 2 additional dimension representing the vertices coordinates for the Y (0) and X (1) dimension
-    Let's say you want to plot a spatial assuming mesh containing 10,000 grid cell, then data must be shape (10000,) or (n1,n2,n3,...,10000) if additional dimensions exist (ex time,level), these dimension would be used only for animation and will be ignored in the rest of this example.
-    The shape of the mesh, assuming 4 vertices per grid cell, must be (1000,2,4), where the array [:,0,:] represent the Y coordinates of the vertices (clockwise or counterclockwise) and the array [:,1:] represents the X coordinates of the vertices (the same clockwise/counterclockwise than the Y coordinates)
+    In addition the mesh array must be of the same shape than data with 2 additional dimension
+    representing the vertices coordinates for the Y (0) and X (1) dimension
+    Let's say you want to plot a spatial assuming mesh containing 10,000 grid cell, then data must be shape (10000,)
+    or (n1,n2,n3,...,10000) if additional dimensions exist (ex time,level), these dimension would be used only
+    for animation and will be ignored in the rest of this example.
+    The shape of the mesh, assuming 4 vertices per grid cell, must be (1000,2,4), where the array [:,0,:]
+    represent the Y coordinates of the vertices (clockwise or counterclockwise) and the array [:,1:]
+    represents the X coordinates of the vertices (the same clockwise/counterclockwise than the Y coordinates)
     In brief you'd have:
     data.shape=(10000,)
     mesh.shape=(10000,2,4)
@@ -1625,7 +1491,8 @@ Options:::
     a.meshfill(array,mesh)               # Plot array using specified mesh and default
                                          #       template
     a.clear()                            # Clear VCS canvas
-    a.meshfill(array,mesh,mesh_graphic_method,template) # Plot array using specified mesh mesh graphic method and template
+    a.meshfill(array,mesh,mesh_graphic_method,template)
+                           # Plot array using specified mesh mesh graphic method and template
 """
         arglist = _determine_arg_list('meshfill', args)
         return self.__plot(arglist, parms)
@@ -2144,7 +2011,7 @@ Options:::
     # Line  functions for VCS.                                                  #
     #                                                                           #
     ##########################################################################
-    def createline(self, name=None, source='default', ltype=None,
+    def createline(self, name=None, source='default', ltype=None,  # noqa
                    width=None, color=None, priority=None,
                    viewport=None, worldcoordinate=None,
                    x=None, y=None, projection=None):
@@ -2182,7 +2049,7 @@ Options:::
         arglist = _determine_arg_list('line', args)
         return self.__plot(arglist, parms)
 
-    def drawline(self, name=None, ltype='solid', width=1, color=241,
+    def drawline(self, name=None, ltype='solid', width=1, color=241,  # noqa
                  priority=1, viewport=[0.0, 1.0, 0.0, 1.0],
                  worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                  x=None, y=None, projection='default', bg=0):
@@ -2228,7 +2095,7 @@ Options:::
     # Marker  functions for VCS.                                                #
     #                                                                           #
     ##########################################################################
-    def createmarker(self, name=None, source='default', mtype=None,
+    def createmarker(self, name=None, source='default', mtype=None,  # noqa
                      size=None, color=None, priority=1,
                      viewport=None, worldcoordinate=None,
                      x=None, y=None, projection=None):
@@ -2431,8 +2298,10 @@ Options:::
     # Text Combined  functions for VCS.                                         #
     #                                                                           #
     ##########################################################################
-    def createtextcombined(self, Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None,
-                           priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+    def createtextcombined(self, Tt_name=None, Tt_source='default', To_name=None, To_source='default',  # noqa
+                           font=None, spacing=None, expansion=None, color=None,
+                           priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
+                           height=None, angle=None, path=None, halign=None, valign=None, projection=None):
         return vcs.createtextcombined(Tt_name, Tt_source, To_name, To_source,
                                       font, spacing, expansion, color, priority, viewport, worldcoordinate,
                                       x, y, height, angle, path, halign, valign, projection)
@@ -2441,10 +2310,13 @@ Options:::
     # Set alias for the secondary createtextcombined.
     createtext = createtextcombined
 
-    def gettextcombined(self, Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None,
-                        priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+    def gettextcombined(self, Tt_name_src='default', To_name_src=None, string=None,
+                        font=None, spacing=None, expansion=None, color=None,
+                        priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
+                        height=None, angle=None, path=None, halign=None, valign=None):
         return vcs.gettextcombined(Tt_name_src, To_name_src, string,
-                                   font, spacing, expansion, color, priority, viewport, worldcoordinate,
+                                   font, spacing, expansion, color,
+                                   priority, viewport, worldcoordinate,
                                    x, y, height, angle, path, halign, valign)
     gettextcombined.__doc__ = vcs.manageElements.gettextcombined.__doc__
     #
@@ -2524,7 +2396,7 @@ Options:::
         Tt = textobject.Tt_name
         return self.backend.gettextextent(To, Tt)
 
-    def match_color(self, color, colormap=None):
+    def match_color(self, color, colormap=None):  # noqa
         return vcs.match_color(color, colormap)
 
     def drawtextcombined(self, Tt_name=None, To_name=None, string=None,
@@ -2555,10 +2427,10 @@ Options:::
         else:
             lot = self.listelements('texttable')
             if Tt_name not in lot:
-                tt = self.createtexttable(Tt_name)
+                self.createtexttable(Tt_name)
             loo = self.listelements('textorientation')
             if To_name not in loo:
-                to = self.createtextorientation(To_name)
+                self.createtextorientation(To_name)
             t = self.gettextcombined(Tt_name, To_name)
 
         # Set the Text Table (Tt) members
@@ -2732,15 +2604,6 @@ Options:::
         if passed_var is not None:
             arglist[0] = cdms2.asVariable(passed_var)
 
-        # Prevent the varglist from duplicating its contents if the GUI Canvas
-        # is in use
-        try:
-            sal = keyargs['sal']
-            if (keyargs['sal'] == 0):
-                del keyargs['sal']
-        except:
-            sal = 1
-
         try:
             pfile = actual_args[0].parent
             keyargs['cdmsfile'] = pfile.uri if hasattr(
@@ -2749,35 +2612,8 @@ Options:::
         except:
             pass
 
-    #    try:
-    #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
-    #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
-    #    except:
-    #        # Connect the VCS Canvas to the GUI
-    #        if (self.canvas_gui is not None) and (sal == 1):
-    #           #####################################################################################################
-    #           # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
-    #           # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
-    #           # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
-    #           #                                                                                                   #
-    #           # self._connect_gui_and_canvas( self.winfo_id )                                                     #
-    #           #####################################################################################################
-    #           self.canvas_gui.dialog.dialog.configure( title = ("%i. Visualization and Control System (VCS)" % self.canvasid()))
-
         # Plot the data
         a = self.__plot(arglist, keyargs)
-
-        # Continuation to remove arglist from duplicating its contents
-        #if (sal == 0): arglist = []
-
-        # for x in arglist: self.varglist.append( x ) # save the plot argument
-        # list
-
-#        if self.canvas_gui is not None:
-#            self.canvas_gui.dialog.dialog.deiconify()
-        # This command makes sure that the VCS Canvas Gui is in front of the VCDAT window.
-#            self.canvas_gui.dialog.dialog.transient( self.canvas_gui.top_parent )
-#            self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options,
                                    plot_keywords_doc,
@@ -2813,7 +2649,7 @@ Options:::
         else:
             cf.datawc_y2 = g.datawc_y2
         try:
-            t = self.gettemplate(template_name)
+            self.gettemplate(template_name)
             cf.plot(x=self, template=template_name, ratio=ratio)
         except Exception as err:
             print err
@@ -2895,7 +2731,7 @@ Options:::
             if isinstance(
                     inGrid, (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid)):
                 g = self.getmeshfill(arglist[4])
-                if not 'wrap' in keyargs.keys() and g.wrap == [0., 0.]:
+                if 'wrap' not in keyargs and g.wrap == [0., 0.]:
                     keyargs['wrap'] = [0., 360.]
             else:
                 if arglist[0].rank < 2:
@@ -2907,11 +2743,11 @@ Options:::
                     if xs.isLongitude() and ys.isLatitude() and isinstance(
                             inGrid, cdms2.grid.TransientRectGrid):
                         arglist[1] = MV2.array(inGrid.getMesh())
-                        if not 'wrap' in keyargs.keys():
+                        if 'wrap' not in keyargs:
                             keyargs['wrap'] = [0., 360.]
                     elif ys.isLongitude() and xs.isLatitude() and isinstance(inGrid, cdms2.grid.TransientRectGrid):
                         arglist[1] = MV2.array(inGrid.getMesh())
-                        if not 'wrap' in keyargs.keys():
+                        if "wrap" not in keyargs:
                             keyargs['wrap'] = [360., 0.]
                     else:
                         arglist[3] = 'boxfill'
@@ -2945,22 +2781,31 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd, att, getattr(m, att))
-        elif arglist[0] is not None and arglist[0].rank() < 2 and arglist[3] in ['boxfill', 'default'] and not isinstance(inGrid, cdms2.gengrid.AbstractGenericGrid):
+        elif arglist[0] is not None \
+                and arglist[0].rank() < 2 \
+                and arglist[3] in ['boxfill', 'default'] \
+                and not isinstance(inGrid, cdms2.gengrid.AbstractGenericGrid):
             arglist[3] = '1d'
             try:
                 tmp = self.getyxvsx(arglist[4])
                 # tmp.list()
-            except Exception as err:
+            except:
                 arglist[4] = 'default'
-        elif inGrid is not None and (arglist[0] is not None and isinstance(arglist[0], cdms2.avariable.AbstractVariable) and not isinstance(inGrid, cdms2.grid.AbstractRectGrid)) and arglist[3] in ["boxfill", "default"] and arglist[4] == "default":
+        elif inGrid is not None \
+                and (arglist[0] is not None
+                     and isinstance(arglist[0], cdms2.avariable.AbstractVariable)
+                     and not isinstance(inGrid, cdms2.grid.AbstractRectGrid)) \
+                and arglist[3] in ["boxfill", "default"] and arglist[4] == "default":
             arglist[3] = "meshfill"
 
 # arglist[4]=copy_mthd.name
         # Ok let's check for meshfill needed
-        if inGrid is not None and (arglist[0] is not None and isinstance(arglist[0], cdms2.avariable.AbstractVariable) and not isinstance(
-                arglist[0].getGrid(), cdms2.grid.AbstractRectGrid)) and arglist[3] not in ["meshfill", ]:
-            raise RuntimeError(
-                "You are attempting to plot unstructured grid with a method that is not meshfill")
+        if inGrid is not None and (arglist[0] is not None
+                                   and isinstance(arglist[0], cdms2.avariable.AbstractVariable) and
+                                   not isinstance(arglist[0].getGrid(), cdms2.grid.AbstractRectGrid))\
+                and arglist[3] not in ["meshfill", ]:
+            raise RuntimeError("You are attempting to plot unstructured grid" +
+                               "with a method that is not meshfill")
         # preprocessing for extra keyword (at-plotting-time options)
         cmds = {}
         # First of all a little preprocessing for legend !
@@ -2984,7 +2829,11 @@ Options:::
                 elif len(k) == 5:
                     if not type(k[4]) in [type({}), type(0), type(0.)]:
                         raise vcsError(
-                            "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:" +
+                            "Error, at-plotting-time argument 'legend' is ambiguous in this context\n"
+                            "Cannot determine if it is template or boxfill keyword,\n tips to solve that:\n"
+                            "\tif you aim at boxfill keyword, pass legend as a dictionary, \n"
+                            "\tif your aim at template, add {'priority':1} at the end of the list\n"
+                            "Currently legend is passed as:" +
                             repr(k))
                     elif not isinstance(k[4], type({})):
                         isboxfilllegend = 1
@@ -2996,7 +2845,11 @@ Options:::
                             isboxfilllegend = 1
                     if isboxfilllegend == 0:
                         raise vcsError(
-                            "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:" +
+                            "Error, at-plotting-time argument 'legend' is ambiguous"
+                            "in this context\nCannot determine if it is template or boxfill keyword,\n "
+                            "tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n"
+                            "\tif your aim at template, add {'priority':1} at the end of the list\n"
+                            "Currently legend is passed as:" +
                             repr(k))
 
             # ok it is for the boxfill let's do it
@@ -3019,7 +2872,6 @@ Options:::
 
         # Creates dictionary/list to remember what we changed
         slab_changed_attributes = {}
-        slab_created_attributes = []
         axes_changed = {}
         axes_changed2 = {}
 
@@ -3065,8 +2917,6 @@ Options:::
                 'markercolor',
                 'markersize',
                 'linecolor',
-                'outline',
-                'outfill',
                 'detail',
                 'max',
                 'quadrans',
@@ -3084,8 +2934,7 @@ Options:::
                 # Now the "special" keywords
                 'worldcoordinate',
             ]:
-                #if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
-                if not p in ['worldcoordinate', ]:  # not a special keywords
+                if p not in ['worldcoordinate', ]:  # not a special keywords
                     if copy_mthd is None:
                         copy_mthd = vcs.creategraphicsmethod(
                             arglist[3],
@@ -3298,7 +3147,7 @@ Options:::
                     ax = arglist[0].getTime()
                     if ax is not None:
                         ax = ax.clone()
-                if not ax is None:
+                if ax is not None:
                     ids = arglist[0].getAxisIds()
                     for i in range(len(ids)):
                         if ax.id == ids[i]:
@@ -3329,7 +3178,7 @@ Options:::
                         else:
                             try:
                                 setattr(ax, 'id', k)
-                            except Exception as err:
+                            except:
                                 # print err
                                 pass
                     elif k is None:
@@ -3377,7 +3226,9 @@ Options:::
                 and check_mthd.xticlabels2 == '*' \
                 and check_mthd.xmtics1 in ['*', ''] \
                 and check_mthd.xmtics2 in ['*', ''] \
-                and not (check_mthd.g_name in ['G1d'] and (check_mthd.flip == True or arglist[1] is not None) and arglist[0].ndim == 1):  # used to be GXy GX
+                and not (check_mthd.g_name in ['G1d']
+                         and (check_mthd.flip is True or arglist[1] is not None)
+                         and arglist[0].ndim == 1):  # used to be GXy GX
             ax = arglist[0].getAxis(-1).clone()
             ids = arglist[0].getAxisIds()
             for i in range(len(ids)):
@@ -3410,7 +3261,7 @@ Options:::
                 if convert_datawc:
                     oax = arglist[0].getAxis(cax).clone()
                     t = type(check_mthd.datawc_x1)
-                    if not t in [type(cdtime.reltime(0, 'months since 1900')), type(
+                    if t not in [type(cdtime.reltime(0, 'months since 1900')), type(
                             cdtime.comptime(1900))]:
                         if copy_mthd is None:
                             copy_mthd = vcs.creategraphicsmethod(
@@ -3463,10 +3314,14 @@ Options:::
                         copy_mthd.datawc_x2,
                         copy_mthd.datawc_timeunits,
                         copy_mthd.datawc_calendar)
-        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
+        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm'
+                  and isinstance(arglist[0].getGrid(),
+                                 (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
             try:
                 if arglist[0].getAxis(-1).isTime():  # used to GXy
-                    if (check_mthd.xticlabels1 == '*' and check_mthd.xticlabels2 == '*' and not (check_mthd.g_name == 'G1d' and check_mthd.flip) ) \
+                    if (check_mthd.xticlabels1 == '*'
+                        and check_mthd.xticlabels2 == '*'
+                        and not (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
                        and check_mthd.g_name not in ['G1d']:  # used to be GSp
                         if copy_mthd is None:
                             copy_mthd = vcs.creategraphicsmethod(
@@ -3491,8 +3346,11 @@ Options:::
                 and check_mthd.yticlabels2 == '*' \
                 and check_mthd.ymtics1 in ['*', ''] \
                 and check_mthd.ymtics2 in ['*', ''] \
-                and arglist[0].getAxis(-2).isTime() and (arglist[0].ndim > 1 or (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
-                and not (check_mthd.g_name == 'Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):  # GXy
+                and arglist[0].getAxis(-2).isTime() \
+                and (arglist[0].ndim > 1 or (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
+                and not (check_mthd.g_name == 'Gfm'
+                         and isinstance(arglist[0].getGrid(),
+                                        (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):  # GXy
             ax = arglist[0].getAxis(-2).clone()
             # used to be  Sp
             if check_mthd.g_name == "G1d" and check_mthd.linewidth == 0:
@@ -3587,7 +3445,9 @@ Options:::
                         copy_mthd.datawc_y2,
                         copy_mthd.datawc_timeunits,
                         copy_mthd.datawc_calendar)
-        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
+        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm' and
+                  isinstance(arglist[0].getGrid(),
+                             (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
             try:
                 # ['GYx','GXy','GXY','GSp']:
                 if arglist[
@@ -3764,7 +3624,7 @@ Options:::
             ), (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid)):
                 x = "longitude"
                 y = "latitude"
-        except Exception as err:
+        except:
             pass
         try:
             copy_mthd = vcs.setTicksandLabels(
@@ -3776,12 +3636,12 @@ Options:::
                 datawc_y2,
                 x=x,
                 y=y)
-        except Exception as err:
+        except:
             pass
 
-        if not copy_mthd is None:
+        if copy_mthd is not None:
             arglist[4] = copy_mthd.name
-        if not copy_tmpl is None:
+        if copy_tmpl is not None:
             arglist[2] = copy_tmpl.name
 
         # End of preprocessing !
@@ -3789,9 +3649,6 @@ Options:::
         # get the background value
         bg = keyargs.get('bg', 0)
 
-        # line added by Charles Doutriaux to plugin the taylordiagram and bypass the C code for graphic methods
-        #warnings.warn("Do something about hold_continent type circa line 5386 in Canvas.py")
-        hold_cont_type = self.getcontinentstype()
         if isinstance(arglist[3], str) and arglist[
                 3].lower() == 'taylordiagram':
             for p in slab_changed_attributes.keys():
@@ -3804,7 +3661,7 @@ Options:::
             # first look at the extra arguments and make sure there is no
             # duplicate
             for k in keyargs.keys():
-                if not k in ['template', 'skill', 'bg']:
+                if k not in ['template', 'skill', 'bg']:
                     del(keyargs[k])
                 if k == 'template':
                     arglist[2] = keyargs[k]
@@ -3851,7 +3708,7 @@ Options:::
                     doratio == "0" or doratio[:4] == "auto"):
                 doratio = "1t"
             for keyarg in keyargs.keys():
-                if not keyarg in self.__class__._plot_keywords_ + \
+                if keyarg not in self.__class__._plot_keywords_ + \
                         self.backend._plot_keywords:
                     warnings.warn(
                         'Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword' %
@@ -3873,9 +3730,8 @@ Options:::
                 for i in axes_changed2.keys():
                     arglist[1].setAxis(i, axes_changed2[i])
             # Check to make sure that you have at least 2 dimensions for the follow graphics methods
-# if (len(arglist[0].shape) < 2) and (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector', 'scatter']):
             # Flipping the order to avoid the tv not exist problem
-            if (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector']) and (
+            if (arglist[3] in ['boxfill', 'isofill', 'isoline', 'vector']) and (
                     len(arglist[0].shape) < 2):
                 raise vcsError(
                     'Invalid number of dimensions for %s' %
@@ -3889,7 +3745,6 @@ Options:::
                 # other canvases with diferent ratios
                 if arglist[3] == 'text':
                     nms = arglist[4].split(":::")
-                    P = self.gettext(nms[0], nms[1])
                     p = self.createtext(Tt_source=nms[0], To_source=nms[1])
                 elif arglist[3] == 'marker':
                     p = self.createmarker(source=arglist[4])
@@ -3918,7 +3773,7 @@ Options:::
                         box_and_ticks=box_and_ticks)
                     p.viewport = [t.data.x1, t.data.x2, t.data.y1, t.data.y2]
                     arglist[4] = p.name
-                elif not doratio in ['0', 'off', 'none', 'auto', 'autot']:
+                elif doratio not in ['0', 'off', 'none', 'auto', 'autot']:
                     if doratio[-1] == 't':
                         doratio = doratio[:-1]
                     Ratio = float(doratio)
@@ -3943,7 +3798,10 @@ Options:::
                         del(vcs.elements["fillarea"][p.name])
                 # cleanup temp template
                 del(vcs.elements["template"][t.name])
-            elif (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector', 'meshfill'] or isinstance(arglist[3], vcsaddons.core.VCSaddon)) and doratio in ['auto', 'autot'] and not (doratio == 'auto' and arglist[2] == 'ASD'):
+            elif (arglist[3] in ['boxfill', 'isofill', 'isoline',
+                                 'vector', 'meshfill'] or
+                  isinstance(arglist[3], vcsaddons.core.VCSaddon)) and \
+                    doratio in ['auto', 'autot'] and not (doratio == 'auto' and arglist[2] == 'ASD'):
                 box_and_ticks = 0
                 if doratio[-1] == 't' or template_origin == 'default':
                     box_and_ticks = 1
@@ -4012,7 +3870,9 @@ Options:::
                             box_and_ticks=box_and_ticks,
                             x=self)
                         arglist[2] = copy_tmpl.name
-            elif not (doratio in ['0', 'off', 'none', 'auto', 'autot']) or (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector', 'meshfill'] and str(doratio).lower() in ['auto', 'autot']) and arglist[2] != 'ASD':
+            elif not (doratio in ['0', 'off', 'none', 'auto', 'autot']) or\
+                (arglist[3] in ['boxfill', 'isofill', 'isoline', 'vector', 'meshfill'] and
+                 str(doratio).lower() in ['auto', 'autot']) and arglist[2] != 'ASD':
                 box_and_ticks = 0
                 if doratio[-1] == 't' or template_origin == 'default':
                     box_and_ticks = 1
@@ -4087,28 +3947,14 @@ Options:::
             if self.mode != 0:
                 # self.update()
                 pass
-            #if not bg: pause(self.pause_time)
-
-            # Restore the continents type
-# print 'HOLD CONTINENTS:',hold_cont_type,self.canvas.getcontinentstype()
-# self.plot_filledcontinents(arglist[0],arglist[2],arglist[3],arglist[4],bg,doratio)
 
         result = dn
         if isinstance(arglist[3], str):
-            #warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
-            #            result = self.getplot(dn, template_origin)
-            # self.canvas.setcontinentstype(hold_cont_type)
             # Pointer to the plotted slab of data and the VCS Canas display infomation.
             # This is needed to find the animation min and max values and the number of
             # displays on the VCS Canvas.
             if dn is not None:
                 self.animate_info.append((result, arglist[:2]))
-#            self.animate.update_animate_display_list( )
-
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        # if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
-        #    thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         # Now executes output commands
         for cc in cmds.keys():
@@ -4142,12 +3988,9 @@ Options:::
             if result.g_type in (
                     "3d_scalar", "3d_vector") and self.configurator is not None:
                 self.endconfigure()
-            if self.backend.bg == False and self.configurator is not None:
+            if self.backend.bg is False and self.configurator is not None:
                 self.configurator.update()
 
-        # Commented out as agreed we shouldn't use warnings in these contexts.
-        # if not hasattr(__main__,"__file__") and not bg:
-        #    warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
     def setAnimationStepper(self, stepper):
@@ -4273,23 +4116,10 @@ Options:::
     a.close()
 
 """
-        #global gui_canvas_closed
-
-        #finish_queued_X_server_requests( self )
-        # self.canvas.BLOCK_X_SERVER()
-
-        #   Hide the GUI
-        # if (self.canvas_gui is not None):
-        #   self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
-        #   gui_canvas_closed = 0
         if self.configurator:
             self.endconfigure()
         # Close the VCS Canvas
         a = self.backend.close(*args, **kargs)
-
-        # Stop the (thread) execution of the X main loop (if it is running).
-        #self.canvas.stopxmainloop( )
-        # self.canvas.UNBLOCK_X_SERVER()
 
         return a
 
@@ -4313,70 +4143,9 @@ Options:::
 """
         import gc
 
-        # Now stop the X main loop and its thread. Also close the VCS Canvas if it
-        # is visible.
-#        self.canvas.stopxmainloop( )
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
-
         del self
         gc.garbage
         gc.collect()
-# This is in contruction...... I have not yet completed this. This function
-# generates a segmentation fault.
-#        try:
-#           apply(self.canvas.destroy)
-#        except:
-#           pass
-
-    ##########################################################################
-    #                                                                           #
-    # Colormap Graphical User Interface wrapper for VCS.                        #
-    #                                                                           #
-    ##########################################################################
-    def colormapgui(self, gui_parent=None, transient=0, max_intensity=None):
-        '''
- Function: colormapgui
-
- Description of Function:
-    Run the VCS colormap interface.
-
-    The colormapgui command is used to bring up the VCS colormap interface. The interface
-    is used to select, create, change, or remove colormaps.
-
- Example of Use:
-    a=vcs.init()
-    a.colormapgui()
-    a.colormapgui(max_intensity = 255)
-'''
-        # removing warning shouln't be used for software usage.
-        #warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
-        return
-##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
-
-    ##########################################################################
-    #                                                                           #
-    # Projection Editor, Graphic User Interface wrapper for VCS.                #
-    #                                                                           #
-    ##########################################################################
-    def projectiongui(self, gui_parent=None, projection='default'):
-        '''
- Function: projectiongui
-
- Description of Function:
-    Run the VCS projection editor interface.
-
-    The projectiongui command is used to bring up the VCS projection interface. The interface
-    is used to select, create, change, or remove projections.
-
- Example of Use:
-    a=vcs.init()
-    a.projectiongui()
-'''
-        # removing warning shouln't be used for software usage.
-        #warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
-        return
-        # _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
 
     ##########################################################################
     #                                                                           #
@@ -4430,7 +4199,6 @@ Options:::
     a.graphicsmethodgui('boxfill', 'quick')
 '''
         # removing warning shouln't be used for software usage.
-        #warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
     # _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
     # gui_parent=gui_parent)
@@ -4442,7 +4210,6 @@ Options:::
     ##########################################################################
     def templateeditor(self, template_name='default', template_orig_name='default',
                        plot=None, gui_parent=None, canvas=None, called_from=0):
-        ##from tkMessageBox import showerror
         '''
  Function: templateeditor
 
@@ -4463,7 +4230,8 @@ Options:::
         if (template_name == 'default'):
             showerror(
                 'Error Message to User',
-                'Cannot edit the "default" template. Please copy the "default" template to new name and then edit the newly created template.')
+                'Cannot edit the "default" template. Please copy the "default"' +
+                'template to new name and then edit the newly created template.')
         else:
             if (self.canvas.SCREEN_MODE() == "DATA"):
                 self.canvas.SCREEN_TEMPLATE_FLAG()
@@ -4478,7 +4246,8 @@ Options:::
             else:
                 showerror(
                     'Error Message to User',
-                    'VCS will only allow one Template Editor at a time. Please the close previous template editor and try again.')
+                    'VCS will only allow one Template Editor at a time.' +
+                    'Please the close previous template editor and try again.')
 
     ##########################################################################
     #                                                                           #
@@ -4487,12 +4256,8 @@ Options:::
     ##########################################################################
     def _select_one(self, template_name, attr_name, X1, X2, Y1, Y2):
         # flush and block the X main loop
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         self.canvas._select_one(template_name, attr_name, X1, X2, Y1, Y2)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     ##########################################################################
     #                                                                           #
@@ -4500,13 +4265,8 @@ Options:::
     #                                                                           #
     ##########################################################################
     def _unselect_one(self, template_name, attr_name, X1, X2, Y1, Y2):
-        # flush and block the X main loop
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         self.canvas._unselect_one(template_name, attr_name, X1, X2, Y1, Y2)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     ##########################################################################
     #                                                                           #
@@ -4516,12 +4276,8 @@ Options:::
     ##########################################################################
     def _select_all(self):
         # flush and block the X main loop
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         self.canvas._select_all()
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     ##########################################################################
     #                                                                           #
@@ -4531,12 +4287,8 @@ Options:::
     ##########################################################################
     def _unselect_all(self):
         # flush and block the X main loop
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         self.canvas._unselect_all()
-
-        self.canvas.UNBLOCK_X_SERVER()
 
     ##########################################################################
     #                                                                           #
@@ -4600,7 +4352,6 @@ Options:::
     a=vcs.init()
     a.pageieditor()
 '''
-        #_pagegui.create(canvas=self, gui_parent=gui_parent)
         return _pagegui.PageDescriptionEditor(canvas=self, gui_parent=gui_parent,
                                               continents=continents)
 
@@ -4623,38 +4374,6 @@ Options:::
 
 """
         return self.backend.flush(*args)
-
-    ##########################################################################
-    #                                                                           #
-    # Return how many events are in the que.                                    #
-    #                                                                           #
-    ##########################################################################
-    def xpending(self, *args):
-        return self.canvas.xpending(*args)
-
-    ##########################################################################
-    #                                                                           #
-    # Block the X server. It may NOT process do X11 commands.                   #
-    #                                                                           #
-    ##########################################################################
-    def BLOCK_X_SERVER(self, *args):
-        return self.canvas.BLOCK_X_SERVER(*args)
-
-    ##########################################################################
-    #                                                                           #
-    # Unblock the X server. It may now proceed to do X11 commands.              #
-    #                                                                           #
-    ##########################################################################
-    def UNBLOCK_X_SERVER(self, *args):
-        return self.canvas.UNBLOCK_X_SERVER(*args)
-
-    ##########################################################################
-    #                                                                           #
-    # Return whether or not it is threaded.                                     #
-    #                                                                           #
-    ##########################################################################
-    def THREADED(self, *args):
-        return self.canvas.THREADED(*args)
 
     ##########################################################################
     #                                                                           #
@@ -4792,12 +4511,8 @@ Options:::
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
 """
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         p = self.canvas.grid(*args)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
         return p
 
@@ -4859,13 +4574,8 @@ Options:::
             y = dict.get('y', -99)
         self.flush()  # update the canvas by processing all the X events
 
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
-
         args = (width, height, x, y, clear)
         l = self.canvas.landscape(*args)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
         return l
 
@@ -4882,7 +4592,7 @@ Options:::
     Returns a Python list of all the VCS class objects.
 
    The list that will be returned:
-   ['template', 'boxfill', 'continent', 'isofill', 'isoline', 'outfill', 'outline',
+   ['template', 'boxfill', 'continent', 'isofill', 'isoline',
     'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'colormap', 'fillarea', 'format',
     'line', 'list', 'marker', 'text']
 
@@ -4906,12 +4616,9 @@ Options:::
     a=vcs.init()
     x.updateorientation()
 """
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         a = self.canvas.updateorientation(*args)
 
-        self.canvas.UNBLOCK_X_SERVER()
         return a
 
     ##########################################################################
@@ -4933,11 +4640,6 @@ Options:::
 """
 
         a = self.backend.open(*args, **kargs)
-
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        # if ( self.canvas.THREADED() == 0 ):
-        #  thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         return a
 
@@ -4990,12 +4692,8 @@ Options:::
     a.plot(array)
     a.page()      # Change the VCS Canvas orientation and set object flag to portrait
 """
-        finish_queued_X_server_requests(self)
-        self.canvas.BLOCK_X_SERVER()
 
         l = self.canvas.page(*args)
-
-        self.canvas.UNBLOCK_X_SERVER()
 
         return l
 
@@ -5057,13 +4755,9 @@ Options:::
             y = dict.get('y', -99)
         self.flush()  # update the canvas by processing all the X events
 
-        #finish_queued_X_server_requests( self )
-        # self.canvas.BLOCK_X_SERVER()
-
         args = (width, height, x, y, clear)
         p = self.backend.portrait(*args)
 
-        # self.canvas.UNBLOCK_X_SERVER()
         return p
 
     ##########################################################################
@@ -5089,9 +4783,11 @@ Options:::
       files.append('my_png__%i.png' % i)
     x.ffmpeg('mymovie.mpeg','my_png_%d.png') # generates mpeg from pattern
     x.ffmpeg('mymovie.mpeg',files) # generates from list of files
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512) # generates mpeg at 512kbit bitrate (bitrate is important to movie quality)
+    x.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512) # generates mpeg at 512kbit
+                                 bitrate (bitrate is important to movie quality)
     x.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50) # generates movie with 50 frame per second
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k') # genrats movie at 50 frame per sec and 1024k bitrate
+    x.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
+    # genrats movie at 50 frame per sec and 1024k bitrate
     NOTE : via the optins arg you can add audio file to your movie (see ffmpeg help)
     returns the output string generated by ffmpeg program
     ALWAYS overwrite output file
@@ -5147,7 +4843,7 @@ Options:::
     a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
     a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
 """
-        if not units in [
+        if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
@@ -5227,7 +4923,7 @@ Options:::
     a.png('example', width=11.5, height= 8.5)  # US Legal
     a.png('example', width=21, height=29.7, units='cm')  # A4
 """
-        if not units in [
+        if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
@@ -5269,7 +4965,7 @@ Options:::
     a.svg('example', width=11.5, height= 8.5)  # US Legal
     a.svg('example', width=21, height=29.7, units='cm')  # A4
 """
-        if not units in [
+        if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
@@ -5306,7 +5002,7 @@ Options:::
             width = ci['width']
             factor = 1. / 72
             size = float(width) / float(height)
-        except Exception as err:
+        except:
             factor = 1.
             if self.size is None:
                 size = 1.2941176470588236
@@ -5445,28 +5141,11 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-        # Now forces correct aspect ratio for dumping in bg
-        # if self.iscanvasdisplayed():
-        # info=self.canvasinfo()
-        ##     ratio = float(info["height"])/float(info["width"])
-        # if ratio < 1.:
-        # ratio=1./ratio
-        # else:
-        ##     ratio = 1.3127035830618892
-        # if height>width:
-        # if height/width>ratio:
-        # height=ratio*width
-        # else:
-        # width=height/ratio
-        # else:
-        # if width/height>ratio:
-        # width=ratio*height
-        # else:
-        # height=width/ratio
         return width, height, sfactor
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
+                   units='inches', left_margin=None, right_margin=None,
+                   top_margin=None, bottom_margin=None):
         """
  Function: postscript
 
@@ -5489,9 +5168,10 @@ Options:::
     a.postscript('example', mode='a')  # Append postscript to an existing file
     a.postscript('example', width=11.5, height= 8.5)  # US Legal (default)
     a.postscript('example', width=21, height=29.7, units='cm')  # A4
-    a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)  # US Legal output and control of margins (for printer friendly output), default units 'inches'
+    a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
+    # US Legal output and control of margins (for printer friendly output), default units 'inches'
 """
-        if not units in [
+        if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
@@ -5611,7 +5291,8 @@ Options:::
     a.pdf('example')      # Creates a landscape pdf file
     a.pdf('example','p')  # Creates a portrait pdf file
     a.pdf(file='example',orientation='p')  # Creates a portrait pdf file
-    a.pdf(file='example',options='-dCompressPages=false')  # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
+    a.pdf(file='example',options='-dCompressPages=false')
+    # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
 """ % (self._dotdir)
 
         n = random.randint(0, 100000000000)
@@ -5667,12 +5348,13 @@ Options:::
     a=vcs.init()
     a.plot(array)
     a.printer('printer_name') # Send plot(s) to postscript printer
-    a.printer('printer_name',top_margin=1,units='cm') # Send plot(s) to postscript printer with 1cm margin on top of plot
+    a.printer('printer_name',top_margin=1,units='cm')
+    # Send plot(s) to postscript printer with 1cm margin on top of plot
 """ % (self._dotdir, self._dotdir)
         if printer is None:
             printer = (os.environ.get('PRINTER'),)
 
-        if not units in [
+        if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
@@ -5728,11 +5410,6 @@ Options:::
     x.showbg()
 """
         a = self.canvas.showbg(*args)
-
-        # Make sure xmainloop is started. This is needed to check for X events
-        # (such as, Canvas Exposer, button or key press and release, etc.)
-        if (self.canvas.THREADED() == 0):
-            thread.start_new_thread(self.canvas.startxmainloop, ())
 
         return a
 
@@ -5799,7 +5476,7 @@ Options:::
     a.raster('example','a')   # append raster image to existing file
     a.raster('example','r')   # overwrite existing raster file
     a.raster(file='example',mode='r')   # overwrite existing raster file
-"""  % (self._dotdir)
+""" % (self._dotdir)
         return self.canvas.raster(*(file, mode))
 
     ##########################################################################
@@ -5851,20 +5528,6 @@ Options:::
     a.plot(array)
 """
         return self.canvas.set(*args)
-
-    ##########################################################################
-    #                                                                           #
-    # Touch all segements displayed on the VCS Canvas.                          #
-    #                                                                           #
-    ##########################################################################
-    # def updateVCSsegments(self, *args):
-    #    finish_queued_X_server_requests( self )
-    #    self.canvas.BLOCK_X_SERVER()
-#
-#        a = apply(self.canvas.updateVCSsegments, args)
-#
-#        self.canvas.UNBLOCK_X_SERVER()
-#        return a
 
     ##########################################################################
     #                                                                           #
@@ -6159,7 +5822,8 @@ Options:::
         a.postscript('example', mode='a')  # Append postscript to an existing file
         a.postscript('example', width=11.5, height= 8.5)  # US Legal (default)
         a.postscript('example', width=21, height=29.7, units='cm')  # A4
-        a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)  # US Legal output and control of margins (for printer friendly output), default units 'inches'
+        a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
+        # US Legal output and control of margins (for printer friendly output), default units 'inches'
         """
         ext = file.split(".")[-1]
         if ext.lower() != 'eps':
@@ -6241,7 +5905,8 @@ Options:::
 
     a.saveinitialfile()
 
- WARNING: This removes first ALL object genrated automatically (i.e. whose name starts with '__') in order to preserve this, rename objects first
+ WARNING: This removes first ALL object generated automatically
+ (i.e. whose name starts with '__') in order to preserve this, rename objects first
  e.g:
     b=a.createboxfill()
     b.name='MyBoxfill'
@@ -6488,7 +6153,7 @@ Options:::
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
             index1 = int(font1)
-            nm = self.getfont(index1)  # make sure font exists
+            self.getfont(index1)  # make sure font exists
         else:
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 1: %s" %
@@ -6497,7 +6162,7 @@ Options:::
             index2 = self.getfont(font2)
         elif isinstance(font2, (int, float)):
             index2 = int(font2)
-            nm = self.getfont(index2)  # make sure font exists
+            self.getfont(index2)  # make sure font exists
         else:
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 2: %s" %
@@ -6511,7 +6176,7 @@ Options:::
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
             index1 = int(font1)
-            nm = self.getfont(index1)  # make sure font exists
+            self.getfont(index1)  # make sure font exists
         else:
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 1: %s" %
@@ -6520,7 +6185,7 @@ Options:::
             index2 = self.getfont(font2)
         elif isinstance(font2, (int, float)):
             index2 = int(font2)
-            nm = self.getfont(index2)  # make sure font exists
+            self.getfont(index2)  # make sure font exists
         else:
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 2: %s" %

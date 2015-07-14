@@ -2,7 +2,6 @@
 import vcs
 import vtk
 import numpy
-import sys
 import json
 import os
 import meshfill
@@ -56,7 +55,7 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
                     vtk.vtkDataSetAttributes.GhostArrayName())
                 grid2.GetPointData().SetScalars(imsk)
                 # grid2.SetCellVisibilityArray(imsk)
-                #p2c = vtk.vtkPointDataToCellData()
+                # p2c = vtk.vtkPointDataToCellData()
                 # p2c.SetInputData(grid2)
                 # geoFilter.SetInputConnection(p2c.GetOutputPort())
                 geoFilter.SetInputData(grid2)
@@ -230,7 +229,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 m3 = numpy.concatenate(
                     (m2, numpy.zeros(
                         (m2.shape[0], 1))), axis=1)
-    except Exception as err:  # Ok no mesh on file, will do with lat/lon
+    except Exception:  # Ok no mesh on file, will do with lat/lon
         pass
     if m3 is not None:
         # Create unstructured grid points
@@ -261,8 +260,10 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 lat = g.getLatitude()
                 lon = g.getLongitude()
             if isinstance(g, cdms2.hgrid.AbstractCurveGrid):
-                # Ok in this case it is a structured grid we have no bounds, using ponitData
-                # ??? We should probably revist and see if we can use the "bounds" attribute
+                # Ok in this case it is a structured grid we
+                # have no bounds, using ponitData
+                # ??? We should probably revist and see if we
+                # can use the "bounds" attribute
                 # to generate cell instead of points
                 cellData = False
             elif grid is None:
@@ -286,7 +287,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                     xM = blon[-1][1]
                     ym = blat[0][0]
                     yM = blat[-1][1]
-                except Exception as err:
+                except Exception:
                     # No luck we have to generate bounds ourselves
                     lat2[1:-1] = (lat[:-1] + lat[1:]) / 2.
                     lat2[0] = lat[0] - (lat[1] - lat[0]) / 2.
@@ -461,8 +462,10 @@ def prepContinents(fnm):
     poly.SetPoints(pts)
     poly.SetLines(cells)
 
-    # The dataset has some duplicate lines that extend outside of x=[-180, 180],
-    # which will cause wrapping artifacts for certain projections (e.g.
+    # The dataset has some duplicate lines that extend
+    # outside of x=[-180, 180],
+    # which will cause wrapping artifacts for
+    # certain projections (e.g.
     # Robinson). Clip out the duplicate data:
     box = vtk.vtkBox()
     box.SetXMin(-180., -90., 0.)
@@ -930,8 +933,8 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     p.SetFontSize(int(to.height * winSize[1] / 800.))
 
 
-def genTextActor(
-        renderer, string=None, x=None, y=None, to='default', tt='default', cmap=None):
+def genTextActor(renderer, string=None, x=None, y=None,
+                 to='default', tt='default', cmap=None):
     if isinstance(to, str):
         to = vcs.elements["textorientation"][to]
     if isinstance(tt, str):
@@ -961,10 +964,12 @@ def genTextActor(
         Npts = 20
         for i in range(Npts + 1):
             X = tt.worldcoordinate[
-                0] + float(i) / Npts * (tt.worldcoordinate[1] - tt.worldcoordinate[0])
+                0] + float(i) / Npts * (tt.worldcoordinate[1] -
+                                        tt.worldcoordinate[0])
             for j in range(Npts + 1):
                 Y = tt.worldcoordinate[
-                    2] + float(j) / Npts * (tt.worldcoordinate[3] - tt.worldcoordinate[2])
+                    2] + float(j) / Npts * (tt.worldcoordinate[3] -
+                                            tt.worldcoordinate[2])
                 pts.InsertNextPoint(X, Y, 0.)
         geo, pts = project(pts, tt.projection, tt.worldcoordinate, geo=None)
         wc = pts.GetBounds()[:4]
@@ -1053,8 +1058,8 @@ def prepFillarea(renWin, farea, cmap=None):
         x = farea.x[i]
         y = farea.y[i]
         c = farea.color[i]
-        st = farea.style[i]
-        idx = farea.index[i]
+        # st = farea.style[i]
+        # idx = farea.index[i]
         N = max(len(x), len(y))
 
         for a in [x, y]:
@@ -1465,13 +1470,6 @@ def world2Renderer(ren, x, y, vp=[0., 1., 0., 1.], wc=[0., 1., 0., 1.]):
     return X, Y
 
 
-def R2World(ren, x, y):
-    """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
-    ren.SetDisplayPoint(x, y, 0)
-    ren.DisplayToWorld()
-    return wp
-
-
 def vtkWorld2Renderer(ren, x, y):
     ren.SetWorldPoint(x, y, 0, 0)
     ren.WorldToDisplay()
@@ -1487,7 +1485,8 @@ vtkProjections = [
 def checkProjType(self, name, value):
     if value in vtkProjections:
         warnings.warn(
-            "%s is a VTK backend specific projection, it might not work if you are not using the VTK backend" %
+            "%s is a VTK backend specific projection, it might "
+            "not work if you are not using the VTK backend" %
             value)
         return 200 + vtkProjections.index(value)
     raise Exception("%s is not a known VTK projection" % value)
@@ -1496,7 +1495,8 @@ def checkProjType(self, name, value):
 def checkProjParameters(self, name, value):
     if not isinstance(value, dict):
         raise ValueError(
-            "VTK specific projections parameters attribute needs to be a dictionary")
+            "VTK specific projections parameters"
+            "attribute needs to be a dictionary")
     return value
 
 
@@ -1550,10 +1550,14 @@ def generateVectorArray(data1, data2, vtk_grid):
     wLen = len(w)
     numPts = vtk_grid.GetNumberOfPoints()
     if wLen != numPts:
-        warnings.warn("!!! Warning during vector plotting: Number of points does not "
-                      "match the number of vectors to be glyphed (%s points vs %s "
-                      "vectors). The vectors will be padded/truncated to match for "
-                      "rendering purposes, but the resulting image should not be "
+        warnings.warn("!!! Warning during vector plotting: "
+                      "Number of points does not "
+                      "match the number of vectors to be "
+                      "glyphed (%s points vs %s "
+                      "vectors). The vectors will be "
+                      "padded/truncated to match for "
+                      "rendering purposes, but the resulting "
+                      "image should not be "
                       "trusted." % (numPts, wLen))
         newShape = (numPts,) + w.shape[1:]
         w = numpy.ma.resize(w, newShape)
