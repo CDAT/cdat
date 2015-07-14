@@ -22,7 +22,6 @@
 #
 #
 #
-import Canvas
 import VCS_validation_functions
 import vcs
 import genutil
@@ -32,7 +31,7 @@ def process_src(nm, code):
     """Takes VCS script code (string) as input and generates boxfill gm from it"""
     try:
         tt = Tt(nm)
-    except Exception as err:
+    except:
         tt = vcs.elements["texttable"][nm]
     # process attributes with = as assignement
     atts = {}
@@ -172,7 +171,7 @@ class Tt(object):
         return self._color
 
     def _setcolor(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColor(self, 'color', value)
         self._color = value
     color = property(_getcolor, _setcolor)
@@ -181,7 +180,7 @@ class Tt(object):
         return self._fillincolor
 
     def _setfillincolor(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColor(
                 self,
                 'fillincolor',
@@ -345,7 +344,7 @@ class Tt(object):
                 #                                                           #
                 #############################################################
                 # Initialize the text table class and its members           #
-                #							    #
+                #                                                           #
                 # The getTtmember function retrieves the values of the      #
                 # text table members in the C structure and passes back the #
                 # appropriate Python Object.                                #
@@ -374,7 +373,7 @@ class Tt(object):
         else:
             if isinstance(Tt_name_src, Tt):
                 Tt_name_src = Tt_name_src.name
-            if not Tt_name_src in vcs.elements["texttable"].keys():
+            if Tt_name_src not in vcs.elements["texttable"].keys():
                 raise ValueError(
                     "Source texttable: '%s' does not exists" %
                     Tt_name_src)

@@ -14,7 +14,7 @@
 #               support@pcmdi.llnl.gov                                          #
 #                                                                               #
 # Description:  Python command wrapper for VCS's text orientation secondary 	#
-#		object.    							#
+#               object.                                                         #
 #                                                                               #
 # Version:      4.0                                                             #
 #                                                                               #
@@ -22,7 +22,6 @@
 #
 #
 #
-import Canvas
 import VCS_validation_functions
 import vcs
 
@@ -195,7 +194,7 @@ class To(object):
         #                                                           #
         #############################################################
         # Initialize the text orientation class and its members     #
-        #							    #
+        #                                                           #
         # The getTomember function retrieves the values of the      #
         # text orientation members in the C structure and passes    #
         # back the appropriate Python Object.                       #
@@ -216,8 +215,8 @@ class To(object):
             self._halign = "left"
             self._valign = "half"
         else:
-            if not To_name_src in vcs.elements["textorientation"].keys():
-                raise valueError(
+            if To_name_src not in vcs.elements["textorientation"].keys():
+                raise ValueError(
                     "source textorientation '%s' does not exists" %
                     To_name_src)
             src = vcs.elements["textorientation"][To_name_src]

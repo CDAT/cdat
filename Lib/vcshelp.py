@@ -13,7 +13,7 @@
 #               Lawrence Livermore NationalLaboratory:                        #
 #               support@pcmdi.llnl.gov                                        #
 #                                                                             #
-# Description:  Python command for VCS's help.       			      #
+# Description:  Python command for VCS's help.       			              #
 #                                                                             #
 # Version:      4.0                                                           #
 #                                                                             #
@@ -99,21 +99,27 @@ def help(*arg):
 
         print 'The Visualization and Control System (VCS) help command\n'
         print '--- VCS Model ---'
-        print 'The VCS model is defined by a trio of named attribute sets, designated the "Primary Objects" (also known as "Primary Elements"). These include: the data, which specifies what is to be displayed and are obtained from the "cdms" module; the graphics method, which specifies the display technique; and the picture template, which determines the appearance of each segment of the display.\n'
+        print 'The VCS model is defined by a trio of named attribute sets, designated the "Primary Objects" ' +\
+            '(also known as "Primary Elements"). These include: the data, which specifies what is to be displayed ' +\
+            'and are obtained from the "cdms" module; the graphics method, which specifies the display technique; ' +\
+            'and the picture template, which determines the appearance of each segment of the display.\n'
         print '--- VCS Primary Objects ---'
         print 'Graphics Method:', (p[0] + 'object'), (p[1] + 'object'), (p[2] + 'object'), (p[3] + 'object')
         print '                ', (p[4] + 'object'), (p[5] + 'object'), (p[6] + 'object'), (p[7] + 'object')
         print '                ', (p[8] + 'object'), (p[9] + 'object'), (p[10] + 'object'), (p[11] + 'object')
         print '                ', (p[12] + 'object')
         print 'Template:       ', (t[0] + 'object')
-        print 'Data:            see the cdms, ma, and numpy modules for data extraction and manipulation and additional documentation.'
+        print 'Data:            see the cdms, ma, and numpy modules for data' +\
+            'extraction and manipulation and additional documentation.'
         print '\n--- VCS Secondary Objects ---'
         print 'Color Map:       Note: Color maps are object, but they are not referenced like other secondary objects.'
         print 'Fill Areas:     ', (b[0] + 'object')
         print 'Line:           ', (b[1] + 'object')
         print 'Markers:        ', (b[2] + 'object')
         print 'Text:           ', (b[3] + 'object'), (b[4] + 'object'), (b[5] + 'object')
-        print 'Projection:     ', (b[6] + 'object (use projection objet __doc__ string for more info on the types of projection available)')
+        print 'Projection:     ', (b[6] +
+                                   'object (use projection objet __doc__ string for ' +
+                                   'more info on the types of projection available)')
         print '\n--- Initialize VCS ---'
         print 'Initialize VCS: ', 'init'
         print '\n--- VCS Canvas Functions ---'

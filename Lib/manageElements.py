@@ -1,5 +1,5 @@
 # This file aims at removing elets creation from dpeending on a Canvas, we will try to simply have
-## b = vcs.createboxfill()
+# b = vcs.createboxfill()
 # rather than
 # x=vcs.init()
 # b=x.createboxfill()
@@ -20,12 +20,10 @@ import textorientation
 import textcombined
 import vector
 from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert,\
-    xaxisconvert, yaxisconvert, plot_1D_input, plot_2D_input, plot_output,\
-    plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, \
+    create_GM_input, get_GM_input, boxfill_output, \
     isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output,\
-    scatter_output, outfill_output, outline_output, plot_2_1D_options
+    scatter_output
 import random
-import warnings
 from error import vcsError
 import dv3d
 
@@ -59,7 +57,7 @@ def check_name_source(name, source, typ):
 
     if name in elts:
         raise vcsError("Error %s object named %s already exists" % (typ, name))
-    if not source in elts and typ != "display":
+    if source not in elts and typ != "display":
         raise vcsError(
             "Error source %s object (%s) does not exist!" %
             (typ, source))
@@ -111,7 +109,7 @@ templt2=vcs.gettemplate('quick')      # templt2 contains 'quick' template
     if not isinstance(Pt_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Pt_name_src in vcs.elements["template"].keys():
+    if Pt_name_src not in vcs.elements["template"].keys():
         raise ValueError("template '%s' does not exists" % Pt_name_src)
     return vcs.elements["template"][Pt_name_src]
 
@@ -167,7 +165,7 @@ p2=vcs.getprojection('quick')          # box2 instance of existing 'quick' proje
     if not isinstance(Proj_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Proj_name_src in vcs.elements["projection"]:
+    if Proj_name_src not in vcs.elements["projection"]:
         raise vcsError("No such projection '%s'" % Proj_name_src)
     return vcs.elements["projection"][Proj_name_src]
 
@@ -204,12 +202,6 @@ box=vcs.createboxfill('example1',)
 vcs.show('boxfill')
 box=vcs.createboxfill('example2','quick')
 vcs.show('boxfill')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createboxfill Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
 
 """
 
@@ -261,7 +253,7 @@ box2=vcs.getboxfill('quick')          # box2 instance of existing 'quick' boxfil
     if not isinstance(Gfb_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfb_name_src in vcs.elements["boxfill"].keys():
+    if Gfb_name_src not in vcs.elements["boxfill"].keys():
         raise "The boxfill method: '%s' does not seem to exist"
     return vcs.elements["boxfill"][Gfb_name_src]
 getboxfill.__doc__ = getboxfill.__doc__ % (
@@ -294,12 +286,12 @@ vcs.show('taylordiagram')
     if name in vcs.elements["taylordiagram"].keys():
         raise vcsError(
             'Error creating taylordiagram graphic method: ' +
-            Gtd_name +
+            name +
             ' already exist')
-    if not source in vcs.elements["taylordiagram"].keys():
+    if source not in vcs.elements["taylordiagram"].keys():
         raise vcsError(
             'Error creating taylordiagram graphic method ' +
-            Gtd_name_src +
+            source +
             ' does not exist')
     n = vcs.taylor.Gtd(name, source)
     return n
@@ -330,7 +322,7 @@ td2=vcs.gettaylordiagram('default')          # td2 instance of existing 'default
     if not isinstance(Gtd_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gtd_name_src in vcs.elements["taylordiagram"].keys():
+    if Gtd_name_src not in vcs.elements["taylordiagram"].keys():
         raise vcsError(
             "The taylordiagram graphic method %s does not exists" %
             Gtd_name_src)
@@ -389,7 +381,7 @@ mesh2=a.getmeshfill('quick')          # mesh2 instance of existing 'quick' meshf
     if not isinstance(Gfm_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfm_name_src in vcs.elements["meshfill"]:
+    if Gfm_name_src not in vcs.elements["meshfill"]:
         raise ValueError("meshfill '%s' does not exists" % Gfm_name_src)
 
     return vcs.elements["meshfill"][Gfm_name_src]
@@ -427,12 +419,6 @@ iso=vcs.createisofill('example1',)
 vcs.show('isofill')
 iso=vcs.createisofill('example2','quick')
 vcs.show('isofill')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createisofill Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
 
 """
 
@@ -473,11 +459,6 @@ iso=vcs.getisofill()                  # iso instance of 'default' isofill graphi
                                     #       method
 iso2=vcs.getisofill('quick')          # iso2 instance of existing 'quick' isofill
                                     #       graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getisofill Description ################################################
-#########################################                            #################################################
-######################################################################################################################
 
 """
 
@@ -485,7 +466,7 @@ iso2=vcs.getisofill('quick')          # iso2 instance of existing 'quick' isofil
     if not isinstance(Gfi_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfi_name_src in vcs.elements["isofill"]:
+    if Gfi_name_src not in vcs.elements["isofill"]:
         raise ValueError("The isofill '%s' does not exists" % Gfi_name_src)
     return vcs.elements["isofill"][Gfi_name_src]
 getisofill.__doc__ = getisofill.__doc__ % (
@@ -525,12 +506,6 @@ iso=vcs.createisoline('example1',)
 vcs.show('isoline')
 iso=vcs.createisoline('example2','quick')
 vcs.show('isoline')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createisoline Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
 
 """
 
@@ -582,7 +557,7 @@ gm.linewidth=0
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gi_name_src, str):
         raise vcsError('The argument must be a string.')
-    if not Gi_name_src in vcs.elements["isoline"]:
+    if Gi_name_src not in vcs.elements["isoline"]:
         raise ValueError("The isoline '%s' does not exists" % Gi_name_src)
     return vcs.elements["isoline"][Gi_name_src]
 getisoline.__doc__ = getisoline.__doc__ % (
@@ -599,7 +574,7 @@ def get1d(name):
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
 
-    if not name in vcs.elements["1d"]:
+    if name not in vcs.elements["1d"]:
         raise ValueError("The 1d '%s' graphics method does not exists" % name)
     return vcs.elements["1d"][name]
 
@@ -705,7 +680,7 @@ xyy2=vcs.getxyvsy('quick')            # xyy2 instance of existing 'quick' Xyvsy
     if GXy_name_src[-7:] == "_xyvsy_":
         GXy_name_src = GXy_name_src[:-7]
 
-    if not GXy_name_src in vcs.elements["xyvsy"]:
+    if GXy_name_src not in vcs.elements["xyvsy"]:
         raise ValueError(
             "The xyvsy '%s' graphics method does not exists" %
             GXy_name_src)
@@ -813,7 +788,7 @@ yxx2=vcs.getyxvsx('quick')            # yxx2 instance of existing 'quick' Yxvsx
         raise vcsError('The argument must be a string.')
     if GYx_name_src[-7:] == "_yxvsx_":
         GYx_name_src = GYx_name_src[:-7]
-    if not GYx_name_src in vcs.elements["yxvsx"]:
+    if GYx_name_src not in vcs.elements["yxvsx"]:
         raise ValueError(
             "The Yxvsx '%s' graphics method does not exists" %
             GYx_name_src)
@@ -920,7 +895,7 @@ xy2=vcs.getxvsy('quick')              # xy2 instance of existing 'quick' XvsY
         raise vcsError('The argument must be a string.')
     if GXY_name_src[-6:] == "_xvsy_":
         GXY_name_src = GXY_name_src[:-6]
-    if not GXY_name_src in vcs.elements["xvsy"]:
+    if GXY_name_src not in vcs.elements["xvsy"]:
         raise ValueError(
             "The xvsy '%s' graphics method does not exists" %
             GXY_name_src)
@@ -981,7 +956,7 @@ vec2=vcs.getvector('quick')          # vec2 instance of existing 'quick' vector
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gv_name_src, str):
         raise vcsError('The argument must be a string.')
-    if not Gv_name_src in vcs.elements["vector"]:
+    if Gv_name_src not in vcs.elements["vector"]:
         raise ValueError("The vector '%s' does not exist" % Gv_name_src)
     return vcs.elements["vector"][Gv_name_src]
 
@@ -1019,12 +994,6 @@ sct=vcs.createscatter('example1',)
 vcs.show('scatter')
 sct=vcs.createscatter('example2','quick')
 vcs.show('scatter')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createscatter Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
 
 """
     if source[-9:] == "_scatter_":
@@ -1085,7 +1054,7 @@ sct2=vcs.getscatter('quick')          # sct2 instance of existing 'quick' scatte
     if GSp_name_src[-9:] == "_scatter_":
         GSp_name_src = GSp_name_src[:-9]
 
-    if not GSp_name_src in vcs.elements["scatter"]:
+    if GSp_name_src not in vcs.elements["scatter"]:
         raise ValueError(
             "The scatter '%s' graphics method does not exists" %
             GSp_name_src)
@@ -1185,7 +1154,7 @@ vcs.line(ln3)                      # Plot using specified line object
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
 
-    if not name in vcs.elements["line"]:
+    if name not in vcs.elements["line"]:
         raise ValueError("The line '%s' does not exists" % name)
     ln = vcs.elements["line"][name]
     if ltype is not None and ln.name != 'default':
@@ -1300,7 +1269,7 @@ vcs.marker(mrk3)                      # Plot using specified marker object
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
 
-    if not name in vcs.elements["marker"]:
+    if name not in vcs.elements["marker"]:
         raise ValueError("The marker object '%s' does not exists")
     mrk = vcs.elements["marker"][name]
     if (mtype is not None) and (mrk.name != "default"):
@@ -1409,26 +1378,26 @@ vcs.fillarea(fa3)                      # Plot using specified fill area object
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
-    if not name in vcs.elements["fillarea"].keys():
+    if name not in vcs.elements["fillarea"].keys():
         raise vcsError("Fillarea '%s' doe not exists" % (name))
 
     fa = vcs.elements["fillarea"][name]
-    if (style is not None) and (fvcs.name != "default"):
-        fvcs.style = style
-    if (index is not None) and (fvcs.name != "default"):
-        fvcs.index = index
-    if (color is not None) and (fvcs.name != "default"):
-        fvcs.color = color
-    if (priority is not None) and (fvcs.name != "default"):
-        fvcs.priority = priority
-    if (viewport is not None) and (fvcs.name != "default"):
-        fvcs.viewport = viewport
-    if (worldcoordinate is not None) and (fvcs.name != "default"):
-        fvcs.worldcoordinate = worldcoordinate
-    if (x is not None) and (fvcs.name != "default"):
-        fvcs.x = x
-    if (y is not None) and (fvcs.name != "default"):
-        fvcs.y = y
+    if (style is not None) and (fa.name != "default"):
+        fa.style = style
+    if (index is not None) and (fa.name != "default"):
+        fa.index = index
+    if (color is not None) and (fa.name != "default"):
+        fa.color = color
+    if (priority is not None) and (fa.name != "default"):
+        fa.priority = priority
+    if (viewport is not None) and (fa.name != "default"):
+        fa.viewport = viewport
+    if (worldcoordinate is not None) and (fa.name != "default"):
+        fa.worldcoordinate = worldcoordinate
+    if (x is not None) and (fa.name != "default"):
+        fa.x = x
+    if (y is not None) and (fa.name != "default"):
+        fa.y = y
     return fa
 
 
@@ -1527,7 +1496,7 @@ vcs.texttable(tt3)                      # Plot using specified texttable object
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
 
-    if not name in vcs.elements["texttable"]:
+    if name not in vcs.elements["texttable"]:
         raise ValueError("The texttable '%s' does not exists" % name)
     return vcs.elements["texttable"][name]
 
@@ -1586,15 +1555,17 @@ to2=vcs.gettextorientation('quick')  # to2 instance of existing 'quick' textorie
     if not isinstance(To_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not To_name_src in vcs.elements["textorientation"]:
+    if To_name_src not in vcs.elements["textorientation"]:
         raise ValueError(
             "The textorientation '%s' does not exists" %
             To_name_src)
     return vcs.elements["textorientation"][To_name_src]
 
 
-def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None,
-                       priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
+def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_source='default',
+                       font=None, spacing=None, expansion=None, color=None,
+                       priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
+                       height=None, angle=None, path=None, halign=None, valign=None, projection=None):
     """
 Function: createtext or createtextcombined  # Construct a new text combined secondary method
 
@@ -1660,8 +1631,10 @@ vcs.show('textorientation')
 createtext = createtextcombined
 
 
-def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None, expansion=None, color=None,
-                    priority=None, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
+def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=None, spacing=None,
+                    expansion=None, color=None,
+                    priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
+                    height=None, angle=None, path=None, halign=None, valign=None):
     """
 Function: gettext or gettextcombined   # Construct a new textcombined secondary method
 
@@ -1764,7 +1737,7 @@ plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graph
     if not isinstance(Gfdv3d_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfdv3d_name_src in vcs.elements["3d_scalar"]:
+    if Gfdv3d_name_src not in vcs.elements["3d_scalar"]:
         raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_scalar"][Gfdv3d_name_src]
@@ -1819,7 +1792,7 @@ plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d 
     if not isinstance(Gfdv3d_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfdv3d_name_src in vcs.elements["3d_dual_scalar"]:
+    if Gfdv3d_name_src not in vcs.elements["3d_dual_scalar"]:
         raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_dual_scalar"][Gfdv3d_name_src]
@@ -1874,7 +1847,7 @@ plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graph
     if not isinstance(Gfdv3d_name_src, str):
         raise vcsError('The argument must be a string.')
 
-    if not Gfdv3d_name_src in vcs.elements["3d_vector"]:
+    if Gfdv3d_name_src not in vcs.elements["3d_vector"]:
         raise ValueError("dv3d '%s' does not exists" % Gfdv3d_name_src)
 
     return vcs.elements["3d_vector"][Gfdv3d_name_src]

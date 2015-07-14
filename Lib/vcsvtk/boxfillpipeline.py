@@ -173,7 +173,7 @@ class BoxfillPipeline(Pipeline2D):
                 actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
-            # (we need one for each mapper because of cmaera flips)
+            # (we need one for each mapper because of camera flips)
             ren = self._context.fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
