@@ -1,15 +1,13 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs
 import numpy.ma
-import sys
 import string
-import colors
 import numpy
 import cdms2
-import types
 import VCS_validation_functions
 import MV2
 import copy
+import warnings
 
 
 def process_src(name, code):
@@ -46,6 +44,7 @@ def createnewvcsobj(canvas, type, basenm, src='default', src2='default'):
         ii += 1
         nm = basenm + str(ii)
     else:
+        out = None  # so that flake8 is happy
         if type != 'text':
             exec('out=canvas.create' + type + '("' + nm + '","' + src + '")')
         else:
@@ -190,7 +189,7 @@ class TDMarker(object):
                     return 'line'
                 else:
                     return 'head'
-        elif not v is None:
+        elif v is not None:
             raise ValueError(
                 "Error you can only set line to None (0), 'tail' (1), 'line' (2) or 'head' (3)")
 
@@ -632,7 +631,7 @@ class Gtd(object):
             self._cmtics1 = '*'
             self.displays = []
         else:
-            if not source in vcs.elements["taylordiagram"].keys():
+            if source not in vcs.elements["taylordiagram"].keys():
                 raise Exception(
                     "the source taylordiagram %s doe not exist" %
                     source)
@@ -1081,7 +1080,6 @@ class Gtd(object):
                 '%s.referencevalue = %s\n' %
                 (unique_name, repr(
                     self.referencevalue)))
-##         f.write( '%s.referencecolor = %s\n' % (unique_name,repr(self.referencecolor)))
             f.write(
                 '%s.arrowlength = %s\n' %
                 (unique_name, repr(
@@ -1393,7 +1391,6 @@ class Gtd(object):
             wyr = wc[3] - wc[2]
             wr = wxr / wyr
             r = pr * vr / wr
-            vp = self.viewport
             if r > 1:  # xs are bigger
                 self.worldcoordinate = [wc[0], wc[0] + (wc[1] - wc[0]) * r,
                                         wc[2], wc[3]]
@@ -1525,21 +1522,12 @@ class Gtd(object):
         fy.append(Cy)
         O.x = Ox
         O.y = Oy
-# if self.outtervalue<1:
-# ticklength=.03*self.outtervalue
-# elif self.outtervalue>10 :
-# ticklength=.03*numpy.log(self.outtervalue)
-# else:
         ticstr = []
         ticxs = []
         ticys = []
         ticstr2 = []
         ticxs2 = []
         ticys2 = []
-        extension = .03
-        subextension = extension / 2.
-        ticklength = extension * self.outtervalue
-        sticklength = ticklength / 2.
         # Ok figures out if we have defined the labels/tics
         if self.quadrans == 1:
             if isinstance(self.yticlabels1, str):  # Ok we want automatic
@@ -1563,8 +1551,6 @@ class Gtd(object):
             ytic1.y = ytic1y
             if ytic1.x != []:
                 self.displays.append(canvas.plot(ytic1, bg=self.bg))
-    # fx.append([0.,ticklength])
-    # fy.append([v,v])
             if isinstance(self.ymtics1, str):  # Ok we want automatic
                 vals = vcs.mkscale(0., self.outtervalue, 20)[1:-1:2]
                 levs = vcs.mklabels(vals)
@@ -1818,9 +1804,7 @@ class Gtd(object):
             self.template.xname.textorientation)
 # stdaxis.worldcoordinate=self.worldcoordinate
 # stdaxis.viewport=self.viewport
-# stdaxis.list()
 
-        ddy = 1. - abs(self.template.xname.y - self.template.data.y1)
         stdaxis.x = [
             self.template.data.x1 - (self.template.data.y1 - self.template.xname.y)]
         stdaxis.y = [abs(self.template.data.y2 + self.template.data.y1) / 2.]
@@ -1831,9 +1815,6 @@ class Gtd(object):
         stdaxis.string = [stdstring]
         stdaxis.angle = stdaxis.angle + 270
         stdaxis.priority = self.template.xname.priority
-# stdaxis.halign='center'
-# stdaxis.valign='top'
-# stdaxis.height=int(40.*self._stdmax)+1
 
         xstdaxis = createnewvcsobj(
             canvas,
@@ -1841,8 +1822,6 @@ class Gtd(object):
             'xstax',
             self.template.xname.texttable,
             self.template.xname.textorientation)
-# xstdaxis.worldcoordinate=self.worldcoordinate
-# xstdaxis.viewport=self.viewport
         xstdaxis.y = [self.template.xname.y]
         xstdaxis.x = [abs(self.template.data.x2 + self.template.data.x1) / 2.]
         xstdaxis.string = [stdstring]
@@ -1863,7 +1842,6 @@ class Gtd(object):
         else:
             vp1, vp2 = self.viewport[:2]
             V1, V2 = self.worldcoordinate[:2]
-        tmp = (value - V1) / (V2 - V1)
         out = vp1 + (vp2 - vp1) * (value - V1) / (V2 - V1)
         return out
 
