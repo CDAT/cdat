@@ -26,11 +26,9 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 ##########################################################################
-import queries
 import vcs
 import VCS_validation_functions
 import cdtime
-import Canvas
 import xmldocs
 import genutil
 
@@ -59,7 +57,7 @@ def process_src(nm, code):
     """Takes VCS script code (string) as input and generates isoline gm from it"""
     try:
         g = Gi(nm)
-    except Exception as err:
+    except:
         g = vcs.elements["isoline"][nm]
     # process attributes with = as assignement
     for att in ["projection",
@@ -91,11 +89,11 @@ def process_src(nm, code):
         try:
             # int will be converted
             setattr(g, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(g, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(g, nm, sp[1])
@@ -119,28 +117,27 @@ def process_src(nm, code):
             vals = cd.split(",")
             if int(vals[0]) == 1:
                 g.datawc_x1 = cdtime.reltime(
-                    gm.datawc_x1,
+                    g.datawc_x1,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[1]) == 1:
                 g.datawc_y1 = cdtime.reltime(
-                    gm.datawc_x2,
+                    g.datawc_x2,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[2]) == 1:
                 g.datawc_x2 = cdtime.reltime(
-                    gm.datawc_y1,
+                    g.datawc_y1,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[3]) == 1:
                 g.datawc_y2 = cdtime.reltime(
-                    gm.datawc_y2,
+                    g.datawc_y2,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
         irg = code.find("lines")
         if irg > -1:
             scode = code[irg:]
-            label = 'n'
             tl = []
             tt = []
             to = []
@@ -200,7 +197,8 @@ class Gi(object):
 %s
 %s
     level :: ([float,...]) ([[0.0, 1.0000000200408773e+20]]) isocountours to display
-    clockwise :: ([int,...]) ([0]) draw directional arrows +-(0,1,2) indicate none/clockwise/clokwise on y axis >0/clockwise on x axis positive negative value invert behaviour
+    clockwise :: ([int,...]) ([0]) draw directional arrows +-(0,1,2)
+    indicate none/clockwise/clokwise on y axis >0/clockwise on x axis positive negative value invert behaviour
     scale :: ([float,...]) ([1.0]) scales the directional arrows length
     angle :: ([float,...]) ([35.]) directional arrows head angle
     spacing :: ([float,...]) ([1.0]) scales spacing between directional arrows
@@ -552,7 +550,7 @@ class Gi(object):
         return self._datawc_x1
 
     def _setdatawc_x1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
         self._datawc_x1 = value
     datawc_x1 = property(_getdatawc_x1, _setdatawc_x1)
 
@@ -560,7 +558,7 @@ class Gi(object):
         return self._datawc_x2
 
     def _setdatawc_x2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
         self._datawc_x2 = value
     datawc_x2 = property(_getdatawc_x2, _setdatawc_x2)
 
@@ -568,7 +566,7 @@ class Gi(object):
         return self._datawc_y1
 
     def _setdatawc_y1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
         self._datawc_y1 = value
     datawc_y1 = property(_getdatawc_y1, _setdatawc_y1)
 
@@ -576,7 +574,7 @@ class Gi(object):
         return self._datawc_y2
 
     def _setdatawc_y2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
@@ -584,7 +582,7 @@ class Gi(object):
         return self._linewidths
 
     def _setlinewidths(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self,
                 'linewidths',
@@ -598,7 +596,7 @@ class Gi(object):
         return self._linecolors
 
     def _setlinecolors(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'linecolors',
@@ -610,7 +608,7 @@ class Gi(object):
         return self._line
 
     def _setline(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkLinesList(
                 self,
                 'line',
@@ -622,7 +620,7 @@ class Gi(object):
         return self._text
 
     def _settext(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkTextsList(
                 self,
                 'text',
@@ -634,7 +632,7 @@ class Gi(object):
         return self._textcolors
 
     def _settextcolors(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'textcolors',
@@ -657,7 +655,7 @@ class Gi(object):
         return self._spacing
 
     def _setspacing(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self,
                 'spacing',
@@ -670,7 +668,7 @@ class Gi(object):
         return self._angle
 
     def _setangle(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self,
                 'angle',
@@ -684,7 +682,7 @@ class Gi(object):
         return self._scale
 
     def _setscale(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self,
                 'scale',
@@ -697,7 +695,7 @@ class Gi(object):
         return self._clockwise
 
     def _setclockwise(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self, 'clockwise', value, -3, 3, ints=True)
         self._clockwise = value
@@ -707,7 +705,6 @@ class Gi(object):
                 #                                                         #
                 ###########################################################
                 # Initialize the isoline class and its members            #
-                #							  #
                 # The getGimember function retrieves the values of the   #
                 # isoline members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
@@ -754,13 +751,16 @@ class Gi(object):
         else:
             if isinstance(Gi_name_src, Gi):
                 Gi_name_src = Gi_name_src.name
-            if not Gi_name_src in vcs.elements["isoline"].keys():
+            if Gi_name_src not in vcs.elements["isoline"].keys():
                 raise ValueError(
                     "Isoline method '%s' does not exists" %
                     Gi_name_src)
             src = vcs.elements["isoline"][Gi_name_src]
-            for att in ['label', 'colormap', 'projection', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits', 'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors", "clockwise", "scale", "angle", "spacing"]:
+            for att in ['label', 'colormap', 'projection', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
+                        'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
+                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits',
+                        'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors",
+                        "clockwise", "scale", "angle", "spacing"]:
                 setattr(self, att, getattr(src, att))
         vcs.elements["isoline"][Gi_name] = self
 

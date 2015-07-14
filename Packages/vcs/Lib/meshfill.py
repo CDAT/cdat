@@ -2,26 +2,17 @@
 # Meshfill (Gfm) module
 """
 ###############################################################################
-#									      #
 # Module:	meshfill (Gfm) module					      #
-#									      #
 # Copyright:    2000, Regents of the University of California		      #
 #               This software may not be distributed to others without	      #
 #               permission of the author.				      #
-#									      #
 # Author:       PCMDI Software Team                                           #
 #               Lawrence Livermore NationalLaboratory:                        #
 #               support@pcmdi.llnl.gov                                        #
-#									      #
 # Description:	Python command wrapper for VCS's meshfill graphics method.    #
-#									      #
 # Version:      4.0							      #
-#									      #
 ###############################################################################
-#
-#
-#
-import Canvas
+
 import VCS_validation_functions
 import xmldocs
 import cdtime
@@ -39,7 +30,6 @@ def process_src(nm, code):
     except:
         g = vcs.elements["meshfill"][nm]
     # process attributes with = as assignement
-    print code
     for att in ["projection",
                 "xticlabels#1", "xticlabels#2",
                 "xmtics#1", "xmtics#2",
@@ -71,11 +61,11 @@ def process_src(nm, code):
         try:
             # int will be converted
             setattr(g, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(g, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(g, nm, sp[1])
@@ -99,22 +89,22 @@ def process_src(nm, code):
             vals = cd.split(",")
             if int(vals[0]) == 1:
                 g.datawc_x1 = cdtime.reltime(
-                    gm.datawc_x1,
+                    g.datawc_x1,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[1]) == 1:
                 g.datawc_y1 = cdtime.reltime(
-                    gm.datawc_x2,
+                    g.datawc_x2,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[2]) == 1:
                 g.datawc_x2 = cdtime.reltime(
-                    gm.datawc_y1,
+                    g.datawc_y1,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
             if int(vals[3]) == 1:
                 g.datawc_y2 = cdtime.reltime(
-                    gm.datawc_y2,
+                    g.datawc_y2,
                     g.datawc_timeunits).tocomp(
                     g.datawc_calendar)
         irg = code.find("range")
@@ -132,7 +122,7 @@ def process_src(nm, code):
                     levs.append([float(sp[1][7:]), float(sp[2][7:])])
                     fa = sp[-1][3:]
                     fa = fa[:fa.find(")")]
-                    if not fa in vcs.elements["fillarea"].keys():
+                    if fa not in vcs.elements["fillarea"].keys():
                         badfa = True
                         fai.append(fa)
                     else:
@@ -366,7 +356,7 @@ Class:	Gfm                       	# Meshfill
         return self._fillareacolors
 
     def _setfillareacolors(self, value):
-        if not value is None:
+        if value is not None:
             value = list(
                 VCS_validation_functions.checkListTuple(
                     self,
@@ -522,7 +512,7 @@ Class:	Gfm                       	# Meshfill
         return self._datawc_x1
 
     def _setdatawc_x1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
         self._datawc_x1 = value
     datawc_x1 = property(_getdatawc_x1, _setdatawc_x1)
 
@@ -530,7 +520,7 @@ Class:	Gfm                       	# Meshfill
         return self._datawc_x2
 
     def _setdatawc_x2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
         self._datawc_x2 = value
     datawc_x2 = property(_getdatawc_x2, _setdatawc_x2)
 
@@ -538,7 +528,7 @@ Class:	Gfm                       	# Meshfill
         return self._datawc_y1
 
     def _setdatawc_y1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
         self._datawc_y1 = value
     datawc_y1 = property(_getdatawc_y1, _setdatawc_y1)
 
@@ -546,7 +536,7 @@ Class:	Gfm                       	# Meshfill
         return self._datawc_y2
 
     def _setdatawc_y2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
@@ -581,10 +571,8 @@ Class:	Gfm                       	# Meshfill
     wrap = property(_getwrap, _setwrap)
 
     def __init__(self, Gfm_name, Gfm_name_src='default'):
-                #                                                         #
                 ###########################################################
                 # Initialize the meshfill class and its members            #
-                #							  #
                 # The getGfmmember function retrieves the values of the   #
                 # meshfill members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
@@ -631,13 +619,17 @@ Class:	Gfm                       	# Meshfill
         else:
             if isinstance(Gfm_name_src, Gfm):
                 Gfm_name_src = Gfm_name_src.name
-            if not Gfm_name_src in vcs.elements["meshfill"].keys():
+            if Gfm_name_src not in vcs.elements["meshfill"].keys():
                 raise ValueError(
                     "meshfill method '%s' does not exisits" %
                     Gfm_name_src)
             src = vcs.elements["meshfill"][Gfm_name_src]
-            for att in ['mesh', 'colormap', 'wrap', 'projection', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'missing', 'levels', 'ext_1', 'ext_2', 'fillareastyle', 'fillareaindices', 'fillareacolors', 'legend', 'datawc_timeunits', 'datawc_calendar']:
+            for att in ['mesh', 'colormap', 'wrap', 'projection', 'xticlabels1', 'xticlabels2',
+                        'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2',
+                        'datawc_y1', 'datawc_y2', 'datawc_x1',
+                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'missing', 'levels', 'ext_1', 'ext_2',
+                        'fillareastyle', 'fillareaindices', 'fillareacolors', 'legend',
+                        'datawc_timeunits', 'datawc_calendar']:
                 setattr(self, "_" + att, getattr(src, "_" + att))
         vcs.elements["meshfill"][Gfm_name] = self
 

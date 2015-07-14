@@ -315,7 +315,6 @@ class Ti(object):
         #                                                         #
         ###########################################################
         # Initialize the fillarea class and its members           #
-        #							  #
         # The getTimember function retrieves the values of the    #
         # fillarea members in the C structure and passes back the #
         # appropriate Python Object.                              #
