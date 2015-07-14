@@ -59,11 +59,6 @@ class Handle(Widget):
     def place(self):
         x, y = self.__get_position__()
 
-        if self.normalize:
-            w, h = self.interactor.GetRenderWindow().GetSize()
-        else:
-            w, h = 1, 1
-
         self.repr.SetDisplayPosition((int(x), int(y), 0))
         self.render()
 
@@ -74,7 +69,8 @@ class Handle(Widget):
 
     def render(self):
         """
-        Doesn't actually immediately render; batches up handle renders so everything shows up in the appropriate place at once
+        Doesn't actually immediately render; batches up handle renders
+        so everything shows up in the appropriate place at once
         """
         self.manager.queue_render()
 
