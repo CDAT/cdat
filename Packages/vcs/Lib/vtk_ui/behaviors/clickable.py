@@ -75,7 +75,7 @@ class ClickableMixin(Behavior):
 
     def click_released(self, obj, event):
         # A weird spam event was coming through on object initialization
-        if self.clicked == False:
+        if self.clicked is False:
             return
         else:
             self.clicked = False

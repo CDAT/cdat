@@ -97,7 +97,7 @@ class Toolbar(object):
 
     def place(self):
 
-        if self.parent and self.__placing__ == False:
+        if self.parent and self.__placing__ is False:
             # Navigate up the tree, work from the root
             self.parent.place()
             return

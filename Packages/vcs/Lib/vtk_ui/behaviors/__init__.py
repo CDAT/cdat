@@ -1,3 +1,3 @@
-from draggable import DraggableMixin
-from clickable import ClickableMixin
-from keyable import KeyableMixin
+from draggable import DraggableMixin  # noqa
+from clickable import ClickableMixin  # noqa
+from keyable import KeyableMixin  # noqa

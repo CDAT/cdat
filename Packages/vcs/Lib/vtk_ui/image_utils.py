@@ -2,9 +2,6 @@ import math
 from vtk import vtkImageData, VTK_UNSIGNED_CHAR
 import text
 
-#__bg_window__ = None
-#__bg_renderer__ = None
-
 
 def load_image(image):
     from vtk import vtkPNGReader, vtkJPEGReader, vtkBMPReader, vtkTIFFReader
@@ -525,16 +522,12 @@ def actor_to_image(actor, bgcolor, width, height, bgrender=True):
     # bg window and bg renderer should be cached, but it's causing corrupted
     # images to be generated. Not going to worry about it right now.
 
-    #global __bg_window__
-    # if __bg_window__ is None:
     __bg_window__ = vtkRenderWindow()
     if bgrender:
         __bg_window__.OffScreenRenderingOn()
     else:
         __bg_window__.OffScreenRenderingOff()
 
-#    global __bg_renderer__
- #   if __bg_renderer__ is None:
     __bg_renderer__ = vtkRenderer()
     __bg_renderer__.SetBackground(*bgcolor)
     __bg_window__.AddRenderer(__bg_renderer__)
