@@ -22,7 +22,6 @@
 #
 #
 #
-import queries
 import VCS_validation_functions
 
 #############################################################################
@@ -101,7 +100,6 @@ class Pls(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPlsmember function retrieves the values of th    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #

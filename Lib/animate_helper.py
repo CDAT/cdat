@@ -1,10 +1,13 @@
 import vcs
+import copy
+import warnings
 import numpy
 import os
 import time
 import thread
 import threading
 import glob
+from error import vcsError
 
 
 def showerror(msg):
@@ -57,7 +60,6 @@ class animate_obj_old(object):
     # value is used (i.e., each animation frame will have different		#
     # min and max values. If min and max are set by the user, then		#
     # these values are used for the animation min and max.			#
-    #										#
     # If you are running animation from a program, set thread_it to 0.		#
     # This will cause the Python program to wait for the create function		#
     # to finish before moving onto the next command line.			#
@@ -66,7 +68,6 @@ class animate_obj_old(object):
                thread_it=1, rate=None, bitrate=None, ffmpegoptions=''):
         from vcs import minmax
         from numpy.ma import maximum, minimum
-        ##from tkMessageBox import showerror
 
         # Cannot "Run" or "Create" an animation while already creating an
         # animation
@@ -79,8 +80,6 @@ class animate_obj_old(object):
             str = "No data found!"
             showerror("Error Message to User", str)
             return
-        finish_queued_X_server_requests(self.vcs_self)
-        self.vcs_self.canvas.BLOCK_X_SERVER()
 
         # Stop the (thread) execution of the X main loop (if it is running).
         self.vcs_self.canvas.stopxmainloop()
@@ -144,7 +143,7 @@ class animate_obj_old(object):
             for i in range(len(self.vcs_self.animate_info)):
                 try:
                     self.set_animation_min_max(minv[i], maxv[i], i)
-                except Exception as err:
+                except:
                     # if it is default, then you cannot set the min and max, so
                     # pass.
                     pass
@@ -153,11 +152,6 @@ class animate_obj_old(object):
             if thread_it:
                 thread.start_new_thread(
                     self.vcs_self.canvas.animate_init, (save_file,))
-                self.mythread = QAnimThread(
-                    None,
-                    self.vcs_self.canvas.animate_init,
-                    save_file)
-                self.mythread.start()
             else:
                 self.vcs_self.canvas.animate_init(save_file)
         else:  # ffmpeg stuff
@@ -202,13 +196,7 @@ class animate_obj_old(object):
                 new_vcs.portrait()
             # self.vcs_self.close()
 
-            d = Pmw.Dialog(title="Creating Frames")
-            d.geometry("200x150+0+0")
-            S = genutil.Statusbar(d.interior(), ycounter=50)
-            S.pack(expand=1, fill='both')
-            n = float(len(indices)) / 100.
             for index in indices:
-                S.show(count / n)
                 new_vcs.clear()
                 new_vcs.plot(white_square, bg=1)
                 for i in range(len(save_info)):
@@ -216,6 +204,7 @@ class animate_obj_old(object):
                     template = templates[i]
                     gtype = animation_info["gtype"][i].lower()
                     gname = animation_info["gname"][i]
+                    gm = None  # for flake8 to be happy
                     exec("gm = new_vcs.get%s('%s')" % (gtype, gname))
                     for j in index:
                         slab = slab[j]
@@ -230,11 +219,8 @@ class animate_obj_old(object):
                 options=ffmpegoptions)
             for i in range(count - 1):
                 os.remove("tmp_anim_%i.png" % (i + 1))
-            d.destroy()
             del(new_vcs)
         self.create_flg = 1
-
-        self.vcs_self.canvas.UNBLOCK_X_SERVER()
 
     def animate_info_from_python(self):
         gtype = []
@@ -398,18 +384,12 @@ class animate_obj_old(object):
     # Load animation from a stored Raster file.   				#
     ##########################################################################
     def load_from_file(self, parent=None, load_file=None, thread_it=1):
-        ##from tkMessageBox import showerror
         if os.access(load_file, os.R_OK) == 0:
             showerror(
                 "Error Message to the User",
-                "The specfied file does not have read permission or does not exist. Please check the availability of the file.")
+                "The specfied file does not have read permission or does not exist. "
+                "Please check the availability of the file.")
             return
-
-        finish_queued_X_server_requests(self.vcs_self)
-        self.vcs_self.canvas.BLOCK_X_SERVER()
-
-        # Stop the (thread) execution of the X main loop (if it is running).
-        self.vcs_self.canvas.stopxmainloop()
 
         if thread_it == 1:
             thread.start_new_thread(
@@ -417,8 +397,6 @@ class animate_obj_old(object):
         else:
             self.vcs_self.canvas.animate_init(load_file)
         self.create_flg = 1
-
-        self.vcs_self.canvas.UNBLOCK_X_SERVER()
 
     ##########################################################################
     # Creating animation flag                 					#
@@ -442,7 +420,6 @@ class animate_obj_old(object):
 
         if ((self.create_flg == 1) and (self.run_flg == 0)):
             self.run_flg = 1
-            #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
             self.vcs_self.canvas.animate_run()
 
     ##########################################################################
@@ -611,15 +588,6 @@ class animate_obj_old(object):
                     os.rmdir(os.path.dirname(png_names[-1]))
             else:
                 return png_names
-
-    ##########################################################################
-    # Pop up the animation GUI                                              	#
-    ##########################################################################
-    def gui(self, gui_parent=None, transient=0):
-        if self.gui_popup == 0:
-            self.gui_popup = 1
-            a = _animationgui.create(self, gui_parent, transient)
-            return a
 
 
 class RT:
@@ -889,9 +857,6 @@ class AnimationController(animate_obj_old):
         self.create_canvas = vcs.init()
         self.create_canvas.setcolormap(self.vcs_self.getcolormapname())
 
-        alen = None
-        # !!! Using self.vcs_self.canvasinfo() segfaults on Mac OS X !!!
-        # dims = self.vcs_self.canvasinfo()
         dims = self.canvas_info
         if dims['height'] < 500:
             factor = 2
@@ -906,52 +871,43 @@ class AnimationController(animate_obj_old):
         # Save the min and max values for the graphics methods.
         # Will need to restore values back when animation is done.
         self.save_original_min_max()
-        # Note: cannot set the min and max values if the default graphics
-        # method is set.
-        do_min_max = 'yes'
-        try:
-            if (parent is not None) and (parent.iso_spacing == 'Log'):
-                do_min_max = 'no'
-        except:
-            pass
-        if (do_min_max == 'yes'):
-            minv = []
-            maxv = []
-            if (self.create_params.a_min is None or
-                    self.create_params.a_max is None):
-                for i in xrange(len(self.animate_info)):
-                    minv.append(1.0e77)
-                    maxv.append(-1.0e77)
-                for i in xrange(len(self.animate_info)):
-                    dpy, slab = self.animate_info[i]
-                    mins, maxs = vcs.minmax(slab)
-                    minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
-                    maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-            elif (isinstance(self.create_params.a_min, list) or
-                  isinstance(self.create_params.a_max, list)):
-                for i in xrange(len(self.animate_info)):
-                    try:
-                        minv.append(self.create_params.a_min[i])
-                    except:
-                        minv.append(self.create_params.a_min[-1])
-                    try:
-                        maxv.append(self.create_params.a_max[i])
-                    except:
-                        maxv.append(self.create_params.a_max[-1])
-            else:
-                for i in xrange(len(self.animate_info)):
-                    minv.append(self.create_params.a_min)
-                    maxv.append(self.create_params.a_max)
-            # Set the min an max for each plot in the page. If the same graphics method is used
-            # to display the plots, then the last min and max setting of the
-            # data set will be used.
+        minv = []
+        maxv = []
+        if (self.create_params.a_min is None or
+                self.create_params.a_max is None):
+            for i in xrange(len(self.animate_info)):
+                minv.append(1.0e77)
+                maxv.append(-1.0e77)
+            for i in xrange(len(self.animate_info)):
+                dpy, slab = self.animate_info[i]
+                mins, maxs = vcs.minmax(slab)
+                minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
+                maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
+        elif (isinstance(self.create_params.a_min, list) or
+              isinstance(self.create_params.a_max, list)):
             for i in xrange(len(self.animate_info)):
                 try:
-                    self.set_animation_min_max(minv[i], maxv[i], i)
-                except Exception as err:
-                    # if it is default, then you cannot set the min and max, so
-                    # pass.
-                    pass
+                    minv.append(self.create_params.a_min[i])
+                except:
+                    minv.append(self.create_params.a_min[-1])
+                try:
+                    maxv.append(self.create_params.a_max[i])
+                except:
+                    maxv.append(self.create_params.a_max[-1])
+        else:
+            for i in xrange(len(self.animate_info)):
+                minv.append(self.create_params.a_min)
+                maxv.append(self.create_params.a_max)
+        # Set the min an max for each plot in the page. If the same graphics method is used
+        # to display the plots, then the last min and max setting of the
+        # data set will be used.
+        for i in xrange(len(self.animate_info)):
+            try:
+                self.set_animation_min_max(minv[i], maxv[i], i)
+            except:
+                # if it is default, then you cannot set the min and max, so
+                # pass.
+                pass
 
     def generate_number_of_frames(self):
         if self._number_of_frames is not None:
@@ -1054,22 +1010,12 @@ class AnimationController(animate_obj_old):
 
         self.create_canvas.clear()
         displays = []
-        #checks = ["template","marker","texttable","textorientation","boxfill","isofill","isoline","line","textcombined"]
-        #pre = {}
-        # for a in checks:
-        #  pre[a]=len(vcs.elements[a])
         for iarg, args in enumerate(frame_args):
             if len(frame_kargs) > iarg:
                 kargs = frame_kargs[iarg]
             else:
                 kargs = {}
             displays.append(self.create_canvas.plot(*args, bg=1, **kargs))
-        # post={}
-        # for a in checks:
-        #  post[a]=len(vcs.elements[a])
-        # for a in checks:
-        #  if pre[a]!=post[a]:
-        #    print "Created: %i %s" % (post[a]-pre[a],a)
 
         self.create_canvas.png(fn, draw_white_background=1)
         return displays
@@ -1121,7 +1067,3 @@ class AnimationController(animate_obj_old):
         """ Pan the window verticaly (when zoomed). 100% means move so you can see the top part of the picture"
         """
         self.playback_params.vertical(value)
-
-############################################################################
-#        END OF FILE                                                       #
-############################################################################

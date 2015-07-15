@@ -28,23 +28,16 @@ import cdat_info
 prefix = cdat_info.get_prefix()
 sample_data = cdat_info.get_sampledata_path()
 cdat_info.pingPCMDIdb("cdat", "vcs")
-import thread
-import time
-from utils import *
+from utils import *  # noqa
 import Canvas
-from vcshelp import *
-from queries import *
-from pauser import pause
+from vcshelp import *  # noqa
+from queries import *  # noqa
 import install_vcs
-from install_vcs import list_printers, add_printer, remove_printer
-from Canvas import dictionarytovcslist
 import os
-from manageElements import *
+from manageElements import *  # noqa
 
 _default_time_units = 'days since 2000'
 
-#from _vcs import polygons
-#from vcs import Meshes
 
 ##########################################################################
 #                                                                               #
@@ -111,10 +104,6 @@ def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
     canvaslist.append(canvas)
     return canvas
 
-
-def initQt():
-    #_vcs.startQtApp()
-    return
 
 elements = {"boxfill": {},
             "isofill": {},

@@ -22,9 +22,7 @@
 #
 #
 #
-import queries
 import VCS_validation_functions
-from types import *
 #############################################################################
 #                                                                           #
 # Template text (Pxl) Class.                                                #
@@ -93,7 +91,6 @@ class Pxl(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPxlmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #

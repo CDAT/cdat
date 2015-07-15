@@ -121,7 +121,7 @@ class Configurator(object):
         user_home = os.path.expanduser("~")
 
         output_dir = os.path.join(user_home, ".uvcdat", "animation")
-        if os.path.exists(output_dir) == False:
+        if os.path.exists(output_dir) is False:
             os.mkdir(output_dir)
         # We'll just use .uvcdat– this is a headless install
         path = os.path.join(output_dir, default_name)

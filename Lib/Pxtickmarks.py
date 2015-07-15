@@ -22,9 +22,7 @@
 #
 #
 #
-import queries
 import VCS_validation_functions
-from types import *
 
 #############################################################################
 #                                                                           #
@@ -94,7 +92,6 @@ class Pxt(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPxtmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #

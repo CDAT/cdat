@@ -22,7 +22,6 @@
 #
 #
 #
-import Canvas
 import VCS_validation_functions
 import vcs
 import genutil
@@ -31,8 +30,7 @@ import genutil
 def process_src(nm, code):
     try:
         f = Tl(nm)
-    except Exception as err:
-        # print "No good:",err
+    except:
         f = vcs.elements["line"][nm]
     atts = {}
     for a in ["ltyp", "lwsf", "lci", "vp", "wc", "x", "y"]:
@@ -293,7 +291,6 @@ class Tl(object):
                 #                                                         #
                 ###########################################################
                 # Initialize the line class and its members               #
-                #							  #
                 # The getTlmember function retrieves the values of the    #
                 # line members in the C structure and passes back the     #
                 # appropriate Python Object.                              #
@@ -317,7 +314,7 @@ class Tl(object):
             self._y = None
             self._colormap = None
         else:
-            if not Tl_name_src in vcs.elements["line"].keys():
+            if Tl_name_src not in vcs.elements["line"].keys():
                 raise ValueError(
                     "The line source '%s' does not exists" %
                     Tl_name_src)

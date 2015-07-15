@@ -109,7 +109,6 @@ class Dp(object):
         value = VCS_validation_functions.checkname(self, 'name', value)
         if value is not None:
             self._name = value
-            setmember(self, 'name', value)
     name = property(_getname, _setname)
 
     def _setnewelements(self,value):
@@ -202,7 +201,7 @@ class Dp(object):
     def _setg_type(self, value):
         value = VCS_validation_functions.checkString(self, 'g_type', value)
         value = value.lower()
-        if not value in vcs.elements and value != "text":
+        if value not in vcs.elements and value != "text":
             raise ValueError(
                 "invalid g_type '%s' must be one of: %s " %
                 (value, vcs.elements.keys()))
@@ -232,7 +231,6 @@ class Dp(object):
             #                                                                           #
             ###################################################################
             # Initialize the display plot's class and its members                       #
-            #							                    #
             # The getDpmember function retrieves the values of the                      #
             # display plot members in the C structure and passes back the               #
             # appropriate Python Object.                                                #
@@ -330,8 +328,8 @@ class Dp(object):
         scr_type = script_filename[
             len(script_filename) -
             4:len(script_filename)]
-        if (scr_type == '.scr'):
-            print _vcs.scriptDp(self.name, script_filename, mode)
+        if scr_type == '.scr':
+            raise DeprecationWarning("scr script are no longer generated")
         else:
             mode = mode + '+'
             py_type = script_filename[

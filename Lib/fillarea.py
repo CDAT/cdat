@@ -34,8 +34,7 @@ def getmember(self, name):
 def process_src(nm, code):
     try:
         f = Tf(nm)
-    except Exception as err:
-        # print "No good:",err
+    except:
         f = vcs.elements["fillarea"][nm]
     atts = {}
     for a in ["faci", "fasi", "fais", "vp", "wc", "x", "y"]:
@@ -70,9 +69,9 @@ def process_src(nm, code):
             if b.fillareaindices is not None:
                 for i, v in enumerate(b.fillareaindices):
                     if isinstance(v, str) and v == nm:
-                        b._fillareaindices[i] = self.index
-                        b._fillareacolor[i] = self.color
-                        b._fillareastyle = self.style
+                        b._fillareaindices[i] = f.index
+                        b._fillareacolor[i] = f.color
+                        b._fillareastyle = f.style
 
 #############################################################################
 #                                                                           #
@@ -194,7 +193,7 @@ class Tf(object):
             value = value.color
         if isinstance(value, (str, int)):
             value = [value, ]
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'color',
@@ -313,17 +312,16 @@ class Tf(object):
                     #                                                         #
                     ###########################################################
                     # Initialize the fillarea class and its members           #
-                    #							  #
                     # The getTfmember function retrieves the values of the    #
                     # fillarea members in the C structure and passes back the #
                     # appropriate Python Object.                              #
                     ###########################################################
                     #                                                         #
         if isinstance(Tf_name_src, Tf):
-            Tf_name_src = Proj_name_src.name
-        if Tf_name_src != "default" and not Tf_name_src in vcs.elements[
+            Tf_name_src = Tf_name_src.name
+        if Tf_name_src != "default" and Tf_name_src not in vcs.elements[
                 "fillarea"].keys():
-            raise ValueError("Fillarea '%s' does not exists" % Proj_name_src)
+            raise ValueError("Fillarea '%s' does not exists" % Tf_name_src)
         if (Tf_name is None):
             raise ValueError('Must provide a fillarea name.')
         else:

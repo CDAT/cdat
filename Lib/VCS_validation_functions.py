@@ -3,7 +3,6 @@ import vcs
 import cdtime
 import queries
 import numpy
-import warnings
 
 
 class PPE(Exception):
@@ -25,7 +24,7 @@ class PPE(Exception):
 
 def color2vcs(col):
     if isinstance(col, unicode):
-        col = str(value)
+        col = str(col)
     if isinstance(col, str):
         r, g, b = vcs.colors.str2rgb(col)
         if r is None:
@@ -106,7 +105,7 @@ def checkLine(self, name, value):
             name +
             ' must be an line primitive or the name of an exiting one.')
     if isinstance(value, str):
-        if not value in vcs.listelements('line'):
+        if value not in vcs.listelements('line'):
             checkedRaise(
                 self,
                 value,
@@ -118,33 +117,9 @@ def checkLine(self, name, value):
         return value.name
 
 
-# def checkIsoline(self,name,value):
-# checkName(self,name,value)
-# if not isinstance(value,(str,vcs.isoline.Gi)):
-##           raise ValueError, name+' must be an isoline graphic method or the name of an exiting one.'
-# if isinstance(value,str):
-# if not value in self.x.listelements('isoline'):
-##                raise ValueError, name+' is not an existing isoline graphic method'
-# value=self.x.getisoline(value)
-# return value
-
-# def checkIsofill(self,name,value):
-# checkName(self,name,value)
-# if not isinstance(value,(str,vcs.isofill.Gfi)):
-##           raise ValueError, name+' must be an isofill graphic method or the name of an exiting one.'
-# if isinstance(value,str):
-# if not value in self.x.listelements('isofill'):
-##                raise ValueError, name+' is not an existing isofill graphic method'
-# value=self.x.getisofill(value)
-# return value
-
 def isNumber(value, min=None, max=None):
     """ Checks if value is a Number, optionaly can check if min<value<max
     """
-    # try:
-    #      value=value.tolist() # converts MA/MV/numpy
-    # except:
-    #      pass
     if not isinstance(value, (int, long, float, numpy.floating)):
         return False
     if min is not None and value < min:
@@ -156,10 +131,6 @@ def isNumber(value, min=None, max=None):
 
 def checkNumber(self, name, value, minvalue=None, maxvalue=None):
     checkName(self, name, value)
-    # try:
-    #     value=value.tolist() # converts MA/MV/numpy
-    # except:
-    #     pass
     n = isNumber(value, min=minvalue, max=maxvalue)
     if n is False:
         checkedRaise(self, value, ValueError, name + ' must be a number')
@@ -233,7 +204,7 @@ def checkFont(self, name, value):
     elif isNumber(value, min=1):
         value = int(value)
         # try to see if font exists
-        nm = vcs.getfontname(value)
+        vcs.getfontname(value)
     elif isinstance(value, str):
         value = vcs.getfontnumber(value)
     else:
@@ -242,7 +213,8 @@ def checkFont(self, name, value):
             self,
             value,
             ValueError,
-            'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' %
+            'Error for attribute %s: The font attribute values '
+            'must be a valid font number or a valid font name. valid names are: %s' %
             (name,
              ', '.join(nms)))
     return value
@@ -429,14 +401,6 @@ def checkCallable(self, name, value):
             name +
             ' attribute must be callable.')
 
-    # def checkFillAreaStyle(self,name,value):
-# checkName(self,name,value)
-# if not isinstance(value,str):
-##           raise ValueError,'The fillarea attribute must be a string'
-# if not value.lower() in ['solid','hatch','pattern']:
-##           raise ValueError, 'The fillarea attribute must be either solid, hatch, or pattern.'
-# return value
-
 
 def checkFillAreaStyle(self, name, value):
     checkName(self, name, value)
@@ -515,13 +479,6 @@ def checkIntFloat(self, name, value):
             name +
             ' attribute must be either an integer or a float value.')
 
-# def checkInt(self,name,value):
-# checkName(self,name,value)
-# if isinstance(value,int):
-# return value
-# else:
-##           raise ValueError, 'The '+name+' attribute must be either an integer or a float value.'
-
 
 def checkBoolean(self, name, value):
     """Strictly checks for True/False only. See also: checkFuzzyBoolean."""
@@ -565,7 +522,7 @@ def checkTrueFalse(self, name, value):
     """Strictly checks for True/False or 1/0 only. See also: checkFuzzyBoolean."""
     checkName(self, name, value)
     if value in [True, False, 1, 0]:
-        return value == True
+        return value is True
     else:
         checkedRaise(
             self,
@@ -863,7 +820,7 @@ def checkTextTable(self, name, value):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        if not value in vcs.listelements("texttable"):
+        if value not in vcs.listelements("texttable"):
             checkedRaise(
                 self,
                 value,
@@ -885,7 +842,7 @@ def checkTextOrientation(self, name, value):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        if not value in vcs.listelements("textorientation"):
+        if value not in vcs.listelements("textorientation"):
             checkedRaise(
                 self,
                 value,
@@ -930,7 +887,9 @@ def checkTextsList(self, name, value):
                     self,
                     value,
                     ValueError,
-                    "text attributes can be either a textcombined object, a texttable object a textorientation object or a string of the name on one such objects (checked in that order)")
+                    "text attributes can be either a textcombined object,"
+                    "a texttable object a textorientation object or a string of "
+                    "the name on one such objects (checked in that order)")
     return hvalue
 
 
@@ -1031,7 +990,7 @@ def checkProjection(self, name, value):
         return value.name
     elif isinstance(value, (str, unicode)):
         value = str(value)
-        if not value in vcs.elements["projection"].keys():
+        if value not in vcs.elements["projection"].keys():
             checkedRaise(
                 self,
                 value,
@@ -1056,7 +1015,7 @@ def checkTicks(self, name, value):
     if isinstance(value, str):
         if value.strip() in ["", "*"]:
             return value.strip()
-        if not value in vcs.elements["list"]:
+        if value not in vcs.elements["list"]:
             checkedRaise(
                 self,
                 value,
@@ -1133,11 +1092,9 @@ def checkProjParameters(self, name, value):
             "Error Projection Parameters must be of length 15 (see doc)")
     for i in range(2, 6):
         if abs(value[i]) < 10000:
-            if (not(i == 3 and (self.type in [9, 15, 20, 22, 30]))
-                    and
-                        (not(i == 4 and (
-                            self.type == 20 or (self.type == 22 and value[12] == 1) or self.type == 30)))
-                    ):
+            if (not(i == 3 and (self.type in [9, 15, 20, 22, 30])) and
+                (not(i == 4 and (self.type == 20 or (self.type == 22 and value[12] == 1)
+                                 or self.type == 30)))):
                 # print i,value[i]
                 value[i] = deg2DMS(value[i])
     for i in range(8, 12):
@@ -1155,8 +1112,10 @@ def checkCalendar(self, name, value):
             value,
             ValueError,
             'cdtime calendar value must be an integer')
-    if not value in [cdtime.Calendar360, cdtime.ClimCalendar, cdtime.ClimLeapCalendar, cdtime.DefaultCalendar,
-                     cdtime.GregorianCalendar, cdtime.JulianCalendar, cdtime.MixedCalendar, cdtime.NoLeapCalendar,
+    if value not in [cdtime.Calendar360, cdtime.ClimCalendar,
+                     cdtime.ClimLeapCalendar, cdtime.DefaultCalendar,
+                     cdtime.GregorianCalendar, cdtime.JulianCalendar,
+                     cdtime.MixedCalendar, cdtime.NoLeapCalendar,
                      cdtime.StandardCalendar]:
         checkedRaise(
             self,
@@ -1240,7 +1199,7 @@ def checkInStringsListInt(self, name, value, values):
         value = str(value)
     if isinstance(value, str):
         value = value.lower()
-        if not value in val:
+        if value not in val:
             checkedRaise(self, value, ValueError, err)
         i = 0
         for v in values:
@@ -1557,8 +1516,10 @@ proj_ok_parameters = {
     'standardparallel1': [[3, 4, 8], 2, []],
     'standardparallel2': [[3, 4, 8], 3, []],
     'originlatitude': [[3, 4, 7, 8, 9, 19, 20], 5, []],
-    'falseeasting': [[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 30], 6, []],
-    'falsenorthing': [[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 30], 7, []],
+    'falseeasting': [[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                      17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 30], 6, []],
+    'falsenorthing': [[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                       17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 30], 7, []],
     'truescale': [[5, 6, 17, ], 5, []],
     'standardparallel': [[8, ], 2, []],
     'factor': [[9, 20, ], 2, []],
@@ -1596,7 +1557,7 @@ def setProjParameter(self, name, value):
         nms = vals[2]
         nms.insert(0, nm)
         if name in nms:
-            if not self._type in oktypes:
+            if self._type not in oktypes:
                 checkedRaise(self, value, PPE(name, self._type), None)
             param[position] = value
             # Subtype is parameter 8 not 12 for projection type 8
@@ -1743,7 +1704,7 @@ def _setcolormap(self, value):
             self,
             value,
             "colormap attribute must be a colormap object or a string")
-    if not value in vcs.elements["colormap"]:
+    if value not in vcs.elements["colormap"]:
         checkedRaise(self, value, "The colormap '%s' does not exists" % value)
     self._colormap = value
 colormap = property(_getcolormap, _setcolormap)
@@ -1836,7 +1797,7 @@ projection = property(_getprojection, _setprojection)
 #      add_level_ext_1(self, ext_value)                                         #
 #              where: self is the class (e.g., Gfm)                             #
 #                     ext_value is either 'n' to remove the triangle on the     #
-#		     	legend or 'y' to show the triangle on the triangle      #
+#                     legend or 'y' to show the triangle on the triangle        #
 #                                                                               #
 ##########################################################################
 
@@ -1902,7 +1863,6 @@ def add_level_ext_2(self, ext_value):
         return self.levels  # nothing to do
     if ((ext_value == 'n') and self.ext_2):  # remove extension
         if isinstance(self.levels[0], list):  # remove from tuple of lists
-            last = len(self.levels) - 1
             if self.levels[-1][1] > 9.e19:
                 self.levels.pop(-1)
         if isinstance(self.levels, tuple):       # remove from list
@@ -1937,9 +1897,9 @@ def _getext_1(self):
 def _setext_1(self, value):
     do = checkExt(self, 'ext_1', value)
     if do:
-        returned_levels = add_level_ext_1(self, 'y')
+        add_level_ext_1(self, 'y')
     else:
-        returned_levels = add_level_ext_1(self, 'n')
+        add_level_ext_1(self, 'n')
     self._ext_1 = do
 ext_1 = property(_getext_1, _setext_1)
 
@@ -1951,9 +1911,9 @@ def _getext_2(self):
 def _setext_2(self, value):
     do = checkExt(self, 'ext_2', value)
     if do:
-        returned_levels = add_level_ext_2(self, 'y')
+        add_level_ext_2(self, 'y')
     else:
-        returned_levels = add_level_ext_2(self, 'n')
+        add_level_ext_2(self, 'n')
     self._ext_2 = do
 ext_2 = property(_getext_2, _setext_2)
 

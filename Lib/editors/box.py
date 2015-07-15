@@ -8,7 +8,9 @@ class BoxEditor(behaviors.DraggableMixin, priority.PriorityEditor):
     """
     Editor for any "box" object in VCS; anything with an x1, x2, y1, y2.
 
-    Places a handle on each corner of the box, allows box to be dragged (moves handles with drag), will manipulate priority using up/down arrows and delete key to set to 0.
+    Places a handle on each corner of the box
+    allows box to be dragged (moves handles with drag),
+    will manipulate priority using up/down arrows and delete key to set to 0.
     """
 
     def __init__(self, interactor, box, configurator):
