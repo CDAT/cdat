@@ -7,7 +7,6 @@ import time
 
 def init():
     win = vtk.vtkRenderWindow()
-
     win.SetNumberOfLayers(3)
     win.SetSize(100, 250)
     win.SetMultiSamples(0)
