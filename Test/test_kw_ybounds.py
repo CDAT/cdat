@@ -1,8 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs
 import cdms2 as cdms
-import MV2 as MV
-import sys
+import MV2
 import support
 import os
 bg = support.bg
@@ -11,8 +10,8 @@ s = f('clt', slice(0, 5), latitude=(0., 0., 'cob'), squeeze=1)
 
 nt = s.shape[0]
 
-ax = MV.arange(nt, typecode='d')
-bounds = MV.zeros((nt, 2), typecode='d')
+ax = MV2.arange(nt, typecode='d')
+bounds = MV2.zeros((nt, 2), typecode='d')
 
 for i in range(nt):
     bounds[i, 0] = ax[i]

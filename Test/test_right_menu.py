@@ -2,9 +2,8 @@
 import vcs
 import cdms2 as cdms
 import EzTemplate
-import sys
-import genutil
 import support
+import os
 
 
 def clear(*args, **kargs):
@@ -25,7 +24,6 @@ def plot_ts(*args, **kargs):
 def plot_lat_time(*args, **kargs):
     x = kargs['canvas']
     i = kargs['index_x']
-    j = kargs['index_y']
     x.clear()
     x.plot(s, t1)
     ts = s[:, :, i]
@@ -34,7 +32,6 @@ def plot_lat_time(*args, **kargs):
 
 def plot_lon_time(*args, **kargs):
     x = kargs['canvas']
-    i = kargs['index_x']
     j = kargs['index_y']
     x.clear()
     x.plot(s, t1)

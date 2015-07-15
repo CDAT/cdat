@@ -1,6 +1,4 @@
 import vcs
-import sys
-import os
 import support
 bg = support.bg
 

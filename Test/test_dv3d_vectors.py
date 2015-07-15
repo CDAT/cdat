@@ -5,7 +5,6 @@ Created on Jun 18, 2014
 '''
 import vcs
 import cdms2
-import sys
 import os
 import subprocess
 import signal

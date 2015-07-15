@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Yxvsx (GYx) module
@@ -32,9 +33,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support          # import vcs and cdms
 
     bg = support.bg
@@ -80,7 +79,7 @@ def test():
     a.line = 4        			# same as 'long-dash'
     support.check_plot(x)
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'
@@ -175,7 +174,6 @@ def test():
     support.check_plot(x)
 
     # show the list of templates
-    objs = x.listelements('template')
     # create template 'test' from 'default' template
     t = x.createtemplate('test')
     # test whether 't' is a template or not
@@ -192,7 +190,6 @@ def test():
     support.check_plot(x)
 
     # show the list of line secondary objects
-    objs = x.listelements('line')
     l = x.getline('red')                	# get line 'red'
     # check to see if it is a secondary object
     if not vcs.issecondaryobject(l):
@@ -214,7 +211,6 @@ def test():
     support.check_plot(x)
 
     # show the list of marker secondary objects
-    objs = x.listelements('marker')
     m = x.getmarker('red')                 # get marker 'red'
     # check to see if it is a secondary object
     if not vcs.issecondaryobject(m):

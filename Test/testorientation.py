@@ -32,9 +32,7 @@
 def test():
     import vcs
     import cdms2
-    import time
     import os
-    import sys
     import support          # import vcs and cdms
 
     # In the initial.attribute file the page orientation is set to

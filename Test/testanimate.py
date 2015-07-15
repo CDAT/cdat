@@ -41,7 +41,6 @@
 
 import vcs
 import cdms2 as cdms
-import sys
 import os
 import support
 support.dogui = True
@@ -57,8 +56,6 @@ if support.dogui:
     b = x.createboxfill('new')
     x.plot(s, b)
 
-    # x.animate.create(thread_it=1)
-    #raw_input("press enter")
     x.animate.create()
     x.animate.run()
     import time

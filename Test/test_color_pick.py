@@ -2,7 +2,6 @@
 import cdms2 as cdms
 import vcs
 import os
-import sys
 import support
 
 if support.dogui is True:

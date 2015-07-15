@@ -32,9 +32,7 @@
 def test():
     import vcs
     import cdms2
-    import time
     import os
-    import sys
     import support                # import vcs and cu
     bg = support.bg
     f = cdms2.open(os.path.join(vcs.sample_data, 'clt.nc'))

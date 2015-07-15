@@ -3,7 +3,6 @@ import vcs.test.support
 bg = vcs.test.support.bg
 # bg=0
 x = vcs.init()
-#raw_input('x ready press enter')
 t = x.createtext()
 l1 = x.createline()
 l2 = x.createline()
@@ -23,7 +22,6 @@ t.color = 244
 t.height = 20
 # t.angle=30
 t.string = ['Hello! E=mc!U2!U3!D2!Dno!D(maybe?)!Dhum...!U!U?']
-#t.string=['Hello! E=mc!U2']
 # t.string=['_greater!U2!D_GREATER!U2!D_']
 t.font = 3
 paths = ['right', 'left', 'down', 'up']
@@ -46,14 +44,14 @@ for path in paths:
                 x.plot(l1, bg=bg)
                 x.plot(l2, bg=bg)
                 x.plot(t, bg=bg)
-##                 ex = x.gettextextent(t)[0]
+#                 ex = x.gettextextent(t)[0]
 # l3.x=[ex[0][0],ex[1][0],ex[2][0],ex[3][0],(ex[0][0]+ex[1][0])/2.]
 # l3.y=[ex[0][1],ex[1][1],ex[2][1],ex[3][1],(ex[0][1]+ex[3][1])/2.]
 # x.plot(l3,bg=bg)
                 vcs.test.support.check_plot(x)
 # else:
 # x.png("crap")
-##                     import os
+#                     import os
 # os.popen("eog crap.png").read()
 # raw_input()
                 x.clear()

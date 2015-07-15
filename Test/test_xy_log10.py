@@ -1,7 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import cdms2
 import vcs
-import sys
 import cdutil
 import support
 import os

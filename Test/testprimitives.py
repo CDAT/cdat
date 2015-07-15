@@ -1,7 +1,8 @@
+import sys
 #
 # Test low-level primitives
 #
-############################################################################
+# ##########################################################################
 #                                                                          #
 # Module:       testprimitives module                                      #
 #                                                                          #
@@ -16,22 +17,21 @@
 #                                                                          #
 # Version:      1.0                                                        #
 #                                                                          #
-############################################################################
+# ##########################################################################
 #
 #
 #
-############################################################################
+# ##########################################################################
 #                                                                          #
 # Import: VCS  and cu modules.                                             #
 #                                                                          #
-############################################################################
+# ##########################################################################
 
 
 def test():
 
     import vcs
     import support
-    import sys
     bg = support.bg
 
     x = vcs.init()
@@ -39,7 +39,7 @@ def test():
     # For plotting of each test case, set the pause time to 1.
     x.pause_time = 1
 
-    ############################ First Test ###############################
+    # ########################## First Test ###############################
 
     # Set the global viewport values only.
     #
@@ -121,16 +121,16 @@ def test():
     x.plot(mk, bg=bg)			# plot marker
     support.check_plot(x)
 
-    ############################ First Test completed ######################
+    # ########################## First Test completed ######################
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'
         print '************* PARTIAL TEST *****************\n'
         sys.exit()
 
-    ############################ Second Test ###############################
+    # ########################## Second Test ###############################
     # Reset the global viewport values.
     x.viewport = [0.2, 0.8, 0.2, 0.8]
     support.check_plot(x)
@@ -156,9 +156,9 @@ def test():
     x.text(t, bg=bg)
     support.check_plot(x)
 
-    ############################ Second Test completed ######################
+    # ########################## Second Test completed ######################
 
-    ############################ Third Test ###############################
+    # ########################## Third Test ###############################
     # Change the drawing area's world coordinate from [0,1,0,1] to [0,2,0,2]
     # via primitive's graphics method, then redraw. The graphics will be drawn
     # in the lower left corner. This is because the line x and y values are
@@ -185,9 +185,9 @@ def test():
     x.plot(t, bg=bg)
     support.check_plot(x)
 
-    ############################ Third Test completed ######################
+    # ########################## Third Test completed ######################
 
-    ############################ Fourth Test ###############################
+    # ########################## Fourth Test ###############################
     #
     # Clear the VCS Canvas and redraw graphics using Python list of lists.
     #
@@ -228,9 +228,9 @@ def test():
     x.plot(t, bg=bg)                       # plot text
     support.check_plot(x)
 
-    ############################ Fourth Test completed ######################
+    # ########################## Fourth Test completed ######################
 
-    ############################ Fifth Test ###############################
+    # ########################## Fifth Test ###############################
     # Change the viewport only to a different shape and replot.
     # 1st change
     ln.viewport = [0.0, 0.2, 0.0, 0.8]
@@ -269,9 +269,9 @@ def test():
     x.plot(t, bg=bg)
     support.check_plot(x)
 
-    ############################ Fifth Test completed ######################
+    # ########################## Fifth Test completed ######################
 
-    ############################ Sixth Test ###############################
+    # ########################## Sixth Test ###############################
     # Clear the VCS Canvas and redraw the graphics, but this time use the
     # draw functions. That is, user drawline, drawmarker, drawfillarea, and
     # drawtext.
@@ -325,9 +325,9 @@ def test():
                    )
     support.check_plot(x)
 
-    ############################ Sixth Test completed ######################
+    # ########################## Sixth Test completed ######################
 
-    ############################ Seventh Test ###############################
+    # ########################## Seventh Test ###############################
     # Clear the VCS Canvas and test the priority of each primitive.
     #
     x.clear()
@@ -416,9 +416,9 @@ def test():
     x.plot(t2, bg=bg)
     support.check_plot(x)
 
-    ############################ Seventh Test completed ######################
+    # ########################## Seventh Test completed ######################
 
-    ############################ Eighth Test ###############################
+    # ########################## Eighth Test ###############################
     # Clear the VCS Canvas and test the Python list for the primitive attributes.
     #
     x.clear()
@@ -452,7 +452,7 @@ def test():
     x.plot(fa, bg=bg)
     support.check_plot(x)
 
-    ############################ Eighth Test completed ######################
+    # ########################## Eighth Test completed ######################
 
     print '*****************************************************************************************'
     print '******                                                                             ******'
@@ -467,6 +467,6 @@ def test():
 if __name__ == "__main__":
     test()
 
-##########################################################################
+# ########################################################################
 #                                   End of File                                   #
-##########################################################################
+# ########################################################################

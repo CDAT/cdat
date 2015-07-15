@@ -1,3 +1,4 @@
+import sys
 '''
 Created on Jun 18, 2014
 
@@ -5,9 +6,7 @@ Created on Jun 18, 2014
 '''
 import vcs
 import cdms2
-import sys
 import os
-import time
 import subprocess
 import signal
 
@@ -50,7 +49,7 @@ else:
 # dv3d = vcs.create3d_scalar('hoffmuller','xyt')
 
 u = f[varname]
-if not u is None:
+if u is not None:
     #    dv3d = vcs.get3d_scalar('xyt')
     dv3d = vcs.get3d_scalar()
 

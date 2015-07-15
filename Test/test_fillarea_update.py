@@ -1,8 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs
-import cdms2 as cdms
-import os
-import sys
 import support
 tp = vcs.init()
 bg = support.bg

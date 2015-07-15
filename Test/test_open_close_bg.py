@@ -5,8 +5,14 @@ import os
 f = cdms2.open(os.path.join(vcs.sample_data, 'clt.nc'))
 s = f("clt")
 x = vcs.init()
-bg = False
+x.open()
+raw_input("Press enter")
+x.close()
+raw_input("Press enter")
+bg = True
 x.plot(s, bg=bg)
 raw_input("Press enter")
-x.clear()
+x.close()
+raw_input("Press enter")
+x.open()
 raw_input("Press enter")

@@ -3,8 +3,8 @@
 
 import cdms2 as cdms
 import vcs
-import sys
 import os
+import sys
 import support
 bg = support.bg
 
