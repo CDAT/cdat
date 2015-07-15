@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Vector (Gv) module
@@ -32,9 +33,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support          # import vcs and cu
     bg = support.bg
 
@@ -95,7 +94,7 @@ def test():
 # support.check_plot(x)
 # raw_input("Done...")
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'

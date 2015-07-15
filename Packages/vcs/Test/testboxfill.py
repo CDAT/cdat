@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Boxfill (Gfb) module
@@ -5,15 +6,12 @@
 ############################################################################
 #                                                                          #
 # Module:	testboxfill module				   	   #
-#									   #
 # Copyright:    2000, Regents of the University of California              #
 #               This software may not be distributed to others without     #
 #               permission of the author.				   #
-#									   #
 # Authors:      PCMDI Software Team                                        #
 #               Lawrence Livermore NationalLaboratory:                     #
 #               support@pcmdi.llnl.gov                                     #
-#									   #
 # Description:	Used to test VCS's boxfill graphics method.		   #
 #                                                                          #
 #               run with "-i" option:   python -i testboxfill.py           #
@@ -24,7 +22,6 @@
 #                    log10  - VCS will plot the data using log10           #
 #                    custom - VCS will compute legend using custom         #
 #                                 values and display legend values evenly  #
-#									   #
 # Version:	4.0							   #
 #                                                                          #
 ############################################################################
@@ -41,9 +38,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support		# import vcs and cdms
     bg = support.bg
 
@@ -94,7 +89,7 @@ def test():
     a.legend = None
     support.check_plot(x)
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'

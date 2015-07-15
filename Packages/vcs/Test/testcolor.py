@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Colormap (Cp) module
@@ -34,15 +35,13 @@
 
 def test():
     import vcs
-    import cdms2 as cdms
-    import time
+    import cdms2
     import os
-    import sys
     import support                 # import vcs and cu
 
     bg = support.bg
 
-    f = cdms.open(os.path.join(vcs.sample_data, 'clt.nc'))
+    f = cdms2.open(os.path.join(vcs.sample_data, 'clt.nc'))
     s = f('clt')                           # get slab clt
     x = vcs.init()                         # construct vcs canvas
 
@@ -97,8 +96,6 @@ def test():
     # Using colormap objects.                                        #
     ##################################################################
     # show the list of line secondary objects
-    objs = x.listelements('colormap')
-    c2 = x.getcolormap()             	# get 'default' colormap object
     c = x.getcolormap('AMIP')             # get 'quick' colormap object
     # check to see if it is a secondary object
     if not vcs.issecondaryobject(c):

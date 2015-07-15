@@ -33,7 +33,6 @@ def test():
     import vcs
     import cdms2 as cdms
     import os
-    import sys               # import vcs and cu
 
     f = cdms.open(os.path.join(vcs.sample_data, 'clt.nc'))
     s = f.getslab('clt')                   # get slab clt

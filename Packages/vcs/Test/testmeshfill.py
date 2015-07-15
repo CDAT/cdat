@@ -35,7 +35,6 @@
 
 import vcs
 import cdms2 as cdms
-import sys
 import os
 import support
 

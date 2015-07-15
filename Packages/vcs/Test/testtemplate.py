@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Template (P) module
@@ -32,9 +33,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support 		# import vcs and cdms
     bg = support.bg
 
@@ -54,7 +53,7 @@ def test():
     # show the list of templates
     a2 = x.listelements('template')
     if a2 == a:
-        raise Excpetion("Error, template not added to list")
+        raise Exception("Error, template not added to list")
     if not vcs.istemplate(t):
         raise Exception("Error obj created is not a template!")
 
@@ -98,7 +97,7 @@ def test():
     t.mean.y = 0.5				# move the "Mean" text to y-axis center
     support.check_plot(x)
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'

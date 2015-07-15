@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Display Plot (Dp) module
@@ -5,17 +6,13 @@
 ############################################################################
 #                                                                          #
 # Module:	testdisplayplot module				   	   #
-#									   #
 # Copyright:    2000, Regents of the University of California              #
 #               This software may not be distributed to others without     #
 #               permission of the author.				   #
-#									   #
 # Authors:      PCMDI Software Team                                        #
 #               Lawrence Livermore NationalLaboratory:                     #
 #               support@pcmdi.llnl.gov                                     #
-#									   #
 # Description:	Used to test VCS's display plots.		   	   #
-#									   #
 # Version:	4.0							   #
 #                                                                          #
 ############################################################################
@@ -32,9 +29,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support			# import vcs and cdms
 
     bg = support.bg
@@ -53,9 +48,9 @@ def test():
     p2 = x.getplot('dpy_plot_2')		# get display plot s2
 
     if not vcs.queries.isplot(p1):			# check for display plot object
-        raise exception("Error, p1 not a display!")
+        raise Exception("Error, p1 not a display!")
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'
@@ -97,9 +92,7 @@ def test():
     support.check_plot(x)
 
     #########################################################################
-    #								           #
     # Produce an overlay plot.                                              #
-    #								           #
     #########################################################################
     x.mode = 0				# turn atomatic update mode back on
     p1.array = ['plot_1']			# change display plot (p1) array object

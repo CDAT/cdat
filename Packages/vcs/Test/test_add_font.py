@@ -7,11 +7,6 @@ bg = support.bg
 
 x = vcs.init()
 
-#x.addfont("/home/doutriaux1/Fonts/CheeseAndMouse/Cheese and Mouse.ttf","1")
-# x.addfont("/home/doutriaux1/Fonts")
-# x.addfont("/home/doutriaux1/Fonts","r")
-
-
 anb = x.getfontnumber("Arabic")
 print 'font named arabic has number:', anb
 nm = x.getfontname(1)
@@ -28,7 +23,6 @@ print 'font %i is now:' % anb, x.getfontname(anb)
 x.setdefaultfont(anb)
 
 import cdms2 as cdms
-import sys
 f = cdms.open(os.path.join(vcs.sample_data, 'clt.nc'))
 s = f('clt')
 x.plot(s, bg=bg)

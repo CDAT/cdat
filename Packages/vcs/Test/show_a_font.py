@@ -1,13 +1,10 @@
-import vcs
 import sys
+import vcs
 x = vcs.init()
 fonts = []
-if len(sys.argv) > 1 and not '-extended' in sys.argv:
+if len(sys.argv) > 1 and '-extended' not in sys.argv:
     for font_file in sys.argv[1:]:
         fonts.append(x.addfont(font_file))
-# else:
-##     fonts = x.addfont("/home/doutriaux1/Fonts","r")
-# fonts.sort()
 
 l1d = '` 1 2 3 4 5 6 7 8 9 0 - ='
 l1u = '~ ! @ # $ % ^ & * ( ) _ +'

@@ -1,7 +1,6 @@
 import vcs
 import cdms2
 import os
-import sys
 
 x = vcs.init()
 f = cdms2.open(os.path.join(vcs.sample_data, 'clt.nc'))

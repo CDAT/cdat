@@ -1,7 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs
 import cdms2
-import sys
 import support
 import os
 bg = support.bg

@@ -1,5 +1,4 @@
 import vcs
-import sys
 import cdms2
 import os
 

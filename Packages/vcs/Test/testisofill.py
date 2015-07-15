@@ -1,3 +1,4 @@
+import sys
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 #
 # Test Isofill (Gfi) module
@@ -31,9 +32,7 @@
 def test():
     import vcs
     import cdms2 as cdms
-    import time
     import os
-    import sys
     import support                      # import vcs and cdms
 
     bg = support.bg
@@ -89,7 +88,7 @@ def test():
     a.missing = 241			# change the missing background color to black
     support.check_plot(x)
 
-    if not '--extended' in sys.argv:
+    if '--extended' not in sys.argv:
         print '\n************* PARTIAL TEST *****************'
         print 'FOR COMPLETE TEST OF THIS MODULE USE '
         print '   -F (--full) or -E (--extended) option'
@@ -144,7 +143,7 @@ def test():
 
     ##########################################################################
     # Below will produce an error. Later, if needed, I will add this functionality.	   #
-    #a.levels=('0','20','25','30')			# this will produce an error	   #
+    # a.levels=('0','20','25','30')			# this will produce an error	   #
     ##########################################################################
 
     a.ext_1 = 'y'				# add the extended legend arrow to the left

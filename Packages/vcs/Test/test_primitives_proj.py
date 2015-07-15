@@ -1,19 +1,14 @@
 #!/usr/bin/env python
-
+import sys
 import vcs
 import cdms2
 import os
-import sys
 import support
 bg = support.bg
 lon1 = -120.
 lon2 = -20.
 lat1 = 20.
 lat2 = 60.
-# lon1=-180.
-# lon2=0.
-# lat1=10.
-## lat2 = 90.
 
 # Area to draw data and primitives (primtives are smaller by 10%)
 Lon1 = -117.5
@@ -31,7 +26,6 @@ x = vcs.init()
 
 t = x.createtemplate('new')
 t.scale(.9)
-# t.data.list()
 
 
 fi = cdms2.open(os.path.join(vcs.sample_data, 'tas_cru_1979.nc'))
@@ -48,7 +42,6 @@ isof.datawc_y1 = lat1
 isof.datawc_y2 = lat2
 x.plot(s, isof, t, bg=bg)
 support.check_plot(x)
-# print '-------------------------------------------------------------'
 f = x.createfillarea('new')
 f.projection = proj
 f.worldcoordinate = (lon1, lon2, lat1, lat2)
@@ -60,7 +53,7 @@ f.color = [242]
 x.plot(f, bg=bg)
 support.check_plot(x)
 
-if not '--extended' in sys.argv:
+if '--extended' not in sys.argv:
     print '\n************* PARTIAL TEST *****************'
     print 'FOR COMPLETE TEST OF THIS MODULE USE '
     print '   -F (--full) or -E (--extended) option'
