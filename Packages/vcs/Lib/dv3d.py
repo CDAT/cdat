@@ -4,14 +4,10 @@ Created on Jun 18, 2014
 @author: tpmaxwel
 '''
 
-import Canvas
 import VCS_validation_functions
-import xmldocs
-import cdtime
 import multiprocessing
 import vcs
 import time
-import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
 
 
@@ -98,7 +94,7 @@ class Gfdv3d(object):
                     '%s = vcs.get3d_scalar( %s )\n' %
                     (unique_name, gtype))
             if self.g_name == '3d_vector':
-                ffp.write(
+                fp.write(
                     '%s = vcs.get3d_vector( %s )\n' %
                     (unique_name, gtype))
             if self.g_name == '3d_dual_scalar':
@@ -163,7 +159,7 @@ class Gfdv3d(object):
         fget = lambda self: self.getParameter(name)
         fset = lambda self, value: self.setParameter(name, value)
         setattr(self.__class__, name, property(fget, fset))
-        if not name in Gfdv3d.__slots__:
+        if name not in Gfdv3d.__slots__:
             Gfdv3d.__slots__.append(name)
 
     def addPlotAttribute(self, name, value):

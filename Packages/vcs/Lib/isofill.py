@@ -41,7 +41,7 @@ def process_src(nm, code):
     """Takes VCS script code (string) as input and generates isofill gm from it"""
     try:
         g = Gfi(nm)
-    except Exception as err:
+    except:
         g = vcs.elements["isofill"][nm]
     # process attributes with = as assignement
     for att in ["projection",
@@ -75,15 +75,15 @@ def process_src(nm, code):
         try:
             # int will be converted
             setattr(g, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(g, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(g, nm, sp[1])
-                except Exception as err:
+                except:
                     pass  # oh well we stick to default value
     # Datawc
     idwc = code.find(" datawc(")
@@ -103,22 +103,22 @@ def process_src(nm, code):
         vals = cd.split(",")
         if int(vals[0]) == 1:
             g.datawc_x1 = cdtime.reltime(
-                gm.datawc_x1,
+                g.datawc_x1,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
         if int(vals[1]) == 1:
             g.datawc_y1 = cdtime.reltime(
-                gm.datawc_x2,
+                g.datawc_x2,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
         if int(vals[2]) == 1:
             g.datawc_x2 = cdtime.reltime(
-                gm.datawc_y1,
+                g.datawc_y1,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
         if int(vals[3]) == 1:
             g.datawc_y2 = cdtime.reltime(
-                gm.datawc_y2,
+                g.datawc_y2,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
     irg = code.find("range")
@@ -136,7 +136,7 @@ def process_src(nm, code):
                 levs.append([float(sp[1][7:]), float(sp[2][7:])])
                 fa = sp[-1][3:]
                 fa = fa[:fa.find(")")]
-                if not fa in vcs.elements["fillarea"].keys():
+                if fa not in vcs.elements["fillarea"].keys():
                     badfa = True
                     fai.append(fa)
                 else:
@@ -389,7 +389,7 @@ Class: Gfi				# Isofill
         return self._fillareacolors
 
     def _setfillareacolors(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'fillareacolors',
@@ -527,7 +527,7 @@ Class: Gfi				# Isofill
         return self._datawc_x1
 
     def _setdatawc_x1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
         self._datawc_x1 = value
     datawc_x1 = property(_getdatawc_x1, _setdatawc_x1)
 
@@ -535,7 +535,7 @@ Class: Gfi				# Isofill
         return self._datawc_x2
 
     def _setdatawc_x2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
         self._datawc_x2 = value
     datawc_x2 = property(_getdatawc_x2, _setdatawc_x2)
 
@@ -543,7 +543,7 @@ Class: Gfi				# Isofill
         return self._datawc_y1
 
     def _setdatawc_y1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
         self._datawc_y1 = value
     datawc_y1 = property(_getdatawc_y1, _setdatawc_y1)
 
@@ -551,7 +551,7 @@ Class: Gfi				# Isofill
         return self._datawc_y2
 
     def _setdatawc_y2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
@@ -561,7 +561,6 @@ Class: Gfi				# Isofill
                 #                                                         #
                 ###########################################################
                 # Initialize the isofill class and its members            #
-                #							  #
                 # The getGfimember function retrieves the values of the   #
                 # isofill members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
@@ -606,15 +605,18 @@ Class: Gfi				# Isofill
         else:
             if isinstance(Gfi_name_src, Gfi):
                 Gfi_name_src = Gfi_name_src.name
-            if not Gfi_name_src in vcs.elements["isofill"].keys():
+            if Gfi_name_src not in vcs.elements["isofill"].keys():
                 raise ValueError(
                     "Isofill method '%s' does not exists" %
                     Gfi_name_src)
             src = vcs.elements["isofill"][Gfi_name_src]
             self._ext_1 = False
             self._ext_2 = False
-            for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2', 'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'levels', 'xaxisconvert', 'yaxisconvert', 'missing', 'ext_1', 'ext_2', 'fillareastyle', 'fillareaindices', 'fillareacolors', 'legend', 'datawc_timeunits', 'datawc_calendar']:
+            for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
+                        'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
+                        'datawc_x2', 'levels', 'xaxisconvert', 'yaxisconvert', 'missing', 'ext_1', 'ext_2',
+                        'fillareastyle', 'fillareaindices', 'fillareacolors', 'legend',
+                        'datawc_timeunits', 'datawc_calendar']:
                 setattr(self, "_" + att, getattr(src, "_" + att))
 
         vcs.elements["isofill"][self.name] = self

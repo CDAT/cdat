@@ -5,6 +5,7 @@
 # user's $HOME/.uvcdat directory.                                    #
 #                                                                           #
 #############################################################################
+import vcs
 
 
 def _files():
@@ -21,7 +22,8 @@ def _files():
         try:
             fn = '%s/%s' % (os.environ['HOME'], dotdir)
         except:
-            print "Could not find the $HOME directory or the %s . Set your environment variable 'HOME' or '%s'" % (dotdir, dotdirenv)
+            print "Could not find the $HOME directory or the %s."
+            print "Set your environment variable 'HOME' or '%s'" % (dotdir, dotdirenv)
             print "to your home directory. (e.g., 'setenv HOME /home/user')."
             sys.exit()
     if os.access(fn, os.X_OK) == 0:
@@ -160,7 +162,6 @@ def _files():
 
 
 def _XGKSFontDir():
-    import sys
     import os
     import vcs
     xgks_env = os.path.join(
@@ -274,7 +275,6 @@ def remove_printer(printer_name):
 
 
 def add_gplot_commands():
-    import sys
     import os
     import string
     import vcs
@@ -341,7 +341,3 @@ def add_gplot_commands():
     # Move HARD_COPY.tmp to HARD_COPY
     command = 'mv -f %s %s' % (fn2, fn)
     os.system(command)
-
-#---------------------------------------------------------------------
-# End of File
-#---------------------------------------------------------------------

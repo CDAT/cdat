@@ -2,7 +2,6 @@ import point
 import vcs
 import vtk
 import vcs.vcs2vtk
-from font import FontEditor
 from vcs.vtk_ui.text import contrasting_color
 
 __valign_map__ = {
@@ -91,12 +90,6 @@ class LabelEditor(point.PointEditor):
             "Angle",
             update=self.update_angle)
 
-        font_editor = FontEditor(
-            self.toolbar,
-            self.set_font,
-            vcs.elements["fontNumber"][
-                self.tt.font])
-
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
         self.toolbar.show()
@@ -169,8 +162,6 @@ class LabelEditor(point.PointEditor):
         tprop = self.actor.GetTextProperty()
         tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
         tprop.SetBackgroundOpacity(.85)
-        # text colormap is currently not in place, will be later.
-        #self.text.colormap = cmap
 
     def cancel_color(self):
         self.picker = None

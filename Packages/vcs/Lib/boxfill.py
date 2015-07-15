@@ -2,21 +2,15 @@
 # Boxfill (Gfb) module
 """
 ###############################################################################
-#									      #
 # Module:	boxfill (Gfb) module					      #
-#									      #
 # Copyright:    2000, Regents of the University of California		      #
 #               This software may not be distributed to others without	      #
 #               permission of the author.				      #
-#									      #
 # Author:       PCMDI Software Team                                           #
 #               Lawrence Livermore NationalLaboratory:                        #
 #               support@pcmdi.llnl.gov                                        #
-#									      #
 # Description:	Python command wrapper for VCS's boxfill graphics method.     #
-#									      #
 # Version:      5.0							      #
-#									      #
 ###############################################################################
 #
 #
@@ -27,13 +21,10 @@
 #                                                                             #
 ###############################################################################
 import vcs
-import Canvas
-import isofill
 import cdtime
-from types import *
 import VCS_validation_functions
 import xmldocs
-# from gm_core import * No need to import
+import warnings
 
 
 def process_src(nm, code):
@@ -72,16 +63,16 @@ def process_src(nm, code):
             nm = "datawc_timeunits"
         if nm == "legend":
             if sp[1] != "()":
-                g.legend = sp[1][1:-1]
+                gm.legend = sp[1][1:-1]
             continue
         try:
             # int will be converted
             setattr(gm, nm, int(sp[1]))
-        except Exception as err:
+        except:
             try:
                 # int and floats will be converted
                 setattr(gm, nm, eval(sp[1]))
-            except Exception as err:
+            except:
                 # strings
                 try:
                     setattr(gm, nm, sp[1])
@@ -138,7 +129,7 @@ def process_src(nm, code):
                 levs.append([float(sp[1][7:]), float(sp[2][7:])])
                 fa = sp[-1][3:]
                 fa = fa[:fa.find(")")]
-                if not fa in vcs.elements["fillarea"].keys():
+                if fa not in vcs.elements["fillarea"].keys():
                     badfa = True
                     fai.append(fa)
                 else:
@@ -285,7 +276,7 @@ class Gfb(object):
                 fill.style='hatch'                       # change style
                 fill.color=241                           # change color
                 fill.index=3                             # change style index
-""" % xmldocs.graphics_method_core
+""" % xmldocs.graphics_method_core  # noqa
 
     def rename(self, newname):
         if newname == "default":
@@ -542,7 +533,7 @@ class Gfb(object):
         return self._fillareacolors
 
     def _setfillareacolors(self, value):
-        if not value is None:
+        if value is not None:
             value = VCS_validation_functions.checkColorList(
                 self,
                 'fillareacolors',
@@ -687,7 +678,7 @@ class Gfb(object):
         return self._datawc_x1
 
     def _setdatawc_x1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x1', value)
         self._datawc_x1 = value
     datawc_x1 = property(_getdatawc_x1, _setdatawc_x1)
 
@@ -695,7 +686,7 @@ class Gfb(object):
         return self._datawc_x2
 
     def _setdatawc_x2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_x2', value)
         self._datawc_x2 = value
     datawc_x2 = property(_getdatawc_x2, _setdatawc_x2)
 
@@ -703,7 +694,7 @@ class Gfb(object):
         return self._datawc_y1
 
     def _setdatawc_y1(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y1', value)
         self._datawc_y1 = value
     datawc_y1 = property(_getdatawc_y1, _setdatawc_y1)
 
@@ -711,7 +702,7 @@ class Gfb(object):
         return self._datawc_y2
 
     def _setdatawc_y2(self, value):
-        value2 = VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
+        VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 

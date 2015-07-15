@@ -15,7 +15,6 @@
 #               support@pcmdi.llnl.gov                                          #
 #                                                                               #
 # Description:  Python command wrapper for VCS's template boxes and lines       #
-#		object.               						#
 #                                                                               #
 # Version:      4.0                                                             #
 #                                                                               #
@@ -23,9 +22,7 @@
 #
 #
 #
-import queries
 import VCS_validation_functions
-from types import *
 
 #############################################################################
 #                                                                           #
@@ -99,7 +96,6 @@ class Pbl(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPblmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #

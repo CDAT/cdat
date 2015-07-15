@@ -219,7 +219,7 @@ class Cp(object):
         else:
             if isinstance(Cp_name_src, Cp):
                 Cp_name_src = Cp_name_src.name
-            if not Cp_name_src in vcs.elements["colormap"]:
+            if Cp_name_src not in vcs.elements["colormap"]:
                 raise Exception(
                     "Error source colormap '%s' does not exists" %
                     Cp_name_src)

@@ -22,9 +22,7 @@
 #
 #
 #
-import queries
 import VCS_validation_functions
-from types import *
 #############################################################################
 #                                                                           #
 # Template text (Pyt) Class.                                                #
@@ -93,7 +91,6 @@ class Pyt(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPytmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #

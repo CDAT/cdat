@@ -1,12 +1,11 @@
 from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
 from vcs.colorpicker import ColorPicker
-from vtk import vtkTextProperty, vtkPropPicker, vtkPropCollection
+from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
 import priority
 import vcs
-from vcs.vcs2vtk import genTextActor, vtkIterate
-from font import FontEditor
+from vcs.vcs2vtk import genTextActor
 import sys
 
 __valign_map__ = {
@@ -63,12 +62,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             360,
             "Angle",
             update=self.update_angle)
-
-        font_editor = FontEditor(
-            self.toolbar,
-            self.set_font,
-            vcs.elements["fontNumber"][
-                self.text.font])
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -299,8 +292,6 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.text.color = color
         self.update()
         self.picker = None
-        # text colormap is currently not in place, will be later.
-        #self.text.colormap = cmap
 
     def cancel_color(self):
         self.picker = None

@@ -1,20 +1,13 @@
-import animate_helper
+import cdutil
 import warnings
 import vtk
 import vcs
 import vcs2vtk
 import numpy
-from vtk.util import numpy_support as VN
-import meshfill
-import boxfill
-import isofill
-import isoline
 import os
 import traceback
 import sys
 import cdms2
-import DV3D
-import MV2
 import cdtime
 import inspect
 import VTKAnimate
@@ -116,7 +109,6 @@ class VTKVCSBackend(object):
         if self.renWin is not None:
             if self.reRender:
                 self.reRender = False
-                #self._lastSize = None
                 self.renWin.Render()
 
     def renderEvent(self, caller, evt):
@@ -329,7 +321,7 @@ class VTKVCSBackend(object):
 
         if self.renderer is None:
             self.renderer = self.createRenderer()
-            if self.bg != True:
+            if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
         if "open" in kargs and kargs["open"]:
@@ -420,7 +412,7 @@ class VTKVCSBackend(object):
             self.renWin.SetSize(W, H)
 
     def initialSize(self):
-        #screenSize = self.renWin.GetScreenSize()
+        # screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(self.canvas.bgX, self.canvas.bgY)
         self._lastSize = (self.canvas.bgX, self.canvas.bgY)
 
@@ -466,17 +458,8 @@ class VTKVCSBackend(object):
         tpl = vcs.elements["template"][template]
 
         if kargs.get("renderer", None) is None:
-            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (
-                    self.renderer is not None):
+            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (self.renderer is not None):
                 ren = self.renderer
-            else:
-                #ren = self.createRenderer()
-                # if not (vcs.issecondaryobject(gm) and gm.priority==0):
-                #    self.setLayer(ren,tpl.data.priority)
-                #    self.renderer = ren
-                #    self.renWin.AddRenderer(ren)
-                pass
-            # ren.SetPreserveDepthBuffer(True)
         else:
             ren = kargs["renderer"]
 
@@ -490,9 +473,9 @@ class VTKVCSBackend(object):
         elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
             cdms_file = kargs.get('cdmsfile', None)
             cdms_var = kargs.get('cdmsvar', None)
-            if not cdms_var is None:
+            if cdms_var is not None:
                 raise Exception()
-            if not cdms_file is None:
+            if cdms_file is not None:
                 gm.addPlotAttribute('file', cdms_file)
                 gm.addPlotAttribute('filename', cdms_file)
                 gm.addPlotAttribute('url', cdms_file)
@@ -577,9 +560,6 @@ class VTKVCSBackend(object):
         if g is None:
             g = DV3DApp(self.canvas, self.cell_coordinates)
             n_overview_points = 500000
-            grid_coords = (None, None, None, None)
-            var_proc_op = None
-            interface = None
             roi = None  # ( 0, 0, 50, 50 )
             g.gminit(
                 data1,
@@ -627,8 +607,8 @@ class VTKVCSBackend(object):
         else:
             geo = None
 
-        ren = self.fitToViewport(contActor, [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2],
-                                 wc=[x1, x2, y1, y2], geo=geo, priority=tmpl.data.priority)
+        self.fitToViewport(contActor, [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2],
+                           wc=[x1, x2, y1, y2], geo=geo, priority=tmpl.data.priority)
         return {}
 
     def renderTemplate(self, tmpl, data, gm, taxis, zaxis):
@@ -785,7 +765,7 @@ class VTKVCSBackend(object):
                 # Ok just return the last two dims
                 return self.cleanupData(
                     data(*(slice(0, 1),) * (len(daxes) - 2), squeeze=1))
-        except Exception as err:  # ok no grid info
+        except:
             daxes = list(data.getAxisList())
             if cdms2.isVariable(data):
                 return self.cleanupData(
@@ -841,7 +821,7 @@ class VTKVCSBackend(object):
 
         if plot:
             plot.hideWidgets()
-        elif self.bg != True:
+        elif not self.bg:
             from vtk_ui.manager import get_manager, manager_exists
             if manager_exists(self.renWin.GetInteractor()):
                 manager = get_manager(self.renWin.GetInteractor())
@@ -853,7 +833,7 @@ class VTKVCSBackend(object):
 
         if plot:
             plot.showWidgets()
-        elif self.bg != True:
+        elif not self.bg:
             from vtk_ui.manager import get_manager, manager_exists
             if manager_exists(self.renWin.GetInteractor()):
                 manager = get_manager(self.renWin.GetInteractor())
@@ -1087,12 +1067,10 @@ class VTKVCSBackend(object):
             # yep already have one, we will use this Renderer
             Renderer, xScale, yScale = self._renderers[
                 (vp, wc_used, sc, priority)]
-            didRenderer = True
         else:
             Renderer = self.createRenderer()
             self.renWin.AddRenderer(Renderer)
             Renderer.SetViewport(vp[0], vp[2], vp[1], vp[3])
-            didRenderer = False
 
             if Yrg[0] > Yrg[1]:
                 # Yrg=[Yrg[1],Yrg[0]]
@@ -1155,7 +1133,6 @@ class VTKVCSBackend(object):
 
             xc = xScale * float(Xrg[1] + Xrg[0]) / 2.
             yc = yScale * float(Yrg[1] + Yrg[0]) / 2.
-            xd = xScale * float(Xrg[1] - Xrg[0]) / 2.
             yd = yScale * float(Yrg[1] - Yrg[0]) / 2.
             cam = Renderer.GetActiveCamera()
             cam.ParallelProjectionOn()
@@ -1327,9 +1304,10 @@ class VTKVCSBackend(object):
                         meanstring = "Mean: %s" % getattr(array1, "mean")
                     else:
                         try:
-                            meanstring = 'Mean %.4g' % float(cdutil.averager(array1,
-                                                                             axis=" ".join(["(%s)" % S for S in array1.getAxisIds()])))
-                        except Exception as err:
+                            meanstring = 'Mean %.4g' % \
+                                float(cdutil.averager(array1, axis=" ".join(["(%s)" %
+                                                                             S for S in array1.getAxisIds()])))
+                        except:
                             meanstring = 'Mean %.4g' % array1.mean()
                     t.SetInput(meanstring)
                 elif att == "crdate" and tstr is not None:

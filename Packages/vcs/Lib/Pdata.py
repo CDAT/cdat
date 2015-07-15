@@ -90,7 +90,6 @@ class Pds(object):
         #                                                         #
         ###########################################################
         # Initialize the line class and its members               #
-        #							  #
         # The getPdsmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #
