@@ -53,7 +53,7 @@ class VTKVCSBackend(object):
         self.clickRenderer = None
         # Turn on anti-aliasing by default
         # Initially set to 16x Multi-Sampled Anti-Aliasing
-        self.antialiasing = 16
+        self.antialiasing = 8
 
         if renWin is not None:
             self.renWin = renWin
@@ -992,7 +992,7 @@ class VTKVCSBackend(object):
 
     def getantialiasing(self):
         if self.renWin is None:
-            return self.antialasing
+            return self.antialiasing
         else:
             return self.renWin.GetMultiSamples()
 
