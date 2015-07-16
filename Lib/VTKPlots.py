@@ -14,16 +14,6 @@ import VTKAnimate
 import vcsvtk
 
 
-def smooth(x, beta, window_len=11):
-    """ kaiser window smoothing """
-    # extending the data at beginning and at the end
-    # to apply the window at the borders
-    s = numpy.r_[x[window_len - 1:0:-1], x, x[-1:-window_len:-1]]
-    w = numpy.kaiser(window_len, beta)
-    y = numpy.convolve(w / w.sum(), s, mode='valid')
-    return y[(window_len / 2):-(window_len / 2)]
-
-
 class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
 
     def __init__(self, parent):

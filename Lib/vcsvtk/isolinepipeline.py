@@ -204,7 +204,7 @@ class IsolinePipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
+            self._context.fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
