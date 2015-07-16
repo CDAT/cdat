@@ -316,7 +316,7 @@ class VTKVCSBackend(object):
             self.renWin.SetStencilCapable(1)
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
-            self.renWin.SetMultiSamples(0)
+            self.renWin.SetMultiSamples(self.antialiasing)
             self.initialSize()
 
         if self.renderer is None:
@@ -1002,15 +1002,13 @@ class VTKVCSBackend(object):
 
     def getantialiasing(self):
         if self.renWin is None:
-            return 0
+            return self.antialasing
         else:
             return self.renWin.GetMultiSamples()
 
     def setantialiasing(self, antialiasing):
-        if self.renWin is None:
-            warnings.warn(
-                "no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
-        else:
+        self.antialiasing = antialiasing
+        if self.renWin is not None:
             self.renWin.SetMultiSamples(antialiasing)
 
     def createLogo(self):
