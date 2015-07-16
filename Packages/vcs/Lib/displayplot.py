@@ -111,13 +111,14 @@ class Dp(object):
             self._name = value
     name = property(_getname, _setname)
 
-    def _setnewelements(self,value):
-      if not isinstance(value,dict):
-        raise ValueError("newelements attribute must be a dictionary")
-      self._newelements = value
+    def _setnewelements(self, value):
+        if not isinstance(value, dict):
+            raise ValueError("newelements attribute must be a dictionary")
+        self._newelements = value
+
     def _getnewelements(self):
-      return self._newelements
-    newelements = property(_getnewelements,_setnewelements)
+        return self._newelements
+    newelements = property(_getnewelements, _setnewelements)
 
     def _getcontinents(self):
         return self._continents

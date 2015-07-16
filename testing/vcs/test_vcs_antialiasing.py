@@ -4,7 +4,7 @@ x=vcs.init()
 x.drawlogooff()
 x.open()
 
-## test it is off by default
+## test it is on by default
 assert(x.getantialiasing()==16)
 
 ## test we can set it

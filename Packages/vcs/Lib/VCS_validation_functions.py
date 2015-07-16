@@ -1,8 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs
 import cdtime
-import queries
 import numpy
+import genutil
 
 
 class PPE(Exception):
@@ -26,7 +26,7 @@ def color2vcs(col):
     if isinstance(col, unicode):
         col = str(col)
     if isinstance(col, str):
-        r, g, b = vcs.colors.str2rgb(col)
+        r, g, b = genutil.colors.str2rgb(col)
         if r is None:
             raise ValueError("Invalid color: %s" % col)
             # r,g,b=[0,0,0] # black by default
@@ -221,6 +221,7 @@ def checkFont(self, name, value):
 
 
 def checkMarker(self, name, value):
+    import queries
     checkName(self, name, value)
     oks = [
         None,
@@ -403,6 +404,7 @@ def checkCallable(self, name, value):
 
 
 def checkFillAreaStyle(self, name, value):
+    import queries
     checkName(self, name, value)
     if ((value in ('solid', 'hatch', 'pattern', 'hallow', 0, 1, 2, 3)) or
             (queries.isfillarea(value) == 1)):
@@ -715,6 +717,7 @@ def checkIsolineLevels(self, name, value):
 
 
 def checkIndex(self, name, value):
+    import queries
     checkName(self, name, value)
     if ((value not in range(1, 21)) and
             (queries.isfillarea(value) == 0)):
@@ -780,6 +783,7 @@ def checkVectorAlignment(self, name, value):
 
 
 def checkLineType(self, name, value):
+    import queries
     checkName(self, name, value)
     if value in ('default', 'solid', 0):
         hvalue = 'solid'
@@ -861,6 +865,7 @@ def checkTextOrientation(self, name, value):
 
 
 def checkTextsList(self, name, value):
+    import queries
     checkName(self, name, value)
     if isinstance(value, int):
         value = list(value)

@@ -29,13 +29,10 @@
 import boxfill
 import isofill
 import isoline
-import outfill
-import outline
 import taylor
 import meshfill
 import unified1D
 import vector
-import continents
 import line
 import marker
 import fillarea
@@ -58,7 +55,7 @@ Function: isgraphicsmethod
 
 Description of Function:
 Indicates if the entered argument is one of the following graphics
-methods: boxfill, isofill, isoline, outfill, outline, continents,
+methods: boxfill, isofill, isoline,
 scatter, vector, xvsy, xyvsy, yxvsx.
 
 Returns a 1, which indicates true, if the argment is one of the above.
@@ -84,12 +81,6 @@ if vcs.isgraphicsmethod(box):
         return 1
     elif (isinstance(gobj, isoline.Gi)):
         return 1
-    elif (isinstance(gobj, outfill.Gfo)):
-        return 1
-    elif (isinstance(gobj, outline.Go)):
-        return 1
-    elif (isinstance(gobj, continents.Gcon)):
-        return 1
     elif (isinstance(gobj, vector.Gv)):
         return 1
     elif (isinstance(gobj, unified1D.G1d)):
@@ -111,13 +102,13 @@ Function: graphicsmethodlist
 Description of Function:
     Will return a list of available grapics methods (i.e., boxfill, isofill, isoline, outf
 ill,
-    outline, continents, scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
+    scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
 
 Example of Use:
 a=vcs.init()
 gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-    return ['boxfill', 'isofill', 'isoline', 'meshfill', 'outfill', 'outline', 'continents', 'scatter',
+    return ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter',
             'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector']
 
 
@@ -126,8 +117,8 @@ def graphicsmethodtype(gobj):
 Function: graphicsmethodtype
 
 Description of Function:
-    Will return the grapics method's type: boxfill, isofill, isoline, outfill,
-    outline, continents, scatter, vector, xvsy, xyvsy, or yxvsx, taylordiagram.
+    Will return the grapics method's type: boxfill, isofill, isoline,
+    scatter, vector, xvsy, xyvsy, or yxvsx, taylordiagram.
 
     Returns a None if the object is not a graphics method.
 
@@ -155,12 +146,6 @@ print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
         return '3d_vector'
     elif (isinstance(gobj, isoline.Gi)):
         return 'isoline'
-    elif (isinstance(gobj, outfill.Gfo)):
-        return 'outfill'
-    elif (isinstance(gobj, outline.Go)):
-        return 'outline'
-    elif (isinstance(gobj, continents.Gcon)):
-        return 'continents'
     elif (isinstance(gobj, vector.Gv)):
         return 'vector'
     elif (isinstance(gobj, unified1D.G1d)):
@@ -577,62 +562,6 @@ if queries.isisoline(iso):
 
 #############################################################################
 #                                                                           #
-# Is this a primary outfill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
-
-
-def isoutfill(obj):
-    """
- Function: isoutfill
-
- Description of Function:
-Check to see if this object is a VCS primary outfill graphics method.
-
- Example of Use:
-a=vcs.init()
-out=a.getoutfill("quick")  # To Modify an existing outfill object
-...
-
-if queries.isoutfill(out):
-   out.list()
-
-"""
-    if (isinstance(obj, outfill.Gfo)):
-        return 1
-    else:
-        return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary outline graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
-
-
-def isoutline(obj):
-    """
- Function: isoutline
-
- Description of Function:
-Check to see if this object is a VCS primary outline graphics method.
-
- Example of Use:
-a=vcs.init()
-out=a.getoutline("quick")  # To Modify an existing outline object
-...
-
-if queries.isoutline(out):
-   out.list()
-
-"""
-    if (isinstance(obj, outline.Go)):
-        return 1
-    else:
-        return 0
-
-#############################################################################
-#                                                                           #
 # Is this a primary scatter graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
@@ -771,34 +700,6 @@ if queries.isxvsy(xy):
 
 """
     if (isinstance(obj, unified1D.G1d)):
-        return 1
-    else:
-        return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary continents graphics method in VCS?                      #
-#                                                                           #
-#############################################################################
-
-
-def iscontinents(obj):
-    """
- Function: iscontinents
-
- Description of Function:
-Check to see if this object is a VCS primary continents graphics method.
-
- Example of Use:
-a=vcs.init()
-con=a.getcontinents("quick")  # To Modify an existing continents object
-...
-
-if queries.iscontinents(con):
-   con.list()
-
-"""
-    if (isinstance(obj, continents.Gcon)):
         return 1
     else:
         return 0

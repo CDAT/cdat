@@ -37,7 +37,6 @@ import boxfill
 import isofill
 import isoline
 import vector
-import continents
 import line
 import marker
 import fillarea
@@ -271,8 +270,7 @@ def _determine_arg_list(g_name, actual_args):
                                       cdms2.hgrid.AbstractCurveGrid, cdms2.grid.TransientRectGrid)):
                     raise vcsError("Meshfill requires 2 slab if first slab doesn't have a "
                                    "Rectilinear, Curvilinear or Generic Grid type")
-        elif ((arglist[igraphics_method] == 'continents') or
-              (arglist[igraphics_method] == 'line') or
+        elif ((arglist[igraphics_method] == 'line') or
               (arglist[igraphics_method] == 'marker') or
               (arglist[igraphics_method] == 'fillarea') or
               (arglist[igraphics_method] == 'text')):
@@ -542,8 +540,6 @@ class Canvas(object):
             gm = self.getisofill(arglist[4])
         elif arglist[3] == 'isoline':
             gm = self.getisoline(arglist[4])
-        elif arglist[3] == 'continents':
-            gm = self.getcontinents(arglist[4])
         elif arglist[3] == 'scatter':
             nvar = 2
             gm = self.getscatter(arglist[4])
@@ -1125,8 +1121,6 @@ class Canvas(object):
                 vector.Gv.script(obj, script_filename, mode)
             elif (obj.g_name == 'GSp'):
                 scatter.GSp.script(obj, script_filename, mode)
-            elif (obj.g_name == 'Gcon'):
-                continents.Gcon.script(obj, script_filename, mode)
             elif (obj.g_name == 'Gtd'):
                 obj.script(script_filename, mode)
             elif (obj.g_name == 'Gfm'):
@@ -1923,91 +1917,6 @@ Options:::
 
     ##########################################################################
     #                                                                           #
-    # Continents functions for VCS.                                             #
-    #                                                                           #
-    ##########################################################################
-    def createcontinents(self, name=None, source='default'):
-        """
- Function: createcontinents               # Construct a new continents graphics method
-
- Description of Function:
-    Create a new continents graphics method given the the name and the existing
-    continents graphics method to copy the attributes from. If no existing
-    continents graphics method name is given, then the default continents graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('continents')
-    con=a.createcontinents('example1',)
-    a.show('continents')
-    con=a.createcontinents('example2','quick')
-    a.show('continents')
-"""
-
-        name, source = self.check_name_source(name, source, 'continents')
-
-        return continents.Gcon(self, name, source, 0)
-
-    def getcontinents(self, Gcon_name_src='default'):
-        """
- Function: getcontinents               # Construct a new continents graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    continents class object from an existing VCS continents graphics method. If
-    no continents name is given, then continents 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createcontinents function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('continents')              # Show all the existing continents graphics
-                                      # methods
-    con=a.getcontinents()               # con instance of 'default' continents graphics
-                                        #       method
-    con2=a.getcontinents('quick')       # con2 instance of existing 'quick' continents
-                                        #       graphics method
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if not isinstance(Gcon_name_src, str):
-            raise vcsError('The argument must be a string.')
-
-        Gcon_name = None
-        return continents.Gcon(self, Gcon_name, Gcon_name_src, 1)
-
-    def continents(self, *args, **parms):
-        """
- Function: continents                      # Generate a continents plot
-
- Description of Function:
-    Generate a continents plot given the data, continents graphics method, and
-    template. If no continents class object is given, then the 'default' continents
-    graphics method is used. Similarly, if no template class object is given,
-    then the 'default' template is used.
-
- Example of Use:
-    a=vcs.init()
-    a.show('continents')                # Show all the existing continents graphics
-                                        # methods
-    con=a.getcontinents('quick')        # Create instance of 'quick'
-    a.continents(array,con)             # Plot array using specified con and default
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.continents(array,con,template)    # Plot array using specified con and template
-"""
-        arglist = _determine_arg_list('continents', args)
-        return self.__plot(arglist, parms)
-
-    ##########################################################################
-    #                                                                           #
     # Line  functions for VCS.                                                  #
     #                                                                           #
     ##########################################################################
@@ -2654,27 +2563,28 @@ Options:::
         except Exception as err:
             print err
 
-    def __new_elts(self,original,new):
-      for e in vcs.elements.keys():
-        for k in vcs.elements[e].keys():
-          if k not in original[e]:
-            new[e].append(k)
-      return new
+    def __new_elts(self, original, new):
+        for e in vcs.elements.keys():
+            for k in vcs.elements[e].keys():
+                if k not in original[e]:
+                    new[e].append(k)
+        return new
 
     def __plot(self, arglist, keyargs):
 
-        # This routine has five arguments in arglist from _determine_arg_list
-        # It adds one for bg and passes those on to Canvas.plot as its sixth
-        # arguments.
+            # This routine has five arguments in arglist from _determine_arg_list
+            # It adds one for bg and passes those on to Canvas.plot as its sixth
+            # arguments.
 
-        # First of all let's remember which elets we have before comin in here
-        # so that anything added (temp objects) can be removed at clear time
+            # First of all let's remember which elets we have before comin in here
+            # so that anything added (temp objects) can be removed at clear
+            # time
         original_elts = {}
         new_elts = {}
         for k in vcs.elements.keys():
-          original_elts[k] = vcs.elements[k].keys()
-          new_elts[k] = []
-        ## First of all try some cleanup
+            original_elts[k] = vcs.elements[k].keys()
+            new_elts[k] = []
+        # First of all try some cleanup
         assert len(arglist) == 6
         xtrakw = arglist.pop(5)
         for k in xtrakw.keys():
@@ -4082,19 +3992,20 @@ Options:::
         self.animate.update_animate_display_list()
         self.backend.clear(*args, **kargs)
         for nm in self.display_names:
-          ## Lets look at elements created by dispaly production
-          # Apparently when updating we shouldn't be clearing these elemnts yet
-          if kargs.get("render",True):
-            dn = vcs.elements["display"][nm]
-            new_elts = getattr(dn,"newelements",{})
-            for e in new_elts.keys():
-              if e == "display":
-                continue
-              for k in new_elts[e]:
-                if k in vcs.elements[e].keys():
-                  del(vcs.elements[e][k])
-          del(vcs.elements["display"][nm])
-        self.display_names=[]
+            # Lets look at elements created by dispaly production
+            # Apparently when updating we shouldn't be clearing these elemnts
+            # yet
+            if kargs.get("render", True):
+                dn = vcs.elements["display"][nm]
+                new_elts = getattr(dn, "newelements", {})
+                for e in new_elts.keys():
+                    if e == "display":
+                        continue
+                    for k in new_elts[e]:
+                        if k in vcs.elements[e].keys():
+                            del(vcs.elements[e][k])
+            del(vcs.elements["display"][nm])
+        self.display_names = []
         return
 
     ##########################################################################
@@ -4592,7 +4503,7 @@ Options:::
     Returns a Python list of all the VCS class objects.
 
    The list that will be returned:
-   ['template', 'boxfill', 'continent', 'isofill', 'isoline',
+   ['template', 'boxfill', 'isofill', 'isoline',
     'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'colormap', 'fillarea', 'format',
     'line', 'list', 'marker', 'text']
 
