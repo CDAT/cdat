@@ -5,7 +5,8 @@ x.drawlogooff()
 x.open()
 
 ## test it is on by default
-assert(x.getantialiasing()==16)
+print x.getantialiasing()
+assert(x.getantialiasing()==8)
 
 ## test we can set it
 x.setantialiasing(3)

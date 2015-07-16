@@ -32,6 +32,7 @@ class VectorPipeline(Pipeline):
                   'wrap', 'geo']:
             exec("%s = gridGenDict['%s']" % (k, k))
         grid = gridGenDict['vtk_backend_grid']
+        self._dataWrapModulo = gridGenDict['wrap']
 
         returned["vtk_backend_grid"] = grid
         returned["vtk_backend_geo"] = geo
