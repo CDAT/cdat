@@ -64,106 +64,109 @@ static PyObject *CdunifError;
 static void
 Cdunif_seterror(void)
 {
+#define MAXERRLEN 512
   char *error;
+  error = (char *) malloc(MAXERRLEN);
   switch (ncerr) {
   case NC_NOERR:
-    error = "No error";
+    strncpy(error, "No error",MAXERRLEN);
     break;
   case NC_EBADID:
-    error = "Not a Cdunif id";
+    strncpy(error, "Not a Cdunif id",MAXERRLEN);
     break;
   case NC_ENFILE:
-    error = "Too many Cdunif files open";
+    strncpy(error, "Too many Cdunif files open",MAXERRLEN);
     break;
   case NC_EEXIST:
-    error = "Cdunif file exists && NC_NOCLOBBER";
+    strncpy(error, "Cdunif file exists && NC_NOCLOBBER",MAXERRLEN);
     break;
   case NC_EINVAL:
-    error = "Invalid argument";
+    strncpy(error, "Invalid argument",MAXERRLEN);
     break;
   case NC_EPERM:
-    error = "Write to read only";
+    strncpy(error, "Write to read only",MAXERRLEN);
     break;
   case NC_ENOTINDEFINE:
-    error = "Operation not allowed in data mode";
+    strncpy(error, "Operation not allowed in data mode",MAXERRLEN);
     break;
   case NC_EINDEFINE:
-    error = "Operation not allowed in define mode";
+    strncpy(error, "Operation not allowed in define mode",MAXERRLEN);
     break;
   case NC_EINVALCOORDS:
-    error = "Index exceeds dimension bound";
+    strncpy(error, "Index exceeds dimension bound",MAXERRLEN);
     break;
   case NC_EMAXDIMS:
-    error = "NC_MAX_DIMS exceeded";
+    strncpy(error, "NC_MAX_DIMS exceeded",MAXERRLEN);
     break;
   case NC_ENAMEINUSE:
-    error = "String match to name in use";
+    strncpy(error, "String match to name in use",MAXERRLEN);
     break;
   case NC_ENOTATT:
-    error = "Attribute not found";
+    strncpy(error, "Attribute not found",MAXERRLEN);
     break;
   case NC_EMAXATTS:
-    error = "NC_MAX_ATTRS exceeded";
+    strncpy(error, "NC_MAX_ATTRS exceeded",MAXERRLEN);
     break;
   case NC_EBADTYPE:
-    error = "Not a Cdunif data type or _FillValue type mismatch";
+    strncpy(error, "Not a Cdunif data type or _FillValue type mismatch",MAXERRLEN);
     break;
   case NC_EBADDIM:
-    error = "Invalid dimension id or name";
+    strncpy(error, "Invalid dimension id or name",MAXERRLEN);
     break;
   case NC_EUNLIMPOS:
-    error = "NC_UNLIMITED in the wrong index";
+    strncpy(error, "NC_UNLIMITED in the wrong index",MAXERRLEN);
     break;
   case NC_EMAXVARS:
-    error = "NC_MAX_VARS exceeded";
+    strncpy(error, "NC_MAX_VARS exceeded",MAXERRLEN);
     break;
   case NC_ENOTVAR:
-    error = "Variable not found";
+    strncpy(error, "Variable not found",MAXERRLEN);
     break;
   case NC_EGLOBAL:
-    error = "Action prohibited on NC_GLOBAL varid";
+    strncpy(error, "Action prohibited on NC_GLOBAL varid",MAXERRLEN);
     break;
   case NC_ENOTNC:
-    error = "Not a Cdunif file";
+    strncpy(error, "Not a Cdunif file",MAXERRLEN);
     break;
   case NC_ESTS:
-    error = "In Fortran, string too short";
+    strncpy(error, "In Fortran, string too short",MAXERRLEN);
     break;
   case NC_EMAXNAME:
-    error = "NC_MAX_NAME exceeded";
+    strncpy(error, "NC_MAX_NAME exceeded",MAXERRLEN);
     break;
   case NC_EUNLIMIT:
-    error = "NC_UNLIMITED size already in use";
+    strncpy(error, "NC_UNLIMITED size already in use",MAXERRLEN);
     break;
   case NC_ENORECVARS:
-    error = "nc_rec op when there are no record vars";
+    strncpy(error, "nc_rec op when there are no record vars",MAXERRLEN);
     break;
   case NC_ECHAR:
-    error = "Attempt to convert between text & numbers";
+    strncpy(error, "Attempt to convert between text & numbers",MAXERRLEN);
     break;
   case NC_EEDGE:
-    error = "Edge+start exceeds dimension bound";
+    strncpy(error, "Edge+start exceeds dimension bound",MAXERRLEN);
     break;
   case NC_ESTRIDE:
-    error = "Illegal stride";
+    strncpy(error, "Illegal stride",MAXERRLEN);
     break;
   case NC_EBADNAME:
-    error = "Attribute or variable name contains illegal characters";
+    strncpy(error, "Attribute or variable name contains illegal characters",MAXERRLEN);
     break;
   case NC_ERANGE:
-    error = "Numeric conversion not representable";
+    strncpy(error, "Numeric conversion not representable",MAXERRLEN);
     break;
   case NC_ENOMEM:
-    error = "Memory allocation (malloc) failure";
+    strncpy(error, "Memory allocation (malloc) failure",MAXERRLEN);
     break;
   case NC_EXDR:
-    error = "XDR error";
+    strncpy(error, "XDR error",MAXERRLEN);
     break;
   default:
-    error = "Unknown error";
+    snprintf(error, MAXERRLEN, nc_strerror(ncerr));
     break;
   }
   PyErr_SetString(PyExc_IOError, error);
+  free(error);
 }
 
 static void
