@@ -184,11 +184,11 @@ class IsofillPipeline(Pipeline2D):
 
             mapper.SetLookupTable(lut)
             if numpy.allclose(self._contourLevels[0], -1.e20):
-                lmn = mn - 1.
+                lmn = self._min - 1.
             else:
                 lmn = self._contourLevels[0]
             if numpy.allclose(self._contourLevels[-1], 1.e20):
-                lmx = mx + 1.
+                lmx = self._max + 1.
             else:
                 lmx = self._contourLevels[-1]
             mapper.SetScalarRange(lmn, lmx)
@@ -221,7 +221,7 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
+            self._context.fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
@@ -245,7 +245,7 @@ class IsofillPipeline(Pipeline2D):
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
                     # Ok we need to add the ext levels
-                    self._contourLevels.insert(0, [-1.e20, levs[0][0]])
+                    self._contourLevels.insert(0, [-1.e20, self._contourLevels[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
                     # need to add an ext

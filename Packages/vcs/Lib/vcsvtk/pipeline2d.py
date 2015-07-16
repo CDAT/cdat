@@ -162,6 +162,8 @@ class Pipeline2D(IPipeline2D):
         """Overrides baseclass implementation."""
         self._data1 = self._context.trimData2D(self._originalData1)
         self._data2 = self._context.trimData2D(self._originalData2)
+        self._min = self._data1.min()
+        self._max = self._data1.max()
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
