@@ -526,6 +526,11 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
       "${BASELINE_DIR}/test_isoline_labels.png"
       )
+    cdat_add_test(vcs_test_isofill_isoline_labels
+      "${PYTHON_EXECUTABLE}"
+      "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
+      "${BASELINE_DIR}/test_isofill_isoline_labels.png"
+      )
     cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
