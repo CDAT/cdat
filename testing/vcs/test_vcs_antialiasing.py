@@ -13,3 +13,4 @@ assert(x.getantialiasing()==3)
 ## test we can set it off
 x.setantialiasing(0)
 assert(x.getantialiasing()==0)
+x.close()

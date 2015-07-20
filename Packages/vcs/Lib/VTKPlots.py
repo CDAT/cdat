@@ -193,6 +193,9 @@ class VTKVCSBackend(object):
       self.clickRenderer = None
 
   def configureEvent(self,obj,ev):
+    if not self.renWin:
+        return
+
     cursor = self.renWin.GetCurrentCursor()
     if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
       self.oldCursor = cursor
@@ -456,6 +459,8 @@ class VTKVCSBackend(object):
     if pipeline is not None:
         returned.update(pipeline.plot(data1, data2, tpl, gm,
                                       vtk_backend_grid, vtk_backend_geo))
+        returned["vtk_backend_pipeline"] = pipeline
+
     elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
@@ -1111,77 +1116,10 @@ class VTKVCSBackend(object):
       return Renderer
 
   def update_input(self,vtkobjects,array1,array2=None,update=True):
-      if vtkobjects.has_key("vtk_backend_grid"):
-          ## Ok ths is where we update the input data
-          vg=vtkobjects["vtk_backend_grid"]
-          data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
-          pData= vg.GetPointData().GetScalars()
-          if pData is not None:
-              vg.GetPointData().SetScalars(data)
-          else:
-              vg.GetCellData().SetScalars(data)
-          if vtkobjects.has_key("vtk_backend_filter"):
-            vtkobjects["vtk_backend_filter"].Update()
-          if vtkobjects.has_key("vtk_backend_missing_mapper"):
-              missingMapper,color,cellData = vtkobjects["vtk_backend_missing_mapper"]
-              missingMapper2 = vcs2vtk.putMaskOnVTKGrid(array1,vg,color,cellData,deep=False)
-          else:
-              missingMapper = None
-          if vtkobjects.has_key("vtk_backend_contours"):
-            for c in vtkobjects["vtk_backend_contours"]:
-              c.Update()
-            ports=vtkobjects["vtk_backend_contours"]
-          elif vtkobjects.has_key("vtk_backend_geofilters"):
-            ports=vtkobjects["vtk_backend_geofilters"]
-          else:
-            # Vector plot
-            ports=vtkobjects["vtk_backend_glyphfilters"]
-            w = vcs2vtk.generateVectorArray(array1,array2,vg)
-            vg.GetPointData().AddArray(w)
-            ports[0].SetInputData(vg)
-
-          if vtkobjects.has_key("vtk_backend_actors"):
-              i=0
-              for a in vtkobjects["vtk_backend_actors"]:
-                  act = a[0]
-                  wrp = a[1]
-                  if a[1] is missingMapper:
-                      i-=1
-                      mapper = missingMapper2
-                      wrp = a[2]
-                  else:
-                      ## Labeled contours are a different kind
-                      if vtkobjects.has_key("vtk_backend_luts"):
-                          lut,rg = vtkobjects["vtk_backend_luts"][i]
-                          mapper = vtk.vtkPolyDataMapper()
-                      elif vtkobjects.has_key("vtk_backend_labeled_luts"):
-                          lut,rg = vtkobjects["vtk_backend_labeled_luts"][i]
-                          mapper = vtk.vtkLabeledContourMapper()
-                      if lut is None:
-                          mapper.SetInputConnection(ports[i].GetOutputPort())
-                      else:
-                          if mapper.IsA("vtkPolyDataMapper"):
-                              mapper.SetInputConnection(ports[i].GetOutputPort())
-                              mapper.SetLookupTable(lut)
-                              mapper.SetScalarModeToUsePointData()
-                          else:
-                              stripper = vtk.vtkStripper()
-                              stripper.SetInputConnection(ports[i].GetOutputPort())
-                              mapper.SetInputConnection(stripper.GetOutputPort())
-                              stripper.Update()
-                              tprops = vtkobjects["vtk_backend_contours_labels_text_properties"]
-                              mapper.GetPolyDataMapper().SetLookupTable(lut)
-                              mapper.GetPolyDataMapper().SetScalarModeToUsePointData()
-                              mapper.GetPolyDataMapper().SetScalarRange(rg[0],rg[1])
-                              mapper.SetLabelVisibility(1)
-                              mapper.SetTextProperties(tprops)
-                          if rg[2]:
-                              mapper.SetScalarModeToUseCellData()
-                          mapper.SetScalarRange(rg[0],rg[1])
-                  act.SetMapper(mapper)
-                  act = vcs2vtk.doWrap(a[0],wrp)
-                  a[0].SetMapper(act.GetMapper())
-                  i+=1
+      # Let the pipeline implementation update itself:
+      if "vtk_backend_pipeline" in vtkobjects:
+          pipeline = vtkobjects["vtk_backend_pipeline"]
+          pipeline.update_input(array1, array2)
 
       taxis = array1.getTime()
       if taxis is not None:

@@ -18,4 +18,5 @@ fnm = "test_plot_unstructured_via_boxfill.png"
 src = sys.argv[1]
 x.png(fnm)
 ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+x.close()
 sys.exit(ret)

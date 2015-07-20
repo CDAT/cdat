@@ -3943,6 +3943,7 @@ Options:::
             self.endconfigure()
         # Close the VCS Canvas
         a = self.backend.close(*args,**kargs)
+        self.animate_info = []
 
         # Stop the (thread) execution of the X main loop (if it is running).
         #self.canvas.stopxmainloop( )

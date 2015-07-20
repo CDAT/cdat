@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -77,14 +78,13 @@ class IsolinePipeline(Pipeline2D):
         for i in range(numLevels):
             cot.SetValue(i, self._contourLevels[i])
         cot.SetValue(numLevels, self._contourLevels[-1])
-        # TODO remove update
-        cot.Update()
 
         mappers = []
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+        cmap = self._context().canvas.getcolormapname()
+        cmap = vcs.elements["colormap"][cmap]
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
             lut.SetTableValue(i, r/100., g/100., b/100.)
@@ -135,14 +135,15 @@ class IsolinePipeline(Pipeline2D):
                         tt = tt.name
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
-                                             self._context.renWin.GetSize(),
+                                             self._context().renWin.GetSize(),
                                              to, tt)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
             else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
-                vcs2vtk.prepTextProperty(tprop, self._context.renWin.GetSize())
+                vcs2vtk.prepTextProperty(tprop,
+                                         self._context().renWin.GetSize())
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops
@@ -171,8 +172,6 @@ class IsolinePipeline(Pipeline2D):
         stripper = vtk.vtkStripper()
         stripper.SetInputConnection(cot.GetOutputPort())
         mapper.SetInputConnection(stripper.GetOutputPort())
-        # TODO remove update, make pipeline
-        stripper.Update()
         mappers.append(mapper)
         self._resultDict["vtk_backend_contours"] = [cot]
 
@@ -189,25 +188,28 @@ class IsolinePipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
-                                     self._dataWrapModulo)
-
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                self._maskedDataActor = act
             else:
                 actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
+            ren = self._context().fitToViewport(
                   act, [self._template.data.x1, self._template.data.x2,
                         self._template.data.y1, self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            if self._vtkGeoTransform is None:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo,
+                                           transform=act.GetMatrix())
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
+                mapper.Update()
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -217,13 +219,14 @@ class IsolinePipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)

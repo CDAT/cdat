@@ -64,4 +64,5 @@ canvas.png(testImage)
 ret += checkimage.check_result_image(testImage, baselineImage,
                                      checkimage.defaultThreshold)
 
+canvas.close()
 sys.exit(ret)

@@ -6,3 +6,4 @@ s=f("clt",slice(0,1))
 s.getTime().units="XXX-))rvv"
 x=vcs.init()
 x.plot(s,bg=1)
+x.close()

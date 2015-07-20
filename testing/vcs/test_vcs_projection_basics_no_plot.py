@@ -53,4 +53,4 @@ for t in range(31):
       if success:
         raise ValueError, "Shouldn't have been able to set '%s' on projection of type %s" % (att,b.type)
 
-
+x.close()

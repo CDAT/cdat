@@ -30,5 +30,7 @@ try:
 except:
     failed = True
 
+canvas.close()
+
 if not failed:
     raise RuntimeError("This test did not fail as expected")

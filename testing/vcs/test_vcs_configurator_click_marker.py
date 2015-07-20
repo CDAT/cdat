@@ -41,3 +41,4 @@ try:
 except AttributeError:
     print "Found wrong key for actor"
     sys.exit(1)
+x.close()

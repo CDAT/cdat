@@ -1,4 +1,5 @@
 from .pipeline2d import Pipeline2D
+from .vcswrapfilter import VCSWrapFilter
 from .. import vcs2vtk
 
 import numpy
@@ -30,8 +31,8 @@ class BoxfillPipeline(Pipeline2D):
         if self._gm.boxfill_type == "log10":
             data = numpy.ma.log10(data)
 
-        self._data1 = self._context.trimData2D(data)
-        self._data2 = self._context.trimData2D(self._originalData2)
+        self._data1 = self._context().trimData2D(data)
+        self._data2 = self._context().trimData2D(self._originalData2)
 
     def _updateContourLevelsAndColors(self):
         """Overrides baseclass implementation."""
@@ -156,28 +157,30 @@ class BoxfillPipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
-                                     self._dataWrapModulo)
-
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
             # why.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                self._maskedDataActor = act
             else:
                 actors.append([act, [x1, x2, y1, y2]])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
+            ren = self._context().fitToViewport(
                   act, [self._template.data.x1, self._template.data.x2,
                         self._template.data.y1, self._template.data.y2],
                   wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                   priority=self._template.data.priority)
+
+            if self._vtkGeoTransform is None:
+                wrapFilter = VCSWrapFilter([x1, x2, y1, y2],
+                                           self._dataWrapModulo,
+                                           transform=act.GetMatrix())
+                wrapFilter.SetInputConnection(mapper.GetInputConnection(0, 0))
+                mapper.SetInputConnection(wrapFilter.GetOutputPort())
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -186,9 +189,9 @@ class BoxfillPipeline(Pipeline2D):
             z = self._originalData1.getAxis(-3)
         else:
             z = None
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
         if getattr(self._gm, "legend", None) is not None:
             self._contourLabels = self._gm.legend
@@ -214,17 +217,18 @@ class BoxfillPipeline(Pipeline2D):
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
-              self._context.renderColorBar(self._template, self._contourLevels,
-                                           self._contourColors,
-                                           self._contourLabels,
-                                           self._colorMap))
+              self._context().renderColorBar(self._template, self._contourLevels,
+                                             self._contourColors,
+                                             self._contourLabels,
+                                             self._colorMap))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
@@ -327,7 +331,6 @@ class BoxfillPipeline(Pipeline2D):
         tmpColors.append(C)
 
         luts = []
-        cots = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         for i, l in enumerate(tmpLevels):
@@ -359,7 +362,5 @@ class BoxfillPipeline(Pipeline2D):
                     self._mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
-        if len(cots) > 0:
-            self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos

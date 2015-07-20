@@ -26,4 +26,5 @@ x.png(fnm)
 print "fnm:",fnm
 print "src:",src2
 ret += checkimage.check_result_image(fnm,src2,checkimage.defaultThreshold)
+x.close()
 sys.exit(ret)

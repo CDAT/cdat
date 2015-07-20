@@ -69,4 +69,5 @@ print "src:",src
 ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
 if not bg:
     raw_input("Press Enter")
+x.close()
 sys.exit(ret)

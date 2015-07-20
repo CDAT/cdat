@@ -43,7 +43,9 @@ class IPipeline2D(Pipeline):
         - _useCellScalars: True if data is applied to cell, false if data is
             applied to points.
         - _scalarRange: The range of _data1 as tuple(float min, float max)
+        - _maskedDataColor: The color (rgb tuple) used to render masked data.
         - _maskedDataMapper: The mapper used to render masked data.
+        - _maskedDataActor: The actor used to render masked data.
     """
 
     def __init__(self, context_):
@@ -72,7 +74,9 @@ class IPipeline2D(Pipeline):
         self._dataWrapModulo = None
         self._useCellScalars = None
         self._scalarRange = None
+        self._maskedDataColor = None
         self._maskedDataMapper = None
+        self._maskedDataActor = None
 
     def _updateScalarData(self):
         """Create _data1 and _data2 from _originalData1 and _originalData2."""
@@ -128,7 +132,7 @@ class Pipeline2D(IPipeline2D):
         self._vtkDataSet = grid
         self._vtkGeoTransform = transform
         self._colorMap = \
-            vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+            vcs.elements["colormap"][self._context().canvas.getcolormapname()]
 
         # Preprocess the input scalar data:
         self._updateScalarData()
@@ -158,8 +162,8 @@ class Pipeline2D(IPipeline2D):
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
-        self._data1 = self._context.trimData2D(self._originalData1)
-        self._data2 = self._context.trimData2D(self._originalData2)
+        self._data1 = self._context().trimData2D(self._originalData1)
+        self._data2 = self._context().trimData2D(self._originalData2)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -188,12 +192,40 @@ class Pipeline2D(IPipeline2D):
 
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
-        color = getattr(self._gm, "missing", None)
-        if color is not None:
-            color = self._colorMap.index[color]
+        self._maskedDataColor = getattr(self._gm, "missing", None)
+        if self._maskedDataColor is not None:
+            self._maskedDataColor = self._colorMap.index[self._maskedDataColor]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
-              self._data1, self._vtkDataSet, color, self._useCellScalars,
-              deep=False)
+              self._data1, self._vtkDataSet, self._maskedDataColor,
+              self._useCellScalars, deep=False)
 
-        self._resultDict["vtk_backend_missing_mapper"] = (
-            self._maskedDataMapper, color, self._useCellScalars)
+        self._resultDict["vtk_backend_missing_mapper"] = (self._maskedDataMapper,
+                                                          self._maskedDataColor,
+                                                          self._useCellScalars)
+
+    def update_input(self, array1, array2):
+        """Reimplemented from base class."""
+
+        # Update the scalar array:
+        data = vcs2vtk.numpy_to_vtk_wrapper(array1.filled(0.).flat, deep=False)
+        if self._useCellScalars:
+            self._vtkDataSet.GetCellData().SetScalars(data)
+        else:
+            self._vtkDataSet.GetPointData().SetScalars(data)
+
+        # Regenerate the mask data mapper for the new array:
+        # TODO It'd be ideal to rework this function to preserve the pipeline.
+        # Then we won't need to regenerate all of this and just reexecute the
+        # existing pipeline.
+        self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
+              array1, self._vtkDataSet, self._maskedDataColor,
+              self._useCellScalars, deep=False)
+
+        # Connect or disconnect the actor depending on whether the masked
+        # mapper was generated.
+        if self._maskedDataMapper is not None:
+            if self._maskedDataActor is None:
+                self._maskedDataActor = vtk.vtkActor()
+            self._maskedDataActor.SetMapper(self._maskedDataMapper)
+        elif self._maskedDataActor is not None:
+            self._maskedDataActor.SetMapper(0)
