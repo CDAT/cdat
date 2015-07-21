@@ -58,6 +58,7 @@ gtk = False
 gtkagg = False
 tkagg = False
 macosx = False
+qt5agg = False
 
 [rc_options]
 # User-configurable options
@@ -71,4 +72,5 @@ macosx = False
 # by default.
 #
 backend = Qt4Agg
+backend.qt4 = PyQt4
 #
