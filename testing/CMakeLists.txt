@@ -40,6 +40,11 @@ if (CDAT_BUILD_RPY2)
   add_subdirectory(rpy2)
 endif()
 
+# Test Matplotlib
+if (CDAT_BUILD_MATPLOTLIB)
+  add_subdirectory(matplotlib)
+endif()
+
 # CMake module tests:
 # Test that out-of-source build detection is working:
 add_test(cmake_checkBuildOutOfSource
