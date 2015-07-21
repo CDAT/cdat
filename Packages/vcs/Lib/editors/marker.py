@@ -7,12 +7,16 @@ import vcs.vcs2vtk
 import priority
 import sys
 
-class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+
+class MarkerEditor(
+        behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+
     """
     Editor for marker objects
 
     Ctrl + click to drop a new marker, toolbar to configure, priority, draggable + handles on each marker.
     """
+
     def __init__(self, interactor, marker, index, display, configurator):
         self.interactor = interactor
         self.marker = marker
@@ -29,30 +33,48 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
         for ind, x in enumerate(marker.x[index]):
             y = marker.y[index][ind]
-            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(
+                self.interactor, (x, y), dragged=self.adjust, color=(
+                    0, 0, 0), normalize=True)
             h.show()
             self.handles.append(h)
 
-        self.toolbar = vtk_ui.toolbar.Toolbar(self.interactor, "Marker Options")
+        self.toolbar = vtk_ui.toolbar.Toolbar(
+            self.interactor,
+            "Marker Options")
         self.toolbar.show()
 
         self.toolbar.add_button(["Change Color"], action=self.change_color)
-        self.toolbar.add_slider_button(marker.size[index], 1, 300, "Marker Size", update=self.set_size)
+        self.toolbar.add_slider_button(
+            marker.size[index],
+            1,
+            300,
+            "Marker Size",
+            update=self.set_size)
 
-        self.type_bar = self.toolbar.add_toolbar("Marker Type", open_label="Change")
+        self.type_bar = self.toolbar.add_toolbar(
+            "Marker Type",
+            open_label="Change")
 
         shapes = marker_shapes()
 
         shapes.insert(0, "Select Shape")
-        self.shape_button = self.type_bar.add_button(shapes, action=self.change_shape)
+        self.shape_button = self.type_bar.add_button(
+            shapes,
+            action=self.change_shape)
 
         wmos = wmo_shapes()
         wmos.insert(0, "Select WMO Marker")
 
-        self.wmo_button = self.type_bar.add_button(wmos, action=self.change_wmo)
+        self.wmo_button = self.type_bar.add_button(
+            wmos,
+            action=self.change_wmo)
 
         if self.marker.type[self.index] in shapes:
-            self.shape_button.set_state(shapes.index(self.marker.type[self.index]))
+            self.shape_button.set_state(
+                shapes.index(
+                    self.marker.type[
+                        self.index]))
         else:
             self.wmo_button.set_state(wmos.index(self.marker.type[self.index]))
 
@@ -63,9 +85,14 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
 
-        self.tooltip = vtk_ui.Label(self.interactor, "%s + Click to place new markers." % ("Cmd" if sys.platform == "darwin" else "Ctrl"), textproperty=prop)
+        self.tooltip = vtk_ui.Label(
+            self.interactor,
+            "%s + Click to place new markers." %
+            ("Cmd" if sys.platform == "darwin" else "Ctrl"),
+            textproperty=prop)
         self.tooltip.left = 0
-        self.tooltip.top = self.interactor.GetRenderWindow().GetSize()[1] - self.tooltip.get_dimensions()[1]
+        self.tooltip.top = self.interactor.GetRenderWindow(
+        ).GetSize()[1] - self.tooltip.get_dimensions()[1]
         self.tooltip.show()
         super(MarkerEditor, self).__init__()
         self.register()
@@ -76,7 +103,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
     def handle_click(self, point):
         x, y = point
         # Control drops a new instance
-        return self.in_bounds(x, y) or self.toolbar.in_toolbar(x, y) or self.current_modifiers()["control"]
+        return self.in_bounds(x, y) or self.toolbar.in_toolbar(
+            x, y) or self.current_modifiers()["control"]
 
     def is_object(self, marker):
         return self.marker == marker
@@ -93,8 +121,15 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def update_shape(self):
         # Update the glyph for the marker to reflect the new shape
-        self.glyph_source, self.polydata = vcs.vcs2vtk.prepGlyph(self.glyph, self.marker, self.index)
-        self.display.backend["vtk_backend_marker_actors"][self.index] = (self.glyph, self.glyph_source, self.polydata, self.actor, self.geo)
+        self.glyph_source, self.polydata = vcs.vcs2vtk.prepGlyph(
+            self.glyph, self.marker, self.index)
+        self.display.backend["vtk_backend_marker_actors"][
+            self.index] = (
+            self.glyph,
+            self.glyph_source,
+            self.polydata,
+            self.actor,
+            self.geo)
         # Have to rescale the glyph now... work that out later with charles
         self.render()
 
@@ -122,14 +157,26 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = ColorPicker(500, 500, self.marker.colormap, self.marker.color[self.index], parent_interactor=self.interactor,  on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = ColorPicker(
+                500,
+                500,
+                self.marker.colormap,
+                self.marker.color[
+                    self.index],
+                parent_interactor=self.interactor,
+                on_save=self.set_color,
+                on_cancel=self.cancel_color)
 
     def set_color(self, colormap, color):
         self.marker.colormap = colormap
         self.marker.color[self.index] = color
         del self.picker
         self.picker = None
-        vcs.vcs2vtk.setMarkerColor(self.actor.GetProperty(), self.marker, self.marker.color[self.index])
+        vcs.vcs2vtk.setMarkerColor(
+            self.actor.GetProperty(),
+            self.marker,
+            self.marker.color[
+                self.index])
         self.render()
 
     def cancel_color(self):
@@ -139,7 +186,9 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
     def click_release(self):
         x, y = self.event_position()
         if self.current_modifiers()["control"]:
-            h = vtk_ui.Handle(self.interactor, (x, y), dragged=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(
+                self.interactor, (x, y), dragged=self.adjust, color=(
+                    0, 0, 0), normalize=True)
             h.show()
             self.handles.append(h)
             self.marker.x[self.index].append(x)
@@ -154,7 +203,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def in_bounds(self, x, y):
         w, h = self.interactor.GetRenderWindow().GetSize()
-        return inside_marker(self.marker, x, y, w, h, index=self.index) is not None
+        return inside_marker(
+            self.marker, x, y, w, h, index=self.index) is not None
 
     def right_release(self):
         x, y = self.event_position()
@@ -162,7 +212,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
             points = zip(self.marker.x[self.index], self.marker.y[self.index])
 
             size = self.marker.size[self.index]
-            screen_width, screen_height = self.interactor.GetRenderWindow().GetSize()
+            screen_width, screen_height = self.interactor.GetRenderWindow(
+            ).GetSize()
 
             w, h = float(size) / screen_width, float(size) / screen_height
 
@@ -170,7 +221,6 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
                 m_x, m_y = point
                 if x > m_x - w and x < m_x + w and y > m_y - h and y < m_y + h:
                     break
-
 
             del self.marker.x[self.index][ind]
             del self.marker.y[self.index][ind]
@@ -207,7 +257,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
-        new_layer = self.marker.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        new_layer = self.marker.priority * 10000 + 1 + \
+            self.configurator.displays.index(self.display)
         if new_layer + 1 > maxLayers:
             self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
 
@@ -218,7 +269,8 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
     def sync_positions(self):
         # Sync all points
         points = self.glyph.GetInput().GetPoints()
-        for i, (x, y) in enumerate(zip(self.marker.x[self.index], self.marker.y[self.index])):
+        for i, (x, y) in enumerate(
+                zip(self.marker.x[self.index], self.marker.y[self.index])):
             if i == points.GetNumberOfPoints():
                 points.InsertNextPoint(x, y, 0)
             else:
@@ -228,8 +280,10 @@ class MarkerEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.
 
 __shape_cache = {}
 
+
 def marker_shapes():
-    # Returns all shapes that are supported (skips star for now), indexed numerically
+    # Returns all shapes that are supported (skips star for now), indexed
+    # numerically
     shapes = []
     for i in xrange(1, 20):
         if i in __shape_cache:
@@ -242,6 +296,7 @@ def marker_shapes():
             except ValueError:
                 pass
     return shapes
+
 
 def wmo_shapes():
     wmo = []
@@ -256,6 +311,7 @@ def wmo_shapes():
             except ValueError:
                 pass
     return wmo
+
 
 def inside_marker(marker, x, y, screen_width, screen_height, index=None):
     if index is None:

@@ -2,6 +2,7 @@ from manager import get_manager
 
 
 class Widget(object):
+
     def __init__(self, interactor, widget):
         self.interactor = interactor
         self.widget = widget
@@ -20,7 +21,9 @@ class Widget(object):
 
     def subscribe(self, event, action):
         if event in self.subscriptions:
-            raise Exception("%s already subscribed to %s's %s event." % (action, self.widget, event))
+            raise Exception(
+                "%s already subscribed to %s's %s event." %
+                (action, self.widget, event))
 
         self.subscriptions[event] = self.widget.AddObserver(event, action)
 
@@ -31,7 +34,9 @@ class Widget(object):
 
         for event in events:
             if event not in self.subscriptions:
-                raise Exception("%s not subscribed to %s's %s event." % (self, self.widget, event))
+                raise Exception(
+                    "%s not subscribed to %s's %s event." %
+                    (self, self.widget, event))
 
         for event in events:
             self.widget.RemoveObserver(self.subscriptions[event])
@@ -68,9 +73,11 @@ class Widget(object):
 
 
 class WidgetReprShim(object):
+
     """
     Used to substitute for a vtkWidget and vtkWidgetRepresentation when using actors directly
     """
+
     def __init__(self, interactor, actor):
         self._inter = interactor
         self._actor = actor
