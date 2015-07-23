@@ -3,13 +3,17 @@ from vcs.vtk_ui import behaviors
 from vcs.colorpicker import ColorPicker
 import priority
 
-class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+
+class LineEditor(
+        behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+
     """
     Editor for vcs `line` objects.
 
     Double click to add a vertex, draggable, handles on each vertex
     """
     styles = ["solid", "dash", "dot", "dash-dot", "long-dash"]
+
     def __init__(self, interactor, line, index, configurator):
         self.index = index
         self.line = line
@@ -28,7 +32,8 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pr
         # Used to store the color picker when it's active
         self.picker = None
 
-        b = self.toolbar.add_button([style[0].upper() + style[1:] for style in LineEditor.styles], action=self.change_type)
+        b = self.toolbar.add_button(
+            [style[0].upper() + style[1:] for style in LineEditor.styles], action=self.change_type)
         style = line.type[index]
         if style == "solid":
             b.set_state(0)
@@ -40,7 +45,13 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pr
             b.set_state(3)
         elif style == "long-dash":
             b.set_state(4)
-        self.slider_button = self.toolbar.add_slider_button(self.line.width[self.index], 1, 300, "Width", update=self.set_width)
+        self.slider_button = self.toolbar.add_slider_button(
+            self.line.width[
+                self.index],
+            1,
+            300,
+            "Width",
+            update=self.set_width)
 
         super(LineEditor, self).__init__()
         # Register mixins' events
@@ -76,7 +87,14 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pr
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = ColorPicker(500, 500, self.line.colormap, self.line.color[self.index], on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = ColorPicker(
+                500,
+                500,
+                self.line.colormap,
+                self.line.color[
+                    self.index],
+                on_save=self.set_color,
+                on_cancel=self.cancel_color)
 
     def set_color(self, colormap, color):
         self.line.colormap = colormap
@@ -111,13 +129,23 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pr
         points = zip(self.line.x[self.index], self.line.y[self.index])
 
         for point in points:
-            h = vtk_ui.Handle(self.interactor, point, released=self.adjust, color=(0,0,0), normalize=True)
+            h = vtk_ui.Handle(
+                self.interactor,
+                point,
+                released=self.adjust,
+                color=(
+                    0,
+                    0,
+                    0),
+                normalize=True)
             h.show()
             self.handles.append(h)
 
     def adjust(self, handle):
         ind = self.handles.index(handle)
-        self.line.x[self.index][ind], self.line.y[self.index][ind] = handle.x, handle.y
+        self.line.x[
+            self.index][ind], self.line.y[
+            self.index][ind] = handle.x, handle.y
         self.configurator.changed = True
         self.save()
 
@@ -129,7 +157,8 @@ class LineEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.Pr
 
     def drag_stop(self):
         for ind, h in enumerate(self.handles):
-            if self.line.x[self.index][ind] != h.x and self.line.y[self.index][ind] != h.y:
+            if self.line.x[self.index][ind] != h.x and self.line.y[
+                    self.index][ind] != h.y:
                 self.configurator.changed = True
             self.line.x[self.index][ind] = h.x
             self.line.y[self.index][ind] = h.y

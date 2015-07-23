@@ -25,6 +25,7 @@ endif()
 add_subdirectory(cdutil)
 add_subdirectory(unidata)
 add_subdirectory(cdms2)
+add_subdirectory(xmgrace)
 if (CDAT_BUILD_UVCMETRICSPKG)
   add_subdirectory(metrics)
 endif()
@@ -33,6 +34,11 @@ endif()
 #if (CDAT_BUILD_PARAVIEW)
 #  add_subdirectory(paraview)
 #endif()
+
+# Test RPY2
+if (CDAT_BUILD_RPY2)
+  add_subdirectory(rpy2)
+endif()
 
 # CMake module tests:
 # Test that out-of-source build detection is working:

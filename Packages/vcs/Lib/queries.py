@@ -2,7 +2,7 @@
 #
 # The VCS query controls -  query module
 #
-#################################################################################
+##########################################################################
 #                                                                               #
 # Module:       query module                                                    #
 #                                                                               #
@@ -17,7 +17,7 @@
 #                                                                               #
 # Version:      4.0                                                             #
 #                                                                               #
-#################################################################################
+##########################################################################
 
 """
 ###########################################################################################
@@ -26,145 +26,150 @@
 #                                                                                         #
 ###########################################################################################
 """
-import boxfill, isofill, isoline, outfill, outline, taylor, meshfill
-import unified1D, vector, continents, line, marker, fillarea
-import texttable, textorientation, textcombined, template, dv3d
-import displayplot, projection
+import boxfill
+import isofill
+import isoline
+import taylor
+import meshfill
+import unified1D
+import vector
+import line
+import marker
+import fillarea
+import texttable
+import textorientation
+import textcombined
+import template
+import dv3d
+import displayplot
+import projection
 import vcs
 import vcsaddons
 
 from error import vcsError
 
+
 def isgraphicsmethod(gobj):
-        """
- Function: isgraphicsmethod
+    """
+Function: isgraphicsmethod
 
- Description of Function:
-    Indicates if the entered argument is one of the following graphics
-    methods: boxfill, isofill, isoline, outfill, outline, continents,
-    scatter, vector, xvsy, xyvsy, yxvsx.
+Description of Function:
+Indicates if the entered argument is one of the following graphics
+methods: boxfill, isofill, isoline,
+scatter, vector, xvsy, xyvsy, yxvsx.
 
-    Returns a 1, which indicates true, if the argment is one of the above.
-    Otherwise, it will return a 0, indicating false.
+Returns a 1, which indicates true, if the argment is one of the above.
+Otherwise, it will return a 0, indicating false.
 
- Example of Use:
-    a=vcs.init()
-    box=a.getboxfill('quick')  # To Modify an existing boxfill use:
-    ...
+Example of Use:
+a=vcs.init()
+box=a.getboxfill('quick')  # To Modify an existing boxfill use:
+...
 
-    if vcs.isgraphicsmethod(box):
-       box.list()
+if vcs.isgraphicsmethod(box):
+   box.list()
 """
-        if (isinstance(gobj,boxfill.Gfb)):
-            return 1
-        elif (isinstance(gobj,isofill.Gfi)):
-            return 1
-        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
-            return 1
-        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
-            return 1
-        elif (isinstance(gobj,dv3d.Gf3Dvector)):
-            return 1
-        elif (isinstance(gobj,isoline.Gi)):
-            return 1
-        elif (isinstance(gobj,outfill.Gfo)):
-            return 1
-        elif (isinstance(gobj,outline.Go)):
-            return 1
-        elif (isinstance(gobj,continents.Gcon)):
-            return 1
-        elif (isinstance(gobj,vector.Gv)):
-            return 1
-        elif (isinstance(gobj,unified1D.G1d)):
-            return 1
-        elif (isinstance(gobj,taylor.Gtd)):
-            return 1
-        elif (isinstance(gobj,meshfill.Gfm)):
-            return 1
-	elif isinstance(gobj,vcsaddons.core.VCSaddon):
-	    return 1
-        else:
-           return 0
+    if (isinstance(gobj, boxfill.Gfb)):
+        return 1
+    elif (isinstance(gobj, isofill.Gfi)):
+        return 1
+    elif (isinstance(gobj, dv3d.Gf3Dscalar)):
+        return 1
+    elif (isinstance(gobj, dv3d.Gf3DDualScalar)):
+        return 1
+    elif (isinstance(gobj, dv3d.Gf3Dvector)):
+        return 1
+    elif (isinstance(gobj, isoline.Gi)):
+        return 1
+    elif (isinstance(gobj, vector.Gv)):
+        return 1
+    elif (isinstance(gobj, unified1D.G1d)):
+        return 1
+    elif (isinstance(gobj, taylor.Gtd)):
+        return 1
+    elif (isinstance(gobj, meshfill.Gfm)):
+        return 1
+    elif isinstance(gobj, vcsaddons.core.VCSaddon):
+        return 1
+    else:
+        return 0
+
 
 def graphicsmethodlist():
-        """
- Function: graphicsmethodlist
+    """
+Function: graphicsmethodlist
 
- Description of Function:
-        Will return a list of available grapics methods (i.e., boxfill, isofill, isoline, outf
+Description of Function:
+    Will return a list of available grapics methods (i.e., boxfill, isofill, isoline, outf
 ill,
-        outline, continents, scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
+    scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
 
- Example of Use:
-    a=vcs.init()
-    gm_list=a.graphicsmethodlist()  # Return graphics method list
+Example of Use:
+a=vcs.init()
+gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector' ]
+    return ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter',
+            'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector']
+
 
 def graphicsmethodtype(gobj):
-        """
- Function: graphicsmethodtype
+    """
+Function: graphicsmethodtype
 
- Description of Function:
-        Will return the grapics method's type: boxfill, isofill, isoline, outfill,
-        outline, continents, scatter, vector, xvsy, xyvsy, or yxvsx, taylordiagram.
+Description of Function:
+    Will return the grapics method's type: boxfill, isofill, isoline,
+    scatter, vector, xvsy, xyvsy, or yxvsx, taylordiagram.
 
-        Returns a None if the object is not a graphics method.
+    Returns a None if the object is not a graphics method.
 
- Example of Use:
-    a=vcs.init()
-    box=a.getboxfill('quick')  # Get an existing boxfill graphics method in VCS
-    iso=a.getisofill('quick')  # Get an existing isofill graphics method in VCS
-    ln=a.getline('quick')      # Get an existing line element in VCS
-    ...
+Example of Use:
+a=vcs.init()
+box=a.getboxfill('quick')  # Get an existing boxfill graphics method in VCS
+iso=a.getisofill('quick')  # Get an existing isofill graphics method in VCS
+ln=a.getline('quick')      # Get an existing line element in VCS
+...
 
-    print vcs.graphicsmethodtype(box)         # Will print 'boxfill'
-    print vcs.graphicsmethodtype(iso)         # Will print 'isofill'
-    print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
-                                              #         graphics method
+print vcs.graphicsmethodtype(box)         # Will print 'boxfill'
+print vcs.graphicsmethodtype(iso)         # Will print 'isofill'
+print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
+                                          #         graphics method
 """
-        if (isinstance(gobj,boxfill.Gfb)):
-            return 'boxfill'
-        elif (isinstance(gobj,isofill.Gfi)):
-            return 'isofill'
-        elif (isinstance(gobj,dv3d.Gf3Dscalar)):
-            return '3d_scalar'
-        elif (isinstance(gobj,dv3d.Gf3DDualScalar)):
-            return '3d_dual_scalar'
-        elif (isinstance(gobj,dv3d.Gf3Dvector)):
-            return '3d_vector'
-        elif (isinstance(gobj,isoline.Gi)):
-            return 'isoline'
-        elif (isinstance(gobj,outfill.Gfo)):
-            return 'outfill'
-        elif (isinstance(gobj,outline.Go)):
-            return 'outline'
-        elif (isinstance(gobj,continents.Gcon)):
-            return 'continents'
-        elif (isinstance(gobj,vector.Gv)):
-            return 'vector'
-        elif (isinstance(gobj,unified1D.G1d)):
-          nm = gobj.name.split("_")[-1]
-          if nm in ["yxvsx","xvsy","xyvsy","scatter"]:
+    if (isinstance(gobj, boxfill.Gfb)):
+        return 'boxfill'
+    elif (isinstance(gobj, isofill.Gfi)):
+        return 'isofill'
+    elif (isinstance(gobj, dv3d.Gf3Dscalar)):
+        return '3d_scalar'
+    elif (isinstance(gobj, dv3d.Gf3DDualScalar)):
+        return '3d_dual_scalar'
+    elif (isinstance(gobj, dv3d.Gf3Dvector)):
+        return '3d_vector'
+    elif (isinstance(gobj, isoline.Gi)):
+        return 'isoline'
+    elif (isinstance(gobj, vector.Gv)):
+        return 'vector'
+    elif (isinstance(gobj, unified1D.G1d)):
+        nm = gobj.name.split("_")[-1]
+        if nm in ["yxvsx", "xvsy", "xyvsy", "scatter"]:
             nm = "_".join(gobj.name.split("_")[:-1])
-            if nm in vcs.elements["scatter"]: 
+            if nm in vcs.elements["scatter"]:
                 return 'scatter'
-            elif nm in vcs.elements["xvsy"]: 
+            elif nm in vcs.elements["xvsy"]:
                 return 'xvsy'
-            elif nm in vcs.elements["xyvsy"]: 
+            elif nm in vcs.elements["xyvsy"]:
                 return 'xyvsy'
-            elif nm in vcs.elements["yxvsx"]: 
+            elif nm in vcs.elements["yxvsx"]:
                 return 'yxvsx'
-          else:
-            return "1d"
-        elif (isinstance(gobj,taylor.Gtd)):
-            return 'taylordiagram'
-        elif (isinstance(gobj,meshfill.Gfm)):
-            return 'meshfill'
-	elif isinstance(gobj,vcsaddons.core.VCSaddon):
-	    return gobj
         else:
-           raise vcsError, 'The object passed is not a graphics method object.'
+            return "1d"
+    elif (isinstance(gobj, taylor.Gtd)):
+        return 'taylordiagram'
+    elif (isinstance(gobj, meshfill.Gfm)):
+        return 'meshfill'
+    elif isinstance(gobj, vcsaddons.core.VCSaddon):
+        return gobj
+    else:
+        raise vcsError('The object passed is not a graphics method object.')
 
 #############################################################################
 #                                                                           #
@@ -172,12 +177,13 @@ def graphicsmethodtype(gobj):
 #                                                                           #
 #############################################################################
 
+
 def isplot(pobj):
     """
  Function: isplot
 
  Description of Function:
-    Indicates if the entered argument a display plot. 
+    Indicates if the entered argument a display plot.
 
     Returns a 1 if the argment true.
     Otherwise, it will return a 0, indicating false.
@@ -193,7 +199,7 @@ def isplot(pobj):
     if a.isplot(p1):
        p1.list()               		# If it is a plot then list its members
 """
-    if (isinstance(pobj,displayplot.Dp)):
+    if (isinstance(pobj, displayplot.Dp)):
         return 1
     else:
         return 0
@@ -203,6 +209,8 @@ def isplot(pobj):
 # Is this a secondary colormap in VCS?                                      #
 #                                                                           #
 #############################################################################
+
+
 def iscolormap(obj):
     """
  Function: iscolormap
@@ -219,10 +227,11 @@ def iscolormap(obj):
        ln.list()
 
 """
-    if (isinstance(obj,vcs.colormap.Cp)):
+    if (isinstance(obj, vcs.colormap.Cp)):
         return 1
     else:
         return 0
+
 
 def istemplate(gobj):
     """
@@ -247,6 +256,7 @@ def istemplate(gobj):
     else:
         return 0
 
+
 def issecondaryobject(sobj):
     """
  Function: issecondaryobject
@@ -255,20 +265,20 @@ def issecondaryobject(sobj):
 
 In addition, detailed specification of the primary elements' (or
 primary class elements'), attributes is provided by eight secondary
-elements or (secondary class elements): 
+elements or (secondary class elements):
 
  1.) colormap: specification of combinations of 256 available
-               colors 
- 2.) fill area: style, style index, and color index 
+               colors
+ 2.) fill area: style, style index, and color index
  3.) format: specifications for converting numbers to display
-               strings 
- 4.) line: line type, width, and color index 
- 5.) list: a sequence of pairs of numerical and character values 
- 6.) marker: marker type, size, and color index 
- 7.) text table: text font type, character spacing, expansion, and 
-               color index 
+               strings
+ 4.) line: line type, width, and color index
+ 5.) list: a sequence of pairs of numerical and character values
+ 6.) marker: marker type, size, and color index
+ 7.) text table: text font type, character spacing, expansion, and
+               color index
  8.) text orientation: character height, angle, path, and
-               horizontal/vertical alignment 
+               horizontal/vertical alignment
  9.) projections
 
 
@@ -280,32 +290,34 @@ line=a.getline('red')  # To Modify an existing line object
 if queries.issecondaryobject(line):
    box.list()
 """
-    if (isinstance(sobj,line.Tl)):
+    if (isinstance(sobj, line.Tl)):
         return 1
-    elif (isinstance(sobj,marker.Tm)):
+    elif (isinstance(sobj, marker.Tm)):
         return 1
-    elif (isinstance(sobj,fillarea.Tf)):
+    elif (isinstance(sobj, fillarea.Tf)):
         return 1
-    elif (isinstance(sobj,texttable.Tt)):
+    elif (isinstance(sobj, texttable.Tt)):
         return 1
-    elif (isinstance(sobj,textorientation.To)):
+    elif (isinstance(sobj, textorientation.To)):
         return 1
-    elif (isinstance(sobj,textcombined.Tc)):
+    elif (isinstance(sobj, textcombined.Tc)):
         return 1
-    elif (isinstance(sobj,marker.Tm)):
+    elif (isinstance(sobj, marker.Tm)):
         return 1
-    elif (isinstance(sobj,projection.Proj)):
+    elif (isinstance(sobj, projection.Proj)):
         return 1
-    elif (isinstance(sobj,vcs.colormap.Cp)):
+    elif (isinstance(sobj, vcs.colormap.Cp)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary object, projectionmethod in VCS?                      #
 #                                                                           #
 #############################################################################
+
+
 def isprojection(obj):
     """
  Function: isprojection
@@ -322,15 +334,17 @@ if queries.isprojection(p):
    p.list()
 
 """
-    if (isinstance(obj,projection.Proj)):
+    if (isinstance(obj, projection.Proj)):
         return 1
     else:
-       return 0
+        return 0
 #############################################################################
 #                                                                           #
 # Is this a primary taylor diagram graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def istaylordiagram(obj):
     """
  Function: istaylordiagram
@@ -347,15 +361,17 @@ if queries.istaylordiagram(td):
    td.list()
 
 """
-    if (isinstance(obj,taylor.Gtd)):
+    if (isinstance(obj, taylor.Gtd)):
         return 1
     else:
-       return 0
+        return 0
 #############################################################################
 #                                                                           #
 # Is this a primary meshfill graphics method in VCS?                        #
 #                                                                           #
 #############################################################################
+
+
 def ismeshfill(obj):
     """
  Function: ismeshfill
@@ -372,15 +388,17 @@ if queries.ismeshfill(mesh):
    mesh.list()
 
 """
-    if (isinstance(obj,meshfill.Gfm)):
+    if (isinstance(obj, meshfill.Gfm)):
         return 1
     else:
-       return 0
+        return 0
 #############################################################################
 #                                                                           #
 # Is this a primary boxfill graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def isboxfill(obj):
     """
  Function: isboxfill
@@ -397,16 +415,18 @@ if queries.isboxfill(box):
    box.list()
 
 """
-    if (isinstance(obj,boxfill.Gfb)):
+    if (isinstance(obj, boxfill.Gfb)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary 3d_scalar graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def is3d_scalar(obj):
     """
  Function: is3d_scalar
@@ -423,12 +443,13 @@ if queries.is3d_scalar(plot):
    ...
 
 """
-    if (isinstance(obj,dv3d.Gf3Dscalar) or isinstance(obj,dv3d.Gf3DDualScalar)):
+    if (isinstance(obj, dv3d.Gf3Dscalar)
+            or isinstance(obj, dv3d.Gf3DDualScalar)):
         return 1
     else:
-       return 0
-   
-   
+        return 0
+
+
 #############################################################################
 #                                                                           #
 # Is this a primary 3d_scalar graphics method in VCS?                         #
@@ -450,12 +471,12 @@ if queries.is3d_dual_scalar(plot):
    ...
 
 """
-    if isinstance(obj,dv3d.Gf3DDualScalar):
+    if isinstance(obj, dv3d.Gf3DDualScalar):
         return 1
     else:
-       return 0
-   
-   
+        return 0
+
+
 #############################################################################
 #                                                                           #
 # Is this a primary 3d_vector graphics method in VCS?                         #
@@ -478,16 +499,18 @@ if queries.is3d_vector(plot):
    ...
 
 """
-    if (isinstance(obj,dv3d.Gf3Dvector)):
+    if (isinstance(obj, dv3d.Gf3Dvector)):
         return 1
     else:
-       return 0
-            
+        return 0
+
 #############################################################################
 #                                                                           #
 # Is this a primary isofill graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def isisofill(obj):
     """
  Function: isisofill
@@ -504,16 +527,18 @@ if queries.isisofill(iso):
    iso.list()
 
 """
-    if (isinstance(obj,isofill.Gfi)):
+    if (isinstance(obj, isofill.Gfi)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary isoline graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def isisoline(obj):
     """
  Function: isisoline
@@ -530,68 +555,18 @@ if queries.isisoline(iso):
    iso.list()
 
 """
-    if (isinstance(obj,isoline.Gi)):
+    if (isinstance(obj, isoline.Gi)):
         return 1
     else:
-       return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary outfill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
-def isoutfill(obj):
-    """
- Function: isoutfill
-
- Description of Function:
-Check to see if this object is a VCS primary outfill graphics method.
-
- Example of Use:
-a=vcs.init()
-out=a.getoutfill("quick")  # To Modify an existing outfill object
-...
-
-if queries.isoutfill(out):
-   out.list()
-
-"""
-    if (isinstance(obj,outfill.Gfo)):
-        return 1
-    else:
-       return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary outline graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
-def isoutline(obj):
-    """
- Function: isoutline
-
- Description of Function:
-Check to see if this object is a VCS primary outline graphics method.
-
- Example of Use:
-a=vcs.init()
-out=a.getoutline("quick")  # To Modify an existing outline object
-...
-
-if queries.isoutline(out):
-   out.list()
-
-"""
-    if (isinstance(obj,outline.Go)):
-        return 1
-    else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary scatter graphics method in VCS?                         #
 #                                                                           #
 #############################################################################
+
+
 def isscatter(obj):
     """
  Function: isscatter
@@ -608,16 +583,19 @@ if queries.isscatter(scr):
    scr.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name[-8:]=="scatter_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["scatter"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.name[-8:] == "scatter_" and "_".join(
+            obj.name.split("_")[:-2]) in vcs.elements["scatter"]:
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary Xyvsy graphics method in VCS?                           #
 #                                                                           #
 #############################################################################
+
+
 def isxyvsy(obj):
     """
  Function: isxyvsy
@@ -634,16 +612,19 @@ if queries.isxyvsy(xyy):
    xyy.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name[-6:]=="xyvsy_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["xyvsy"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.name[-6:] == "xyvsy_" and "_".join(
+            obj.name.split("_")[:-2]) in vcs.elements["xyvsy"]:
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary Yxvsx graphics method in VCS?                           #
 #                                                                           #
 #############################################################################
+
+
 def isyxvsx(obj):
     """
  Function: isyxvsx
@@ -660,16 +641,19 @@ if queries.isyxvsx(yxx):
    yxx.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name[-6:]=="yxvsx_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["yxvsx"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.name[-6:] == "yxvsx_" and "_".join(
+            obj.name.split("_")[:-2]) in vcs.elements["yxvsx"]:
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary XvsY graphics method in VCS?                            #
 #                                                                           #
 #############################################################################
+
+
 def isxvsy(obj):
     """
  Function: isxvsy
@@ -686,16 +670,19 @@ if queries.isxvsy(xy):
    xy.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name[-5:]=="xvsy_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["xvsy"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.name[-5:] == "xvsy_" and "_".join(
+            obj.name.split("_")[:-2]) in vcs.elements["xvsy"]:
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary oneD graphics method in VCS?                            #
 #                                                                           #
 #############################################################################
+
+
 def is1d(obj):
     """
  Function: isxvsy
@@ -712,42 +699,18 @@ if queries.isxvsy(xy):
    xy.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)):
+    if (isinstance(obj, unified1D.G1d)):
         return 1
     else:
-       return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary continents graphics method in VCS?                      #
-#                                                                           #
-#############################################################################
-def iscontinents(obj):
-    """
- Function: iscontinents
-
- Description of Function:
-Check to see if this object is a VCS primary continents graphics method.
-
- Example of Use:
-a=vcs.init()
-con=a.getcontinents("quick")  # To Modify an existing continents object
-...
-
-if queries.iscontinents(con):
-   con.list()
-
-"""
-    if (isinstance(obj,continents.Gcon)):
-        return 1
-    else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a primary vector graphics method in VCS?                          #
 #                                                                           #
 #############################################################################
+
+
 def isvector(obj):
     """
  Function: isvector
@@ -764,16 +727,18 @@ if queries.isvector(vec):
    vec.list()
 
 """
-    if (isinstance(obj,vector.Gv)):
+    if (isinstance(obj, vector.Gv)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary line method in VCS?                                   #
 #                                                                           #
 #############################################################################
+
+
 def isline(obj):
     """
  Function: isline
@@ -790,16 +755,18 @@ if queries.isline(ln):
    ln.list()
 
 """
-    if (isinstance(obj,line.Tl)):
+    if (isinstance(obj, line.Tl)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary marker method in VCS?                                 #
 #                                                                           #
 #############################################################################
+
+
 def ismarker(obj):
     """
  Function: ismarker
@@ -816,16 +783,18 @@ if queries.ismarker(mk):
    mk.list()
 
 """
-    if (isinstance(obj,marker.Tm)):
+    if (isinstance(obj, marker.Tm)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary fillarea method in VCS?                               #
 #                                                                           #
 #############################################################################
+
+
 def isfillarea(obj):
     """
  Function: isfillarea
@@ -842,16 +811,18 @@ if queries.isfillarea(fa):
    fa.list()
 
 """
-    if (isinstance(obj,fillarea.Tf)):
+    if (isinstance(obj, fillarea.Tf)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary text table  method in VCS?                            #
 #                                                                           #
 #############################################################################
+
+
 def istexttable(obj):
     """
  Function: istexttable
@@ -868,16 +839,18 @@ if queries.istexttable(tt):
    tt.list()
 
 """
-    if (isinstance(obj,texttable.Tt)):
+    if (isinstance(obj, texttable.Tt)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary text orientation method in VCS?                       #
 #                                                                           #
 #############################################################################
+
+
 def istextorientation(obj):
     """
  Function: istextorientation
@@ -894,16 +867,18 @@ if queries.istextorientation(to):
    to.list()
 
 """
-    if (isinstance(obj,textorientation.To)):
+    if (isinstance(obj, textorientation.To)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
 # Is this a secondary text combined method in VCS?                          #
 #                                                                           #
 #############################################################################
+
+
 def istextcombined(obj):
     """
  Function: istextcombined
@@ -924,10 +899,10 @@ if istextorientation(tc):
    tc.list()
 
 """
-    if (isinstance(obj,textcombined.Tc)):
+    if (isinstance(obj, textcombined.Tc)):
         return 1
     else:
-       return 0
+        return 0
 
 #############################################################################
 #                                                                           #
@@ -935,9 +910,9 @@ if istextorientation(tc):
 # This is much easier to type than 'textcombined'.                          #
 #                                                                           #
 #############################################################################
-istext=istextcombined
+istext = istextcombined
 
 
-#################################################################################
+##########################################################################
 #        END OF FILE                                                            #
-#################################################################################
+##########################################################################

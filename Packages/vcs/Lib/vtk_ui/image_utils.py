@@ -2,18 +2,16 @@ import math
 from vtk import vtkImageData, VTK_UNSIGNED_CHAR
 import text
 
-#__bg_window__ = None
-#__bg_renderer__ = None
 
 def load_image(image):
     from vtk import vtkPNGReader, vtkJPEGReader, vtkBMPReader, vtkTIFFReader
     try:
         readers = {
-             ".png": vtkPNGReader,
+            ".png": vtkPNGReader,
             ".jpeg": vtkJPEGReader,
-             ".jpg": vtkJPEGReader,
-             ".bmp": vtkBMPReader,
-             ".tiff": vtkTIFFReader,
+            ".jpg": vtkJPEGReader,
+            ".bmp": vtkBMPReader,
+            ".tiff": vtkTIFFReader,
         }
         from os.path import splitext
         _, extension = splitext(image)
@@ -25,11 +23,15 @@ def load_image(image):
     except (TypeError, AttributeError):
         # splitext will raise an AttributeError if it is used on something that isn't a string
         # Not a string; either a vtkImageData or the user did something dumb
-        if type(image) != vtkImageData:
-            raise TypeError("image should be an instance of vtk.vtkImageData, or a path to an image file.")
+        if not isinstance(image, vtkImageData):
+            raise TypeError(
+                "image should be an instance of vtk.vtkImageData, or a path to an image file.")
     except KeyError:
-        raise ValueError("image should refer to an image of one of these types: %s; provided %s" % (readers.keys(), extension))
+        raise ValueError(
+            "image should refer to an image of one of these types: %s; provided %s" %
+            (readers.keys(), extension))
     return image
+
 
 def rounded_rect(width, height, radius, color, antialiased=True):
     c = color_image_data(width, height, color)
@@ -37,6 +39,7 @@ def rounded_rect(width, height, radius, color, antialiased=True):
     if antialiased:
         mask = antialias_mask(mask, passes=2)
     return mask_image(c, mask)
+
 
 def triangle(width, height, color, antialiased=True):
     c = color_image_data(width, height, color)
@@ -47,12 +50,14 @@ def triangle(width, height, color, antialiased=True):
 
     return mask_image(c, mask)
 
+
 def mask_image(image, mask):
     for c_ind, col in enumerate(mask):
         for r_ind, row in enumerate(col):
             # Set alpha
             image.SetScalarComponentFromFloat(c_ind, r_ind, 0, 3, row * 255)
     return image
+
 
 def transpose(image):
     """
@@ -65,8 +70,18 @@ def transpose(image):
     for col in xrange(w):
         for row in xrange(h):
             for component in xrange(components):
-                data.SetScalarComponentFromFloat(row, col, 0, component, image.GetScalarComponentAsFloat(col, row, 0, component))
+                data.SetScalarComponentFromFloat(
+                    row,
+                    col,
+                    0,
+                    component,
+                    image.GetScalarComponentAsFloat(
+                        col,
+                        row,
+                        0,
+                        component))
     return data
+
 
 def mirror(image, vertical=True):
     """
@@ -86,8 +101,18 @@ def mirror(image, vertical=True):
                 new_y = y
 
             for c in xrange(components):
-                data.SetScalarComponentFromFloat(new_x, new_y, 0, c, image.GetScalarComponentAsFloat(x, y, 0, c))
+                data.SetScalarComponentFromFloat(
+                    new_x,
+                    new_y,
+                    0,
+                    c,
+                    image.GetScalarComponentAsFloat(
+                        x,
+                        y,
+                        0,
+                        c))
     return data
+
 
 def combine_images(*images):
     """
@@ -113,7 +138,8 @@ def combine_images(*images):
     blender.Update()
     return blender.GetOutput()
 
-def antialias_mask(mask, fade = .85, passes = 3):
+
+def antialias_mask(mask, fade=.85, passes=3):
     # We'll use this mask to make the aliasing changes, so antialiased
     # cells don't effect their neighbors
 
@@ -152,11 +178,12 @@ def antialias_mask(mask, fade = .85, passes = 3):
 
     return mask
 
+
 def triangle_mask(width, height):
     grid = [[0 for _ in xrange(height)] for _ in xrange(width)]
 
     for col_ind, col in enumerate(grid):
-        if col_ind >= (width - 2) / 2.0 :
+        if col_ind >= (width - 2) / 2.0:
             break
 
         for row_ind, pix in enumerate(col):
@@ -168,6 +195,7 @@ def triangle_mask(width, height):
                 grid[width - col_ind - 3][row_ind] = 1
 
     return grid
+
 
 def rounded_rect_mask(width, height, radius):
     grid = [[1 for _ in xrange(height)] for _ in xrange(width)]
@@ -209,7 +237,14 @@ def color_image_data(width, height, color):
             if len(color) == 3:
                 image_data.SetScalarComponentFromFloat(i, j, 0, 3, 255)
             for component, value in enumerate(color):
-                image_data.SetScalarComponentFromFloat(i, j, 0, component, math.floor(value * 255))
+                image_data.SetScalarComponentFromFloat(
+                    i,
+                    j,
+                    0,
+                    component,
+                    math.floor(
+                        value *
+                        255))
 
     return image_data
 
@@ -227,6 +262,7 @@ def print_cols(cols):
         print row
         counter += 1
 
+
 def distance(point_1, point_2):
     """
     Calculate distance between two points
@@ -237,7 +273,9 @@ def distance(point_1, point_2):
 
     return math.sqrt(xdiff ** 2 + ydiff ** 2)
 
-def render_text(string, padding=5, width=None, height=None, size=12, font="Arial", fgcolor=(0,0,0), bgcolor=None):
+
+def render_text(string, padding=5, width=None, height=None,
+                size=12, font="Arial", fgcolor=(0, 0, 0), bgcolor=None):
     """
     Render text to an image and return it
 
@@ -257,7 +295,8 @@ def render_text(string, padding=5, width=None, height=None, size=12, font="Arial
 
     if width is None:
         # EM is defined as the square of the line height, and is the guide for making fonts
-        # We can use that as an upper bound (assuming font size is ~ line height)
+        # We can use that as an upper bound (assuming font size is ~ line
+        # height)
         width = size * max([len(s) for s in lines])
 
     if height is None:
@@ -270,17 +309,20 @@ def render_text(string, padding=5, width=None, height=None, size=12, font="Arial
         image = crop_blank_space(image)
         width, height, _ = image.GetDimensions()
 
-        return pad_image(image, pad_width = width + padding * 2, pad_height= height + padding * 2)
+        return pad_image(
+            image, pad_width=width + padding * 2, pad_height=height + padding * 2)
     else:
         return image
 
-def pad_image(image, pad_width = None, pad_height = None):
+
+def pad_image(image, pad_width=None, pad_height=None):
 
     width, height, _ = image.GetDimensions()
     pwidth = pad_width if pad_width is not None else width
     pheight = pad_height if pad_height is not None else height
 
-    # Have to adjust width and height because Extent uses coordinates, not lengths.
+    # Have to adjust width and height because Extent uses coordinates, not
+    # lengths.
     padded = img(pwidth, pheight)
     from math import floor
     left_pad = int(floor((pwidth - width) / 2.0))
@@ -305,13 +347,31 @@ def pad_image(image, pad_width = None, pad_height = None):
             if y < top_pad or y >= height + top_pad:
                 # Pad the top and bottom
                 for i in range(4):
-                    padded.SetScalarComponentFromFloat(x + left_pad, y, 0, i, 0)
+                    padded.SetScalarComponentFromFloat(
+                        x +
+                        left_pad,
+                        y,
+                        0,
+                        i,
+                        0)
             else:
                 # Copy the image
                 for i in range(4):
-                    component = image.GetScalarComponentAsFloat(x, y - top_pad, 0, i)
-                    padded.SetScalarComponentFromFloat(x + left_pad, y, 0, i, component)
+                    component = image.GetScalarComponentAsFloat(
+                        x,
+                        y -
+                        top_pad,
+                        0,
+                        i)
+                    padded.SetScalarComponentFromFloat(
+                        x +
+                        left_pad,
+                        y,
+                        0,
+                        i,
+                        component)
     return padded
+
 
 def crop_blank_space(image):
     """
@@ -380,17 +440,25 @@ def crop_blank_space(image):
 
     data = vtkImageData()
 
-    # Have to adjust height/width because right - left gives the width, not the coordinate of the endpoint
+    # Have to adjust height/width because right - left gives the width, not
+    # the coordinate of the endpoint
     data.SetExtent(0, right - left - 1, 0, top - bottom - 1, 0, 0)
     data.AllocateScalars(VTK_UNSIGNED_CHAR, 4)
 
-    for x in range (right - left):
+    for x in range(right - left):
         for y in range(top - bottom):
             for i in range(4):
-                component = image.GetScalarComponentAsFloat(left + x, bottom + y, 0, i)
+                component = image.GetScalarComponentAsFloat(
+                    left +
+                    x,
+                    bottom +
+                    y,
+                    0,
+                    i)
                 data.SetScalarComponentFromFloat(x, y, 0, i, component)
 
     return data
+
 
 def mask_color(image, mask_color):
     """
@@ -398,9 +466,9 @@ def mask_color(image, mask_color):
     """
     from math import floor
 
-    mask_color = [ floor(255 * component) for component in mask_color]
+    mask_color = [floor(255 * component) for component in mask_color]
 
-    keep_color = [ 255 - component for component in mask_color]
+    keep_color = [255 - component for component in mask_color]
     # Create an image with an alpha channel
     image_data = vtkImageData()
 
@@ -412,14 +480,30 @@ def mask_color(image, mask_color):
     for x in range(width):
         for y in range(height):
             for component in range(3):
-                pix_component = image.GetScalarComponentAsFloat(x, y, 0, component)
-                # Remap all colors to the keep color; we're using alpha to get rid of the mask color
-                image_data.SetScalarComponentFromFloat(x, y, 0, component, keep_color[component])
-            # Since the mask color is the inverse of the keep color, we only need one component to figure out the alpha
-            alpha = floor(abs(mask_color[component] - pix_component) / abs(keep_color[component] - mask_color[component]) * 255)
+                pix_component = image.GetScalarComponentAsFloat(
+                    x,
+                    y,
+                    0,
+                    component)
+                # Remap all colors to the keep color; we're using alpha to get
+                # rid of the mask color
+                image_data.SetScalarComponentFromFloat(
+                    x,
+                    y,
+                    0,
+                    component,
+                    keep_color[component])
+            # Since the mask color is the inverse of the keep color, we only
+            # need one component to figure out the alpha
+            alpha = floor(abs(mask_color[component] -
+                              pix_component) /
+                          abs(keep_color[component] -
+                              mask_color[component]) *
+                          255)
             alpha = min(alpha, 255)
             if alpha < 10:
-                # Colors aren't perfect; let's just chop everything off below here, this is basically invisible anyway
+                # Colors aren't perfect; let's just chop everything off below
+                # here, this is basically invisible anyway
                 alpha = 0
             if alpha > 245:
                 alpha = 255
@@ -435,18 +519,15 @@ def actor_to_image(actor, bgcolor, width, height, bgrender=True):
     """
     from vtk import vtkRenderer, vtkRenderWindow, vtkWindowToImageFilter
 
-    # bg window and bg renderer should be cached, but it's causing corrupted images to be generated. Not going to worry about it right now.
+    # bg window and bg renderer should be cached, but it's causing corrupted
+    # images to be generated. Not going to worry about it right now.
 
-    #global __bg_window__
-    #if __bg_window__ is None:
     __bg_window__ = vtkRenderWindow()
     if bgrender:
         __bg_window__.OffScreenRenderingOn()
     else:
         __bg_window__.OffScreenRenderingOff()
 
-#    global __bg_renderer__
- #   if __bg_renderer__ is None:
     __bg_renderer__ = vtkRenderer()
     __bg_renderer__.SetBackground(*bgcolor)
     __bg_window__.AddRenderer(__bg_renderer__)
@@ -469,6 +550,7 @@ def actor_to_image(actor, bgcolor, width, height, bgrender=True):
 
     return image_data
 
+
 def save_png(image, filename):
     from vtk import vtkPNGWriter
     writer = vtkPNGWriter()
@@ -476,6 +558,7 @@ def save_png(image, filename):
     writer.SetInputData(image)
     writer.Update()
     writer.Write()
+
 
 def img(width, height, components=4):
     """

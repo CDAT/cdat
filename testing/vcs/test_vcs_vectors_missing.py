@@ -28,6 +28,7 @@ import numpy
 bg = not args.show
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")

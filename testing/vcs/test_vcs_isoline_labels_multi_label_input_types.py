@@ -7,6 +7,7 @@ import checkimage
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt")
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 iso=x.createisoline()

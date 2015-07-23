@@ -5,6 +5,7 @@ pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 f=cdms2.open(vcs.sample_data+"/clt.nc")
 s=f("clt",slice(0,1),squeeze=1)

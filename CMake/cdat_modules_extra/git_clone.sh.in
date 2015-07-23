@@ -3,7 +3,7 @@
 cd "@CMAKE_INSTALL_PREFIX@"
 "@GIT_EXECUTABLE@" clone --no-checkout --depth 1 -b @BRANCH@ @GIT_URL@ "@GIT_TARGET@"
 cd "@GIT_TARGET@"
-if [ "$("@GIT_EXECUTABLE@" cat-file -t @BRANCH@)" = tag ]; then
+if "@GIT_EXECUTABLE@" rev-parse --symbolic-full-name @BRANCH@ | grep -q '^refs/tags/'; then
     "@GIT_EXECUTABLE@" checkout @BRANCH@
 else
     "@GIT_EXECUTABLE@" checkout origin/@BRANCH@

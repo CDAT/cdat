@@ -12,6 +12,7 @@ import checkimage
 f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s=f("clt",slice(0,1),squeeze=1)
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 i=x.createisofill()
 p=x.getprojection("polar")

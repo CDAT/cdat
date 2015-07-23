@@ -1,14 +1,17 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2 as cdms,vcs,os,sys,support
+import cdms2 as cdms
+import vcs
+import os
+import support
 
 if support.dogui is True:
-    f=cdms.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
-    
-    s=f('sample')
-    s=cdms.MV2.masked_greater(s,280.)
-    
-    x=vcs.init()
-    
+    f = cdms.open(os.path.join(vcs.sample_data, 'sampleCurveGrid4.nc'))
+
+    s = f('sample')
+    s = cdms.MV2.masked_greater(s, 280.)
+
+    x = vcs.init()
+
     x.plot(s)
     raw_input("pick a color on plot")
 else:
