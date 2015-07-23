@@ -1,5 +1,6 @@
 from behavior import Behavior
 
+
 class ClickableMixin(Behavior):
 
     def __init__(self):
@@ -20,7 +21,6 @@ class ClickableMixin(Behavior):
         # If they're moving the mouse, it's probably not a double click.
         self.add_event_handler("MouseMoveEvent", self.timer_elapsed)
         self.add_event_handler("TimerEvent", self.timer_elapsed)
-
 
     def click_press(self):
         """Implement in subclass, called on mouse down"""
@@ -66,7 +66,8 @@ class ClickableMixin(Behavior):
     def click_pressed(self, obj, event):
         self.clicked = True
         if self.click_timer is None:
-            self.click_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
+            self.click_timer = self.interactor.CreateOneShotTimer(
+                self.double_click_duration)
         else:
             self.interactor.DestroyTimer(self.click_timer)
             self.click_timer = None
@@ -74,13 +75,14 @@ class ClickableMixin(Behavior):
 
     def click_released(self, obj, event):
         # A weird spam event was coming through on object initialization
-        if self.clicked == False:
+        if self.clicked is False:
             return
         else:
             self.clicked = False
 
         if self.release_timer is None:
-            self.release_timer = self.interactor.CreateOneShotTimer(self.double_click_duration)
+            self.release_timer = self.interactor.CreateOneShotTimer(
+                self.double_click_duration)
         else:
             self.interactor.DestroyTimer(self.release_timer)
             self.release_timer = None

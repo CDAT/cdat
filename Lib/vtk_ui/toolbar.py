@@ -1,16 +1,28 @@
 from button import ToggleButton, SliderButton, ButtonState, Button
 
+
 class Toolbar(object):
 
-    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open", on_open=None, close_label="Close", on_close=None, button_margin=5, parent=None, save=None):
+    def __init__(self, interactor, label, vertical=True, left=10, top=10, open_label="Open",
+                 on_open=None, close_label="Close", on_close=None, button_margin=5, parent=None, save=None):
 
         self.save = save
         self.interactor = interactor
         self.margin = button_margin
-        # Left is automatically modified by the margin; was running into issues with updating left at a later date, this was the easiest solution.
+        # Left is automatically modified by the margin; was running into issues
+        # with updating left at a later date, this was the easiest solution.
         self.left = left
         self.top = top
-        self.label = ToggleButton(self.interactor, label, on=self.__on__, off=self.__off__, on_prefix=open_label, off_prefix=close_label, left=self.left - self.margin, top=self.top)
+        self.label = ToggleButton(
+            self.interactor,
+            label,
+            on=self.__on__,
+            off=self.__off__,
+            on_prefix=open_label,
+            off_prefix=close_label,
+            left=self.left -
+            self.margin,
+            top=self.top)
         self.on_open = on_open
         self.on_close = on_close
         self.vertical = vertical
@@ -31,7 +43,8 @@ class Toolbar(object):
 
     def in_toolbar(self, x, y):
         width, top = self.interactor.GetRenderWindow().GetSize()
-        if x > self.left and x < self.left + self.width and y < top and y > top - self.height:
+        if x > self.left and x < self.left + \
+                self.width and y < top and y > top - self.height:
             return True
         else:
             return False
@@ -39,11 +52,17 @@ class Toolbar(object):
     # Left property definition
     def __getleft(self):
         return self.__left
+
     def __setleft(self, left):
         self.__left = left + self.margin
+
     def __delleft(self):
         del self.__left
-    left = property(__getleft, __setleft, __delleft, "The Left property, modified by the margin")
+    left = property(
+        __getleft,
+        __setleft,
+        __delleft,
+        "The Left property, modified by the margin")
 
     def __on__(self):
         self.open = True
@@ -58,7 +77,14 @@ class Toolbar(object):
             self.on_close()
 
     def copy(self, interactor):
-        t = Toolbar(interactor, self.label.label, vertical=self.vertical, left=self.left - self.margin, top=self.top, button_margin=self.margin)
+        t = Toolbar(
+            interactor,
+            self.label.label,
+            vertical=self.vertical,
+            left=self.left -
+            self.margin,
+            top=self.top,
+            button_margin=self.margin)
 
         for widget in self.widgets:
             t.widgets.append(widget.copy(interactor))
@@ -71,7 +97,7 @@ class Toolbar(object):
 
     def place(self):
 
-        if self.parent and self.__placing__ == False:
+        if self.parent and self.__placing__ is False:
             # Navigate up the tree, work from the root
             self.parent.place()
             return
@@ -79,7 +105,6 @@ class Toolbar(object):
         self.label.left = self.left - self.margin
         self.label.top = self.top
         self.label.place()
-
 
         self.width, self.height = self.label.get_dimensions()
 
@@ -193,8 +218,6 @@ class Toolbar(object):
 
         return b
 
-
-
     def add_toolbar(self, label, **kwargs):
         """
         Adds a toolbar using the same configs as this one has
@@ -211,11 +234,13 @@ class Toolbar(object):
         if "vertical" not in kwargs:
             kwargs["vertical"] = self.vertical
         _open = kwargs.get("on_open", None)
+
         def hook_open():
             self.place()
             if _open:
                 _open()
         _close = kwargs.get("on_close", None)
+
         def hook_close():
             self.place()
             if _close:
@@ -240,7 +265,7 @@ class Toolbar(object):
     def add_toggle_button(self, label, **kwargs):
 
         _off = kwargs.get("off", None)
-        _on  = kwargs.get("on", None)
+        _on = kwargs.get("on", None)
 
         def off():
             if _off:
@@ -278,6 +303,7 @@ class Toolbar(object):
     def add_slider_button(self, value, min_val, max_val, label, **kwargs):
 
         _end = kwargs.get("end", None)
+
         def end(val):
 
             if _end:
@@ -287,6 +313,7 @@ class Toolbar(object):
                 self.save()
 
         _on_show = kwargs.get("on_show_slider", None)
+
         def on_show():
             self.hide_sliders()
             if _on_show:
@@ -302,7 +329,13 @@ class Toolbar(object):
             kwargs["left"] = self.left + self.width + self.margin
             kwargs["top"] = self.top
 
-        b = SliderButton(self.interactor, value, min_val, max_val, label, **kwargs)
+        b = SliderButton(
+            self.interactor,
+            value,
+            min_val,
+            max_val,
+            label,
+            **kwargs)
 
         if self.open:
             b.show()
@@ -317,9 +350,9 @@ class Toolbar(object):
 
     def hide_sliders(self):
         for w in self.widgets:
-            if type(w) == SliderButton:
+            if isinstance(w, SliderButton):
                 if w.slider.showing():
                     w.set_state(0)
                     w.off()
-            if type(w) == Toolbar:
+            if isinstance(w, Toolbar):
                 w.hide_sliders()

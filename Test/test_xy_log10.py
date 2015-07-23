@@ -1,23 +1,26 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2,vcs,sys,cdutil,support,os
-bg=support.bg
+import cdms2
+import vcs
+import cdutil
+import support
+import os
+bg = support.bg
 cdms2.setAutoBounds('on')
-f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
-s=f('clt',time=slice(10,None),longitude=(10,270))
-s=cdutil.averager(s,axis='ty')
-x=vcs.init()
+f = cdms2.open(os.path.join(vcs.sample_data, 'clt.nc'))
+s = f('clt', time=slice(10, None), longitude=(10, 270))
+s = cdutil.averager(s, axis='ty')
+x = vcs.init()
 
-xy=x.createxyvsy('new')
-xy.yaxisconvert='log10'
+xy = x.createxyvsy('new')
+xy.yaxisconvert = 'log10'
 
-x.plot(s,xy,bg=bg)
+x.plot(s, xy, bg=bg)
 support.check_plot(x)
 x.clear()
-xy.yaxisconvert='linear'
-x.plot(s,xy,bg=bg)
+xy.yaxisconvert = 'linear'
+x.plot(s, xy, bg=bg)
 support.check_plot(x)
 x.clear()
-xy.yaxisconvert='log10'
-x.plot(s,xy,bg=bg)
+xy.yaxisconvert = 'log10'
+x.plot(s, xy, bg=bg)
 support.check_plot(x)
-

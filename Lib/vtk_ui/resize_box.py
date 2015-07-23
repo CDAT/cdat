@@ -1,7 +1,10 @@
 from handle import Handle
 
+
 class ResizeBox(object):
-    def __init__(self, interactor, point_1, point_2, color=(0, 0, 0), set_points=None, normalize=False):
+
+    def __init__(self, interactor, point_1, point_2, color=(
+            0, 0, 0), set_points=None, normalize=False):
         self.interactor = interactor
 
         self.normalize = normalize
@@ -21,13 +24,23 @@ class ResizeBox(object):
         self.set_points = set_points
 
         self.top_left = Handle(interactor, (self.x1, self.y1), **handle_kwargs)
-        self.top_right = Handle(interactor, (self.x2, self.y1), **handle_kwargs)
-        self.bottom_left = Handle(interactor, (self.x1, self.y2), **handle_kwargs)
-        self.bottom_right = Handle(interactor, (self.x2, self.y2), **handle_kwargs)
+        self.top_right = Handle(
+            interactor,
+            (self.x2,
+             self.y1),
+            **handle_kwargs)
+        self.bottom_left = Handle(
+            interactor, (self.x1, self.y2), **handle_kwargs)
+        self.bottom_right = Handle(
+            interactor, (self.x2, self.y2), **handle_kwargs)
         self.center = Handle(interactor, self.get_center(), **handle_kwargs)
 
-
-        self.handles = [self.top_left, self.top_right, self.bottom_left, self.bottom_right, self.center]
+        self.handles = [
+            self.top_left,
+            self.top_right,
+            self.bottom_left,
+            self.bottom_right,
+            self.center]
 
         self.place()
 
@@ -42,11 +55,13 @@ class ResizeBox(object):
         else:
             sw, sh = 1
 
-        return (w / 2.0 + min(self.x1, self.x2)) * sw, (h / 2.0 + min(self.y1, self.y2)) * sh
+        return (w / 2.0 + min(self.x1, self.x2)) * \
+            sw, (h / 2.0 + min(self.y1, self.y2)) * sh
 
     def get_points(self):
 
-        return (min(self.x1, self.x2), min(self.y1, self.y2)), (max(self.x1, self.x2), max(self.y1, self.y2))
+        return (min(self.x1, self.x2), min(self.y1, self.y2)), (max(
+            self.x1, self.x2), max(self.y1, self.y2))
 
     def place(self):
 
@@ -89,7 +104,8 @@ class ResizeBox(object):
 
     def released(self, handle):
         if self.set_points:
-            # Don't let silly things happen, like reversing images. Just normalize to sane coordinates.
+            # Don't let silly things happen, like reversing images. Just
+            # normalize to sane coordinates.
             self.set_points(self, self.get_points())
 
     def dragged(self, handle, x, y):

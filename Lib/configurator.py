@@ -78,6 +78,7 @@ def sync_template(src, target):
 
 
 class Configurator(object):
+
     def __init__(self, canvas):
         self.canvas = canvas
         self.backend = canvas.backend
@@ -120,7 +121,7 @@ class Configurator(object):
         user_home = os.path.expanduser("~")
 
         output_dir = os.path.join(user_home, ".uvcdat", "animation")
-        if os.path.exists(output_dir) == False:
+        if os.path.exists(output_dir) is False:
             os.mkdir(output_dir)
         # We'll just use .uvcdat– this is a headless install
         path = os.path.join(output_dir, default_name)
@@ -129,12 +130,16 @@ class Configurator(object):
         directory, filename = os.path.split(path)
         filename, extension = os.path.splitext(filename)
         while os.path.exists(path):
-            path = os.path.join(directory, filename + "_" + str(p_index) + extension)
+            path = os.path.join(
+                directory,
+                filename +
+                "_" +
+                str(p_index) +
+                extension)
             p_index += 1
         print "Saving to " + path
 
         return path
-
 
     def shift(self):
         return self.interactor.GetShiftKey() == 1
@@ -143,14 +148,27 @@ class Configurator(object):
         if self.backend.renWin and self.interactor is None:
             self.interactor = self.backend.renWin.GetInteractor()
             if self.interactor is not None:
-                self.listeners.append(self.interactor.AddObserver("TimerEvent", self.animate))
-                self.listeners.append(self.interactor.AddObserver("LeftButtonPressEvent", self.click))
-                self.listeners.append(self.interactor.AddObserver("MouseMoveEvent", self.hover))
-                self.listeners.append(self.interactor.AddObserver("LeftButtonReleaseEvent", self.release))
+                self.listeners.append(
+                    self.interactor.AddObserver(
+                        "TimerEvent",
+                        self.animate))
+                self.listeners.append(
+                    self.interactor.AddObserver(
+                        "LeftButtonPressEvent",
+                        self.click))
+                self.listeners.append(
+                    self.interactor.AddObserver(
+                        "MouseMoveEvent",
+                        self.hover))
+                self.listeners.append(
+                    self.interactor.AddObserver(
+                        "LeftButtonReleaseEvent",
+                        self.release))
                 self.init_buttons()
                 self.init_toolbar()
 
-        self.displays = [vcs.elements["display"][display] for display in self.canvas.display_names]
+        self.displays = [vcs.elements["display"][display]
+                         for display in self.canvas.display_names]
         for display in self.displays:
 
             if display._template_origin in self.templates:
@@ -197,7 +215,8 @@ class Configurator(object):
         for listener in self.listeners:
             self.interactor.RemoveObserver(listener)
 
-        # if all of the widgets have been cleaned up correctly, this will delete the manager
+        # if all of the widgets have been cleaned up correctly, this will
+        # delete the manager
         vtk_ui.manager.delete_manager(self.interactor)
         self.render_window.Render()
 
@@ -205,21 +224,26 @@ class Configurator(object):
         if self.clicking is None:
             return
 
-        if datetime.datetime.now() - self.clicking[1] < datetime.timedelta(0, .5):
+        if datetime.datetime.now() - \
+                self.clicking[1] < datetime.timedelta(0, .5):
             point = self.clicking[0]
             self.clicking = None
 
             if self.creating:
                 self.click_locations.append(point)
-                if len(self.click_locations) == CLICKS_TO_CREATE[self.creating]:
+                if len(self.click_locations) == CLICKS_TO_CREATE[
+                        self.creating]:
                     self.create()
                 return
 
-            if self.target and self.shift() is False and self.target.handle_click(point):
+            if self.target and self.shift() is False and self.target.handle_click(
+                    point):
                 return
 
-            if self.shift() and type(self.target) != editors.group.GroupEditor:
-                self.target = editors.group.GroupEditor(self.interactor, (self.target,))
+            if self.shift() and not isinstance(
+                    self.target, editors.group.GroupEditor):
+                self.target = editors.group.GroupEditor(
+                    self.interactor, (self.target,))
 
             clicked_actor = self.actor_at_point(*point)
 
@@ -232,8 +256,10 @@ class Configurator(object):
 
             display, key = self.display_and_key_for_actor(clicked_actor)
             if editable_type(display, key):
-                # Some methods (markers) have more than one actor per displayed item
-                if clicked_actor != display.backend[key] and clicked_actor not in display.backend[key]:
+                # Some methods (markers) have more than one actor per displayed
+                # item
+                if clicked_actor != display.backend[
+                        key] and clicked_actor not in display.backend[key]:
                     for group in display.backend[key]:
                         if clicked_actor in group:
                             clicked_actor = group
@@ -260,7 +286,8 @@ class Configurator(object):
                     if not actor_in_backend:
                         actor_in_backend = actor in display.backend[key]
                     if not actor_in_backend:
-                        actor_in_backend = len([True for group in display.backend[key] if actor in group]) > 0
+                        actor_in_backend = len(
+                            [True for group in display.backend[key] if actor in group]) > 0
                 except TypeError:
                     actor_in_backend = False
                 if actor_in_backend:
@@ -270,7 +297,6 @@ class Configurator(object):
             break
         else:
             return None, None
-
 
     def actor_at_point(self, x, y):
         """
@@ -296,7 +322,7 @@ class Configurator(object):
 
         return obj
 
-    def hover(self, object,event):
+    def hover(self, object, event):
         if self.clicking is not None:
             return
 
@@ -312,7 +338,8 @@ class Configurator(object):
                 new_cursor = vtk.VTK_CURSOR_HAND
         else:
             if self.target and self.target.handle_click(point):
-                if self.interactor.GetControlKey() == 1 and type(self.target) in (editors.marker.MarkerEditor, editors.text.TextEditor):
+                if self.interactor.GetControlKey() == 1 and type(self.target) in (
+                        editors.marker.MarkerEditor, editors.text.TextEditor):
                     new_cursor = vtk.VTK_CURSOR_CROSSHAIR
                 else:
                     new_cursor = vtk.VTK_CURSOR_HAND
@@ -325,7 +352,9 @@ class Configurator(object):
         window.SetCurrentCursor(new_cursor)
 
     def click(self, object, event):
-        self.clicking = (self.interactor.GetEventPosition(), datetime.datetime.now())
+        self.clicking = (
+            self.interactor.GetEventPosition(),
+            datetime.datetime.now())
 
     def show(self):
         if self.interactor is None:
@@ -337,8 +366,8 @@ class Configurator(object):
         man = vtk_ui.manager.get_manager(self.interactor)
         man.elevate()
         self.interactor.Render()
-        #self.fill_button.show()
-        #self.line_button.show()
+        # self.fill_button.show()
+        # self.line_button.show()
 
     def deactivate(self, obj):
         try:
@@ -362,8 +391,8 @@ class Configurator(object):
         self.save()
 
     def place(self):
-        #self.fill_button.place()
-        #self.line_button.place()
+        # self.fill_button.place()
+        # self.line_button.place()
         self.marker_button.place()
         self.text_button.place()
         self.toolbar.place()
@@ -380,14 +409,30 @@ class Configurator(object):
             l = display.backend[key]
             # Actor is actually a group of VTK objects
             index = l.index(actor)
-            editor = editors.marker.MarkerEditor(self.interactor, vcs.getmarker(display.g_name), index, display, self)
+            editor = editors.marker.MarkerEditor(
+                self.interactor,
+                vcs.getmarker(
+                    display.g_name),
+                index,
+                display,
+                self)
         elif display.g_type == "text":
             l = display.backend[key]
             index = l.index(actor)
-            editor = editors.text.TextEditor(self.interactor, vcs.gettext(display.g_name), index, display, self)
+            editor = editors.text.TextEditor(
+                self.interactor,
+                vcs.gettext(
+                    display.g_name),
+                index,
+                display,
+                self)
         elif is_label(key):
             obj = get_attribute(display, key)
-            editor = editors.label.LabelEditor(self.interactor, obj, display, self)
+            editor = editors.label.LabelEditor(
+                self.interactor,
+                obj,
+                display,
+                self)
         else:
             editor = None
 
@@ -395,7 +440,6 @@ class Configurator(object):
             self.target.add_target(editor)
         else:
             self.target = editor
-
 
     def save(self):
         if self.changed:
@@ -406,31 +450,54 @@ class Configurator(object):
         self.canvas.animate.reset()
 
     def init_toolbar(self):
-        self.toolbar = vtk_ui.Toolbar(self.interactor, "Configure", on_open=self.setup_animation)
+        self.toolbar = vtk_ui.Toolbar(
+            self.interactor,
+            "Configure",
+            on_open=self.setup_animation)
         # Canvas background color
         color_toolbar = self.toolbar.add_toolbar("Background Color")
         red, green, blue = self.canvas.backgroundcolor
 
-        color_toolbar.add_slider_button(red, 0, 255, "Red", update=self.set_background_red)
-        color_toolbar.add_slider_button(green, 0, 255, "Green", update=self.set_background_green)
-        color_toolbar.add_slider_button(blue, 0, 255, "Blue", update=self.set_background_blue)
+        color_toolbar.add_slider_button(
+            red,
+            0,
+            255,
+            "Red",
+            update=self.set_background_red)
+        color_toolbar.add_slider_button(
+            green,
+            0,
+            255,
+            "Green",
+            update=self.set_background_green)
+        color_toolbar.add_slider_button(
+            blue,
+            0,
+            255,
+            "Blue",
+            update=self.set_background_blue)
 
         def logo_on():
-          self.canvas.drawlogoon()
-          self.canvas.update()
+            self.canvas.drawlogoon()
+            self.canvas.update()
+
         def logo_off():
-          self.canvas.drawlogooff()
-          self.canvas.update()
+            self.canvas.drawlogooff()
+            self.canvas.update()
 
         def save_template_changes(state):
             for new, source in self.templates.iteritems():
                 if source != "default":
-                    sync_template(vcs.gettemplate(new), vcs.gettemplate(source))
+                    sync_template(
+                        vcs.gettemplate(new),
+                        vcs.gettemplate(source))
 
             for display in self.displays:
-                if display.g_type not in ("fillarea", "text", "marker", "line"):
+                if display.g_type not in (
+                        "fillarea", "text", "marker", "line"):
                     # Remove the dummy template now that changes are synced
-                    new, source = display.template, self.templates[display.template]
+                    new, source = display.template, self.templates[
+                        display.template]
                     display.template = source
                     display._template_origin = source
 
@@ -443,45 +510,83 @@ class Configurator(object):
             self.canvas.update()
 
         # Toggle UV-CDAT logo
-        logo_button = self.toolbar.add_toggle_button("Logo", on_prefix="Show", off_prefix="Hide", on=logo_on, off=logo_off)
+        logo_button = self.toolbar.add_toggle_button(
+            "Logo",
+            on_prefix="Show",
+            off_prefix="Hide",
+            on=logo_on,
+            off=logo_off)
 
-        self.toolbar.add_button(["Save Templates"], action=save_template_changes)
-        self.toolbar.add_button(["Reset Templates"], action=reset_template_changes)
+        self.toolbar.add_button(
+            ["Save Templates"],
+            action=save_template_changes)
+        self.toolbar.add_button(
+            ["Reset Templates"],
+            action=reset_template_changes)
 
         if self.canvas.getdrawlogo():
-          logo_button.set_state(1)
+            logo_button.set_state(1)
 
     def setup_animation(self):
-        if self.initialized is False and [True for d in self.displays if display_supports_animation(d)]:
+        if self.initialized is False and [
+                True for d in self.displays if display_supports_animation(d)]:
             self.canvas.animate.create()
             anim_toolbar = self.toolbar.add_toolbar("Animation")
-            self.anim_button = anim_toolbar.add_toggle_button("Animation", on=self.start_animating, off=self.stop_animating, on_prefix="Run", off_prefix="Stop")
+            self.anim_button = anim_toolbar.add_toggle_button(
+                "Animation",
+                on=self.start_animating,
+                off=self.stop_animating,
+                on_prefix="Run",
+                off_prefix="Stop")
             anim_toolbar.add_button(["Step Forward"], action=self.step_forward)
             anim_toolbar.add_button(["Step Backward"], action=self.step_back)
 
             def get_frame():
                 return self.canvas.animate.frame_num
-            anim_toolbar.add_slider_button(get_frame, 0, self.canvas.animate.number_of_frames(), "Time Slider", update=self.set_animation_frame)
-            anim_toolbar.add_slider_button(self.animation_speed, 1, 100, "Speed (Step Delay)", update=self.set_animation_speed)
-            self.save_anim_button = anim_toolbar.add_button(["Save Animation", "Cancel Save"], action=self.save_animation_press)
+            anim_toolbar.add_slider_button(
+                get_frame,
+                0,
+                self.canvas.animate.number_of_frames(),
+                "Time Slider",
+                update=self.set_animation_frame)
+            anim_toolbar.add_slider_button(
+                self.animation_speed,
+                1,
+                100,
+                "Speed (Step Delay)",
+                update=self.set_animation_speed)
+            self.save_anim_button = anim_toolbar.add_button(
+                ["Save Animation", "Cancel Save"], action=self.save_animation_press)
             self.initialized = True
 
     def step_forward(self, state):
         if self.animation_timer is not None:
             self.stop_animating()
-        self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+        self.canvas.animate.draw_frame(
+            (self.canvas.animate.frame_num +
+             1) %
+            self.canvas.animate.number_of_frames(),
+            allow_static=False,
+            render_offscreen=False)
 
     def step_back(self, state):
         if self.animation_timer is not None:
             self.stop_animating()
-        self.canvas.animate.draw_frame((self.canvas.animate.frame_num - 1) % self.canvas.animate.number_of_frames(), allow_static = False, render_offscreen = False)
+        self.canvas.animate.draw_frame(
+            (self.canvas.animate.frame_num -
+             1) %
+            self.canvas.animate.number_of_frames(),
+            allow_static=False,
+            render_offscreen=False)
 
     def save_animation_press(self, state):
         if state == 1:
             if self.animation_timer:
                 self.stop_animating()
                 self.anim_button.set_state(0)
-            self.save_listener = self.interactor.AddObserver("TimerEvent", self.save_tick)
+            self.save_listener = self.interactor.AddObserver(
+                "TimerEvent",
+                self.save_tick)
             self.save_timer = self.interactor.CreateRepeatingTimer(10)
         else:
             if self.save_timer:
@@ -490,8 +595,9 @@ class Configurator(object):
             if self.save_listener:
                 self.interactor.RemoveObserver(self.save_listener)
                 self.save_listener = None
-            self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
-
+            self.canvas.animate.draw_frame(
+                allow_static=False,
+                render_offscreen=False)
 
     def save_animation(self):
         # Save the animation
@@ -507,24 +613,31 @@ class Configurator(object):
                 if array is not None:
                     if display.g_name not in data_titles:
                         data_titles[display.g_name] = []
-                    data_titles[display.g_name].append("_".join(array.title.split()))
+                    data_titles[
+                        display.g_name].append(
+                        "_".join(
+                            array.title.split()))
 
-        plot_names = [name_to_type[d_name]+ "_" + "-".join(data_titles[d_name]) for d_name in data_titles]
+        plot_names = [name_to_type[d_name] +
+                      "_" +
+                      "-".join(data_titles[d_name]) for d_name in data_titles]
         name = "__".join(plot_names) + ".mp4"
         save_path = self.get_save_path(name)
         if save_path == '':
             return
 
         self.canvas.animate.save(save_path)
-        self.canvas.animate.draw_frame(allow_static=False, render_offscreen=False)
+        self.canvas.animate.draw_frame(
+            allow_static=False,
+            render_offscreen=False)
         self.save_anim_button.set_state(0)
-
 
     def save_tick(self, obj, event):
         if self.save_timer is None or self.save_listener is None:
             return
 
-        if self.canvas.animate.number_of_frames() == len(self.canvas.animate.animation_files):
+        if self.canvas.animate.number_of_frames() == len(
+                self.canvas.animate.animation_files):
             self.save_animation()
             if self.save_timer:
                 self.interactor.DestroyTimer(self.save_timer)
@@ -533,25 +646,34 @@ class Configurator(object):
                 self.interactor.RemoveObserver(self.save_listener)
                 self.save_listener = None
         else:
-            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames())
-
+            self.canvas.animate.draw_frame(
+                (self.canvas.animate.frame_num + 1) %
+                self.canvas.animate.number_of_frames())
 
     def set_animation_speed(self, value):
         v = int(value)
         self.animation_speed = 10 * v
         if self.animation_timer is not None:
             self.interactor.DestroyTimer(self.animation_timer)
-            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+            self.animation_timer = self.interactor.CreateRepeatingTimer(
+                self.animation_speed)
         return v
 
     def animate(self, obj, event):
-        if self.animation_timer is not None and datetime.datetime.now() - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
+        if self.animation_timer is not None and datetime.datetime.now(
+        ) - self.animation_last_frame_time > datetime.timedelta(0, 0, 0, self.animation_speed):
             self.animation_last_frame_time = datetime.datetime.now()
-            self.canvas.animate.draw_frame((self.canvas.animate.frame_num + 1) % self.canvas.animate.number_of_frames(), render_offscreen=False, allow_static=False)
+            self.canvas.animate.draw_frame(
+                (self.canvas.animate.frame_num +
+                 1) %
+                self.canvas.animate.number_of_frames(),
+                render_offscreen=False,
+                allow_static=False)
 
     def start_animating(self):
         if self.animation_timer is None:
-            self.animation_timer = self.interactor.CreateRepeatingTimer(self.animation_speed)
+            self.animation_timer = self.interactor.CreateRepeatingTimer(
+                self.animation_speed)
 
     def stop_animating(self):
         if self.animation_timer is not None:
@@ -563,7 +685,10 @@ class Configurator(object):
         if self.animation_timer is not None:
             self.stop_animating()
         value = int(value)
-        self.canvas.animate.draw_frame(value, allow_static=False, render_offscreen=False)
+        self.canvas.animate.draw_frame(
+            value,
+            allow_static=False,
+            render_offscreen=False)
         return value
 
     def set_background_red(self, value):
@@ -595,16 +720,44 @@ class Configurator(object):
 
     def init_buttons(self):
         # An "off" and "on" state
-        states = [vtk_ui.button.ButtonState(bgcolor=x) for x in ((.5, .5, .5), (.75, .75, .75))]
+        states = [
+            vtk_ui.button.ButtonState(
+                bgcolor=x) for x in (
+                (.5, .5, .5), (.75, .75, .75))]
 
         prop = vtk.vtkTextProperty()
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
         prop.SetColor(0, 0, 0)
 
-        self.text_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "text_icon.png"), top=10, left=10, halign=vtk_ui.button.RIGHT_ALIGN, action=self.text_click, tooltip="Create Text: click to place.", tooltip_property=prop)
-        self.marker_button = vtk_ui.button.Button(self.interactor, states=states, image=os.path.join(sys.prefix, "share", "vcs", "marker_icon.png"), top=10, left=63, halign=vtk_ui.button.RIGHT_ALIGN, action=self.marker_click, tooltip="Create Marker: click to place.", tooltip_property=prop)
-
+        self.text_button = vtk_ui.button.Button(
+            self.interactor,
+            states=states,
+            image=os.path.join(
+                sys.prefix,
+                "share",
+                "vcs",
+                "text_icon.png"),
+            top=10,
+            left=10,
+            halign=vtk_ui.button.RIGHT_ALIGN,
+            action=self.text_click,
+            tooltip="Create Text: click to place.",
+            tooltip_property=prop)
+        self.marker_button = vtk_ui.button.Button(
+            self.interactor,
+            states=states,
+            image=os.path.join(
+                sys.prefix,
+                "share",
+                "vcs",
+                "marker_icon.png"),
+            top=10,
+            left=63,
+            halign=vtk_ui.button.RIGHT_ALIGN,
+            action=self.marker_click,
+            tooltip="Create Marker: click to place.",
+            tooltip_property=prop)
 
     def creator_enabled(self, button):
         if self.target is not None:
@@ -692,6 +845,7 @@ class Configurator(object):
         self.creating = False
         self.click_locations = None
 
+
 def get_attribute(display, backend_key):
     key = backend_key.split("_")[2]
     template = vcstemp(display.template)
@@ -709,11 +863,13 @@ def vcstemp(name):
 
 
 def display_supports_animation(d):
-    return d.g_type not in ("marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")
+    return d.g_type not in (
+        "marker", "text", "textcombined", "fillarea", "line", "textorientation", "texttable")
 
 
 def is_label(key):
     return "_text_actor" == key[-11:]
+
 
 def is_box(member):
     x1 = safe_get(member, "x1")
@@ -726,6 +882,7 @@ def is_box(member):
     else:
         return True
 
+
 def is_point(member):
     x = safe_get(member, "x")
     y = safe_get(member, "y")
@@ -733,6 +890,7 @@ def is_point(member):
         return False
     else:
         return True
+
 
 def is_point_in_box(point, box):
     """
@@ -742,6 +900,7 @@ def is_point_in_box(point, box):
     (x1, y1), (x2, y2) = box
     return x1 <= x and x2 >= x and y1 <= y and y2 >= y
 
+
 def safe_get(obj, attr, sentinel=None):
     """
     Returns sentinel value if attr isn't in obj, otherwise attr's value
@@ -750,6 +909,7 @@ def safe_get(obj, attr, sentinel=None):
         return getattr(obj, attr)
     except AttributeError:
         return sentinel
+
 
 def editable_type(display, key):
     return display.g_type in ("marker", "text") or is_label(key)

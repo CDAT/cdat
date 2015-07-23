@@ -1,7 +1,9 @@
 import priority
 import vcs
 from vcs.colorpicker import ColorPicker
-import text, label, marker
+import text
+import label
+import marker
 
 
 def extract_widgets(editor):
@@ -17,12 +19,16 @@ def extract_widgets(editor):
                 widgets = []
     return widgets
 
-class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, vcs.vtk_ui.behaviors.DraggableMixin):
+
+class GroupEditor(priority.PriorityEditor,
+                  vcs.vtk_ui.behaviors.ClickableMixin, vcs.vtk_ui.behaviors.DraggableMixin):
+
     """
     Editor for multiple targets at once
 
     Multiplexes events to all targets, provides a toolbar to edit like items.
     """
+
     def __init__(self, interactor, targets):
 
         self.targets = []
@@ -30,7 +36,9 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
 
         self.toolbar = vcs.vtk_ui.Toolbar(interactor, "Group Options")
         self.picker = None
-        self.color_button = self.toolbar.add_button(["Change Color"], action=self.change_color)
+        self.color_button = self.toolbar.add_button(
+            ["Change Color"],
+            action=self.change_color)
         self.toolbar.show()
         self.widgets = []
         self.widget_dragged_methods = {}
@@ -52,12 +60,24 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         self.toolbar.widgets = [self.color_button]
 
         if self.types <= set((text.TextEditor, label.LabelEditor)):
-            self.toolbar.add_slider_button(12, 1, 100, "Height", update=self.update_height)
-            self.toolbar.add_slider_button(0, 0, 360, "Angle", update=self.update_angle)
+            self.toolbar.add_slider_button(
+                12,
+                1,
+                100,
+                "Height",
+                update=self.update_height)
+            self.toolbar.add_slider_button(
+                0,
+                0,
+                360,
+                "Angle",
+                update=self.update_angle)
             self.fonts = sorted(vcs.elements["font"].keys())
 
-            self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
-            self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+            self.toolbar.add_button(
+                ["Left Align", "Center Align", "Right Align"], action=self.halign)
+            self.toolbar.add_button(
+                ["Top Align", "Half Align", "Bottom Align"], action=self.valign)
 
             font_toolbar = self.toolbar.add_toolbar("Fonts")
 
@@ -73,20 +93,36 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
             for ind, font in enumerate(self.fonts):
                 # Math fonts render unintelligbly
                 if font[:4] != "Math":
-                    button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate, font=vcs.elements["font"][font])
+                    button = font_toolbar.add_toggle_button(
+                        font,
+                        on=font_setter(font),
+                        off=deactivate,
+                        font=vcs.elements["font"][font])
                 else:
-                    button = font_toolbar.add_toggle_button(font, on=font_setter(font), off=deactivate)
+                    button = font_toolbar.add_toggle_button(
+                        font,
+                        on=font_setter(font),
+                        off=deactivate)
 
                 font_buttons[font] = button
         elif self.types <= set((marker.MarkerEditor,)):
-            self.toolbar.add_slider_button(10, 1, 300, "Marker Size", update=self.set_size)
+            self.toolbar.add_slider_button(
+                10,
+                1,
+                300,
+                "Marker Size",
+                update=self.set_size)
 
-            type_bar = self.toolbar.add_toolbar("Marker Type", open_label="Change")
+            type_bar = self.toolbar.add_toolbar(
+                "Marker Type",
+                open_label="Change")
 
             shapes = marker.marker_shapes()
 
             shapes.insert(0, "Select Shape")
-            self.shape_button = type_bar.add_button(shapes, action=self.change_shape)
+            self.shape_button = type_bar.add_button(
+                shapes,
+                action=self.change_shape)
 
             wmos = marker.wmo_shapes()
             wmos.insert(0, "Select WMO Marker")
@@ -97,7 +133,13 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = ColorPicker(500, 500, vcs.getcolormap(), 0, on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = ColorPicker(
+                500,
+                500,
+                vcs.getcolormap(),
+                0,
+                on_save=self.set_color,
+                on_cancel=self.cancel_color)
 
     def set_color(self, colormap, color):
         self.multiplex("set_color", colormap, color)
@@ -124,7 +166,8 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
     def add_target(self, target):
         target.unregister()
 
-        # Extract all handles and textboxes, swap out their drag methods with something that multiplexes
+        # Extract all handles and textboxes, swap out their drag methods with
+        # something that multiplexes
         new_widgets = extract_widgets(target)
         for widget in new_widgets:
             self.widget_dragged_methods[widget] = widget.dragged
@@ -146,7 +189,7 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
             self.widgets.remove(w)
 
         for t in self.targets:
-            if type(t) == type(target):
+            if isinstance(t, type(target)):
                 break
         else:
             self.types.remove(type(target))
@@ -212,10 +255,20 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
         self.multiplex("right_release")
 
     def key_pressed(self, key, shift=False, alt=False, control=False):
-        self.multiplex("key_pressed", key, shift=False, alt=False, control=False)
+        self.multiplex(
+            "key_pressed",
+            key,
+            shift=False,
+            alt=False,
+            control=False)
 
     def key_released(self, key, shift=False, alt=False, control=False):
-        self.multiplex("key_released", key, shift=False, alt=False, control=False)
+        self.multiplex(
+            "key_released",
+            key,
+            shift=False,
+            alt=False,
+            control=False)
 
     def drag_start(self):
         self.multiplex("drag_start")
@@ -243,24 +296,30 @@ class GroupEditor(priority.PriorityEditor, vcs.vtk_ui.behaviors.ClickableMixin, 
     # Text toolbar multiplexed methods
     def update_height(self, value):
         self.multiplex("update_height", value)
+
     def update_angle(self, value):
         self.multiplex("update_angle", value)
+
     def halign(self, value):
         self.multiplex("halign", value)
+
     def valign(self, value):
         self.multiplex("valign", value)
     # Marker toolbar multiplexed methods
+
     def change_shape(self, state):
         self.multiplex("change_shape", state)
         if state == 0:
             self.wmo_button.set_state(1)
         else:
             self.wmo_button.set_state(0)
+
     def change_wmo(self, state):
         self.multiplex("change_wmo", state)
         if state == 0:
             self.shape_button.set_state(1)
         else:
             self.shape_button.set_state(0)
+
     def set_size(self, size):
         self.multiplex("set_size", size)

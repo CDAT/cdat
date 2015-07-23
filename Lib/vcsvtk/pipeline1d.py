@@ -4,7 +4,18 @@ import numpy
 import vcs
 
 
+def smooth(x, beta, window_len=11):
+    """ kaiser window smoothing """
+    # extending the data at beginning and at the end
+    # to apply the window at the borders
+    s = numpy.r_[x[window_len - 1:0:-1], x, x[-1:-window_len:-1]]
+    w = numpy.kaiser(window_len, beta)
+    y = numpy.convolve(w / w.sum(), s, mode='valid')
+    return y[(window_len / 2):-(window_len / 2)]
+
+
 class Pipeline1D(Pipeline):
+
     """Implementation of the Pipeline interface for 1D VCS plots."""
 
     def __init__(self, context_):
@@ -109,8 +120,8 @@ class Pipeline1D(Pipeline):
             legd.width = l.width
             legd.type = l.type
             t = self._context.canvas.createtext(
-                  To_source=tmpl.legend.textorientation,
-                  Tt_source=tmpl.legend.texttable)
+                To_source=tmpl.legend.textorientation,
+                Tt_source=tmpl.legend.texttable)
             t.x = tmpl.legend.x2
             t.y = tmpl.legend.y2
             t.string = data1.id

@@ -7,6 +7,7 @@ import vtk
 
 
 class IsolinePipeline(Pipeline2D):
+
     """Implementation of the Pipeline interface for VCS isoline plots."""
 
     def __init__(self, context_):
@@ -87,7 +88,7 @@ class IsolinePipeline(Pipeline2D):
         cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
-            lut.SetTableValue(i, r/100., g/100., b/100.)
+            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
         # Setup isoline labels
         if self._gm.label:
@@ -155,8 +156,8 @@ class IsolinePipeline(Pipeline2D):
             pdMapper = mapper.GetPolyDataMapper()
 
             self._resultDict["vtk_backend_labeled_luts"] = [
-                  [lut,
-                   [self._contourLevels[0], self._contourLevels[-1], False]]]
+                [lut,
+                 [self._contourLevels[0], self._contourLevels[-1], False]]]
         else:  # No isoline labels:
             mapper = vtk.vtkPolyDataMapper()
             pdMapper = mapper
@@ -203,11 +204,11 @@ class IsolinePipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
-                  act, [self._template.data.x1, self._template.data.x2,
-                        self._template.data.y1, self._template.data.y2],
-                  wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
-                  priority=self._template.data.priority)
+            self._context.fitToViewport(
+                act, [self._template.data.x1, self._template.data.x2,
+                      self._template.data.y1, self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority)
 
         self._resultDict["vtk_backend_actors"] = actors
 
