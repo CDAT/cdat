@@ -176,7 +176,6 @@ class Textbox(Label):
                         self.column = 0
                     else:
                         self.row = self.row - 1
-                        #self.column = min(len(rows[self.row]), self.column)
                 elif c == "Down":
                     if self.row == len(rows) - 1:
                         self.column = len(rows[self.row])
