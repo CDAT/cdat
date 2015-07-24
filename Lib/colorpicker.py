@@ -2,8 +2,11 @@ import vtk
 import vcs
 from vcs.vtk_ui import Button, ButtonState
 
+
 class ColorPicker(object):
-    def __init__(self, width, height, colormap, color, parent_interactor=None, on_save=None, on_cancel=None):
+
+    def __init__(self, width, height, colormap, color,
+                 parent_interactor=None, on_save=None, on_cancel=None):
         self.render_window = vtk.vtkRenderWindow()
         self.render_window.SetWindowName("Color Picker")
         self.render_window.SetNumberOfLayers(3)
@@ -17,7 +20,8 @@ class ColorPicker(object):
             colormap = vcs.getcolormap(colormap)
 
         self.colormap = colormap
-        self.colors =  [[int(c / 100.0 * 255.0) for c in colormap.index[i]] for i in range(len(colormap.index))]
+        self.colors = [[int(c / 100.0 * 255.0) for c in colormap.index[i]]
+                       for i in range(len(colormap.index))]
 
         self.actor = make_color_plane(16, 16, self.colors)
 
@@ -28,8 +32,8 @@ class ColorPicker(object):
         self.color_renderer.SetLayer(1)
 
         bg = vtk.vtkRenderer()
-        bg.SetBackground(1,1,1)
-        bg.SetViewport([0,0,1,1])
+        bg.SetBackground(1, 1, 1)
+        bg.SetViewport([0, 0, 1, 1])
         bg.SetLayer(0)
         self.render_window.AddRenderer(bg)
         self.render_window.AddRenderer(self.color_renderer)
@@ -58,11 +62,29 @@ class ColorPicker(object):
                 current_state = ind
             self.colormaps.append(maps[mapname])
 
-        self.colormap_button = Button(inter, states=states, action=self.change_map, left = 10, top=10)
+        self.colormap_button = Button(
+            inter,
+            states=states,
+            action=self.change_map,
+            left=10,
+            top=10)
         self.colormap_button.set_state(current_state)
 
-        self.save_button = Button(inter, action=self.save, label="Choose Color", left=int(width * .75) - 10, top=int(height * .85))
-        self.cancel_button = Button(inter, action=self.cancel, label="Cancel", left=10, top=int(height * .85))
+        self.save_button = Button(
+            inter,
+            action=self.save,
+            label="Choose Color",
+            left=int(
+                width * .75) - 10,
+            top=int(
+                height * .85))
+        self.cancel_button = Button(
+            inter,
+            action=self.cancel,
+            label="Cancel",
+            left=10,
+            top=int(
+                height * .85))
 
         self.colormap_button.show()
         self.save_button.show()
@@ -72,15 +94,18 @@ class ColorPicker(object):
 
         self.selectedMapper = vtk.vtkDataSetMapper()
         self.selectedActor = vtk.vtkActor()
-        self.selectedActor.SetMapper(self.selectedMapper);
-        self.selectedActor.GetProperty().EdgeVisibilityOn();
-        self.selectedActor.GetProperty().SetEdgeColor(0,0,0);
-        self.selectedActor.GetProperty().SetLineWidth(3);
+        self.selectedActor.SetMapper(self.selectedMapper)
+        self.selectedActor.GetProperty().EdgeVisibilityOn()
+        self.selectedActor.GetProperty().SetEdgeColor(0, 0, 0)
+        self.selectedActor.GetProperty().SetLineWidth(3)
         self.color = color
         # Make sure the current color is selected
         self.selectCell(color)
         self.color_renderer.AddActor(self.selectedActor)
-        self.click_handler = inter.AddObserver(vtk.vtkCommand.LeftButtonReleaseEvent, self.clickEvent)
+        self.click_handler = inter.AddObserver(
+            vtk.vtkCommand.LeftButtonReleaseEvent,
+            self.clickEvent)
+
         def noop(obj, event):
             pass
         self.char_handler = inter.AddObserver(vtk.vtkCommand.CharEvent, noop)
@@ -101,7 +126,8 @@ class ColorPicker(object):
 
     def change_map(self, state):
         self.colormap = self.colormaps[state]
-        self.colors =  [[int(c / 100.0 * 255.0) for c in self.colormap.index[i]] for i in range(len(self.colormap.index))]
+        self.colors = [[int(c / 100.0 * 255.0) for c in self.colormap.index[i]]
+                       for i in range(len(self.colormap.index))]
         colorData = colors_to_scalars(self.colors)
         self.actor.GetMapper().GetInput().GetCellData().SetScalars(colorData)
         self.actor.GetMapper().Update()
@@ -122,29 +148,29 @@ class ColorPicker(object):
     def selectCell(self, cellId):
         if cellId in (None, -1):
             return
-        ids = vtk.vtkIdTypeArray();
-        ids.SetNumberOfComponents(1);
-        ids.InsertNextValue(cellId);
+        ids = vtk.vtkIdTypeArray()
+        ids.SetNumberOfComponents(1)
+        ids.InsertNextValue(cellId)
 
-        selectionNode = vtk.vtkSelectionNode();
-        selectionNode.SetFieldType(vtk.vtkSelectionNode.CELL);
-        selectionNode.SetContentType(vtk.vtkSelectionNode.INDICES);
-        selectionNode.SetSelectionList(ids);
+        selectionNode = vtk.vtkSelectionNode()
+        selectionNode.SetFieldType(vtk.vtkSelectionNode.CELL)
+        selectionNode.SetContentType(vtk.vtkSelectionNode.INDICES)
+        selectionNode.SetSelectionList(ids)
 
-        selection = vtk.vtkSelection();
-        selection.AddNode(selectionNode);
+        selection = vtk.vtkSelection()
+        selection.AddNode(selectionNode)
 
-        extractSelection = vtk.vtkExtractSelection();
+        extractSelection = vtk.vtkExtractSelection()
 
-        extractSelection.SetInputData(0, self.actor.GetMapper().GetInput());
-        extractSelection.SetInputData(1, selection);
+        extractSelection.SetInputData(0, self.actor.GetMapper().GetInput())
+        extractSelection.SetInputData(1, selection)
 
-        extractSelection.Update();
+        extractSelection.Update()
 
-        selected = vtk.vtkUnstructuredGrid();
-        selected.ShallowCopy(extractSelection.GetOutput());
+        selected = vtk.vtkUnstructuredGrid()
+        selected.ShallowCopy(extractSelection.GetOutput())
 
-        self.selectedMapper.SetInputData(selected);
+        self.selectedMapper.SetInputData(selected)
         self.selectedMapper.Update()
 
     def clickEvent(self, obj, event):
@@ -165,7 +191,6 @@ class ColorPicker(object):
                 self.color = int(cell)
 
             self.render_window.Render()
-
 
     def close(self):
         self.save_button.detach()
@@ -200,6 +225,7 @@ def make_color_plane(x, y, colors):
     actor.SetMapper(mapper)
     return actor
 
+
 def colors_to_scalars(colors):
     colorData = vtk.vtkUnsignedCharArray()
     colorData.SetName("colors")
@@ -209,6 +235,7 @@ def colors_to_scalars(colors):
         colorData.InsertNextTuple3(*color)
 
     return colorData
+
 
 def collection(collection):
     collection.InitTraversal()

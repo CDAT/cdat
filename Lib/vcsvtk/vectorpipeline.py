@@ -6,6 +6,7 @@ import vtk
 
 
 class VectorPipeline(Pipeline):
+
     """Implementation of the Pipeline interface for VCS vector plots."""
 
     def __init__(self, context_):
@@ -14,6 +15,7 @@ class VectorPipeline(Pipeline):
     def plot(self, data1, data2, tmpl, gm, grid, transform):
         """Overrides baseclass implementation."""
         # Preserve time and z axis for plotting these inof in rendertemplate
+        geo = None  # to make flake8 happy
         returned = {}
         taxis = data1.getTime()
         if data1.ndim > 2:
@@ -30,6 +32,7 @@ class VectorPipeline(Pipeline):
                   'wrap', 'geo']:
             exec("%s = gridGenDict['%s']" % (k, k))
         grid = gridGenDict['vtk_backend_grid']
+        self._dataWrapModulo = gridGenDict['wrap']
 
         returned["vtk_backend_grid"] = grid
         returned["vtk_backend_geo"] = geo
@@ -50,15 +53,15 @@ class VectorPipeline(Pipeline):
             l = "default"
         try:
             l = vcs.getline(l)
-            lwidth = l.width[0]
+            lwidth = l.width[0]  # noqa
             lcolor = l.color[0]
-            lstyle = l.type[0]
+            lstyle = l.type[0]  # noqa
         except:
-            lstyle = "solid"
-            lwidth = 1.
+            lstyle = "solid"  # noqa
+            lwidth = 1.  # noqa
             lcolor = 0
         if gm.linewidth is not None:
-            lwidth = gm.linewidth
+            lwidth = gm.linewidth  # noqa
         if gm.linecolor is not None:
             lcolor = gm.linecolor
 
@@ -97,21 +100,21 @@ class VectorPipeline(Pipeline):
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm, data1.getAxis(-1),
                                                        data1.getAxis(-2))
 
-        act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], wrap)
-        ren = self._context.fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
-                                                tmpl.data.y1, tmpl.data.y2],
-                                          [x1, x2, y1, y2],
-                                          priority=tmpl.data.priority,
-                                          create_renderer=True)
+        act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
+        self._context.fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
+                                          tmpl.data.y1, tmpl.data.y2],
+                                    [x1, x2, y1, y2],
+                                    priority=tmpl.data.priority,
+                                    create_renderer=True)
 
         returned.update(
-              self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
+            self._context.renderTemplate(tmpl, data1, gm, taxis, zaxis))
 
         if self._context.canvas._continents is None:
             continents = False
         if continents:
             projection = vcs.elements["projection"][gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection, wrap,
+            self._context.plotContinents(x1, x2, y1, y2, projection, self._dataWrapModulo,
                                          tmpl)
 
         returned["vtk_backend_actors"] = [[act, [x1, x2, y1, y2]]]

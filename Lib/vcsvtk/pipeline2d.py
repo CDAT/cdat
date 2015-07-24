@@ -5,6 +5,7 @@ import vcs
 
 
 class IPipeline2D(Pipeline):
+
     """Interface class for Pipeline2D.
 
     Defines the virtual method API for subclasses of Pipeline2D.
@@ -111,6 +112,7 @@ class IPipeline2D(Pipeline):
 
 
 class Pipeline2D(IPipeline2D):
+
     """Common VTK pipeline functionality for 2D VCS plot."""
 
     def __init__(self, context_):
@@ -160,6 +162,8 @@ class Pipeline2D(IPipeline2D):
         """Overrides baseclass implementation."""
         self._data1 = self._context.trimData2D(self._originalData1)
         self._data2 = self._context.trimData2D(self._originalData2)
+        self._min = self._data1.min()
+        self._max = self._data1.max()
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -192,8 +196,8 @@ class Pipeline2D(IPipeline2D):
         if color is not None:
             color = self._colorMap.index[color]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
-              self._data1, self._vtkDataSet, color, self._useCellScalars,
-              deep=False)
+            self._data1, self._vtkDataSet, color, self._useCellScalars,
+            deep=False)
 
         self._resultDict["vtk_backend_missing_mapper"] = (
             self._maskedDataMapper, color, self._useCellScalars)
