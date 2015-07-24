@@ -597,8 +597,12 @@ class VTKVCSBackend(object):
         else:
             geo = None
 
-        self.fitToViewport(contActor, [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2],
-                           wc=[x1, x2, y1, y2], geo=geo, priority=tmpl.data.priority)
+        self.fitToViewport(contActor,
+                           [tmpl.data.x1, tmpl.data.x2,
+                            tmpl.data.y1, tmpl.data.y2],
+                           wc=[x1, x2, y1, y2], geo=geo,
+                           priority=tmpl.data.priority,
+                           create_renderer=True)
         return {}
 
     def renderTemplate(self, tmpl, data, gm, taxis, zaxis):
@@ -1033,7 +1037,8 @@ class VTKVCSBackend(object):
                 self.setLayer(self.logoRenderer, 1)
                 self.renWin.AddRenderer(self.logoRenderer)
 
-    def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None):
+    def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None,
+                      create_renderer=False):
             # Data range in World Coordinates
         if priority == 0:
             return None
@@ -1051,7 +1056,8 @@ class VTKVCSBackend(object):
         # Ok at this point this is all the info we need
         # we can determine if it's a unique renderer or not
         # let's see if we did this already.
-        if (vp, wc_used, sc, priority) in self._renderers.keys():
+        if not create_renderer and\
+                (vp, wc_used, sc, priority) in self._renderers.keys():
             # yep already have one, we will use this Renderer
             Renderer, xScale, yScale = self._renderers[
                 (vp, wc_used, sc, priority)]
