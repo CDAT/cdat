@@ -2,12 +2,15 @@ from vcs.vtk_ui import behaviors
 import priority
 
 
-class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+class PointEditor(
+        behaviors.ClickableMixin, behaviors.DraggableMixin, priority.PriorityEditor):
+
     """
     Base editor for anything with a single "x" and "y" coordinate (so mostly labels)
 
     Draggable, deactivates if double clicked, priority editing.
     """
+
     def __init__(self, interactor, point, configurator):
         self.point = point
         self.interactor = interactor
@@ -35,7 +38,8 @@ class PointEditor(behaviors.ClickableMixin, behaviors.DraggableMixin, priority.P
 
         adjusted_x, adjusted_y = float(x) / w, float(y) / h
         try:
-            return self.in_bounds(adjusted_x, adjusted_y) or self.toolbar.in_toolbar(x, y)
+            return self.in_bounds(
+                adjusted_x, adjusted_y) or self.toolbar.in_toolbar(x, y)
         except AttributeError:
             return self.in_bounds(adjusted_x, adjusted_y)
 

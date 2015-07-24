@@ -2,7 +2,6 @@ import point
 import vcs
 import vtk
 import vcs.vcs2vtk
-from font import FontEditor
 from vcs.vtk_ui.text import contrasting_color
 
 __valign_map__ = {
@@ -31,17 +30,22 @@ def get_actor(member, dp):
 
 
 class LabelEditor(point.PointEditor):
+
     """
     An editor for text items that have data-provided text (template.min, template.max, etc.)
 
     Draggable, provides a toolbar for config options.
     """
+
     def __init__(self, interactor, label, dp, configurator):
         self.label = label
         self.display = dp
         super(LabelEditor, self).__init__(interactor, label, configurator)
 
-        self.toolbar = vcs.vtk_ui.Toolbar(self.interactor, "%s Options" % label.member)
+        self.toolbar = vcs.vtk_ui.Toolbar(
+            self.interactor,
+            "%s Options" %
+            label.member)
         template = vcs.gettemplate(dp.template)
 
         self.actor = get_actor(self.label, self.display)
@@ -60,19 +64,31 @@ class LabelEditor(point.PointEditor):
             self.to = vcs.gettextorientation(text_types_name)
         except ValueError:
             self.tt = vcs.createtexttable(text_types_name, label.texttable)
-            self.to = vcs.createtextorientation(text_types_name, label.textorientation)
+            self.to = vcs.createtextorientation(
+                text_types_name,
+                label.textorientation)
 
-        self.height_button = self.toolbar.add_slider_button(self.to.height, 1, 100, "Height", update=self.update_height)
+        self.height_button = self.toolbar.add_slider_button(
+            self.to.height,
+            1,
+            100,
+            "Height",
+            update=self.update_height)
 
-        halign = self.toolbar.add_button(["Left Align", "Center Align", "Right Align"], action=self.halign)
-        valign = self.toolbar.add_button(["Top Align", "Half Align", "Bottom Align"], action=self.valign)
+        halign = self.toolbar.add_button(
+            ["Left Align", "Center Align", "Right Align"], action=self.halign)
+        valign = self.toolbar.add_button(
+            ["Top Align", "Half Align", "Bottom Align"], action=self.valign)
 
         halign.set_state(self.to.halign)
         valign.set_state(__valign_map__[self.to.valign])
 
-        self.angle_button = self.toolbar.add_slider_button(self.to.angle, 0, 360, "Angle", update=self.update_angle)
-
-        font_editor = FontEditor(self.toolbar, self.set_font, vcs.elements["fontNumber"][self.tt.font])
+        self.angle_button = self.toolbar.add_slider_button(
+            self.to.angle,
+            0,
+            360,
+            "Angle",
+            update=self.update_angle)
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
@@ -91,7 +107,12 @@ class LabelEditor(point.PointEditor):
         if self.actor:
             p = self.actor.GetTextProperty()
             winSize = self.interactor.GetRenderWindow().GetSize()
-            vcs.vcs2vtk.prepTextProperty(p, winSize, to=self.to, tt=self.tt, cmap=None)
+            vcs.vcs2vtk.prepTextProperty(
+                p,
+                winSize,
+                to=self.to,
+                tt=self.tt,
+                cmap=None)
 
     def set_font(self, font):
         self.tt.font = font
@@ -125,7 +146,14 @@ class LabelEditor(point.PointEditor):
         if self.picker:
             self.picker.make_current()
         else:
-            self.picker = vcs.colorpicker.ColorPicker(500, 500, vcs.getcolormap(), self.tt.color, parent_interactor=self.interactor, on_save=self.set_color, on_cancel=self.cancel_color)
+            self.picker = vcs.colorpicker.ColorPicker(
+                500,
+                500,
+                vcs.getcolormap(),
+                self.tt.color,
+                parent_interactor=self.interactor,
+                on_save=self.set_color,
+                on_cancel=self.cancel_color)
 
     def set_color(self, cmap, color):
         self.tt.color = color
@@ -134,8 +162,6 @@ class LabelEditor(point.PointEditor):
         tprop = self.actor.GetTextProperty()
         tprop.SetBackgroundColor(contrasting_color(*tprop.GetColor()))
         tprop.SetBackgroundOpacity(.85)
-        #text colormap is currently not in place, will be later.
-        #self.text.colormap = cmap
 
     def cancel_color(self):
         self.picker = None
@@ -153,7 +179,8 @@ class LabelEditor(point.PointEditor):
         w, h = self.interactor.GetRenderWindow().GetSize()
         x, y = x * w, y * h
         picker = vtk.vtkPropPicker()
-        for ren in vcs.vcs2vtk.vtkIterate(self.interactor.GetRenderWindow().GetRenderers()):
+        for ren in vcs.vcs2vtk.vtkIterate(
+                self.interactor.GetRenderWindow().GetRenderers()):
             if ren.HasViewProp(self.actor):
                 break
         else:
@@ -178,7 +205,8 @@ class LabelEditor(point.PointEditor):
 
     def update_priority(self):
         maxLayers = self.interactor.GetRenderWindow().GetNumberOfLayers()
-        new_layer = self.label.priority * 10000 + 1 + self.configurator.displays.index(self.display)
+        new_layer = self.label.priority * 10000 + 1 + \
+            self.configurator.displays.index(self.display)
         if new_layer + 1 > maxLayers:
             self.interactor.GetRenderWindow().SetNumberOfLayers(new_layer + 1)
 

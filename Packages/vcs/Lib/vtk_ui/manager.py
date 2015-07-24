@@ -2,12 +2,15 @@ import vtk
 # Support multiple render windows
 ui_managers = {}
 
+
 class InterfaceManager(object):
+
     """
     Provides a full-window renderer for UI widgets
 
     Keeps UI Widgets in proper positions
     """
+
     def __init__(self, interactor):
         self.interactor = interactor
         self.window = interactor.GetRenderWindow()
@@ -24,9 +27,16 @@ class InterfaceManager(object):
         self.window.AddRenderer(self.actor_renderer)
 
         self.widgets = []
-        self.timer_listener = self.interactor.AddObserver("TimerEvent", self.__render)
-        self.window_mod = self.window.AddObserver("ModifiedEvent", self.__place, 30)
-        self.render_listener = self.window.AddObserver("RenderEvent", self.__rendered)
+        self.timer_listener = self.interactor.AddObserver(
+            "TimerEvent",
+            self.__render)
+        self.window_mod = self.window.AddObserver(
+            "ModifiedEvent",
+            self.__place,
+            30)
+        self.render_listener = self.window.AddObserver(
+            "RenderEvent",
+            self.__rendered)
         self.last_size = None
         self.timer = None
 
@@ -71,7 +81,8 @@ class InterfaceManager(object):
         # Raise to top layer of render window
         layer = self.window.GetNumberOfLayers()
 
-        if layer > 1 and self.window.HasRenderer(self.renderer) and self.renderer.GetLayer() == layer - 1:
+        if layer > 1 and self.window.HasRenderer(
+                self.renderer) and self.renderer.GetLayer() == layer - 1:
             # We don't need to mess with anything and send out ModifiedEvents on the render window if
             # we're already at the top layer.
             return
@@ -88,7 +99,6 @@ class InterfaceManager(object):
         self.actor_renderer.SetLayer(layer + 1)
         self.window.AddRenderer(self.renderer)
         self.window.AddRenderer(self.actor_renderer)
-
 
     def add_widget(self, widget):
         self.widgets.append(widget)
@@ -127,6 +137,7 @@ class InterfaceManager(object):
         self.window.RemoveObserver(self.window_mod)
         self.window.RemoveObserver(self.render_listener)
 
+
 def delete_manager(inter):
     if inter is None:
         return None
@@ -136,10 +147,12 @@ def delete_manager(inter):
         manager.detach()
         del ui_managers[inter]
 
+
 def manager_exists(inter):
     if inter is None:
         return False
     return inter in ui_managers
+
 
 def get_manager(inter):
 

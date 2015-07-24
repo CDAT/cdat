@@ -1,4 +1,5 @@
 class Pipeline(object):
+
     """Base class for a VTK pipeline implementation of a VCS plot command.
 
     The Pipeline class defines an interface for creating VTK pipeline from a

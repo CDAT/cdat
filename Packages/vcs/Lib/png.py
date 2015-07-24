@@ -2,7 +2,7 @@
 """
 # Fillarea (Tf) module
 """
-################################################################################
+##########################################################################
 #                                                                              #
 # Module:       fillarea (Tf) module                                           #
 #                                                                              #
@@ -18,20 +18,20 @@
 #                                                                              #
 # Version:      4.0                                                            #
 #                                                                              #
-################################################################################
+##########################################################################
 #
 #
 #
-################################################################################
+##########################################################################
 #                                                                              #
 # Import: VCS C extension module.                                              #
 #                                                                              #
-################################################################################
+##########################################################################
 import _vcs
 import Canvas
 import VCS_validation_functions
 
-################################################################################
+##########################################################################
 #                                                                              #
 # Function:	setTimember                                                    #
 #                                                                              #
@@ -46,25 +46,27 @@ import VCS_validation_functions
 #                     name is the name of the member that is being changed     #
 #                     value is the new value of the member (or attribute)      #
 #                                                                              #
-################################################################################
-def setTimember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
+##########################################################################
+
+
+def setTimember(self, member, value):
+    # If the VCS Canvas is displayed, then bring the canvas to the front before
+    # redisplaying the updated contents.
+    if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
+        Canvas.finish_queued_X_server_requests(self.parent)
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setifmember(self, member, value, self.parent.mode)
+    _vcs.setifmember(self, member, value, self.parent.mode)
 
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
+    # If the VCS Canvas is displayed, then update the backing store
+    if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
         self.parent.flush()
         self.parent.backing_store()
         self.parent.canvas.UNBLOCK_X_SERVER()
 
-setmember = setTimember # for validation functions...
-#################################################################################
+setmember = setTimember  # for validation functions...
+##########################################################################
 #                                                                               #
 # Function:     getTimember                                                     #
 #                                                                               #
@@ -79,12 +81,14 @@ setmember = setTimember # for validation functions...
 #              where: self is the class (e.g., Ti)                              #
 #                     name is the name of the member that is being found        #
 #                                                                               #
-#################################################################################
-def getTimember(self,member):
-     return _vcs.getTimember(self,member)
-getmember=getTimember
+##########################################################################
 
-#################################################################################
+
+def getTimember(self, member):
+    return _vcs.getTimember(self, member)
+getmember = getTimember
+
+##########################################################################
 #                                                                               #
 # Function:     renameTi                                                        #
 #                                                                               #
@@ -98,16 +102,21 @@ getmember=getTimember
 #              where: old_name is the current name of fillarea graphics method  #
 #                     new_name is the new name for the fillarea graphics method #
 #                                                                               #
-#################################################################################
+##########################################################################
+
+
 def renameTi(self, old_name, new_name):
-     return _vcs.renameTi(old_name, new_name)
+    return _vcs.renameTi(old_name, new_name)
 
 #############################################################################
 #                                                                           #
 # Fillarea (Tm) Class.                                                      #
 #                                                                           #
 #############################################################################
+
+
 class Ti(object):
+
     """
  Class:	Ti				# Fillarea
 
@@ -120,8 +129,8 @@ class Ti(object):
     existing fillarea table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
-	     a.show('fillarea')		# Show predefined fillarea objects
+             a=vcs.init()		# Constructor
+             a.show('fillarea')		# Show predefined fillarea objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
                                           0, then use update function to
@@ -175,134 +184,163 @@ class Ti(object):
      fa.y=[[.5,.4,.3], [.2,.1,0]]        # List of FloatTypes
 """
     __slots__ = [
-         'setmember',
-         'parent',
-         'name',
-         's_name',
-         'color',
-         'priority',
-         'style',
-         'index',
-         'viewport',
-         'worldcoordinate',
-         'x',
-         'y',
-         'projection',
-         '_name',
-         ]
+        'setmember',
+        'parent',
+        'name',
+        's_name',
+        'color',
+        'priority',
+        'style',
+        'index',
+        'viewport',
+        'worldcoordinate',
+        'x',
+        'y',
+        'projection',
+        '_name',
+    ]
 
     def _getname(self):
-         return self._name
-    def _setname(self,value):
-         value=VCS_validation_functions.checkname(self,'name',value)
-         if value is not None:
-              self._name=value
-              setmember(self,'name',value)
-    name=property(_getname,_setname)
+        return self._name
+
+    def _setname(self, value):
+        value = VCS_validation_functions.checkname(self, 'name', value)
+        if value is not None:
+            self._name = value
+            setmember(self, 'name', value)
+    name = property(_getname, _setname)
 
     def _getpriority(self):
-         return getmember(self,'priority')
-    def _setpriority(self,value):
-         value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setmember(self,'priority',value)
-    priority = property(_getpriority,_setpriority)
+        return getmember(self, 'priority')
+
+    def _setpriority(self, value):
+        value = VCS_validation_functions.checkInt(
+            self,
+            'priority',
+            value,
+            minvalue=0)
+        setmember(self, 'priority', value)
+    priority = property(_getpriority, _setpriority)
 
     def _getprojection(self):
-         return getmember(self,'projection')
-    def _setprojection(self,value):
-         value=VCS_validation_functions.checkProjection(self,'projection',value)
-         setmember(self,'projection',value)
-    projection=property(_getprojection,_setprojection)
-    
+        return getmember(self, 'projection')
+
+    def _setprojection(self, value):
+        value = VCS_validation_functions.checkProjection(
+            self,
+            'projection',
+            value)
+        setmember(self, 'projection', value)
+    projection = property(_getprojection, _setprojection)
+
     def _getwc(self):
-         return getmember(self,'worldcoordinate')
-    def _setwc(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         setmember(self,'worldcoordinate',value)
-    worldcoordinate=property(_getwc,_setwc)
-    
+        return getmember(self, 'worldcoordinate')
+
+    def _setwc(self, value):
+        value = VCS_validation_functions.checkListOfNumbers(
+            self,
+            'worldcoordinate',
+            value,
+            maxelements=4)
+        setmember(self, 'worldcoordinate', value)
+    worldcoordinate = property(_getwc, _setwc)
+
     def _getvp(self):
-         return getmember(self,'viewport')
-    def _setvp(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         setmember(self,'viewport',value)
-    viewport=property(_getvp,_setvp)
+        return getmember(self, 'viewport')
+
+    def _setvp(self, value):
+        value = VCS_validation_functions.checkListOfNumbers(
+            self,
+            'viewport',
+            value,
+            maxelements=4,
+            minvalue=0.,
+            maxvalue=1.)
+        setmember(self, 'viewport', value)
+    viewport = property(_getvp, _setvp)
 
     def _getx(self):
-         return getmember(self,'x')
-    def _setx(self,value):
-         if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
-         try:
-              # first we'll see if it is simply a list of values
-              value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
-         except:
-              # ok it was not, so it maybe a list of list of numbers ?
-              val = []
-              for v in value:
-                   tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
-                   val.append(tmp)
-              value=val
-         # ok it worked
-         setmember(self,'x',value)
-    x = property(_getx,_setx)
-    
+        return getmember(self, 'x')
+
+    def _setx(self, value):
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('%s must be a tuple or list of values.')
+        try:
+            # first we'll see if it is simply a list of values
+            value = VCS_validation_functions.checkListOfNumbers(
+                self,
+                'x',
+                value)
+        except:
+            # ok it was not, so it maybe a list of list of numbers ?
+            val = []
+            for v in value:
+                tmp = VCS_validation_functions.checkListOfNumbers(self, 'x', v)
+                val.append(tmp)
+            value = val
+        # ok it worked
+        setmember(self, 'x', value)
+    x = property(_getx, _setx)
+
     def _gety(self):
-         return getmember(self,'y')
-    def _sety(self,value):
-         if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
-         try:
-              # first we'll see if it is simply a list of values
-              value = VCS_validation_functions.checkListOfNumbers(self,'y',value)
-         except:
-              # ok it was not, so it maybe a list of list of numbers ?
-              val = []
-              for v in value:
-                   tmp = VCS_validation_functions.checkListOfNumbers(self,'y',v)
-                   val.append(tmp)
-              value=val
-         # ok it worked
-         setmember(self,'y',value)
-    y = property(_gety,_sety)
-    
-    #############################################################################
+        return getmember(self, 'y')
+
+    def _sety(self, value):
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('%s must be a tuple or list of values.')
+        try:
+            # first we'll see if it is simply a list of values
+            value = VCS_validation_functions.checkListOfNumbers(
+                self,
+                'y',
+                value)
+        except:
+            # ok it was not, so it maybe a list of list of numbers ?
+            val = []
+            for v in value:
+                tmp = VCS_validation_functions.checkListOfNumbers(self, 'y', v)
+                val.append(tmp)
+            value = val
+        # ok it worked
+        setmember(self, 'y', value)
+    y = property(_gety, _sety)
+
+    ##########################################################################
     #                                                                           #
     # Initialize the fillarea attributes.                                       #
     #                                                                           #
-    #############################################################################
-    def __init__(self, parent, Ti_name=None, Ti_name_src='default', createTi=0):
-	#                                                         #
+    ##########################################################################
+    def __init__(
+            self, parent, Ti_name=None, Ti_name_src='default', createTi=0):
+        #                                                         #
         ###########################################################
-	# Initialize the fillarea class and its members           #
-        #							  #
-	# The getTimember function retrieves the values of the    #
+        # Initialize the fillarea class and its members           #
+        # The getTimember function retrieves the values of the    #
         # fillarea members in the C structure and passes back the #
-	# appropriate Python Object.                              #
+        # appropriate Python Object.                              #
         ###########################################################
-	#                                                         #
+        #                                                         #
         if (createTi == 0):
-           if (Ti_name == None):
-              raise ValueError, 'Must provide a fillarea name.'
-           else:
-              _vcs.copyTi(Ti_name_src, Ti_name)
-              self._name = Ti_name
+            if (Ti_name is None):
+                raise ValueError('Must provide a fillarea name.')
+            else:
+                _vcs.copyTi(Ti_name_src, Ti_name)
+                self._name = Ti_name
         else:
-              self._name = Ti_name_src
-        self.s_name='Ti'
+            self._name = Ti_name_src
+        self.s_name = 'Ti'
         self.parent = parent
 
-
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # Fillarea out line members (attributes).                                   #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def list(self):
         if (self.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        print "","----------Fillarea (Tf) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
+            raise ValueError('This instance has been removed from VCS.')
+        print "", "----------Fillarea (Tf) member (attribute) listings ----------"
+        print 'Canvas Mode =', self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
         print "style =", self.style
@@ -315,11 +353,11 @@ class Ti(object):
         print "y =", self.y
         print "projection =", self.projection
 
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # Script out secondary fillarea method in VCS to a file.                    #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def script(self, script_filename=None, mode=None):
         """
  Function:     script                           # Calls _vcs.scriptTf
@@ -344,53 +382,66 @@ class Ti(object):
     fa.script('filename.scr')        # Append to a VCS file "filename.scr"
     fa.script('filename','w')        # Create or overwrite to a Python file "filename.py"
     """
-        if (script_filename == None):
-          raise ValueError, 'Error - Must provide an output script file name.'
+        if (script_filename is None):
+            raise ValueError(
+                'Error - Must provide an output script file name.')
 
-        if (mode == None):
-           mode = 'a'
+        if (mode is None):
+            mode = 'a'
         elif (mode not in ('w', 'a')):
-          raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
+            raise ValueError(
+                'Error - Mode can only be "w" for replace or "a" for append.')
 
         # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
+        scr_type = script_filename[
+            len(script_filename) -
+            4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTf(self.name,script_filename,mode)
+            print _vcs.scriptTf(self.name, script_filename, mode)
         else:
-           mode = mode + '+'
-           py_type = script_filename[len(script_filename)-3:len(script_filename)]
-           if (py_type != '.py'):
-              script_filename = script_filename + '.py'
+            mode = mode + '+'
+            py_type = script_filename[
+                len(script_filename) -
+                3:len(script_filename)]
+            if (py_type != '.py'):
+                script_filename = script_filename + '.py'
 
-           # Write to file
-           fp = open(script_filename,mode)
-           if (fp.tell() == 0): # Must be a new file, so include below
-              fp.write("#####################################\n")
-              fp.write("#                                 #\n")
-              fp.write("# Import and Initialize VCS     #\n")
-              fp.write("#                             #\n")
-              fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+            # Write to file
+            fp = open(script_filename, mode)
+            if (fp.tell() == 0):  # Must be a new file, so include below
+                fp.write("#####################################\n")
+                fp.write("#                                 #\n")
+                fp.write("# Import and Initialize VCS     #\n")
+                fp.write("#                             #\n")
+                fp.write("#############################\n")
+                fp.write("import vcs\n")
+                fp.write("v=vcs.init()\n\n")
 
-           unique_name = '__Tf__' + self.name
-           fp.write("#----------Fillarea (Tf) member (attribute) listings ----------\n")
-           fp.write("tf_list=v.listelements('fillarea')\n")
-           fp.write("if ('%s' in tf_list):\n" % self.name)
-           fp.write("   %s = v.getfillarea('%s')\n" % (unique_name, self.name))
-           fp.write("else:\n")
-           fp.write("   %s = v.createfillarea('%s')\n" % (unique_name, self.name))
-           fp.write("%s.style = %s\n" % (unique_name, self.style))
-           fp.write("%s.index = %s\n" % (unique_name, self.index))
-           fp.write("%s.color = %s\n\n" % (unique_name, self.color))
-           fp.write("%s.priority = %d\n" % (unique_name, self.priority))
-           fp.write("%s.viewport = %s\n" % (unique_name, self.viewport))
-           fp.write("%s.worldcoordinate = %s\n" % (unique_name, self.worldcoordinate))
-           fp.write("%s.x = %s\n" % (unique_name, self.x))
-           fp.write("%s.y = %s\n\n" % (unique_name, self.y))
-           fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
+            unique_name = '__Tf__' + self.name
+            fp.write(
+                "#----------Fillarea (Tf) member (attribute) listings ----------\n")
+            fp.write("tf_list=v.listelements('fillarea')\n")
+            fp.write("if ('%s' in tf_list):\n" % self.name)
+            fp.write(
+                "   %s = v.getfillarea('%s')\n" %
+                (unique_name, self.name))
+            fp.write("else:\n")
+            fp.write(
+                "   %s = v.createfillarea('%s')\n" %
+                (unique_name, self.name))
+            fp.write("%s.style = %s\n" % (unique_name, self.style))
+            fp.write("%s.index = %s\n" % (unique_name, self.index))
+            fp.write("%s.color = %s\n\n" % (unique_name, self.color))
+            fp.write("%s.priority = %d\n" % (unique_name, self.priority))
+            fp.write("%s.viewport = %s\n" % (unique_name, self.viewport))
+            fp.write(
+                "%s.worldcoordinate = %s\n" %
+                (unique_name, self.worldcoordinate))
+            fp.write("%s.x = %s\n" % (unique_name, self.x))
+            fp.write("%s.y = %s\n\n" % (unique_name, self.y))
+            fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
 
 
-#################################################################################
+##########################################################################
 #        END OF FILE								#
-#################################################################################
+##########################################################################

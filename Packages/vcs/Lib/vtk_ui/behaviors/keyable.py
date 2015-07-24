@@ -1,5 +1,6 @@
 from behavior import Behavior
 
+
 class KeyableMixin(Behavior):
 
     def __init__(self):
@@ -12,7 +13,7 @@ class KeyableMixin(Behavior):
         alt = self.interactor.GetAltKey()
         shift = self.interactor.GetShiftKey()
         control = self.interactor.GetControlKey()
-        return {"alt":alt == 1, "shift":shift == 1, "control":control == 1}
+        return {"alt": alt == 1, "shift": shift == 1, "control": control == 1}
 
     def key_pressed(self, key, shift=False, alt=False, control=False):
         return

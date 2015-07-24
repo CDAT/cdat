@@ -30,7 +30,7 @@ test_xyvsy
 testxyvsy
 testyxvsx
 
-testslab 
+testslab
     Tests the slab C-API routines in slabapimodule.c and compares them to
     the "native" facilities in cu itself.
 """

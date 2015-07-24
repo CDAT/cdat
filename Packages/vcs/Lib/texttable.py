@@ -22,56 +22,59 @@
 #
 #
 #
-import Canvas
 import VCS_validation_functions
 import vcs
 import genutil
 
-def process_src(nm,code):
-  """Takes VCS script code (string) as input and generates boxfill gm from it"""
-  try:
-    tt = Tt(nm)
-  except Exception,err:
-    tt = vcs.elements["texttable"][nm]
-  ## process attributes with = as assignement
-  atts={}
-  for a in ["string","vp","wc","x","y"]:
-    i = code.find(a+"(")
-    v=genutil.get_parenthesis_content(code[i:])
-    #print nm,a,v
-    if v!="":
-      vals = []
-      for V in v.split(","):
-        try:
-          vals.append(int(V))
-        except:
-          vals.append(float(V))
-      atts[a]=vals
-    tt.viewport = atts.get("vp",tt.viewport)
-    tt.worldcoordinate = atts.get("wc",tt.worldcoordinate)
-    tt.string = atts.get("string",tt.string)
-    tt.x = atts.get("x",tt.x)
-    tt.y = atts.get("y",tt.y)
-    i = code.find("projection=")
-    if i>-1:
-      j=code[i:].find(",")+i
-      tt.projection = code[i+11:j]
-    #rest of attributes
-    sp = code.split(",")
-    tt.font = int(sp[0])
-    tt.expansion = int(float(sp[2])*100.)
-    tt.spacing = int(float(sp[3])*10.)
-    tt.color = int(sp[4])
-    tt.priority = int(sp[5])
-    if len(sp)!=14:
-      tt.fillincolor = int(sp[6])
+
+def process_src(nm, code):
+    """Takes VCS script code (string) as input and generates boxfill gm from it"""
+    try:
+        tt = Tt(nm)
+    except:
+        tt = vcs.elements["texttable"][nm]
+    # process attributes with = as assignement
+    atts = {}
+    for a in ["string", "vp", "wc", "x", "y"]:
+        i = code.find(a + "(")
+        v = genutil.get_parenthesis_content(code[i:])
+        # print nm,a,v
+        if v != "":
+            vals = []
+            for V in v.split(","):
+                try:
+                    vals.append(int(V))
+                except:
+                    vals.append(float(V))
+            atts[a] = vals
+        tt.viewport = atts.get("vp", tt.viewport)
+        tt.worldcoordinate = atts.get("wc", tt.worldcoordinate)
+        tt.string = atts.get("string", tt.string)
+        tt.x = atts.get("x", tt.x)
+        tt.y = atts.get("y", tt.y)
+        i = code.find("projection=")
+        if i > -1:
+            j = code[i:].find(",") + i
+            tt.projection = code[i + 11:j]
+        # rest of attributes
+        sp = code.split(",")
+        tt.font = int(sp[0])
+        tt.expansion = int(float(sp[2]) * 100.)
+        tt.spacing = int(float(sp[3]) * 10.)
+        tt.color = int(sp[4])
+        tt.priority = int(sp[5])
+        if len(sp) != 14:
+            tt.fillincolor = int(sp[6])
 
 #############################################################################
 #                                                                           #
 # Text Table (Tt) Class.                                                    #
 #                                                                           #
 #############################################################################
+
+
 class Tt(object):
+
     """
  Class:	Tt				# Text Table
 
@@ -84,8 +87,8 @@ class Tt(object):
     existing text table table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
-	     a.show('texttable')	# Show predefined text table objects
+             a=vcs.init()		# Constructor
+             a.show('texttable')	# Show predefined text table objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
                                           0, then use update function to
@@ -123,229 +126,282 @@ class Tt(object):
 
 """
     __slots__ = [
-         's_name',
-         'name',
-         'color',
-         'fillincolor',
-         'priority',
-         'font',
-         'string',
-         'spacing',
-         'expansion',
-         'viewport',
-         'worldcoordinate',
-         'x',
-         'y',
-         'projection',
-         'colormap',
-         '_name',
-         '_color',
-         '_fillincolor',
-         '_priority',
-         '_font',
-         '_string',
-         '_spacing',
-         '_expansion',
-         '_viewport',
-         '_worldcoordinate',
-         '_x',
-         '_y',
-         '_projection',
-         '_colormap',
-         ]
+        's_name',
+        'name',
+        'color',
+        'fillincolor',
+        'priority',
+        'font',
+        'string',
+        'spacing',
+        'expansion',
+        'viewport',
+        'worldcoordinate',
+        'x',
+        'y',
+        'projection',
+        'colormap',
+        '_name',
+        '_color',
+        '_fillincolor',
+        '_priority',
+        '_font',
+        '_string',
+        '_spacing',
+        '_expansion',
+        '_viewport',
+        '_worldcoordinate',
+        '_x',
+        '_y',
+        '_projection',
+        '_colormap',
+    ]
     colormap = VCS_validation_functions.colormap
+
     def _getname(self):
-         return self._name
-    def _setname(self,value):
-         value=VCS_validation_functions.checkname(self,'name',value)
-         if value is not None:
-              self._name=value
-    name=property(_getname,_setname)
-    
+        return self._name
+
+    def _setname(self, value):
+        value = VCS_validation_functions.checkname(self, 'name', value)
+        if value is not None:
+            self._name = value
+    name = property(_getname, _setname)
+
     def _getcolor(self):
-         return self._color
-    def _setcolor(self,value):
-         if not value is None:
-              value = VCS_validation_functions.checkColor(self,'color',value)
-         self._color = value
-    color=property(_getcolor,_setcolor)
+        return self._color
+
+    def _setcolor(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkColor(self, 'color', value)
+        self._color = value
+    color = property(_getcolor, _setcolor)
 
     def _getfillincolor(self):
-         return self._fillincolor
-    def _setfillincolor(self,value):
-         if not value is None:
-              value = VCS_validation_functions.checkColor(self,'fillincolor',value)
-         self._fillincolor=value
-    fillincolor=property(_getfillincolor,_setfillincolor)
+        return self._fillincolor
+
+    def _setfillincolor(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkColor(
+                self,
+                'fillincolor',
+                value)
+        self._fillincolor = value
+    fillincolor = property(_getfillincolor, _setfillincolor)
 
     def _getspacing(self):
-         return self._spacing
-    def _setspacing(self,value):
-         self._spacing = VCS_validation_functions.checkInt(self,'spacing',value,minvalue=-50,maxvalue=50)
-    spacing=property(_getspacing,_setspacing)
+        return self._spacing
+
+    def _setspacing(self, value):
+        self._spacing = VCS_validation_functions.checkInt(
+            self,
+            'spacing',
+            value,
+            minvalue=-
+            50,
+            maxvalue=50)
+    spacing = property(_getspacing, _setspacing)
 
     def _getexpansion(self):
-         return self._expansion
-    def _setexpansion(self,value):
-         self._expansion = VCS_validation_functions.checkInt(self,'expansion',value,minvalue=50,maxvalue=150)
-    expansion=property(_getexpansion,_setexpansion)
+        return self._expansion
+
+    def _setexpansion(self, value):
+        self._expansion = VCS_validation_functions.checkInt(
+            self,
+            'expansion',
+            value,
+            minvalue=50,
+            maxvalue=150)
+    expansion = property(_getexpansion, _setexpansion)
 
     def _getfont(self):
-         return self._font
-    def _setfont(self,value):
-         self._font = VCS_validation_functions.checkFont(self,'font',value)
-    font=property(_getfont,_setfont)
+        return self._font
+
+    def _setfont(self, value):
+        self._font = VCS_validation_functions.checkFont(self, 'font', value)
+    font = property(_getfont, _setfont)
 
     def _getstring(self):
-         return self._string
-    def _setstring(self,value):
-         if isinstance(value,str):
-              value = [value,]
-         elif isinstance(value,(list,tuple)):
-              vals = []
-              for v in value:
-                   vals.append(str(v))
-              value = vals
-         else:
-              raise ValueError, 'Must be a string or a list of strings.'
-         self._string = value
-    string = property(_getstring,_setstring)
-    
+        return self._string
+
+    def _setstring(self, value):
+        if isinstance(value, str):
+            value = [value, ]
+        elif isinstance(value, (list, tuple)):
+            vals = []
+            for v in value:
+                vals.append(str(v))
+            value = vals
+        else:
+            raise ValueError('Must be a string or a list of strings.')
+        self._string = value
+    string = property(_getstring, _setstring)
+
     def _getpriority(self):
-         return self._priority
-    def _setpriority(self,value):
-         self._priority = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-    priority = property(_getpriority,_setpriority)
+        return self._priority
+
+    def _setpriority(self, value):
+        self._priority = VCS_validation_functions.checkInt(
+            self,
+            'priority',
+            value,
+            minvalue=0)
+    priority = property(_getpriority, _setpriority)
 
     def _getprojection(self):
-         return self._projection
-    def _setprojection(self,value):
-         self._projection=VCS_validation_functions.checkProjection(self,'projection',value)
-    projection=property(_getprojection,_setprojection)
-    
+        return self._projection
+
+    def _setprojection(self, value):
+        self._projection = VCS_validation_functions.checkProjection(
+            self,
+            'projection',
+            value)
+    projection = property(_getprojection, _setprojection)
+
     def _getwc(self):
-         return self._worldcoordinate
-    def _setwc(self,value):
-         self._worldcoordinate = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-    worldcoordinate=property(_getwc,_setwc)
-    
+        return self._worldcoordinate
+
+    def _setwc(self, value):
+        self._worldcoordinate = VCS_validation_functions.checkListOfNumbers(
+            self,
+            'worldcoordinate',
+            value,
+            maxelements=4)
+    worldcoordinate = property(_getwc, _setwc)
+
     def _getvp(self):
-         return self._viewport
-    def _setvp(self,value):
-         self._viewport = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-    viewport=property(_getvp,_setvp)
+        return self._viewport
+
+    def _setvp(self, value):
+        self._viewport = VCS_validation_functions.checkListOfNumbers(
+            self,
+            'viewport',
+            value,
+            maxelements=4,
+            minvalue=0.,
+            maxvalue=1.)
+    viewport = property(_getvp, _setvp)
 
     def _getx(self):
-         return self._x
-    def _setx(self,value):
-         if value is None:
-           self._x = None
-           return
-         if isinstance(value,(int,float)):
-              value=[value,]
-         if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
-         try:
-              # first we'll see if it is simply a list of values
-              value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
-         except:
-              # ok it was not, so it maybe a list of list of numbers ?
-              val = []
-              for v in value:
-                   tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
-                   val.append(tmp)
-              value=val
-         self._x = value
-    x = property(_getx,_setx)
-    
+        return self._x
+
+    def _setx(self, value):
+        if value is None:
+            self._x = None
+            return
+        if isinstance(value, (int, float)):
+            value = [value, ]
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('%s must be a tuple or list of values.')
+        try:
+            # first we'll see if it is simply a list of values
+            value = VCS_validation_functions.checkListOfNumbers(
+                self,
+                'x',
+                value)
+        except:
+            # ok it was not, so it maybe a list of list of numbers ?
+            val = []
+            for v in value:
+                tmp = VCS_validation_functions.checkListOfNumbers(self, 'x', v)
+                val.append(tmp)
+            value = val
+        self._x = value
+    x = property(_getx, _setx)
+
     def _gety(self):
-         return self._y
-    def _sety(self,value):
-         if value is None:
-           self._y = None
-           return
-         if isinstance(value,(int,float)):
-              value=[value,]
-         if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
-         try:
-              # first we'll see if it is simply a list of values
-              value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
-         except:
-              # ok it was not, so it maybe a list of list of numbers ?
-              val = []
-              for v in value:
-                   tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
-                   val.append(tmp)
-              value=val
-         self._y=value
-    y = property(_gety,_sety)
-    
-    #############################################################################
+        return self._y
+
+    def _sety(self, value):
+        if value is None:
+            self._y = None
+            return
+        if isinstance(value, (int, float)):
+            value = [value, ]
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('%s must be a tuple or list of values.')
+        try:
+            # first we'll see if it is simply a list of values
+            value = VCS_validation_functions.checkListOfNumbers(
+                self,
+                'x',
+                value)
+        except:
+            # ok it was not, so it maybe a list of list of numbers ?
+            val = []
+            for v in value:
+                tmp = VCS_validation_functions.checkListOfNumbers(self, 'x', v)
+                val.append(tmp)
+            value = val
+        self._y = value
+    y = property(_gety, _sety)
+
+    ##########################################################################
     #                                                                           #
     # Initialize the text table attributes.                                     #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def __init__(self, Tt_name=None, Tt_name_src='default'):
-	#                                                           #
-        #############################################################
-	# Initialize the text table class and its members           #
-        #							    #
-	# The getTtmember function retrieves the values of the      #
-        # text table members in the C structure and passes back the #
-	# appropriate Python Object.                                #
-        #############################################################
-	#                                                           #
-        if (Tt_name == None):
-          raise ValueError, 'Must provide a text table name.'
+                #                                                           #
+                #############################################################
+                # Initialize the text table class and its members           #
+                #                                                           #
+                # The getTtmember function retrieves the values of the      #
+                # text table members in the C structure and passes back the #
+                # appropriate Python Object.                                #
+                #############################################################
+                #                                                           #
+        if (Tt_name is None):
+            raise ValueError('Must provide a text table name.')
         if Tt_name in vcs.elements["texttable"].keys():
-          raise ValueError, "texttable '%s' already exists" % Tt_name
+            raise ValueError("texttable '%s' already exists" % Tt_name)
         self._name = Tt_name
         self.s_name = 'Tt'
-        if Tt_name=="default":
-          self._string= ""
-          self._font= 1
-          self._spacing= 2
-          self._expansion= 100
-          self._color=1
-          self._fillincolor=0
-          self._priority=1
-          self._viewport=[0.0, 1.0, 0.0, 1.0]
-          self._worldcoordinate=[0.0, 1.0, 0.0, 1.0]
-          self._x=None
-          self._y=None
-          self._projection="default"
-          self._colormap = None
+        if Tt_name == "default":
+            self._string = ""
+            self._font = 1
+            self._spacing = 2
+            self._expansion = 100
+            self._color = 1
+            self._fillincolor = 0
+            self._priority = 1
+            self._viewport = [0.0, 1.0, 0.0, 1.0]
+            self._worldcoordinate = [0.0, 1.0, 0.0, 1.0]
+            self._x = None
+            self._y = None
+            self._projection = "default"
+            self._colormap = None
         else:
-          if isinstance(Tt_name_src,Tt):
-            Tt_name_src = Tt_name_src.name
-          if not Tt_name_src in vcs.elements["texttable"].keys():
-            raise ValueError, "Source texttable: '%s' does not exists" % Tt_name_src
-          src = vcs.elements["texttable"][Tt_name_src]
-          self.string= src.string
-          self.font=src.font
-          self.spacing=src.spacing
-          self.expansion=src.expansion
-          self.color=src.color
-          self.fillincolor=src.fillincolor
-          self.priority=src.priority
-          self.viewport=src.viewport
-          self.worldcoordinate=src.worldcoordinate
-          self.x=src.x
-          self.y=src.y
-          self.projection=src.projection
-          self.colormap = src.colormap
-        vcs.elements["texttable"][Tt_name]=self
+            if isinstance(Tt_name_src, Tt):
+                Tt_name_src = Tt_name_src.name
+            if Tt_name_src not in vcs.elements["texttable"].keys():
+                raise ValueError(
+                    "Source texttable: '%s' does not exists" %
+                    Tt_name_src)
+            src = vcs.elements["texttable"][Tt_name_src]
+            self.string = src.string
+            self.font = src.font
+            self.spacing = src.spacing
+            self.expansion = src.expansion
+            self.color = src.color
+            self.fillincolor = src.fillincolor
+            self.priority = src.priority
+            self.viewport = src.viewport
+            self.worldcoordinate = src.worldcoordinate
+            self.x = src.x
+            self.y = src.y
+            self.projection = src.projection
+            self.colormap = src.colormap
+        vcs.elements["texttable"][Tt_name] = self
 
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # List out text table members (attributes).                                 #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def list(self):
         if (self.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        print "","----------Text Table (Tt) member (attribute) listings ----------"
+            raise ValueError('This instance has been removed from VCS.')
+        print "", "----------Text Table (Tt) member (attribute) listings ----------"
         print "secondary method =", self.s_name
         print "name =", self.name
         print "string =", self.string
@@ -359,13 +415,13 @@ class Tt(object):
         print "worldcoordinate =", self.worldcoordinate
         print "x =", self.x
         print "y =", self.y
-        print 'colormap =',self.colormap
+        print 'colormap =', self.colormap
 
-    #############################################################################
+    ##########################################################################
     #                                                                           #
     # Script out secondary text table method in VCS to a file.                  #
     #                                                                           #
-    #############################################################################
+    ##########################################################################
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptTt
@@ -390,68 +446,84 @@ class Tt(object):
     tt.script('filename.scr')        # Append to a VCS file "filename.scr"
     tt.script('filename','w')        # Create or overwrite to a Python file "filename.py"
 '''
-        if (script_filename == None):
-          raise ValueError, 'Error - Must provide an output script file name.'
+        if (script_filename is None):
+            raise ValueError(
+                'Error - Must provide an output script file name.')
 
-        if (mode == None):
-           mode = 'a'
+        if (mode is None):
+            mode = 'a'
         elif (mode not in ('w', 'a')):
-          raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
+            raise ValueError(
+                'Error - Mode can only be "w" for replace or "a" for append.')
 
         # By default, save file in json
         scr_type = script_filename.split(".")
-        if len(scr_type)==1 or len(scr_type[-1])>5:
-          scr_type= "json"
-          if script_filename!="initial.attributes":
-            script_filename+=".json"
+        if len(scr_type) == 1 or len(scr_type[-1]) > 5:
+            scr_type = "json"
+            if script_filename != "initial.attributes":
+                script_filename += ".json"
         else:
-          scr_type = scr_type[-1]
+            scr_type = scr_type[-1]
         if scr_type == '.scr':
-           raise DeprecationWarning("scr script are no longer generated")
+            raise DeprecationWarning("scr script are no longer generated")
         elif scr_type == "py":
-           mode = mode + '+'
-           py_type = script_filename[len(script_filename)-3:len(script_filename)]
-           if (py_type != '.py'):
-              script_filename = script_filename + '.py'
+            mode = mode + '+'
+            py_type = script_filename[
+                len(script_filename) -
+                3:len(script_filename)]
+            if (py_type != '.py'):
+                script_filename = script_filename + '.py'
 
-           # Write to file
-           fp = open(script_filename,mode)
-           if (fp.tell() == 0): # Must be a new file, so include below
-              fp.write("#####################################\n")
-              fp.write("#                                 #\n")
-              fp.write("# Import and Initialize VCS     #\n")
-              fp.write("#                             #\n")
-              fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+            # Write to file
+            fp = open(script_filename, mode)
+            if (fp.tell() == 0):  # Must be a new file, so include below
+                fp.write("#####################################\n")
+                fp.write("#                                 #\n")
+                fp.write("# Import and Initialize VCS     #\n")
+                fp.write("#                             #\n")
+                fp.write("#############################\n")
+                fp.write("import vcs\n")
+                fp.write("v=vcs.init()\n\n")
 
-           unique_name = '__Tt__' + self.name
-           fp.write("#----------Text Table (Tt) member (attribute) listings ----------\n")
-           fp.write("tt_list=v.listelements('texttable')\n")
-           fp.write("if ('%s' in tt_list):\n" % self.name)
-           fp.write("   %s = v.gettexttable('%s')\n" % (unique_name, self.name))
-           fp.write("else:\n")
-           fp.write("   %s = v.createtexttable('%s')\n" % (unique_name, self.name))
-           fp.write("%s.font = %g\n" % (unique_name, self.font))
-           fp.write("%s.spacing = %g\n" % (unique_name, self.spacing))
-           fp.write("%s.expansion = %g\n" % (unique_name, self.expansion))
-           fp.write("%s.color = %g\n\n" % (unique_name, self.color))
-           fp.write("%s.fillincolor = %g\n\n" % (unique_name, self.fillincolor))
-           fp.write("%s.priority = %d\n" % (unique_name, self.priority))
-           fp.write("%s.viewport = %s\n" % (unique_name, self.viewport))
-           fp.write("%s.worldcoordinate = %s\n" % (unique_name, self.worldcoordinate))
-           fp.write("%s.x = %s\n" % (unique_name, self.x))
-           fp.write("%s.y = %s\n\n" % (unique_name, self.y))
-           fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
-           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+            unique_name = '__Tt__' + self.name
+            fp.write(
+                "#----------Text Table (Tt) member (attribute) listings ----------\n")
+            fp.write("tt_list=v.listelements('texttable')\n")
+            fp.write("if ('%s' in tt_list):\n" % self.name)
+            fp.write(
+                "   %s = v.gettexttable('%s')\n" %
+                (unique_name, self.name))
+            fp.write("else:\n")
+            fp.write(
+                "   %s = v.createtexttable('%s')\n" %
+                (unique_name, self.name))
+            fp.write("%s.font = %g\n" % (unique_name, self.font))
+            fp.write("%s.spacing = %g\n" % (unique_name, self.spacing))
+            fp.write("%s.expansion = %g\n" % (unique_name, self.expansion))
+            fp.write("%s.color = %g\n\n" % (unique_name, self.color))
+            fp.write(
+                "%s.fillincolor = %g\n\n" %
+                (unique_name, self.fillincolor))
+            fp.write("%s.priority = %d\n" % (unique_name, self.priority))
+            fp.write("%s.viewport = %s\n" % (unique_name, self.viewport))
+            fp.write(
+                "%s.worldcoordinate = %s\n" %
+                (unique_name, self.worldcoordinate))
+            fp.write("%s.x = %s\n" % (unique_name, self.x))
+            fp.write("%s.y = %s\n\n" % (unique_name, self.y))
+            fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
+            fp.write(
+                "%s.colormap = '%s'\n\n" %
+                (unique_name, repr(
+                    self.colormap)))
         else:
-          #Json type
-          mode+="+"
-          f = open(script_filename,mode)
-          vcs.utils.dumpToJson(self,f)
-          f.close()
+            # Json type
+            mode += "+"
+            f = open(script_filename, mode)
+            vcs.utils.dumpToJson(self, f)
+            f.close()
 
 
-#################################################################################
+##########################################################################
 #        END OF FILE								#
-#################################################################################
+##########################################################################

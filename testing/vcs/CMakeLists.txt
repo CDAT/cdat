@@ -1,5 +1,11 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
+add_test(flake8_vcs
+  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/vcs/Lib/"
+  --show-source # Show context for detected errors
+  --statistics  # Show summary of errors at end of output
+  --max-line-length=120 # Reasonable line length
+)
 
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"

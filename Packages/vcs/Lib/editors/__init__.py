@@ -1,10 +1,10 @@
-import box
-import data
-import fillarea
-import label
-import legend
-import line
-import marker
-import point
-import text
-import group
+import box  # noqa
+import data  # noqa
+import fillarea  # noqa
+import label  # noqa
+import legend  # noqa
+import line  # noqa
+import marker  # noqa
+import point  # noqa
+import text  # noqa
+import group  # noqa

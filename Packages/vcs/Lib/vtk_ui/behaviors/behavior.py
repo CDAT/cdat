@@ -1,4 +1,5 @@
 class Behavior(object):
+
     """
     Base class; requires subclasses to have an interactor property
     """
