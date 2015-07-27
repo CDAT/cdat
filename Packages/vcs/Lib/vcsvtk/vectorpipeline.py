@@ -103,7 +103,7 @@ class VectorPipeline(Pipeline):
                                                        data1.getAxis(-2))
 
         act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
-        self._context.fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
+        self._context().fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
                                           tmpl.data.y1, tmpl.data.y2],
                                     [x1, x2, y1, y2],
                                     priority=tmpl.data.priority,
