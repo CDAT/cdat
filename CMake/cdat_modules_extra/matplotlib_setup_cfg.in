@@ -71,6 +71,6 @@ qt5agg = False
 # if you have disabled the relevent extension modules.  Agg will be used
 # by default.
 #
-backend = Qt4Agg
+backend = @MATPLOTLIB_BACKEND@
 backend.qt4 = PyQt4
 #
