@@ -1,0 +1,6 @@
+  execute_process(
+    WORKING_DIRECTORY @pyspharm_source@
+    COMMAND patch 
+    INPUT_FILE @cdat_CMAKE_SOURCE_DIR@/pyspharm_setup.patch
+  )
+
