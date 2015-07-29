@@ -9,4 +9,5 @@ set(R_SOURCE ${R_URL}/${R_GZ})
 set (nm R)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
-add_cdat_package_dependent(R "" "Build R" OFF "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(R "" "Build R" ${CDAT_BUILD_ALL}
+                           "CDAT_BUILD_GUI" OFF)
