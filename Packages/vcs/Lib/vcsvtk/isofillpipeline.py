@@ -128,8 +128,8 @@ class IsofillPipeline(Pipeline2D):
                     C = [self._contourColors[i]]
                     L = tmpLevels[i]
                     I = [indices[i]]
-        tmpLevels.append(L)
-        tmpColors.append(C)
+            tmpLevels.append(L)
+            tmpColors.append(C)
 
         luts = []
         cots = []
