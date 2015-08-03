@@ -2,6 +2,12 @@
 #
 set(matplotlib_source_dir "${CMAKE_CURRENT_BINARY_DIR}/build/Matplotlib")
 
+if(CDAT_BUILD_GUI)
+  set(MATPLOTLIB_BACKEND "Qt4Agg")
+else()
+  set(MATPLOTLIB_BACKEND "Agg")
+endif()
+
 configure_file(
   "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/matplotlib_patch_step.cmake.in"
   "${cdat_CMAKE_BINARY_DIR}/matplotlib_patch_step.cmake"

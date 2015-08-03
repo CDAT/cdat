@@ -1,1 +1,1 @@
-set(basemap_deps ${geos_pkg})
+set(basemap_deps ${matplotlib_pkg} ${geos_pkg})
