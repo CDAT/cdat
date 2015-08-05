@@ -19,9 +19,12 @@
 #    If the current HEAD is not a named branch, use master.
 # 5) Update the remote branches in the TESTDATA_DIR repo.
 # 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
-#    If the desired remote branch does not exist, use master.
-# 7) Check out the desired branch in TESTDATA_DIR repo.
-# 8) Run 'git pull origin <branch>:<branch>' to update the repository.
+# 7) Check if the desired branch exists in TESTDATA_DIR as a local branch.
+# 8) If the neither the local or remote branch exist, use master.
+# 9) Check out the local <branch> in TESTDATA_DIR repo.
+# 10) If the remote branch exists, or we are using master, run
+#     'git pull origin <branch>:<branch>' to fetch/update the local branch from
+#     the remote.
 #
 # Any failures are handled via non-fatal warnings. This is to allow the project
 # to build when access to the repo is not available.
@@ -154,16 +157,16 @@ execute_process(COMMAND
 
 if(NOT RESULT EQUAL 0)
   message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
-          "Error updating remote branches with 'git fetch --update-shallow --depth=1':\n."
+          "Error updating remote branches with "
+          "'git fetch --update-shallow --depth=1':\n."
           "${OUTPUT}\n"
           "Baseline images may be out of date.")
   return()
 endif()
 
 # 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
-#    If the desired remote branch does not exist, use master.
 execute_process(COMMAND
-  "${GIT_EXECUTABLE}" branch -r
+  "${GIT_EXECUTABLE}" branch -a --list "*${BRANCH}"
   WORKING_DIRECTORY "${TESTDATA_DIR}"
   RESULT_VARIABLE RESULT
   ERROR_VARIABLE OUTPUT
@@ -171,20 +174,40 @@ execute_process(COMMAND
 
 if(NOT RESULT EQUAL 0)
   message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
-          "Error updating remote branches with 'git fetch --update-shallow --depth=1':\n."
-          "${OUTPUT}\n"
+          "Error obtaining full branch list:\n${OUTPUT}"
           "Baseline images may be out of date.")
   return()
 endif()
 
-string(FIND "${OUTPUT}" "origin/${BRANCH}" POS)
-if(POS EQUAL -1)
-  message("Remote branch 'origin/${BRANCH}' not found for repository at "
-          "'${TESTDATA_DIR}'. Using current master instead.")
-  set(BRANCH "master")
+message("Testing if remote branch 'origin/${BRANCH}' exists...")
+string(FIND "${OUTPUT}" " remotes/origin/${BRANCH}\n" POS)
+if(NOT POS EQUAL -1)
+  message("Remote branch exists.")
+  set(REMOTE_EXISTS "YES")
+else()
+  message("Remote branch does not exist.")
+  set(REMOTE_EXISTS "NO")
 endif()
 
-# 7) Check out the desired branch in TESTDATA_DIR repo.
+# 7) Check if the desired branch exists locally:
+message("Testing if local branch '${BRANCH}' exists...")
+string(FIND "${OUTPUT}" " ${BRANCH}\n" POS) # Leading space in regex intended
+if(NOT POS EQUAL -1)
+  message("Local branch exists.")
+  set(LOCAL_EXISTS "YES")
+else()
+  message("Local branch does not exist.")
+  set(LOCAL_EXISTS "NO")
+endif()
+
+# 8) If the neither the local or remote branch exist, use master.
+if(NOT REMOTE_EXISTS AND NOT LOCAL_EXISTS)
+  set(BRANCH "master")
+  set(REMOTE_EXISTS "YES")
+  set(LOCAL_EXISTS "YES")
+endif()
+
+# 9) Check out the desired branch in TESTDATA_DIR repo.
 message("Checking out branch '${BRANCH}' in repo '${TESTDATA_DIR}'.")
 execute_process(COMMAND
   "${GIT_EXECUTABLE}" checkout "${BRANCH}"
@@ -201,21 +224,25 @@ if(NOT RESULT EQUAL 0)
   return()
 endif()
 
-# 8) Update the branch (in case it already existed during the checkout):
-message("Updating \"${TESTDATA_DIR}:${BRANCH}\" from "
-        "\"${TESTDATA_URL}:${BRANCH}\"...")
-execute_process(COMMAND
-  "${GIT_EXECUTABLE}" pull origin "${BRANCH}:${BRANCH}"
-  WORKING_DIRECTORY "${TESTDATA_DIR}"
-  RESULT_VARIABLE RESULT
-  ERROR_VARIABLE OUTPUT
-  OUTPUT_VARIABLE OUTPUT)
+# 10) If the remote branch exists, or we are using master, run
+#     'git pull origin <branch>:<branch>' to fetch/update the local branch from
+#     the remote.
+if(REMOTE_EXISTS)
+  message("Updating \"${TESTDATA_DIR}:${BRANCH}\" from "
+          "\"${TESTDATA_URL}:${BRANCH}\"...")
+  execute_process(COMMAND
+    "${GIT_EXECUTABLE}" pull origin "${BRANCH}:${BRANCH}"
+    WORKING_DIRECTORY "${TESTDATA_DIR}"
+    RESULT_VARIABLE RESULT
+    ERROR_VARIABLE OUTPUT
+    OUTPUT_VARIABLE OUTPUT)
 
-string(STRIP "${OUTPUT}" OUTPUT)
+  string(STRIP "${OUTPUT}" OUTPUT)
 
-message("${OUTPUT}")
+  message("${OUTPUT}")
 
-if(NOT RESULT EQUAL 0)
-  message("Error updating testdata repo! "
-          "Baseline images may be out of date.")
+  if(NOT RESULT EQUAL 0)
+    message("Error updating testdata repo! "
+            "Baseline images may be out of date.")
+  endif()
 endif()

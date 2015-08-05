@@ -133,7 +133,6 @@ class IsofillPipeline(Pipeline2D):
 
         luts = []
         cots = []
-        geos = []
         mappers = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
@@ -164,8 +163,6 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
             self._resultDict["vtk_backend_contours"] = cots
-        if len(geos) > 0:
-            self._resultDict["vtk_backend_geofilters"] = geos
 
         numLevels = len(self._contourLevels)
         if mappers == []:  # ok didn't need to have special banded contours
@@ -221,7 +218,7 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context.fitToViewport(
+            self._context().fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
@@ -236,9 +233,9 @@ class IsofillPipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
         legend = getattr(self._gm, "legend", None)
 
@@ -263,13 +260,14 @@ class IsofillPipeline(Pipeline2D):
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
-            self._context.renderColorBar(self._template, self._contourLevels,
-                                         self._contourColors, legend,
-                                         self._colorMap))
+            self._context().renderColorBar(self._template, self._contourLevels,
+                                           self._contourColors, legend,
+                                           self._colorMap))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)
