@@ -1,7 +1,9 @@
 set(gdal_source "${CMAKE_CURRENT_BINARY_DIR}/build/gdal")
 set(gdal_install "${cdat_EXTERNALS}")
+set(gdal_configure_args "--prefix=${cdat_EXTERNALS}^^--with-hdf5=${cdat_EXTERNALS}^^--with-netcdf=${cdat_EXTERNALS}^^--with-curl=${cdat_EXTERNALS}^^--with-geos=${cdat_EXTERNALS}/bin/geos-config^^--with-python=${PYTHON_EXECUTABLE}"
 
 ExternalProject_Add(gdal
+  LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${gdal_source}
   INSTALL_DIR ${gdal_install}
