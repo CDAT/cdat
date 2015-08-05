@@ -1,11 +1,11 @@
-set( pynetcdf4_MAJOR_SRC 1  )
-set( pynetcdf4_MINOR_SRC 1 )
-set( pynetcdf4_PATCH_SRC 9  )
-set(pynetcdf4_URL ${LLNL_URL})
-set(pynetcdf4_GZ
-    Fiona-${pynetcdf4_MAJOR_SRC}.${pynetcdf4_MINOR_SRC}.${pynetcdf4_PATCH_SRC}.tar.gz)
-set(pynetcdf4_MD5 40f945898c550721db715f69658cf7e9 )
-set(pynetcdf4_SOURCE ${pynetcdf4_URL}/${pynetcdf4_GZ})
+set( PYNETCDF4_MAJOR_SRC 1  )
+set( PYNETCDF4_MINOR_SRC 1 )
+set( PYNETCDF4_PATCH_SRC 9  )
+set(PYNETCDF4_URL ${LLNL_URL})
+set(PYNETCDF4_GZ
+  netCDF4-${PYNETCDF4_MAJOR_SRC}.${PYNETCDF4_MINOR_SRC}.${PYNETCDF4_PATCH_SRC}.tar.gz)
+set(PYNETCDF4_MD5 40f945898c550721db715f69658cf7e9 )
+set(PYNETCDF4_SOURCE ${PYNETCDF4_URL}/${PYNETCDF4_GZ})
 
 set (nm pynetcdf4)
 string(TOUPPER ${nm} uc_nm)
