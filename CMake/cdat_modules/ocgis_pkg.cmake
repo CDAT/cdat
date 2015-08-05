@@ -5,4 +5,4 @@ set(OCGIS_REPOSITORY ${GIT_PROTOCOL}github.com/NCPP/ocgis.git )
 set(GIT_CMD_STR_OCGIS GIT_REPOSITORY ${OCGIS_REPOSITORY})
 set(GIT_TAG GIT_TAG "${OCGIS_BRANCH}")
 
-add_cdat_package(ocgis "" "" OFF)
+add_cdat_package_dependent(ocgis "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
