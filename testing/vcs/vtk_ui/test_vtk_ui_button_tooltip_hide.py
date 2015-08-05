@@ -25,4 +25,5 @@ class test_vtk_ui_button_tooltip_hide(vtk_ui_test):
         self.test_file = "test_vtk_ui_button_tooltip_hide.png"
         self.hover(5, 50, .1)
 
-test_vtk_ui_button_tooltip_hide().test()
+if __name__ == "__main__":
+    test_vtk_ui_button_tooltip_hide().test()
