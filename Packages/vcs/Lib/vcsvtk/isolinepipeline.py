@@ -154,6 +154,7 @@ class IsolinePipeline(Pipeline2D):
             mapper.SetTextProperties(tprops)
             mapper.SetTextPropertyMapping(tpropMap)
             mapper.SetLabelVisibility(1)
+            mapper.SetSkipDistance(self._gm.labelskipdistance)
 
             pdMapper = mapper.GetPolyDataMapper()
 
