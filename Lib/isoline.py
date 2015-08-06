@@ -327,6 +327,7 @@ class Gi(object):
         'levels',
         'level',
         'label',
+        'labelskipdistance',
         'linecolors',
         'line',
         'linewidths',
@@ -356,6 +357,7 @@ class Gi(object):
         '_yaxisconvert',
         '_level',
         '_label',
+        '_labelskipdistance',
         '_linecolors',
         '_line',
         '_linewidths',
@@ -651,6 +653,17 @@ class Gi(object):
         self._label = value
     label = property(_getlabel, _setlabel)
 
+    def _getlabelskipdistance(self):
+        return self._labelskipdistance
+
+    def _setlabelskipdistance(self, value):
+        value = VCS_validation_functions.checkIntFloat(
+            self,
+            'labelskipdistance',
+            value)
+        self._labelskipdistance = value
+    labelskipdistance = property(_getlabelskipdistance, _setlabelskipdistance)
+
     def _getspacing(self):
         return self._spacing
 
@@ -747,6 +760,7 @@ class Gi(object):
             self._angle = [35.]
             self._spacing = [1.]
             self._label = 'n'
+            self._labelskipdistance = 0
             self._colormap = None
         else:
             if isinstance(Gi_name_src, Gi):
@@ -760,7 +774,7 @@ class Gi(object):
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits',
                         'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors",
-                        "clockwise", "scale", "angle", "spacing"]:
+                        "clockwise", "scale", "angle", "spacing", "labelskipdistance"]:
                 setattr(self, att, getattr(src, att))
         vcs.elements["isoline"][Gi_name] = self
 
@@ -825,6 +839,7 @@ class Gi(object):
         print "xaxisconvert = ", self.xaxisconvert
         print "yaxisconvert = ", self.yaxisconvert
         print "label = ", self.label
+        print "labelskipdistance = ", self.labelskipdistance
         print "line = ", self.line
         print "linecolors = ", self.linecolors
         print "linewidths = ", self.linewidths
@@ -972,6 +987,7 @@ class Gi(object):
                 (unique_name, self.yaxisconvert))
             # Unique attribute for isoline
             fp.write("%s.label = '%s'\n" % (unique_name, self.label))
+            fp.write("%s.labelskipdistance = '%s'\n" % (unique_name, self.labelskipdistance))
             fp.write("%s.line = %s\n" % (unique_name, self.line))
             fp.write("%s.linecolors = %s\n" % (unique_name, self.linecolors))
             fp.write("%s.linewidths = %s\n" % (unique_name, self.linewidths))
