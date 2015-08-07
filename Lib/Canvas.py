@@ -826,7 +826,6 @@ class Canvas(object):
             if yrev == 1:
                 tv = tv[..., ::-1, :].clone()
 
-
 #  -- This s no longer needed since we are making a copy of the data.
 #     We now apply the axes changes below in __plot. Dean and Charles keep
 #     an eye opened for the errors concerning datawc in the VCS module.
@@ -2804,6 +2803,7 @@ Options:::
                 'xaxisconvert',
                 'yaxisconvert',
                 'label',
+                'labelskipdistance',
                 'line',
                 'linewidth',
                 'linecolors',
