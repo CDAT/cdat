@@ -194,6 +194,7 @@ class Gi(object):
     Options:::
 %s
     label :: (str) ('n') turn on/off labels on isolines
+    labelskipdistance :: (float) (0.0) minimum distance between isoline labels
 %s
 %s
     level :: ([float,...]) ([[0.0, 1.0000000200408773e+20]]) isocountours to display
@@ -760,7 +761,7 @@ class Gi(object):
             self._angle = [35.]
             self._spacing = [1.]
             self._label = 'n'
-            self._labelskipdistance = 0
+            self._labelskipdistance = 0.0
             self._colormap = None
         else:
             if isinstance(Gi_name_src, Gi):
