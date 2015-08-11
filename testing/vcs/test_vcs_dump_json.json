@@ -161,6 +161,7 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "label": false, 
+   "labelskipdistance": 0.0, 
    "level": [
     [
      0.0, 
