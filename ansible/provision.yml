@@ -3,7 +3,8 @@
   vars:
     build_root: /opt
     uvcdat_install_dir: /opt/uvcdat_install
-    download_testdata: ON
+    test_output_file: ~/out.nc
+    test_input_files: /opt/uvcdat_install/share/uvcmetrics/test_data/cam_output/*.nc
 
   tasks:
     - name: Update apt cache
@@ -32,7 +33,20 @@
         - cmake
 
     - name: Clone UVCDAT source repo
-      git: repo=git://github.com/UV-CDAT/uvcdat.git dest={{build_root}}/uvcdat accept_hostkey=yes version=master
+      git:
+          repo: git://github.com/UV-CDAT/uvcdat.git
+          dest: "{{build_root}}/uvcdat"
+          accept_hostkey: yes
+          version: master
+          force: yes
+      sudo: yes
+
+    - name: Point to "devel" branch of uvcmetrics subproject
+      lineinfile:
+          dest: "{{build_root}}/uvcdat/CMake/cdat_modules/uvcmetrics_pkg.cmake"
+          state: present
+          regexp: 'set\(UVCMETRICS_BRANCH'
+          line: 'set(UVCMETRICS_BRANCH devel)'
       sudo: yes
 
     - name: Create build directory if it does not exist
@@ -40,7 +54,7 @@
       sudo: yes
 
     - name: Configure UVCDAT
-      command: cmake -DCDAT_BUILD_WEB=ON -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_OSMESA=ON -DCDAT_BUILD_OFFSCREEN=ON -DCMAKE_INSTALL_PREFIX={{uvcdat_install_dir}} -DCDAT_DOWNLOAD_UVCMETRICS_TESTDATA={{download_testdata}} {{build_root}}/uvcdat chdir={{build_root}}/uvcdat-build
+      command: cmake -DCDAT_BUILD_WEB=ON -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_OSMESA=ON -DCDAT_BUILD_OFFSCREEN=ON -DCMAKE_INSTALL_PREFIX={{uvcdat_install_dir}} -DCDAT_DOWNLOAD_UVCMETRICS_TESTDATA=ON {{build_root}}/uvcdat chdir={{build_root}}/uvcdat-build
       sudo: yes
 
     - name: Build UVCDAT
