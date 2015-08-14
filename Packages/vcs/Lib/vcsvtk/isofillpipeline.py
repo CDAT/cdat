@@ -181,7 +181,7 @@ class IsofillPipeline(Pipeline2D):
             numPatternLevels = 10
             res = min(xres, yres)
             patternLevels = range(0, max(xres, yres) + res,
-                                  res/numPatternLevels)
+                                  numPatternLevels)
 
             patternSource = vtk.vtkImageCanvasSource2D()
             patternSource.SetScalarTypeToUnsignedChar()
