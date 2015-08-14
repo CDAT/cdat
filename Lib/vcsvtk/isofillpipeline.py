@@ -180,11 +180,12 @@ class IsofillPipeline(Pipeline2D):
             patternSource.SetNumberOfScalarComponents(3)
             patternSource.SetDrawColor(255, 255, 255)
             patternSource.FillBox(0, xres, 0, yres)
-#            if self._gm.fillareastyle == 'hatch':
-#                r, g, b = self._colorMap.index[tmpColors[i][0]]
-#                patternSource.SetDrawColor(r, g, b)
-#            else:
-            patternSource.SetDrawColor(0, 0, 0)
+            if self._gm.fillareastyle == 'hatch':
+                r, g, b = self._colorMap.index[tmpColors[i][0]]
+                print r, g, b, tmpColors[i], self._contourColors
+                patternSource.SetDrawColor(r, g, b)
+            else:
+                patternSource.SetDrawColor(0, 0, 0)
             for lev in patternLevels:
                 patternSource.DrawSegment(0, lev, lev, 0)
             patternSource.Update()
@@ -238,26 +239,12 @@ class IsofillPipeline(Pipeline2D):
                                        (bounds[3] - bounds[2]) / yres,
                                        0.0)
             pol2stenc.SetOutputWholeExtent(patternSource.GetOutput().GetExtent())
-#            im = vtk.vtkImageData()
-#            im.SetOrigin(patternSource.GetOutput().GetOrigin())
-#            im.SetSpacing(patternSource.GetOutput().GetSpacing())
-#            im.SetDimensions(patternSource.GetOutput().GetDimensions())
-#            im.AllocateScalars(vtk.VTK_UNSIGNED_CHAR, 1)
-#            c = im.GetNumberOfPoints()
-#            for i in range(c):
-#                im.GetPointData().GetScalars().SetTuple(i, [255])
 
             stenc = vtk.vtkImageStencil()
             stenc.SetInputConnection(patternSource.GetOutputPort())
-#            stenc.SetInputData(im)
             stenc.SetStencilConnection(pol2stenc.GetOutputPort())
             stenc.ReverseStencilOff()
             stenc.SetBackgroundValue(255)
-
-            imw = vtk.vtkXMLImageDataWriter()
-            imw.SetInputConnection(stenc.GetOutputPort())
-            imw.SetFileName("stencil.vti")
-            imw.Write()
 
             w = vtk.vtkPNGWriter()
             w.SetFileName("t.png")
