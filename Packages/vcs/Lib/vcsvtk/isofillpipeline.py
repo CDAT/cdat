@@ -109,6 +109,7 @@ class IsofillPipeline(Pipeline2D):
                    self._gm.name, self._gm.g_name))
 
         for i, l in enumerate(self._contourLevels):
+            print "levels: ", l
             if i == 0:
                 C = [self._contourColors[i]]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
@@ -129,10 +130,11 @@ class IsofillPipeline(Pipeline2D):
                     tmpLevels.append(L)
                     tmpColors.append(C)
                     C = [self._contourColors[i]]
-                    L = tmpLevels[i]
+                    L = [L[-1], l[1]]
                     I = [indices[i]]
-            tmpLevels.append(L)
-            tmpColors.append(C)
+        tmpLevels.append(L)
+        tmpColors.append(C)
+        print "tmpLevels", tmpLevels
 
         luts = []
         cots = []
@@ -154,6 +156,13 @@ class IsofillPipeline(Pipeline2D):
             for j, v in enumerate(l):
                 cot.SetValue(j, v)
             cot.Update()
+
+            vtp = vtk.vtkXMLPolyDataWriter()
+            vtp.SetInputConnection(cot.GetOutputPort())
+            s = "cot_" + str(i) + ".vtp"
+            vtp.SetFileName(s)
+            vtp.Write()
+
             cots.append(cot)
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
@@ -177,15 +186,14 @@ class IsofillPipeline(Pipeline2D):
             patternSource = vtk.vtkImageCanvasSource2D()
             patternSource.SetScalarTypeToUnsignedChar()
             patternSource.SetExtent(0, xres, 0, yres, 0, 0)
-            patternSource.SetNumberOfScalarComponents(3)
-            patternSource.SetDrawColor(255, 255, 255)
+            patternSource.SetNumberOfScalarComponents(4)
+            patternSource.SetDrawColor(255, 255, 255, 0.0)
             patternSource.FillBox(0, xres, 0, yres)
             if self._gm.fillareastyle == 'hatch':
                 r, g, b = self._colorMap.index[tmpColors[i][0]]
-                print r, g, b, tmpColors[i], self._contourColors
-                patternSource.SetDrawColor(r, g, b)
+                patternSource.SetDrawColor(r, g, b, 255)
             else:
-                patternSource.SetDrawColor(0, 0, 0)
+                patternSource.SetDrawColor(0, 0, 0, 255)
             for lev in patternLevels:
                 patternSource.DrawSegment(0, lev, lev, 0)
             patternSource.Update()
@@ -199,11 +207,15 @@ class IsofillPipeline(Pipeline2D):
             patternPlane.Update()
             textureMap = vtk.vtkTextureMapToPlane()
             textureMap.SetInputConnection(patternPlane.GetOutputPort())
-            textureMap.Update()
-            patternPd = textureMap.GetOutput()
+
+            wp = vtk.vtkXMLPolyDataWriter()
+            wp.SetInputConnection(textureMap.GetOutputPort())
+            sw = "plane_" + str(i) + ".vtp"
+            wp.SetFileName(sw)
+            wp.Write()
 
             planeMapper = vtk.vtkPolyDataMapper()
-            planeMapper.SetInputData(patternPd)
+            planeMapper.SetInputConnection(textureMap.GetOutputPort())
             self._patternMappers.append(planeMapper)
 
             #  Now, extrude the contour
@@ -226,10 +238,6 @@ class IsofillPipeline(Pipeline2D):
             extruder.SetScaleFactor(1.0)
             extruder.SetVector(0, 0, 1)
             extruder.SetExtrusionTypeToNormalExtrusion()
-            vtp = vtk.vtkXMLPolyDataWriter()
-            vtp.SetInputConnection(extruder.GetOutputPort())
-            vtp.SetFileName("test.vtp")
-            vtp.Write()
 
             pol2stenc = vtk.vtkPolyDataToImageStencil()
             pol2stenc.SetTolerance(0)
@@ -244,15 +252,17 @@ class IsofillPipeline(Pipeline2D):
             stenc.SetInputConnection(patternSource.GetOutputPort())
             stenc.SetStencilConnection(pol2stenc.GetOutputPort())
             stenc.ReverseStencilOff()
-            stenc.SetBackgroundValue(255)
+            stenc.SetBackgroundColor(0, 0, 0, 0)
 
             w = vtk.vtkPNGWriter()
-            w.SetFileName("t.png")
+            st = "stencil_" + str(i) + ".png"
+            w.SetFileName(st)
             w.SetInputConnection(stenc.GetOutputPort())
             w.Write()
 
             patternTexture = vtk.vtkTexture()
             patternTexture.SetInputConnection(stenc.GetOutputPort())
+            #patternTexture.SetBlendingMode(vtk.vtkTexture.VTK_TEXTURE_BLENDING_MODE_REPLACE)
             self._patternTextures.append(patternTexture)
 
         self._resultDict["vtk_backend_luts"] = luts
