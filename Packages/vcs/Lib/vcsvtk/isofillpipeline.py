@@ -199,12 +199,9 @@ class IsofillPipeline(Pipeline2D):
             patternSource.Update()
 
             patternPlane = vtk.vtkPlaneSource()
-            patternPlane.SetCenter(cot.GetOutput().GetCenter())
-            patternPlane.SetNormal(0.0, 0.0, -1.0)
             patternPlane.SetOrigin(bounds[0], bounds[2], 0.0)
             patternPlane.SetPoint1(bounds[0], bounds[3], 0.0)
             patternPlane.SetPoint2(bounds[1], bounds[2], 0.0)
-            patternPlane.Update()
             textureMap = vtk.vtkTextureMapToPlane()
             textureMap.SetInputConnection(patternPlane.GetOutputPort())
 
