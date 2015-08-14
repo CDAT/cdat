@@ -219,20 +219,6 @@ class IsofillPipeline(Pipeline2D):
             self._patternMappers.append(planeMapper)
 
             #  Now, extrude the contour
-#            ct = vtk.vtkContourFilter()
-#            ct.SetInputData(self._vtkPolyDataFilter.GetOutput())
-#            ct.SetNumberOfContours(len(l))
-#            for j, v in enumerate(l):
-#                ct.SetValue(j, v)
-#            stripper = vtk.vtkStripper()
-#            stripper.SetInputConnection(ct.GetOutputPort())
-#            cotpd = vtk.vtkPolyData()
-#            cotpd.DeepCopy(cot.GetOutput())
-#            scal = vtk.vtkUnsignedCharArray()
-#            scal.SetNumberOfComponents(1)
-#            scal.SetNumberOfTuples(cotpd.GetNumberOfPoints())
-#            scal.FillComponent(0, 255)
-#            cotpd.GetPointData().SetScalars(scal)
             extruder = vtk.vtkLinearExtrusionFilter()
             extruder.SetInputConnection(cot.GetOutputPort())
             extruder.SetScaleFactor(1.0)
@@ -262,7 +248,6 @@ class IsofillPipeline(Pipeline2D):
 
             patternTexture = vtk.vtkTexture()
             patternTexture.SetInputConnection(stenc.GetOutputPort())
-            #patternTexture.SetBlendingMode(vtk.vtkTexture.VTK_TEXTURE_BLENDING_MODE_REPLACE)
             self._patternTextures.append(patternTexture)
 
         self._resultDict["vtk_backend_luts"] = luts
