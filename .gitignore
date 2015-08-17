@@ -62,4 +62,4 @@ version
 /.idea
 .coverage
 covhtml
-/.vagrant/
+.vagrant/
