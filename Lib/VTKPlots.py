@@ -525,6 +525,12 @@ class VTKVCSBackend(object):
                 "Graphic type: '%s' not re-implemented yet" %
                 gtype)
         self.scaleLogo()
+        self.rasterPropsInVectorFormats = False
+        try:
+            if gm.fillareastyle in ['pattern', 'hatch']:
+                self.rasterPropsInVectorFormats = True
+        except:
+            pass
         if not kargs.get("donotstoredisplay", False) and kargs.get(
                 "render", True):
             self.renWin.Render()
@@ -873,7 +879,8 @@ class VTKVCSBackend(object):
 
         # Since the patterns are applied as textures on vtkPolyData, enabling
         # background rasterization is required to write them out
-        gl.Write3DPropsAsRasterImageOn()
+        if self.rasterPropsInVectorFormats:
+            gl.Write3DPropsAsRasterImageOn()
 
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
