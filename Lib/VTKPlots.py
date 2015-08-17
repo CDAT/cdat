@@ -871,6 +871,10 @@ class VTKVCSBackend(object):
         # is not needed and will only slow things down and introduce artifacts.
         gl.SetSortToOff()
 
+        # Since the patterns are applied as textures on vtkPolyData, enabling
+        # background rasterization is required to write them out
+        gl.Write3DPropsAsRasterImageOn()
+
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
