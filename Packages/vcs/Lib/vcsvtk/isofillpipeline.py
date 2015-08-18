@@ -89,6 +89,7 @@ class IsofillPipeline(Pipeline2D):
         """Overrides baseclass implementation."""
         tmpLevels = []
         tmpColors = []
+        tmpIndices = []
         indices = self._gm.fillareaindices
         if indices is None:
             indices = [1]
@@ -117,9 +118,9 @@ class IsofillPipeline(Pipeline2D):
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
                 else:
                     L = list(self._contourLevels[i])
-                I = [indices[i]]
+                I = indices[i]
             else:
-                if l[0] == L[-1] and I[-1] == indices[i]:
+                if l[0] == L[-1] and I == indices[i]:
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -129,12 +130,16 @@ class IsofillPipeline(Pipeline2D):
                 else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
+                    tmpIndices.append(I)
                     C = [self._contourColors[i]]
                     L = [L[-1], l[1]]
-                    I = [indices[i]]
+                    I = indices[i]
         tmpLevels.append(L)
         tmpColors.append(C)
+        tmpIndices.append(I)
         print "tmpLevels", tmpLevels
+        print "tmpColors", tmpColors
+        print "tmpIndices", tmpIndices
 
         luts = []
         cots = []
@@ -176,7 +181,8 @@ class IsofillPipeline(Pipeline2D):
 
             patternPlane, patternTexture =\
                 fillareautils.make_patterned_polydata(cot.GetOutput(),
-                                                      'pattern', 0)
+                                                      self._gm.fillareastyle,
+                                                      tmpIndices[i])
             planeMapper = vtk.vtkPolyDataMapper()
             planeMapper.SetInputData(patternPlane)
             self._patterns[planeMapper] = patternTexture
