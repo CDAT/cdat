@@ -36,13 +36,13 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
-    # Scaled the size to 3 times to make the pattern image of a finer resolution
-    xres = 3*int(bounds[1] - bounds[0])
-    yres = 3*int(bounds[3] - bounds[2])
+    # Scaled the size to 4 times to make the pattern image of a finer resolution
+    xres = int(4.0*(bounds[1] - bounds[0]))
+    yres = int(4.0*(bounds[3] - bounds[2]))
     patternImage = create_pattern(xres, yres, fillareastyle,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
-        return []
+        return None, None
     ww = vtk.vtkPNGWriter()
     swt = "pattern_" + str(counter) + ".png"
     ww.SetFileName(swt)
@@ -121,6 +121,10 @@ def create_pattern(width, height, fillareastyle=None,
         pattern3(patternSource, width, height)
     elif fillareaindex == 4:
         pattern4(patternSource, width, height)
+    elif fillareaindex == 5:
+        pattern5(patternSource, width, height)
+    elif fillareaindex == 6:
+        pattern6(patternSource, width, height)
 
     # Update the pipeline and return the image
     patternSource.Update()
@@ -134,8 +138,8 @@ def pattern1(patternSource, width, height):
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
             patternSource.FillTriangle(x, y,
-                                       x + NUM_PIXELS, y,
-                                       x, y + NUM_PIXELS)
+                                       x + NUM_PIXELS*3/4, y,
+                                       x, y + NUM_PIXELS*3/4)
 
 
 def pattern2(patternSource, width, height):
@@ -145,7 +149,7 @@ def pattern2(patternSource, width, height):
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
             patternSource.FillBox(x, x + NUM_PIXELS/2,
-                                  y, y + NUM_PIXELS/2)
+                                  y + NUM_PIXELS/2, y + NUM_PIXELS)
 
 
 def pattern3(patternSource, width, height):
@@ -161,6 +165,38 @@ def pattern3(patternSource, width, height):
 
 
 def pattern4(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x, x + NUM_PIXELS/2,
+                                  y, y + NUM_PIXELS/2)
+            patternSource.FillBox(x + NUM_PIXELS/2, x + NUM_PIXELS,
+                                  y + NUM_PIXELS/2, y + NUM_PIXELS)
+
+
+def pattern5(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x, x + NUM_PIXELS,
+                                  y + NUM_PIXELS/4, y + NUM_PIXELS*3/4)
+
+
+def pattern6(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x, x + NUM_PIXELS*3/4,
+                                  y, y + NUM_PIXELS*1/4)
+
+
+def pattern7(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
