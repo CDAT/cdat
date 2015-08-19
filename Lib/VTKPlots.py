@@ -202,7 +202,6 @@ class VTKVCSBackend(object):
     def configureEvent(self, obj, ev):
         if not self.renWin:
             return
-
         cursor = self.renWin.GetCurrentCursor()
         if sys.platform == "darwin" and ev == "ModifiedEvent" and cursor != self.oldCursor:
             self.oldCursor = cursor
@@ -251,7 +250,7 @@ class VTKVCSBackend(object):
                 allow_static=False,
                 render_offscreen=False)
 
-        self.showGUI()
+        self.showGUI(render=False)
 
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
@@ -280,7 +279,8 @@ class VTKVCSBackend(object):
                 r, g, b = [c / 255. for c in self.canvas.backgroundcolor]
                 ren.SetBackground(r, g, b)
             ren = renderers.GetNextItem()
-        self.showGUI()
+        self.showGUI(render=False)
+
         if hasValidRenderer and self.renWin.IsDrawable() and render:
             self.renWin.Render()
         self.numberOfPlotCalls = 0
@@ -949,7 +949,7 @@ class VTKVCSBackend(object):
 
         self.hideGUI()
         imgfiltr.Update()
-        self.showGUI()
+        self.showGUI(render=False)
         self.renWin.Render()
 
         writer = vtk.vtkPNGWriter()
