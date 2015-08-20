@@ -11,7 +11,7 @@ NUM_PIXELS = 8
 def make_patterned_polydata(inputContours, fillareastyle=None,
                             fillareaindex=None, fillareacolors=None):
     if inputContours is None or fillareastyle == 'solid':
-        return None, None
+        return None
     if fillareaindex is None:
         fillareaindex = 1
 
@@ -25,7 +25,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Generate texture coordinates for the plane
     textureMap = vtk.vtkTextureMapToPlane()
     textureMap.SetInputConnection(patternPlane.GetOutputPort())
-    textureMap.Update()
 
     global counter
 #    wp = vtk.vtkXMLPolyDataWriter()
@@ -42,7 +41,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     patternImage = create_pattern(xres, yres, fillareastyle,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
-        return None, None
+        return None
     ww = vtk.vtkPNGWriter()
     swt = "pattern_" + str(counter) + ".png"
     ww.SetFileName(swt)
@@ -84,7 +83,12 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
     patternTexture.SetInputConnection(stenc.GetOutputPort())
-    return textureMap.GetOutput(), patternTexture
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(textureMap.GetOutputPort())
+    actor = vtk.vtkActor()
+    actor.SetMapper(mapper)
+    actor.SetTexture(patternTexture)
+    return [actor]
 
 
 def create_pattern(width, height, fillareastyle=None,
