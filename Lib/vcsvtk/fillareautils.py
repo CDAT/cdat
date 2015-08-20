@@ -2,14 +2,15 @@ import vtk
 
 #TODO: Need to add opacity control for patterns/hatches
 #TODO: counter is a DEBUG thing and needs to be removed later.
-counter = 0
+counter = 1
 
 # number of pixels per individual pattern block
 NUM_PIXELS = 8
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
-                            fillareaindex=None, fillareacolors=None):
+                            fillareaindex=None, fillareacolors=None,
+                            applystencil=False):
     if inputContours is None or fillareastyle == 'solid':
         return None
     if fillareaindex is None:
@@ -27,17 +28,24 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     textureMap.SetInputConnection(patternPlane.GetOutputPort())
 
     global counter
-#    wp = vtk.vtkXMLPolyDataWriter()
-#    wp.SetInputConnection(textureMap.GetOutputPort())
-#    sw = "plane_" + str(counter) + ".vtp"
-#    wp.SetFileName(sw)
-#    wp.Write()
+    wp = vtk.vtkXMLPolyDataWriter()
+    wp.SetInputConnection(textureMap.GetOutputPort())
+    sw = "plane_" + str(counter) + ".vtp"
+    wp.SetFileName(sw)
+    wp.Write()
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
     # Scaled the size to 2 times to make the pattern image of a finer resolution
-    xres = int(2.0*(bounds[1] - bounds[0]))
-    yres = int(2.0*(bounds[3] - bounds[2]))
+    xBounds = bounds[1] - bounds[0]
+    yBounds = bounds[3] - bounds[2]
+    xres = int(2.0*xBounds)
+    yres = int(2.0*yBounds)
+    # Handle the case when the bounds are less than 1 in physical dimensions
+    if xBounds < 1 or yBounds < 1:
+        boundsAspect = xBounds / yBounds
+        yres = 16
+        xres = int(boundsAspect * yres)
     patternImage = create_pattern(xres, yres, fillareastyle,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
@@ -48,47 +56,50 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     ww.SetInputData(patternImage)
     ww.Write()
 
-    # Extrude the contour since vtkPolyDataToImageStencil
-    # requires 3D polydata
-    extruder = vtk.vtkLinearExtrusionFilter()
-    extruder.SetInputData(inputContours)
-    extruder.SetScaleFactor(1.0)
-    extruder.SetVector(0, 0, 1)
-    extruder.SetExtrusionTypeToNormalExtrusion()
+    if applystencil:
+        # Extrude the contour since vtkPolyDataToImageStencil
+        # requires 3D polydata
+        extruder = vtk.vtkLinearExtrusionFilter()
+        extruder.SetInputData(inputContours)
+        extruder.SetScaleFactor(1.0)
+        extruder.SetVector(0, 0, 1)
+        extruder.SetExtrusionTypeToNormalExtrusion()
 
-    # Create a binary image mask from the extruded polydata
-    pol2stenc = vtk.vtkPolyDataToImageStencil()
-    pol2stenc.SetTolerance(0)
-    pol2stenc.SetInputConnection(extruder.GetOutputPort())
-    pol2stenc.SetOutputOrigin(bounds[0], bounds[2], 0.0)
-    pol2stenc.SetOutputSpacing((bounds[1] - bounds[0]) / xres,
-                               (bounds[3] - bounds[2]) / yres,
-                               0.0)
-    pol2stenc.SetOutputWholeExtent(patternImage.GetExtent())
+        # Create a binary image mask from the extruded polydata
+        pol2stenc = vtk.vtkPolyDataToImageStencil()
+        pol2stenc.SetTolerance(0)
+        pol2stenc.SetInputConnection(extruder.GetOutputPort())
+        pol2stenc.SetOutputOrigin(bounds[0], bounds[2], 0.0)
+        pol2stenc.SetOutputSpacing((bounds[1] - bounds[0]) / xres,
+                                   (bounds[3] - bounds[2]) / yres,
+                                   0.0)
+        pol2stenc.SetOutputWholeExtent(patternImage.GetExtent())
 
-    # Stencil out the fillarea from the pattern image
-    stenc = vtk.vtkImageStencil()
-    stenc.SetInputData(patternImage)
-    stenc.SetStencilConnection(pol2stenc.GetOutputPort())
-    stenc.ReverseStencilOff()
-    stenc.SetBackgroundColor(0, 0, 0, 0)
+        # Stencil out the fillarea from the pattern image
+        stenc = vtk.vtkImageStencil()
+        stenc.SetInputData(patternImage)
+        stenc.SetStencilConnection(pol2stenc.GetOutputPort())
+        stenc.ReverseStencilOff()
+        stenc.SetBackgroundColor(0, 0, 0, 0)
+        stenc.Update()
+        patternImage = stenc.GetOutput()
 
-#    w = vtk.vtkPNGWriter()
-#    st = "stencil_" + str(counter) + ".png"
-#    w.SetFileName(st)
-#    w.SetInputConnection(stenc.GetOutputPort())
-#    w.Write()
+    #    w = vtk.vtkPNGWriter()
+    #    st = "stencil_" + str(counter) + ".png"
+    #    w.SetFileName(st)
+    #    w.SetInputConnection(stenc.GetOutputPort())
+    #    w.Write()
     counter = counter + 1
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
-    patternTexture.SetInputConnection(stenc.GetOutputPort())
+    patternTexture.SetInputData(patternImage)
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(textureMap.GetOutputPort())
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
     actor.SetTexture(patternTexture)
-    return [actor]
+    return actor
 
 
 def create_pattern(width, height, fillareastyle=None,
@@ -210,7 +221,6 @@ def pattern6(patternSource, width, height):
         return None
     global NUM_PIXELS
     patternLevels = range(0, height, NUM_PIXELS)
-    print patternLevels
     for lev in patternLevels:
         patternSource.FillBox(0, width, lev + NUM_PIXELS/4, lev + NUM_PIXELS*3/4)
 

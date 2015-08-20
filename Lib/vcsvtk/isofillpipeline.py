@@ -180,10 +180,11 @@ class IsofillPipeline(Pipeline2D):
             mappers.append(mapper)
 
             act = fillareautils.make_patterned_polydata(cot.GetOutput(),
-                                                        self._gm.fillareastyle,
-                                                        tmpIndices[i])
+                                                        fillareastyle=self._gm.fillareastyle,
+                                                        fillareaindex=tmpIndices[i],
+                                                        applystencil=True)
             if act is not None:
-                self._patternActors = self._patternActors + act
+                self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
@@ -298,7 +299,8 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context.renderColorBar(self._template, self._contourLevels,
                                          self._contourColors, legend,
-                                         self._colorMap))
+                                         self._colorMap, self._gm.fillareastyle,
+                                         self._gm.fillareaindices))
 
         if self._context.canvas._continents is None:
             self._useContinents = False
