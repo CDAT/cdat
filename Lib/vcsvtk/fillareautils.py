@@ -44,8 +44,13 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds < 1 or yBounds < 1:
         boundsAspect = xBounds / yBounds
-        yres = 16
-        xres = int(boundsAspect * yres)
+        global NUM_PIXELS
+        if boundsAspect > 1.0:
+            yres = 2 * NUM_PIXELS
+            xres = int(boundsAspect * yres)
+        else:
+            xres = 2 * NUM_PIXELS
+            yres = int(xres / boundsAspect)
     patternImage = create_pattern(xres, yres, fillareastyle,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
