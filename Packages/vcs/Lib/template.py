@@ -1635,8 +1635,8 @@ class P(object):
         return displays
 
     def drawColorBar(self, colors, levels, legend=None, ext_1='n',
-                     ext_2='n', x=None,
-                     bg=0, priority=None, cmap=None, **kargs):
+                     ext_2='n', x=None, bg=0, priority=None,
+                     cmap=None, style=['solid'], index=[1], **kargs):
         """
         This function, draws the colorbar, it needs:
         colors : The colors to be plotted
@@ -1770,7 +1770,8 @@ class P(object):
 
         fa = x.createfillarea()
         fa.color = colors
-        fa.style = 'solid'
+        fa.style = style
+        fa.index = index
         fa.priority = priority
         if cmap is not None:
             fa.colormap = cmap
