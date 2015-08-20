@@ -110,7 +110,7 @@ class IsofillPipeline(Pipeline2D):
                    self._gm.name, self._gm.g_name))
 
         for i, l in enumerate(self._contourLevels):
-            print "levels: ", l
+#            print "levels: ", l
             if i == 0:
                 C = [self._contourColors[i]]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
@@ -137,9 +137,9 @@ class IsofillPipeline(Pipeline2D):
         tmpLevels.append(L)
         tmpColors.append(C)
         tmpIndices.append(I)
-        print "tmpLevels", tmpLevels
-        print "tmpColors", tmpColors
-        print "tmpIndices", tmpIndices
+#        print "tmpLevels", tmpLevels
+#        print "tmpColors", tmpColors
+#        print "tmpIndices", tmpIndices
 
         luts = []
         cots = []
@@ -161,11 +161,11 @@ class IsofillPipeline(Pipeline2D):
                 cot.SetValue(j, v)
             cot.Update()
 
-            vtp = vtk.vtkXMLPolyDataWriter()
-            vtp.SetInputConnection(cot.GetOutputPort())
-            s = "cot_" + str(i) + ".vtp"
-            vtp.SetFileName(s)
-            vtp.Write()
+#            vtp = vtk.vtkXMLPolyDataWriter()
+#            vtp.SetInputConnection(cot.GetOutputPort())
+#            s = "cot_" + str(i) + ".vtp"
+#            vtp.SetFileName(s)
+#            vtp.Write()
 
             cots.append(cot)
             mapper.SetInputConnection(cot.GetOutputPort())
