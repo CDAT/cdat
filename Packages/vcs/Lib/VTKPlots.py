@@ -54,6 +54,7 @@ class VTKVCSBackend(object):
         # Turn on anti-aliasing by default
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
+        self._rasterPropsInVectorFormats = False
 
         if renWin is not None:
             self.renWin = renWin
@@ -525,10 +526,13 @@ class VTKVCSBackend(object):
                 "Graphic type: '%s' not re-implemented yet" %
                 gtype)
         self.scaleLogo()
-        self.rasterPropsInVectorFormats = False
         try:
+            for style in gm.style:
+                if style in ['pattern', 'hatch']:
+                    self._rasterPropsInVectorFormats = True
+                    break
             if gm.fillareastyle in ['pattern', 'hatch']:
-                self.rasterPropsInVectorFormats = True
+                self._rasterPropsInVectorFormats = True
         except:
             pass
         if not kargs.get("donotstoredisplay", False) and kargs.get(
@@ -882,7 +886,7 @@ class VTKVCSBackend(object):
 
         # Since the patterns are applied as textures on vtkPolyData, enabling
         # background rasterization is required to write them out
-        if self.rasterPropsInVectorFormats:
+        if self._rasterPropsInVectorFormats:
             gl.Write3DPropsAsRasterImageOn()
 
         gl.SetInput(self.renWin)
