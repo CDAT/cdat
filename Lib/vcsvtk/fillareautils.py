@@ -5,7 +5,7 @@ import vtk
 counter = 0
 
 # number of pixels per individual pattern block
-NUM_PIXELS = 12
+NUM_PIXELS = 8
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
@@ -36,9 +36,9 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
-    # Scaled the size to 4 times to make the pattern image of a finer resolution
-    xres = int(4.0*(bounds[1] - bounds[0]))
-    yres = int(4.0*(bounds[3] - bounds[2]))
+    # Scaled the size to 2 times to make the pattern image of a finer resolution
+    xres = int(2.0*(bounds[1] - bounds[0]))
+    yres = int(2.0*(bounds[3] - bounds[2]))
     patternImage = create_pattern(xres, yres, fillareastyle,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
