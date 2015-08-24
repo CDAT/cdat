@@ -110,7 +110,6 @@ class IsofillPipeline(Pipeline2D):
                    self._gm.name, self._gm.g_name))
 
         for i, l in enumerate(self._contourLevels):
-#            print "levels: ", l
             if i == 0:
                 C = [self._contourColors[i]]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
@@ -120,7 +119,7 @@ class IsofillPipeline(Pipeline2D):
                     L = list(self._contourLevels[i])
                 I = indices[i]
             else:
-                if l[0] == L[-1] and I == indices[i]:
+                if l[0] == L[-1] and I == indices[i] and C[-1] == self._contourColors[i]:
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -171,17 +170,23 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                r, g, b = self._colorMap.index[color]
-                lut.SetTableValue(j, r / 100., g / 100., b / 100.)
+                if self._gm.fillareastyle != 'hatch':
+                    r, g, b = self._colorMap.index[color]
+                    lut.SetTableValue(j, r / 100., g / 100., b / 100.)
+                else:
+                    lut.SetTableValue(j, 1., 1., 1.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
             mapper.SetScalarRange(0, len(l) - 1)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
+            # Since pattern creation requires a single color, assuming the first
+            c = [val*255/100.0 for val in self._colorMap.index[tmpColors[i][0]]]
             act = fillareautils.make_patterned_polydata(cot.GetOutput(),
                                                         fillareastyle=self._gm.fillareastyle,
                                                         fillareaindex=tmpIndices[i],
+                                                        fillareacolors=c,
                                                         applystencil=True)
             if act is not None:
                 self._patternActors.append(act)
