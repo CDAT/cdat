@@ -495,7 +495,8 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
         elif gtype == "marker":
             if gm.priority != 0:
                 actors = vcs2vtk.prepMarker(self.renWin, gm)
@@ -506,7 +507,8 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
                     if pd is None and act.GetUserTransform():
                         vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
 
@@ -520,7 +522,8 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
         else:
             raise Exception(
                 "Graphic type: '%s' not re-implemented yet" %
