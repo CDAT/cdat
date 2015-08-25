@@ -34,9 +34,7 @@ try:
 except:
     os.environ["CFLAGS"]="-w -g"
     pass
-## if cdat_info.CDMS_INCLUDE_DAP=='yes':
-##     macros.append(("NONC4",None))
-print "MACROS PASSED:",macros
+
 setup (name = "cdms2",
        version='5.0',
        description = "Climate Data Management System, Numpy version",
