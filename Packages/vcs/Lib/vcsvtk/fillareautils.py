@@ -99,6 +99,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
     patternTexture.SetInputData(patternImage)
+    patternTexture.InterpolateOn()
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(textureMap.GetOutputPort())
     actor = vtk.vtkActor()
