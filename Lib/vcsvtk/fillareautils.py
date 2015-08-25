@@ -2,7 +2,7 @@ import vtk
 
 #TODO: Need to add opacity control for patterns/hatches
 #TODO: counter is a DEBUG thing and needs to be removed later.
-counter = 1
+#counter = 1
 
 # number of pixels per individual pattern block
 NUM_PIXELS = 8
@@ -27,12 +27,12 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     textureMap = vtk.vtkTextureMapToPlane()
     textureMap.SetInputConnection(patternPlane.GetOutputPort())
 
-    global counter
-    wp = vtk.vtkXMLPolyDataWriter()
-    wp.SetInputConnection(textureMap.GetOutputPort())
-    sw = "plane_" + str(counter) + ".vtp"
-    wp.SetFileName(sw)
-    wp.Write()
+    #global counter
+    #wp = vtk.vtkXMLPolyDataWriter()
+    #wp.SetInputConnection(textureMap.GetOutputPort())
+    #sw = "plane_" + str(counter) + ".vtp"
+    #wp.SetFileName(sw)
+    #wp.Write()
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
@@ -55,11 +55,11 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
         return None
-    ww = vtk.vtkPNGWriter()
-    swt = "pattern_" + str(counter) + ".png"
-    ww.SetFileName(swt)
-    ww.SetInputData(patternImage)
-    ww.Write()
+#    ww = vtk.vtkPNGWriter()
+#    swt = "pattern_" + str(counter) + ".png"
+#    ww.SetFileName(swt)
+#    ww.SetInputData(patternImage)
+#    ww.Write()
 
     if applystencil:
         # Extrude the contour since vtkPolyDataToImageStencil
@@ -94,7 +94,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     #    w.SetFileName(st)
     #    w.SetInputConnection(stenc.GetOutputPort())
     #    w.Write()
-    counter = counter + 1
+    #counter = counter + 1
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
@@ -160,6 +160,20 @@ def create_pattern(width, height, fillareastyle=None,
         pattern12(patternSource, width, height)
     elif fillareaindex == 13:
         pattern13(patternSource, width, height)
+    elif fillareaindex == 14:
+        pattern14(patternSource, width, height)
+    elif fillareaindex == 15:
+        pattern15(patternSource, width, height)
+    elif fillareaindex == 16:
+        pattern16(patternSource, width, height)
+    elif fillareaindex == 17:
+        pattern17(patternSource, width, height)
+    elif fillareaindex == 18:
+        pattern18(patternSource, width, height)
+    elif fillareaindex == 19:
+        pattern19(patternSource, width, height)
+    elif fillareaindex == 20:
+        pattern20(patternSource, width, height)
 
     # Update the pipeline and return the image
     patternSource.Update()
@@ -247,7 +261,7 @@ def pattern8(patternSource, width, height):
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
             patternSource.FillBox(x, x + NUM_PIXELS*3/4,
-                                  y, y + NUM_PIXELS*1/4)
+                                  y, y + NUM_PIXELS/4)
 
 
 def pattern9(patternSource, width, height):
@@ -256,7 +270,9 @@ def pattern9(patternSource, width, height):
     global NUM_PIXELS
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
-            patternSource.FillBox(x, x + NUM_PIXELS*1/4,
+            patternSource.FillBox(x + NUM_PIXELS/4, x + NUM_PIXELS/2,
+                                  y, y + NUM_PIXELS*3/4)
+            patternSource.FillBox(x + NUM_PIXELS*3/4, x + NUM_PIXELS,
                                   y, y + NUM_PIXELS*3/4)
 
 
@@ -266,7 +282,7 @@ def pattern10(patternSource, width, height):
     global NUM_PIXELS
     patternLevels = range(0, max(width, height) + min(width, height), NUM_PIXELS)
     for lev in patternLevels:
-        patternSource.DrawSegment(0, lev, lev, 0)
+        patternSource.FillTube(0, lev, lev, 0, NUM_PIXELS/8)
 
 
 def pattern11(patternSource, width, height):
@@ -284,7 +300,7 @@ def pattern12(patternSource, width, height):
     global NUM_PIXELS
     patternLevels = range(0, max(width, height) + min(width, height), NUM_PIXELS)
     for lev in patternLevels:
-        patternSource.DrawSegment(lev, height, 0, height - lev)
+        patternSource.FillTube(lev, height, 0, height - lev, NUM_PIXELS/8)
 
 
 def pattern13(patternSource, width, height):
@@ -294,3 +310,89 @@ def pattern13(patternSource, width, height):
     patternLevels = range(0, max(width, height) + min(width, height), NUM_PIXELS)
     for lev in patternLevels:
         patternSource.FillTube(lev, height, 0, height - lev, NUM_PIXELS/4)
+
+
+def pattern14(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    patternLevels = range(0, width, NUM_PIXELS)
+    for lev in patternLevels:
+        patternSource.FillBox(lev + NUM_PIXELS/8, lev + NUM_PIXELS*1/2, 0, height)
+        patternSource.FillBox(lev + NUM_PIXELS*3/4, lev + NUM_PIXELS*7/8, 0, height)
+
+
+def pattern15(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    patternLevels = range(0, height, NUM_PIXELS)
+    for lev in patternLevels:
+        patternSource.FillBox(0, width, lev + NUM_PIXELS/8, lev + NUM_PIXELS*1/2)
+        patternSource.FillBox(0, width, lev + NUM_PIXELS*3/4, lev + NUM_PIXELS*7/8)
+
+
+def pattern16(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x + NUM_PIXELS*1/8, x + NUM_PIXELS*7/8,
+                                  y + NUM_PIXELS*1/8, y + NUM_PIXELS*7/8)
+
+
+def pattern17(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillTube(x, y + NUM_PIXELS/2,
+                                   x + NUM_PIXELS/2, y,
+                                   NUM_PIXELS/2)
+
+
+def pattern18(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x, x + NUM_PIXELS/8,
+                                  y, y + NUM_PIXELS/8)
+            patternSource.FillBox(x + NUM_PIXELS/2, x + NUM_PIXELS*5/8,
+                                  y, y + NUM_PIXELS/8)
+            patternSource.FillBox(x, x + NUM_PIXELS*1/8,
+                                  y + NUM_PIXELS/2, y + NUM_PIXELS*5/8)
+            patternSource.FillBox(x + NUM_PIXELS/8, x + NUM_PIXELS/2,
+                                  y + NUM_PIXELS/8, y + NUM_PIXELS/2)
+            patternSource.FillBox(x + NUM_PIXELS*5/8, x + NUM_PIXELS,
+                                  y + NUM_PIXELS*5/8, y + NUM_PIXELS)
+            patternSource.FillBox(x + NUM_PIXELS/8, x + NUM_PIXELS*3/8,
+                                  y + NUM_PIXELS*5/8, y + NUM_PIXELS*3/4)
+            patternSource.FillBox(x + NUM_PIXELS*5/8, x + NUM_PIXELS*7/8,
+                                  y + NUM_PIXELS/8, y + NUM_PIXELS*1/4)
+
+
+def pattern19(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillBox(x, x + NUM_PIXELS*3/8,
+                                  y, y + NUM_PIXELS/4)
+            patternSource.FillBox(x + NUM_PIXELS*5/8, x + NUM_PIXELS,
+                                  y, y + NUM_PIXELS/4)
+            patternSource.FillBox(x + NUM_PIXELS/4, x + NUM_PIXELS*3/4,
+                                  y + NUM_PIXELS/3, y + NUM_PIXELS*2/3)
+
+
+def pattern20(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.DrawCircle(x + NUM_PIXELS/2, y + NUM_PIXELS/2, NUM_PIXELS/4.)
