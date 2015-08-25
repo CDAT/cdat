@@ -1,8 +1,6 @@
 import vtk
 
 #TODO: Need to add opacity control for patterns/hatches
-#TODO: counter is a DEBUG thing and needs to be removed later.
-#counter = 1
 
 # number of pixels per individual pattern block
 NUM_PIXELS = 8
@@ -29,13 +27,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     textureMap = vtk.vtkTextureMapToPlane()
     textureMap.SetInputConnection(patternPlane.GetOutputPort())
 
-    #global counter
-    #wp = vtk.vtkXMLPolyDataWriter()
-    #wp.SetInputConnection(textureMap.GetOutputPort())
-    #sw = "plane_" + str(counter) + ".vtp"
-    #wp.SetFileName(sw)
-    #wp.Write()
-
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
     # Scaled the size to 2 times to make the pattern image of a finer resolution
@@ -57,11 +48,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
                                   fillareaindex, fillareacolors)
     if patternImage is None:
         return None
-#    ww = vtk.vtkPNGWriter()
-#    swt = "pattern_" + str(counter) + ".png"
-#    ww.SetFileName(swt)
-#    ww.SetInputData(patternImage)
-#    ww.Write()
 
     if applystencil:
         # Extrude the contour since vtkPolyDataToImageStencil
@@ -90,13 +76,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
         stenc.SetBackgroundColor(0, 0, 0, 0)
         stenc.Update()
         patternImage = stenc.GetOutput()
-
-    #    w = vtk.vtkPNGWriter()
-    #    st = "stencil_" + str(counter) + ".png"
-    #    w.SetFileName(st)
-    #    w.SetInputConnection(stenc.GetOutputPort())
-    #    w.Write()
-    #counter = counter + 1
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
