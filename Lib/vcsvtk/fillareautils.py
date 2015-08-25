@@ -15,6 +15,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
         return None
     if fillareaindex is None:
         fillareaindex = 1
+    if inputContours.GetNumberOfCells() == 0:
+        return None
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
