@@ -22,12 +22,21 @@ try:
     import mpi4py
     ## Ok we have mpi4py let's build with support for it
     macros.append(("PARALLEL",None))
-    os.environ["CC"]="mpicc"
+    import subprocess
+    try:
+      mpicc = os.path.join(cdat_info.externals,"bin","mpicc")
+      print "MPICC:",mpicc
+      subprocess.check_call([mpicc,"--version"])
+    except Exception,err:
+      print "ERRORED WITH:",err
+      mpicc="mpicc"
+      subprocess.check_call([mpicc,"--version"])
+    os.environ["CC"]=mpicc
     os.environ["CFLAGS"]="-w -g"
 except:
+    print "YEP FAILED NO MPI4PY"
     os.environ["CFLAGS"]="-w -g"
     pass
-import cdat_info
 ## if cdat_info.CDMS_INCLUDE_DAP=='yes':
 ##     macros.append(("NONC4",None))
 print "MACROS PASSED:",macros
