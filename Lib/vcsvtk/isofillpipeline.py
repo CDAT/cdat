@@ -136,9 +136,6 @@ class IsofillPipeline(Pipeline2D):
         tmpLevels.append(L)
         tmpColors.append(C)
         tmpIndices.append(I)
-#        print "tmpLevels", tmpLevels
-#        print "tmpColors", tmpColors
-#        print "tmpIndices", tmpIndices
 
         luts = []
         cots = []
@@ -159,12 +156,6 @@ class IsofillPipeline(Pipeline2D):
             for j, v in enumerate(l):
                 cot.SetValue(j, v)
             cot.Update()
-
-#            vtp = vtk.vtkXMLPolyDataWriter()
-#            vtp.SetInputConnection(cot.GetOutputPort())
-#            s = "cot_" + str(i) + ".vtp"
-#            vtp.SetFileName(s)
-#            vtp.Write()
 
             cots.append(cot)
             mapper.SetInputConnection(cot.GetOutputPort())
