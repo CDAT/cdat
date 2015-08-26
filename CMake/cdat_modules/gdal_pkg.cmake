@@ -1,9 +1,9 @@
-set( GDAL_MAJOR 2  )
-set( GDAL_MINOR 0  )
-set( GDAL_PATCH 0  )
+set( GDAL_MAJOR 1  )
+set( GDAL_MINOR 11  )
+set( GDAL_PATCH 2  )
 set(GDAL_URL ${LLNL_URL})
 set(GDAL_GZ gdal-${GDAL_MAJOR}.${GDAL_MINOR}.${GDAL_PATCH}.tar.gz)
-set(GDAL_MD5 2c5f8f12ed416febd2cbd7b63c48eb17 )
+set(GDAL_MD5 866a46f72b1feadd60310206439c1a76 )
 
 set (nm GDAL)
 string(TOUPPER ${nm} uc_nm)
