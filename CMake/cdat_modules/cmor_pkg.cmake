@@ -1,7 +1,9 @@
 set(CMOR_VERSION 2.9.2)
-set(CMOR_URL ${LLNL_URL})
-set(CMOR_GZ CMOR-${CMOR_VERSION}.tar.gz)
-set(CMOR_MD5 f7e78104878d93ffbd3cae2ccd95db2c)
+set(CMOR_BRANCH master)
+set(CMOR_REPOSITORY ${GIT_PROTOCOL}github.com/PCMDI/cmor.git )
+
+set(GIT_CMD_STR_CMOR GIT_REPOSITORY ${CMOR_REPOSITORY})
+set(GIT_TAG GIT_TAG "${CMOR_BRANCH}")
 set (nm CMOR)
 string(TOUPPER ${nm} uc_nm)
 

@@ -31,8 +31,8 @@ class BoxfillPipeline(Pipeline2D):
         if self._gm.boxfill_type == "log10":
             data = numpy.ma.log10(data)
 
-        self._data1 = self._context.trimData2D(data)
-        self._data2 = self._context.trimData2D(self._originalData2)
+        self._data1 = self._context().trimData2D(data)
+        self._data2 = self._context().trimData2D(self._originalData2)
 
     def _updateContourLevelsAndColors(self):
         """Overrides baseclass implementation."""
@@ -174,7 +174,7 @@ class BoxfillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
-            self._context.fitToViewport(
+            self._context().fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
@@ -188,9 +188,9 @@ class BoxfillPipeline(Pipeline2D):
             z = self._originalData1.getAxis(-3)
         else:
             z = None
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
         if getattr(self._gm, "legend", None) is not None:
             self._contourLabels = self._gm.legend
@@ -217,17 +217,18 @@ class BoxfillPipeline(Pipeline2D):
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
-            self._context.renderColorBar(self._template, self._contourLevels,
-                                         self._contourColors,
-                                         self._contourLabels,
-                                         self._colorMap))
+            self._context().renderColorBar(self._template, self._contourLevels,
+                                           self._contourColors,
+                                           self._contourLabels,
+                                           self._colorMap))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
@@ -330,7 +331,6 @@ class BoxfillPipeline(Pipeline2D):
         tmpColors.append(C)
 
         luts = []
-        cots = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         for i, l in enumerate(tmpLevels):
@@ -362,7 +362,5 @@ class BoxfillPipeline(Pipeline2D):
                     self._mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
-        if len(cots) > 0:
-            self._resultDict["vtk_backend_contours"] = cots
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos
