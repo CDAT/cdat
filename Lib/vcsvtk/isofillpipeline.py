@@ -91,6 +91,7 @@ class IsofillPipeline(Pipeline2D):
         tmpColors = []
         tmpIndices = []
         indices = self._gm.fillareaindices
+        opacities = self._gm.fillareaopacity
         if indices is None:
             indices = [1]
         while len(indices) < len(self._contourColors):
@@ -108,6 +109,13 @@ class IsofillPipeline(Pipeline2D):
                 "ones will be ignored\nGraphic Method: %s of type %s"
                 % (len(self._contourLevels), len(self._contourColors),
                    self._gm.name, self._gm.g_name))
+
+        if len(opacities) < len(self._contourColors) - 1:
+            # fill up the opacity values
+            if self._gm.fillareastyle == 'pattern':
+                opacities += [0] * (len(self._contourColors) - len(opacities))
+            else:
+                opacities += [255] * (len(self._contourColors) - len(opacities))
 
         for i, l in enumerate(self._contourLevels):
             if i == 0:
@@ -161,9 +169,10 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                if self._gm.fillareastyle == 'solid':
-                    r, g, b = self._colorMap.index[color]
-                    lut.SetTableValue(j, r / 100., g / 100., b / 100., 1.0)
+                r, g, b = self._colorMap.index[color]
+                if self._gm.fillareastyle in ['solid', 'pattern']:
+                    lut.SetTableValue(j, r / 100., g / 100., b / 100.,
+                                      opacities[i] / 255.)
                 else:
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
@@ -178,6 +187,7 @@ class IsofillPipeline(Pipeline2D):
                                                         fillareastyle=self._gm.fillareastyle,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
+                                                        fillareaopacity=opacities[i],
                                                         applystencil=True)
             if act is not None:
                 self._patternActors.append(act)

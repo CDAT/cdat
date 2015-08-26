@@ -8,13 +8,15 @@ NUM_PIXELS = 8
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
                             fillareaindex=None, fillareacolors=None,
-                            applystencil=False):
+                            fillareaopacity=None, applystencil=False):
     if inputContours is None or fillareastyle == 'solid':
+        return None
+    if inputContours.GetNumberOfCells() == 0:
         return None
     if fillareaindex is None:
         fillareaindex = 1
-    if inputContours.GetNumberOfCells() == 0:
-        return None
+    if fillareaopacity is None:
+        fillareaopacity = 255
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
@@ -45,7 +47,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
             xres = 2 * NUM_PIXELS
             yres = int(xres / boundsAspect)
     patternImage = create_pattern(xres, yres, fillareastyle,
-                                  fillareaindex, fillareacolors)
+                                  fillareaindex, fillareacolors,
+                                  fillareaopacity)
     if patternImage is None:
         return None
 
@@ -90,7 +93,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
 
 def create_pattern(width, height, fillareastyle=None,
-                   fillareaindex=None, fillareacolors=None):
+                   fillareaindex=None, fillareacolors=None, fillareaopacity=None):
     if fillareastyle == 'solid':
         return None
 
@@ -99,6 +102,9 @@ def create_pattern(width, height, fillareastyle=None,
 
     if fillareacolors is None:
         fillareacolors = [0, 0, 0]
+
+    if fillareaopacity is None:
+        fillareaopacity = 255
 
     # Create a pattern source image of the given size
     patternSource = vtk.vtkImageCanvasSource2D()
@@ -111,7 +117,7 @@ def create_pattern(width, height, fillareastyle=None,
         patternSource.SetDrawColor(fillareacolors[0],
                                    fillareacolors[1],
                                    fillareacolors[2],
-                                   255)
+                                   fillareaopacity)
     else:
         patternSource.SetDrawColor(0, 0, 0, 255)
 
