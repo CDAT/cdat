@@ -6,7 +6,7 @@
 [directories]
 # Uncomment to override the default basedir in setupext.py.
 # This can be a single directory or a space-delimited list of directories.
-basedirlist = @INSTALL_DIR@
+# basedirlist = @INSTALL_DIR@
 
 [status]
 # To suppress display of the dependencies and their versions
