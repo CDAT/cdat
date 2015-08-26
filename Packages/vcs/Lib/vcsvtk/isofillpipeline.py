@@ -161,11 +161,11 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                if self._gm.fillareastyle != 'hatch':
+                if self._gm.fillareastyle == 'solid':
                     r, g, b = self._colorMap.index[color]
-                    lut.SetTableValue(j, r / 100., g / 100., b / 100.)
+                    lut.SetTableValue(j, r / 100., g / 100., b / 100., 1.0)
                 else:
-                    lut.SetTableValue(j, 1., 1., 1.)
+                    lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
             mapper.SetScalarRange(0, len(l) - 1)
