@@ -547,6 +547,7 @@ include(freetype_pkg)
 ## C. Doutriaux: We need to replace the following with a findPackage at some point
 if (APPLE)
 else()
+  include(jpeg_pkg)
   include(pixman_pkg)
   include(fontconfig_pkg)
   include(curses_pkg)
