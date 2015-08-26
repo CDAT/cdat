@@ -37,7 +37,7 @@ def process_src(nm, code):
     except:
         f = vcs.elements["fillarea"][nm]
     atts = {}
-    for a in ["faci", "fasi", "fais", "vp", "wc", "x", "y"]:
+    for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
         i = code.find(a + "(")
         v = genutil.get_parenthesis_content(code[i:])
         # print nm,a,v
@@ -56,6 +56,7 @@ def process_src(nm, code):
                 I[i] = 1
         f.index = I
         f.color = atts.get("faci", f.color)
+        f.opacity = atts.get("faoi", f.opacity)
         f.viewport = atts.get("vp", f.viewport)
         f.worldcoordinate = atts.get("wc", f.worldcoordinate)
         f.x = atts.get('x', f.x)
@@ -72,6 +73,7 @@ def process_src(nm, code):
                         b._fillareaindices[i] = f.index
                         b._fillareacolor[i] = f.color
                         b._fillareastyle = f.style
+                        b._fillareaopacity = f.opacity
 
 #############################################################################
 #                                                                           #
@@ -118,6 +120,7 @@ class Tf(object):
     fa.style = 'pattern'
     fa.index=1			        # Range from 1 to 20
     fa.color=100			# Range from 1 to 256
+    fa.opacity=255                      # Range from 0 to 255
 
     Specify the fillarea index:
      fa.index=1
@@ -152,6 +155,7 @@ class Tf(object):
         'name',
         's_name',
         'color',
+        'opacity',
         'priority',
         'style',
         'index',
@@ -172,6 +176,7 @@ class Tf(object):
         '_y',
         '_projection',
         '_colormap',
+        '_opacity'
     ]
 
     colormap = VCS_validation_functions.colormap
@@ -202,6 +207,22 @@ class Tf(object):
             value = [241]
         self._color = value
     color = property(_getfillareacolors, _setfillareacolors)
+
+    def _getfillareaopacity(self):
+        return getmember(self, 'opacity')
+
+    def _setfillareaopacity(self, value):
+        if not isinstance(value, (list, tuple)) and value is not None:
+            value = [value, ]
+        if value is not None:
+            value = VCS_validation_functions.checkOpacitiesList(
+                self,
+                'opacity',
+                value)
+        if value in [(), []]:
+            raise ValueError("You cannot set fillarea opacity to an empty list")
+        self._opacity = value
+    opacity = property(_getfillareaopacity, _setfillareaopacity)
 
     def _getfillareaindices(self):
         return getmember(self, 'index')
@@ -336,6 +357,7 @@ class Tf(object):
             self._style = ['solid', ]
             self._index = [1, ]
             self._color = [1, ]
+            self._opacity = [255, ]
             self._priority = 1
             self._viewport = [0., 1., 0., 1.]
             self._worldcoordinate = [0., 1., 0., 1.]
@@ -348,6 +370,7 @@ class Tf(object):
             self.style = src.style
             self.index = src.index
             self.color = src.color
+            self.opacity = src.opacity
             self.priority = src.priority
             self.viewport = src.viewport
             self.worldcoordinate = src.worldcoordinate
@@ -372,6 +395,7 @@ class Tf(object):
         print "style =", self.style
         print "index =", self.index
         print "color =", self.color
+        print "opacity =", self.opacity
         print "priority =", self.priority
         print "viewport =", self.viewport
         print "worldcoordinate =", self.worldcoordinate
@@ -463,6 +487,7 @@ class Tf(object):
             fp.write("%s.style = %s\n" % (unique_name, self.style))
             fp.write("%s.index = %s\n" % (unique_name, self.index))
             fp.write("%s.color = %s\n\n" % (unique_name, self.color))
+            fp.write("%s.opacity = %s\n\n" % (unique_name, self.opacity))
             fp.write("%s.priority = %d\n" % (unique_name, self.priority))
             fp.write("%s.viewport = %s\n" % (unique_name, self.viewport))
             fp.write(
