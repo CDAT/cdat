@@ -90,6 +90,7 @@ class IsofillPipeline(Pipeline2D):
         tmpLevels = []
         tmpColors = []
         tmpIndices = []
+        tmpOpacities = []
         indices = self._gm.fillareaindices
         opacities = self._gm.fillareaopacity
         if indices is None:
@@ -117,6 +118,8 @@ class IsofillPipeline(Pipeline2D):
             else:
                 opacities += [100] * (len(self._contourColors) - len(opacities))
 
+        # The following loop attempts to group isosurfaces based on their attributes.
+        # Isosurfaces are grouped if and only if all the properties match
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 C = [self._contourColors[i]]
@@ -126,8 +129,10 @@ class IsofillPipeline(Pipeline2D):
                 else:
                     L = list(self._contourLevels[i])
                 I = indices[i]
+                O = opacities[i]
             else:
-                if l[0] == L[-1] and I == indices[i] and C[-1] == self._contourColors[i]:
+                if l[0] == L[-1] and I == indices[i] and\
+                        C[-1] == self._contourColors[i] and O == opacities[i]:
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -138,12 +143,15 @@ class IsofillPipeline(Pipeline2D):
                     tmpLevels.append(L)
                     tmpColors.append(C)
                     tmpIndices.append(I)
+                    tmpOpacities.append(O)
                     C = [self._contourColors[i]]
                     L = [L[-1], l[1]]
                     I = indices[i]
+                    O = opacities[i]
         tmpLevels.append(L)
         tmpColors.append(C)
         tmpIndices.append(I)
+        tmpOpacities.append(O)
 
         luts = []
         cots = []
@@ -171,7 +179,7 @@ class IsofillPipeline(Pipeline2D):
                 r, g, b = self._colorMap.index[color]
                 if self._gm.fillareastyle in ['solid', 'pattern']:
                     lut.SetTableValue(j, r / 100., g / 100., b / 100.,
-                                      opacities[i] / 100.)
+                                      tmpOpacities[i] / 100.)
                 else:
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
@@ -186,7 +194,7 @@ class IsofillPipeline(Pipeline2D):
                                                         fillareastyle=self._gm.fillareastyle,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
-                                                        fillareaopacity=opacities[i] * 255 / 100.0,
+                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0,
                                                         applystencil=True)
             if act is not None:
                 self._patternActors.append(act)
