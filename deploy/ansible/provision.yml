@@ -125,3 +125,14 @@
     - name: install girder for development
       command: python setup.py develop chdir="{{build_root}}/girder"
       sudo: yes
+
+    - name: create romanesco worker.local.cfg
+      copy: src=worker.local.cfg dest={{build_root}}/girder/plugins/romanesco/romanesco/worker.local.cfg
+      sudo: yes
+
+    - name: Install romanesco requirements
+      pip: requirements={{ item }}
+      sudo: yes
+      with_items:
+          - "{{build_root}}/girder/plugins/romanesco/requirements.txt"
+          - "{{build_root}}/girder/plugins/romanesco/romanesco/plugins/girder_io/requirements.txt"
