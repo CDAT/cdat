@@ -614,7 +614,7 @@ Class: Gfi				# Isofill
             self._fillareastyle = 'solid'
             self._fillareaindices = None
             self._fillareacolors = [1, ]
-            self._fillareaopacity = [255, ]
+            self._fillareaopacity = []
             self._levels = ([1.0000000200408773e+20, 1.0000000200408773e+20],)
             self._legend = None
             self._datawc_timeunits = "days since 2000"

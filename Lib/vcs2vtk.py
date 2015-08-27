@@ -1073,22 +1073,23 @@ def prepFillarea(renWin, farea, cmap=None):
         polygonPolyData.GetCellData().SetScalars(colors)
 
         color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        if len(farea.opacity) > i:
+            opacity = farea.opacity[i] * 255 / 100.0
+        elif st == 'pattern':
+            opacity = 0
+        else:
+            opacity = 255
         # Draw colored background for solid or patterns
         # or white background for hatches
-        if st == 'solid':
+        if st in ['solid', 'pattern']:
             # Add the color to the color array:
-            color = color + [255]
+            color = color + [int(opacity)]
             colors.SetTupleValue(cellId, color)
         else:
             colors.SetTupleValue(cellId, [255, 255, 255, 0])
 
         # Transform points:
         geo, pts = project(pts, farea.projection, farea.worldcoordinate)
-
-        #w = vtk.vtkXMLPolyDataWriter()
-        #w.SetInputData(polygonPolyData)
-        #w.SetFileName("polygon.vtp")
-        #w.Write()
 
         # Setup rendering
         m = vtk.vtkPolyDataMapper()
@@ -1102,7 +1103,8 @@ def prepFillarea(renWin, farea, cmap=None):
             act = fillareautils.make_patterned_polydata(polygonPolyData,
                                                         st,
                                                         idx,
-                                                        color)
+                                                        color,
+                                                        opacity)
             if act is not None:
                 actors.append((act, geo))
     return actors
