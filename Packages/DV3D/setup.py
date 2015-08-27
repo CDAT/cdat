@@ -9,6 +9,5 @@ setup (name = "DV3D",
        packages = ['DV3D', ],
        package_dir = {'DV3D': '', },
        package_data = package_data,
-       data_files = [ ('share/uvcdat/sample_data', ['data/geos5-sample.nc'] ), ]
        )
 
