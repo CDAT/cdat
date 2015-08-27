@@ -102,6 +102,13 @@
           force: yes
       sudo: yes
 
+    - name: Install romanesco requirements
+      pip: requirements={{ item }}
+      sudo: yes
+      with_items:
+          - "{{build_root}}/girder/plugins/romanesco/requirements.txt"
+          - "{{build_root}}/girder/plugins/romanesco/romanesco/plugins/girder_io/requirements.txt"
+
     - name: Install girder requirements
       pip: requirements="{{build_root}}/girder/requirements.txt"
       sudo: yes
@@ -130,9 +137,6 @@
       copy: src=worker.local.cfg dest={{build_root}}/girder/plugins/romanesco/romanesco/worker.local.cfg
       sudo: yes
 
-    - name: Install romanesco requirements
-      pip: requirements={{ item }}
+    - name: set open permissions on entire build root
+      file: mode=777 path={{build_root}} recurse=yes
       sudo: yes
-      with_items:
-          - "{{build_root}}/girder/plugins/romanesco/requirements.txt"
-          - "{{build_root}}/girder/plugins/romanesco/romanesco/plugins/girder_io/requirements.txt"
