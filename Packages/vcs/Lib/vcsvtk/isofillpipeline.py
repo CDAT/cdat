@@ -186,7 +186,7 @@ class IsofillPipeline(Pipeline2D):
                                                         fillareastyle=self._gm.fillareastyle,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
-                                                        fillareaopacity=opacities[i],
+                                                        fillareaopacity=opacities[i] * 255 / 100.0,
                                                         applystencil=True)
             if act is not None:
                 self._patternActors.append(act)
@@ -302,8 +302,10 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self._colorMap, self._gm.fillareastyle,
-                                           self._gm.fillareaindices))
+                                           self._colorMap,
+                                           style=self._gm.fillareastyle,
+                                           index=self._gm.fillareaindices,
+                                           opacity=opacities))
 
         if self._context().canvas._continents is None:
             self._useContinents = False

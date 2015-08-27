@@ -219,8 +219,6 @@ class Tf(object):
                 self,
                 'opacity',
                 value)
-        if value in [(), []]:
-            raise ValueError("You cannot set fillarea opacity to an empty list")
         self._opacity = value
     opacity = property(_getfillareaopacity, _setfillareaopacity)
 
@@ -357,7 +355,7 @@ class Tf(object):
             self._style = ['solid', ]
             self._index = [1, ]
             self._color = [1, ]
-            self._opacity = [100, ]
+            self._opacity = []
             self._priority = 1
             self._viewport = [0., 1., 0., 1.]
             self._worldcoordinate = [0., 1., 0., 1.]
