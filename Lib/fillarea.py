@@ -120,7 +120,7 @@ class Tf(object):
     fa.style = 'pattern'
     fa.index=1			        # Range from 1 to 20
     fa.color=100			# Range from 1 to 256
-    fa.opacity=255                      # Range from 0 to 255
+    fa.opacity=100                      # Range from 0 to 100
 
     Specify the fillarea index:
      fa.index=1
@@ -357,7 +357,7 @@ class Tf(object):
             self._style = ['solid', ]
             self._index = [1, ]
             self._color = [1, ]
-            self._opacity = [255, ]
+            self._opacity = [100, ]
             self._priority = 1
             self._viewport = [0., 1., 0., 1.]
             self._worldcoordinate = [0., 1., 0., 1.]

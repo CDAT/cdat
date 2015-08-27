@@ -746,7 +746,7 @@ def checkIndicesList(self, name, value):
 
 def checkOpacity(self, name, value):
     checkName(self, name, value)
-    if isinstance(value, int) and value in range(0, 256):
+    if isinstance(value, int) and value in range(0, 101):
         return value
     else:
         checkedRaise(
@@ -755,7 +755,7 @@ def checkOpacity(self, name, value):
             ValueError,
             'The ' +
             name +
-            ' attribute must be an integer value within the range 0 to 255.')
+            ' attribute must be an integer value within the range 0 to 100.')
 
 
 def checkOpacitiesList(self, name, value):

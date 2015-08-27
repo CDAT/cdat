@@ -115,7 +115,7 @@ class IsofillPipeline(Pipeline2D):
             if self._gm.fillareastyle == 'pattern':
                 opacities += [0] * (len(self._contourColors) - len(opacities))
             else:
-                opacities += [255] * (len(self._contourColors) - len(opacities))
+                opacities += [100] * (len(self._contourColors) - len(opacities))
 
         for i, l in enumerate(self._contourLevels):
             if i == 0:
@@ -171,7 +171,7 @@ class IsofillPipeline(Pipeline2D):
                 r, g, b = self._colorMap.index[color]
                 if self._gm.fillareastyle in ['solid', 'pattern']:
                     lut.SetTableValue(j, r / 100., g / 100., b / 100.,
-                                      opacities[i] / 255.)
+                                      opacities[i] / 100.)
                 else:
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
