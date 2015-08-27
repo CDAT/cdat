@@ -532,15 +532,26 @@ class VTKVCSBackend(object):
                 "Graphic type: '%s' not re-implemented yet" %
                 gtype)
         self.scaleLogo()
+
+        # Decide whether to rasterize background in vector outputs
+        # Current criteria to rasterize:
+        #       * if fillarea style is either pattern or hatch
+        #       * if fillarea opacity is less than 100 for solid fill
         try:
-            for style in gm.style:
-                if style in ['pattern', 'hatch']:
-                    self._rasterPropsInVectorFormats = True
-                    break
-            if gm.fillareastyle in ['pattern', 'hatch']:
+            if gm.style and all(style != 'solid' for style in gm.style):
+                self._rasterPropsInVectorFormats = True
+            elif gm.opacity and not all(o == 100 for o in gm.opacity):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
+        try:
+            if gm.fillareastyle in ['pattern', 'hatch']:
+                self._rasterPropsInVectorFormats = True
+            elif not all(o == 100 for o in gm.fillareaopacity):
+                self._rasterPropsInVectorFormats = True
+        except:
+            pass
+
         if not kargs.get("donotstoredisplay", False) and kargs.get(
                 "render", True):
             self.renWin.Render()
