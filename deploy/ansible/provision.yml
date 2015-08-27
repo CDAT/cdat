@@ -11,6 +11,10 @@
       apt: update_cache=yes
       sudo: yes
 
+    - name: add nodejs ppa
+      apt_repository: repo='ppa:chris-lea/node.js'
+      sudo: yes
+
     - name: Install system packages
       apt: name={{ item }} state=present
       sudo: yes
@@ -31,6 +35,12 @@
         - libpng-dev
         - m4
         - cmake
+        - python-pip
+        - python2.7-dev
+        - build-essential
+        - mongodb
+        - python-software-properties
+        - nodejs
 
     - name: Clone UVCDAT source repo
       git:
@@ -63,4 +73,55 @@
 
     - name: Create script for running climatology2.py example
       template: src=run_climatology_example.sh.j2 dest={{uvcdat_install_dir}}/run_climatology_example.sh mode=0775
+      sudo: yes
+
+    - name: Clone girder source repo
+      git:
+          repo: git://github.com/girder/girder
+          dest: "{{build_root}}/girder"
+          accept_hostkey: yes
+          version: master
+          force: yes
+      sudo: yes
+
+    - name: Clone romanesco
+      git:
+          repo: git://github.com/Kitware/romanesco
+          dest: "{{build_root}}/girder/plugins/romanesco"
+          accept_hostkey: yes
+          version: master
+          force: yes
+      sudo: yes
+
+    - name: Clone climos_test plugin
+      git:
+          repo: git://github.com/zachmullen/climos_test
+          dest: "{{build_root}}/girder/plugins/climos_test"
+          accept_hostkey: yes
+          version: master
+          force: yes
+      sudo: yes
+
+    - name: Install girder requirements
+      pip: requirements="{{build_root}}/girder/requirements.txt"
+      sudo: yes
+
+    - name: Install grunt-cli
+      npm: name=grunt-cli global=yes
+      sudo: yes
+
+    - name: Run npm install on girder
+      npm: path="{{build_root}}/girder"
+      sudo: yes
+
+    - name: run grunt init
+      command: grunt init chdir="{{build_root}}/girder"
+      sudo: yes
+
+    - name: run grunt
+      command: grunt chdir="{{build_root}}/girder"
+      sudo: yes
+
+    - name: install girder for development
+      command: python setup.py develop chdir="{{build_root}}/girder"
       sudo: yes
