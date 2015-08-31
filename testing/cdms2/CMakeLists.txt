@@ -1,6 +1,10 @@
 
 # cdms2 tests
 
+cdat_add_test(cdms2_test_default_fill_value_not_nan
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_default_fill_value_not_nan.py
+  )
 cdat_add_test("test_ascontiguous_regrid_nan_issue"
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/cdms2/test_ascontiguous_regrid_nan_issue.py
