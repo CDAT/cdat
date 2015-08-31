@@ -3080,9 +3080,14 @@ class init(object):
         self.nellipse = len(self.Box)
         return
 
+    def clear():
+        """ clears all graphs """
+        for i, g in enumerate(self.Graph):
+            for j in range(g.nset):
+                self("kill G%i.S%i" % (i, j))
+
     def whichsets(self, *args):
         og = []
-# print args
         if len(args) == 0:
             args = range(len(self.Graph))
         for ig in args:
