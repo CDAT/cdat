@@ -3080,7 +3080,7 @@ class init(object):
         self.nellipse = len(self.Box)
         return
 
-    def clear():
+    def clear(self):
         """ clears all graphs """
         for i, g in enumerate(self.Graph):
             for j in range(g.nset):
