@@ -1,4 +1,4 @@
-uvcdat
+uvcdat  
 ======
 [![build status](https://travis-ci.org/OpenGeoscience/geojs.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat/builds)
 [![stable version](http://img.shields.io/badge/stable version-2.2.0-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/2.2.0)
@@ -14,4 +14,4 @@ Developing and Contributing
 ------
 We'd love to get contributions from you! Please take a look at the
 [Contribution Documents](CONTRIBUTING.md) to see how to get your changes merged
-in.
+in. Voila!
