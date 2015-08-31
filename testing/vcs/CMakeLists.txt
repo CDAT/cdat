@@ -11,6 +11,10 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_test_text_object_as_input.py
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
+)
 cdat_add_test(vcs_no_xtra_elts
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_no_extra_elements.py
