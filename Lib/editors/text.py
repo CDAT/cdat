@@ -1,5 +1,6 @@
 from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
+from font import FontEditor
 from vcs.colorpicker import ColorPicker
 from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
@@ -66,6 +67,10 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
         self.toolbar.show()
+
+        # Adds itself to self.toolbar automatically
+        FontEditor(self.toolbar, self.set_font,
+                   current_font=vcs.getfontname(text.font))
 
         prop = vtkTextProperty()
         prop.SetBackgroundColor(.87, .79, .55)
