@@ -6,7 +6,7 @@
 [directories]
 # Uncomment to override the default basedir in setupext.py.
 # This can be a single directory or a space-delimited list of directories.
-# basedirlist = @INSTALL_DIR@
+basedirlist = @INSTALL_DIR@
 
 [status]
 # To suppress display of the dependencies and their versions
@@ -14,7 +14,7 @@
 #suppress = True
 #
 # Uncomment to insert lots of diagnostic prints in extension code
-#verbose = True
+verbose = True
 
 [provide_packages]
 # By default, matplotlib checks for a few dependencies and
@@ -54,11 +54,11 @@
 #           otherwise skip silently. This is the default
 #           behavior
 #
-gtk = False
-gtkagg = False
-tkagg = False
-macosx = False
-qt5agg = False
+gtk = auto
+gtkagg = auto
+tkagg = auto
+macosx = auto
+qt5agg = auto
 
 [rc_options]
 # User-configurable options

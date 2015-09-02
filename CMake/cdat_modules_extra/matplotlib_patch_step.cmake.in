@@ -6,4 +6,10 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib_png.cpp.in"
+  "@matplotlib_source_dir@/src/_png.cpp"
+  @ONLY
+)
+
 set(ENV{LD_LIBRARY_PATH} "${INSTALL_DIR}/lib;$ENV{LD_LIBRARY_PATH}")

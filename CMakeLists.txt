@@ -752,6 +752,20 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
   @ONLY
 )
 
+if (APPLE)
+ if (NOT EXISTS /usr/X11R6/include/png.h)
+   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/png.h
+     ${cdat_EXTERNALS}/include
+     )
+   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/pnglibconf.h
+     ${cdat_EXTERNALS}/include
+     )
+   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/pngconf.h
+     ${cdat_EXTERNALS}/include
+     )
+   set(MATPLOTLIB_ADD_CG_PNG "cg_")
+ endif()
+endif()
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
