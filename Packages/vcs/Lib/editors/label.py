@@ -2,6 +2,7 @@ import point
 import vcs
 import vtk
 import vcs.vcs2vtk
+from font import FontEditor
 from vcs.vtk_ui.text import contrasting_color
 
 __valign_map__ = {
@@ -92,6 +93,9 @@ class LabelEditor(point.PointEditor):
 
         self.picker = None
         self.toolbar.add_button(["Change Color"], action=self.change_color)
+        # Adds itself to self.toolbar automatically
+        FontEditor(self.toolbar, self.set_font,
+                   current_font=vcs.getfontname(self.tt.font))
         self.toolbar.show()
         self.label.texttable = self.tt.name
         self.label.textorientation = self.to.name
