@@ -13,7 +13,8 @@ outfile.createVariableCopy(invar)
 outvar = outfile['tas']
 outtype= outvar.dtype # dtype(float64)
 
+outfile.close()
+
 os.remove("newfile.nc")
 
 assert(outtype==intype)
-
