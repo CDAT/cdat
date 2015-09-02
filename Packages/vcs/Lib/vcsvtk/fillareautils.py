@@ -3,12 +3,12 @@ import vtk
 #TODO: Need to add opacity control for patterns/hatches
 
 # number of pixels per individual pattern block
-NUM_PIXELS = 8
+NUM_PIXELS = 16
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
                             fillareaindex=None, fillareacolors=None,
-                            fillareaopacity=None, applystencil=False):
+                            fillareaopacity=None):
     if inputContours is None or fillareastyle == 'solid':
         return None
     if inputContours.GetNumberOfCells() == 0:
@@ -34,8 +34,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
-    xres = int(2.0*xBounds)
-    yres = int(2.0*yBounds)
+    xres = int(4.0*xBounds)
+    yres = int(4.0*yBounds)
     # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds < 1 or yBounds < 1:
         boundsAspect = xBounds / yBounds
@@ -52,33 +52,32 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     if patternImage is None:
         return None
 
-    if applystencil:
-        # Extrude the contour since vtkPolyDataToImageStencil
-        # requires 3D polydata
-        extruder = vtk.vtkLinearExtrusionFilter()
-        extruder.SetInputData(inputContours)
-        extruder.SetScaleFactor(1.0)
-        extruder.SetVector(0, 0, 1)
-        extruder.SetExtrusionTypeToNormalExtrusion()
+    # Extrude the contour since vtkPolyDataToImageStencil
+    # requires 3D polydata
+    extruder = vtk.vtkLinearExtrusionFilter()
+    extruder.SetInputData(inputContours)
+    extruder.SetScaleFactor(1.0)
+    extruder.SetVector(0, 0, 1)
+    extruder.SetExtrusionTypeToNormalExtrusion()
 
-        # Create a binary image mask from the extruded polydata
-        pol2stenc = vtk.vtkPolyDataToImageStencil()
-        pol2stenc.SetTolerance(0)
-        pol2stenc.SetInputConnection(extruder.GetOutputPort())
-        pol2stenc.SetOutputOrigin(bounds[0], bounds[2], 0.0)
-        pol2stenc.SetOutputSpacing((bounds[1] - bounds[0]) / xres,
-                                   (bounds[3] - bounds[2]) / yres,
-                                   0.0)
-        pol2stenc.SetOutputWholeExtent(patternImage.GetExtent())
+    # Create a binary image mask from the extruded polydata
+    pol2stenc = vtk.vtkPolyDataToImageStencil()
+    pol2stenc.SetTolerance(0)
+    pol2stenc.SetInputConnection(extruder.GetOutputPort())
+    pol2stenc.SetOutputOrigin(bounds[0], bounds[2], 0.0)
+    pol2stenc.SetOutputSpacing((bounds[1] - bounds[0]) / xres,
+                               (bounds[3] - bounds[2]) / yres,
+                               0.0)
+    pol2stenc.SetOutputWholeExtent(patternImage.GetExtent())
 
-        # Stencil out the fillarea from the pattern image
-        stenc = vtk.vtkImageStencil()
-        stenc.SetInputData(patternImage)
-        stenc.SetStencilConnection(pol2stenc.GetOutputPort())
-        stenc.ReverseStencilOff()
-        stenc.SetBackgroundColor(0, 0, 0, 0)
-        stenc.Update()
-        patternImage = stenc.GetOutput()
+    # Stencil out the fillarea from the pattern image
+    stenc = vtk.vtkImageStencil()
+    stenc.SetInputData(patternImage)
+    stenc.SetStencilConnection(pol2stenc.GetOutputPort())
+    stenc.ReverseStencilOff()
+    stenc.SetBackgroundColor(0, 0, 0, 0)
+    stenc.Update()
+    patternImage = stenc.GetOutput()
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
