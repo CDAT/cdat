@@ -1,7 +1,5 @@
 import vtk
 
-#TODO: Need to add opacity control for patterns/hatches
-
 # number of pixels per individual pattern block
 NUM_PIXELS = 16
 
@@ -194,23 +192,11 @@ def pattern3(patternSource, width, height):
     global NUM_PIXELS
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
-            patternSource.FillBox(x, x + NUM_PIXELS/2,
-                                  y + NUM_PIXELS/2, y + NUM_PIXELS)
+            patternSource.FillBox(x + NUM_PIXELS*3/8, x + NUM_PIXELS*5/8,
+                                  y + NUM_PIXELS*3/8, y + NUM_PIXELS*5/8)
 
 
 def pattern4(patternSource, width, height):
-    if patternSource is None:
-        return None
-    global NUM_PIXELS
-    for y in xrange(0, height, NUM_PIXELS):
-        patternSource.FillBox(0, width,
-                              y, y + NUM_PIXELS/2)
-    for x in xrange(0, width, NUM_PIXELS):
-        patternSource.FillBox(x, x + NUM_PIXELS/2,
-                              0, height)
-
-
-def pattern5(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
@@ -222,7 +208,7 @@ def pattern5(patternSource, width, height):
                                   y + NUM_PIXELS/2, y + NUM_PIXELS)
 
 
-def pattern6(patternSource, width, height):
+def pattern5(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
@@ -231,7 +217,7 @@ def pattern6(patternSource, width, height):
         patternSource.FillBox(0, width, lev + NUM_PIXELS/4, lev + NUM_PIXELS*3/4)
 
 
-def pattern7(patternSource, width, height):
+def pattern6(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
@@ -240,7 +226,7 @@ def pattern7(patternSource, width, height):
         patternSource.FillBox(lev + NUM_PIXELS/4, lev + NUM_PIXELS*3/4, 0, height)
 
 
-def pattern8(patternSource, width, height):
+def pattern7(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
@@ -250,7 +236,7 @@ def pattern8(patternSource, width, height):
                                   y, y + NUM_PIXELS/4)
 
 
-def pattern9(patternSource, width, height):
+def pattern8(patternSource, width, height):
     if patternSource is None:
         return None
     global NUM_PIXELS
@@ -260,6 +246,26 @@ def pattern9(patternSource, width, height):
                                   y, y + NUM_PIXELS*3/4)
             patternSource.FillBox(x + NUM_PIXELS*3/4, x + NUM_PIXELS,
                                   y, y + NUM_PIXELS*3/4)
+
+
+def pattern9(patternSource, width, height):
+    if patternSource is None:
+        return None
+    global NUM_PIXELS
+    for x in xrange(0, width, NUM_PIXELS):
+        for y in xrange(0, height, NUM_PIXELS):
+            patternSource.FillTube(x + NUM_PIXELS/8, y + NUM_PIXELS/8,
+                                   x + NUM_PIXELS*3/8, y + NUM_PIXELS*3/8,
+                                   NUM_PIXELS/8)
+            patternSource.FillTube(x + NUM_PIXELS*5/8, y + NUM_PIXELS*5/8,
+                                   x + NUM_PIXELS*7/8, y + NUM_PIXELS*7/8,
+                                   NUM_PIXELS/8)
+            patternSource.FillTube(x + NUM_PIXELS/8, y + NUM_PIXELS*7/8,
+                                   x + NUM_PIXELS*3/8, y + NUM_PIXELS*5/8,
+                                   NUM_PIXELS/8)
+            patternSource.FillTube(x + NUM_PIXELS*5/8, y + NUM_PIXELS*3/8,
+                                   x + NUM_PIXELS*7/8, y + NUM_PIXELS/8,
+                                   NUM_PIXELS/8)
 
 
 def pattern10(patternSource, width, height):
@@ -334,9 +340,24 @@ def pattern17(patternSource, width, height):
     global NUM_PIXELS
     for x in xrange(0, width, NUM_PIXELS):
         for y in xrange(0, height, NUM_PIXELS):
-            patternSource.FillTube(x, y + NUM_PIXELS/2,
-                                   x + NUM_PIXELS/2, y,
-                                   NUM_PIXELS/2)
+            patternSource.FillTriangle(x, y,
+                                       x + NUM_PIXELS/4, y,
+                                       x, y + NUM_PIXELS/4)
+            patternSource.FillTriangle(x, y + NUM_PIXELS,
+                                       x + NUM_PIXELS/4, y + NUM_PIXELS,
+                                       x, y + NUM_PIXELS*3/4)
+            patternSource.FillTriangle(x + NUM_PIXELS, y + NUM_PIXELS,
+                                       x + NUM_PIXELS*3/4, y + NUM_PIXELS,
+                                       x + NUM_PIXELS, y + NUM_PIXELS*3/4)
+            patternSource.FillTriangle(x + NUM_PIXELS, y,
+                                       x + NUM_PIXELS*3/4, y,
+                                       x + NUM_PIXELS, y + NUM_PIXELS/4)
+            patternSource.FillTriangle(x, y + NUM_PIXELS/2,
+                                       x + NUM_PIXELS/2, y + NUM_PIXELS,
+                                       x + NUM_PIXELS/2, y)
+            patternSource.FillTriangle(x + NUM_PIXELS, y + NUM_PIXELS/2,
+                                       x + NUM_PIXELS/2, y + NUM_PIXELS,
+                                       x + NUM_PIXELS/2, y)
 
 
 def pattern18(patternSource, width, height):
