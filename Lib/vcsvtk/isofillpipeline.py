@@ -194,8 +194,7 @@ class IsofillPipeline(Pipeline2D):
                                                         fillareastyle=self._gm.fillareastyle,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
-                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0,
-                                                        applystencil=True)
+                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0)
             if act is not None:
                 self._patternActors.append(act)
 
