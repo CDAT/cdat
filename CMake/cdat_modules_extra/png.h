@@ -1109,7 +1109,7 @@ PNG_EXPORT(16, void, png_write_chunk_data, (png_structp png_ptr,
 PNG_EXPORT(17, void, png_write_chunk_end, (png_structp png_ptr));
 
 /* Allocate and initialize the info structure */
-PNG_EXPORTA(18, png_infop, cg_png_create_info_struct, (png_structp png_ptr),
+PNG_EXPORTA(18, png_infop, png_create_info_struct, (png_structp png_ptr),
     PNG_ALLOCATED);
 
 PNG_EXPORT(19, void, png_info_init_3, (png_infopp info_ptr,
@@ -1585,7 +1585,7 @@ PNG_EXPORT(62, void, png_read_end, (png_structp png_ptr, png_infop info_ptr));
 #endif
 
 /* Free any memory associated with the png_info_struct */
-PNG_EXPORT(63, void, cg_png_destroy_info_struct, (png_structp png_ptr,
+PNG_EXPORT(63, void, png_destroy_info_struct, (png_structp png_ptr,
     png_infopp info_ptr_ptr));
 
 /* Free any memory associated with the png_struct and the png_info_structs */

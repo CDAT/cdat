@@ -185,7 +185,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
             throw Py::RuntimeError("Could not create write struct");
         }
 
-        info_ptr = @MATPLOTLIB_ADD_CG_PNG@png_create_info_struct(png_ptr);
+        info_ptr = png_create_info_struct(png_ptr);
         if (info_ptr == NULL)
         {
             throw Py::RuntimeError("Could not create info struct");

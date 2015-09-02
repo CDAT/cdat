@@ -753,7 +753,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
 )
 
 if (APPLE)
- if (NOT EXISTS /usr/X11R6/include/png.h)
+    if (NOT EXISTS "/usr/X11R6/include/png.h")
    configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/png.h
      ${cdat_EXTERNALS}/include
      )
@@ -763,7 +763,7 @@ if (APPLE)
    configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/pngconf.h
      ${cdat_EXTERNALS}/include
      )
-   set(MATPLOTLIB_ADD_CG_PNG "cg_")
+   message("[MATPLOTLIB] ${MATPLOTLIB_ADD_CG_PNG}")
  endif()
 endif()
 

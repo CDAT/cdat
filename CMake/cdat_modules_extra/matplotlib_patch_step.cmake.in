@@ -6,10 +6,19 @@ configure_file(
   @ONLY
 )
 
-configure_file(
-  "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib_png.cpp.in"
-  "@matplotlib_source_dir@/src/_png.cpp"
-  @ONLY
-)
+if (APPLE)
+ if (NOT EXISTS "/usr/X11R6/include/png.h")
+   set(MATPLOTLIB_ADD_CG_PNG "_cg_")
+    message("[MATPLOTLIB] configuring @matplotlib_source_dir@/src/_png.cpp")
+    message("[MATPLOTLIB] @MATPLOTLIB_ADD_CG_PNG@")
+    message("[MATPLOTLIB] ${MATPLOTLIB_ADD_CG_PNG}")
 
+    configure_file(
+      "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib_png.cpp.in"
+      "@matplotlib_source_dir@/src/_png.cpp"
+      @ONLY
+    )
+
+  endif()
+endif()
 set(ENV{LD_LIBRARY_PATH} "${INSTALL_DIR}/lib;$ENV{LD_LIBRARY_PATH}")
