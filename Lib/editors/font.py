@@ -9,6 +9,8 @@ class FontEditor(object):
         self.set_font = font_setter
 
         self.fonts = sorted(vcs.elements["font"].keys())
+        if current_font not in self.fonts:
+            current_font = "default"
         self.current_font = current_font
 
         def make_font_setter(font):
