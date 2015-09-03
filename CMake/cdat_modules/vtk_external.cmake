@@ -21,17 +21,12 @@ set(_vtk_modules
   vtkFiltersHybrid
   vtkFiltersImaging
   vtkFiltersModeling
-  vtkFiltersSMP
   vtkFiltersSelection
+  vtkFiltersSMP
   vtkFiltersSources
   vtkFiltersStatistics
   vtkFiltersTexture
   vtkGeovisCore
-  vtkIOCore
-  vtkIOExport
-  vtkIOGeometry
-  vtkIOImage
-  vtkIOImport
   vtkImagingColor
   vtkImagingCore
   vtkImagingGeneral
@@ -41,6 +36,11 @@ set(_vtk_modules
   vtkInteractionImage
   vtkInteractionStyle
   vtkInteractionWidgets
+  vtkIOCore
+  vtkIOExport
+  vtkIOGeometry
+  vtkIOImage
+  vtkIOImport
   vtkRenderingCore
   vtkRenderingFreeType
   vtkRenderingFreeTypeOpenGL

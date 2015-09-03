@@ -1,6 +1,10 @@
 
 # cdms2 tests
 
+cdat_add_test(cdms2_test_default_fill_value_not_nan
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/cdms2/test_default_fill_value_not_nan.py
+  )
 cdat_add_test("test_ascontiguous_regrid_nan_issue"
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/cdms2/test_ascontiguous_regrid_nan_issue.py
@@ -9,10 +13,13 @@ cdat_add_test("test_dim_unlimited"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/test_dim_unlimited.py
     TestCDATLite)
-  cdat_add_test("CDMS_Test_Zonal_regrid_Switch_to_Regrid2"
+cdat_add_test("CDMS_Test_Zonal_regrid_Switch_to_Regrid2"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/test_regrid_zonal_switch_to_regrid2.py)
-
+cdat_add_test("cdms2_test_createcopy_lose_dtype"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/cdms2_test_createcopy_lose_dtype.py
+  )
 cdat_add_test("CDMS_Test_01"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/cdtest01.py)

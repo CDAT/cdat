@@ -6,7 +6,7 @@
 # a set of aliases for that trail (to replace filenames for example)
 # the filename of the image to compare against
 
-# set upuvcdat run time environment
+# setup uvcdat run time environment
 . @CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh
 
 # play back the requested vistrail and make an image

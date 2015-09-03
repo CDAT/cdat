@@ -924,10 +924,12 @@ class CdmsFile(CdmsObj, cuDataset):
                                 'dictdict',
                                 'default_variable_name',
                                 'id',
+                                'uri',
                                 'parent',
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
+        self.uri="file://"+path
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":

@@ -132,6 +132,9 @@ class AbstractVariable(CdmsObj, Slab):
         self._grid_ = None      # Variable grid, if any
         if not hasattr(self,'missing_value'):
             self.missing_value = None
+        elif numpy.isnan(self.missing_value):
+          self.missing_value = None
+
         # Reminder: children to define self.shape and set self.id
 
     def __array__ (self, t=None, context=None):  #Numeric, ufuncs call this
