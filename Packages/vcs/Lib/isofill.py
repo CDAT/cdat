@@ -612,7 +612,7 @@ Class: Gfi				# Isofill
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'
-            self._fillareaindices = None
+            self._fillareaindices = [1, ]
             self._fillareacolors = [1, ]
             self._fillareaopacity = []
             self._levels = ([1.0000000200408773e+20, 1.0000000200408773e+20],)
