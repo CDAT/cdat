@@ -67,7 +67,7 @@ private:
 
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+    PyObject* py_file_obj = (PyObject*)_cg_png_get_io_ptr(png_ptr);
     PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
     PyObject* result = NULL;
     if (write_method)
@@ -86,7 +86,7 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
 
 static void flush_png_data(png_structp png_ptr)
 {
-    PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+    PyObject* py_file_obj = (PyObject*)_cg_png_get_io_ptr(png_ptr);
     PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
     PyObject* result = NULL;
     if (flush_method)
@@ -179,13 +179,13 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
             row_pointers[row] = pixBuffer + row * width * 4;
         }
 
-        png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+        png_ptr = _cg_png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
         if (png_ptr == NULL)
         {
             throw Py::RuntimeError("Could not create write struct");
         }
 
-        info_ptr = png_create_info_struct(png_ptr);
+        info_ptr = _cg_png_create_info_struct(png_ptr);
         if (info_ptr == NULL)
         {
             throw Py::RuntimeError("Could not create info struct");
@@ -202,10 +202,10 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         }
         else
         {
-            png_set_write_fn(png_ptr, (void*)py_file,
+            _cg_png_set_write_fn(png_ptr, (void*)py_file,
                              &write_png_data, &flush_png_data);
         }
-        png_set_IHDR(png_ptr, info_ptr,
+        _cg_png_set_IHDR(png_ptr, info_ptr,
                      width, height, 8,
                      PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
                      PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
@@ -215,7 +215,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         {
             double dpi = Py::Float(args[4]);
             size_t dots_per_meter = (size_t)(dpi / (2.54 / 100.0));
-            png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
+            _cg_png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
         }
 
         // this a a color image!
@@ -225,17 +225,17 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         sig_bit.blue = 8;
         /* if the image has an alpha channel then */
         sig_bit.alpha = 8;
-        png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+        //png_set_sBIT(png_ptr, info_ptr, &sig_bit);
 
-        png_write_info(png_ptr, info_ptr);
+        _cg_png_write_info(png_ptr, info_ptr);
         png_write_image(png_ptr, row_pointers);
-        png_write_end(png_ptr, info_ptr);
+        _cg_png_write_end(png_ptr, info_ptr);
     }
     catch (...)
     {
         if (png_ptr && info_ptr)
         {
-            png_destroy_write_struct(&png_ptr, &info_ptr);
+            _cg_png_destroy_write_struct(&png_ptr, &info_ptr);
         }
         delete [] row_pointers;
 
@@ -251,14 +251,14 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
             mpl_PyFile_CloseFile(py_file);
             Py_DECREF(py_file);
         }
-        /* Changed calls to png_destroy_write_struct to follow
+        /* Changed calls to _cg_png_destroy_write_struct to follow
            http://www.libpng.org/pub/png/libpng-manual.txt.
            This ensures the info_ptr memory is released.
         */
         throw;
     }
 
-    png_destroy_write_struct(&png_ptr, &info_ptr);
+    _cg_png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
     if (close_dup_file)
     {
@@ -303,7 +303,7 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
 
 static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+    PyObject* py_file_obj = (PyObject*)_cg_png_get_io_ptr(png_ptr);
     _read_png_data(py_file_obj, data, length);
 }
 
@@ -365,19 +365,19 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
 
     /* initialize stuff */
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_structp png_ptr = _cg_png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
     if (!png_ptr)
     {
         throw Py::RuntimeError(
-            "_image_module::readpng:  png_create_read_struct failed");
+            "_image_module::readpng:  _cg_png_create_read_struct failed");
     }
 
-    png_infop info_ptr = png_create_info_struct(png_ptr);
+    png_infop info_ptr = _cg_png_create_info_struct(png_ptr);
     if (!info_ptr)
     {
         throw Py::RuntimeError(
-            "_image_module::readpng:  png_create_info_struct failed");
+            "_image_module::readpng:  _cg_png_create_info_struct failed");
     }
 
     if (setjmp(png_jmpbuf(png_ptr)))
@@ -392,15 +392,15 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
     else
     {
-        png_set_read_fn(png_ptr, (void*)py_file, &read_png_data);
+        _cg_png_set_read_fn(png_ptr, (void*)py_file, &read_png_data);
     }
     png_set_sig_bytes(png_ptr, 8);
-    png_read_info(png_ptr, info_ptr);
+    _cg_png_read_info(png_ptr, info_ptr);
 
-    png_uint_32 width = png_get_image_width(png_ptr, info_ptr);
-    png_uint_32 height = png_get_image_height(png_ptr, info_ptr);
+    png_uint_32 width = _cg_png_get_image_width(png_ptr, info_ptr);
+    png_uint_32 height = _cg_png_get_image_height(png_ptr, info_ptr);
 
-    int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+    int bit_depth = _cg_png_get_bit_depth(png_ptr, info_ptr);
 
     // Unpack 1, 2, and 4-bit images
     if (bit_depth < 8)
@@ -408,8 +408,9 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
 
     // If sig bits are set, shift data
     png_color_8p sig_bit;
-    if ((png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_PALETTE) &&
-        png_get_sBIT(png_ptr, info_ptr, &sig_bit))
+    if ((_cg_png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_PALETTE) // &&
+//        png_get_sBIT(png_ptr, info_ptr, &sig_bit)
+//        )
     {
         png_set_shift(png_ptr, sig_bit);
     }
@@ -421,20 +422,20 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
 
     // Convert palletes to full RGB
-    if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
+    if (_cg_png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
     {
-        png_set_palette_to_rgb(png_ptr);
+        _cg_png_set_palette_to_rgb(png_ptr);
         bit_depth = 8;
     }
 
     // If there's an alpha channel convert gray to RGB
-    if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA)
+    if (_cg_png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA)
     {
         png_set_gray_to_rgb(png_ptr);
     }
 
-    png_set_interlace_handling(png_ptr);
-    png_read_update_info(png_ptr, info_ptr);
+    _cg_png_set_interlace_handling(png_ptr);
+    _cg_png_read_update_info(png_ptr, info_ptr);
 
     /* read file */
     if (setjmp(png_jmpbuf(png_ptr)))
@@ -448,7 +449,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
 
     for (row = 0; row < height; row++)
     {
-        row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
+        row_pointers[row] = new png_byte[_cg_png_get_rowbytes(png_ptr,info_ptr)];
     }
 
     png_read_image(png_ptr, row_pointers);
@@ -456,11 +457,11 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     npy_intp dimensions[3];
     dimensions[0] = height;  //numrows
     dimensions[1] = width;   //numcols
-    if (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_ALPHA)
+    if (_cg_png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_ALPHA)
     {
         dimensions[2] = 4;     //RGBA images
     }
-    else if (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_COLOR)
+    else if (_cg_png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_COLOR)
     {
         dimensions[2] = 3;     //RGB images
     }
@@ -469,7 +470,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
         dimensions[2] = 1;     //Greyscale images
     }
     //For gray, return an x by y array, not an x by y by 1
-    int num_dims  = (png_get_color_type(png_ptr, info_ptr)
+    int num_dims  = (_cg_png_get_color_type(png_ptr, info_ptr)
                                 & PNG_COLOR_MASK_COLOR) ? 3 : 2;
 
     PyArrayObject *A = NULL;
@@ -568,11 +569,11 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
 
     //free the png memory
-    png_read_end(png_ptr, info_ptr);
+    _cg_png_read_end(png_ptr, info_ptr);
 #ifndef png_infopp_NULL
-    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    _cg_png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 #else
-    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+    _cg_png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
 #endif
     if (close_dup_file)
     {
