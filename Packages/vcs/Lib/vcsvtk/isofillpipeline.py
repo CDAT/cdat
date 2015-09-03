@@ -14,6 +14,9 @@ class IsofillPipeline(Pipeline2D):
     def __init__(self, context_):
         super(IsofillPipeline, self).__init__(context_)
 
+        self._patternTextures = None
+        self._patternMappers = None
+
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
@@ -135,6 +138,8 @@ class IsofillPipeline(Pipeline2D):
         cots = []
         geos = []
         mappers = []
+        self._patternTextures = []
+        self._patternMappers = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
@@ -160,6 +165,108 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetScalarRange(0, len(l) - 1)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
+
+            bounds = cot.GetOutput().GetBounds()
+            xres = 2*int(bounds[1] - bounds[0])
+            yres = 2*int(bounds[3] - bounds[2])
+            numPatternLevels = 10
+            res = min(xres, yres)
+            patternLevels = range(0, max(xres, yres) + res,
+                                  res/numPatternLevels)
+
+            patternSource = vtk.vtkImageCanvasSource2D()
+            patternSource.SetScalarTypeToUnsignedChar()
+            patternSource.SetExtent(0, xres, 0, yres, 0, 0)
+            patternSource.SetNumberOfScalarComponents(3)
+            patternSource.SetDrawColor(255, 255, 255)
+            patternSource.FillBox(0, xres, 0, yres)
+#            if self._gm.fillareastyle == 'hatch':
+#                r, g, b = self._colorMap.index[tmpColors[i][0]]
+#                patternSource.SetDrawColor(r, g, b)
+#            else:
+            patternSource.SetDrawColor(0, 0, 0)
+            for lev in patternLevels:
+                patternSource.DrawSegment(0, lev, lev, 0)
+            patternSource.Update()
+
+            patternPlane = vtk.vtkPlaneSource()
+            patternPlane.SetCenter(cot.GetOutput().GetCenter())
+            patternPlane.SetNormal(0.0, 0.0, -1.0)
+            patternPlane.SetOrigin(bounds[0], bounds[2], 0.0)
+            patternPlane.SetPoint1(bounds[0], bounds[3], 0.0)
+            patternPlane.SetPoint2(bounds[1], bounds[2], 0.0)
+            patternPlane.Update()
+            textureMap = vtk.vtkTextureMapToPlane()
+            textureMap.SetInputConnection(patternPlane.GetOutputPort())
+            textureMap.Update()
+            patternPd = textureMap.GetOutput()
+
+            planeMapper = vtk.vtkPolyDataMapper()
+            planeMapper.SetInputData(patternPd)
+            self._patternMappers.append(planeMapper)
+
+            #  Now, extrude the contour
+#            ct = vtk.vtkContourFilter()
+#            ct.SetInputData(self._vtkPolyDataFilter.GetOutput())
+#            ct.SetNumberOfContours(len(l))
+#            for j, v in enumerate(l):
+#                ct.SetValue(j, v)
+#            stripper = vtk.vtkStripper()
+#            stripper.SetInputConnection(ct.GetOutputPort())
+#            cotpd = vtk.vtkPolyData()
+#            cotpd.DeepCopy(cot.GetOutput())
+#            scal = vtk.vtkUnsignedCharArray()
+#            scal.SetNumberOfComponents(1)
+#            scal.SetNumberOfTuples(cotpd.GetNumberOfPoints())
+#            scal.FillComponent(0, 255)
+#            cotpd.GetPointData().SetScalars(scal)
+            extruder = vtk.vtkLinearExtrusionFilter()
+            extruder.SetInputConnection(cot.GetOutputPort())
+            extruder.SetScaleFactor(1.0)
+            extruder.SetVector(0, 0, 1)
+            extruder.SetExtrusionTypeToNormalExtrusion()
+            vtp = vtk.vtkXMLPolyDataWriter()
+            vtp.SetInputConnection(extruder.GetOutputPort())
+            vtp.SetFileName("test.vtp")
+            vtp.Write()
+
+            pol2stenc = vtk.vtkPolyDataToImageStencil()
+            pol2stenc.SetTolerance(0)
+            pol2stenc.SetInputConnection(extruder.GetOutputPort())
+            pol2stenc.SetOutputOrigin(bounds[0], bounds[2], 0.0)
+            pol2stenc.SetOutputSpacing((bounds[1] - bounds[0]) / xres,
+                                       (bounds[3] - bounds[2]) / yres,
+                                       0.0)
+            pol2stenc.SetOutputWholeExtent(patternSource.GetOutput().GetExtent())
+#            im = vtk.vtkImageData()
+#            im.SetOrigin(patternSource.GetOutput().GetOrigin())
+#            im.SetSpacing(patternSource.GetOutput().GetSpacing())
+#            im.SetDimensions(patternSource.GetOutput().GetDimensions())
+#            im.AllocateScalars(vtk.VTK_UNSIGNED_CHAR, 1)
+#            c = im.GetNumberOfPoints()
+#            for i in range(c):
+#                im.GetPointData().GetScalars().SetTuple(i, [255])
+
+            stenc = vtk.vtkImageStencil()
+            stenc.SetInputConnection(patternSource.GetOutputPort())
+#            stenc.SetInputData(im)
+            stenc.SetStencilConnection(pol2stenc.GetOutputPort())
+            stenc.ReverseStencilOff()
+            stenc.SetBackgroundValue(255)
+
+            imw = vtk.vtkXMLImageDataWriter()
+            imw.SetInputConnection(stenc.GetOutputPort())
+            imw.SetFileName("stencil.vti")
+            imw.Write()
+
+            w = vtk.vtkPNGWriter()
+            w.SetFileName("t.png")
+            w.SetInputConnection(stenc.GetOutputPort())
+            w.Write()
+
+            patternTexture = vtk.vtkTexture()
+            patternTexture.SetInputConnection(stenc.GetOutputPort())
+            self._patternTextures.append(patternTexture)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
@@ -227,6 +334,18 @@ class IsofillPipeline(Pipeline2D):
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
+
+        for ind, mapper in enumerate(self._patternMappers):
+            act = vtk.vtkActor()
+            act.SetMapper(mapper)
+            act.SetTexture(self._patternTextures[ind])
+            self._context.fitToViewport(
+                act, [self._template.data.x1, self._template.data.x2,
+                      self._template.data.y1, self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=True)
+            actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
 
