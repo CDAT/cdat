@@ -48,8 +48,8 @@ CDMS_INCLUDE_PP='no'     # Met Office PP format is built in to cdunif.
 #     If you set x11libdir (that is two ones and an el) AND x11include to point
 #     to the lib and include directories, they will be used.
 #     Otherwise a search is made for common locations.
-x11libdir=''
-x11include=''
+x11libdir='/opt/X11/lib'
+x11include='/opt/X11/include'
 
 #  List of math libraries
 #    We attempt to get the C math libraries right but if we don't fix it.
