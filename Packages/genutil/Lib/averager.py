@@ -185,19 +185,22 @@ def area_weights(ds,axisoptions=None):
         if __DEBUG__: print 'Returning something of order', result.getOrder()
         return result
     else:
-        wt = __myGetAxisWeights(ds, 0, axisoptions)
-        if __DEBUG__: print 'Initial', wt.shape
-        for i in range(1, len(ds.shape)):
-            wt_newshape = tuple(list(ds.shape)[:i+1])
-            if __DEBUG__: print 'wt_newshape = ', wt_newshape
-            wt = numpy.resize(wt, wt_newshape)
-            if __DEBUG__: print 'After wt resize wt.shape = ', wt.shape
-            newaxiswt = __myGetAxisWeights(ds, i)
-            newaxiswt = numpy.resize(newaxiswt, wt.shape)
-            wt = wt * newaxiswt
-            if __DEBUG__: print 'After axis ', i, ' wt has shape ', wt.shape
+        diag = {'srcAreaFractions':None, 'srcAreas':None, 'dstAreas':None} ; # Create dictionary, with additional keys for function to return
+        dummy=ds.regrid(ds.getGrid(),regridTool='esmf',regridMethod='conserve',diag=diag)
+        wt = numpy.array(diag.get('srcAreas'))
+        #wt = __myGetAxisWeights(ds, 0, axisoptions)
+        #if __DEBUG__: print 'Initial', wt.shape
+        #for i in range(1, len(ds.shape)):
+        #    wt_newshape = tuple(list(ds.shape)[:i+1])
+        #    if __DEBUG__: print 'wt_newshape = ', wt_newshape
+        #    wt = numpy.resize(wt, wt_newshape)
+        #    if __DEBUG__: print 'After wt resize wt.shape = ', wt.shape
+        #    newaxiswt = __myGetAxisWeights(ds, i)
+        #    newaxiswt = numpy.resize(newaxiswt, wt.shape)
+        #    wt = wt * newaxiswt
+        #    if __DEBUG__: print 'After axis ', i, ' wt has shape ', wt.shape
         # end of for i in range(2, len(ds.shape)):
-        if __DEBUG__: print 'Final Shape of Weight = ', wt.shape
+        #if __DEBUG__: print 'Final Shape of Weight = ', wt.shape
         return cdms2.createVariable(numpy.ma.masked_array(wt, numpy.ma.getmask(ds)), axes=ds.getAxisList())
     # end of if seenlat and seenlon:
 
