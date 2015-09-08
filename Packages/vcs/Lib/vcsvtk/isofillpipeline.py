@@ -93,6 +93,7 @@ class IsofillPipeline(Pipeline2D):
         tmpOpacities = []
         indices = self._gm.fillareaindices
         opacities = self._gm.fillareaopacity
+        style = self._gm.fillareastyle
         if indices is None:
             indices = [1]
         while len(indices) < len(self._contourColors):
@@ -113,7 +114,7 @@ class IsofillPipeline(Pipeline2D):
 
         if len(opacities) < len(self._contourColors) - 1:
             # fill up the opacity values
-            if self._gm.fillareastyle == 'pattern':
+            if style == 'pattern':
                 opacities += [0] * (len(self._contourColors) - len(opacities))
             else:
                 opacities += [100] * (len(self._contourColors) - len(opacities))
@@ -132,7 +133,8 @@ class IsofillPipeline(Pipeline2D):
                 O = opacities[i]
             else:
                 if l[0] == L[-1] and I == indices[i] and\
-                        C[-1] == self._contourColors[i] and O == opacities[i]:
+                        ((style == 'solid') or
+                            (C[-1] == self._contourColors[i] and O == opacities[i])):
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -177,7 +179,7 @@ class IsofillPipeline(Pipeline2D):
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
                 r, g, b = self._colorMap.index[color]
-                if self._gm.fillareastyle in ['solid', 'pattern']:
+                if style in ['solid', 'pattern']:
                     lut.SetTableValue(j, r / 100., g / 100., b / 100.,
                                       tmpOpacities[i] / 100.)
                 else:
@@ -191,7 +193,7 @@ class IsofillPipeline(Pipeline2D):
             # Since pattern creation requires a single color, assuming the first
             c = [val*255/100.0 for val in self._colorMap.index[tmpColors[i][0]]]
             act = fillareautils.make_patterned_polydata(cot.GetOutput(),
-                                                        fillareastyle=self._gm.fillareastyle,
+                                                        fillareastyle=style,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
                                                         fillareaopacity=tmpOpacities[i] * 255 / 100.0)
@@ -310,7 +312,7 @@ class IsofillPipeline(Pipeline2D):
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
                                            self._colorMap,
-                                           style=self._gm.fillareastyle,
+                                           style=style,
                                            index=self._gm.fillareaindices,
                                            opacity=opacities))
 
