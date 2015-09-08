@@ -11,8 +11,8 @@ class MeshfillPipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS meshfill plots."""
 
-    def __init__(self, context_):
-        super(MeshfillPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(MeshfillPipeline, self).__init__(gm, context_)
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -118,6 +118,7 @@ class MeshfillPipeline(Pipeline2D):
         mappers = []
         luts = []
         geos = []
+        _colorMap = self.getcolormap()
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
@@ -136,7 +137,7 @@ class MeshfillPipeline(Pipeline2D):
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b = self._colorMap.index[color]
+                r, g, b = _colorMap.index[color]
                 lut.SetTableValue(0, r / 100., g / 100., b / 100.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
@@ -288,7 +289,7 @@ class MeshfillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self._colorMap))
+                                           self.getcolormap()))
 
         if self._context().canvas._continents is None:
             self._useContinents = False

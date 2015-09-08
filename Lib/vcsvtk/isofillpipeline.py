@@ -11,8 +11,8 @@ class IsofillPipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isofill plots."""
 
-    def __init__(self, context_):
-        super(IsofillPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsofillPipeline, self).__init__(gm, context_)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -134,6 +134,7 @@ class IsofillPipeline(Pipeline2D):
         luts = []
         cots = []
         mappers = []
+        _colorMap = self.getcolormap()
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
@@ -152,7 +153,7 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                r, g, b = self._colorMap.index[color]
+                r, g, b = _colorMap.index[color]
                 lut.SetTableValue(j, r / 100., g / 100., b / 100.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
@@ -176,7 +177,7 @@ class IsofillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             lut.SetNumberOfTableValues(numLevels)
             for i in range(numLevels):
-                r, g, b = self._colorMap.index[self._contourColors[i]]
+                r, g, b = _colorMap.index[self._contourColors[i]]
                 lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
             mapper.SetLookupTable(lut)
@@ -262,7 +263,7 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self._colorMap))
+                                           self.getcolormap()))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
