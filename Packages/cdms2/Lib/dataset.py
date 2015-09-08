@@ -1695,7 +1695,11 @@ class CdmsFile(CdmsObj, cuDataset):
                 print err
                 pass
             try:
-                attributes['_FillValue']=var._FillValue
+                if fill_value is None:
+                    attributes['_FillValue']=var._FillValue
+                else:
+                    attributes['_FillValue']=fill_value
+                    attributes['missing_value']=fill_value
             except:
                 pass
             if attributes.has_key("name"):

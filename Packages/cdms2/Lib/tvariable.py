@@ -198,6 +198,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
         # Sync up missing_value attribute and the fill value.
         self.missing_value = fv
+        self._FillValue = fv
         if id is not None:
             if not isinstance(id,(unicode,str)): 
                 raise CDMSError, 'id must be a string'
