@@ -31,7 +31,7 @@ class Pipeline(object):
             _colorMap = \
                 _colorMap = self._context().canvas.getcolormapname()
         if _colorMap is None:
-            _colorMap = vcs.colormap
+            _colorMap = vcs._colorMap
         if isinstance(_colorMap, str):
             _colorMap = vcs.elements["colormap"][_colorMap]
         return _colorMap

@@ -47,8 +47,8 @@ class IPipeline2D(Pipeline):
         - _maskedDataMapper: The mapper used to render masked data.
     """
 
-    def __init__(self, context_):
-        super(IPipeline2D, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IPipeline2D, self).__init__(gm, context_)
 
         # TODO This should be replaced by getters that retrieve the info
         # needed, or document the members of the map somewhere. Much of this
@@ -57,7 +57,6 @@ class IPipeline2D(Pipeline):
         # reexecute visualization operations.
         self._resultDict = None
 
-        self._gm = None
         self._template = None
         self._originalData1 = None
         self._originalData2 = None
@@ -190,8 +189,9 @@ class Pipeline2D(IPipeline2D):
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
         color = getattr(self._gm, "missing", None)
+        _colorMap = self.getcolormap()
         if color is not None:
-            color = self._colorMap.index[color]
+            color = _colorMap.index[color]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
             self._data1, self._vtkDataSet, color, self._useCellScalars,
             deep=False)
