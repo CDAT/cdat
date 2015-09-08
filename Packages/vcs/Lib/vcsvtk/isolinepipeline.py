@@ -10,8 +10,8 @@ class IsolinePipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isoline plots."""
 
-    def __init__(self, context_):
-        super(IsolinePipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsolinePipeline, self).__init__(gm, context_)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -85,8 +85,7 @@ class IsolinePipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = self._context().canvas.getcolormapname()
-        cmap = vcs.elements["colormap"][cmap]
+        cmap = self.getcolormap()
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
             lut.SetTableValue(i, r / 100., g / 100., b / 100.)
@@ -138,14 +137,15 @@ class IsolinePipeline(Pipeline2D):
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
                                              self._context().renWin.GetSize(),
-                                             to, tt)
+                                             to, tt, cmap = cmap)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
             else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
                 vcs2vtk.prepTextProperty(tprop,
-                                         self._context().renWin.GetSize())
+                                         self._context().renWin.GetSize(),
+                                         cmap = cmap)
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops

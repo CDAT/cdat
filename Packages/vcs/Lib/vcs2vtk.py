@@ -897,11 +897,10 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(tt, str):
         tt = vcs.elements["texttable"][tt]
 
-    if cmap is None:
-        if tt.colormap is not None:
-            cmap = tt.colormap
-        else:
-            cmap = 'default'
+    if tt.colormap is not None:
+        cmap = tt.colormap
+    elif cmap is None:
+        cmap = vcs.colormap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
@@ -1031,11 +1030,10 @@ def prepFillarea(renWin, farea, cmap=None):
     actors = []
 
     # Find color map:
-    if cmap is None:
-        if farea.colormap is not None:
-            cmap = farea.colormap
-        else:
-            cmap = 'default'
+    if farea.colormap is not None:
+        cmap = farea.colormap
+    elif cmap is None:
+        cmap = vcs.colormap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
 
@@ -1288,11 +1286,10 @@ def prepGlyph(g, marker, index=0):
 
 def setMarkerColor(p, marker, c, cmap=None):
     # Color
-    if cmap is None:
-        if marker.colormap is not None:
-            cmap = marker.colormap
-        else:
-            cmap = 'default'
+    if marker.colormap is not None:
+        cmap = marker.colormap
+    elif cmap is None:
+        cmap = vcs.colormap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
@@ -1424,11 +1421,11 @@ def prepLine(renWin, line, cmap=None):
         p = a.GetProperty()
         p.SetLineWidth(w)
 
-        if cmap is None:
-            if line.colormap is not None:
-                cmap = line.colormap
-            else:
-                cmap = 'default'
+        if line.colormap is not None:
+            cmap = line.colormap
+        elif cmap is None:
+          cmap = vcs.colormap
+
         if isinstance(cmap, str):
             cmap = vcs.elements["colormap"][cmap]
         color = cmap.index[c]

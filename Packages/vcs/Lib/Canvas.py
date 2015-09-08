@@ -865,7 +865,7 @@ class Canvas(object):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
-        self.colormap = "default"
+        self.colormap = None
         self.backgroundcolor = 255, 255, 255
         # default size for bg
         self.bgX = 814

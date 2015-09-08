@@ -36,6 +36,8 @@ import install_vcs
 import os
 from manageElements import *  # noqa
 
+colormap = "default"
+
 _default_time_units = 'days since 2000'
 
 

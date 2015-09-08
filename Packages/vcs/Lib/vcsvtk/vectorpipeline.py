@@ -9,8 +9,8 @@ class VectorPipeline(Pipeline):
 
     """Implementation of the Pipeline interface for VCS vector plots."""
 
-    def __init__(self, context_):
-        super(VectorPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(VectorPipeline, self).__init__(gm, context_)
 
     def plot(self, data1, data2, tmpl, gm, grid, transform):
         """Overrides baseclass implementation."""
@@ -94,8 +94,7 @@ class VectorPipeline(Pipeline):
         act = vtk.vtkActor()
         act.SetMapper(mapper)
 
-        cmap = self._context().canvas.getcolormapname()
-        cmap = vcs.elements["colormap"][cmap]
+        cmap = self.getcolormap()
         r, g, b = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
