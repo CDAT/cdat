@@ -137,7 +137,7 @@ class IsolinePipeline(Pipeline2D):
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
                                              self._context().renWin.GetSize(),
-                                             to, tt, cmap = cmap)
+                                             to, tt, cmap=cmap)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
@@ -145,7 +145,7 @@ class IsolinePipeline(Pipeline2D):
                 tprop = vtk.vtkTextProperty()
                 vcs2vtk.prepTextProperty(tprop,
                                          self._context().renWin.GetSize(),
-                                         cmap = cmap)
+                                         cmap=cmap)
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops
