@@ -112,7 +112,7 @@ class IsofillPipeline(Pipeline2D):
                 % (len(self._contourLevels), len(self._contourColors),
                    self._gm.name, self._gm.g_name))
 
-        if len(opacities) < len(self._contourColors) - 1:
+        if len(opacities) < len(self._contourColors):
             # fill up the opacity values
             if style == 'pattern':
                 opacities += [0] * (len(self._contourColors) - len(opacities))
