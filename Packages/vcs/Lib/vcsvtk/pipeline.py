@@ -1,4 +1,5 @@
 import weakref
+import vcs
 
 
 class Pipeline(object):
@@ -27,11 +28,10 @@ class Pipeline(object):
     def getcolormap(self):
         _colorMap = self._gm.colormap
         if _colorMap is None:
-          _colorMap = \
-              _colorMap = self._context().canvas.getcolormapname()
+            _colorMap = \
+                _colorMap = self._context().canvas.getcolormapname()
         if _colorMap is None:
-          _colorMap = vcs.colormap
-        if isinstance(_colorMap,str):
-          _colorMap = vcs.elements["colormap"][_colorMap]
+            _colorMap = vcs.colormap
+        if isinstance(_colorMap, str):
+            _colorMap = vcs.elements["colormap"][_colorMap]
         return _colorMap
-

@@ -486,12 +486,12 @@ class VTKVCSBackend(object):
                     ren,
                     to=to,
                     tt=tt,
-                    cmap = self.canvas.colormap)
+                    cmap=self.canvas.colormap)
                 self.setLayer(ren, tt.priority)
         elif gtype == "line":
             if gm.priority != 0:
                 actors = vcs2vtk.prepLine(self.renWin, gm,
-                    cmap = self.canvas.colormap)
+                                          cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
                 for act, geo in actors:
                     ren = self.fitToViewport(
@@ -503,7 +503,7 @@ class VTKVCSBackend(object):
         elif gtype == "marker":
             if gm.priority != 0:
                 actors = vcs2vtk.prepMarker(self.renWin, gm,
-                    cmap = self.canvas.colormap)
+                                            cmap=self.canvas.colormap)
                 returned["vtk_backend_marker_actors"] = actors
                 for g, gs, pd, act, geo in actors:
                     ren = self.fitToViewport(
@@ -518,7 +518,7 @@ class VTKVCSBackend(object):
         elif gtype == "fillarea":
             if gm.priority != 0:
                 actors = vcs2vtk.prepFillarea(self.renWin, gm,
-                    cmap = self.canvas.colormap)
+                                              cmap=self.canvas.colormap)
                 returned["vtk_backend_fillarea_actors"] = actors
                 for act, geo in actors:
                     ren = self.fitToViewport(

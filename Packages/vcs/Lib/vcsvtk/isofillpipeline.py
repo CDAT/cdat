@@ -244,7 +244,8 @@ class IsofillPipeline(Pipeline2D):
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
                     # Ok we need to add the ext levels
-                    self._contourLevels.insert(0, [-1.e20, self._contourLevels[0][0]])
+                    self._contourLevels.insert(
+                        0, [-1.e20, self._contourLevels[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
                     # need to add an ext

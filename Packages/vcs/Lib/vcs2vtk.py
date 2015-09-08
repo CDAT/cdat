@@ -1424,7 +1424,7 @@ def prepLine(renWin, line, cmap=None):
         if line.colormap is not None:
             cmap = line.colormap
         elif cmap is None:
-          cmap = vcs.colormap
+            cmap = vcs.colormap
 
         if isinstance(cmap, str):
             cmap = vcs.elements["colormap"][cmap]
