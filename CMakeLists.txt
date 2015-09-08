@@ -16,9 +16,16 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
-# Helper variables to locate programs and libraries
-set(SB_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+if (APPLE)
+  set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+  set(SB_DIR "${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/2.7")
+else()
+  set(SB_DIR "${CMAKE_INSTALL_PREFIX}")
+  # Helper variables to locate programs and libraries
+  set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+endif()
+set(SB_LIB_DIR "${SB_DIR}/lib")
+set(SB_BIN_DIR "${SB_DIR}/bin")
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -812,9 +819,6 @@ set(CPACK_DESTINATION_LIB_PREFIX "UVCDAT/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "UVCDAT/bin")
 
 if (APPLE)
-  set(SB_EXTERNALS_DIR "Externals")
-  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
-
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
   set(CPACK_GENERATOR DragNDrop)
   set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
