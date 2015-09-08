@@ -243,6 +243,7 @@ class Gv(object):
         'alignment',
         'type',
         'reference',
+        'colormap',
         '_name',
         '_xaxisconvert',
         '_yaxisconvert',
@@ -268,7 +269,10 @@ class Gv(object):
         '_alignment',
         '_type',
         '_reference',
+        '_colormap',
     ]
+
+    colormap = VCS_validation_functions.colormap
 
     def _getname(self):
         return self._name
@@ -563,6 +567,7 @@ class Gv(object):
             self._reference = 1.e20
             self._datawc_timeunits = "days since 2000"
             self._datawc_calendar = 135441
+            self._colormap = None
         else:
             if isinstance(Gv_name_src, Gv):
                 Gv_name_src = Gv_name_src.name
@@ -577,7 +582,7 @@ class Gv(object):
                         'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert',
                         'line', 'linecolor', 'linewidth',
-                        'datawc_timeunits', 'datawc_calendar',
+                        'datawc_timeunits', 'datawc_calendar', 'colormap',
                         'scale', 'alignment', 'type', 'reference']:
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
@@ -695,13 +700,17 @@ class Gv(object):
             raise ValueError(
                 'Error - Mode can only be "w" for replace or "a" for append.')
 
-        # By default, save file in python script mode
-        scr_type = script_filename[
-            len(script_filename) -
-            4:len(script_filename)]
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type) == 1 or len(scr_type[-1]) > 5:
+            scr_type = "json"
+            if script_filename != "initial.attributes":
+                script_filename += ".json"
+        else:
+            scr_type = scr_type[-1]
         if scr_type == '.scr':
             raise DeprecationWarning("scr script are no longer generated")
-        else:
+        elif scr_type == "py":
             mode = mode + '+'
             py_type = script_filename[
                 len(script_filename) -
@@ -792,6 +801,16 @@ class Gv(object):
             fp.write("%s.alignment = '%s'\n" % (unique_name, self.alignment))
             fp.write("%s.type = '%s'\n" % (unique_name, self.type))
             fp.write("%s.reference = %s\n\n" % (unique_name, self.reference))
+            fp.write(
+                "%s.colormap = '%s'\n\n" %
+                (unique_name, repr(
+                    self.colormap)))
+        else:
+            # Json type
+            mode += "+"
+            f = open(script_filename, mode)
+            vcs.utils.dumpToJson(self, f)
+            f.close()
 
 
 ###############################################################################

@@ -900,7 +900,7 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if tt.colormap is not None:
         cmap = tt.colormap
     elif cmap is None:
-        cmap = vcs.colormap
+        cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
@@ -1033,7 +1033,7 @@ def prepFillarea(renWin, farea, cmap=None):
     if farea.colormap is not None:
         cmap = farea.colormap
     elif cmap is None:
-        cmap = vcs.colormap
+        cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
 
@@ -1289,7 +1289,7 @@ def setMarkerColor(p, marker, c, cmap=None):
     if marker.colormap is not None:
         cmap = marker.colormap
     elif cmap is None:
-        cmap = vcs.colormap
+        cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
@@ -1424,7 +1424,7 @@ def prepLine(renWin, line, cmap=None):
         if line.colormap is not None:
             cmap = line.colormap
         elif cmap is None:
-            cmap = vcs.colormap
+            cmap = vcs._colorMap
 
         if isinstance(cmap, str):
             cmap = vcs.elements["colormap"][cmap]

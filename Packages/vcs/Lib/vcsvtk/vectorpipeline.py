@@ -12,7 +12,7 @@ class VectorPipeline(Pipeline):
     def __init__(self, gm, context_):
         super(VectorPipeline, self).__init__(gm, context_)
 
-    def plot(self, data1, data2, tmpl, gm, grid, transform):
+    def plot(self, data1, data2, tmpl, grid, transform):
         """Overrides baseclass implementation."""
         # Preserve time and z axis for plotting these inof in rendertemplate
         geo = None  # to make flake8 happy
@@ -27,7 +27,7 @@ class VectorPipeline(Pipeline):
         data1 = self._context().trimData2D(data1)
         data2 = self._context().trimData2D(data2)
 
-        gridGenDict = vcs2vtk.genGridOnPoints(data1, gm, deep=False, grid=grid,
+        gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
                                               geo=transform)
         for k in ['vtk_backend_grid', 'xm', 'xM', 'ym', 'yM', 'continents',
                   'wrap', 'geo']:
@@ -49,7 +49,7 @@ class VectorPipeline(Pipeline):
         grid.GetPointData().AddArray(w)
 
         # Vector attempt
-        l = gm.line
+        l = self._gm.line
         if l is None:
             l = "default"
         try:
@@ -61,10 +61,10 @@ class VectorPipeline(Pipeline):
             lstyle = "solid"  # noqa
             lwidth = 1.  # noqa
             lcolor = 0
-        if gm.linewidth is not None:
-            lwidth = gm.linewidth  # noqa
-        if gm.linecolor is not None:
-            lcolor = gm.linecolor
+        if self._gm.linewidth is not None:
+            lwidth = self._gm.linewidth  # noqa
+        if self._gm.linecolor is not None:
+            lcolor = self._gm.linecolor
 
         arrow = vtk.vtkGlyphSource2D()
         arrow.SetGlyphTypeToArrow()
@@ -81,7 +81,7 @@ class VectorPipeline(Pipeline):
 
         # Scale to vector magnitude:
         glyphFilter.SetScaleModeToScaleByVector()
-        glyphFilter.SetScaleFactor(2. * gm.scale)
+        glyphFilter.SetScaleFactor(2. * self._gm.scale)
 
         # These are some unfortunately named methods. It does *not* clamp the
         # scale range to [min, max], but rather remaps the range
@@ -98,7 +98,7 @@ class VectorPipeline(Pipeline):
         r, g, b = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm, data1.getAxis(-1),
+        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm, data1.getAxis(-1),
                                                        data1.getAxis(-2))
 
         act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
@@ -109,12 +109,12 @@ class VectorPipeline(Pipeline):
                                       create_renderer=True)
 
         returned.update(
-            self._context().renderTemplate(tmpl, data1, gm, taxis, zaxis))
+            self._context().renderTemplate(tmpl, data1, self._gm, taxis, zaxis))
 
         if self._context().canvas._continents is None:
             continents = False
         if continents:
-            projection = vcs.elements["projection"][gm.projection]
+            projection = vcs.elements["projection"][self._gm.projection]
             self._context().plotContinents(x1, x2, y1, y2, projection,
                                            self._dataWrapModulo, tmpl)
 
