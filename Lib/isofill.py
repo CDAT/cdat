@@ -399,7 +399,7 @@ Class: Gfi				# Isofill
                 self,
                 'fillareacolors',
                 value)
-        self._fillareacolors = value
+            self._fillareacolors = value
     fillareacolors = property(_getfillareacolors, _setfillareacolors)
 
     def _getfillareaindices(self):
@@ -411,7 +411,7 @@ Class: Gfi				# Isofill
                 self,
                 'fillareaindices',
                 value)
-        self._fillareaindices = value
+            self._fillareaindices = value
     fillareaindices = property(_getfillareaindices, _setfillareaindices)
 
     def _getfillareastyle(self):
@@ -434,7 +434,7 @@ Class: Gfi				# Isofill
                 self,
                 'fillareaopacity',
                 value)
-        self._fillareaopacity = value
+            self._fillareaopacity = value
     fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
 
     ext_1 = VCS_validation_functions.ext_1
