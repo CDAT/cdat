@@ -80,7 +80,10 @@
    "fillareacolors": [
     1
    ], 
-   "fillareaindices": null, 
+   "fillareaindices": [
+    1
+   ], 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "levels": [
@@ -620,6 +623,7 @@
    "index": [
     1
    ], 
+   "opacity": [], 
    "priority": 1, 
    "projection": "default", 
    "style": [
