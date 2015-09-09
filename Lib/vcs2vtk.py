@@ -1022,6 +1022,20 @@ def prepPrimitive(prim):
         while len(v) < n:
             v.append(v[-1])
         setattr(prim, a, v)
+
+    # Handle fillarea opacity case, where the default will depend on the style
+    if vcs.isfillarea(prim):
+        o = getattr(prim, "opacity")
+        s = getattr(prim, "style")
+        assert(len(s) == n)
+        if not o:
+            o = []
+        while len(o) < n:
+            lastind = len(o) - 1
+            if s[lastind] == "pattern":
+                o.append(0)
+            else:
+                o.append(100)
     return n
 
 
