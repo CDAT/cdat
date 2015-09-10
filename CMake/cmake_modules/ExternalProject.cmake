@@ -156,6 +156,10 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# CMake policy usages
+cmake_policy(PUSH)
+cmake_policy(SET CMP0054 NEW)
+
 # Pre-compute a regex to match documented keywords for each command.
 math(EXPR _ep_documentation_line_count "${CMAKE_CURRENT_LIST_LINE} - 16")
 file(STRINGS "${CMAKE_CURRENT_LIST_FILE}" lines
@@ -1598,3 +1602,5 @@ function(ExternalProject_Add name)
   #
   _ep_add_test_command(${name})
 endfunction(ExternalProject_Add)
+
+cmake_policy(POP)
