@@ -7,6 +7,7 @@
 print 'Test 1: Dataset I/O ... ',
 
 import cdms2,numpy,string,os,sys
+cdms2.setNetcdfUseParallelFlag(0)
 from cdms2.variable import WriteNotImplemented
 from cdms2.avariable import NotImplemented
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError
@@ -58,9 +59,9 @@ v2 = v.subSlice(2)
 uout = out.write(u0)
 vout = out.write(v2, attributes=v.attributes, id='v', extend=1, index=2)
 out.write(u1,index=1)
-out.write(v0)
 out.write(u2)
 out.write(v1)
+out.write(v0)
 out.sync()
 tout = out.axes['time']
 try:
