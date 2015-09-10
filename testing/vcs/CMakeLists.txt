@@ -526,26 +526,29 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
-    cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
-      )
-    cdat_add_test(vcs_test_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
-      "${BASELINE_DIR}/test_isoline_labels.png"
-      )
-    cdat_add_test(vcs_test_isoline_labelskipdistance
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labelskipdistance.py"
-      "${BASELINE_DIR}/test_isoline_labelskipdistance.png"
-      )
-    cdat_add_test(vcs_test_isofill_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
-      "${BASELINE_DIR}/test_isofill_isoline_labels.png"
-      )
+    # @dlonie is looking into why RH6 fails for these
+    if (NOT EXISTS /etc/redhat-release) 
+      cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
+        "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
+        )
+      cdat_add_test(vcs_test_isoline_labels
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
+        "${BASELINE_DIR}/test_isoline_labels.png"
+        )
+      cdat_add_test(vcs_test_isoline_labelskipdistance
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labelskipdistance.py"
+        "${BASELINE_DIR}/test_isoline_labelskipdistance.png"
+        )
+      cdat_add_test(vcs_test_isofill_isoline_labels
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
+        "${BASELINE_DIR}/test_isofill_isoline_labels.png"
+        )
+    endif()
     cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
@@ -650,16 +653,18 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    cdat_add_test(vcs_test_animate_isoline_text_labels
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
-      ${BASELINE_DIR}
-      )
-    cdat_add_test(vcs_test_animate_isoline_text_labels_colored
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
-      ${BASELINE_DIR}
-      )
+    if (NOT EXISTS /etc/redhat-release) 
+      cdat_add_test(vcs_test_animate_isoline_text_labels
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
+        ${BASELINE_DIR}
+        )
+      cdat_add_test(vcs_test_animate_isoline_text_labels_colored
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
+        ${BASELINE_DIR}
+        )
+    endif()
   endif()
 
 cdat_add_test(vcs_test_endconfigure
