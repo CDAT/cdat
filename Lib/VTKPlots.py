@@ -54,6 +54,7 @@ class VTKVCSBackend(object):
         # Turn on anti-aliasing by default
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
+        self._rasterPropsInVectorFormats = False
 
         if renWin is not None:
             self.renWin = renWin
@@ -497,7 +498,8 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
         elif gtype == "marker":
             if gm.priority != 0:
                 actors = vcs2vtk.prepMarker(self.renWin, gm)
@@ -508,7 +510,8 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
                     if pd is None and act.GetUserTransform():
                         vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
 
@@ -522,12 +525,33 @@ class VTKVCSBackend(object):
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
-                        priority=gm.priority)
+                        priority=gm.priority,
+                        create_renderer=True)
         else:
             raise Exception(
                 "Graphic type: '%s' not re-implemented yet" %
                 gtype)
         self.scaleLogo()
+
+        # Decide whether to rasterize background in vector outputs
+        # Current criteria to rasterize:
+        #       * if fillarea style is either pattern or hatch
+        #       * if fillarea opacity is less than 100 for solid fill
+        try:
+            if gm.style and all(style != 'solid' for style in gm.style):
+                self._rasterPropsInVectorFormats = True
+            elif gm.opacity and not all(o == 100 for o in gm.opacity):
+                self._rasterPropsInVectorFormats = True
+        except:
+            pass
+        try:
+            if gm.fillareastyle in ['pattern', 'hatch']:
+                self._rasterPropsInVectorFormats = True
+            elif not all(o == 100 for o in gm.fillareaopacity):
+                self._rasterPropsInVectorFormats = True
+        except:
+            pass
+
         if not kargs.get("donotstoredisplay", False) and kargs.get(
                 "render", True):
             self.renWin.Render()
@@ -725,14 +749,18 @@ class VTKVCSBackend(object):
                 pass
         return returned
 
-    def renderColorBar(self, tmpl, levels, colors, legend, cmap):
+    def renderColorBar(self, tmpl, levels, colors, legend, cmap,
+                       style=['solid'], index=[1], opacity=[]):
         if tmpl.legend.priority > 0:
             tmpl.drawColorBar(
                 colors,
                 levels,
                 x=self.canvas,
                 legend=legend,
-                cmap=cmap)
+                cmap=cmap,
+                style=style,
+                index=index,
+                opacity=opacity)
         return {}
 
     def cleanupData(self, data):
@@ -873,6 +901,11 @@ class VTKVCSBackend(object):
         # Since the vcs layer stacks renderers to manually order primitives, sorting
         # is not needed and will only slow things down and introduce artifacts.
         gl.SetSortToOff()
+
+        # Since the patterns are applied as textures on vtkPolyData, enabling
+        # background rasterization is required to write them out
+        if self._rasterPropsInVectorFormats:
+            gl.Write3DPropsAsRasterImageOn()
 
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
