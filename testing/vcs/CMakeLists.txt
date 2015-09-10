@@ -518,6 +518,7 @@ cdat_add_test(vcs_test_taylor_2_quads
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+
     cdat_add_test(vcs_test_isoline_numpy
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
@@ -556,7 +557,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
       )
-    cdat_add_test(vcs_test_${gm}_patterns
+    cdat_add_test(vcs_test_patterns
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
       "${BASELINE_DIR}/test_vcs_patterns.png"
@@ -595,6 +596,21 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1_ext2.png"
+      )
+    cdat_add_test(vcs_test_isofill_patterns
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_isofill_patterns.py
+      "${BASELINE_DIR}/test_isofill_patterns.png"
+      )
+    cdat_add_test(vcs_test_isofill_hatches
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_isofill_hatches.py
+      "${BASELINE_DIR}/test_isofill_hatches.png"
+      )
+    cdat_add_test(vcs_test_hatches_patterns
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hatches_patterns.py
+      "${BASELINE_DIR}/test_vcs_hatches_patterns.png"
       )
 
     FOREACH(flip None X XY Y)
