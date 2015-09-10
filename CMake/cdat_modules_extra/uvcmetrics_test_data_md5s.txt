@@ -1,4 +1,4 @@
-# File generated with: md5sum `ls -a */*nc ` > md5s.txt
+File generated with: md5sum `ls -a */*nc ` > md5s.txt
 82848263d3f9032b41bc02f758cb0bed  acme_hires_land/c_t_t341f02.F1850p.clm2.h0.1850-01.nc
 09c2f48312305fef59ee571fe1c3a84a  acme_hires_land/c_t_t341f02.F1850p.clm2.h0.1850-02.nc
 3274cb2d7cccffac20059f564a97998e  acme_hires_land/c_t_t341f02.F1850p.clm2.h0.1850-03.nc
@@ -146,7 +146,10 @@ d8e3dd773ac3be993ba8801e5623b4d0  cam_output/c_t_b30.009.cam2.h0.0601-09.nc
 b674e343d51edf8524714fe5f9b4ee3e  cam_output/c_t_b30.009.cam2.h0.0601-10.nc
 a142e0dfba3f7ba99df8eb688804660c  cam_output/c_t_b30.009.cam2.h0.0601-11.nc
 c65663cfcbf1881ee62bf8fda3e083d1  cam_output/c_t_b30.009.cam2.h0.0601-12.nc
-10ade4184d6fe3e4aed590341063a473  model_data_12/f.e11.F2000C5.f09_f09.control.001.cam.h0.T_only_0001-01.nc
+10ade4184d6fe3e4aed590341063a473  model_data_12/f.e11.F2000C5.f09_f09.control.001.cam.h0.0001_T_only-01.nc
+d27028f7cecb02c586cb05f6a3df0c02  model_data_12/f.e11.F2000C5.f09_f09.control.001.cam.h0.0001_T_only-04.nc
+448379c687b1ab9f3a5c4bb76f2fe2ba  model_data_12/f.e11.F2000C5.f09_f09.control.001.cam.h0.0001_T_only-07.nc
+89f566690698c1cff614382ff30b66b0  model_data_12/f.e11.F2000C5.f09_f09.control.001.cam.h0.0001_T_only-10.nc
 e241fc465279e7126e0e59789d9baedf  obs/NCEP_01_climo.nc
 cd1f8016b4f575c4b2a08a69c78b041a  obs/NCEP_02_climo.nc
 fae4c3bfa51707a9329b274e8de3633e  obs/NCEP_03_climo.nc
