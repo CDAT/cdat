@@ -158,7 +158,11 @@
 
 # CMake policy usages
 cmake_policy(PUSH)
-cmake_policy(SET CMP0054 NEW)
+
+# 0054 introduced in v3.1 only
+if (POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
 
 # Pre-compute a regex to match documented keywords for each command.
 math(EXPR _ep_documentation_line_count "${CMAKE_CURRENT_LIST_LINE} - 16")
