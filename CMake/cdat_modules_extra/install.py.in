@@ -88,7 +88,11 @@ def configure (configuration_files):
                                            os.path.join(os.environ['EXTERNALS'],'include')))
     
     #hdf5_library_directory = norm(os.path.join(os.environ.get('HDF5LOC',os.path.join(os.environ["EXTERNALS"])), 'lib'))
-    cdunif_library_directories = [cdms_library_directory,"/usr/X11R6/lib"]
+    if (sys.platform in ['mac',]):
+        cdunif_library_directories = [cdms_library_directory,"/usr/X11R6/lib"]
+    else:
+        cdunif_library_directories = [cdms_library_directory]
+
     options['CDMS_INCLUDE_DAP']="yes"
 ##     if options.get('CDMS_INCLUDE_DAP','no')=='yes':
 ##         netcdf_include_directory=norm(os.path.join(options['CDMS_DAP_DIR'],'include','libnc-dap'))
