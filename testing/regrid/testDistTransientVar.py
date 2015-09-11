@@ -1,3 +1,4 @@
+import pdb
 import cdat_info
 import cdms2
 from distarray.mvCubeDecomp import CubeDecomp
@@ -80,7 +81,6 @@ class TestDistTransientVar(unittest.TestCase):
         # make halo available to other procs
         numGhosts = 1
         clt.exposeHalo(ghostWidth = numGhosts)
-
         # find the procs to the north, east, south, and west
         noProc = min(ipLat + 1, npLat - 1)*npLon + ipLon + 0
         soProc = max(ipLat - 1, 0        )*npLon + ipLon + 0
@@ -282,6 +282,7 @@ class TestDistTransientVar(unittest.TestCase):
         
 if __name__ == '__main__':
     print "" # Spacer
+    cdms2.setNetcdfUseParallelFlag(0)
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDistTransientVar)
     unittest.TextTestRunner(verbosity = 1).run(suite)
     pylab.show()
