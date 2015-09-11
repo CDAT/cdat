@@ -736,11 +736,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/link_python.sh.in
-  ${cdat_BINARY_DIR}/link_python.sh
-  @ONLY
-)
-
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
@@ -797,7 +792,6 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 set(CPACK_RPM_PACAKGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
-set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${cdat_BINARY_DIR}/link_python.sh")
 set(CPACK_DESTINATION_BIN_PREFIX "bin")
 
 if (APPLE)
