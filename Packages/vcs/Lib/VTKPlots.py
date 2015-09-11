@@ -232,15 +232,15 @@ class VTKVCSBackend(object):
             parg.append(d.g_type)
             parg.append(d.g_name)
             plots_args.append(parg)
+            key = {"display_name": dnm}
             if d.ratio is not None:
-                key_args.append({"ratio": d.ratio})
-            else:
-                key_args.append({})
+                key["ratio"] = d.ratio
+            key_args.append(key)
 
         # Have to pull out the UI layer so it doesn't get borked by the clear
         self.hideGUI()
 
-        self.canvas.clear(render=False)
+        self.canvas.clear(render=False, preserve_display=True)
 
         for i, pargs in enumerate(plots_args):
             self.canvas.plot(*pargs, render=False, **key_args[i])
