@@ -189,7 +189,7 @@ class Pipeline2D(IPipeline2D):
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
         color = getattr(self._gm, "missing", None)
-        _colorMap = self.getcolormap()
+        _colorMap = self.getColorMap()
         if color is not None:
             color = _colorMap.index[color]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
