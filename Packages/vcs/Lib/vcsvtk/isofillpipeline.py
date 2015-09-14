@@ -193,7 +193,7 @@ class IsofillPipeline(Pipeline2D):
             mappers.append(mapper)
 
             # Since pattern creation requires a single color, assuming the first
-            c = [val*255/100.0 for val in self._colorMap.index[tmpColors[i][0]]]
+            c = [val*255/100.0 for val in _colorMap.index[tmpColors[i][0]]]
             act = fillareautils.make_patterned_polydata(cot.GetOutput(),
                                                         fillareastyle=style,
                                                         fillareaindex=tmpIndices[i],
