@@ -118,7 +118,7 @@ class MeshfillPipeline(Pipeline2D):
         mappers = []
         luts = []
         geos = []
-        _colorMap = self.getcolormap()
+        _colorMap = self.getColorMap()
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
@@ -289,7 +289,7 @@ class MeshfillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self.getcolormap()))
+                                           self.getColorMap()))
 
         if self._context().canvas._continents is None:
             self._useContinents = False

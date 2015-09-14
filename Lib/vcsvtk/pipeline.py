@@ -25,7 +25,7 @@ class Pipeline(object):
     def plot(self, data1, data2, template, graphics_method, grid, transform):
         raise NotImplementedError("Missing override.")
 
-    def getcolormap(self):
+    def getColorMap(self):
         _colorMap = self._gm.colormap
         if _colorMap is None:
             _colorMap = \

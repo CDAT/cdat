@@ -85,7 +85,7 @@ class IsolinePipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = self.getcolormap()
+        cmap = self.getColorMap()
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
             lut.SetTableValue(i, r / 100., g / 100., b / 100.)

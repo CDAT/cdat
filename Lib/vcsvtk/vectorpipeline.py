@@ -94,7 +94,7 @@ class VectorPipeline(Pipeline):
         act = vtk.vtkActor()
         act.SetMapper(mapper)
 
-        cmap = self.getcolormap()
+        cmap = self.getColorMap()
         r, g, b = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 

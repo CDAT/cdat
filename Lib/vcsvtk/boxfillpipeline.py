@@ -220,7 +220,7 @@ class BoxfillPipeline(Pipeline2D):
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors,
                                            self._contourLabels,
-                                           self.getcolormap()))
+                                           self.getColorMap()))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
@@ -264,7 +264,7 @@ class BoxfillPipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(numLevels)
-        _colorMap = self.getcolormap()
+        _colorMap = self.getColorMap()
         for i in range(numLevels):
             r, g, b = _colorMap.index[self._contourColors[i]]
             lut.SetTableValue(i, r / 100., g / 100., b / 100.)
@@ -334,7 +334,7 @@ class BoxfillPipeline(Pipeline2D):
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
-        _colorMap = self.getcolormap()
+        _colorMap = self.getColorMap()
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
