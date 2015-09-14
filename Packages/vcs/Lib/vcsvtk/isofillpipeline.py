@@ -314,7 +314,7 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self.getColorMap()))
+                                           self.getColorMap(),
                                            style=style,
                                            index=self._gm.fillareaindices,
                                            opacity=opacities))
