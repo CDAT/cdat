@@ -5,7 +5,7 @@ set(nm pip)
 # create an external project to install MyProxyClient,
 # and configure and build it
 
-include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+include(${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake)
 string(TOUPPER ${nm} uc_nm)
 
 ExternalProject_Add(${nm}

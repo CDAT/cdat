@@ -10,6 +10,7 @@ import cdms2
 import warnings
 import cdtime
 from projection import round_projections
+from vcsvtk import fillareautils
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
@@ -1020,6 +1021,20 @@ def prepPrimitive(prim):
         while len(v) < n:
             v.append(v[-1])
         setattr(prim, a, v)
+
+    # Handle fillarea opacity case, where the default will depend on the style
+    if vcs.isfillarea(prim):
+        o = getattr(prim, "opacity")
+        s = getattr(prim, "style")
+        assert(len(s) == n)
+        if not o:
+            o = []
+        while len(o) < n:
+            lastind = len(o) - 1
+            if s[lastind] == "pattern":
+                o.append(0)
+            else:
+                o.append(100)
     return n
 
 
@@ -1037,32 +1052,26 @@ def prepFillarea(renWin, farea, cmap=None):
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
 
-    # Create data structures:
-    pts = vtk.vtkPoints()
-    polygons = vtk.vtkCellArray()
-    colors = vtk.vtkUnsignedCharArray()
-    colors.SetNumberOfComponents(3)
-    colors.SetNumberOfTuples(n)
-    polygonPolyData = vtk.vtkPolyData()
-    polygonPolyData.SetPoints(pts)
-    polygonPolyData.SetPolys(polygons)
-    polygonPolyData.GetCellData().SetScalars(colors)
-
-    # Reuse this temporary container to avoid reallocating repeatedly:
-    polygon = vtk.vtkPolygon()
-
     # Iterate through polygons:
     for i in range(n):
         x = farea.x[i]
         y = farea.y[i]
         c = farea.color[i]
-        # st = farea.style[i]
-        # idx = farea.index[i]
+        st = farea.style[i]
+        idx = farea.index[i]
         N = max(len(x), len(y))
 
         for a in [x, y]:
             assert(len(a) == N)
 
+        # Create data structures
+        pts = vtk.vtkPoints()
+        polygons = vtk.vtkCellArray()
+        polygonPolyData = vtk.vtkPolyData()
+        polygonPolyData.SetPoints(pts)
+        polygonPolyData.SetPolys(polygons)
+
+        polygon = vtk.vtkPolygon()
         # Add current polygon
         pid = polygon.GetPointIds()
         pid.SetNumberOfIds(N)
@@ -1070,19 +1079,46 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, pts.InsertNextPoint(x[j], y[j], 0.))
         cellId = polygons.InsertNextCell(polygon)
 
-        # Add the color to the color array:
-        color = cmap.index[c]
-        colors.SetTupleValue(cellId, [int((C / 100.) * 255) for C in color])
+        colors = vtk.vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(4)
+        colors.SetNumberOfTuples(1)
+        polygonPolyData.GetCellData().SetScalars(colors)
 
-    # Transform points:
-    geo, pts = project(pts, farea.projection, farea.worldcoordinate)
+        color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        if len(farea.opacity) > i:
+            opacity = farea.opacity[i] * 255 / 100.0
+        elif st == 'pattern':
+            opacity = 0
+        else:
+            opacity = 255
+        # Draw colored background for solid or patterns
+        # or white background for hatches
+        if st in ['solid', 'pattern']:
+            # Add the color to the color array:
+            color = color + [int(opacity)]
+            colors.SetTupleValue(cellId, color)
+        else:
+            colors.SetTupleValue(cellId, [255, 255, 255, 0])
 
-    # Setup rendering
-    m = vtk.vtkPolyDataMapper()
-    m.SetInputData(polygonPolyData)
-    a = vtk.vtkActor()
-    a.SetMapper(m)
-    actors.append((a, geo))
+        # Transform points:
+        geo, pts = project(pts, farea.projection, farea.worldcoordinate)
+
+        # Setup rendering
+        m = vtk.vtkPolyDataMapper()
+        m.SetInputData(polygonPolyData)
+        a = vtk.vtkActor()
+        a.SetMapper(m)
+        actors.append((a, geo))
+
+        if st in ['pattern', 'hatch']:
+            # Patterns/hatches support
+            act = fillareautils.make_patterned_polydata(polygonPolyData,
+                                                        st,
+                                                        idx,
+                                                        color,
+                                                        opacity)
+            if act is not None:
+                actors.append((act, geo))
     return actors
 
 
