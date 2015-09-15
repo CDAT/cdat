@@ -1075,7 +1075,7 @@ class VTKVCSBackend(object):
 
     def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None,
                       create_renderer=False):
-            # Data range in World Coordinates
+        # Data range in World Coordinates
         if priority == 0:
             return None
         vp = tuple(vp)
