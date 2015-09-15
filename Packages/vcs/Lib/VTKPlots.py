@@ -322,7 +322,7 @@ class VTKVCSBackend(object):
             self.renWin.Render()
 
     def createRenderer(self, *args, **kargs):
-            # For now always use the canvas background
+        # For now always use the canvas background
         ren = vtk.vtkRenderer()
         r, g, b = self.canvas.backgroundcolor
         ren.SetBackground(r / 255., g / 255., b / 255.)
@@ -494,6 +494,7 @@ class VTKVCSBackend(object):
                 actors = vcs2vtk.prepLine(self.renWin, gm,
                                           cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
+                create_renderer = True
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -501,12 +502,14 @@ class VTKVCSBackend(object):
                         wc=gm.worldcoordinate,
                         geo=geo,
                         priority=gm.priority,
-                        create_renderer=True)
+                        create_renderer=create_renderer)
+                    create_renderer = False
         elif gtype == "marker":
             if gm.priority != 0:
                 actors = vcs2vtk.prepMarker(self.renWin, gm,
                                             cmap=self.canvas.colormap)
                 returned["vtk_backend_marker_actors"] = actors
+                create_renderer = True
                 for g, gs, pd, act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -515,6 +518,7 @@ class VTKVCSBackend(object):
                         geo=geo,
                         priority=gm.priority,
                         create_renderer=True)
+                    create_renderer = False
                     if pd is None and act.GetUserTransform():
                         vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
 
@@ -523,6 +527,7 @@ class VTKVCSBackend(object):
                 actors = vcs2vtk.prepFillarea(self.renWin, gm,
                                               cmap=self.canvas.colormap)
                 returned["vtk_backend_fillarea_actors"] = actors
+                create_renderer = True
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -530,7 +535,8 @@ class VTKVCSBackend(object):
                         wc=gm.worldcoordinate,
                         geo=geo,
                         priority=gm.priority,
-                        create_renderer=True)
+                        create_renderer=create_renderer)
+                    create_renderer = False
         else:
             raise Exception(
                 "Graphic type: '%s' not re-implemented yet" %
@@ -1079,7 +1085,8 @@ class VTKVCSBackend(object):
 
     def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None,
                       create_renderer=False):
-            # Data range in World Coordinates
+
+        # Data range in World Coordinates
         if priority == 0:
             return None
         vp = tuple(vp)
