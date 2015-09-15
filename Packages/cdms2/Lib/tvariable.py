@@ -29,7 +29,7 @@ except:
     pass
 
 
-id_builtin = id                         # built_in gets clobbered by keyword
+id_builtin = id  # built_in gets clobbered by keyword
 
 def fromJSON(jsn):
     """ Recreate a TV from a dumped jsn object"""
