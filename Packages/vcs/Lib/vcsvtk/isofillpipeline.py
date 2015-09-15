@@ -162,7 +162,7 @@ class IsofillPipeline(Pipeline2D):
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
-            # will happen if: next set of levels contnues where one left off
+            # will happen if: next set of levels continues where one left off
             # AND pattern is identical
             mapper = vtk.vtkPolyDataMapper()
             lut = vtk.vtkLookupTable()
