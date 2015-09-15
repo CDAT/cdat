@@ -462,7 +462,7 @@ class VTKVCSBackend(object):
 
         pipeline = vcsvtk.createPipeline(gm, self)
         if pipeline is not None:
-            returned.update(pipeline.plot(data1, data2, tpl, gm,
+            returned.update(pipeline.plot(data1, data2, tpl,
                                           vtk_backend_grid, vtk_backend_geo))
         elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
             cdms_file = kargs.get('cdmsfile', None)
@@ -486,11 +486,13 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(
                     ren,
                     to=to,
-                    tt=tt)
+                    tt=tt,
+                    cmap=self.canvas.colormap)
                 self.setLayer(ren, tt.priority)
         elif gtype == "line":
             if gm.priority != 0:
-                actors = vcs2vtk.prepLine(self.renWin, gm)
+                actors = vcs2vtk.prepLine(self.renWin, gm,
+                                          cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
                 for act, geo in actors:
                     ren = self.fitToViewport(
@@ -502,7 +504,8 @@ class VTKVCSBackend(object):
                         create_renderer=True)
         elif gtype == "marker":
             if gm.priority != 0:
-                actors = vcs2vtk.prepMarker(self.renWin, gm)
+                actors = vcs2vtk.prepMarker(self.renWin, gm,
+                                            cmap=self.canvas.colormap)
                 returned["vtk_backend_marker_actors"] = actors
                 for g, gs, pd, act, geo in actors:
                     ren = self.fitToViewport(
@@ -517,7 +520,8 @@ class VTKVCSBackend(object):
 
         elif gtype == "fillarea":
             if gm.priority != 0:
-                actors = vcs2vtk.prepFillarea(self.renWin, gm)
+                actors = vcs2vtk.prepFillarea(self.renWin, gm,
+                                              cmap=self.canvas.colormap)
                 returned["vtk_backend_fillarea_actors"] = actors
                 for act, geo in actors:
                     ren = self.fitToViewport(

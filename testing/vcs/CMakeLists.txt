@@ -31,7 +31,7 @@ cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
 )
-if (NOT EXISTS /etc/redhat-release) 
+if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
@@ -282,6 +282,18 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    FOREACH(gm boxfill isofill meshfill isoline vector)
+      FOREACH(src vcs canvas gm)
+        cdat_add_test(test_vcs_colormaps_source_${gm}_${src}
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colormaps_source.py
+          -b ${BASELINE_DIR}/test_vcs_colormaps_source_${gm}_${src}.png
+          -g ${gm}
+          -s ${src}
+          )
+      ENDFOREACH()
+    ENDFOREACH()
+
     cdat_add_test(test_vcs_meshfill_regular_grid
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
@@ -530,7 +542,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
     # @dlonie is looking into why RH6 fails for these
-    if (NOT EXISTS /etc/redhat-release) 
+    if (NOT EXISTS /etc/redhat-release)
       cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
         "${PYTHON_EXECUTABLE}"
         "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
@@ -671,7 +683,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    if (NOT EXISTS /etc/redhat-release) 
+    if (NOT EXISTS /etc/redhat-release)
       cdat_add_test(vcs_test_animate_isoline_text_labels
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py

@@ -988,7 +988,8 @@ class Gi(object):
                 (unique_name, self.yaxisconvert))
             # Unique attribute for isoline
             fp.write("%s.label = '%s'\n" % (unique_name, self.label))
-            fp.write("%s.labelskipdistance = '%s'\n" % (unique_name, self.labelskipdistance))
+            fp.write("%s.labelskipdistance = '%s'\n" %
+                     (unique_name, self.labelskipdistance))
             fp.write("%s.line = %s\n" % (unique_name, self.line))
             fp.write("%s.linecolors = %s\n" % (unique_name, self.linecolors))
             fp.write("%s.linewidths = %s\n" % (unique_name, self.linewidths))
