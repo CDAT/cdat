@@ -563,16 +563,16 @@ cdat_add_test(vcs_test_taylor_2_quads
         "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
         "${BASELINE_DIR}/test_isofill_isoline_labels.png"
         )
+      cdat_add_test(vcs_test_patterns
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+        "${BASELINE_DIR}/test_vcs_patterns.png"
+        )
     endif()
     cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
-      )
-    cdat_add_test(vcs_test_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      "${BASELINE_DIR}/test_vcs_patterns.png"
       )
     cdat_add_test(vcs_test_first_png_blank
       "${PYTHON_EXECUTABLE}"
