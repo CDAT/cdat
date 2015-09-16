@@ -170,6 +170,7 @@ class VTKVCSBackend(object):
         ren.SetBackground(.96, .96, .86)
         ren.SetViewport(x, y, min(x + .2, 1.), min(y + .2, 1))
         ren.SetLayer(self.renWin.GetNumberOfLayers() - 1)
+        self.renWin.AddRenderer(ren)
         a = vtk.vtkTextActor()
         a.SetInput(st)
         p = a.GetProperty()
@@ -190,7 +191,6 @@ class VTKVCSBackend(object):
         ren.AddActor(a)
         ren.ResetCamera()
         self.clickRenderer = ren
-        self.renWin.AddRenderer(ren)
         self.renWin.Render()
 
     def leftButtonReleaseEvent(self, obj, event):
