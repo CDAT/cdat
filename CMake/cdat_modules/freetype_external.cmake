@@ -18,7 +18,7 @@ ExternalProject_Add(freetype
 #ln -sf @EXTERNALS@/include/freetype2/freetype @EXTERNALS@/include/freetype
 
 ExternalProject_Add_Step(freetype symlink
-  COMMAND ${CMAKE_COMMAND} -E create_symlink @cdat_EXTERNALS@/include/freetype2/freetype @cdat_EXTERNALS@/include/freetype
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${cdat_EXTERNALS}/include/freetype2/freetype ${cdat_EXTERNALS}/include/freetype
   COMMENT "Symlink include/freetype2/freetype include directory as include/freetype"
   DEPENDEES install
 )

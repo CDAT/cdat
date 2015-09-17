@@ -5,51 +5,52 @@ set(vtk_install "${cdat_EXTERNALS}")
 set(GIT_CMD_STR GIT_REPOSITORY "${VTK_SOURCE}")
 
 set(_vtk_modules
-  vtkRenderingImage
-  vtkRenderingVolume
-  vtkRenderingLabel
-  vtkRenderingFreeType
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingVolumeOpenGL
-  vtkRenderingCore
-  vtkRenderingOpenGL
-  vtkGeovisCore
-  vtkViewsCore
-  vtkViewsGeovis
-  vtkInteractionImage
-  vtkInteractionStyle
-  vtkInteractionWidgets
-  vtkCommonTransforms
-  vtkCommonCore
   vtkCommonComputationalGeometry
+  vtkCommonCore
   vtkCommonExecutionModel
-  vtkCommonSystem
   vtkCommonMisc
-  vtkFiltersFlowPaths
-  vtkFiltersStatistics
+  vtkCommonSystem
+  vtkCommonTransforms
   vtkFiltersAMR
-  vtkFiltersGeneric
-  vtkFiltersSources
-  vtkFiltersModeling
+  vtkFiltersCore
   vtkFiltersExtraction
+  vtkFiltersFlowPaths
+  vtkFiltersGeneral
+  vtkFiltersGeneric
+  vtkFiltersGeometry
+  vtkFiltersHybrid
+  vtkFiltersImaging
+  vtkFiltersModeling
   vtkFiltersSelection
   vtkFiltersSMP
-  vtkFiltersCore
-  vtkFiltersHybrid
+  vtkFiltersSources
+  vtkFiltersStatistics
   vtkFiltersTexture
-  vtkFiltersGeneral
-  vtkFiltersImaging
-  vtkFiltersGeometry
-  vtkIOImage
-  vtkIOCore
-  vtkIOExport
-  vtkIOImport
-  vtkIOGeometry
+  vtkGeovisCore
   vtkImagingColor
-  vtkImagingSources
   vtkImagingCore
   vtkImagingGeneral
   vtkImagingMath
+  vtkImagingSources
+  vtkImagingStencil
+  vtkInteractionImage
+  vtkInteractionStyle
+  vtkInteractionWidgets
+  vtkIOCore
+  vtkIOExport
+  vtkIOGeometry
+  vtkIOImage
+  vtkIOImport
+  vtkRenderingCore
+  vtkRenderingFreeType
+  vtkRenderingFreeTypeOpenGL
+  vtkRenderingImage
+  vtkRenderingLabel
+  vtkRenderingOpenGL
+  vtkRenderingVolume
+  vtkRenderingVolumeOpenGL
+  vtkViewsCore
+  vtkViewsGeovis
 )
 
 if(NOT CDAT_BUILD_LEAN)

@@ -54,6 +54,7 @@ for d in "${library_paths[@]}" ; do
 done
 
 if [ `uname` = 'Darwin' ] ; then
+  LD_LIBRARY_PATH="/usr/X11R6/lib:${LD_LIBRARY_PATH}"
   export DYLD_FALLBACK_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 fi
 
