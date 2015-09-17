@@ -94,6 +94,7 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid.GetPointData().AddArray(ghost)
     return mapper
 
+
 def handleProjectionEdgeCases(projName, data):
     # For mercator projection, latitude values of -90 or 90
     # transformation result in infinity values. We chose -85, 85
@@ -104,8 +105,9 @@ def handleProjectionEdgeCases(projName, data):
         # than the ending one
         if lat[-1] < lat[0]:
             lat = lat[::-1]
-        data = data(latitude = (max(-85, lat.min()), min(85, lat.max())))
+        data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
     return data
+
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     continents = False
