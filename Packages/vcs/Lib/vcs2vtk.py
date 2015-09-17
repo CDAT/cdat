@@ -107,7 +107,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
         # than the ending one
         if lat[-1] < lat[0]:
             lat = lat[::-1]
-        data1 = data1(latitude=(max(-85,lat.min()),min(85,lat.max())))
+        data1 = data1(latitude = (max(-85, lat.min()), min(85, lat.max())))
 
     try:
         g = data1.getGrid()
@@ -205,7 +205,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         # than the ending one
         if lat[-1] < lat[0]:
             lat = lat[::-1]
-        data1 = data1(latitude=(max(-85,lat.min()),min(85,lat.max())))
+        data1 = data1(latitude = (max(-85, lat.min()), min(85, lat.max())))
 
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
