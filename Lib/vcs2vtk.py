@@ -907,6 +907,11 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
     c = cmap.index[colorIndex]
     p.SetColor([C / 100. for C in c])
+    bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
+    bc = cmap.index[bcolorIndex]
+    p.SetBackgroundColor([C / 100. for C in bc])
+    bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
+    p.SetBackgroundOpacity(bopacity)
     if to.halign in [0, 'left']:
         p.SetJustificationToLeft()
     elif to.halign in [2, 'right']:
