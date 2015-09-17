@@ -105,7 +105,7 @@ def handleProjectionEdgeCases(projName, data):
         if lat[-1] < lat[0]:
             lat = lat[::-1]
         data = data(latitude = (max(-85, lat.min()), min(85, lat.max())))
-        return data
+    return data
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     continents = False
