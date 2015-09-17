@@ -1695,8 +1695,12 @@ class CdmsFile(CdmsObj, cuDataset):
                 pass
             try:
                 if fill_value is None:
-                    attributes['_FillValue']=var._FillValue
-                    attributes['missing_value']=var._FillValue
+                    if( '_FillValue' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var._FillValue).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var._FillValue).astype(var.dtype)
+                    if( 'missing_value' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var.missing_value).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var.missing_value).astype(var.dtype)
                 else:
                     attributes['_FillValue']=fill_value
                     attributes['missing_value']=fill_value

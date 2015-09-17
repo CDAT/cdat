@@ -58,6 +58,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     variable_count = 0
     _missing = numpy.ma.MaskedArray.fill_value
 
+
     def _getShape(self):
         return self._data.shape
 
@@ -150,6 +151,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         try:
             if data.fill_value is not None:
                 self._setmissing(data.fill_value)
+                fill_value=data.fill_value
         except:
             pass
         if fill_value is not None:
@@ -278,10 +280,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 ##         if data.getattr('mask',None) is not numpy.ma.nomask:
 ##             mask = data.mask
 ##         print 'passing:',mask.shape,data.shape,numpy.shape(cls)
+        if fill_value is not None:
+            fill_value = numpy.array(fill_value).astype(dtype)
+
         self = numpy.ma.MaskedArray.__new__(cls, data, dtype = dtype,
                                       copy = ncopy,
                                       mask = mask,
-                                      fill_value = numpy.array(fill_value).astype(dtype),
+                                      fill_value = fill_value,
                                       subok = False,
                                       order = order)
 
