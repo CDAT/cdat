@@ -94,6 +94,18 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid.GetPointData().AddArray(ghost)
     return mapper
 
+def handleProjectionEdgeCases(projName, data):
+    # For mercator projection, latitude values of -90 or 90
+    # transformation result in infinity values. We chose -85, 85
+    # as that's the typical limit used by the community.
+    if (projName.lower() == "mercator"):
+        lat = data.getLatitude()[:]
+        # Reverse the latitudes incase the starting latitude is greater
+        # than the ending one
+        if lat[-1] < lat[0]:
+            lat = lat[::-1]
+        data = data(latitude = (max(-85, lat.min()), min(85, lat.max())))
+        return data
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     continents = False
@@ -101,13 +113,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     xm, xM, ym, yM = None, None, None, None
     useStructuredGrid = True
 
-    if (projection.name.lower() == "mercator"):
-        lat = data1.getLatitude()[:]
-        # Reverse the latitudes incase the starting latitude is greater
-        # than the ending one
-        if lat[-1] < lat[0]:
-            lat = lat[::-1]
-        data1 = data1(latitude = (max(-85, lat.min()), min(85, lat.max())))
+    data1 = handleProjectionEdgeCases(projection.name, data1)
 
     try:
         g = data1.getGrid()
@@ -199,13 +205,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     xm, xM, ym, yM = None, None, None, None
     projection = vcs.elements["projection"][gm.projection]
 
-    if (projection.name.lower() == "mercator"):
-        lat = data1.getLatitude()[:]
-        # Reverse the latitudes incase the starting latitude is greater
-        # than the ending one
-        if lat[-1] < lat[0]:
-            lat = lat[::-1]
-        data1 = data1(latitude = (max(-85, lat.min()), min(85, lat.max())))
+    data1 = handleProjectionEdgeCases(projection.name, data1)
 
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
