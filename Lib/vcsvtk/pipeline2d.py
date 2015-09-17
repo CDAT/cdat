@@ -167,6 +167,8 @@ class Pipeline2D(IPipeline2D):
                                       deep=False,
                                       grid=self._vtkDataSet,
                                       geo=self._vtkGeoTransform)
+
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,

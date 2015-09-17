@@ -97,8 +97,18 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     continents = False
+    projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = None, None, None, None
     useStructuredGrid = True
+
+    if (projection.name.lower() == "mercator"):
+        lat = data1.getLatitude()[:]
+        # Reverse the latitudes incase the starting latitude is greater
+        # than the ending one
+        if lat[-1] < lat[0]:
+            lat = lat[::-1]
+        data1 = data1(latitude=(max(-85,lat.min()),min(85,lat.max())))
+
     try:
         g = data1.getGrid()
         if grid is None:
@@ -154,7 +164,6 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
-    projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if geo is None:
         geo, geopts = project(pts, projection, [xm, xM, ym, yM])
@@ -176,6 +185,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
            "continents": continents,
            "wrap": wrap,
            "geo": geo,
+           "data": data1
            }
     return out
 
