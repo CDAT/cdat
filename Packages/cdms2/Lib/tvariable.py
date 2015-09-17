@@ -192,7 +192,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if grid is not None:
             self.setGrid(grid)
  
-        # Initialize attributes
+        # Initialize the attributes
         if attributes is not None:
             for key, value in attributes.items():
                 if (key in ['shape','flat','imaginary','real'] or key[0]=='_') and key not in ['_FillValue']:
