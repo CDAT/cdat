@@ -197,6 +197,16 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     g = None
     cellData = True
     xm, xM, ym, yM = None, None, None, None
+    projection = vcs.elements["projection"][gm.projection]
+
+    if (projection.name.lower() == "mercator"):
+        lat = data1.getLatitude()[:]
+        # Reverse the latitudes incase the starting latitude is greater
+        # than the ending one
+        if lat[-1] < lat[0]:
+            lat = lat[::-1]
+        data1 = data1(latitude=(max(-85,lat.min()),min(85,lat.max())))
+
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
         # Ok need unstrctured grid
@@ -393,6 +403,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
            "wrap": wrap,
            "geo": geo,
            "cellData": cellData,
+           "data": data1
            }
     return out
 
