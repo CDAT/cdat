@@ -128,6 +128,6 @@ except cdms2.CDMSError, e:
 else:
     markError("Handling write to dataset")
 
-#os.unlink("testExtendWrite.nc")
+os.unlink("testExtendWrite.nc")
 
 reportError()
