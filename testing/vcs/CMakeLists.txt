@@ -678,7 +678,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    if (NOT EXISTS /etc/redhat-release and NOT CDAT_BUILD_OFFSCREEN)
+    if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
       cdat_add_test(vcs_test_animate_isoline_text_labels
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
