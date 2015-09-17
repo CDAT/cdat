@@ -407,6 +407,8 @@ class VTKVCSBackend(object):
 
     def initialSize(self):
         screenSize = self.renWin.GetScreenSize()
+        # It is expected that VTK returns fullscreen size and by default 
+        # we chose to open a window of smaller size (60% of fullscreen).
         bgX = int(screenSize[0]*.6)
         bgY = int(bgX/self.canvas.size)
         self.renWin.SetSize(bgX, bgY)
