@@ -65,6 +65,8 @@ def process_src(nm, code):
         tt.priority = int(sp[5])
         if len(sp) != 14:
             tt.fillincolor = int(sp[6])
+            tt.backgroundcolor = int(sp[7])
+            tt.backgroundopacity = int(sp[8])
 
 #############################################################################
 #                                                                           #
@@ -117,6 +119,10 @@ class Tt(object):
     Specify the text color:
      tt.color=241			# The text color attribute value must be in the range 1 to 257
 
+    Specify the text background color and opacity:
+     tt.backgroundcolor=241		# The text backgroundcolor attribute value must be in the range 1 to 257
+     tt.backgroundopacity=0             # The text backgroundopacity attribute value must be in the range 0 to 100
+
      tt.priority=1                      # Set the graphics priority on the canvas
      tt.viewport=[0, 1.0, 0,1.0]        # FloatType [0,1]x[0,1]
      tt.worldcoordinate=[0,1.0,0,1.0]   # FloatType [#,#]x[#,#]
@@ -129,6 +135,8 @@ class Tt(object):
         's_name',
         'name',
         'color',
+        'backgroundcolor',
+        'backgroundopacity',
         'fillincolor',
         'priority',
         'font',
@@ -143,6 +151,8 @@ class Tt(object):
         'colormap',
         '_name',
         '_color',
+        '_backgroundcolor',
+        '_backgroundopacity',
         '_fillincolor',
         '_priority',
         '_font',
@@ -175,6 +185,24 @@ class Tt(object):
             value = VCS_validation_functions.checkColor(self, 'color', value)
         self._color = value
     color = property(_getcolor, _setcolor)
+
+    def _getbackgroundcolor(self):
+        return self._backgroundcolor
+
+    def _setbackgroundcolor(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkColor(self, 'backgroundcolor', value)
+        self._backgroundcolor = value
+    backgroundcolor = property(_getbackgroundcolor, _setbackgroundcolor)
+
+    def _getbackgroundopacity(self):
+        return self._backgroundopacity
+
+    def _setbackgroundopacity(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkOpacity(self, 'backgroundopacity', value)
+            self._backgroundopacity = value
+    backgroundopacity = property(_getbackgroundopacity, _setbackgroundopacity)
 
     def _getfillincolor(self):
         return self._fillincolor
@@ -362,6 +390,8 @@ class Tt(object):
             self._spacing = 2
             self._expansion = 100
             self._color = 1
+            self._backgroundcolor = 0
+            self._backgroundopacity = 0
             self._fillincolor = 0
             self._priority = 1
             self._viewport = [0.0, 1.0, 0.0, 1.0]
@@ -383,6 +413,8 @@ class Tt(object):
             self.spacing = src.spacing
             self.expansion = src.expansion
             self.color = src.color
+            self.backgroundcolor = src.backgroundcolor
+            self.backgroundopacity = src.backgroundopacity
             self.fillincolor = src.fillincolor
             self.priority = src.priority
             self.viewport = src.viewport
@@ -409,6 +441,8 @@ class Tt(object):
         print "spacing =", self.spacing
         print "expansion =", self.expansion
         print "color =", self.color
+        print "backgroundcolor =", self.backgroundcolor
+        print "backgroundopacity =", self.backgroundopacity
         print "fillincolor =", self.fillincolor
         print "priority =", self.priority
         print "viewport =", self.viewport
@@ -501,6 +535,8 @@ class Tt(object):
             fp.write("%s.spacing = %g\n" % (unique_name, self.spacing))
             fp.write("%s.expansion = %g\n" % (unique_name, self.expansion))
             fp.write("%s.color = %g\n\n" % (unique_name, self.color))
+            fp.write("%s.backgroundcolor = %g\n\n" % (unique_name, self.backgroundcolor))
+            fp.write("%s.backgroundopacity = %g\n\n" % (unique_name, self.backgroundopacity))
             fp.write(
                 "%s.fillincolor = %g\n\n" %
                 (unique_name, self.fillincolor))
