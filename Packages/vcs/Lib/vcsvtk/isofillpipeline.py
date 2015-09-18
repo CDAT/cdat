@@ -12,8 +12,8 @@ class IsofillPipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isofill plots."""
 
-    def __init__(self, context_):
-        super(IsofillPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsofillPipeline, self).__init__(gm, context_)
 
         self._patternActors = None
 
@@ -158,10 +158,11 @@ class IsofillPipeline(Pipeline2D):
         luts = []
         cots = []
         mappers = []
+        _colorMap = self.getColorMap()
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
-            # will happen if: next set of levels contnues where one left off
+            # will happen if: next set of levels continues where one left off
             # AND pattern is identical
             mapper = vtk.vtkPolyDataMapper()
             lut = vtk.vtkLookupTable()
@@ -178,7 +179,8 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                r, g, b = self._colorMap.index[color]
+                r, g, b = _colorMap.index[color]
+                lut.SetTableValue(j, r / 100., g / 100., b / 100.)
                 if style in ['solid', 'pattern']:
                     lut.SetTableValue(j, r / 100., g / 100., b / 100.,
                                       tmpOpacities[i] / 100.)
@@ -191,7 +193,7 @@ class IsofillPipeline(Pipeline2D):
             mappers.append(mapper)
 
             # Since pattern creation requires a single color, assuming the first
-            c = [val*255/100.0 for val in self._colorMap.index[tmpColors[i][0]]]
+            c = [val*255/100.0 for val in _colorMap.index[tmpColors[i][0]]]
             act = fillareautils.make_patterned_polydata(cot.GetOutput(),
                                                         fillareastyle=style,
                                                         fillareaindex=tmpIndices[i],
@@ -216,7 +218,7 @@ class IsofillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             lut.SetNumberOfTableValues(numLevels)
             for i in range(numLevels):
-                r, g, b = self._colorMap.index[self._contourColors[i]]
+                r, g, b = _colorMap.index[self._contourColors[i]]
                 lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
             mapper.SetLookupTable(lut)
@@ -292,7 +294,8 @@ class IsofillPipeline(Pipeline2D):
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
                     # Ok we need to add the ext levels
-                    self._contourLevels.insert(0, [-1.e20, self._contourLevels[0][0]])
+                    self._contourLevels.insert(
+                        0, [-1.e20, self._contourLevels[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
                     # need to add an ext
@@ -311,7 +314,7 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors, legend,
-                                           self._colorMap,
+                                           self.getColorMap(),
                                            style=style,
                                            index=self._gm.fillareaindices,
                                            opacity=opacities))

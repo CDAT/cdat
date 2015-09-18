@@ -35,7 +35,7 @@ cdat_add_test(vcs_verify_size_init)
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_size_keyword.py
 )
-if (NOT EXISTS /etc/redhat-release) 
+if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
@@ -286,6 +286,18 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    FOREACH(gm boxfill isofill meshfill isoline vector)
+      FOREACH(src vcs canvas gm)
+        cdat_add_test(test_vcs_colormaps_source_${gm}_${src}
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colormaps_source.py
+          -b ${BASELINE_DIR}/test_vcs_colormaps_source_${gm}_${src}.png
+          -g ${gm}
+          -s ${src}
+          )
+      ENDFOREACH()
+    ENDFOREACH()
+
     cdat_add_test(test_vcs_meshfill_regular_grid
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
@@ -534,7 +546,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
     # @dlonie is looking into why RH6 fails for these
-    if (NOT EXISTS /etc/redhat-release) 
+    if (NOT EXISTS /etc/redhat-release)
       cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
         "${PYTHON_EXECUTABLE}"
         "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
@@ -560,11 +572,6 @@ cdat_add_test(vcs_test_taylor_2_quads
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
-      )
-    cdat_add_test(vcs_test_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      "${BASELINE_DIR}/test_vcs_patterns.png"
       )
     cdat_add_test(vcs_test_first_png_blank
       "${PYTHON_EXECUTABLE}"
@@ -675,7 +682,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    if (NOT EXISTS /etc/redhat-release) 
+    if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
       cdat_add_test(vcs_test_animate_isoline_text_labels
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
@@ -685,6 +692,11 @@ cdat_add_test(vcs_test_taylor_2_quads
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
         ${BASELINE_DIR}
+        )
+      cdat_add_test(vcs_test_patterns
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+        "${BASELINE_DIR}/test_vcs_patterns.png"
         )
     endif()
   endif()
@@ -721,6 +733,12 @@ cdat_add_test(vcs_test_colorpicker_appearance
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
+)
+
+cdat_add_test(vcs_test_click_info
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info.png
 )
 
 add_subdirectory(vtk_ui)
