@@ -586,7 +586,7 @@ class AbstractVariable(CdmsObj, Slab):
                 if None in newaxes:
                     resultgrid = None
                 else:
-                    resultgrid = apply(selfgrid.subSlice, gridslices, {'forceaxes': newaxes})
+                    resultgrid = selfgrid.subSlice(*gridslices, **{'forceaxes': newaxes})
 
         resultArray = self._returnArray(d, squeeze, singles=singles)
         if self.isEncoded():

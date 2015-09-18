@@ -1770,7 +1770,7 @@ class FileAxis(AbstractAxis):
             result = self.parent._file_.readDimension(self.id)
         except:
             try:
-                result = apply(self._obj_.getitem, (slice(None,None),))
+                result = self._obj_.getitem(*(slice(None,None)))
             except:
                 raise CDMSError,'Data for dimension %s not found'%self.id
         return result
@@ -1855,14 +1855,14 @@ class FileAxis(AbstractAxis):
             # then reverse the result.
             if (type(key) is types.SliceType) and (key.step is not None) and key.step<0:
                 posslice = reverseSlice(key,len(self))
-                result = apply(self._obj_.getitem, (posslice,))
+                result = self._obj_.getitem(*(posslice))
                 return result[::-1]
             else:
                 if isinstance(key, types.IntType) and key>=len(self):
                     raise IndexError, 'Index out of bounds: %d'%key
                 if type(key) is not types.TupleType:
                     key = (key,)
-                return apply(self._obj_.getitem, key)
+                return self._obj_.getitem(*key)
         if self._data_ is None:
             self._data_ = self.getData()
         length = len(self._data_)
@@ -1889,7 +1889,7 @@ class FileAxis(AbstractAxis):
         if self.parent is None:
             raise CDMSError, FileWasClosed + self.id
         if (self._obj_ is not None) and (self.parent._mode_!='r') and not (hasattr(self.parent,'format') and self.parent.format=="DRS"):
-            return apply(self._obj_.getslice,(low,high))
+            return self._obj_.getslice(*(low,high))
         else:
             if self._data_ is None:
                 self._data_ = self.getData()
@@ -1900,7 +1900,7 @@ class FileAxis(AbstractAxis):
             raise CDMSError, ReadOnlyAxis + self.id
         if self.parent is None:
             raise CDMSError, FileWasClosed+self.id
-        return apply(self._obj_.setitem,(index,numpy.ma.filled(value)))
+        return self._obj_.setitem(*(index,numpy.ma.filled(value)))
 
     def __setslice__(self, low, high, value):
         # Hack to prevent netCDF overflow error on 64-bit architectures
@@ -1909,7 +1909,7 @@ class FileAxis(AbstractAxis):
             raise CDMSError, ReadOnlyAxis + self.id
         if self.parent is None:
             raise CDMSError, FileWasClosed+self.id
-        return apply(self._obj_.setslice,(low,high,numpy.ma.filled(value)))
+        return self._obj_.setslice(*(low,high,numpy.ma.filled(value)))
 
     def __len__(self):
         if self.parent is None:

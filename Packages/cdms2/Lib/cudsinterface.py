@@ -370,7 +370,7 @@ class cuDataset():
                 idim = idim + 1
                 i = i + 2
         sq = keys.get('squeeze', 0)
-        result = apply(v.subRegion, tuple(cdms_args), {'squeeze':sq})
+        result = v.subRegion(*tuple(cdms_args), **{'squeeze':sq})
         result.parent = self
         result.id = vname
         return result

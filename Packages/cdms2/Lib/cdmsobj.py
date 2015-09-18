@@ -621,7 +621,7 @@ class CdmsObj (object):
         """
         if tag is None or string.lower(tag)==self._node_.tag:
             try:
-                if apply(predicate,(self,))==1:
+                if predicate(*(self,))==1:
                     result = [self]
             except:
                 result = []
