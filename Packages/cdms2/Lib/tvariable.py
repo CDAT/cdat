@@ -282,6 +282,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 ##         print 'passing:',mask.shape,data.shape,numpy.shape(cls)
         if fill_value is not None:
             fill_value = numpy.array(fill_value).astype(dtype)
+        else:
+            fill_value = numpy.ma.MaskedArray(1).astype(dtype).item()
+
 
         self = numpy.ma.MaskedArray.__new__(cls, data, dtype = dtype,
                                       copy = ncopy,
