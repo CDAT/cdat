@@ -406,11 +406,13 @@ class VTKVCSBackend(object):
             self.renWin.SetSize(W, H)
 
     def initialSize(self):
+        # Gets user physical screen dimensions
         screenSize = self.renWin.GetScreenSize()
-        # It is expected that VTK returns fullscreen size and by default 
-        # we chose to open a window of smaller size (60% of fullscreen).
+        # Creates the window to be 60% of user's screen's width
         bgX = int(screenSize[0]*.6)
+        # Respect user chosen aspect ratio
         bgY = int(bgX/self.canvas.size)
+        # Sets renWin dimensions
         self.renWin.SetSize(bgX, bgY)
         self._lastSize = (bgX, bgY)
 
