@@ -1302,7 +1302,6 @@ class CdmsFile(CdmsObj, cuDataset):
             for attname,attval in axis.attributes.items():
                 if attname not in ["datatype", "id","length","isvar","name_in_file","partition"]:
                     setattr(newaxis, attname, attval)
-
         return newaxis
 
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
@@ -1695,7 +1694,16 @@ class CdmsFile(CdmsObj, cuDataset):
                 print err
                 pass
             try:
-                attributes['_FillValue']=var._FillValue
+                if fill_value is None:
+                    if( '_FillValue' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var._FillValue).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var._FillValue).astype(var.dtype)
+                    if( 'missing_value' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var.missing_value).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var.missing_value).astype(var.dtype)
+                else:
+                    attributes['_FillValue']=fill_value
+                    attributes['missing_value']=fill_value
             except:
                 pass
             if attributes.has_key("name"):
@@ -1717,10 +1725,13 @@ class CdmsFile(CdmsObj, cuDataset):
         # Create the new variable
         datatype = cdmsNode.NumericToCdType.get(var.typecode())
         newvar = self.createVariable(newname, datatype, axislist)
-
         for attname,attval in attributes.items():
             if attname not in ["id", "datatype", "parent"]:
                 setattr(newvar, attname, attval)
+                if (attname == "_FillValue") or (attname == "missing_value"):
+                   setattr(newvar, "_FillValue", attval)
+                   setattr(newvar, "missing_value", attval)
+
         if fill_value is not None:
             newvar.setMissing(fill_value)
 

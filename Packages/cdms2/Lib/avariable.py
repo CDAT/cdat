@@ -393,7 +393,11 @@ class AbstractVariable(CdmsObj, Slab):
     def getMissing(self, asarray=0):
         """Return the missing value as a scalar, or as
         a numpy array if asarray==1"""
-        mv = self.missing_value
+        try:
+            mv = self.missing_value.item()
+        except:
+            mv = self.missing_value
+
         if mv is None and hasattr(self,'_FillValue'):
             mv = self._FillValue
             
