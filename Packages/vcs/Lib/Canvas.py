@@ -4814,7 +4814,7 @@ Options:::
 """
         base = os.path.dirname(file)
         if base != "" and not os.path.exists(base):
-            raise vcsError("Output path: %s does not exists" % base)
+            raise vcsError("Output path: %s does not exist" % base)
         return self.backend.png(
             file, width, height, units, draw_white_background, **args)
 
