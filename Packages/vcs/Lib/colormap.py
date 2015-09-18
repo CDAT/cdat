@@ -238,6 +238,14 @@ class Cp(object):
       """
       self.index[index]=[red,green,blue]
 
+    # get a colorcell RGB
+    def getcolorcell(self,index):
+      """
+      Sets the R,G,B values of a colorcell
+      Usage setcolorcell(index,r,g,b)
+      """
+      return self.index[index]
+
     ##########################################################################
     #                                                                           #
     # List out colormap members (attributes).                                   #
