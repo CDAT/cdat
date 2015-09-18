@@ -4812,6 +4812,9 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
+        base = os.path.basedir(file)
+        if not os.path.exists(base):
+          raise VCSError("Outpout path: %s does nt exists" % base)
         return self.backend.png(
             file, width, height, units, draw_white_background, **args)
 
