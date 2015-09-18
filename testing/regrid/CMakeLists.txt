@@ -86,10 +86,10 @@ if (EXISTS "${CMAKE_INSTALL_PREFIX}/bin/mpiexec")
            "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "2"
             "${PYTHON_EXECUTABLE}"
             ${cdat_SOURCE_DIR}/testing/regrid/testEsmfInterface.py)
-  cdat_add_test("testDistArray6Pes"
-           "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
-            "${PYTHON_EXECUTABLE}"
-            ${cdat_SOURCE_DIR}/testing/regrid/testDistArray.py)
+#  cdat_add_test("testDistArray6Pes"
+#           "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
+#            "${PYTHON_EXECUTABLE}"
+#            ${cdat_SOURCE_DIR}/testing/regrid/testDistArray.py)
   cdat_add_test("testGhostedDistArray6Pes"
            "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
             "${PYTHON_EXECUTABLE}"
