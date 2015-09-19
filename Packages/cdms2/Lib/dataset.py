@@ -295,8 +295,11 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             try:
                 file = CdmsFile(uri,mode)
                 return file
-            except:
-                raise CDMSError("Error in DODS open of: "+uri)
+            except Exception,err:
+                msg = "Error in DODS open of: "+uri
+                if os.path.exists(os.path.join(os.environ["HOME"],".dodsrc")):
+                  msg+="\nYou have a .dodsrc in your HOME directory, try to remove it"
+                raise CDMSError(msg)
         else:
             try:
                 datanode = loadURI(uri)
