@@ -569,11 +569,6 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
       )
-    cdat_add_test(vcs_test_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      "${BASELINE_DIR}/test_vcs_patterns.png"
-      )
     cdat_add_test(vcs_test_first_png_blank
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
@@ -683,7 +678,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    if (NOT EXISTS /etc/redhat-release)
+    if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
       cdat_add_test(vcs_test_animate_isoline_text_labels
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
@@ -693,6 +688,11 @@ cdat_add_test(vcs_test_taylor_2_quads
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
         ${BASELINE_DIR}
+        )
+      cdat_add_test(vcs_test_patterns
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+        "${BASELINE_DIR}/test_vcs_patterns.png"
         )
     endif()
   endif()
