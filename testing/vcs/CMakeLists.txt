@@ -737,5 +737,12 @@ cdat_add_test(vcs_test_click_info
   ${BASELINE_DIR}/test_vcs_click_info.png
 )
 
+cdat_add_test(vcs_test_mercator_edge
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mercator_edge.py
+  ${BASELINE_DIR}/test_vcs_mercator_edge.png
+)
+
+
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
