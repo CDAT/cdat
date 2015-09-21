@@ -53,6 +53,7 @@ projDict = {"polar stereographic": "stere",
 for i in range(len(projNames)):
     projDict[i] = projNames[i]
 
+
 def applyAttributesFromVCStmpl(tmpl, tmplattribute, txtobj=None):
     tatt = getattr(tmpl, tmplattribute)
     if txtobj is None:
@@ -574,6 +575,7 @@ def project(pts, projection, wc, geo=None):
     geopts = vtk.vtkPoints()
     geo.TransformPoints(pts, geopts)
     return geo, geopts
+
 
 def setProjectionParameters(pd, proj):
     if proj._type > 200:
