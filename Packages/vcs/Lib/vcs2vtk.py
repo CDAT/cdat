@@ -139,7 +139,7 @@ def handleProjectionEdgeCases(projection, data):
 
     pname = projDict.get(projection._type, projection.type)
 
-    if (pname.lower() == "mercator"):
+    if (pname.lower() == "merc"):
         lat = data.getLatitude()[:]
         # Reverse the latitudes incase the starting latitude is greater
         # than the ending one
