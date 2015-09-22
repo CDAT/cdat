@@ -1137,7 +1137,6 @@ class VTKVCSBackend(object):
             else:
                 flipX = False
 
-
             if geo is not None:
                 pt = vtk.vtkPoints()
                 Xrg2 = [1.e20, -1.e20]
@@ -1156,7 +1155,6 @@ class VTKVCSBackend(object):
                         pt.InsertPoint(NGridCover, x, y, 0)
                         NGridCover += 1
                 pts = vtk.vtkPoints()
-                #pts.SetNumberOfPoints(Npts*Npts)
                 geo.TransformPoints(pt, pts)
                 b = pts.GetBounds()
                 xm, xM, ym, yM = b[:4]
