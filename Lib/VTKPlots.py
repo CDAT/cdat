@@ -408,8 +408,12 @@ class VTKVCSBackend(object):
     def initialSize(self):
         # Gets user physical screen dimensions
         screenSize = self.renWin.GetScreenSize()
-        # Creates the window to be 60% of user's screen's width
-        bgX = int(screenSize[0]*.6)
+        try:
+          # following works on some machines but not all
+          # Creates the window to be 60% of user's screen's width
+          bgX = int(screenSize[0]*.6)
+        except:
+          bgX=self.canvas.bgX
         # Respect user chosen aspect ratio
         bgY = int(bgX/self.canvas.size)
         # Sets renWin dimensions
