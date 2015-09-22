@@ -53,6 +53,7 @@ projDict = {"polar stereographic": "stere",
 for i in range(len(projNames)):
     projDict[i] = projNames[i]
 
+
 def applyAttributesFromVCStmpl(tmpl, tmplattribute, txtobj=None):
     tatt = getattr(tmpl, tmplattribute)
     if txtobj is None:
@@ -141,6 +142,7 @@ def handleProjectionEdgeCases(projection, data):
             lat = lat[::-1]
         data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
     return data
+
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
                     skipReprojection=False, data2=None):
@@ -542,6 +544,7 @@ def prepContinents(fnm):
     vcsContinents[fnm] = poly
     return poly
 
+
 def projectArray(w, projection, wc, geo=None):
     xm, xM, ym, yM = wc
     if isinstance(projection, (str, unicode)):
@@ -575,6 +578,7 @@ def projectArray(w, projection, wc, geo=None):
         w.GetTupleValue(i, tuple)
         geo.TransformPoint(tuple, tuple)
         w.SetTupleValue(i, tuple)
+
 
 # Geo projection
 def project(pts, projection, wc, geo=None):

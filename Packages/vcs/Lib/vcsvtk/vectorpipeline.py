@@ -6,6 +6,7 @@ import vtk
 
 import math
 
+
 class VectorPipeline(Pipeline):
 
     """Implementation of the Pipeline interface for VCS vector plots."""
@@ -35,12 +36,11 @@ class VectorPipeline(Pipeline):
         lon = data1.getLongitude()[:]
 
         if projection is not None:
-            scale = (lat.max() - lat.min()) *  (lon.max() - lon.min())
+            scale = (lat.max() - lat.min()) * (lon.max() - lon.min())
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
                                               geo=transform, skipReprojection=False,
                                               data2=data2)
-
 
         data1 = gridGenDict["data"]
         data2 = gridGenDict["data2"]
@@ -60,7 +60,7 @@ class VectorPipeline(Pipeline):
 
             vcs2vtk.projectArray(newv, projection,
                                  [gridGenDict['xm'], gridGenDict['xM'],
-                                  gridGenDict['ym'], gridGenDict['yM'],])
+                                  gridGenDict['ym'], gridGenDict['yM']])
             dimMin = [0, 0, 0]
             dimMax = [0, 0, 0]
             newv.GetTupleValue(0, dimMin)
@@ -125,7 +125,6 @@ class VectorPipeline(Pipeline):
         glyphFilter.SetRange(0.01, 1.0)
 
         mapper = vtk.vtkPolyDataMapper()
-        writer = vtk.vtkXMLPolyDataWriter()
 
         glyphFilter.Update()
         data = glyphFilter.GetOutput()
@@ -154,9 +153,8 @@ class VectorPipeline(Pipeline):
                                       priority=tmpl.data.priority,
                                       create_renderer=True)
 
-
-        returned.update(
-            self._context().renderTemplate(tmpl, data1, self._gm, taxis, zaxis))
+        returned.update(self._context().renderTemplate(tmpl, data1,
+                        self._gm, taxis, zaxis))
 
         if self._context().canvas._continents is None:
             continents = False
