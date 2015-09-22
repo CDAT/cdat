@@ -202,7 +202,6 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         m3 = numpy.concatenate((m3, z), axis=1)
         deep = True
         pts = vtk.vtkPoints()
-        pts.SetDataTypeToDouble()
         # Convert nupmy array to vtk ones
         ppV = numpy_to_vtk_wrapper(m3, deep=deep)
         pts.SetData(ppV)
@@ -543,11 +542,12 @@ def prepContinents(fnm):
     vcsContinents[fnm] = poly
     return poly
 
-def projectArray(w, projection, geo=None):
+def projectArray(w, projection, wc, geo=None):
+    xm, xM, ym, yM = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
     if projection.type == "linear":
-        return None, pts
+        return None, w
 
     if geo is None:
         geo = vtk.vtkGeoTransform()

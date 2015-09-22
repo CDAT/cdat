@@ -645,10 +645,6 @@ class VTKVCSBackend(object):
         else:
             geo = None
 
-        writer = vtk.vtkXMLPolyDataWriter()
-        writer.SetFileName("poly.vtk")
-        writer.SetInputData(contData)
-        writer.Write()
         self.fitToViewport(contActor,
                            [tmpl.data.x1, tmpl.data.x2,
                             tmpl.data.y1, tmpl.data.y2],

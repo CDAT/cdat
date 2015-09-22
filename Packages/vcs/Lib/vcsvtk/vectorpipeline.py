@@ -58,7 +58,9 @@ class VectorPipeline(Pipeline):
             newv.InsertTupleValue(0, [lon.min(), lat.min(),  0])
             newv.InsertTupleValue(1, [lon.max(), lat.max(),  0])
 
-            vcs2vtk.projectArray(newv, projection=projection)
+            vcs2vtk.projectArray(newv, projection,
+                                 [gridGenDict['xm'], gridGenDict['xM'],
+                                  gridGenDict['ym'], gridGenDict['yM'],])
             dimMin = [0, 0, 0]
             dimMax = [0, 0, 0]
             newv.GetTupleValue(0, dimMin)
