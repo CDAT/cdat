@@ -1,21 +1,24 @@
 import vcs
 import numpy
 
-original_state = dict(width=814, height=606, mapstate=True, depth=24, y=0, x=0)
-rotated_state = dict(width=606, height=814, mapstate=True, depth=24, y=0, x=0)
-
 data = numpy.sin(numpy.arange(100))
 data = numpy.reshape(data, (10, 10))
 
 x = vcs.init()
 x.plot(data, bg=1)
-assert(x.orientation() == "landscape")
-assert(cmp(x.canvasinfo(), original_state) == 0)
+assert x.orientation() == "landscape", "Default canvas orientation failed"
+c = x.canvasinfo()
+assert c['width'] == 814, "Default canvas width failed"
+assert c['height'] == 606, "Default canvas height failed"
 
 x.portrait()
-assert(x.orientation() == "portrait")
-assert(cmp(x.canvasinfo(), rotated_state) == 0)
+assert x.orientation() == "portrait", "Portrait canvas orientation failed"
+c = x.canvasinfo()
+assert c['width'] == 606, "Portrait canvas width failed"
+assert c['height'] == 814, "Portrait canvas height failed"
 
 x.landscape()
-assert(x.orientation() == "landscape")
-assert(cmp(x.canvasinfo(), original_state) == 0)
+assert x.orientation() == "landscape", "Landscape canvas orientation failed"
+c = x.canvasinfo()
+assert c['width'] == 814, "Landscape canvas width failed"
+assert c['height'] == 606, "Landscape canvas height failed"
