@@ -140,10 +140,17 @@ class VectorPipeline(Pipeline):
 
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm, data1.getAxis(-1),
                                                        data1.getAxis(-2))
+        if geo is None:
+            wc = [x1, x2, y1, y2]
+        else:
+            wc = None
+
+        # TODO: doWrap is broken for vectors
         # act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
+
         self._context().fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
                                             tmpl.data.y1, tmpl.data.y2],
-                                      wc=None,
+                                      wc=wc,
                                       priority=tmpl.data.priority,
                                       create_renderer=True)
 
