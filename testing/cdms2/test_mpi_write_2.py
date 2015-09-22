@@ -20,5 +20,5 @@ V=f.createVariableCopy(a)
 print type(V)
 #Ok now we are going to rewrite the time slice accross processors
 for i in range(rk,ntimes,sz):
-    V[i] = a[i].filled()*i
+    V[i] = a[i].filled()*rk
 f.close()
