@@ -31,6 +31,10 @@ cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
 )
+cdat_add_test(vcs_verify_size_init)
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_size_keyword.py
+)
 if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
       "${PYTHON_EXECUTABLE}"
