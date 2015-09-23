@@ -59,6 +59,7 @@ endif()
 # bots check out the correct branches
 # following keyword skips the branch checking
 if (CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH)
+    message("[INFO] Trying to find matching branch on baseline repo")
     # 2) Is TESTDATA_DIR a clone of TESTDATA_URL?
     execute_process(COMMAND
       "${GIT_EXECUTABLE}" config --get remote.origin.url
@@ -168,7 +169,6 @@ if (CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH)
       return()
     endif()
 
-    message("[INFO] Trying to find matching branch on baseline repo")
     # 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
     execute_process(COMMAND
       "${GIT_EXECUTABLE}" branch -a --list "*${BRANCH}"
