@@ -7,6 +7,7 @@
 print 'Test 1: Dataset I/O ... ',
 
 import cdms2,numpy,string,os,sys
+cdms2.setNetcdfUseParallelFlag(0)
 from cdms2.variable import WriteNotImplemented
 from cdms2.avariable import NotImplemented
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError

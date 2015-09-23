@@ -216,6 +216,8 @@ endif()
 # Checkout the baseline repository.
 #=============================================================================
 if(BUILD_TESTING)
+  # bots will turn this off
+  option(CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH "Do magic to find matching baseline branch" ON)
   set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
     CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
   set(REPO_URL "")
@@ -231,6 +233,7 @@ if(BUILD_TESTING)
       "-DTESTDATA_URL=${REPO_URL}"
       "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
       "-DSOURCE_DIR=${cdat_SOURCE_DIR}"
+      "-DCDAT_CHECKOUT_BASELINE_MATCHING_BRANCH=${CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH}"
       -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
     COMMENT "Updating uvcdat-testdata repo."
   )
@@ -294,7 +297,7 @@ if (CDAT_BUILD_ESGF)
 endif()
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
 set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
-message([INFO] BUILD MODE} ${CDAT_BUILD_MODE})
+message([INFO] BUILD MODE: ${CDAT_BUILD_MODE})
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
