@@ -3,7 +3,13 @@ set(x264_source "${CMAKE_CURRENT_BINARY_DIR}/build/X264")
 set(x264_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
 
-set(x264_conf_args --enable-shared)
+find_program(YASM_BIN "yasm")
+
+if (NOT YASM_BIN)
+  set(x264_conf_args --disable-asm^^--enable-shared)
+else()
+  set(x264_conf_args --enable-shared)
+endif()
 
 ExternalProject_Add(X264
   LIST_SEPARATOR ^^

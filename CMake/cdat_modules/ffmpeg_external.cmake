@@ -7,7 +7,13 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_build_step.cma
     ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
     @ONLY)
 
-set(ffmpeg_conf_args --enable-gpl^^--enable-libx264^^--extra-cxxflags=@ffmpeg_source@^^--enable-shared^^--enable-zlib)
+find_program(YASM_BIN "yasm")
+
+if (NOT YASM_BIN)
+  set(ffmpeg_conf_args --disable-yasm^^--enable-gpl^^--enable-libx264^^--extra-cxxflags=@ffmpeg_source@^^--enable-shared^^--enable-zlib)
+else()
+  set(ffmpeg_conf_args --enable-gpl^^--enable-libx264^^--extra-cxxflags=@ffmpeg_source@^^--enable-shared^^--enable-zlib)
+endif()
 
 ExternalProject_Add(FFMPEG
   LIST_SEPARATOR ^^
