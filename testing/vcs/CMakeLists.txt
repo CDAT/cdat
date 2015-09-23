@@ -11,6 +11,10 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_test_bad_png_path
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
+)
 cdat_add_test(vcs_test_text_object_as_input.py
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
@@ -30,6 +34,10 @@ cdat_add_test(vcs_mkscale_zero_range
 cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
+)
+cdat_add_test(vcs_verify_size_init
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_size_keyword.py
 )
 if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
@@ -740,6 +748,13 @@ cdat_add_test(vcs_test_click_info
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
   ${BASELINE_DIR}/test_vcs_click_info.png
 )
+
+cdat_add_test(vcs_test_mercator_edge
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mercator_edge.py
+  ${BASELINE_DIR}/test_vcs_mercator_edge.png
+)
+
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)

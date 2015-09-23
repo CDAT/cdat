@@ -415,8 +415,19 @@ class VTKVCSBackend(object):
         self.resize_or_rotate_window(W, H, x, y, clear)
 
     def initialSize(self):
-        self.renWin.SetSize(self.canvas.bgX, self.canvas.bgY)
-        self._lastSize = (self.canvas.bgX, self.canvas.bgY)
+        # Gets user physical screen dimensions
+        screenSize = self.renWin.GetScreenSize()
+        try:
+            # following works on some machines but not all
+            # Creates the window to be 60% of user's screen's width
+            bgX = int(screenSize[0] * .6)
+        except:
+            bgX = self.canvas.bgX
+        # Respect user chosen aspect ratio
+        bgY = int(bgX / self.canvas.size)
+        # Sets renWin dimensions
+        self.renWin.SetSize(bgX, bgY)
+        self._lastSize = (bgX, bgY)
 
     def open(self):
         self.createRenWin(open=True)
@@ -460,7 +471,8 @@ class VTKVCSBackend(object):
         tpl = vcs.elements["template"][template]
 
         if kargs.get("renderer", None) is None:
-            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (self.renderer is not None):
+            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (
+                    self.renderer is not None):
                 ren = self.renderer
         else:
             ren = kargs["renderer"]
