@@ -277,7 +277,7 @@ option(CDAT_USE_SYSTEM_PYTHON "Use system Python" OFF)
 set(CDAT_BUILD_LEAN OFF)
 set(CDAT_BUILD_ALL OFF)
 # bots will turn this off
-set(CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH ON)
+option(CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH "Do magic to find matching baseline branch" ON)
 
 # Some more options
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc.) " ON)
