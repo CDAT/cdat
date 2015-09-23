@@ -168,6 +168,7 @@ endif()
 # bots check out the correct branches
 # following keyword skips the branch checking
 if (CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH)
+    message("[INFO] Trying to find matching branch on baseline repo")
     # 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
     execute_process(COMMAND
       "${GIT_EXECUTABLE}" branch -a --list "*${BRANCH}"
@@ -250,4 +251,6 @@ if (CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH)
                 "Baseline images may be out of date.")
       endif()
     endif()
+else()
+    message("[INFO] NOT trying to switch branch on baseline (only bots should turn this on)")
 endif()
