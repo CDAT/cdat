@@ -164,85 +164,90 @@ if(NOT RESULT EQUAL 0)
   return()
 endif()
 
-# 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
-execute_process(COMMAND
-  "${GIT_EXECUTABLE}" branch -a --list "*${BRANCH}"
-  WORKING_DIRECTORY "${TESTDATA_DIR}"
-  RESULT_VARIABLE RESULT
-  ERROR_VARIABLE OUTPUT
-  OUTPUT_VARIABLE OUTPUT)
+# bots merge master in and mess the following, always rechecking master
+# bots check out the correct branches
+# following keyword skips the branch checking
+if (CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH)
+    # 6) Check if the desired branch exists in TESTDATA_DIR's origin remote.
+    execute_process(COMMAND
+      "${GIT_EXECUTABLE}" branch -a --list "*${BRANCH}"
+      WORKING_DIRECTORY "${TESTDATA_DIR}"
+      RESULT_VARIABLE RESULT
+      ERROR_VARIABLE OUTPUT
+      OUTPUT_VARIABLE OUTPUT)
 
-if(NOT RESULT EQUAL 0)
-  message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
-          "Error obtaining full branch list:\n${OUTPUT}"
-          "Baseline images may be out of date.")
-  return()
-endif()
+    if(NOT RESULT EQUAL 0)
+      message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
+              "Error obtaining full branch list:\n${OUTPUT}"
+              "Baseline images may be out of date.")
+      return()
+    endif()
 
-message("Testing if remote branch 'origin/${BRANCH}' exists...")
-string(FIND "${OUTPUT}" " remotes/origin/${BRANCH}\n" POS)
-if(NOT POS EQUAL -1)
-  message("Remote branch exists.")
-  set(REMOTE_EXISTS "YES")
-else()
-  message("Remote branch does not exist.")
-  set(REMOTE_EXISTS "NO")
-endif()
+    message("Testing if remote branch 'origin/${BRANCH}' exists...")
+    string(FIND "${OUTPUT}" " remotes/origin/${BRANCH}\n" POS)
+    if(NOT POS EQUAL -1)
+      message("Remote branch exists.")
+      set(REMOTE_EXISTS "YES")
+    else()
+      message("Remote branch does not exist.")
+      set(REMOTE_EXISTS "NO")
+    endif()
 
-# 7) Check if the desired branch exists locally:
-message("Testing if local branch '${BRANCH}' exists...")
-string(FIND "${OUTPUT}" " ${BRANCH}\n" POS) # Leading space in regex intended
-if(NOT POS EQUAL -1)
-  message("Local branch exists.")
-  set(LOCAL_EXISTS "YES")
-else()
-  message("Local branch does not exist.")
-  set(LOCAL_EXISTS "NO")
-endif()
+    # 7) Check if the desired branch exists locally:
+    message("Testing if local branch '${BRANCH}' exists...")
+    string(FIND "${OUTPUT}" " ${BRANCH}\n" POS) # Leading space in regex intended
+    if(NOT POS EQUAL -1)
+      message("Local branch exists.")
+      set(LOCAL_EXISTS "YES")
+    else()
+      message("Local branch does not exist.")
+      set(LOCAL_EXISTS "NO")
+    endif()
 
-# 8) If the neither the local or remote branch exist, use master.
-if(NOT REMOTE_EXISTS AND NOT LOCAL_EXISTS)
-  set(BRANCH "master")
-  set(REMOTE_EXISTS "YES")
-  set(LOCAL_EXISTS "YES")
-endif()
+    # 8) If the neither the local or remote branch exist, use master.
+    if(NOT REMOTE_EXISTS AND NOT LOCAL_EXISTS)
+      set(BRANCH "master")
+      set(REMOTE_EXISTS "YES")
+      set(LOCAL_EXISTS "YES")
+    endif()
 
-# 9) Check out the desired branch in TESTDATA_DIR repo.
-message("Checking out branch '${BRANCH}' in repo '${TESTDATA_DIR}'.")
-execute_process(COMMAND
-  "${GIT_EXECUTABLE}" checkout "${BRANCH}"
-  WORKING_DIRECTORY "${TESTDATA_DIR}"
-  RESULT_VARIABLE RESULT
-  ERROR_VARIABLE OUTPUT
-  OUTPUT_VARIABLE OUTPUT)
+    # 9) Check out the desired branch in TESTDATA_DIR repo.
+    message("Checking out branch '${BRANCH}' in repo '${TESTDATA_DIR}'.")
+    execute_process(COMMAND
+      "${GIT_EXECUTABLE}" checkout "${BRANCH}"
+      WORKING_DIRECTORY "${TESTDATA_DIR}"
+      RESULT_VARIABLE RESULT
+      ERROR_VARIABLE OUTPUT
+      OUTPUT_VARIABLE OUTPUT)
 
-if(NOT RESULT EQUAL 0)
-  message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
-          "Error executing 'git checkout ${BRANCH}':\n."
-          "${OUTPUT}\n"
-          "Baseline images may be out of date.")
-  return()
-endif()
+    if(NOT RESULT EQUAL 0)
+      message("Cannot update uvcdat-testdata checkout at \"${TESTDATA_DIR}\". "
+              "Error executing 'git checkout ${BRANCH}':\n."
+              "${OUTPUT}\n"
+              "Baseline images may be out of date.")
+      return()
+    endif()
 
-# 10) If the remote branch exists, or we are using master, run
-#     'git pull origin <branch>:<branch>' to fetch/update the local branch from
-#     the remote.
-if(REMOTE_EXISTS)
-  message("Updating \"${TESTDATA_DIR}:${BRANCH}\" from "
-          "\"${TESTDATA_URL}:${BRANCH}\"...")
-  execute_process(COMMAND
-    "${GIT_EXECUTABLE}" pull origin "${BRANCH}:${BRANCH}"
-    WORKING_DIRECTORY "${TESTDATA_DIR}"
-    RESULT_VARIABLE RESULT
-    ERROR_VARIABLE OUTPUT
-    OUTPUT_VARIABLE OUTPUT)
+    # 10) If the remote branch exists, or we are using master, run
+    #     'git pull origin <branch>:<branch>' to fetch/update the local branch from
+    #     the remote.
+    if(REMOTE_EXISTS)
+      message("Updating \"${TESTDATA_DIR}:${BRANCH}\" from "
+              "\"${TESTDATA_URL}:${BRANCH}\"...")
+      execute_process(COMMAND
+        "${GIT_EXECUTABLE}" pull origin "${BRANCH}:${BRANCH}"
+        WORKING_DIRECTORY "${TESTDATA_DIR}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
 
-  string(STRIP "${OUTPUT}" OUTPUT)
+      string(STRIP "${OUTPUT}" OUTPUT)
 
-  message("${OUTPUT}")
+      message("${OUTPUT}")
 
-  if(NOT RESULT EQUAL 0)
-    message("Error updating testdata repo! "
-            "Baseline images may be out of date.")
-  endif()
+      if(NOT RESULT EQUAL 0)
+        message("Error updating testdata repo! "
+                "Baseline images may be out of date.")
+      endif()
+    endif()
 endif()
