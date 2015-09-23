@@ -3,10 +3,6 @@ set(x264_source "${CMAKE_CURRENT_BINARY_DIR}/build/X264")
 set(x264_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/x264_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/x264_configure_step.cmake
-    @ONLY)
-
 set(x264_conf_args --enable-shared)
 
 ExternalProject_Add(X264
