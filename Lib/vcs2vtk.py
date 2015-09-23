@@ -15,6 +15,44 @@ from vcsvtk import fillareautils
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
 
+projNames = [
+    "linear",
+    "utm",
+    "state",
+    "aea",
+    "lcc",
+    "merc",
+    "stere",
+    "poly",
+    "eqdc",
+    "tmerc",
+    "stere",
+    "lcca",
+    "azi",
+    "gnom",
+    "ortho",
+    "vertnearper",
+    "sinu",
+    "eqc",
+    "mill",
+    "vandg",
+    "omerc",
+    "robin",
+    "somerc",
+    "alsk",
+    "goode",
+    "moll",
+    "imoll",
+    "hammer",
+    "wag4",
+    "wag7",
+    "oea"]
+projDict = {"polar stereographic": "stere",
+            -3: "aeqd",
+            }
+for i in range(len(projNames)):
+    projDict[i] = projNames[i]
+
 
 def applyAttributesFromVCStmpl(tmpl, tmplattribute, txtobj=None):
     tatt = getattr(tmpl, tmplattribute)
@@ -95,10 +133,31 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
     return mapper
 
 
+def handleProjectionEdgeCases(projection, data):
+    # For mercator projection, latitude values of -90 or 90
+    # transformation result in infinity values. We chose -85, 85
+    # as that's the typical limit used by the community.
+
+    pname = projDict.get(projection._type, projection.type)
+
+    if (pname.lower() == "merc"):
+        lat = data.getLatitude()[:]
+        # Reverse the latitudes incase the starting latitude is greater
+        # than the ending one
+        if lat[-1] < lat[0]:
+            lat = lat[::-1]
+        data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
+    return data
+
+
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     continents = False
+    projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = None, None, None, None
     useStructuredGrid = True
+
+    data1 = handleProjectionEdgeCases(projection, data1)
+
     try:
         g = data1.getGrid()
         if grid is None:
@@ -154,7 +213,6 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
-    projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if geo is None:
         geo, geopts = project(pts, projection, [xm, xM, ym, yM])
@@ -176,6 +234,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
            "continents": continents,
            "wrap": wrap,
            "geo": geo,
+           "data": data1
            }
     return out
 
@@ -187,6 +246,10 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     g = None
     cellData = True
     xm, xM, ym, yM = None, None, None, None
+    projection = vcs.elements["projection"][gm.projection]
+
+    data1 = handleProjectionEdgeCases(projection, data1)
+
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
         # Ok need unstrctured grid
@@ -383,6 +446,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
            "wrap": wrap,
            "geo": geo,
            "cellData": cellData,
+           "data": data1
            }
     return out
 
@@ -493,45 +557,8 @@ def project(pts, projection, wc, geo=None):
         geo = vtk.vtkGeoTransform()
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
-        names = [
-            "linear",
-            "utm",
-            "state",
-            "aea",
-            "lcc",
-            "merc",
-            "stere",
-            "poly",
-            "eqdc",
-            "tmerc",
-            "stere",
-            "lcca",
-            "azi",
-            "gnom",
-            "ortho",
-            "vertnearper",
-            "sinu",
-            "eqc",
-            "mill",
-            "vandg",
-            "omerc",
-            "robin",
-            "somerc",
-            "alsk",
-            "goode",
-            "moll",
-            "imoll",
-            "hammer",
-            "wag4",
-            "wag7",
-            "oea"]
-        proj_dic = {"polar stereographic": "stere",
-                    -3: "aeqd",
-                    }
-        for i in range(len(names)):
-            proj_dic[i] = names[i]
 
-        pname = proj_dic.get(projection._type, projection.type)
+        pname = projDict.get(projection._type, projection.type)
         projName = pname
         pd.SetName(projName)
         if projection.type == "polar (non gctp)":
