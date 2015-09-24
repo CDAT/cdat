@@ -39,8 +39,7 @@ class VectorPipeline(Pipeline):
             scale = (lat.max() - lat.min()) * (lon.max() - lon.min())
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
-                                              geo=transform, skipReprojection=False,
-                                              data2=data2)
+                                              geo=transform, data2=data2)
 
         data1 = gridGenDict["data"]
         data2 = gridGenDict["data2"]

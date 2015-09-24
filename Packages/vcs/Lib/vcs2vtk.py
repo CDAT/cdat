@@ -145,7 +145,7 @@ def handleProjectionEdgeCases(projection, data):
 
 
 def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
-                    skipReprojection=False, data2=None):
+                    data2=None):
     continents = False
     projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = None, None, None, None
@@ -211,7 +211,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
     xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
-    if geo is None and not skipReprojection:
+    if geo is None:
         geo, geopts = project(pts, projection, [xm, xM, ym, yM])
         pts = geopts
     # Sets the vertices into the grid
@@ -607,7 +607,6 @@ def project(pts, projection, wc, geo=None):
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
     geopts = vtk.vtkPoints()
-    geopts.SetDataTypeToDouble()
     geo.TransformPoints(pts, geopts)
     return geo, geopts
 
