@@ -41,7 +41,7 @@ class VectorPipeline(Pipeline):
         if lonAccesrsor:
             lon = lonAccesrsor[:]
 
-        if not None in (projection, lat, lon):
+        if None not in (projection, lat, lon):
             scale = (lat.max() - lat.min()) * (lon.max() - lon.min())
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
