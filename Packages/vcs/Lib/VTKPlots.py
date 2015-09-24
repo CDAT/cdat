@@ -383,9 +383,9 @@ class VTKVCSBackend(object):
         return info
 
     def orientation(self, *args, **kargs):
-        if self.renWin is None:
-            return "landscape"
-        w, h = self.renWin.GetSize()
+        canvas_info = self.canvasinfo()
+        w = canvas_info["width"]
+        h = canvas_info["height"]
         if w > h:
             return "landscape"
         else:
