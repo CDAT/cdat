@@ -119,7 +119,17 @@ class IsolinePipeline(Pipeline2D):
                 else:
                     colorOverrides = [None] * len(self._gm.text)
 
-                for tc, colorOverride in zip(texts, colorOverrides):
+                # Custom background colors and opacities:
+                backgroundColors = self._gm.labelbackgroundcolors
+                if backgroundColors:
+                    while len(backgroundColors) < numLevels:
+                        backgroundColors.append(backgroundColors[-1])
+                backgroundOpacities = self._gm.labelbackgroundopacities
+                if backgroundOpacities:
+                    while len(backgroundOpacities) < numLevels:
+                        backgroundOpacities.append(backgroundOpacities[-1])
+
+                for idx, tc in enumerate(texts):
                     if vcs.queries.istextcombined(tc):
                         tt, to = tuple(tc.name.split(":::"))
                     elif tc is None:
@@ -131,10 +141,18 @@ class IsolinePipeline(Pipeline2D):
                     elif vcs.queries.istextorientation(tc):
                         to = tc.name
                         tt = "default"
+
+                    colorOverride = colorOverrides[idx]
                     if colorOverride is not None:
                         tt = vcs.createtexttable(None, tt)
                         tt.color = colorOverride
                         tt = tt.name
+                    if backgroundColors is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundcolor = backgroundColors[idx]
+                    if backgroundOpacities is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundopacity = backgroundOpacities[idx]
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
                                              self._context().renWin.GetSize(),

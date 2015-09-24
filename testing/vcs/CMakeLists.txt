@@ -43,7 +43,7 @@ if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
-    )
+)
 endif()
 cdat_add_test(vcs_verify_init
   "${PYTHON_EXECUTABLE}"
@@ -571,6 +571,11 @@ cdat_add_test(vcs_test_taylor_2_quads
         "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
         "${BASELINE_DIR}/test_isofill_isoline_labels.png"
         )
+      cdat_add_test(vcs_test_isoline_labels_background
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels_background.py"
+        "${BASELINE_DIR}/test_isoline_labels_background.png"
+        )
     endif()
     cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
@@ -701,6 +706,11 @@ cdat_add_test(vcs_test_taylor_2_quads
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
         "${BASELINE_DIR}/test_vcs_patterns.png"
+        )
+      cdat_add_test(vcs_test_vectors_robinson
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+        "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
         )
     endif()
   endif()

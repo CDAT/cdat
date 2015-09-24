@@ -164,6 +164,8 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "label": false, 
+   "labelbackgroundcolors": null, 
+   "labelbackgroundopacities": null, 
    "labelskipdistance": 0.0, 
    "level": [
     [
@@ -715,6 +717,8 @@
  }, 
  "Tt": {
   "Charles.Doutriaux": {
+   "backgroundcolor": 0, 
+   "backgroundopacity": 0, 
    "color": 1, 
    "colormap": null, 
    "expansion": 100, 
