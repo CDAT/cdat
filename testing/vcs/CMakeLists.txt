@@ -31,13 +31,9 @@ cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
 )
-cdat_add_test(vcs_get_cmap_colorcell
+cdat_add_test(vcs_get_set_cmap_colorcell
   "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_get_cmap_colorcell.py
-)
-cdat_add_test(vcs_set_cmap_colorcell
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_set_cmap_colorcell.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_get_set_cmap_colorcell.py
 )
 if (NOT EXISTS /etc/redhat-release)
     cdat_add_test(vcs_test_antialiasing
