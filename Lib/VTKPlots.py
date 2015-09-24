@@ -1155,7 +1155,6 @@ class VTKVCSBackend(object):
                         pt.InsertPoint(NGridCover, x, y, 0)
                         NGridCover += 1
                 pts = vtk.vtkPoints()
-                # pts.SetNumberOfPoints(Npts*Npts)
                 geo.TransformPoints(pt, pts)
                 b = pts.GetBounds()
                 xm, xM, ym, yM = b[:4]
@@ -1169,6 +1168,7 @@ class VTKVCSBackend(object):
                     Yrg2[1] = max(Yrg2[1], yM)
                 Xrg = Xrg2
                 Yrg = Yrg2
+
             wRatio = float(sc[0]) / float(sc[1])
             dRatio = (Xrg[1] - Xrg[0]) / (Yrg[1] - Yrg[0])
             vRatio = float(vp[1] - vp[0]) / float(vp[3] - vp[2])
