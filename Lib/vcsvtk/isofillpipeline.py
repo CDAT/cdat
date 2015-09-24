@@ -25,10 +25,12 @@ class IsofillPipeline(Pipeline2D):
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
                                             deep=False)
+
         self._vtkDataSet.GetPointData().SetScalars(data)
 
     def _updateContourLevelsAndColors(self):
