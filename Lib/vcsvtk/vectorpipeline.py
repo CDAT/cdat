@@ -31,11 +31,17 @@ class VectorPipeline(Pipeline):
         data2 = self._context().trimData2D(data2)
 
         scale = 1.0
+        lat = None
+        lon = None
 
-        lat = data1.getLatitude()[:]
-        lon = data1.getLongitude()[:]
+        latAccessor = data1.getLatitude()
+        lonAccesrsor = data1.getLongitude()
+        if latAccessor:
+            lat = latAccessor[:]
+        if lonAccesrsor:
+            lon = lonAccesrsor[:]
 
-        if projection is not None:
+        if not None in (projection, lat, lon):
             scale = (lat.max() - lat.min()) * (lon.max() - lon.min())
 
         gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
