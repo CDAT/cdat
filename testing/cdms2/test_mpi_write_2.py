@@ -28,15 +28,24 @@ Field=cdms2.MV2.array(a)
 f=cdms2.open("test_mpi_write_2.nc","w")
 
 
-# Create variables for each node
-# ------------------------------
+# Create as many variable as you want
+# and append the returned objec to a list
+#
+# Here we create "number of processor" variables
+# Note that all porcessor MUST create all variables
+# --------------------------------------------------
 var=[]
 for i in range(sz):
     Field.id = "test_mpi_"+str(i)
-    var.append(f.createVariableCopy(Field,axes=grid.getAxisList(), grid=grid))
+    myVar=f.createVariableCopy(Field,axes=grid.getAxisList(), grid=grid)
+    var.append(myVar)
 
 # Now rewrite the time slice accross processors
-#----------------------------------------------
+#
+# Every processor run this section for all variables
+# Each processor write a different slice of data
+# the slice written for each processor depend of "rk"
+#----------------------------------------------------
 for k in range(sz):
    V=var[k]
    for j in range(rk,lat,sz):
