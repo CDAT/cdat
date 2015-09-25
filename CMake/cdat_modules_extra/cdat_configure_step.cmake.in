@@ -3,7 +3,7 @@ set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
 
 OPTION(BASH_CONFIGURE "Whether to use BASH to configure with" OFF)
 
-if (${BASH_CONFIGURE})
+if (BASH_CONFIGURE)
 	set(CONFIGURE_SHELL "bash")
 else()
 	set(CONFIGURE_SHELL "sh")
