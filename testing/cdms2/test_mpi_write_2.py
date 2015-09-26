@@ -28,11 +28,11 @@ Field=cdms2.MV2.array(a)
 f=cdms2.open("test_mpi_write_2.nc","w")
 
 
-# Create as many variable as you want
-# and append the returned objec to a list
+# Create as many variables as you want
+# and append the returned object to a list
 #
 # Here we create "number of processor" variables
-# Note that all porcessor MUST create all variables
+# Note that all processors MUST create all variables
 # --------------------------------------------------
 var=[]
 for i in range(sz):
