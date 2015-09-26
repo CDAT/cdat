@@ -44,7 +44,7 @@ for i in range(sz):
 #
 # Every processor run this section for all variables
 # Each processor write a different slice of data
-# the slice written for each processor depend of "rk"
+# the slice written for each processor depends on "rk"
 #----------------------------------------------------
 for k in range(sz):
    V=var[k]
