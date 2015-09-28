@@ -93,10 +93,6 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
                 grid2.GetPointData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
                 grid2.GetPointData().SetScalars(imsk)
-                # grid2.SetCellVisibilityArray(imsk)
-                # p2c = vtk.vtkPointDataToCellData()
-                # p2c.SetInputData(grid2)
-                # geoFilter.SetInputConnection(p2c.GetOutputPort())
                 geoFilter.SetInputData(grid2)
                 lut.SetTableValue(0, r / 100., g / 100., b / 100., 1.)
                 lut.SetTableValue(1, r / 100., g / 100., b / 100., 1.)
@@ -137,9 +133,7 @@ def handleProjectionEdgeCases(projection, data):
     # For mercator projection, latitude values of -90 or 90
     # transformation result in infinity values. We chose -85, 85
     # as that's the typical limit used by the community.
-
     pname = projDict.get(projection._type, projection.type)
-
     if (pname.lower() == "merc"):
         lat = data.getLatitude()[:]
         # Reverse the latitudes incase the starting latitude is greater
@@ -150,13 +144,16 @@ def handleProjectionEdgeCases(projection, data):
     return data
 
 
-def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
+def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
+                    data2=None):
     continents = False
     projection = vcs.elements["projection"][gm.projection]
     xm, xM, ym, yM = None, None, None, None
     useStructuredGrid = True
 
     data1 = handleProjectionEdgeCases(projection, data1)
+    if data2 is not None:
+        data2 = handleProjectionEdgeCases(projection, data2)
 
     try:
         g = data1.getGrid()
@@ -216,6 +213,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
     xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if geo is None:
         geo, geopts = project(pts, projection, [xm, xM, ym, yM])
+        pts = geopts
     # Sets the vertices into the grid
     if grid is None:
         if useStructuredGrid:
@@ -223,7 +221,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
             vg.SetDimensions(data1.shape[1], data1.shape[0], 1)
         else:
             vg = vtk.vtkUnstructuredGrid()
-        vg.SetPoints(geopts)
+        vg.SetPoints(pts)
     else:
         vg = grid
     out = {"vtk_backend_grid": vg,
@@ -234,7 +232,8 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None):
            "continents": continents,
            "wrap": wrap,
            "geo": geo,
-           "data": data1
+           "data": data1,
+           "data2": data2
            }
     return out
 
@@ -544,6 +543,41 @@ def prepContinents(fnm):
 
     vcsContinents[fnm] = poly
     return poly
+
+
+def projectArray(w, projection, wc, geo=None):
+    xm, xM, ym, yM = wc
+    if isinstance(projection, (str, unicode)):
+        projection = vcs.elements["projection"][projection]
+    if projection.type == "linear":
+        return None, w
+
+    if geo is None:
+        geo = vtk.vtkGeoTransform()
+        ps = vtk.vtkGeoProjection()
+        pd = vtk.vtkGeoProjection()
+
+        pname = projDict.get(projection._type, projection.type)
+        projName = pname
+        pd.SetName(projName)
+
+        if projection.type == "polar (non gctp)":
+            if ym < yM:
+                pd.SetOptionalParameter("lat_0", "-90.")
+                pd.SetCentralMeridian(xm)
+            else:
+                pd.SetOptionalParameter("lat_0", "90.")
+                pd.SetCentralMeridian(xm + 180.)
+        else:
+            setProjectionParameters(pd, projection)
+        geo.SetSourceProjection(ps)
+        geo.SetDestinationProjection(pd)
+
+    for i in range(0, w.GetNumberOfTuples()):
+        tuple = [0, 0, 0]
+        w.GetTupleValue(i, tuple)
+        geo.TransformPoint(tuple, tuple)
+        w.SetTupleValue(i, tuple)
 
 
 # Geo projection
@@ -934,6 +968,11 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
     c = cmap.index[colorIndex]
     p.SetColor([C / 100. for C in c])
+    bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
+    bc = cmap.index[bcolorIndex]
+    p.SetBackgroundColor([C / 100. for C in bc])
+    bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
+    p.SetBackgroundOpacity(bopacity)
     if to.halign in [0, 'left']:
         p.SetJustificationToLeft()
     elif to.halign in [2, 'right']:
