@@ -6182,6 +6182,8 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
+        if self.colormap is None:
+            return vcs._colorMap
         return self.colormap
 
     def dummy_user_action(self, *args, **kargs):
