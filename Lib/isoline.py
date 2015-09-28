@@ -195,6 +195,8 @@ class Gi(object):
 %s
     label :: (str) ('n') turn on/off labels on isolines
     labelskipdistance :: (float) (0.0) minimum distance between isoline labels
+    labelbackgroundcolors :: ([float]) (None) background color for isoline labels
+    labelbackgroundopacities :: ([float]) (None) background opacity for isoline labels
 %s
 %s
     level :: ([float,...]) ([[0.0, 1.0000000200408773e+20]]) isocountours to display
@@ -329,6 +331,8 @@ class Gi(object):
         'level',
         'label',
         'labelskipdistance',
+        'labelbackgroundcolors',
+        'labelbackgroundopacities',
         'linecolors',
         'line',
         'linewidths',
@@ -359,6 +363,8 @@ class Gi(object):
         '_level',
         '_label',
         '_labelskipdistance',
+        '_labelbackgroundcolors',
+        '_labelbackgroundopacities',
         '_linecolors',
         '_line',
         '_linewidths',
@@ -665,6 +671,30 @@ class Gi(object):
         self._labelskipdistance = value
     labelskipdistance = property(_getlabelskipdistance, _setlabelskipdistance)
 
+    def _getlabelbackgroundcolors(self):
+        return self._labelbackgroundcolors
+
+    def _setlabelbackgroundcolors(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkColorList(
+                self,
+                'labelbackgroundcolors',
+                value)
+        self._labelbackgroundcolors = value
+    labelbackgroundcolors = property(_getlabelbackgroundcolors, _setlabelbackgroundcolors)
+
+    def _getlabelbackgroundopacities(self):
+        return self._labelbackgroundopacities
+
+    def _setlabelbackgroundopacities(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkOpacitiesList(
+                self,
+                'labelbackgroundopacities',
+                value)
+        self._labelbackgroundopacities = value
+    labelbackgroundopacities = property(_getlabelbackgroundopacities, _setlabelbackgroundopacities)
+
     def _getspacing(self):
         return self._spacing
 
@@ -762,6 +792,8 @@ class Gi(object):
             self._spacing = [1.]
             self._label = 'n'
             self._labelskipdistance = 0.0
+            self._labelbackgroundcolors = None
+            self._labelbackgroundopacities = None
             self._colormap = None
         else:
             if isinstance(Gi_name_src, Gi):
@@ -775,7 +807,8 @@ class Gi(object):
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits',
                         'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors",
-                        "clockwise", "scale", "angle", "spacing", "labelskipdistance"]:
+                        "clockwise", "scale", "angle", "spacing", "labelskipdistance", "labelbackgroundcolors",
+                        "labelbackgroundopacities"]:
                 setattr(self, att, getattr(src, att))
         vcs.elements["isoline"][Gi_name] = self
 
@@ -841,6 +874,8 @@ class Gi(object):
         print "yaxisconvert = ", self.yaxisconvert
         print "label = ", self.label
         print "labelskipdistance = ", self.labelskipdistance
+        print "labelbackgroundcolors = ", self.labelbackgroundcolors
+        print "labelbackgroundopacities = ", self.labelbackgroundopacities
         print "line = ", self.line
         print "linecolors = ", self.linecolors
         print "linewidths = ", self.linewidths
@@ -990,6 +1025,10 @@ class Gi(object):
             fp.write("%s.label = '%s'\n" % (unique_name, self.label))
             fp.write("%s.labelskipdistance = '%s'\n" %
                      (unique_name, self.labelskipdistance))
+            fp.write("%s.labelbackgroundcolors = '%s'\n" %
+                     (unique_name, self.labelbackgroundcolors))
+            fp.write("%s.labelbackgroundopacities = '%s'\n" %
+                     (unique_name, self.labelbackgroundopacities))
             fp.write("%s.line = %s\n" % (unique_name, self.line))
             fp.write("%s.linecolors = %s\n" % (unique_name, self.linecolors))
             fp.write("%s.linewidths = %s\n" % (unique_name, self.linewidths))
