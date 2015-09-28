@@ -3,10 +3,6 @@ set(ffmpeg_source "${CMAKE_CURRENT_BINARY_DIR}/build/FFMPEG")
 set(ffmpeg_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_build_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
-    @ONLY)
-
 find_program(YASM_BIN "yasm")
 
 if (NOT YASM_BIN)
@@ -25,7 +21,6 @@ ExternalProject_Add(FFMPEG
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${ffmpeg_conf_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  #  BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
   DEPENDS ${FFMPEG_deps}
   ${ep_log_options}
   )
