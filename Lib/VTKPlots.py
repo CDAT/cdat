@@ -383,15 +383,18 @@ class VTKVCSBackend(object):
         return info
 
     def orientation(self, *args, **kargs):
-        if self.renWin is None:
-            return "landscape"
-        w, h = self.renWin.GetSize()
+        canvas_info = self.canvasinfo()
+        w = canvas_info["width"]
+        h = canvas_info["height"]
         if w > h:
             return "landscape"
         else:
             return "portrait"
 
-    def portrait(self, W, H, x, y, clear):
+    def resize_or_rotate_window(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        # Resize and position window to the provided arguments except when the
+        # values are default and negative. In the latter case, it should just
+        # rotate the window.
         if clear:
             self.clear()
         if self.renWin is None:
@@ -404,6 +407,14 @@ class VTKVCSBackend(object):
                 self.canvas.bgY = W
         else:
             self.renWin.SetSize(W, H)
+            self.canvas.bgX = W
+            self.canvas.bgY = H
+
+    def portrait(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        self.resize_or_rotate_window(W, H, x, y, clear)
+
+    def landscape(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        self.resize_or_rotate_window(W, H, x, y, clear)
 
     def initialSize(self):
         # Gets user physical screen dimensions

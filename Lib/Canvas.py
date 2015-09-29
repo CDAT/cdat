@@ -18,7 +18,7 @@
 #               landscape (width exceeding height), portrait (height exceeding#
 #               width), or full-screen mode.                                  #
 #                                                                             #
-# Version:      4.0                                                           #
+# Version: 2.4                                                          #
 #                                                                             #
 ###############################################################################
 
@@ -4462,13 +4462,13 @@ Options:::
         if (self.orientation() == 'landscape'):
             return
 
-        if (((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
-                ((not isinstance(x, IntType))) or ((not isinstance(y, IntType))) or
+        if (((not isinstance(width, int))) or ((not isinstance(height, int))) or
+                ((not isinstance(x, int))) or ((not isinstance(y, int))) or
                 ((width != -99) and (width < 0)) or ((height != -99) and (height < 0)) or
                 ((x != -99) and (x < 0)) or ((y != -99) and (y < 0))):
             raise ValueError(
                 'If specified, width, height, x, and y must be integer values greater than or equal to 0.')
-        if (((not isinstance(clear, IntType))) and (clear not in [0, 1])):
+        if (((not isinstance(clear, int))) and (clear not in [0, 1])):
             raise ValueError(
                 "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'.")
 
@@ -4476,7 +4476,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
@@ -4486,7 +4486,7 @@ Options:::
         self.flush()  # update the canvas by processing all the X events
 
         args = (width, height, x, y, clear)
-        l = self.canvas.landscape(*args)
+        l = self.backend.landscape(*args)
 
         return l
 
@@ -4657,7 +4657,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
