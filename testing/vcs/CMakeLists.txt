@@ -136,6 +136,10 @@ cdat_add_test(vcs_test_dump_json
   ${cdat_SOURCE_DIR}/testing/vcs/test_dump_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
   )
+cdat_add_test(vcs_test_background_mode_rotate
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_background_mode_rotate.py
+  )
 
 # Some vector plot testing
 FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
