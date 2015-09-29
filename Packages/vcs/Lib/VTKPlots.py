@@ -170,6 +170,7 @@ class VTKVCSBackend(object):
         ren.SetBackground(.96, .96, .86)
         ren.SetViewport(x, y, min(x + .2, 1.), min(y + .2, 1))
         ren.SetLayer(self.renWin.GetNumberOfLayers() - 1)
+        self.renWin.AddRenderer(ren)
         a = vtk.vtkTextActor()
         a.SetInput(st)
         p = a.GetProperty()
@@ -190,7 +191,6 @@ class VTKVCSBackend(object):
         ren.AddActor(a)
         ren.ResetCamera()
         self.clickRenderer = ren
-        self.renWin.AddRenderer(ren)
         self.renWin.Render()
 
     def leftButtonReleaseEvent(self, obj, event):
@@ -322,7 +322,7 @@ class VTKVCSBackend(object):
             self.renWin.Render()
 
     def createRenderer(self, *args, **kargs):
-            # For now always use the canvas background
+        # For now always use the canvas background
         ren = vtk.vtkRenderer()
         r, g, b = self.canvas.backgroundcolor
         ren.SetBackground(r / 255., g / 255., b / 255.)
@@ -383,15 +383,18 @@ class VTKVCSBackend(object):
         return info
 
     def orientation(self, *args, **kargs):
-        if self.renWin is None:
-            return "landscape"
-        w, h = self.renWin.GetSize()
+        canvas_info = self.canvasinfo()
+        w = canvas_info["width"]
+        h = canvas_info["height"]
         if w > h:
             return "landscape"
         else:
             return "portrait"
 
-    def portrait(self, W, H, x, y, clear):
+    def resize_or_rotate_window(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        # Resize and position window to the provided arguments except when the
+        # values are default and negative. In the latter case, it should just
+        # rotate the window.
         if clear:
             self.clear()
         if self.renWin is None:
@@ -404,11 +407,29 @@ class VTKVCSBackend(object):
                 self.canvas.bgY = W
         else:
             self.renWin.SetSize(W, H)
+            self.canvas.bgX = W
+            self.canvas.bgY = H
+
+    def portrait(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        self.resize_or_rotate_window(W, H, x, y, clear)
+
+    def landscape(self, W=-99, H=-99, x=-99, y=-99, clear=0):
+        self.resize_or_rotate_window(W, H, x, y, clear)
 
     def initialSize(self):
-        # screenSize = self.renWin.GetScreenSize()
-        self.renWin.SetSize(self.canvas.bgX, self.canvas.bgY)
-        self._lastSize = (self.canvas.bgX, self.canvas.bgY)
+        # Gets user physical screen dimensions
+        screenSize = self.renWin.GetScreenSize()
+        try:
+            # following works on some machines but not all
+            # Creates the window to be 60% of user's screen's width
+            bgX = int(screenSize[0] * .6)
+        except:
+            bgX = self.canvas.bgX
+        # Respect user chosen aspect ratio
+        bgY = int(bgX / self.canvas.size)
+        # Sets renWin dimensions
+        self.renWin.SetSize(bgX, bgY)
+        self._lastSize = (bgX, bgY)
 
     def open(self):
         self.createRenWin(open=True)
@@ -452,7 +473,8 @@ class VTKVCSBackend(object):
         tpl = vcs.elements["template"][template]
 
         if kargs.get("renderer", None) is None:
-            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (self.renderer is not None):
+            if (gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]) and (
+                    self.renderer is not None):
                 ren = self.renderer
         else:
             ren = kargs["renderer"]
@@ -462,7 +484,7 @@ class VTKVCSBackend(object):
 
         pipeline = vcsvtk.createPipeline(gm, self)
         if pipeline is not None:
-            returned.update(pipeline.plot(data1, data2, tpl, gm,
+            returned.update(pipeline.plot(data1, data2, tpl,
                                           vtk_backend_grid, vtk_backend_geo))
         elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
             cdms_file = kargs.get('cdmsfile', None)
@@ -486,12 +508,15 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(
                     ren,
                     to=to,
-                    tt=tt)
+                    tt=tt,
+                    cmap=self.canvas.colormap)
                 self.setLayer(ren, tt.priority)
         elif gtype == "line":
             if gm.priority != 0:
-                actors = vcs2vtk.prepLine(self.renWin, gm)
+                actors = vcs2vtk.prepLine(self.renWin, gm,
+                                          cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
+                create_renderer = True
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -499,11 +524,14 @@ class VTKVCSBackend(object):
                         wc=gm.worldcoordinate,
                         geo=geo,
                         priority=gm.priority,
-                        create_renderer=True)
+                        create_renderer=create_renderer)
+                    create_renderer = False
         elif gtype == "marker":
             if gm.priority != 0:
-                actors = vcs2vtk.prepMarker(self.renWin, gm)
+                actors = vcs2vtk.prepMarker(self.renWin, gm,
+                                            cmap=self.canvas.colormap)
                 returned["vtk_backend_marker_actors"] = actors
+                create_renderer = True
                 for g, gs, pd, act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -512,13 +540,16 @@ class VTKVCSBackend(object):
                         geo=geo,
                         priority=gm.priority,
                         create_renderer=True)
+                    create_renderer = False
                     if pd is None and act.GetUserTransform():
                         vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
 
         elif gtype == "fillarea":
             if gm.priority != 0:
-                actors = vcs2vtk.prepFillarea(self.renWin, gm)
+                actors = vcs2vtk.prepFillarea(self.renWin, gm,
+                                              cmap=self.canvas.colormap)
                 returned["vtk_backend_fillarea_actors"] = actors
+                create_renderer = True
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -526,7 +557,8 @@ class VTKVCSBackend(object):
                         wc=gm.worldcoordinate,
                         geo=geo,
                         priority=gm.priority,
-                        create_renderer=True)
+                        create_renderer=create_renderer)
+                    create_renderer = False
         else:
             raise Exception(
                 "Graphic type: '%s' not re-implemented yet" %
@@ -1075,7 +1107,8 @@ class VTKVCSBackend(object):
 
     def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None,
                       create_renderer=False):
-            # Data range in World Coordinates
+
+        # Data range in World Coordinates
         if priority == 0:
             return None
         vp = tuple(vp)
@@ -1133,7 +1166,6 @@ class VTKVCSBackend(object):
                         pt.InsertPoint(NGridCover, x, y, 0)
                         NGridCover += 1
                 pts = vtk.vtkPoints()
-                # pts.SetNumberOfPoints(Npts*Npts)
                 geo.TransformPoints(pt, pts)
                 b = pts.GetBounds()
                 xm, xM, ym, yM = b[:4]
@@ -1147,6 +1179,7 @@ class VTKVCSBackend(object):
                     Yrg2[1] = max(Yrg2[1], yM)
                 Xrg = Xrg2
                 Yrg = Yrg2
+
             wRatio = float(sc[0]) / float(sc[1])
             dRatio = (Xrg[1] - Xrg[0]) / (Yrg[1] - Yrg[0])
             vRatio = float(vp[1] - vp[0]) / float(vp[3] - vp[2])

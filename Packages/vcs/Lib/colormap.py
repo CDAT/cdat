@@ -230,6 +230,22 @@ class Cp(object):
 
         # Note: See RGB_Table Class for "index" setting of the colormap entries
 
+    # Set a colorcell RGB
+    def setcolorcell(self, index, red, green, blue):
+        """
+        Sets the R,G,B values of a colorcell
+        Usage setcolorcell(index,r,g,b)
+        """
+        self.index[index] = [red, green, blue]
+
+    # get a colorcell RGB
+    def getcolorcell(self, index):
+        """
+        Sets the R,G,B values of a colorcell
+        Usage setcolorcell(index,r,g,b)
+        """
+        return self.index[index]
+
     ##########################################################################
     #                                                                           #
     # List out colormap members (attributes).                                   #

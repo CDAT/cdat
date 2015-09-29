@@ -1,14 +1,13 @@
 import numpy
 import cdms2
 import os
-
 from markError import clearError,markError,reportError
 clearError()
 cdms2.setNetcdfClassicFlag(0)
 
 print 'Test 18: numpy types with NetCDF4 ...',
-
-for t in [numpy.byte,numpy.short,numpy.int,numpy.int32,numpy.float,numpy.float32,numpy.double,numpy.ubyte,numpy.ushort,numpy.uint,numpy.int64,numpy.uint64]:
+#for t in [numpy.byte,numpy.short,numpy.int,numpy.int32,numpy.float,numpy.float32,numpy.double,numpy.ubyte,numpy.ushort,numpy.uint,numpy.int64,numpy.uint64]:
+for t in [numpy.uint]:
     print 'Testing type:',t
     data = numpy.array([0], dtype=t)
     var = cdms2.createVariable(data)

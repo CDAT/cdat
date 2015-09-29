@@ -11,6 +11,10 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_test_bad_png_path
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
+)
 cdat_add_test(vcs_test_text_object_as_input.py
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
@@ -31,10 +35,20 @@ cdat_add_test(vcs_verify_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_create_get.py
 )
-cdat_add_test(vcs_test_antialiasing
+cdat_add_test(vcs_get_set_cmap_colorcell
   "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_get_set_cmap_colorcell.py
 )
+cdat_add_test(vcs_verify_size_init
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_size_keyword.py
+)
+if (NOT EXISTS /etc/redhat-release)
+    cdat_add_test(vcs_test_antialiasing
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
+)
+endif()
 cdat_add_test(vcs_verify_init
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
@@ -121,6 +135,10 @@ cdat_add_test(vcs_test_dump_json
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_dump_json.py
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
+  )
+cdat_add_test(vcs_test_background_mode_rotate
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_background_mode_rotate.py
   )
 
 # Some vector plot testing
@@ -280,6 +298,18 @@ cdat_add_test(vcs_test_taylor_2_quads
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
+    FOREACH(gm boxfill isofill meshfill isoline vector)
+      FOREACH(src vcs canvas gm)
+        cdat_add_test(test_vcs_colormaps_source_${gm}_${src}
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colormaps_source.py
+          -b ${BASELINE_DIR}/test_vcs_colormaps_source_${gm}_${src}.png
+          -g ${gm}
+          -s ${src}
+          )
+      ENDFOREACH()
+    ENDFOREACH()
+
     cdat_add_test(test_vcs_meshfill_regular_grid
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
@@ -527,35 +557,38 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_draw_mesh.py
       ${BASELINE_DIR}/test_meshfill_draw_mesh.png
       )
-    cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
-      )
-    cdat_add_test(vcs_test_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
-      "${BASELINE_DIR}/test_isoline_labels.png"
-      )
-    cdat_add_test(vcs_test_isoline_labelskipdistance
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labelskipdistance.py"
-      "${BASELINE_DIR}/test_isoline_labelskipdistance.png"
-      )
-    cdat_add_test(vcs_test_isofill_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
-      "${BASELINE_DIR}/test_isofill_isoline_labels.png"
-      )
+    # @dlonie is looking into why RH6 fails for these
+    if (NOT EXISTS /etc/redhat-release)
+      cdat_add_test(vcs_test_isoline_labels_multi_label_input_types
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
+        "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
+        )
+      cdat_add_test(vcs_test_isoline_labels
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels.py"
+        "${BASELINE_DIR}/test_isoline_labels.png"
+        )
+      cdat_add_test(vcs_test_isoline_labelskipdistance
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labelskipdistance.py"
+        "${BASELINE_DIR}/test_isoline_labelskipdistance.png"
+        )
+      cdat_add_test(vcs_test_isofill_isoline_labels
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isofill_isoline_labels.py"
+        "${BASELINE_DIR}/test_isofill_isoline_labels.png"
+        )
+      cdat_add_test(vcs_test_isoline_labels_background
+        "${PYTHON_EXECUTABLE}"
+        "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_labels_background.py"
+        "${BASELINE_DIR}/test_isoline_labels_background.png"
+        )
+    endif()
     cdat_add_test(vcs_test_oned_level_axis
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_oned_level_axis.py
       "${BASELINE_DIR}/test_oned_level_axis.png"
-      )
-    cdat_add_test(vcs_test_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      "${BASELINE_DIR}/test_vcs_patterns.png"
       )
     cdat_add_test(vcs_test_first_png_blank
       "${PYTHON_EXECUTABLE}"
@@ -666,16 +699,28 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_colored.py
       ${BASELINE_DIR}
       )
-    cdat_add_test(vcs_test_animate_isoline_text_labels
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
-      ${BASELINE_DIR}
-      )
-    cdat_add_test(vcs_test_animate_isoline_text_labels_colored
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
-      ${BASELINE_DIR}
-      )
+    if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
+      cdat_add_test(vcs_test_animate_isoline_text_labels
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels.py
+        ${BASELINE_DIR}
+        )
+      cdat_add_test(vcs_test_animate_isoline_text_labels_colored
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_animate_isoline_text_labels_colored.py
+        ${BASELINE_DIR}
+        )
+      cdat_add_test(vcs_test_patterns
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+        "${BASELINE_DIR}/test_vcs_patterns.png"
+        )
+      cdat_add_test(vcs_test_vectors_robinson
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+        "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
+        )
+    endif()
   endif()
 
 cdat_add_test(vcs_test_endconfigure
@@ -711,6 +756,19 @@ cdat_add_test(vcs_test_colorpicker_appearance
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colorpicker_appearance.py
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
 )
+
+cdat_add_test(vcs_test_click_info
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info.png
+)
+
+cdat_add_test(vcs_test_mercator_edge
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mercator_edge.py
+  ${BASELINE_DIR}/test_vcs_mercator_edge.png
+)
+
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)

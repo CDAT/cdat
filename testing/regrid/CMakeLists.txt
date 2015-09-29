@@ -94,10 +94,10 @@ if (EXISTS "${CMAKE_INSTALL_PREFIX}/bin/mpiexec")
            "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
             "${PYTHON_EXECUTABLE}"
             ${cdat_SOURCE_DIR}/testing/regrid/testGhostedDistArray.py)
-  cdat_add_test("testDistTransientVar6Pes"
-           "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
-            "${PYTHON_EXECUTABLE}"
-            ${cdat_SOURCE_DIR}/testing/regrid/testDistTransientVar.py)
+#  cdat_add_test("testDistTransientVar6Pes"
+#           "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "6"
+#            "${PYTHON_EXECUTABLE}"
+#            ${cdat_SOURCE_DIR}/testing/regrid/testDistTransientVar.py)
   cdat_add_test("testEsmfGridToMeshRegridCsrv"
            "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "2"
             "${PYTHON_EXECUTABLE}"

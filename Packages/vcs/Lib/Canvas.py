@@ -18,7 +18,7 @@
 #               landscape (width exceeding height), portrait (height exceeding#
 #               width), or full-screen mode.                                  #
 #                                                                             #
-# Version:      4.0                                                           #
+# Version: 2.4                                                          #
 #                                                                             #
 ###############################################################################
 
@@ -865,7 +865,7 @@ class Canvas(object):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
-        self.colormap = "default"
+        self.colormap = None
         self.backgroundcolor = 255, 255, 255
         # default size for bg
         self.bgX = 814
@@ -4462,13 +4462,13 @@ Options:::
         if (self.orientation() == 'landscape'):
             return
 
-        if (((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
-                ((not isinstance(x, IntType))) or ((not isinstance(y, IntType))) or
+        if (((not isinstance(width, int))) or ((not isinstance(height, int))) or
+                ((not isinstance(x, int))) or ((not isinstance(y, int))) or
                 ((width != -99) and (width < 0)) or ((height != -99) and (height < 0)) or
                 ((x != -99) and (x < 0)) or ((y != -99) and (y < 0))):
             raise ValueError(
                 'If specified, width, height, x, and y must be integer values greater than or equal to 0.')
-        if (((not isinstance(clear, IntType))) and (clear not in [0, 1])):
+        if (((not isinstance(clear, int))) and (clear not in [0, 1])):
             raise ValueError(
                 "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'.")
 
@@ -4476,7 +4476,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
@@ -4486,7 +4486,7 @@ Options:::
         self.flush()  # update the canvas by processing all the X events
 
         args = (width, height, x, y, clear)
-        l = self.canvas.landscape(*args)
+        l = self.backend.landscape(*args)
 
         return l
 
@@ -4657,7 +4657,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
@@ -4812,6 +4812,9 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
+        base = os.path.dirname(file)
+        if base != "" and not os.path.exists(base):
+            raise vcsError("Output path: %s does not exist" % base)
         return self.backend.png(
             file, width, height, units, draw_white_background, **args)
 
@@ -6179,6 +6182,8 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
+        if self.colormap is None:
+            return vcs._colorMap
         return self.colormap
 
     def dummy_user_action(self, *args, **kargs):
