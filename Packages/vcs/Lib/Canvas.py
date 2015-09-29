@@ -18,7 +18,7 @@
 #               landscape (width exceeding height), portrait (height exceeding#
 #               width), or full-screen mode.                                  #
 #                                                                             #
-# Version:      4.0                                                           #
+# Version: 2.4                                                          #
 #                                                                             #
 ###############################################################################
 
