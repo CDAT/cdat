@@ -2,7 +2,6 @@
 set(x264_source "${CMAKE_CURRENT_BINARY_DIR}/build/X264")
 set(x264_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
-set(x264_conf_xtra "./x264-snapshot-${X264_DATE}-${X264_TIME}${X264_ADDENDUM}")
 
 find_program(YASM_BIN "yasm")
 
@@ -21,7 +20,7 @@ ExternalProject_Add(X264
   URL_MD5 ${X264_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCONF_PATH_XTRA=${x264_conf_xtra} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${x264_conf_args} -DBASH_CONFIGURE=ON -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${x264_conf_args} -DBASH_CONFIGURE=ON -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${X264_deps}
   ${ep_log_options}
   )
