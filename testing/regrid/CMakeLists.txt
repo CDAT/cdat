@@ -5,6 +5,17 @@ cdat_add_test("test177_regrid_mask"
          "${PYTHON_EXECUTABLE}"
          ${cdat_SOURCE_DIR}/testing/regrid/test177_regrid_mask.py)
 
+if (CDAT_BUILD_GRAPHICS)
+  set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/regrid")
+  set(DATA_DIR "${UVCDAT_GIT_TESTDATA_DIR}/data/regrid")
+  cdat_add_test("testEsmfRegridRegion"
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/regrid/testEsmfRegridPeriodictyRegional.py"
+    "${DATA_DIR}/testEsmfRegridPeriodictyRegional.nc"
+    "${BASELINE_DIR}/testEsmfRegridPeriodictyRegional.png"
+    )
+endif()
+
 if (EXISTS "${CMAKE_INSTALL_PREFIX}/bin/mpiexec")
 
   cdat_add_test("testMPIGrid"
