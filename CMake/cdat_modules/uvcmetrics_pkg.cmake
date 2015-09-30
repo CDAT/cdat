@@ -8,5 +8,7 @@ set(UVCMETRICS_SOURCE ${GIT_PROTOCOL}github.com/UV-CDAT/uvcmetrics.git )
 set(UVCMETRICS_MD5)
 set(UVCMETRICS_BRANCH uvcdat-2.2.0)
 
-add_cdat_package(UVCMETRICS "" "" ON)
+if (NOT CDAT_BUILD_LEAN)
+  add_cdat_package(UVCMETRICS "" "" ON)
+endif()
 
