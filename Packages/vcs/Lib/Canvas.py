@@ -4706,7 +4706,7 @@ Options:::
         cmd = 'ffmpeg -y '
 
         if rate is not None:
-            cmd += ' -r %s ' % rate
+            cmd += ' -framerate %s ' % str(rate)
         if isinstance(files, (list, tuple)):
             rnd = "%s/.uvcdat/__uvcdat_%i" % (
                 os.environ["HOME"], numpy.random.randint(600000000))
@@ -4718,10 +4718,7 @@ Options:::
             cmd += '-i %s_%%d.png' % (rnd)
         elif isinstance(files, str):
             cmd += '-i ' + files
-        if rate is not None:
-            cmd += ' -r %s ' % rate
-        if bitrate is not None:
-            cmd += ' -b:v %sk' % bitrate
+        cmd += " -pix_fmt yuv420p "
         cmd += ' ' + options
         cmd += ' ' + movie
         o = os.popen(cmd).read()

@@ -1469,6 +1469,8 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing
 def getcolorcell(cell, obj=None):
     if obj is None:
         cmap = vcs.getcolormap()
+    elif obj.colormap is None:
+        cmap = vcs.getcolormap()
     else:
         cmap = vcs.getcolormap(obj.colormap)
     return cmap.index[cell]
