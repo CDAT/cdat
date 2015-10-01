@@ -182,7 +182,6 @@ class IsofillPipeline(Pipeline2D):
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
                 r, g, b = _colorMap.index[color]
-                lut.SetTableValue(j, r / 100., g / 100., b / 100.)
                 if style in ['solid', 'pattern']:
                     lut.SetTableValue(j, r / 100., g / 100., b / 100.,
                                       tmpOpacities[i] / 100.)
