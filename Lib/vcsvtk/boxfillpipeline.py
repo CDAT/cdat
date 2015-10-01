@@ -1,6 +1,7 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
 
+import fillareautils
 import numpy
 import vcs
 import vtk
@@ -23,6 +24,7 @@ class BoxfillPipeline(Pipeline2D):
 
         self._contourLabels = None
         self._mappers = None
+        self._patternActors = []
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -181,6 +183,18 @@ class BoxfillPipeline(Pipeline2D):
                 priority=self._template.data.priority,
                 create_renderer=True)
 
+        for act in self._patternActors:
+            if self._vtkGeoTransform is None:
+                # If using geofilter on wireframed does not get wrapped not sure
+                # why so sticking to many mappers
+                self._context().fitToViewport(
+                    act, [self._template.data.x1, self._template.data.x2,
+                          self._template.data.y1, self._template.data.y2],
+                    wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                    priority=self._template.data.priority,
+                    create_renderer=True)
+                actors.append([act, [x1, x2, y1, y2]])
+
         self._resultDict["vtk_backend_actors"] = actors
 
         t = self._originalData1.getTime()
@@ -220,7 +234,10 @@ class BoxfillPipeline(Pipeline2D):
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors,
                                            self._contourLabels,
-                                           self.getColorMap()))
+                                           self.getColorMap(),
+                                           style=self._gm.fillareastyle,
+                                           index=self._gm.fillareaindices,
+                                           opacity=self._gm.fillareaopacity))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
@@ -286,7 +303,13 @@ class BoxfillPipeline(Pipeline2D):
         self._mappers = []
         tmpLevels = []
         tmpColors = []
+        tmpIndices = []
+        tmpOpacities = []
+
         indices = self._gm.fillareaindices
+        opacities = self._gm.fillareaopacity
+        style = self._gm.fillareastyle
+
         if indices is None:
             indices = [1]
         while len(indices) < len(self._contourColors):
@@ -304,7 +327,15 @@ class BoxfillPipeline(Pipeline2D):
                 "extra ones will be ignored\nGraphic Method: %s of type %s"
                 % (len(self._contourLevels), len(self._contourColors),
                    self._gm.name, self._gm.g_name))
+        if len(opacities) < len(self._contourColors):
+            # fill up the opacity values
+            if style == 'pattern':
+                opacities += [0] * (len(self._contourColors) - len(opacities))
+            else:
+                opacities += [100] * (len(self._contourColors) - len(opacities))
 
+        # The following loop attempts to group isosurfaces based on their
+        # attributes. Isosurfaces grouped if and only if all properties match.
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 C = [self._contourColors[i]]
@@ -313,9 +344,12 @@ class BoxfillPipeline(Pipeline2D):
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
                 else:
                     L = list(self._contourLevels[i])
-                I = [indices[i]]
+                I = indices[i]
+                O = opacities[i]
             else:
-                if l[0] == L[-1] and I[-1] == indices[i]:
+                if l[0] == L[-1] and I == indices[i] and\
+                        ((style == 'solid') or
+                            (C[-1] == self._contourColors[i] and O == opacities[i])):
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -325,19 +359,26 @@ class BoxfillPipeline(Pipeline2D):
                 else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
+                    tmpIndices.append(I)
+                    tmpOpacities.append(O)
                     C = [self._contourColors[i]]
-                    L = self._contourLevels[i]
-                    I = [indices[i]]
+#                    L = self._contourLevels[i]
+                    L = [L[-1], l[1]]
+                    I = indices[i]
+                    O = opacities[i]
         tmpLevels.append(L)
         tmpColors.append(C)
+        tmpIndices.append(I)
+        tmpOpacities.append(O)
 
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
+        self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
-            # will happen if: next set of levels contnues where one left off
+            # will happen if: next set of levels continues where one left off
             # AND pattern is identical
 
             # TODO this should really just be a single polydata/mapper/actor:
@@ -349,11 +390,17 @@ class BoxfillPipeline(Pipeline2D):
                 th.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
                 geoFilter2 = vtk.vtkDataSetSurfaceFilter()
                 geoFilter2.SetInputConnection(th.GetOutputPort())
+                # Make the polydata output available here for patterning later
+                geoFilter2.Update()
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
                 r, g, b = _colorMap.index[color]
-                lut.SetTableValue(0, r / 100., g / 100., b / 100.)
+                if style in ['solid', 'pattern']:
+                    lut.SetTableValue(0, r / 100., g / 100., b / 100.,
+                                      tmpOpacities[i] / 100.)
+                else:
+                    lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
                 luts.append([lut, [l[j], l[j + 1], False]])
@@ -362,6 +409,16 @@ class BoxfillPipeline(Pipeline2D):
                 # purposes
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
+
+                #  Since pattern creation requires a single color, assuming the first
+                c = [val * 255 / 100.0 for val in _colorMap.index[tmpColors[i][0]]]
+                act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
+                                                            fillareastyle=style,
+                                                            fillareaindex=tmpIndices[i],
+                                                            fillareacolors=c,
+                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0)
+                if act is not None:
+                    self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
