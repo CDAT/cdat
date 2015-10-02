@@ -22,15 +22,16 @@ class DiagTest(object):
         p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
         p.add_argument("--datadir", dest="datadir", help="root directory for model and obs data")
         p.add_argument("--baseline", dest="baseline", help="directory with baseline files for comparing results")
-        p.add_argument("--keep", dest="keep", help="Iff True, will keep computed png and nc files")
+        p.add_argument("--keep", dest="keep", help="If True, will keep computed png and nc files")
         args = p.parse_args(sys.argv[1:])
         self.datadir = args.datadir
         print 'datadir = ', self.datadir
         self.baselinepath = args.baseline + 'plotset' + str(plotset)
         print "baselinepath = ", self.baselinepath
-        self.keep = False
+        self.keep = True
         if args.keep:
             self.keep = args.keep
+         
     
         #setup paths to data
         self.modelpath = os.path.join( self.datadir, modeldir )
