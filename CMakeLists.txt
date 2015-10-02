@@ -268,6 +268,9 @@ cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering.
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
+# Option to enable CMOR
+option(CDAT_BUILD_CMOR "Build CMOR" ON)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
