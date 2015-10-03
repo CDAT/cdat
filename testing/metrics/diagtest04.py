@@ -11,21 +11,21 @@ test_str = 'Test 4\n'
 example = "./diagtest04.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
 
 plotset = 4
-filterid = 'f_contains'
+filterid = 'f_startswith'
 obsid = 'NCEP'
 varid = 'T'
-seasonid = 'JJA'
-modeldir = 'cam_output'
-obsdir = 'obs_atmos'
+seasonid = 'ANN'
+modeldir = 'cam35_data'
+obsdir = 'obs'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
-imagefilename = 'set4_Global_JJA_T-combined.png'
+imagefilename = 'set4_Global_ANN_T-combined.png'
 imagethreshold = 1.0e6
 ncfiles = {}
-ncfiles['T_JJA_(1)_None.nc'] = ['rv_T_JJA_ft0_None']
-ncfiles['T_JJA_(2)_None.nc'] = ['rv_T_JJA_ft1_None']
+ncfiles['T_ANN_(1)_None.nc'] = ['dv_T_levlat_ANN_ft0_None_None']
+ncfiles['T_ANN_(2)_None.nc'] = ['rv_T_ANN_ft1_None']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3
