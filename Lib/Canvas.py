@@ -5055,8 +5055,7 @@ Options:::
         return width, height, sfactor
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', left_margin=None, right_margin=None,
-                   top_margin=None, bottom_margin=None):
+        units='inches'):
         """
  Function: postscript
 
@@ -5103,30 +5102,15 @@ Options:::
         W = int(width * dpi * sfactor)
         H = int(height * dpi * sfactor)
 
-# print "will usE:",W,H,float(W)/H
-        # figures out margins
-
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
             file += '.ps'
         if mode == 'r':
-            return self.backend.postscript(file, W, H, R, L, T, B)
+            return self.backend.postscript(file, W, H, units="pixels")
         else:
             n = random.randint(0, 10000000000000)
             psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-            self.backend.postscript(psnm, W, H, R, L, T, B)
+            self.backend.postscript(psnm, W, H,units="pixels")
             if os.path.exists(file):
                 f = open(file, 'r+')
                 f.seek(0, 2)  # goes to end of file
