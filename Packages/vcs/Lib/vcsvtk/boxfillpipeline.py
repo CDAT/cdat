@@ -230,14 +230,20 @@ class BoxfillPipeline(Pipeline2D):
                     # need exts
                     self._contourLevels.append(1.e20)
 
+        # Do not pass patterning parameters for color bar rendering if the
+        # boxfill type is non-custom
+        patternArgs = {}
+        if self._gm.boxfill_type == "custom":
+            patternArgs['style'] = self._gm.fillareastyle
+            patternArgs['index'] = self._gm.fillareaindices
+            patternArgs['opacity'] = self._gm.fillareaopacity
+
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors,
                                            self._contourLabels,
                                            self.getColorMap(),
-                                           style=self._gm.fillareastyle,
-                                           index=self._gm.fillareaindices,
-                                           opacity=self._gm.fillareaopacity))
+                                           **patternArgs))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
