@@ -38,6 +38,7 @@ PYTHON3 = sys.version_info[0] == 3
 if PYTHON3:
     xrange = range
 
+
 def b(v):
     if PYTHON3:
         if isinstance(v, str):
@@ -52,6 +53,7 @@ def b(v):
     else:
         # For python 2 assume str passed in and return str.
         return v
+
 
 def u(v):
     if PYTHON3:
@@ -68,17 +70,21 @@ def u(v):
         # For python 2 assume str passed in and return str.
         return v
 
+
 def is_string(v):
     if PYTHON3:
         return isinstance(v, str)
     else:
         return isinstance(v, basestring)
 
+
 class _Array(array.array):
     """Converts python tuples to lits of the appropritate type.
     Used to unpack different shapefile header parts."""
+
     def __repr__(self):
         return str(self.tolist())
+
 
 def signed_area(coords):
     """Return the signed area enclosed by a ring using the linear time
@@ -88,9 +94,11 @@ def signed_area(coords):
     xs, ys = map(list, zip(*coords))
     xs.append(xs[1])
     ys.append(ys[1])
-    return sum(xs[i]*(ys[i+1]-ys[i-1]) for i in range(1, len(coords)))/2.0
+    return sum(xs[i] * (ys[i + 1] - ys[i - 1]) for i in range(1, len(coords))) / 2.0
+
 
 class _Shape:
+
     def __init__(self, shapeType=None):
         """Stores the geometry of the different shape types
         specified in the Shapefile spec. Shape types are
@@ -108,25 +116,25 @@ class _Shape:
     def __geo_interface__(self):
         if self.shapeType in [POINT, POINTM, POINTZ]:
             return {
-            'type': 'Point',
-            'coordinates': tuple(self.points[0])
+                'type': 'Point',
+                'coordinates': tuple(self.points[0])
             }
         elif self.shapeType in [MULTIPOINT, MULTIPOINTM, MULTIPOINTZ]:
             return {
-            'type': 'MultiPoint',
-            'coordinates': tuple([tuple(p) for p in self.points])
+                'type': 'MultiPoint',
+                'coordinates': tuple([tuple(p) for p in self.points])
             }
         elif self.shapeType in [POLYLINE, POLYLINEM, POLYLINEZ]:
             if len(self.parts) == 1:
                 return {
-                'type': 'LineString',
-                'coordinates': tuple([tuple(p) for p in self.points])
+                    'type': 'LineString',
+                    'coordinates': tuple([tuple(p) for p in self.points])
                 }
             else:
                 ps = None
                 coordinates = []
                 for part in self.parts:
-                    if ps == None:
+                    if ps is None:
                         ps = part
                         continue
                     else:
@@ -135,20 +143,20 @@ class _Shape:
                 else:
                     coordinates.append(tuple([tuple(p) for p in self.points[part:]]))
                 return {
-                'type': 'MultiLineString',
-                'coordinates': tuple(coordinates)
+                    'type': 'MultiLineString',
+                    'coordinates': tuple(coordinates)
                 }
         elif self.shapeType in [POLYGON, POLYGONM, POLYGONZ]:
             if len(self.parts) == 1:
                 return {
-                'type': 'Polygon',
-                'coordinates': (tuple([tuple(p) for p in self.points]),)
+                    'type': 'Polygon',
+                    'coordinates': (tuple([tuple(p) for p in self.points]),)
                 }
             else:
                 ps = None
                 coordinates = []
                 for part in self.parts:
-                    if ps == None:
+                    if ps is None:
                         ps = part
                         continue
                     else:
@@ -167,24 +175,28 @@ class _Shape:
                 polys.append(poly)
                 if len(polys) == 1:
                     return {
-                    'type': 'Polygon',
-                    'coordinates': tuple(polys[0])
+                        'type': 'Polygon',
+                        'coordinates': tuple(polys[0])
                     }
                 elif len(polys) > 1:
                     return {
-                    'type': 'MultiPolygon',
-                    'coordinates': polys
+                        'type': 'MultiPolygon',
+                        'coordinates': polys
                     }
+
 
 class _ShapeRecord:
     """A shape object of any type."""
+
     def __init__(self, shape=None, record=None):
         self.shape = shape
         self.record = record
 
+
 class ShapefileException(Exception):
     """An exception to handle shapefile specific problems."""
     pass
+
 
 class Reader:
     """Reads the three files of a shapefile as a unit or
@@ -204,6 +216,7 @@ class Reader:
     efficiently as possible. Shapefiles are usually not large
     but they can be.
     """
+
     def __init__(self, *args, **kwargs):
         self.shp = None
         self.shx = None
@@ -282,7 +295,8 @@ class Reader:
             rmax = self.numRecords - 1
             if abs(i) > rmax:
                 raise IndexError("Shape or Record index out of range.")
-            if i < 0: i = range(self.numRecords)[i]
+            if i < 0:
+                i = range(self.numRecords)[i]
         return i
 
     def __shpHeader(self):
@@ -295,7 +309,7 @@ class Reader:
         self.shpLength = unpack(">i", shp.read(4))[0] * 2
         # Shape type
         shp.seek(32)
-        self.shapeType= unpack("<i", shp.read(4))[0]
+        self.shapeType = unpack("<i", shp.read(4))[0]
         # The shapefile's bounding box (lower left, upper right)
         self.bbox = _Array('d', unpack("<4d", shp.read(32)))
         # Elevation
@@ -317,13 +331,13 @@ class Reader:
         if shapeType == 0:
             record.points = []
         # All shape types capable of having a bounding box
-        elif shapeType in (3,5,8,13,15,18,23,25,28,31):
+        elif shapeType in (3, 5, 8, 13, 15, 18, 23, 25, 28, 31):
             record.bbox = _Array('d', unpack("<4d", f.read(32)))
         # Shape types with parts
-        if shapeType in (3,5,13,15,23,25,31):
+        if shapeType in (3, 5, 13, 15, 23, 25, 31):
             nParts = unpack("<i", f.read(4))[0]
         # Shape types with points
-        if shapeType in (3,5,8,13,15,23,25,31):
+        if shapeType in (3, 5, 8, 13, 15, 23, 25, 31):
             nPoints = unpack("<i", f.read(4))[0]
         # Read parts
         if nParts:
@@ -335,11 +349,11 @@ class Reader:
         if nPoints:
             record.points = [_Array('d', unpack("<2d", f.read(16))) for p in range(nPoints)]
         # Read z extremes and values
-        if shapeType in (13,15,18,31):
+        if shapeType in (13, 15, 18, 31):
             (zmin, zmax) = unpack("<2d", f.read(16))
             record.z = _Array('d', unpack("<%sd" % nPoints, f.read(nPoints * 8)))
         # Read m extremes and values if header m values do not equal 0.0
-        if shapeType in (13,15,18,23,25,28,31) and not 0.0 in self.measure:
+        if shapeType in (13, 15, 18, 23, 25, 28, 31) and not 0.0 in self.measure:
             (mmin, mmax) = unpack("<2d", f.read(16))
             # Measure values less than -10e38 are nodata values according to the spec
             record.m = []
@@ -349,13 +363,13 @@ class Reader:
                 else:
                     record.m.append(None)
         # Read a single point
-        if shapeType in (1,11,21):
+        if shapeType in (1, 11, 21):
             record.points = [_Array('d', unpack("<2d", f.read(16)))]
         # Read a single Z value
         if shapeType == 11:
             record.z = unpack("<d", f.read(8))
         # Read a single M value
-        if shapeType in (11,21):
+        if shapeType in (11, 21):
             record.m = unpack("<d", f.read(8))
         # Seek to the end of this record as defined by the record header because
         # the shapefile spec doesn't require the actual content to meet the header
@@ -380,7 +394,7 @@ class Reader:
                 # Offsets are 16-bit words just like the file length
                 self._offsets.append(unpack(">i", shx.read(4))[0] * 2)
                 shx.seek(shx.tell() + 4)
-        if not i == None:
+        if not i is None:
             return self._offsets[i]
 
     def shape(self, i=0):
@@ -391,7 +405,7 @@ class Reader:
         offset = self.__shapeIndex(i)
         if not offset:
             # Shx index not available so iterate the full list.
-            for j,k in enumerate(self.iterShapes()):
+            for j, k in enumerate(self.iterShapes()):
                 if j == i:
                     return k
         shp.seek(offset)
@@ -418,10 +432,11 @@ class Reader:
         """Retrieves the header length of a dbf file header."""
         if not self.__dbfHdrLength:
             if not self.dbf:
-                raise ShapefileException("Shapefile Reader requires a shapefile or file-like object. (no dbf file found)")
+                raise ShapefileException(
+                    "Shapefile Reader requires a shapefile or file-like object. (no dbf file found)")
             dbf = self.dbf
             (self.numRecords, self.__dbfHdrLength) = \
-                    unpack("<xxxxLH22x", dbf.read(32))
+                unpack("<xxxxLH22x", dbf.read(32))
         return self.__dbfHdrLength
 
     def __dbfHeader(self):
@@ -466,7 +481,7 @@ class Reader:
             return None
         record = []
         for (name, typ, size, deci), value in zip(self.fields,
-                                                                                                recordContents):
+                                                  recordContents):
             if name == 'DeletionFlag':
                 continue
             elif not value.strip():
@@ -488,7 +503,7 @@ class Reader:
                     value = value.strip()
             elif typ == b('L'):
                 value = (value in b('YyTt') and b('T')) or \
-                                        (value in b('NnFf') and b('F')) or b('?')
+                    (value in b('NnFf') and b('F')) or b('?')
             else:
                 value = u(value)
                 value = value.strip()
@@ -541,11 +556,13 @@ class Reader:
         """Returns a list of combination geometry/attribute records for
         all records in a shapefile."""
         shapeRecords = []
-        return [_ShapeRecord(shape=rec[0], record=rec[1]) \
-                                for rec in zip(self.shapes(), self.records())]
+        return [_ShapeRecord(shape=rec[0], record=rec[1])
+                for rec in zip(self.shapes(), self.records())]
+
 
 class Writer:
     """Provides write support for ESRI Shapefiles."""
+
     def __init__(self, shapeType=None):
         self._shapes = []
         self.fields = []
@@ -581,24 +598,24 @@ class Writer:
             # Add in record header and shape type fields
             size += 12
             # nParts and nPoints do not apply to all shapes
-            #if self.shapeType not in (0,1):
+            # if self.shapeType not in (0,1):
             #       nParts = len(s.parts)
             #       nPoints = len(s.points)
-            if hasattr(s,'parts'):
+            if hasattr(s, 'parts'):
                 nParts = len(s.parts)
-            if hasattr(s,'points'):
+            if hasattr(s, 'points'):
                 nPoints = len(s.points)
             # All shape types capable of having a bounding box
-            if self.shapeType in (3,5,8,13,15,18,23,25,28,31):
+            if self.shapeType in (3, 5, 8, 13, 15, 18, 23, 25, 28, 31):
                 size += 32
             # Shape types with parts
-            if self.shapeType in (3,5,13,15,23,25,31):
+            if self.shapeType in (3, 5, 13, 15, 23, 25, 31):
                 # Parts count
                 size += 4
                 # Parts index array
                 size += nParts * 4
             # Shape types with points
-            if self.shapeType in (3,5,8,13,15,23,25,31):
+            if self.shapeType in (3, 5, 8, 13, 15, 23, 25, 31):
                 # Points count
                 size += 4
                 # Points array
@@ -607,25 +624,25 @@ class Writer:
             if self.shapeType == 31:
                 size += nParts * 4
             # Calc z extremes and values
-            if self.shapeType in (13,15,18,31):
+            if self.shapeType in (13, 15, 18, 31):
                 # z extremes
                 size += 16
                 # z array
                 size += 8 * nPoints
             # Calc m extremes and values
-            if self.shapeType in (23,25,31):
+            if self.shapeType in (23, 25, 31):
                 # m extremes
                 size += 16
                 # m array
                 size += 8 * nPoints
             # Calc a single point
-            if self.shapeType in (1,11,21):
+            if self.shapeType in (1, 11, 21):
                 size += 16
             # Calc a single Z value
             if self.shapeType == 11:
                 size += 8
             # Calc a single M value
-            if self.shapeType in (11,21):
+            if self.shapeType in (11, 21):
                 size += 8
         # Calculate size as 16-bit words
         size //= 2
@@ -651,7 +668,8 @@ class Writer:
                     z.append(p[2])
             except IndexError:
                 pass
-        if not z: z.append(0)
+        if not z:
+            z.append(0)
         return [min(z), max(z)]
 
     def __mbox(self, shapes, shapeTypes=[]):
@@ -685,7 +703,7 @@ class Writer:
         f = self.__getFileObj(fileObj)
         f.seek(0)
         # File code, Unused bytes
-        f.write(pack(">6i", 9994,0,0,0,0,0))
+        f.write(pack(">6i", 9994, 0, 0, 0, 0, 0))
         # File length (Bytes / 2 = 16-bit words)
         if headerType == 'shp':
             f.write(pack(">i", self.__shpFileLength()))
@@ -700,7 +718,7 @@ class Writer:
             except error:
                 raise ShapefileException("Failed to write shapefile bounding box. Floats required.")
         else:
-            f.write(pack("<4d", 0,0,0,0))
+            f.write(pack("<4d", 0, 0, 0, 0))
         # Elevation
         z = self.zbox()
         # Measure
@@ -726,7 +744,7 @@ class Writer:
         headerLength = numFields * 32 + 33
         recordLength = sum([int(field[2]) for field in self.fields]) + 1
         header = pack('<BBBBLHH20x', version, year, month, day, numRecs,
-                headerLength, recordLength)
+                      headerLength, recordLength)
         f.write(header)
         # Field descriptors
         for field in self.fields:
@@ -755,21 +773,21 @@ class Writer:
             # Shape Type
             f.write(pack("<i", s.shapeType))
             # All shape types capable of having a bounding box
-            if s.shapeType in (3,5,8,13,15,18,23,25,28,31):
+            if s.shapeType in (3, 5, 8, 13, 15, 18, 23, 25, 28, 31):
                 try:
                     f.write(pack("<4d", *self.__bbox([s])))
                 except error:
                     raise ShapefileException("Falied to write bounding box for record %s. Expected floats." % recNum)
             # Shape types with parts
-            if s.shapeType in (3,5,13,15,23,25,31):
+            if s.shapeType in (3, 5, 13, 15, 23, 25, 31):
                 # Number of parts
                 f.write(pack("<i", len(s.parts)))
             # Shape types with multiple points per record
-            if s.shapeType in (3,5,8,13,15,23,25,31):
+            if s.shapeType in (3, 5, 8, 13, 15, 23, 25, 31):
                 # Number of points
                 f.write(pack("<i", len(s.points)))
             # Write part indexes
-            if s.shapeType in (3,5,13,15,23,25,31):
+            if s.shapeType in (3, 5, 13, 15, 23, 25, 31):
                 for p in s.parts:
                     f.write(pack("<i", p))
             # Part types for Multipatch (31)
@@ -777,24 +795,28 @@ class Writer:
                 for pt in s.partTypes:
                     f.write(pack("<i", pt))
             # Write points for multiple-point records
-            if s.shapeType in (3,5,8,13,15,23,25,31):
+            if s.shapeType in (3, 5, 8, 13, 15, 23, 25, 31):
                 try:
                     [f.write(pack("<2d", *p[:2])) for p in s.points]
                 except error:
                     raise ShapefileException("Failed to write points for record %s. Expected floats." % recNum)
             # Write z extremes and values
-            if s.shapeType in (13,15,18,31):
+            if s.shapeType in (13, 15, 18, 31):
                 try:
                     f.write(pack("<2d", *self.__zbox([s])))
                 except error:
-                    raise ShapefileException("Failed to write elevation extremes for record %s. Expected floats." % recNum)
+                    raise ShapefileException(
+                        "Failed to write elevation extremes for record %s. Expected floats." %
+                        recNum)
                 try:
                     #[f.write(pack("<d", p[2])) for p in s.points]
                     f.write(pack("<%sd" % len(s.z), *s.z))
                 except error:
-                    raise ShapefileException("Failed to write elevation values for record %s. Expected floats." % recNum)
+                    raise ShapefileException(
+                        "Failed to write elevation values for record %s. Expected floats." %
+                        recNum)
             # Write m extremes and values
-            if s.shapeType in (23,25,31):
+            if s.shapeType in (23, 25, 31):
                 try:
                     f.write(pack("<2d", *self.__mbox([s])))
                 except error:
@@ -804,7 +826,7 @@ class Writer:
                 except error:
                     raise ShapefileException("Failed to write measure values for record %s. Expected floats" % recNum)
             # Write a single point
-            if s.shapeType in (1,11,21):
+            if s.shapeType in (1, 11, 21):
                 try:
                     f.write(pack("<2d", s.points[0][0], s.points[0][1]))
                 except error:
@@ -816,7 +838,7 @@ class Writer:
                 except error:
                     raise ShapefileException("Failed to write elevation value for record %s. Expected floats." % recNum)
             # Write a single M value
-            if s.shapeType in (11,21):
+            if s.shapeType in (11, 21):
                 try:
                     f.write(pack("<1d", s.points[0][3]))
                 except error:
@@ -826,7 +848,7 @@ class Writer:
             length = (finish - start) // 2
             self._lengths.append(length)
             # start - 4 bytes is the content length field
-            f.seek(start-4)
+            f.seek(start - 4)
             f.write(pack(">i", length))
             f.seek(finish)
 
@@ -843,7 +865,7 @@ class Writer:
         f = self.__getFileObj(self.dbf)
         for record in self.records:
             if not self.fields[0][0].startswith("Deletion"):
-                f.write(b(' ')) # deletion flag
+                f.write(b(' '))  # deletion flag
             for (fieldName, fieldType, size, dec), value in zip(self.fields, record):
                 fieldType = fieldType.upper()
                 size = int(size)
@@ -884,7 +906,7 @@ class Writer:
         polyShape.points = []
         for part in parts:
             # Make sure polygon is closed
-            if shapeType in (5,15,25,31) and part[0] != part[-1]:
+            if shapeType in (5, 15, 25, 31) and part[0] != part[-1]:
                 part.append(part[0])
             for point in part:
                 # Ensure point is list
@@ -917,7 +939,8 @@ class Writer:
         record = []
         fieldCount = len(self.fields)
         # Compensate for deletion flag
-        if self.fields[0][0].startswith("Deletion"): fieldCount -= 1
+        if self.fields[0][0].startswith("Deletion"):
+            fieldCount -= 1
         if recordList:
             [record.append(recordList[i]) for i in range(fieldCount)]
         elif recordDict:
@@ -985,7 +1008,7 @@ class Writer:
         elif not shp and not shx and not dbf:
             generated = False
             if not target:
-                temp = tempfile.NamedTemporaryFile(prefix="shapefile_",dir=os.getcwd())
+                temp = tempfile.NamedTemporaryFile(prefix="shapefile_", dir=os.getcwd())
                 target = temp.name
                 generated = True
             self.saveShp(target)
@@ -997,7 +1020,9 @@ class Writer:
             if generated:
                 return target
 
+
 class Editor(Writer):
+
     def __init__(self, shapefile=None, shapeType=POINT, autoBalance=1):
         self.autoBalance = autoBalance
         if not shapefile:
@@ -1051,36 +1076,56 @@ class Editor(Writer):
         shape type."""
         # shape, part, point
         if shape and part and point:
-            try: self._shapes[shape]
-            except IndexError: self._shapes.append([])
-            try: self._shapes[shape][part]
-            except IndexError: self._shapes[shape].append([])
-            try: self._shapes[shape][part][point]
-            except IndexError: self._shapes[shape][part].append([])
+            try:
+                self._shapes[shape]
+            except IndexError:
+                self._shapes.append([])
+            try:
+                self._shapes[shape][part]
+            except IndexError:
+                self._shapes[shape].append([])
+            try:
+                self._shapes[shape][part][point]
+            except IndexError:
+                self._shapes[shape][part].append([])
             p = self._shapes[shape][part][point]
-            if x: p[0] = x
-            if y: p[1] = y
-            if z: p[2] = z
-            if m: p[3] = m
+            if x:
+                p[0] = x
+            if y:
+                p[1] = y
+            if z:
+                p[2] = z
+            if m:
+                p[3] = m
             self._shapes[shape][part][point] = p
         # shape, part
         elif shape and part and not point:
-            try: self._shapes[shape]
-            except IndexError: self._shapes.append([])
-            try: self._shapes[shape][part]
-            except IndexError: self._shapes[shape].append([])
+            try:
+                self._shapes[shape]
+            except IndexError:
+                self._shapes.append([])
+            try:
+                self._shapes[shape][part]
+            except IndexError:
+                self._shapes[shape].append([])
             points = self._shapes[shape][part]
             for i in range(len(points)):
                 p = points[i]
-                if x: p[0] = x
-                if y: p[1] = y
-                if z: p[2] = z
-                if m: p[3] = m
+                if x:
+                    p[0] = x
+                if y:
+                    p[1] = y
+                if z:
+                    p[2] = z
+                if m:
+                    p[3] = m
                 self._shapes[shape][part][i] = p
         # shape
         elif shape and not part and not point:
-            try: self._shapes[shape]
-            except IndexError: self._shapes.append([])
+            try:
+                self._shapes[shape]
+            except IndexError:
+                self._shapes.append([])
 
         # point
         # part
@@ -1095,7 +1140,7 @@ class Editor(Writer):
     def validate(self):
         """An optional method to try and validate the shapefile
         as much as possible before writing it (not implemented)."""
-        #TODO: Implement validation method
+        # TODO: Implement validation method
         pass
 
     def balance(self):
@@ -1110,7 +1155,8 @@ class Editor(Writer):
     def __fieldNorm(self, fieldName):
         """Normalizes a dbf field name to fit within the spec and the
         expectations of certain ESRI software."""
-        if len(fieldName) > 11: fieldName = fieldName[:11]
+        if len(fieldName) > 11:
+            fieldName = fieldName[:11]
         fieldName = fieldName.upper()
         fieldName.replace(' ', '_')
 
@@ -1118,26 +1164,25 @@ class Editor(Writer):
 class shapeFileReader:
 
     def __init__(self):
-        self._rgb=[ 0.5, 0.7, 0.1 ]
-        self._linewidth=5
-        self._reader=multiRoiShape()
+        self._rgb = [0.5, 0.7, 0.1]
+        self._linewidth = 5
+        self._reader = multiRoiShape()
 
+    # sets the color of vtk
+    def setColors(self, rgb):
+        self._rgb = rgb
 
-    #sets the color of vtk
-    def setColors(self,rgb):
-       self._rgb=rgb
-
-    #sets length of vtk
+    # sets length of vtk
     def setWidth(self, linewidth):
-       self._linewidth=linewidth
+        self._linewidth = linewidth
 
-    #looks for resolution of the file, connects directory paths and then
-    #creates a VTK model of land
-    def getPolyLines(self,roi, mrsDefFilePath, resFile="high" ):
+    # looks for resolution of the file, connects directory paths and then
+    # creates a VTK model of land
+    def getPolyLines(self, roi, mrsDefFilePath, resFile="high"):
 
-        xr=roi[1]-roi[0]
-        yr=roi[3]-roi[2]
-        r=max(xr,yr)
+        xr = roi[1] - roi[0]
+        yr = roi[3] - roi[2]
+        r = max(xr, yr)
 
 #         ##checks roi and determines the resolution of requested file
 #         if r<50:
@@ -1146,18 +1191,19 @@ class shapeFileReader:
 #             resFile="medium"
 #         else:
 
-        directory=self._reader.openFile(resFile,mrsDefFilePath)
+        directory = self._reader.openFile(resFile, mrsDefFilePath)
 #         lonWrap = ( xr > 359 )
 #         if lonWrap:
 #            roi[0] = roi[0] + 0.5
 #            roi[1] = roi[1] - 0.5
-        if directory == None: return None
+        if directory is None:
+            return None
 
 #        print "Retreiving polylines from %s, resolution=%s" % ( mrsDefFilePath, resFile )
         #rel_coastFilePath=self._reader.read(resFile, mrsDefFilePath)
-        root_path=os.path.abspath( os.path.dirname( mrsDefFilePath ) )
-        #combines two directories together
-        full_coastFilePath=os.path.join( root_path, directory)
+        root_path = os.path.abspath(os.path.dirname(mrsDefFilePath))
+        # combines two directories together
+        full_coastFilePath = os.path.join(root_path, directory)
         sf = Reader(full_coastFilePath)
         shapes = sf.shapes()
 
@@ -1175,45 +1221,49 @@ class shapeFileReader:
 
         lines = vtk.vtkCellArray()
         for x in range(len(shapes)):
-            shape =  shapes[x]
-            nPts = len( shape.points )
-            parts_queue = [ iPart for iPart in shape.parts ]
+            shape = shapes[x]
+            nPts = len(shape.points)
+            parts_queue = [iPart for iPart in shape.parts]
             idList = None
             for iPt in range(nPts):
-                if len( parts_queue ) and ( iPt == parts_queue[0] ):
-                    if idList: lines.InsertNextCell(idList)
-                    idList=vtk.vtkIdList()
+                if len(parts_queue) and (iPt == parts_queue[0]):
+                    if idList:
+                        lines.InsertNextCell(idList)
+                    idList = vtk.vtkIdList()
                     parts_queue.pop(0)
                     pt0 = None
                 pt = shape.points[iPt]
-                inBounds = ( ( pt[0] > roi[0] ) and ( pt[0] < roi[1] ) )
+                inBounds = ((pt[0] > roi[0]) and (pt[0] < roi[1]))
                 if not inBounds and (pt[0] < 0.0):
                     pt[0] = 360.0 + pt[0]
-                    inBounds = ( ( pt[0] > roi[0] ) and ( pt[0] < roi[1] ) )
-                if not inBounds and ( pt[0] > 0.0 ) and ( roi[0] < 0.0 ):
+                    inBounds = ((pt[0] > roi[0]) and (pt[0] < roi[1]))
+                if not inBounds and (pt[0] > 0.0) and (roi[0] < 0.0):
                     pt[0] = pt[0] - 360.0
-                    inBounds = ( ( pt[0] > roi[0] ) and ( pt[0] < roi[1] ) )
+                    inBounds = ((pt[0] > roi[0]) and (pt[0] < roi[1]))
                 if inBounds:
-                    if (pt[1]>roi[2]) and (pt[1]<roi[3] ):
-                        if pt0 <> None:
-                            plen = abs( pt0[0]-pt[0] ) + abs( pt0[1]-pt[1] )
+                    if (pt[1] > roi[2]) and (pt[1] < roi[3]):
+                        if pt0 is not None:
+                            plen = abs(pt0[0] - pt[0]) + abs(pt0[1] - pt[1])
                             if plen > 100:
                                 lines.InsertNextCell(idList)
-                                idList=vtk.vtkIdList()
-                        ptIndex=points.InsertNextPoint(pt[0], pt[1], 0.0 )
+                                idList = vtk.vtkIdList()
+                        ptIndex = points.InsertNextPoint(pt[0], pt[1], 0.0)
                         idList.InsertNextId(ptIndex)
                         pt0 = pt
-                    else: inBounds = False
+                    else:
+                        inBounds = False
                 if not inBounds:
                     lines.InsertNextCell(idList)
-                    idList=vtk.vtkIdList()
+                    idList = vtk.vtkIdList()
             lines.InsertNextCell(idList)
         polygon = vtk.vtkPolyData()
         polygon.SetPoints(points)
         polygon.SetLines(lines)
         polygonMapper = vtk.vtkPolyDataMapper()
-        if vtk.VTK_MAJOR_VERSION <= 5:  polygonMapper.SetInput(polygon)
-        else:                           polygonMapper.SetInputData(polygon)
+        if vtk.VTK_MAJOR_VERSION <= 5:
+            polygonMapper.SetInput(polygon)
+        else:
+            polygonMapper.SetInputData(polygon)
         polygonActor = vtk.vtkActor()
         polygonActor.SetMapper(polygonMapper)
 
@@ -1223,30 +1273,30 @@ class shapeFileReader:
         polygonActor.SetProperty(property)
         return polygonActor
 
+
 class multiRoiShape:
 
-     def __init__(self):
+    def __init__(self):
         self.FileMap = {}
 
+    def openFile(self, res, textFilePath):
+        if textFilePath not in self.FileMap:
+            try:
+                self.FileMap[textFilePath] = self.read(textFilePath)
+            except Exception as err:
+                print>>sys.stderr, "Error reading shapefile specs file %s: %s" % (textFilePath, str(err))
+                return None
+        resDict = self.FileMap[textFilePath]
+        return resDict[res]
 
-     def openFile( self, res, textFilePath ):
-         if not self.FileMap.has_key(textFilePath):
-             try:
-                 self.FileMap[textFilePath]=self.read(textFilePath)
-             except Exception, err:
-                 print>>sys.stderr, "Error reading shapefile specs file %s: %s" % ( textFilePath, str(err) )
-                 return None
-         resDict =  self.FileMap[textFilePath]
-         return resDict[res]
-
-     def read(self, textFilePath):
-        resDict ={}
-        f=open(textFilePath, 'r')
-        lines=f.readlines()
+    def read(self, textFilePath):
+        resDict = {}
+        f = open(textFilePath, 'r')
+        lines = f.readlines()
         for line in lines:
-            lineE=line.split('=')
-            if len( lineE ) > 1:
-                resDict[ lineE[0].strip() ]  = lineE[1].strip()
+            lineE = line.split('=')
+            if len(lineE) > 1:
+                resDict[lineE[0].strip()] = lineE[1].strip()
         return resDict
 
 

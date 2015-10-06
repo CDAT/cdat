@@ -7,11 +7,12 @@
 
 import vtk
 
-def computeBounds( renderer, normalized_display_position, size ):
+
+def computeBounds(renderer, normalized_display_position, size):
     upperRight = vtk.vtkCoordinate()
     upperRight.SetCoordinateSystemToNormalizedDisplay()
-    upperRight.SetValue( normalized_display_position[0], normalized_display_position[1] )
-    bds = [0.0]*6
+    upperRight.SetValue(normalized_display_position[0], normalized_display_position[1])
+    bds = [0.0] * 6
     bds[0] = upperRight.GetComputedDisplayValue(renderer)[0] - size[0]
     bds[1] = bds[0] + size[0]
     bds[2] = upperRight.GetComputedDisplayValue(renderer)[1] - size[1]
@@ -38,9 +39,9 @@ textActor.SetMapper(textMapper)
 textActor.SetScale(0.1, 0.1, 0.1)
 
 buttonRepresentation = vtk.vtkProp3DButtonRepresentation()
-#buttonRepresentation.FollowCameraOn()
+# buttonRepresentation.FollowCameraOn()
 buttonRepresentation.SetNumberOfStates(1)
-buttonRepresentation.SetButtonProp( 0, textActor )
+buttonRepresentation.SetButtonProp(0, textActor)
 
 
 # Create the Renderer, RenderWindow, and RenderWindowInteractor.
@@ -49,17 +50,17 @@ renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-iren.SetInteractorStyle( vtk.vtkInteractorStyleTrackballCamera() )
+iren.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
 ren.SetBackground(0.1, 0.2, 0.4)
 
 buttonWidget = vtk.vtkButtonWidget()
-buttonWidget.SetInteractor( iren )
-position = [ 0.5, 0.5 ]
-size = [ 1.0, 1.0 ]
+buttonWidget.SetInteractor(iren)
+position = [0.5, 0.5]
+size = [1.0, 1.0]
 # ComputeDisplayToWorld(double x, double y, double z, double worldPt[4])
-bounds = computeBounds(ren, position,size)
+bounds = computeBounds(ren, position, size)
 print " Bounds = ", bounds
-buttonRepresentation.PlaceWidget( bounds )
+buttonRepresentation.PlaceWidget(bounds)
 buttonWidget.SetRepresentation(buttonRepresentation)
 
 # Add the actors to the renderer.
@@ -68,7 +69,7 @@ ren.AddActor(axesActor)
 
 # Zoom in closer.
 ren.ResetCamera()
-#ren.GetActiveCamera().Zoom(1.6)
+# ren.GetActiveCamera().Zoom(1.6)
 
 # Reset the clipping range of the camera; set the camera of the
 # follower; render.

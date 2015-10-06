@@ -3,22 +3,23 @@ Created on May 13, 2014
 
 @author: tpmaxwel
 '''
-import cdms2, sys
-from PointCloudViewer import CPCPlot
-#from VolumeViewer import VolumePlot
-from SliceViewer import SlicePlot
-from RectilinearGridPlot import RectGridPlot
-from ConfigurationFunctions import PlotType
 
-def getPlotFromVar( var, **args ):
+# from VolumeViewer import VolumePlot
+from ConfigurationFunctions import PlotType
+from PointCloudViewer import CPCPlot
+from RectilinearGridPlot import RectGridPlot
+
+
+def getPlotFromVar(var, **args):
     grid_metadata = var.getGrid()
-    plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
-    plot = RectGridPlot(**args) if ( plot_type == PlotType.Grid ) else CPCPlot(**args)
+    plot_type = args.get('plot_type', PlotType.getPointsLayout(grid_metadata))
+    plot = RectGridPlot(**args) if (plot_type == PlotType.Grid) else CPCPlot(**args)
     return plot
+
 
 class DV3DApp:
 
-    def __init__( self, canvas, cell_coordinates=None, **args ):
+    def __init__(self, canvas, cell_coordinates=None, **args):
         self.plot = None
         self.canvas = canvas
         self.cell_coordinates = cell_coordinates
@@ -38,42 +39,41 @@ class DV3DApp:
 #             self.plot = getPlotFromVar( var, **args )
 #             self.plot.init( **args  )
 
-    def update( self, tmpl ):
-        if self.plot <> None:
+    def update(self, tmpl):
+        if self.plot is not None:
             self.plot.updateModule()
             self.plot.initCamera()
 
-    def onClosing(self, cell ):
-        if self.plot <> None:
-            self.plot.onClosing( cell )
+    def onClosing(self, cell):
+        if self.plot is not None:
+            self.plot.onClosing(cell)
 
-    def applyAction( self, action ):
-        if self.plot <> None:
-            self.plot.applyAction( action )
+    def applyAction(self, action):
+        if self.plot is not None:
+            self.plot.applyAction(action)
 
-    def setAnimationStepper( self, stepper ):
-        self.plot.setAnimationStepper( stepper )
+    def setAnimationStepper(self, stepper):
+        self.plot.setAnimationStepper(stepper)
 
-    def gminit(self, var1, var2, **args ):
+    def gminit(self, var1, var2, **args):
         grid_metadata = var1.getGrid()
-        plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
-        args[ 'cell_coordinates' ] = self.cell_coordinates
+        plot_type = args.get('plot_type', PlotType.getPointsLayout(grid_metadata))
+        args['cell_coordinates'] = self.cell_coordinates
 
         if plot_type == PlotType.Grid:
-            if self.plot == None:
+            if self.plot is None:
                 self.plot = RectGridPlot(**args)
-                self.plot.gminit( var1, var2, **args )
+                self.plot.gminit(var1, var2, **args)
                 self.plot.ParameterValueChanged.connect(self.canvas.processParameterChange)
             else:
                 self.plot.updateModule()
         else:
-            if self.plot == None:
+            if self.plot is None:
                 self.plot = CPCPlot(**args)
-                self.plot.gminit( var1, var2, **args  )
+                self.plot.gminit(var1, var2, **args)
                 self.plot.ParameterValueChanged.connect(self.canvas.processParameterChange)
             else:
                 self.plot.updateModule()
-
 
     def getRenderWindow(self):
         return self.plot.renderWindow
@@ -81,8 +81,8 @@ class DV3DApp:
 #     def onKeyEvent( self, eventArgs ):
 #         return self.plot.onKeyEvent( eventArgs )
 
-    def terminate( self ):
-        return self.plot.terminate( )
+    def terminate(self):
+        return self.plot.terminate()
 
     def start(self):
         iren = self.plot.renderWindow.GetInteractor()
@@ -96,5 +96,5 @@ class DV3DApp:
 
 if __name__ == '__main__':
 
-     from DistributedPointCollections import kill_all_zombies
-     kill_all_zombies()
+    from DistributedPointCollections import kill_all_zombies
+    kill_all_zombies()

@@ -4,17 +4,20 @@ Created on Apr 23, 2014
 @author: tpmaxwell
 '''
 
-import vtk, sys, os
-from ColorMapManager import *
+import os
+import sys
+import vtk
+from ColorMapManager import *  # noqa
+from DV3DPlot import *  # noqa
+from MapManager import MapManager
 from Shapefile import shapeFileReader
 from StructuredVariableReader import StructuredDataReader
-from DV3DPlot import *
-from MapManager import MapManager
+
 
 class StructuredGridPlot(DV3DPlot):
 
-    def __init__( self,  **args ):
-        DV3DPlot.__init__( self,  **args )
+    def __init__(self, **args):
+        DV3DPlot.__init__(self, **args)
         self.iOrientation = 0
 
         self.variables = {}
@@ -25,25 +28,24 @@ class StructuredGridPlot(DV3DPlot):
         self.stereoEnabled = 0
         self.inputSpecs = {}
 
-
         self.pipelineBuilt = False
         self.baseMapActor = None
         self.enableBasemap = True
-        self.map_opacity = [ 0.4, 0.4 ]
+        self.map_opacity = [0.4, 0.4]
         self.skipIndex = 1
         self.roi = None
         self.shapefilePolylineActors = {}
         self.basemapLineSpecs = {}
 
-    def processBasemapOpacityCommand( self, args, config_function ):
+    def processBasemapOpacityCommand(self, args, config_function):
         opacity = config_function.value
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
             oval = config_function.initial_value
-            self.mapManager.setMapOpacity( oval )
+            self.mapManager.setMapOpacity(oval)
         elif args and args[0] == "EndConfig":
-            self.processConfigParameterChange( opacity )
+            self.processConfigParameterChange(opacity)
         elif args and args[0] == "InitConfig":
             pass
         elif args and args[0] == "Open":
@@ -53,31 +55,31 @@ class StructuredGridPlot(DV3DPlot):
         elif args and args[0] == "UpdateConfig":
             value = args[2].GetValue()
             oscale = opacity.getValues()
-            oscale[ args[1] ] = value
-            self.mapManager.setMapOpacity(  oscale )
-            opacity.setValues( oscale )
+            oscale[args[1]] = value
+            self.mapManager.setMapOpacity(oscale)
+            opacity.setValues(oscale)
             self.render()
 
-    def processVerticalScalingCommand( self, args, config_function ):
-#        print "processVerticalScalingCommand: ", str(args)
+    def processVerticalScalingCommand(self, args, config_function):
+        #        print "processVerticalScalingCommand: ", str(args)
         verticalScale = config_function.value
         if args and args[0] == "StartConfig":
-            ispec = self.inputSpecs[ 0 ]
+            ispec = self.inputSpecs[0]
             wbounds = ispec.getDataBounds()
             self.zscaleBoxWidget = vtk.vtkBoxWidget()
-            self.zscaleBoxWidget.SetInteractor( self.renderWindowInteractor )
+            self.zscaleBoxWidget.SetInteractor(self.renderWindowInteractor)
             self.zscaleBoxWidget.SetPlaceFactor(1.0)
             self.zscaleBoxWidget.HandlesOff()
             self.zscaleBoxWidget.SetEnabled(1)
             oprop = self.zscaleBoxWidget.GetOutlineProperty()
-            oprop.SetColor( 0.0, 0.0, 0.0 )
-            oprop.SetLineWidth( 2.0 )
+            oprop.SetColor(0.0, 0.0, 0.0)
+            oprop.SetLineWidth(2.0)
             self.zscaleBoxWidget.On()
             self.zscaleBoxWidget.PlaceWidget(wbounds)
 #            print "  >>>>>>>>>>>>>>>>>>>>> Place box widget: ", str( wbounds )
         elif args and args[0] == "Init":
             self.parameter_initializing = True
-            ispec = self.inputSpecs[ 0 ]
+            ispec = self.inputSpecs[0]
             zsval = config_function.initial_value
 #             plotType = ispec.getMetadata('plotType')
 #             if plotType == 'xyt':
@@ -87,31 +89,32 @@ class StructuredGridPlot(DV3DPlot):
 #                 lval = ispec.getMetadata('lev')
 #                 if tval: zsval = 10.0 / len( lval )
 #             verticalScale.setValues( [ zsval ] )
-            self.setZScale( zsval  )
-            verticalScale.setValue( 'count', 1 )
+            self.setZScale(zsval)
+            verticalScale.setValue('count', 1)
             self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
             vscale = verticalScale.getValues()
-            self.setZScale( vscale )
+            self.setZScale(vscale)
             self.zscaleBoxWidget.Off()
             self.zscaleBoxWidget.SetEnabled(0)
             self.zscaleBoxWidget = None
-            self.processConfigParameterChange( verticalScale )
+            self.processConfigParameterChange(verticalScale)
         elif args and args[0] == "InitConfig":
-            self.updateTextDisplay( config_function.label )
+            self.updateTextDisplay(config_function.label)
             bbar = self.getInteractionButtons()
             self.skipIndex = 2
-            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels)  )
+            for islider in range(4):
+                bbar.setSliderVisibility(islider, islider < len(config_function.sliderLabels))
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            ispec = self.inputSpecs[ 0 ]
+            ispec = self.inputSpecs[0]
             vscale = args[2].GetValue()
-            verticalScale.setValues( [ vscale ] )
-            wbounds = ispec.getDataBounds( zscale=vscale )
-            self.zscaleBoxWidget.PlaceWidget( wbounds )
+            verticalScale.setValues([vscale])
+            wbounds = ispec.getDataBounds(zscale=vscale)
+            self.zscaleBoxWidget.PlaceWidget(wbounds)
 
 #     def onKeyEvent(self, eventArgs ):
 #         key = eventArgs[0]
@@ -125,114 +128,118 @@ class StructuredGridPlot(DV3DPlot):
 #             return DV3DPlot.onKeyEvent( self, eventArgs )
 #         return 1
 
-    def getRangeBounds( self, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
+    def getRangeBounds(self, input_index=0):
+        ispec = self.inputSpecs[input_index]
         return ispec.getRangeBounds()
 
-    def setZScale( self, zscale_data, input_index = 0, **args ):
-        self.setInputZScale( zscale_data, input_index, **args )
+    def setZScale(self, zscale_data, input_index=0, **args):
+        self.setInputZScale(zscale_data, input_index, **args)
 
-    def setRangeBounds( self, rbounds, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
+    def setRangeBounds(self, rbounds, input_index=0):
+        ispec = self.inputSpecs[input_index]
         ispec.rangeBounds[:] = rbounds[:]
 
-    def setMaxScalarValue(self, iDType ):
-        if iDType   == vtk.VTK_UNSIGNED_CHAR:   self._max_scalar_value = 255
-        elif iDType == vtk.VTK_UNSIGNED_SHORT:  self._max_scalar_value = 256*256-1
-        elif iDType == vtk.VTK_SHORT:           self._max_scalar_value = 256*128-1
-        else:                                   self._max_scalar_value = self.getRangeBounds()[1]
+    def setMaxScalarValue(self, iDType):
+        if iDType == vtk.VTK_UNSIGNED_CHAR:
+            self._max_scalar_value = 255
+        elif iDType == vtk.VTK_UNSIGNED_SHORT:
+            self._max_scalar_value = 256 * 256 - 1
+        elif iDType == vtk.VTK_SHORT:
+            self._max_scalar_value = 256 * 128 - 1
+        else:
+            self._max_scalar_value = self.getRangeBounds()[1]
 
-    def decimateImage( self, image, decx, decy ):
+    def decimateImage(self, image, decx, decy):
         image.Update()
         dims = image.GetDimensions()
         image_size = dims[0] * dims[1]
         result = image
         if image_size > MAX_IMAGE_SIZE:
             resample = vtk.vtkImageShrink3D()
-            resample.SetInput( image )
-            resample.SetShrinkFactors( decx, decy, 1 )
+            resample.SetInput(image)
+            resample.SetShrinkFactors(decx, decy, 1)
             result = resample.GetOutput()
             result.Update()
         return result
 
     def getScaleBounds(self):
-        return [ 0.5, 100.0 ]
+        return [0.5, 100.0]
 
-    def setInputZScale(self, zscale_data, input_index=0, **args  ):
-        input = self.variable_reader.output( input_index )
+    def setInputZScale(self, zscale_data, input_index=0, **args):
+        input = self.variable_reader.output(input_index)
         if input is not None:
             spacing = input.GetSpacing()
             ix, iy, iz = spacing
             sz = zscale_data[0]
-            if iz <> sz:
-    #            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
-                input.SetSpacing( ix, iy, sz )
+            if iz != sz:
+                #            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
+                input.SetSpacing(ix, iy, sz)
                 input.Modified()
-                self.processScaleChange( spacing, ( ix, iy, sz ) )
+                self.processScaleChange(spacing, (ix, iy, sz))
         return input
 
-    def getDataRangeBounds(self, inputIndex=0 ):
-        ispec = self.getInputSpec( inputIndex )
+    def getDataRangeBounds(self, inputIndex=0):
+        ispec = self.getInputSpec(inputIndex)
         return ispec.getDataRangeBounds() if ispec else None
 
-    def onSlicerLeftButtonPress( self, caller, event ):
+    def onSlicerLeftButtonPress(self, caller, event):
         self.currentButton = self.LEFT_BUTTON
         return 0
 
-    def processScaleChange( self, old_spacing, new_spacing ):
+    def processScaleChange(self, old_spacing, new_spacing):
         pass
 #        self.updateModule()
 
-    def onSlicerRightButtonPress( self, caller, event ):
+    def onSlicerRightButtonPress(self, caller, event):
         self.currentButton = self.RIGHT_BUTTON
         return 0
 
     def getAxes(self):
         pass
 
-    def input( self, input_index = 0 ):
+    def input(self, input_index=0):
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('VerticalScaling')
-        if cf <> None:
+        if cf is not None:
             zscale_data = cf.value.getValues()
-            input = self.setInputZScale( zscale_data, input_index  )
+            input = self.setInputZScale(zscale_data, input_index)
         else:
-            input = self.variable_reader.output( input_index )
+            input = self.variable_reader.output(input_index)
         return input
 
     def isBuilt(self):
         return self.pipelineBuilt
 
-    def initializeInputs( self, **args ):
+    def initializeInputs(self, **args):
         nOutputs = self.variable_reader.nOutputs()
-        for inputIndex in range( nOutputs ):
-            ispec = self.variable_reader.outputSpec( inputIndex )
+        for inputIndex in range(nOutputs):
+            ispec = self.variable_reader.outputSpec(inputIndex)
             self.inputSpecs[inputIndex] = ispec
-            if self.roi == None:
-                self.roi = ispec.metadata.get( 'bounds', None )
-            self.intiTime( ispec, **args )
+            if self.roi is None:
+                self.roi = ispec.metadata.get('bounds', None)
+            self.intiTime(ispec, **args)
         self.initMetadata()
-
 
     def initMetadata(self):
         spec = self.inputSpecs[0]
-        attributes = spec.metadata.get( 'attributes' , None )
+        attributes = spec.metadata.get('attributes', None)
 #        print " Init Metadata, attributes = ", str( attributes )
         if attributes:
-            self.metadata['var_name'] = attributes.get(  'long_name',  attributes.get(  'name', None ) )
-            self.metadata['var_units'] = attributes.get('units', '' )
+            self.metadata['var_name'] = attributes.get('long_name', attributes.get('name', None))
+            self.metadata['var_units'] = attributes.get('units', '')
 
     def intiTime(self, ispec, **args):
         try:
-            t = cdtime.reltime( 0, self.variable_reader.referenceTimeUnits )
-            if t.cmp( cdtime.reltime( 0, ispec.referenceTimeUnits ) ) == 1:
+            t = cdtime.reltime(0, self.variable_reader.referenceTimeUnits)
+            if t.cmp(cdtime.reltime(0, ispec.referenceTimeUnits)) == 1:
                 self.variable_reader.referenceTimeUnits = ispec.referenceTimeUnits
-            tval = args.get( 'timeValue', None )
-            if tval: self.timeValue = cdtime.reltime( float( args[ 'timeValue' ] ), ispec.referenceTimeUnits )
+            tval = args.get('timeValue', None)
+            if tval:
+                self.timeValue = cdtime.reltime(float(args['timeValue']), ispec.referenceTimeUnits)
         except:
             self.timeValue = 0.0
 
-    def execute(self, **args ):
+    def execute(self, **args):
         if not self.isBuilt():
             self.initializeInputs()
             self.buildPipeline()
@@ -241,152 +248,153 @@ class StructuredGridPlot(DV3DPlot):
             self.initializeConfiguration()
             self.pipelineBuilt = True
 
-        self.updateModule( **args )
+        self.updateModule(**args)
         self.render()
 
-    def getScalarRange( self, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
+    def getScalarRange(self, input_index=0):
+        ispec = self.inputSpecs[input_index]
         return ispec.scalarRange
 
     def basemapLinesVisibilityOn(self):
         for actor_list in self.shapefilePolylineActors.values():
             for actor in actor_list:
-                if actor: actor.VisibilityOn()
+                if actor:
+                    actor.VisibilityOn()
 
     def basemapLinesVisibilityOff(self):
         for actor_list in self.shapefilePolylineActors.values():
             for actor in actor_list:
-                if actor: actor.VisibilityOff()
+                if actor:
+                    actor.VisibilityOff()
 
-    def createBasemapPolyline( self, type, **args ):
+    def createBasemapPolyline(self, type, **args):
         ispec = self.getInputSpec(0)
         md = ispec.getMetadata()
-        latLonGrid = md.get( 'latLonGrid', True )
+        latLonGrid = md.get('latLonGrid', True)
         if latLonGrid:
-            line_specs = self.basemapLineSpecs.get( type, None )
-            thickness = int( round( line_specs[0] ) ) if line_specs else 0
-            density = int( round( line_specs[1] ) ) if line_specs else 1
-            resTypes = [ "invisible", "low", "medium", "high" ]
-            if (thickness > 0) and ( density > 0 ):
-                rgb=self.getLayerColor( type )
-                textFilePath = os.path.join( os.path.dirname(__file__), "data", type, "index.txt" )
-                s=shapeFileReader()
+            line_specs = self.basemapLineSpecs.get(type, None)
+            thickness = int(round(line_specs[0])) if line_specs else 0
+            density = int(round(line_specs[1])) if line_specs else 1
+            resTypes = ["invisible", "low", "medium", "high"]
+            if (thickness > 0) and (density > 0):
+                rgb = self.getLayerColor(type)
+                textFilePath = os.path.join(os.path.dirname(__file__), "data", type, "index.txt")
+                s = shapeFileReader()
                 s.setColors(rgb)
-                s.setWidth( thickness )
-                polys=s.getPolyLines( self.roi, textFilePath, resTypes[ density ] )
+                s.setWidth(thickness)
+                polys = s.getPolyLines(self.roi, textFilePath, resTypes[density])
                 self.renderer.AddActor(polys)
                 origin = self.planeWidgetZ.GetOrigin()
                 pos = polys.GetPosition()
-                pos1 = [ pos[0], pos[1], origin[2] ]
-                polys.SetPosition( pos1 )
-                polys_list = self.shapefilePolylineActors.get( type, [ None, None, None, None, None ] )
-                polys_list[ density ] = polys
-                self.shapefilePolylineActors[ type ] = polys_list
+                pos1 = [pos[0], pos[1], origin[2]]
+                polys.SetPosition(pos1)
+                polys_list = self.shapefilePolylineActors.get(type, [None, None, None, None, None])
+                polys_list[density] = polys
+                self.shapefilePolylineActors[type] = polys_list
 
-    def setBasemapLineSpecs( self, shapefile_type, value ):
+    def setBasemapLineSpecs(self, shapefile_type, value):
         self.basemapLineSpecs[shapefile_type] = value
-        npixels = int( round( value[0] ) )
-        density = int( round( value[1] ) )
-        polys_list = self.shapefilePolylineActors.get( shapefile_type, [ None, None, None, None, None ] )
+        npixels = int(round(value[0]))
+        density = int(round(value[1]))
+        polys_list = self.shapefilePolylineActors.get(shapefile_type, [None, None, None, None, None])
         try:
-            selected_polys = polys_list[ density ]
+            selected_polys = polys_list[density]
             if not selected_polys:
                 if npixels:
-                    self.createBasemapPolyline( shapefile_type )
+                    self.createBasemapPolyline(shapefile_type)
             else:
                 for polys in polys_list:
                     if polys:
-                        polys.SetVisibility( npixels and ( id(polys) == id(selected_polys) ) )
-                selected_polys.GetProperty().SetLineWidth( npixels )
+                        polys.SetVisibility(npixels and (id(polys) == id(selected_polys)))
+                selected_polys.GetProperty().SetLineWidth(npixels)
             self.render()
         except IndexError:
             print>>sys.stderr, " setBasemapLineSpecs: Density too large: %d " % density
 
-    def setBasemapCoastlineLineSpecs( self, value, **args ):
-        self.setBasemapLineSpecs('coastline', value )
+    def setBasemapCoastlineLineSpecs(self, value, **args):
+        self.setBasemapLineSpecs('coastline', value)
 
-    def setBasemapStatesLineSpecs( self, value, **args ):
-        self.setBasemapLineSpecs('states', value )
+    def setBasemapStatesLineSpecs(self, value, **args):
+        self.setBasemapLineSpecs('states', value)
 
-    def setBasemapLakesLineSpecs( self, value, **args ):
-        self.setBasemapLineSpecs('lakes', value )
+    def setBasemapLakesLineSpecs(self, value, **args):
+        self.setBasemapLineSpecs('lakes', value)
 
-    def setBasemapCountriesLineSpecs( self, value, **args ):
-        self.setBasemapLineSpecs('countries', value )
+    def setBasemapCountriesLineSpecs(self, value, **args):
+        self.setBasemapLineSpecs('countries', value)
 
-    def getBasemapLineSpecs( self, shapefile_type ):
-        return self.basemapLineSpecs.get( shapefile_type, None )
+    def getBasemapLineSpecs(self, shapefile_type):
+        return self.basemapLineSpecs.get(shapefile_type, None)
 
-    def getBasemapCoastlineLineSpecs( self, **args ):
-        return self.getBasemapLineSpecs('coastline' )
+    def getBasemapCoastlineLineSpecs(self, **args):
+        return self.getBasemapLineSpecs('coastline')
 
-    def getBasemapStatesLineSpecs( self, **args ):
-        return self.getBasemapLineSpecs('states' )
+    def getBasemapStatesLineSpecs(self, **args):
+        return self.getBasemapLineSpecs('states')
 
-    def getBasemapLakesLineSpecs( self, **args ):
-        return self.getBasemapLineSpecs('lakes' )
+    def getBasemapLakesLineSpecs(self, **args):
+        return self.getBasemapLineSpecs('lakes')
 
-    def getBasemapCountriesLineSpecs( self, **args ):
-        return self.getBasemapLineSpecs('countries' )
+    def getBasemapCountriesLineSpecs(self, **args):
+        return self.getBasemapLineSpecs('countries')
 
+    def getInputSpec(self, input_index=0):
+        if input_index == -1:
+            input_index = len(self.inputSpecs) - 1
+        return self.inputSpecs.get(input_index, None)
 
-
-    def getInputSpec( self, input_index=0 ):
-        if input_index == -1: input_index = len( self.inputSpecs ) - 1
-        return self.inputSpecs.get( input_index, None )
-
-    def getDataValue( self, image_value, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
-        return ispec.getDataValue( image_value )
+    def getDataValue(self, image_value, input_index=0):
+        ispec = self.inputSpecs[input_index]
+        return ispec.getDataValue(image_value)
 
     def getTimeAxis(self):
         ispec = self.getInputSpec()
         timeAxis = ispec.getMetadata('time') if ispec else None
         return timeAxis
 
-    def getDataValues( self, image_value_list, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
-        return ispec.getDataValues( image_value_list )
+    def getDataValues(self, image_value_list, input_index=0):
+        ispec = self.inputSpecs[input_index]
+        return ispec.getDataValues(image_value_list)
 
-    def getImageValue( self, data_value, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
-        return ispec.getImageValue( data_value )
+    def getImageValue(self, data_value, input_index=0):
+        ispec = self.inputSpecs[input_index]
+        return ispec.getImageValue(data_value)
 
-    def getImageValues( self, data_value_list, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
-        return ispec.getImageValues( data_value_list )
+    def getImageValues(self, data_value_list, input_index=0):
+        ispec = self.inputSpecs[input_index]
+        return ispec.getImageValues(data_value_list)
 
-    def scaleToImage( self, data_value, input_index = 0 ):
-        ispec = self.inputSpecs[ input_index ]
-        return ispec.scaleToImage( data_value )
+    def scaleToImage(self, data_value, input_index=0):
+        ispec = self.inputSpecs[input_index]
+        return ispec.scaleToImage(data_value)
 
 #     def finalizeLeveling( self, cmap_index=0 ):
 #         ispec = self.inputSpecs[ cmap_index ]
 #         ispec.addMetadata( { 'colormap' : self.getColormapSpec(), 'orientation' : self.iOrientation } )
 #         return DV3DPlot.finalizeLeveling( self, cmap_index=0 )
 
-
-    def initializeConfiguration( self, cmap_index=0, **args ):
-        ispec = self.inputSpecs[ cmap_index ]
+    def initializeConfiguration(self, cmap_index=0, **args):
+        ispec = self.inputSpecs[cmap_index]
         args['units'] = ispec.units
         self.buildConfigurationButton()
-        self.buttonBarHandler.initializeConfigurations( **args )
+        self.buttonBarHandler.initializeConfigurations(**args)
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
-                ispec.addMetadata( { '-'.join( [ 'colormap', plotItem[0] ] ) : self.getColormapSpec(plotItem[0]), 'orientation' : self.iOrientation } )
+                ispec.addMetadata({'-'.join(['colormap',
+                                             plotItem[0]]): self.getColormapSpec(plotItem[0]),
+                                   'orientation': self.iOrientation})
 #        self.updateSliceOutput()
-
 
     def getMapOpacity(self):
         return self.map_opacity
 
-    def setMapOpacity(self, opacity_vals, **args ):
+    def setMapOpacity(self, opacity_vals, **args):
         self.map_opacity = opacity_vals
         self.updateMapOpacity()
 
-    def updateMapOpacity(self, cmap_index=0 ):
+    def updateMapOpacity(self, cmap_index=0):
         if self.baseMapActor:
-            self.baseMapActor.SetOpacity( self.map_opacity[0] )
+            self.baseMapActor.SetOpacity(self.map_opacity[0])
             self.render()
 
     def showInteractiveLens(self):
@@ -396,14 +404,14 @@ class StructuredGridPlot(DV3DPlot):
         pass
 
     def buildBaseMap(self):
-        self.mapManager = MapManager( roi = self.roi )
-        self.renderer.AddActor( self.mapManager.getBaseMapActor() )
+        self.mapManager = MapManager(roi=self.roi)
+        self.renderer.AddActor(self.mapManager.getBaseMapActor())
 
-#         if self.baseMapActor <> None: self.renderer.RemoveActor( self.baseMapActor )               
-#         world_map =  None  
-#         map_border_size = 20 
-#             
-#         self.y0 = -90.0  
+#         if self.baseMapActor <> None: self.renderer.RemoveActor( self.baseMapActor )
+#         world_map =  None
+#         map_border_size = 20
+#
+#         self.y0 = -90.0
 #         self.x0 =  0.0
 #         dataPosition = None
 #         if world_map == None:
@@ -433,7 +441,8 @@ class StructuredGridPlot(DV3DPlot):
 #                 else:
 #                     dataPosition = [ ( self.roi[1] + self.roi[0] ) / 2.0, ( self.roi[3] + self.roi[2] ) / 2.0 ]
 #             else:
-#                 dataPosition = [ 180, 0 ] # [ ( self.roi[1] + self.roi[0] ) / 2.0, ( self.roi[3] + self.roi[2] ) / 2.0 ]
+#                 dataPosition = [ 180, 0 ]
+#               # dataPosition = [ ( self.roi[1] + self.roi[0] ) / 2.0, ( self.roi[3] + self.roi[2] ) / 2.0 ]
 #         else:
 #             self.world_cut = self.map_cut
 #
@@ -493,7 +502,8 @@ class StructuredGridPlot(DV3DPlot):
 #         x1 = baseExtent[1]
 #         newCut = self.NormalizeMapLon( self.world_cut )
 #         delCut = newCut - self.map_cut
-# #        print "  %%%%%% Roll Map %%%%%%: world_cut=%.1f, map_cut=%.1f, newCut=%.1f " % ( float(self.world_cut), float(self.map_cut), float(newCut) )
+# #        print "  %%%%%% Roll Map %%%%%%: world_cut=%.1f, map_cut=%.1f, newCut=%.1f "
+#               % ( float(self.world_cut), float(self.map_cut), float(newCut) )
 #         imageLen = x1 - x0 + 1
 #         sliceSize =  imageLen * ( delCut / 360.0 )
 #         sliceCoord = int( round( x0 + sliceSize) )
@@ -554,7 +564,8 @@ class StructuredGridPlot(DV3DPlot):
 #             extOffset = int( round( ( yOffset / 180.0 ) * imageLen[1] ) )
 #             vertExtent[1] = y1 - extOffset
 #
-#         overlapsBorder = ( self.NormalizeMapLon(dataLocation[0]-selectionDim[0]) > self.NormalizeMapLon(dataLocation[0]+selectionDim[0]) )
+#         overlapsBorder = ( self.NormalizeMapLon(dataLocation[0]-selectionDim[0]) >
+#                            self.NormalizeMapLon(dataLocation[0]+selectionDim[0]) )
 #         if overlapsBorder:
 #             cut0 = self.NormalizeMapLon( dataXLoc + selectionDim[0] )
 #             sliceSize =  imageLen[0] * ( ( cut0 - self.map_cut ) / 360.0 )
@@ -621,53 +632,56 @@ class StructuredGridPlot(DV3DPlot):
 #         result = imageInfo.GetOutput()
 #         return result, bounded_dims
 
-    def init(self, **args ):
-        init_args = args[ 'init' ]
-        n_cores = args.get( 'n_cores', 32 )
+    def init(self, **args):
+        init_args = args['init']
 #        lut = self.getLUT()
-        self.variable_reader = StructuredDataReader( init_specs=init_args, **args )
-        self.variable_reader.execute( )
-        self.createRenderer( **args )
-        interface = init_args[2]
-        self.execute( )
+        self.variable_reader = StructuredDataReader(init_specs=init_args, **args)
+        self.variable_reader.execute()
+        self.createRenderer(**args)
+        self.execute()
         self.initializePlots()
-        self.initCamera( 700.0 )
+        self.initCamera(700.0)
         self.start()
 
-    def gminit( self, var1, var2, **args ):
-        var_list = [ var1 ]
-        if id(var2) <> id(None): var_list.append( var2 )
-        self.variable_reader = StructuredDataReader( vars=var_list, otype=self.type, **args )
-        self.variable_reader.execute( )
+    def gminit(self, var1, var2, **args):
+        var_list = [var1]
+        if id(var2) != id(None):
+            var_list.append(var2)
+        self.variable_reader = StructuredDataReader(vars=var_list, otype=self.type, **args)
+        self.variable_reader.execute()
         if "cm" in args:
             self.cfgManager = args["cm"]
-        self.createRenderer( **args )
-        self.execute( )
+        self.createRenderer(**args)
+        self.execute()
         self.initializePlots()
         self.initCamera()
         self.start()
 
     def stepAnimation(self, **args):
         timestamp = self.variable_reader.stepAnimation()
-        self.execute( )
-        if timestamp:   self.updateTextDisplay( "Timestep: %s" % str( timestamp ) )
-        else:           self.updateTextDisplay( "" )
+        self.execute()
+        if timestamp:
+            self.updateTextDisplay("Timestep: %s" % str(timestamp))
+        else:
+            self.updateTextDisplay("")
         DV3DPlot.stepAnimation(self, **args)
 
     def onResizeEvent(self):
-        self.updateTextDisplay( None, True )
+        self.updateTextDisplay(None, True)
 
-    def updateTextDisplay( self, text=None, render=False ):
-        if text <> None:
+    def updateTextDisplay(self, text=None, render=False):
+        if text is not None:
             metadata = self.getMetadata()
-            var_name = metadata.get( 'var_name', '')
-            var_units = metadata.get( 'var_units', '')
-            self.labelBuff = "%s (%s)\n%s" % ( var_name, var_units, str(text) )
-        DV3DPlot.updateTextDisplay( self, None, render )
+            var_name = metadata.get('var_name', '')
+            var_units = metadata.get('var_units', '')
+            self.labelBuff = "%s (%s)\n%s" % (var_name, var_units, str(text))
+        DV3DPlot.updateTextDisplay(self, None, render)
 
-    def toggleClipping(self, clipping_on ):
-        if clipping_on:   self.clipOn()
-        else:             self.clipOff()
+    def toggleClipping(self, clipping_on):
+        if clipping_on:
+            self.clipOn()
+        else:
+            self.clipOff()
 
     def clipOn(self):
         self.clipper.On()
@@ -675,5 +689,3 @@ class StructuredGridPlot(DV3DPlot):
 
     def clipOff(self):
         self.clipper.Off()
-
-
