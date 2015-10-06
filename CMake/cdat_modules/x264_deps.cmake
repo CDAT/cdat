@@ -1,1 +1,1 @@
-set(X264_DEPS "")
+set(X264_DEPS ${pkgconfig_pkg})
