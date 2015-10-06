@@ -429,7 +429,7 @@ class Gfb(object):
             self._ext_2 = False
             self._missing = 1
             self._fillareastyle = 'solid'
-            self._fillareaindices = []
+            self._fillareaindices = [1, ]
             self._fillareaopacity = []
             self._fillareacolors = None
             self._levels = ([1.e20, 1.e20])
