@@ -9,7 +9,7 @@ rk = mpi4py.MPI.COMM_WORLD.Get_rank()
 lat = 181
 lon = 361
 
-f=cdms2.open("test_mpi_write_2.nc","r+")
+f=cdms2.open("test_mpi_write_2.nc","r")
 var=f("test_mpi_15")
 
 V = var[rk+7:rk+10,:]
