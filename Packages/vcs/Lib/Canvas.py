@@ -120,7 +120,7 @@ def dictionarytovcslist(dictionary, name):
     for k in dictionary.keys():
         if not isinstance(k, (float, int, long)):
             raise Exception('Error, vcs list must have numbers only as keys')
-    _vcs.dictionarytovcslist(dictionary, name)
+    dictionarytovcslist(dictionary, name)
     return None
 
 
@@ -1153,128 +1153,13 @@ class Canvas(object):
     # Remove VCS primary and secondary methods wrapper functions for VCS.       #
     #                                                                           #
     ##########################################################################
+
     def removeobject(self, obj):
-        """
- Function: remove
-
- Description of Function:
-    The user has the ability to create primary and secondary class
-    objects. The function allows the user to remove these objects
-    from the appropriate class list.
-
-    Note, To remove the object completely from Python, remember to
-    use the "del" function.
-
-    Also note, The user is not allowed to remove a "default" class
-    object.
-
- Example of Use:
-    a=vcs.init()
-    line=a.getline('red')       # To Modify an existing line object
-    iso=x.createisoline('dean') # Create an instance of an isoline object
-    ...
-    x.remove(line)      # Removes line object from VCS list
-    del line            # Destroy instance "line", garbage collection
-    x.remove(iso)       # Remove isoline object from VCS list
-    del iso             # Destroy instance "iso", garbage collection
-"""
-        if istemplate(obj):
-            msg = _vcs.removeP(obj.name)
-            obj.__dict__['name'] = obj.__dict__[
-                'p_name'] = '__removed_from_VCS__'
-        elif isgraphicsmethod(obj):
-            if (obj.g_name == 'Gfb'):
-                msg = _vcs.removeGfb(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfi'):
-                msg = _vcs.removeGfi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gi'):
-                msg = _vcs.removeGi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Go'):
-                msg = _vcs.removeGo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfo'):
-                msg = _vcs.removeGfo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXy'):
-                msg = _vcs.removeGXy(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GYx'):
-                msg = _vcs.removeGYx(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXY'):
-                msg = _vcs.removeGXY(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gv'):
-                msg = _vcs.removeGv(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GSp'):
-                msg = _vcs.removeGSp(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gcon'):
-                msg = _vcs.removeGcon(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfm'):
-                msg = _vcs.removeGfm(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gtd'):
-                n = len(vcs.taylordiagrams)
-                ndel = 0
-                for i in range(n):
-                    t = vcs.taylordiagrams[i - ndel]
-                    if t.name == obj.name:
-                        msg = 'Removed Taylordiagram graphics method: ' + \
-                            t.name
-                        a = vcs.taylordiagrams.pop(i - ndel)
-                        ndel = ndel + 1
-                        del(a)
-            else:
-                msg = 'Could not find the correct graphics class object.'
-        elif issecondaryobject(obj):
-            if (obj.s_name == 'Tl'):
-                msg = _vcs.removeTl(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tm'):
-                msg = _vcs.removeTm(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tf'):
-                msg = _vcs.removeTf(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tt'):
-                msg = _vcs.removeTt(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'To'):
-                msg = _vcs.removeTo(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tc'):
-                msg = _vcs.removeTt(obj.Tt_name)
-                msg += _vcs.removeTo(obj.To_name)
-                obj.Tt_name = obj.s_name = '__removed_from_VCS__'
-                obj.To_name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Proj'):
-                msg = _vcs.removeProj(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Cp'):
-                msg = _vcs.removeCp(obj.name)
-                obj.s_name = obj.__dict__['name'] = '__removed_from_VCS__'
-            else:
-                msg = 'Could not find the correct secondary class object.'
-        else:
-            msg = 'This is not a template, graphics method, or secondary method object.'
-        return msg
-
-# Removed by C. Doutriaux, too many prints. We need to think
-# if we want to raise an exception here?
-# if msg[:7]!='Removed':
-# print msg
-
-    def syncP(self, *args):
-        return self.canvas.syncP(*args)
+      __doc__=vcs.removeobject.__doc__
+      return vcs.removeobject(obj)
 
     def removeP(self, *args):
-        return self.canvas.removeP(*args)
+        return vcs.removeP(*args)
 
     def clean_auto_generated_objects(self, type=None):
         """ cleans all self/auto genrated objects in vcs, only if they're not in use
@@ -5870,33 +5755,6 @@ Options:::
 
     ##########################################################################
     #                                                                           #
-    # Script to a file the current state of VCS wrapper for VCS.                #
-    #                                                                           #
-    ##########################################################################
-    def scriptstate(self, script_name):
-        """
- Function: scriptstate       # Save state of VCS
-
- Description of Function:
-    The VCS scripting capability serves many purposes. It allows one to save the
-    system state for replay in a later session; to save primary and secondary
-    element attributes for use in later visual presentations; to save a sequence
-    of interactive operations for replay; or to recover from a system failure.
-
- Example of Use:
-    a=vcs.init()
-    ...
-
-    a.scriptstate(script_filename)
-"""
-        msg = _vcs.scriptstate(script_name)
-        # Now adds the taylordiagram stuff
-        for td in vcs.taylordiagrams:
-            td.script(script_name)
-        return msg
-
-    ##########################################################################
-    #                                                                           #
     # Raise VCS Canvas to the top of all its siblings.                          #
     #                                                                           #
     ##########################################################################
@@ -5915,7 +5773,7 @@ Options:::
     a.canvasraised()
 """
 
-        return self.canvas.canvasraised(*args)
+        return self.backend.canvasraised(*args)
 
     ##########################################################################
     #                                                                           #
