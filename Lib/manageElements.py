@@ -1934,3 +1934,162 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' color
         raise ValueError('Error -  The argument must be a string.')
 
     return vcs.elements["colormap"][Cp_name_src]
+
+# Function that deal with removing existing vcs elements
+def removeG(obj,gtype="boxfill"):
+  exec("res = vcs.is%s(obj)" % gtype)
+  if isinstance(obj,str):
+    name = obj
+    if not obj in vcs.elements[gtype].keys():
+      raise RuntimeError("Cannot remove inexisting %s %s" % (gtype,obj))
+  else:
+    name = obj.name
+    if not res:
+      raise RuntimeError("You are trying to remove a VCS %s but %s is not one" % (gtype,repr(obj)))
+  msg = "Removed %s object %s" % (gtype,name)
+  del(vcs.elements[gtype][name])
+  return msg
+
+def removeGfb(obj):
+  return removeG(obj,"boxfill")
+
+def removeGfi(obj):
+  return removeG(obj,"isofill")
+
+def removeGi(obj):
+  return removeG(obj,"isoline")
+
+def removeGXy(obj):
+  return removeG(obj,"xyvsx")
+
+def removeGYx(obj):
+  return removeG(obj,"yxvsx")
+
+def removeGXY(obj):
+  return removeG(obj,"xvsy")
+
+def removeG1d(obj):
+  return removeG(obj,"1d")
+
+def removeGv(obj):
+  return removeG(obj,"vector")
+
+def removeGSp(obj):
+  return removeG(obj,"scatter")
+
+def removeG1d(obj):
+  return removeG(obj,"1d")
+
+def removeGfm(obj):
+  return removeG(obj,"meshfill")
+
+def removeGtd(obj):
+  return removeG(obj,"taylordiagram")
+
+def removeTl(obj):
+  return removeG(obj,"line")
+
+def removeTm(obj):
+  return removeG(obj,"marker")
+
+def removeTf(obj):
+  return removeG(obj,"fillarea")
+
+def removeTt(obj):
+  return removeG(obj,"texttable")
+
+def removeTo(obj):
+  return removeG(obj,"textorientation")
+
+def removeTc(obj):
+  if isinstance(obj,str):
+    Tt,To = obj.split(":::")
+  else:
+    To=obj.To_name
+    Tt=obj.Tt_name
+  msg = removeTt(Tt)
+  msg += removeTo(To)
+  removeG(obj,"textcombined")
+  return msg
+
+def removeProj(obj):
+  return removeG(obj,"projection")
+
+def removeCp(obj):
+  return removeG(obj,"colormap")
+
+def removeP(obj):
+  return removeG(obj,"template")
+
+def removeobject(obj):
+    """
+Function: remove
+
+Description of Function:
+The user has the ability to create primary and secondary class
+objects. The function allows the user to remove these objects
+from the appropriate class list.
+
+Note, To remove the object completely from Python, remember to
+use the "del" function.
+
+Also note, The user is not allowed to remove a "default" class
+object.
+
+Example of Use:
+a=vcs.init()
+line=a.getline('red')       # To Modify an existing line object
+iso=x.createisoline('dean') # Create an instance of an isoline object
+...
+x.remove(line)      # Removes line object from VCS list
+x.remove(iso)       # Remove isoline object from VCS list
+"""
+    if vcs.istemplate(obj):
+        msg = vcs.removeP(obj.name)
+    elif vcs.isgraphicsmethod(obj):
+        if (obj.g_name == 'Gfb'):
+            msg = vcs.removeGfb(obj.name)
+        elif (obj.g_name == 'Gfi'):
+            msg = vcs.removeGfi(obj.name)
+        elif (obj.g_name == 'Gi'):
+            msg = vcs.removeGi(obj.name)
+        elif (obj.g_name == 'GXy'):
+            msg = vcs.removeGXy(obj.name)
+        elif (obj.g_name == 'GYx'):
+            msg = vcs.removeGYx(obj.name)
+        elif (obj.g_name == 'GXY'):
+            msg = vcs.removeGXY(obj.name)
+        elif (obj.g_name == 'Gv'):
+            msg = vcs.removeGv(obj.name)
+        elif (obj.g_name == 'GSp'):
+            msg = vcs.removeGSp(obj.name)
+        elif (obj.g_name == 'Gfm'):
+            msg = vcs.removeGfm(obj.name)
+        elif (obj.g_name == 'G1d'):
+            msg = vcs.removeG1d(obj.name)
+        elif (obj.g_name == 'Gtd'):
+            msg = vcs.removeGtd(obj.name)
+        else:
+            msg = 'Could not find the correct graphics class object.'
+    elif vcs.issecondaryobject(obj):
+        if (obj.s_name == 'Tl'):
+            msg = vcs.removeTl(obj.name)
+        elif (obj.s_name == 'Tm'):
+            msg = vcs.removeTm(obj.name)
+        elif (obj.s_name == 'Tf'):
+            msg = vcs.removeTf(obj.name)
+        elif (obj.s_name == 'Tt'):
+            msg = vcs.removeTt(obj.name)
+        elif (obj.s_name == 'To'):
+            msg = vcs.removeTo(obj.name)
+        elif (obj.s_name == 'Tc'):
+            msg = vcs.removeTc(obj.name)
+        elif (obj.s_name == 'Proj'):
+            msg = vcs.removeProj(obj.name)
+        elif (obj.s_name == 'Cp'):
+            msg = vcs.removeCp(obj.name)
+        else:
+            msg = 'Could not find the correct secondary class object.'
+    else:
+        msg = 'This is not a template, graphics method, or secondary method object.'
+    return msg
