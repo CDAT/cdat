@@ -1387,3 +1387,11 @@ class VTKVCSBackend(object):
 
         if update:
             self.renWin.Render()
+
+    def png_dimensions(self, path):
+        reader = vtk.vtkPNGReader()
+        reader.SetFileName(path)
+        reader.Update()
+        img = reader.GetOutput()
+        size = img.GetDimensions()
+        return size[0], size[1]

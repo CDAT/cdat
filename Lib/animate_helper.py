@@ -1040,7 +1040,7 @@ class AnimationController(animate_obj_old):
         if self.signals is not None:
             self.signals.drawn.emit(self.frame_num)
 
-    def save(self, movie, bitrate=1024, rate=None, options=''):
+    def save(self, movie, bitrate=1024, rate=None, options=None):
         """Save animation to a file"""
         if self.created():
             while len(self.animation_files) != self.number_of_frames():
