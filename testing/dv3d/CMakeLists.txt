@@ -2,6 +2,7 @@ add_test(flake8_dv3d
   "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/DV3D/"
   --show-source # Show context for detected errors
   --statistics  # Show summary of errors at end of output
+  --max-line-length=120 # Reasonable line length
 )
 
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/dv3d")
