@@ -1153,8 +1153,8 @@ class Canvas(object):
     ##########################################################################
 
     def removeobject(self, obj):
-      __doc__=vcs.removeobject.__doc__
-      return vcs.removeobject(obj)
+        __doc__ = vcs.removeobject.__doc__  # noqa
+        return vcs.removeobject(obj)
 
     def removeP(self, *args):
         return vcs.removeP(*args)
@@ -4940,7 +4940,7 @@ Options:::
         return width, height, sfactor
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-        units='inches'):
+                   units='inches'):
         """
  Function: postscript
 
@@ -4995,7 +4995,7 @@ Options:::
         else:
             n = random.randint(0, 10000000000000)
             psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-            self.backend.postscript(psnm, W, H,units="pixels")
+            self.backend.postscript(psnm, W, H, units="pixels")
             if os.path.exists(file):
                 f = open(file, 'r+')
                 f.seek(0, 2)  # goes to end of file
