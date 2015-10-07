@@ -1936,90 +1936,110 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' color
     return vcs.elements["colormap"][Cp_name_src]
 
 # Function that deal with removing existing vcs elements
-def removeG(obj,gtype="boxfill"):
-  exec("res = vcs.is%s(obj)" % gtype)
-  if isinstance(obj,str):
-    name = obj
-    if not obj in vcs.elements[gtype].keys():
-      raise RuntimeError("Cannot remove inexisting %s %s" % (gtype,obj))
-  else:
-    name = obj.name
-    if not res:
-      raise RuntimeError("You are trying to remove a VCS %s but %s is not one" % (gtype,repr(obj)))
-  msg = "Removed %s object %s" % (gtype,name)
-  del(vcs.elements[gtype][name])
-  return msg
+
+
+def removeG(obj, gtype="boxfill"):
+    exec("res = vcs.is%s(obj)" % gtype)
+    if isinstance(obj, str):
+        name = obj
+        if obj not in vcs.elements[gtype].keys():
+            raise RuntimeError("Cannot remove inexisting %s %s" % (gtype, obj))
+    else:
+        name = obj.name
+        if not res:  # noqa
+            raise RuntimeError("You are trying to remove a VCS %s but %s is not one" % (gtype, repr(obj)))
+    msg = "Removed %s object %s" % (gtype, name)
+    del(vcs.elements[gtype][name])
+    return msg
+
 
 def removeGfb(obj):
-  return removeG(obj,"boxfill")
+    return removeG(obj, "boxfill")
+
 
 def removeGfi(obj):
-  return removeG(obj,"isofill")
+    return removeG(obj, "isofill")
+
 
 def removeGi(obj):
-  return removeG(obj,"isoline")
+    return removeG(obj, "isoline")
+
 
 def removeGXy(obj):
-  return removeG(obj,"xyvsx")
+    return removeG(obj, "xyvsx")
+
 
 def removeGYx(obj):
-  return removeG(obj,"yxvsx")
+    return removeG(obj, "yxvsx")
+
 
 def removeGXY(obj):
-  return removeG(obj,"xvsy")
+    return removeG(obj, "xvsy")
+
 
 def removeG1d(obj):
-  return removeG(obj,"1d")
+    return removeG(obj, "1d")
+
 
 def removeGv(obj):
-  return removeG(obj,"vector")
+    return removeG(obj, "vector")
+
 
 def removeGSp(obj):
-  return removeG(obj,"scatter")
+    return removeG(obj, "scatter")
 
-def removeG1d(obj):
-  return removeG(obj,"1d")
 
 def removeGfm(obj):
-  return removeG(obj,"meshfill")
+    return removeG(obj, "meshfill")
+
 
 def removeGtd(obj):
-  return removeG(obj,"taylordiagram")
+    return removeG(obj, "taylordiagram")
+
 
 def removeTl(obj):
-  return removeG(obj,"line")
+    return removeG(obj, "line")
+
 
 def removeTm(obj):
-  return removeG(obj,"marker")
+    return removeG(obj, "marker")
+
 
 def removeTf(obj):
-  return removeG(obj,"fillarea")
+    return removeG(obj, "fillarea")
+
 
 def removeTt(obj):
-  return removeG(obj,"texttable")
+    return removeG(obj, "texttable")
+
 
 def removeTo(obj):
-  return removeG(obj,"textorientation")
+    return removeG(obj, "textorientation")
+
 
 def removeTc(obj):
-  if isinstance(obj,str):
-    Tt,To = obj.split(":::")
-  else:
-    To=obj.To_name
-    Tt=obj.Tt_name
-  msg = removeTt(Tt)
-  msg += removeTo(To)
-  removeG(obj,"textcombined")
-  return msg
+    if isinstance(obj, str):
+        Tt, To = obj.split(":::")
+    else:
+        To = obj.To_name
+        Tt = obj.Tt_name
+    msg = removeTt(Tt)
+    msg += removeTo(To)
+    removeG(obj, "textcombined")
+    return msg
+
 
 def removeProj(obj):
-  return removeG(obj,"projection")
+    return removeG(obj, "projection")
+
 
 def removeCp(obj):
-  return removeG(obj,"colormap")
+    return removeG(obj, "colormap")
+
 
 def removeP(obj):
-  return removeG(obj,"template")
+    return removeG(obj, "template")
+
 
 def removeobject(obj):
     """
