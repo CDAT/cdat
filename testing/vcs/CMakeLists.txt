@@ -625,21 +625,23 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
       "${BASELINE_DIR}/test_boxfill_lev1_lev2_ext1_ext2.png"
       )
-    cdat_add_test(vcs_test_isofill_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_isofill_patterns.py
-      "${BASELINE_DIR}/test_isofill_patterns.png"
-      )
-    cdat_add_test(vcs_test_isofill_hatches
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_isofill_hatches.py
-      "${BASELINE_DIR}/test_isofill_hatches.png"
-      )
+
     cdat_add_test(vcs_test_hatches_patterns
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hatches_patterns.py
       "${BASELINE_DIR}/test_vcs_hatches_patterns.png"
       )
+    FOREACH(gm isofill boxfill)
+      FOREACH(style solid pattern hatch)
+        cdat_add_test(vcs_test_${gm}_${style}_fill
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+          --gm_type=${gm}
+          --fill_style=${style}
+          "--source=${BASELINE_DIR}/test_${gm}_${style}_fill.png"
+          )
+      ENDFOREACH(style)
+    ENDFOREACH(gm)
 
     FOREACH(flip None X XY Y)
       cdat_add_test(vcs_test_flip${flip}
