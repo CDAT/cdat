@@ -3,24 +3,18 @@ Created on Dec 11, 2010
 
 @author: tpmaxwel
 '''
-import vtk
-import sys
-import os
-import copy
-import time
-import traceback
-import collections
-from collections import OrderedDict
-import numpy.ma as ma
-import numpy as np
-EnableMemoryLogging = False
 from DV3DPlot import PlotType
-# from vtk.util.misc import vtkGetDataRoot
-# packagePath = os.path.dirname( __file__ )
 import cdms2
 import cdtime
 import cdutil
+import collections
 import MV2
+import numpy as np
+import os
+import sys
+import traceback
+
+EnableMemoryLogging = False
 DataSetVersion = 0
 DefaultDecimation = [0, 7]
 cdms2.axis.level_aliases.append('isobaric')
@@ -57,7 +51,6 @@ class MemoryLogger:
             self.logfile = None
 
     def log(self, label):
-        import shlex
         import subprocess
         import gc
         if self.enabled:
@@ -134,10 +127,11 @@ def getCompTime(timeString):
     if len(timeStringFields) == 1:
         return cdtime.comptime(int(date[0]), int(date[1]), float(date[2]))
     else:
-        time = timeStringFields[1].split(':')
+        t = timeStringFields[1].split(':')
         for iT in range(3):
-            time.append(0)
-        return cdtime.comptime(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]), float(time[2]))
+            t.append(0)
+        return cdtime.comptime(int(date[0]), int(date[1]), int(date[2]),
+                               int(t[0]), int(t[1]), float(t[2]))
 
 
 def deserializeFileMap(serialized_strMap):
@@ -221,7 +215,8 @@ class CDMSDatasetRecord():
 
     def getVarDataTimeSlice(self, varName, timeValue, gridBounds, decimation, referenceVar=None, referenceLev=None):
         """
-        This method extracts a CDMS variable object (varName) and then cuts out a data slice with the correct axis ordering (returning a NumPy masked array).
+        This method extracts a CDMS variable object (varName) and then cuts out
+        a data slice with the correct axis ordering (returning a NumPy masked array).
         """
 #        cachedFileVariableRec = self.cachedFileVariables.get( varName )
 #        if cachedFileVariableRec:
@@ -238,7 +233,6 @@ class CDMSDatasetRecord():
         refGrid = None
         if referenceVar:
             referenceData = referenceVar.split('*')
-            refDsid = referenceData[0]
             refFileRelPath = referenceData[1]
             refVar = referenceData[2]
             try:
@@ -250,7 +244,7 @@ class CDMSDatasetRecord():
         if not refGrid:
             refGrid = varData.getGrid()
         if not refGrid:
-            mb = QtGui.QMessageBox.warning(None, "DV3D Error", "CDAT is unable to create a grid for this dataset.")
+            # QtGui.QMessageBox.warning(None, "DV3D Error", "CDAT is unable to create a grid for this dataset.")
             return None
         refLat = refGrid.getLatitude()
         refLon = refGrid.getLongitude()
@@ -291,14 +285,17 @@ class CDMSDatasetRecord():
                 varLatInt = latAxis.mapIntervalExt(latBounds)
                 args1['lon'] = slice(varLonInt[0], varLonInt[1], decimationFactor)
                 args1['lat'] = slice(varLatInt[0], varLatInt[1], decimationFactor)
-                print " ---- Decimate(%d) grid %s: varLonInt=%s, varLatInt=%s, lonSlice=%s, latSlice=%s" % (decimationFactor, str(gridBounds), str(varLonInt), str(varLatInt), str(args1['lon']), str(args1['lat']))
+                print " ---- Decimate(%d) grid {0}: varLonInt={1}, "\
+                      "varLatInt={2}, lonSlice={3}, latSlice={4}".format(
+                          (decimationFactor, str(gridBounds), str(varLonInt),
+                           str(varLatInt), str(args1['lon']),
+                           str(args1['lat'])))
 #        args1['squeeze'] = 1
-        start_t = time.time()
 
 #        if (gridMaker == None) or ( gridMaker.grid == varData.getGrid() ):
 
-        if ((referenceVar is None) or ((referenceVar[0] == self.cdmsFile)
-                                       and (referenceVar[1] == varName))) and (decimationFactor == 1):
+        if ((referenceVar is None) or ((referenceVar[0] == self.cdmsFile) and
+                                       (referenceVar[1] == varName))) and (decimationFactor == 1):
             levbounds = self.getLevBounds(referenceLev)
             if levbounds:
                 args1['lev'] = levbounds
@@ -307,7 +304,10 @@ class CDMSDatasetRecord():
         else:
             refDelLat = (LatMax - LatMin) / nRefLat
             refDelLon = (LonMax - LonMin) / nRefLon
-#            nodataMask = cdutil.WeightsMaker( source=self.cdmsFile, var=varName,  actions=[ MV2.not_equal ], values=[ nodata_value ] ) if nodata_value else None
+#            nodataMask = cdutil.WeightsMaker( source=self.cdmsFile,
+#                                              var=varName,
+#                                              actions=[ MV2.not_equal ],
+#                                              values=[ nodata_value ] ) if nodata_value else None
             gridMaker = cdutil.WeightedGridMaker(
                 flat=LatMin,
                 flon=LonMin,
@@ -344,16 +344,18 @@ class CDMSDatasetRecord():
 #            max_values = [ regridded_var_slice.max(), rv.max()  ]
 #            print " Regrid variable %s: max values = %s " % ( varName, str(max_values) )
 
-            end_t = time.time()
 #            self.cachedFileVariables[ varName ] = ( timeValue, rv )
-#            print  "Reading variable %s, shape = %s, base shape = %s, time = %s (%s), args = %s, slice duration = %.4f sec." % ( varName, str(rv.shape), str(varData.shape), str(timeValue), str(timeValue.tocomp()), str(args1), end_t-start_t  )
+#            print  "Reading variable %s, shape = %s, base shape = %s, time = %s (%s),
+#                    args = %s, slice duration = %.4f sec." % ( varName, str(rv.shape),
+#                    str(varData.shape), str(timeValue), str(timeValue.tocomp()), str(args1), end_t-start_t  )
 #        except Exception, err:
 #            print>>sys.stderr, ' Exception getting var slice: %s ' % str( err )
         return rv
 
     def getFileVarDataCube(self, varName, decimation, **args):
         """
-        This method extracts a CDMS variable object (varName) and then cuts out a data slice with the correct axis ordering (returning a NumPy masked array).
+        This method extracts a CDMS variable object (varName) and then cuts out
+        a data slice with the correct axis ordering (returning a NumPy masked array).
         """
         lonBounds = args.get('lon', None)
         latBounds = args.get('lat', None)
@@ -366,12 +368,10 @@ class CDMSDatasetRecord():
         varData = self.dataset[varName]
         currentLevel = varData.getLevel()
 
-        refFile = self.cdmsFile
         refVar = varName
         refGrid = None
         if referenceVar:
             referenceData = referenceVar.split('*')
-            refDsid = referenceData[0]
             relFilePath = referenceData[1]
             refVar = referenceData[2]
             try:
@@ -383,7 +383,7 @@ class CDMSDatasetRecord():
         if not refGrid:
             refGrid = varData.getGrid()
         if not refGrid:
-            mb = QtGui.QMessageBox.warning(None, "DV3D Error", "CDAT is unable to create a grid for this dataset.")
+            # QtGui.QMessageBox.warning(None, "DV3D Error", "CDAT is unable to create a grid for this dataset.")
             return None
         refLat = refGrid.getLatitude()
         refLon = refGrid.getLongitude()
@@ -438,11 +438,9 @@ class CDMSDatasetRecord():
                 varLatInt = latAxis.mapIntervalExt(latBounds)
                 args1['lat'] = slice(varLatInt[0], varLatInt[1], decimationFactor)
 
-        start_t = time.time()
-
         levBounds = args.get('lev', None)
-        if ((referenceVar is None) or ((referenceVar[0] == self.cdmsFile)
-                                       and (referenceVar[1] == varName))) and (decimationFactor == 1):
+        if ((referenceVar is None) or ((referenceVar[0] == self.cdmsFile) and
+                                       (referenceVar[1] == varName))) and (decimationFactor == 1):
             if levBounds is not None:
                 args1['lev'] = levBounds[0] if (len(levBounds) == 1) else levBounds
             else:
@@ -454,7 +452,8 @@ class CDMSDatasetRecord():
         else:
             refDelLat = (LatMax - LatMin) / nRefLat
             refDelLon = (LonMax - LonMin) / nRefLon
-#            nodataMask = cdutil.WeightsMaker( source=self.cdmsFile, var=varName,  actions=[ MV2.not_equal ], values=[ nodata_value ] ) if nodata_value else None
+#            nodataMask = cdutil.WeightsMaker( source=self.cdmsFile, var=varName,
+#                          actions=[ MV2.not_equal ], values=[ nodata_value ] ) if nodata_value else None
             gridMaker = cdutil.WeightedGridMaker(
                 flat=LatMin,
                 flon=LonMin,
@@ -499,9 +498,9 @@ class CDMSDatasetRecord():
 #            max_values = [ regridded_var_slice.max(), rv.max()  ]
 #            print " Regrid variable %s: max values = %s " % ( varName, str(max_values) )
 
-            end_t = time.time()
 #            self.cachedFileVariables[ varName ] = ( timeValue, rv )
-#            print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % ( varName, str(rv.shape), str(varData.shape), str(args1) )
+#            print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % (
+#                                varName, str(rv.shape), str(varData.shape), str(args1) )
 #        except Exception, err:
 #            print>>sys.stderr, ' Exception getting var slice: %s ' % str( err )
         return rv
@@ -557,7 +556,8 @@ class CDMSDatasetRecord():
 #            gridBounds[ 2 ] = gridBounds[ 3 ]
 #            gridBounds[ 3 ] = tmp
 #        gridSpecs = {}
-#        md = { 'datasetId' : self.id,  'bounds':gridBounds, 'lat':self.lat, 'lon':self.lon, 'lev':self.lev, 'attributes':self.dataset.attributes }
+#        md = { 'datasetId' : self.id,  'bounds':gridBounds, 'lat':self.lat,
+#               'lon':self.lon, 'lev':self.lev, 'attributes':self.dataset.attributes }
 #        gridSpecs['gridOrigin'] = gridOrigin
 #        gridSpecs['outputOrigin'] = outputOrigin
 #        gridSpecs['gridBounds'] = gridBounds
@@ -731,7 +731,8 @@ class CDMSDataset:
 
     def getVarDataTimeSlice(self, dsid, varName, timeValue):
         """
-        This method extracts a CDMS variable object (varName) and then cuts out a data slice with the correct axis ordering (returning a NumPy masked array).
+        This method extracts a CDMS variable object (varName) and then cuts out
+        a data slice with the correct axis ordering (returning a NumPy masked array).
         """
         rv = CDMSDataset.NullVariable
         if dsid:
@@ -758,7 +759,8 @@ class CDMSDataset:
 
     def getVarDataCube(self, dsid, varName, timeValues, levelValues=None, **kwargs):
         """
-        This method extracts a CDMS variable object (varName) and then cuts out a data slice with the correct axis ordering (returning a NumPy masked array).
+        This method extracts a CDMS variable object (varName) and then cuts out
+        a data slice with the correct axis ordering (returning a NumPy masked array).
         """
         memoryLogger.log("Begin getVarDataCube")
         rv = CDMSDataset.NullVariable
@@ -805,7 +807,6 @@ class CDMSDataset:
         level = args.get('lev', None)
         lonBounds = args.get('lon', None)
         latBounds = args.get('lat', None)
-        cell_coords = args.get('cell', None)
 
         if levaxis:
             values = levaxis.getValue()
@@ -824,7 +825,6 @@ class CDMSDataset:
 #                return cachedTransVariableRec[ 1 ]
 
         rv = CDMSDataset.NullVariable
-        currentLevel = transVar.getLevel()
 #        print "Reading Variable %s, attributes: %s" % ( varName, str(transVar.attributes) )
 
         decimationFactor = 1
@@ -884,7 +884,7 @@ class CDMSDataset:
 
         try:
             rv = transVar(**args1)
-        except Exception as err:
+        except Exception:
             print>>sys.stderr, "Error Reading Variable, args = ", str(args1)
             traceback.print_exc()
             return CDMSDataset.NullVariable
@@ -895,7 +895,7 @@ class CDMSDataset:
             rv = MV2.masked_equal(rv, rv.fill_value)
         except:
             pass
- #       self.cachedTransVariables[ varName ] = ( timeValue, rvm )
+#       self.cachedTransVariables[ varName ] = ( timeValue, rvm )
 # print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % (
 # varName, str(rv.shape), str(transVar.shape), str(args1) )
         return rv
@@ -914,7 +914,8 @@ class CDMSDataset:
 
     def getVarDataTimeSlices(self, varList, timeValue):
         """
-        This method extracts a CDMS variable object (varName) and then cuts out a data slice with the correct axis ordering (returning a NumPy masked array).
+        This method extracts a CDMS variable object (varName) and then cuts out
+        a data slice with the correct axis ordering (returning a NumPy masked array).
         """
         timeSlices, condTimeSlices = [], []
         vc0 = None
@@ -1102,10 +1103,10 @@ class StructuredFileReader:
         zscale = getItem(self.getInputValue("zscale", 1.0))
 
         serializedInputSpecs = getItem(self.getInputValue("executionSpecs"))
- #       print " ** serializedInputSpecs: ", str( serializedInputSpecs )
+#       print " ** serializedInputSpecs: ", str( serializedInputSpecs )
         if serializedInputSpecs:
             inputSpecs = SerializedInterfaceSpecs(serializedInputSpecs) if serializedInputSpecs else None
- #           print " ** InputSpecs: ", str( inputSpecs )
+#           print " ** InputSpecs: ", str( inputSpecs )
             self.idSpecs, self.fileSpecs, self.varSpecs, self.gridSpecs = [], [], [], []
             nInputs = inputSpecs.getNInputs() if inputSpecs else 0
             if nInputs:

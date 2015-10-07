@@ -1,7 +1,5 @@
-
-import vtk
 import sys
-import gc
+import vtk
 
 
 class DisplayMode:
@@ -108,7 +106,9 @@ class ImagePlaneWidget:
         self.CreateDefaultProperties()
 
     def __del__(self):
-        print " **************************************** Deleting ImagePlaneWidget module, id = %d  **************************************** " % id(self)
+        print " **************************************** "\
+              "Deleting ImagePlaneWidget module, id = {0} "\
+              "**************************************** ".format(id(self))
         sys.stdout.flush()
 
     def endSlicing(self):
@@ -119,7 +119,10 @@ class ImagePlaneWidget:
 
     def LookupTableObserver(self, caller=None, event=None):
         table_range = self.LookupTable.GetTableRange()
-        print " Image Plane Widget LookupTable Observer: event = %s, caller=%x, range=%s, LookupTable=%x, self=%s" % (event, id(caller), str(table_range), id(self.LookupTable), id(self))
+        print " Image Plane Widget LookupTable Observer: event = {0}, "\
+              "caller={1}, range={2}, LookupTable={3}, self={4}".format(
+                      event, id(caller), str(table_range),
+                      id(self.LookupTable), id(self))
 
     def GetCurrentButton(self):
         return self.CurrentButton
@@ -179,18 +182,19 @@ class ImagePlaneWidget:
                     return False
         return True
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def updateInteractor(self):
         pass
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def SetRenderer(self, value):
         self.CurrentRenderer = value
-#        if self.CurrentRenderer: self.CurrentRenderer.AddObserver( 'ModifiedEvent', self.ActivateEvent )
+#        if self.CurrentRenderer:
+#            self.CurrentRenderer.AddObserver( 'ModifiedEvent', self.ActivateEvent )
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def ActivateEvent(self, caller=None, event=None):
         if self.Interactor is None:
@@ -201,19 +205,18 @@ class ImagePlaneWidget:
                     if iren:
                         self.SetInteractor(iren)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def RemoveAllObservers(self):
         self.Interactor.RemoveAllObservers()
         self.RenderWindow.RemoveAllObservers()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def SetInteractor(self, iren):
         if (iren is not None):
             if (iren != self.Interactor):
                 self.Interactor = iren
-                istyle = self.Interactor.GetInteractorStyle()
                 self.Interactor.AddObserver('LeftButtonPressEvent', self.OnLeftButtonDown)
                 self.Interactor.AddObserver('LeftButtonReleaseEvent', self.OnLeftButtonUp)
                 self.Interactor.AddObserver('RightButtonReleaseEvent', self.OnRightButtonUp)
@@ -224,7 +227,7 @@ class ImagePlaneWidget:
 #                self.Interactor.AddObserver( 'AnyEvent', self.OnAnyEvent )
                 self.SetEnabled()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
     def SetEnabled(self):
 
         if (not self.Interactor):
@@ -302,7 +305,7 @@ class ImagePlaneWidget:
     def DisableInteraction(self):
         self.VisualizationInteractionEnabled = False
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def BuildRepresentation(self):
         self.PlaneSource.Update()
@@ -321,7 +324,7 @@ class ImagePlaneWidget:
         points.GetData().Modified()
         self.PlaneOutlinePolyData.Modified()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def HighlightPlane(self, highlight):
         if (highlight):
@@ -330,11 +333,11 @@ class ImagePlaneWidget:
         else:
             self.PlaneOutlineActor.SetProperty(self.PlaneProperty)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def OnLeftButtonDown(self, caller, event):
         pass
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def OnLeftButtonUp(self, caller, event):
         pass
@@ -343,7 +346,7 @@ class ImagePlaneWidget:
 #             self.StopCursor()
 #             self.CurrentButton = self.NoButtonDown
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def OnRightButtonUp(self, caller, event):
         pass
@@ -351,7 +354,7 @@ class ImagePlaneWidget:
 #             self.StopSliceMotion()
 #             self.CurrentButton = self.NoButtonDown
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def OnRightButtonDown(self, caller, event):
         shift = caller.GetShiftKey()
@@ -363,7 +366,7 @@ class ImagePlaneWidget:
 #             self.CurrentButton = self.RightButtonDown
 #             self.StartSliceMotion()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
     def StartCursor(self):
         if self.State == ImagePlaneWidget.Cursoring:
@@ -414,12 +417,12 @@ class ImagePlaneWidget:
             self.HighlightPlane(0)
             self.ActivateCursor(0)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def ProcessEvent(self, event, **args):
         self.ActionHandler.ProcessIPWAction(self, event, **args)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def HaltNavigationInteraction(self):
         print " IPW-> HaltNavigationInteraction"
@@ -431,7 +434,7 @@ class ImagePlaneWidget:
         istyle = self.Interactor.GetInteractorStyle()
         istyle.On()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def StartInteraction(self):
         update_rate = self.Interactor.GetDesiredUpdateRate()
@@ -439,14 +442,14 @@ class ImagePlaneWidget:
         self.updateInteractor()
         self.HaltNavigationInteraction()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def EndInteraction(self):
         update_rate = self.Interactor.GetStillUpdateRate()
         self.Interactor.GetRenderWindow().SetDesiredUpdateRate(update_rate)
         self.ResetNavigationInteraction()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def ComputeWorldToDisplay(self, x, y, z):
         if self.CurrentRenderer is None:
@@ -455,7 +458,7 @@ class ImagePlaneWidget:
         self.CurrentRenderer.WorldToDisplay()
         return self.CurrentRenderer.GetDisplayPoint()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def ComputeDisplayToWorld(self, x, y, z):
         if self.CurrentRenderer is None:
@@ -470,7 +473,7 @@ class ImagePlaneWidget:
             worldPt[3] = 1.0
         return worldPt
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def StopCursor(self):
         if (self.State == ImagePlaneWidget.Outside or self.State == ImagePlaneWidget.Start):
@@ -483,7 +486,7 @@ class ImagePlaneWidget:
         self.EndInteraction()
         self.Interactor.Render()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def StartSliceMotion(self):
         if self.State == ImagePlaneWidget.Pushing:
@@ -509,7 +512,7 @@ class ImagePlaneWidget:
             self.State = ImagePlaneWidget.Outside
             self.HighlightPlane(0)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def StopSliceMotion(self):
         if (self.State == ImagePlaneWidget.Outside or self.State == ImagePlaneWidget.Start):
             return
@@ -521,18 +524,18 @@ class ImagePlaneWidget:
         self.EndInteraction()
         self.Interactor.Render()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def OnKeyPress(self, caller, event):
         pass
 #        print "Key event: ", caller.__class__.__name__
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def OnAnyEvent(self, caller, event):
         print " ************* ImagePlaneWidget Event: ", str(event)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def OnMouseMove(self, caller, event):
         pass
@@ -551,10 +554,15 @@ class ImagePlaneWidget:
 #         if ( self.State == ImagePlaneWidget.Pushing ):
 #             # Compute the two points defining the motion vector
 #             #
-#             focalPoint = self.ComputeWorldToDisplay( self.LastPickPosition[0],  self.LastPickPosition[1],  self.LastPickPosition[2] )
+#             focalPoint = self.ComputeWorldToDisplay( self.LastPickPosition[0],
+#                                                      self.LastPickPosition[1],
+#                                                      self.LastPickPosition[2] )
 #             z = focalPoint[2]
 #
-#             prevPickPoint = self.ComputeDisplayToWorld( float(self.Interactor.GetLastEventPosition()[0]), float(self.Interactor.GetLastEventPosition()[1]), z )
+#             prevPickPoint = self.ComputeDisplayToWorld(
+#                                float(self.Interactor.GetLastEventPosition()[0]),
+#                                float(self.Interactor.GetLastEventPosition()[1]),
+#                                z )
 #             pickPoint = self.ComputeDisplayToWorld( float(X), float(Y), z )
 #
 #             self.Push( prevPickPoint, pickPoint )
@@ -566,12 +574,12 @@ class ImagePlaneWidget:
 #
 #         self.Interactor.Render()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def DoPick(self, X, Y):
         pass
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetCursorData(self):
         if (self.State != ImagePlaneWidget.Cursoring or self.CurrentImageValue == vtk.VTK_DOUBLE_MAX):
@@ -583,13 +591,13 @@ class ImagePlaneWidget:
             self.CurrentImageValue,
             self.CurrentImageValue2]
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def GetCursorDataStatus(self):
         if (self.State != ImagePlaneWidget.Cursoring or self.CurrentImageValue == vtk.VTK_DOUBLE_MAX):
             return 0
         return 1
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def Push(self, p1, p2):
         v = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
@@ -598,7 +606,7 @@ class ImagePlaneWidget:
 #        print "Push Plane by distance %.3f " % distance
         self.ProcessEvent(self.InteractionUpdateEvent)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def CreateDefaultProperties(self):
 
@@ -628,7 +636,7 @@ class ImagePlaneWidget:
             self.TexturePlaneProperty.SetAmbient(1)
             self.TexturePlaneProperty.SetInterpolationToFlat()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def PlaceWidget(self, bnds):
 
         self.InputBounds = bnds
@@ -669,12 +677,12 @@ class ImagePlaneWidget:
         self.BuildRepresentation()
         self.ActivateEvent()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetPlaneOrientation(self):
         return self.PlaneOrientation
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetPlaneOrientation(self, i):
 
@@ -743,7 +751,7 @@ class ImagePlaneWidget:
         self.Modified()
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetInput(self, inputData, inputData2=None):
 
@@ -815,20 +823,29 @@ class ImagePlaneWidget:
     def UpdateDataBounds(self):
         self.dataBounds = list(self.ImageData.GetBounds())
 
-    # def SetZScale( self, zscale_data, **args ):
-    #     if self.setInputZScale( zscale_data ):
-    #         if self.planeWidget <> None:
-    #             self.dataBounds = list( self.input().GetBounds() )
-    #             dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0, (self.dataBounds[3]-self.dataBounds[2])/2.0, (self.dataBounds[5]-self.dataBounds[4])/2.0 )
-    #             self.planeWidget.PlaceWidget( self.dataBounds[0]-dataExtents[0], self.dataBounds[1]+dataExtents[0], self.dataBounds[2]-dataExtents[1], self.dataBounds[3]+dataExtents[1], self.dataBounds[4]-dataExtents[2], self.dataBounds[5]+dataExtents[2] )
-    #             centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0, (self.dataBounds[2]+self.dataBounds[3])/2.0, (self.dataBounds[4]+self.dataBounds[5])/2.0  )
-    #             self.planeWidget.SetOrigin( centroid[0], centroid[1], centroid[2]  )
-    #             self.planeWidget.SetNormal( ( 0.0, 0.0, 1.0 ) )
-    # print "PlaceWidget: Data bounds = %s, data extents = %s " % ( str(
-    # self.dataBounds ), str( dataExtents ) )
+# def SetZScale( self, zscale_data, **args ):
+#     if self.setInputZScale( zscale_data ):
+#         if self.planeWidget <> None:
+#             self.dataBounds = list( self.input().GetBounds() )
+#             dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0,
+#                             (self.dataBounds[3]-self.dataBounds[2])/2.0,
+#                             (self.dataBounds[5]-self.dataBounds[4])/2.0 )
+#             self.planeWidget.PlaceWidget( self.dataBounds[0]-dataExtents[0],
+#                                           self.dataBounds[1]+dataExtents[0],
+#                                           self.dataBounds[2]-dataExtents[1],
+#                                           self.dataBounds[3]+dataExtents[1],
+#                                           self.dataBounds[4]-dataExtents[2],
+#                                           self.dataBounds[5]+dataExtents[2] )
+#             centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0,
+#                          (self.dataBounds[2]+self.dataBounds[3])/2.0,
+#                          (self.dataBounds[4]+self.dataBounds[5])/2.0  )
+#             self.planeWidget.SetOrigin( centroid[0], centroid[1], centroid[2]  )
+#             self.planeWidget.SetNormal( ( 0.0, 0.0, 1.0 ) )
+# print "PlaceWidget: Data bounds = %s, data extents = %s " % ( str(
+# self.dataBounds ), str( dataExtents ) )
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def UpdatePlane(self):
 
@@ -876,13 +893,13 @@ class ImagePlaneWidget:
 
         return False
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetClipOutput(self):
         self.Clipper.Update()
         return self.Clipper.GetOutput()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def CreateDefaultLookupTable(self):
         lut = vtk.vtkLookupTable()
@@ -894,7 +911,7 @@ class ImagePlaneWidget:
         lut.Build()
         return lut
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetLookupTable(self, table):
 
@@ -910,7 +927,7 @@ class ImagePlaneWidget:
             self.LookupTable.SetTableRange(scalar_range[0], scalar_range[1])
             self.LookupTable.Build()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def ConvertPositionToRelative(self, position):
         bounds = self.dataBounds[self.PlaneOrientation * 2:]
@@ -964,7 +981,7 @@ class ImagePlaneWidget:
 #         self.BuildRepresentation()
 #         self.Modified()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def GetSlicePosition(self):
 
         planeOrigin = self.PlaneSource.GetOrigin()
@@ -983,7 +1000,7 @@ class ImagePlaneWidget:
 
         return 0.0
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetSliceIndex(self, index):
 
@@ -1034,7 +1051,7 @@ class ImagePlaneWidget:
         self.Modified()
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetSliceIndex(self):
 
@@ -1061,7 +1078,7 @@ class ImagePlaneWidget:
         return 0
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def ActivateCursor(self, i):
         if(not self.CurrentRenderer):
             return
@@ -1070,7 +1087,7 @@ class ImagePlaneWidget:
         else:
             self.CursorActor.VisibilityOn()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def UpdateCursor(self, X, Y):
 
@@ -1129,7 +1146,7 @@ class ImagePlaneWidget:
         self.CursorPolyData.Modified()
         self.ProcessEvent(self.InteractionUpdateEvent)
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def UpdateDiscreteCursor(self, q):
         # vtkImageData will find the nearest implicit point to q
@@ -1180,18 +1197,18 @@ class ImagePlaneWidget:
                     self.CurrentImageValue2 = self.ImageData2.GetScalarComponentAsDouble(pos2[0], pos2[1], 0.0, 0)
         return rq
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def Modified(self):
         pass
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetOrigin(self, x, y, z):
         self.PlaneSource.SetOrigin(x, y, z)
         self.Modified()
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetOrigin(self):
         return self.PlaneSource.GetOrigin()
@@ -1201,53 +1218,53 @@ class ImagePlaneWidget:
         origin2 = [origin[i] - self.Input2Offset[i] for i in range(3)]
         return origin2
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetPoint1(self, x, y, z):
         self.PlaneSource.SetPoint1(x, y, z)
         self.Modified()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetPoint1(self):
         return self.PlaneSource.GetPoint1()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def SetPoint2(self, x, y, z):
         self.PlaneSource.SetPoint2(x, y, z)
         self.Modified()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetPoint2(self):
         return self.PlaneSource.GetPoint2()
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetCenter(self):
         return self.PlaneSource.GetCenter()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def GetNormal(self):
         return self.PlaneSource.GetNormal()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def GetPolyData(self, pd):
         pd.ShallowCopy(self.PlaneSource.GetOutput())
 
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def GetPolyDataAlgorithm(self):
         return self.PlaneSource
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
     def UpdatePlacement(self):
         self.UpdatePlane()
         self.BuildRepresentation()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetVector1(self):
         p1 = self.PlaneSource.GetPoint1()
@@ -1255,7 +1272,7 @@ class ImagePlaneWidget:
         v1 = [p1[0] - o[0], p1[1] - o[1], p1[2] - o[2]]
         return v1
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GetVector2(self):
         p2 = self.PlaneSource.GetPoint2()
@@ -1263,7 +1280,7 @@ class ImagePlaneWidget:
         v2 = [p2[0] - o[0], p2[1] - o[1], p2[2] - o[2]]
         return v2
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GeneratePlaneOutline(self):
         points = vtk.vtkPoints()
@@ -1303,7 +1320,7 @@ class ImagePlaneWidget:
         self.PlaneOutlineActor.SetMapper(planeOutlineMapper)
         self.PlaneOutlineActor.PickableOff()
 
-#----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
     def GenerateCursor(self):
         # Construct initial points
@@ -1621,7 +1638,10 @@ class StreamlineSliceWidget(ImagePlaneWidget):
         else:
             self.streamer.SetSourceData(sample_source)
 #        self.Render()
-        print " ---- ApplyStreamerSeedGridSpacing:  Sample rate: %s, current Level: %d, sourceSpacing: %s, sourceExtent: %s " % (str(sampleRate), currentLevel, str(sourceSpacing), str(sourceExtent))
+        print " ---- ApplyStreamerSeedGridSpacing:  Sample rate: {0}, "\
+              "current Level: {1}, sourceSpacing: {2}, sourceExtent: {3}".format(
+                          (str(sampleRate), currentLevel, str(sourceSpacing),
+                              str(sourceExtent)))
         sys.stdout.flush()
 
     def SliceObserver(self, caller, event=None):
@@ -1806,8 +1826,6 @@ class VectorSliceWidget(ImagePlaneWidget):
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            mapper_input = self.cutter.GetOutput()
-            cutter_input = self.resample.GetOutput()
             value = args[2].GetValue()
             glyphScale.setValue(0, value)
             self.glyphScale = abs(value)
@@ -1899,9 +1917,6 @@ class LICSliceWidget(ImagePlaneWidget):
 
     def updateLICFilter(self):
         if self.LICFilter is None:
-            pointData = self.ImageData.GetPointData()
-            vectorsArray = pointData.GetVectors()
-
             self.resample = vtk.vtkExtractVOI()
 
 #             self.resample = vtk.vtkImageReslice()
@@ -1938,19 +1953,6 @@ class LICSliceWidget(ImagePlaneWidget):
         self.UpdateCut()
         output = self.resample.GetOutput()
         extent = output.GetExtent()
-        pd = output.GetPointData()
-        na = pd.GetNumberOfArrays()
-        v = pd.GetVectors()
-        s = pd.GetScalars()
-        ncs = s.GetNumberOfComponents()
-        ncv = v.GetNumberOfComponents() if v else 0
-
-        pd1 = self.ImageData.GetPointData()
-        na1 = pd1.GetNumberOfArrays()
-        v1 = pd1.GetVectors()
-        s1 = pd1.GetScalars()
-        ncs1 = s1.GetNumberOfComponents()
-        ncv1 = v1.GetNumberOfComponents() if v1 else 0
 
         print "  Update LIC Filter, input extent = ", str(extent)
         self.Texture.Update()
