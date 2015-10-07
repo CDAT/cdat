@@ -959,7 +959,7 @@ class VTKVCSBackend(object):
         self.showGUI()
 
     def postscript(self, file, width=None, height=None,
-        units=None):
+                   units=None):
         return self.vectorGraphics("ps", file, width, height, units)
 
     def pdf(self, file, width=None, height=None, units=None):
