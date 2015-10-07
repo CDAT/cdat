@@ -4698,25 +4698,9 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
         # in pixels?
         self.bgX = W
         self.bgY = H
@@ -4754,8 +4738,16 @@ Options:::
         base = os.path.dirname(file)
         if base != "" and not os.path.exists(base):
             raise vcsError("Output path: %s does not exist" % base)
+        if units not in [
+                'inches', 'in', 'cm', 'mm',
+                None, 'pixel', 'pixels', 'dot', 'dots']:
+            raise Exception(
+                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
+
+        W, H = self._compute_width_height(
+            width, height, units)
         return self.backend.png(
-            file, width, height, units, draw_white_background, **args)
+            file, W, H, units, draw_white_background, **args)
 
     ##########################################################################
     #                                                                           #
@@ -4781,19 +4773,8 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
@@ -4823,25 +4804,8 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
+        W, H = self._compute_width_height(
             width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
 
         if not file.split('.')[-1].lower() in ['svg']:
             file += '.svg'
@@ -4944,7 +4908,16 @@ Options:::
 
         return top_margin, bottom_margin, right_margin, left_margin
 
-    def _compute_width_height(self, width, height, factor, ps=True):
+    def _compute_width_height(self, width, height, units, ps=True):
+        dpi = 72.  # dot per inches
+        if units in ["in", "inches"]:
+            factor = 1.
+        elif units == 'cm':
+            factor = 0.393700787
+        elif units == 'mm':
+            factor = 0.0393700787
+        else:
+            factor = 1. / 72
         sfactor = factor
         if width is None and height is None:
             try:
@@ -4994,7 +4967,14 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-        return width, height, sfactor
+        W = int(width * dpi * sfactor)
+        H = int(height * dpi * sfactor)
+        if (self.isportrait() and W>H) \
+            or (self.islandscape() and H>W):
+          tmp = W
+          W = H
+          H = tmp
+        return W,H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches'):
@@ -5028,21 +5008,10 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
 
         # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H, units = self._compute_width_height(
+            width, height, units)
 
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
@@ -5063,167 +5032,6 @@ Options:::
                 os.remove(psnm)
             else:
                 shutil.move(psnm, file)
-
-    ##########################################################################
-    #                                                                           #
-    # Postscript wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
-    def postscript_old(self, file, mode='r', orientation=None):
-        """
- Function: postscript
-
- Description of Function:
-    Postscript output is another form of vector graphics. It is larger than its CGM output
-    counter part, because it is stored out in ASCII format. To save out a postscript file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen.
-
-    There are two modes for saving a postscript file: `Append' (a) mode appends postscript
-    output to an existing postscript file; and `Replace' (r) mode overwrites an existing
-    postscript file with new postscript output. The default mode is to overwrite an existing
-    postscript file (i.e. mode (r)).
-
-    The POSTSCRIPT command is used to create a postscript file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is the current orientation of your canvas.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.postscript('example')       # Overwrite a postscript file
-    a.postscript('example', 'a')  # Append postscript to an existing file
-    a.postscript('example', 'r')  # Overwrite an existing file
-    a.postscript('example', 'r', 'p')  # Overwrite postscript file with a portrait postscript file
-    a.postscript('example', mode='a')  # Append postscript to an existing file
-    a.postscript('example', orientation='r')  # Overwrite an existing file
-    a.postscript('example', mode='r', orientation='p')  # Overwrite postscript file with a portrait postscript file
-""" % self._dotdir
-        if orientation is None:
-            orientation = self.orientation()[0]
-        return self.canvas.postscript_old(*(file, mode, orientation))
-
-    ##########################################################################
-    #                                                                           #
-    # Old PDF wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def pdf_old(self, file, orientation=None, options='', width=None, height=None,
-                units='inches', left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: pdf
-
- Description of Function:
-    To save out a PDF file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen. And then convert it pdf using ps2pdf
-
-    The pdf command is used to create a pdf file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is landscape.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.pdf('example')      # Creates a landscape pdf file
-    a.pdf('example','p')  # Creates a portrait pdf file
-    a.pdf(file='example',orientation='p')  # Creates a portrait pdf file
-    a.pdf(file='example',options='-dCompressPages=false')
-    # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
-""" % (self._dotdir)
-
-        n = random.randint(0, 100000000000)
-        if file[-3:].lower() != 'pdf':
-            file += '.pdf'
-        psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-        a = self.postscript(
-            psnm,
-            orientation=orientation,
-            width=width,
-            height=height,
-            units=units,
-            left_margin=left_margin,
-            right_margin=right_margin,
-            top_margin=top_margin,
-            bottom_margin=bottom_margin)
-        os.popen('ps2pdf14 ' + options + ' ' + psnm + ' ' + file).readlines()
-        os.remove(psnm)
-        return a
-
-    ##########################################################################
-    #                                                                           #
-    # Printer wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def printer(self, printer=None, orientation=None, width=None, height=None, units='inches',
-                left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: printer
-
- Description of Function:
-    This function creates a temporary cgm file and then sends it to the specified
-    printer. Once the printer received the information, then the temporary cgm file
-    is deleted. The temporary cgm file is created in the user's %s directory.
-
-    The PRINTER command is used to send the VCS Canvas plot(s) directly to the printer.
-    Orientation can be either: 'l' = landscape, or 'p' = portrait.
-
-    Note: VCS graphical displays can be printed only if the user customizes a HARD_COPY
-    file (included with the VCS software) for the home system. The path to the HARD_COPY
-    file must be:
-
-              /$HOME/%s/HARD_COPY
-
-    where /$HOME denotes the user's home directory.
-
-
-    For more information on the HARD_COPY file, see URL:
-
-    http://www-pcmdi.llnl.gov/software/vcs/vcs_guidetoc.html#1.Setup
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.printer('printer_name') # Send plot(s) to postscript printer
-    a.printer('printer_name',top_margin=1,units='cm')
-    # Send plot(s) to postscript printer with 1cm margin on top of plot
-""" % (self._dotdir, self._dotdir)
-        if printer is None:
-            printer = (os.environ.get('PRINTER'),)
-
-        if units not in [
-                'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
-            raise Exception(
-                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
-
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
-
-        return self.canvas.printer(*(printer, W, H, R, L, T, B))
 
     ##########################################################################
     #                                                                           #

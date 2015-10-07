@@ -986,13 +986,11 @@ class VTKVCSBackend(object):
         except:
             pass
 
-        # if width is not None and height is not None:
-        #  self.renWin.SetSize(width,height)
-            # self.renWin.Render()
+        if width is not None and height is not None:
+            self.renWin.SetSize(width,height)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
-#        imgfiltr.SetMagnification(3)
         ignore_alpha = args.get('ignore_alpha', False)
         if ignore_alpha or draw_white_background:
             imgfiltr.SetInputBufferTypeToRGB()
