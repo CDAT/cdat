@@ -3,19 +3,17 @@ Created on May 9, 2014
 
 @author: tpmaxwel
 '''
+from StringIO import StringIO
+from weakref import WeakSet, WeakKeyDictionary
+import ast
+import cdtime
+import copy
+import cPickle
+import inspect
+import numpy as np
+import os
 import sys
 import vtk
-import cdms2
-import traceback
-import os
-import cdtime
-import cPickle
-import copy
-from StringIO import StringIO
-import numpy as np
-import inspect
-import ast
-from weakref import WeakSet, WeakKeyDictionary
 
 SLICE_WIDTH_LR_COMP = ['xlrwidth', 'ylrwidth', 'zlrwidth']
 SLICE_WIDTH_HR_COMP = ['xhrwidth', 'yhrwidth', 'zhrwidth']
@@ -502,7 +500,8 @@ class ConfigManager:
                 if line == "":
                     break
                 serializedState = line.split('=')
-                print '  <<---------------------------------------------------->> Restore State: ', serializedState[0], " = ", str(serializedState[1])
+                print " <<---------------------------------------------------->> Restore State: ",\
+                    serializedState[0], " = ", str(serializedState[1])
                 cp = self.getParameter(serializedState[0])
                 cp.restoreState(serializedState[1].strip())
 
@@ -542,13 +541,13 @@ class ConfigManager:
         extra_parms = args.get('extras', [])
         if var is not None:
             from Application import getPlotFromVar
-            plot = getPlotFromVar(var, cm=self)
+            getPlotFromVar(var, cm=self)
         else:
             pass
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
-            p1 = RectGridPlot(cm=self, display=False)
-            p2 = CPCPlot(cm=self, display=False)
+            RectGridPlot(cm=self, display=False)
+            CPCPlot(cm=self, display=False)
         parameter_list = set()
         parameter_list.add('Configure')
         for cpi in self.parameters.items():
@@ -801,7 +800,7 @@ class ConfigParameter:
             if hasattr(key, 'id'):
                 key = key.id
             self.setValue(key, value)
-            if not self.parent is None:
+            if self.parent is not None:
                 self.parent.setValue(key, value)
 
     def initValues(self, values, update=False):
@@ -811,7 +810,7 @@ class ConfigParameter:
             val0 = self.values.get(key, None)
             if val0 is None:
                 self.setValue(key, value)
-                if not self.parent is None:
+                if self.parent is not None:
                     self.parent.setValue(key, value)
 
     def getValues(self):
@@ -898,7 +897,7 @@ class ConfigurableFunction:
         self.persist = args.get('persist', True)
         self.manager = manager
         self.value = self.manager.addParameter(name, **args)
-     #   print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
+        #   print " Create ConfigurableFunction %s, parm value = %s " % ( self.name, str(self.value) )
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None
@@ -1257,18 +1256,20 @@ class InputSpecs:
             axisNames = ['Longitude', 'Latitude', 'Level'] if latLonGrid else ['X', 'Y', 'Level']
         try:
             axes = ['lon', 'lat', 'time'] if plotType == 'xyt' else ['lon', 'lat', 'lev']
-            mdata = self.metadata[axes[iAxis]]
+            # mdata = self.metadata[axes[iAxis]]
 
             if (plotType == 'xyt') and (iAxis == 2):
                 timeAxis = self.metadata['time']
-                timeValue = cdtime.reltime(float(world_coord), timeAxis.units)
+                # timeValue = cdtime.reltime(float(world_coord), timeAxis.units)
+                timeValue = cdtime.reltime(float(model_coord), timeAxis.units)
                 world_coord = str(timeValue.tocomp())
             return axisNames[iAxis], getFloatStr(world_coord)
         except:
             if (plotType == 'xyz') or (iAxis < 2):
                 gridSpacing = self.input().GetSpacing()
                 gridOrigin = self.input().GetOrigin()
-                return axes[iAxis], getFloatStr(gridOrigin[iAxis] + image_coord * gridSpacing[iAxis])
+                # return axes[iAxis], getFloatStr(gridOrigin[iAxis] + image_coord * gridSpacing[iAxis])
+                return axes[iAxis], getFloatStr(gridOrigin[iAxis] + model_coord * gridSpacing[iAxis])
             return axes[iAxis], ""
 
     def getRangeBounds(self):
@@ -1374,14 +1375,14 @@ class InputSpecs:
         return self.fieldData
 
     def updateMetadata(self, plotIndex):
-        if self.metadata is None:
-            scalars = None
+        # if self.metadata is None:
+        #    scalars = None
 
-#            arr_names = []
-#            na = self.fieldData.GetNumberOfArrays()
-#            for iF in range( na ):
-#                arr_names.append( self.fieldData.GetArrayName(iF) )
-#            print " updateMetadata: getFieldData, arrays = ", str( arr_names ) ; sys.stdout.flush()
+        #     arr_names = []
+        #     na = self.fieldData.GetNumberOfArrays()
+        #     for iF in range( na ):
+        #         arr_names.append( self.fieldData.GetArrayName(iF) )
+        #     print " updateMetadata: getFieldData, arrays = ", str( arr_names ) ; sys.stdout.flush()
 
             if self.fieldData is None:
                 print>>sys.stderr, ' NULL field data in updateMetadata: ispec[%x]  ' % id(self)
@@ -1396,7 +1397,7 @@ class InputSpecs:
                 self.referenceTimeUnits = self.metadata.get('timeUnits', None)
                 self.timeValue = cdtime.reltime(float(tval), self.referenceTimeUnits) if tval else None
                 self.dtype = self.metadata.get('datatype', None)
-                scalars = self.metadata.get('scalars', None)
+                # scalars = self.metadata.get('scalars', None)
                 self.rangeBounds = getRangeBounds(self.dtype)
                 title = self.metadata.get('title', None)
                 if title:
@@ -1463,7 +1464,7 @@ class InputSpecs:
             mdarray = getStringDataArray('metadata')
             self.fieldData.AddArray(mdarray)
 #            diagnosticWriter.log( self, ' initialize field data in ispec[%x]  ' % id(self) )
-        except Exception as err:
+        except Exception:
             print>>sys.stderr, "Error initializing metadata"
 
     def addMetadata(self, metadata):

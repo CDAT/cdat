@@ -4,19 +4,10 @@ Created on Apr 29, 2014
 @author: tpmaxwel
 '''
 
-import sys
-import vtk
-import cdms2
-import traceback
-import os
-import cdtime
+from ColorMapManager import *  # noqa
+from StructuredGridPlot import *  # noqa
 import math
-from ColorMapManager import *
-from Shapefile import shapeFileReader
-from DistributedPointCollections import kill_all_zombies
-from StructuredGridPlot import *
-#from ConfigFunctions import *
-import numpy as np
+import vtk
 
 LegacyAbsValueTransferFunction = 0
 LinearTransferFunction = 1
@@ -126,22 +117,40 @@ class VolumePlot(StructuredGridPlot):
 #        self.setupTransferFunctionConfigDialog()
         self.addConfigurableSliderFunction('colorScale', 'C', label='Colormap Scale',
                                            interactionHandler=self.processColorScaleCommand)
-#       self.addConfigurableLevelingFunction( 'colorScale',    'C', label='Colormap Scale', units='data', setLevel=self.generateCTF, getLevel=self.getSgnRangeBounds, layerDependent=True, adjustRangeInput=0, group=ConfigGroup.Color )
+#       self.addConfigurableLevelingFunction( 'colorScale','C',
+#                                              label='Colormap Scale',
+#                                              units='data',
+#                                              setLevel=self.generateCTF,
+#                                              getLevel=self.getSgnRangeBounds,
+#                                              layerDependent=True,
+#                                              adjustRangeInput=0,
+#                                              group=ConfigGroup.Color )
         self.addConfigurableSliderFunction(
             'functionScale',
             'T',
             label='Transfer Function Range',
             interactionHandler=self.processThresholdRangeCommand)
-#        self.addConfigurableLevelingFunction( 'functionScale', 'T', label='Transfer Function Scale', units='data', setLevel=self.generateOTF, getLevel=self.getAbsRangeBounds, layerDependent=True, adjustRangeInput=0, initRefinement=[ self.refinement[0], self.refinement[1] ], gui=self.transferFunctionConfig, group=ConfigGroup.Rendering  )
+#        self.addConfigurableLevelingFunction( 'functionScale', 'T', label='Transfer Function Scale',
+# units='data', setLevel=self.generateOTF, getLevel=self.getAbsRangeBounds, layerDependent=True,
+# adjustRangeInput=0, initRefinement=[ self.refinement[0], self.refinement[1] ],
+# gui=self.transferFunctionConfig, group=ConfigGroup.Rendering  )
         self.addConfigurableSliderFunction(
             'opacityScale', 'o', label='Opacity Scale', range_bounds=[
                 0.0, 1.0], initValue=[
                 1.0, 1.0], interactionHandler=self.processOpacityScalingCommand)
-#        self.addConfigurableLevelingFunction( 'opacityScale',  'o', label='Transfer Function Opacity', setLevel=self.adjustOpacity, layerDependent=True, group=ConfigGroup.Rendering  )
-#        self.addConfigurableMethod( 'showTransFunctGraph', self.showTransFunctGraph, 'g', label='Transfer Function Graph', group=ConfigGroup.Rendering )
-#        self.addConfigurableBooleanFunction( 'cropRegion', self.toggleClipping, 'X', labels='Start Cropping|End Cropping', signature=[ ( Float, 'xmin'), ( Float, 'xmax'), ( Float, 'ymin'), ( Float, 'ymax'), ( Float, 'zmin'), ( Float, 'zmax') ], group=ConfigGroup.Display )
-#        self.addConfigurableLevelingFunction( 'zScale', 'z', label='Vertical Scale', setLevel=self.setInputZScale, activeBound='max', getLevel=self.getScaleBounds, windowing=False, sensitivity=(10.0,10.0), initRange=[ 2.0, 2.0, 1 ], group=ConfigGroup.Display )
-#        self.addUVCDATConfigGuiFunction( 'renderType', VolumeRenderCfgDialog, 'v', label='Choose Volume Renderer', setValue=self.setVolRenderCfg, getValue=self.getVolRenderCfg, layerDependent=True, group=ConfigGroup.Rendering )
+#        self.addConfigurableLevelingFunction( 'opacityScale',  'o',
+# label='Transfer Function Opacity', setLevel=self.adjustOpacity, layerDependent=True,
+# group=ConfigGroup.Rendering  )
+#        self.addConfigurableMethod( 'showTransFunctGraph', self.showTransFunctGraph,
+# 'g', label='Transfer Function Graph', group=ConfigGroup.Rendering )
+#        self.addConfigurableBooleanFunction( 'cropRegion', self.toggleClipping, 'X',
+# labels='Start Cropping|End Cropping', signature=[ ( Float, 'xmin'), ( Float, 'xmax'), ( Float, 'ymin'),
+# ( Float, 'ymax'), ( Float, 'zmin'), ( Float, 'zmax') ], group=ConfigGroup.Display )
+#        self.addConfigurableLevelingFunction( 'zScale', 'z', label='Vertical Scale', setLevel=self.setInputZScale,
+# activeBound='max', getLevel=self.getScaleBounds, windowing=False, sensitivity=(10.0,10.0),
+# initRange=[ 2.0, 2.0, 1 ], group=ConfigGroup.Display )
+#        self.addUVCDATConfigGuiFunction( 'renderType', VolumeRenderCfgDialog, 'v', label='Choose Volume Renderer',
+# setValue=self.setVolRenderCfg, getValue=self.getVolRenderCfg, layerDependent=True, group=ConfigGroup.Rendering )
 
     def processOpacityScalingCommand(self, args, config_function=None):
         opacityRange = config_function.value
@@ -341,7 +350,8 @@ class VolumePlot(StructuredGridPlot):
         abs_range = []
         abs_range.append(max(0.0, full_range[0]))
         abs_range.append(max(abs(full_range[1]), abs(full_range[0])))
-#        abs_range.append( self.transferFunctionConfig.getTransferFunctionType() if self.transferFunctionConfig else AbsValueTransferFunction )
+#        abs_range.append( self.transferFunctionConfig.getTransferFunctionType()
+#               if self.transferFunctionConfig else AbsValueTransferFunction )
         abs_range.append(AbsValueTransferFunction)
         return abs_range
 
@@ -364,7 +374,8 @@ class VolumePlot(StructuredGridPlot):
         configFunct = self.configurableFunctions['functionScale']
         new_values = self.getDataValues(self._range[0:2])
         range_values = configFunct.range
-        print "Update Range Values:  %s -> %s, max_opacity = %.2f " % (str(range_values), str(new_values), self.max_opacity)
+        print "Update Range Values:  %s -> %s, max_opacity = %.2f " % (
+                str(range_values), str(new_values), self.max_opacity)
         for i in range(2):
             range_values[i] = new_values[i]
         for i in range(2):
@@ -423,7 +434,8 @@ class VolumePlot(StructuredGridPlot):
             io2 = int(i / 2)
             bounds[i] = origin[io2] + spacing[io2] * extent[i]
 
-        print " --VolumeRenderer--   Data Type = %s, range = (%f,%f), max_scalar = %s" % (dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value)
+        print " --VolumeRenderer--   Data Type = %s, range = (%f,%f), max_scalar = %s" % (
+                dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value)
         print "Extent: %s " % str(self.input().GetWholeExtent())
         print "Spacing: %s " % str(spacing)
         print "Origin: %s " % str(origin)
@@ -535,11 +547,7 @@ class VolumePlot(StructuredGridPlot):
     def UpdateCamera(self):
         #        self.volume.UseBoundsOff()
         #        print " *** volume visible: %s " % ( self.volume.GetVisibility() )
-        aCamera = self.renderer.GetActiveCamera()
-        bounds = self.volume.GetBounds()
-        p = aCamera.GetPosition()
-        f = aCamera.GetFocalPoint()
-#        printArgs( "ResetCameraClippingRange", focal_point=f, cam_pos=p, vol_bounds=bounds )
+        #        printArgs( "ResetCameraClippingRange", focal_point=f, cam_pos=p, vol_bounds=bounds )
         self.renderer.ResetCameraClippingRange()
 
     def EventWatcher(self, caller, event):
@@ -548,9 +556,9 @@ class VolumePlot(StructuredGridPlot):
         pass
 
     def onKeyPress(self, caller, event):
-        key = caller.GetKeyCode()
-        keysym = caller.GetKeySym()
-#        print " -- Key Press: %c ( %d: %s ), event = %s " % ( key, ord(key), str(keysym), str( event ) )
+        #        print " -- Key Press: %c ( %d: %s ), event = %s " % (
+        #                    key, ord(key), str(keysym), str( event ) )
+        return
 
     def generateCTF(self, ctf_data=None, cmap_index=0, **args):
         if ctf_data:
@@ -603,13 +611,12 @@ class VolumePlot(StructuredGridPlot):
 # str(self.volume_mapper_type) )
 
     def adjustOpacity(self, opacity_data, **args):
-        rangeBounds = self.getRangeBounds()
         maxop = abs(opacity_data[1])
         self.max_opacity = maxop if maxop < 1.0 else 1.0
-        range_min, range_max = rangeBounds[0], rangeBounds[1]
 #        self.vthresh = opacity_data[0]*(self.seriesScalarRange[1]-self.seriesScalarRange[0])*0.02
         self.updateOTF()
-#        printArgs( "adjustOpacity", irange=self._range,  max_opacity=self.max_opacity, opacity_data=opacity_data, vthresh=vthresh, ithresh=self._range[3] )
+#        printArgs( "adjustOpacity", irange=self._range,
+#            max_opacity=self.max_opacity, opacity_data=opacity_data, vthresh=vthresh, ithresh=self._range[3] )
 
     def generateOTF(self, otf_data=None, **args):
         if otf_data:
@@ -682,14 +689,19 @@ class VolumePlot(StructuredGridPlot):
             adjustment_point = full_range[0] + self.refinement[0] * (zero_point - full_range[0])
 #            if full_range[1] > scalar_bounds[0]: self.getNewNode( points, (scalar_bounds[0], 0. ) )
 #            if full_range[1] >= 0: self.getNewNode( points, ( full_range[1], 0.0 ) )
-#            elif peak_handles[0] > 0: self.getNewNode( points, ( 0.0, interp_zero( full_range[1], 0.0, peak_handles[0], ph_opacity ) ) )
+#            elif peak_handles[0] > 0: self.getNewNode( points, ( 0.0, interp_zero( full_range[1],
+#                  0.0, peak_handles[0], ph_opacity ) ) )
 #            if peak_handles[0] >= 0: self.getNewNode( points, ( peak_handles[0], ph_opacity ) )
-#            elif mid_point > 0: self.getNewNode( points, ( 0.0, interp_zero( peak_handles[0], ph_opacity, mid_point, self.max_opacity ) ) )
+#            elif mid_point > 0: self.getNewNode( points, ( 0.0, interp_zero( peak_handles[0],
+#                  ph_opacity, mid_point, self.max_opacity ) ) )
 #            if mid_point >= 0: self.getNewNode( points, ( mid_point, self.max_opacity ) )
-#            elif peak_handles[1] > 0: self.getNewNode( points, ( 0.0, interp_zero( mid_point, self.max_opacity, peak_handles[1], ph_opacity ) ) )
+#            elif peak_handles[1] > 0: self.getNewNode( points, ( 0.0, interp_zero(
+#                  mid_point, self.max_opacity, peak_handles[1], ph_opacity ) ) )
 #            if peak_handles[1] >= 0: self.getNewNode( points, ( peak_handles[1], ph_opacity ) )
-#            elif adjustment_point > 0: self.getNewNode( points, ( 0.0, interp_zero( peak_handles[1], ph_opacity, adjustment_point, self.refinement[0]*self.max_opacity ) ) )
-#            if adjustment_point > 0: self.getNewNode( points, ( adjustment_point, self.refinement[0]*self.max_opacity )  )
+#            elif adjustment_point > 0: self.getNewNode( points, ( 0.0, interp_zero(
+#                  peak_handles[1], ph_opacity, adjustment_point, self.refinement[0]*self.max_opacity ) ) )
+#            if adjustment_point > 0: self.getNewNode( points, ( adjustment_point,
+#                  self.refinement[0]*self.max_opacity )  )
 # else: self.getNewNode( points, ( 0.0, interp_zero( adjustment_point,
 # self.refinement[0]*self.max_opacity, zero_point, 0. ) ) )
             self.getNewNode(points, (scalar_bounds[0], 0.))
@@ -716,7 +728,8 @@ class VolumePlot(StructuredGridPlot):
                     self.refinement[0],
                     color=NodeData.CYAN,
                     index=self.NI_SHAPE_ADJ_0)
-#                points.append( ( full_range[0] - self.refinement[0] * ( full_range[0] - zero_point ), self.max_opacity * self.refinement[0] ) )
+#                points.append( ( full_range[0] - self.refinement[0] *
+#                      ( full_range[0] - zero_point ), self.max_opacity * self.refinement[0] ) )
             else:
                 self.getNewNode(points, (full_range[0], 0.0))
                 self.getNewNode(points, (zero_point, 0.0))
@@ -761,7 +774,6 @@ class VolumePlot(StructuredGridPlot):
 # self.refinement ) )
         self.opacityTransferFunction.RemoveAllPoints()
         transferFunctionType = AbsValueTransferFunction  # self.transferFunctionConfig.getTransferFunctionType()
-        scalarRange = self.getScalarRange()
 #        dthresh = self._range[3]
         if (transferFunctionType == PosValueTransferFunction) or (transferFunctionType == NegValueTransferFunction):
             pointType = PositiveValues if (transferFunctionType == PosValueTransferFunction) else NegativeValues
@@ -779,14 +791,16 @@ class VolumePlot(StructuredGridPlot):
                 pos = nodeData.getImagePosition()
                 self.opacityTransferFunction.AddPoint(pos[0], pos[1])
                 graphData.append(nodeData)
-#                points.append( "\n [%d]--- p(-)[%d]: %s " % ( pcount, nodeData.index, str( nodeData.getDataPosition() ) ) )
+#                points.append( "\n [%d]--- p(-)[%d]: %s " % ( pcount, nodeData.index,
+#                             str( nodeData.getDataPosition() ) ) )
                 pcount += 1
             nodeDataList = self.getTransferFunctionPoints(self._range, PositiveValues)
             for nodeData in nodeDataList:
                 pos = nodeData.getImagePosition()
                 self.opacityTransferFunction.AddPoint(pos[0], pos[1])
                 graphData.append(nodeData)
-#                points.append( "\n [%d]--- p(+)[%d]: %s " % ( pcount, nodeData.index, str( nodeData.getDataPosition() ) ) )
+#                points.append( "\n [%d]--- p(+)[%d]: %s " % ( pcount, nodeData.index,
+#                           str( nodeData.getDataPosition() ) ) )
                 pcount += 1
 #            if self.otf_data: self.transferFunctionConfig.updateGraph( scalarRange, [ 0.0, 1.0 ], graphData )
 #            print "OTF: [ %s ] " % " ".join( points )

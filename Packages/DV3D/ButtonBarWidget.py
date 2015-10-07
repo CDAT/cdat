@@ -4,12 +4,11 @@ Created on May 28, 2014
 @author: tpmaxwel
 '''
 
-import vtk
+from ConfigurationFunctions import *  # noqa
+import collections
 import os
 import sys
-import collections
-import numpy as np
-from ConfigurationFunctions import *
+import vtk
 
 PackagePath = os.path.dirname(__file__)
 DataDir = os.path.join(PackagePath, 'data')
@@ -159,7 +158,7 @@ class Button:
             prop.SetOpacity(h_opacity)
             self.buttonRepresentation.SetHoveringProperty(prop)
             self.updateWidgetState()
-     #       print "  ---> setToggleProps[%s:%x]: active = %s " % ( self.id, id(self), str( self.getState() ) )
+            #       print "  ---> setToggleProps[%s:%x]: active = %s " % ( self.id, id(self), str( self.getState() ) )
 
     def processKeyEvent(self, key, ctrl=0):
         if self.processFunctionKey(key, ctrl):
@@ -203,7 +202,7 @@ class Button:
         self.PublicStateChangedSignal(self.id, self.key, state)
 
     def place(self, bounds):
-     #       print " Place Button %s: %s " % ( self.id, str( bounds ) )
+        #       print " Place Button %s: %s " % ( self.id, str( bounds ) )
         self.buttonRepresentation.PlaceWidget(bounds)
 
     def size(self):
@@ -262,7 +261,7 @@ class ButtonBarHandler:
                 args['orientation'] = Orientation.Horizontal
             cbar = ControlBar(name, interactor, **args)
             cbar.init(build_args, **args)
-     #       print "Activating *constituent* buttons, cbar '%s':%x" % ( name, id(cbar) )
+            #       print "Activating *constituent* buttons, cbar '%s':%x" % ( name, id(cbar) )
             for button in cbar.buttons:
                 button.activate()
                 button.setToggleState(1)
@@ -972,8 +971,8 @@ class ButtonBarWidget(ButtonBar):
             configFunct.processInteractionEvent(["InitConfig", button_state, initialize_config_state, self])
             if initialize_config_state:
                 bbar = self.handler.getButtonBar('Interaction')
-                active_button = configFunct.name if (self.name == bbar.name) else None
-                child_activations = bbar.initConfigState(active_button=active_button)
+                # active_button = configFunct.name if (self.name == bbar.name) else None
+                # child_activations = bbar.initConfigState(active_button=active_button)
                 if self.name == "Plot":
                     self.resetInteractionButtons(self.getButton(config_state), 1)
 
@@ -1032,7 +1031,8 @@ class ButtonBarWidget(ButtonBar):
 #                 pname = self.persistedParameters.pop()
 #                 configFunct = self.configurableFunctions[pname]
 #                 param_value = configFunct.reset()
-#                 if param_value: self.persistParameterList( [ (configFunct.name, param_value), ], update=True, list=False )
+#                 if param_value: self.persistParameterList( [ (configFunct.name, param_value), ],
+#                                update=True, list=False )
         return configFunct
 
     def enableVisualizationInteraction(self):
@@ -1042,7 +1042,8 @@ class ButtonBarWidget(ButtonBar):
         pass
 
     def printInteractionStyle(self, msg):
-        print "%s: InteractionStyle = %s " % (msg, self.renderWindow.GetInteractor().GetInteractorStyle().__class__.__name__)
+        print "%s: InteractionStyle = %s " % (
+            msg, self.renderWindow.GetInteractor().GetInteractorStyle().__class__.__name__)
 
     def finalizeConfigurationObserver(self, parameter_name, **args):
         self.finalizeParameter(parameter_name, **args)

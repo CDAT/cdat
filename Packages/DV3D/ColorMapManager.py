@@ -4,11 +4,10 @@ Hacked from the Enthought MayaVi2 lut_manager
 @author: tpmaxwel
 '''
 
+import cPickle
 import os.path
 import sys
 import vtk
-import copy
-import cPickle
 
 pkl_path = os.path.join(os.path.dirname(__file__), 'data', 'colormaps.pkl')
 colormap_file = open(pkl_path, 'rb')
@@ -207,7 +206,6 @@ class ColorMapManager():
         input = open(file_name, "r")
 
         line = input.readline()
-        n_color = self.check_lut_first_line(line, file_name)
 
         lut = []
         for line in input.readlines():
