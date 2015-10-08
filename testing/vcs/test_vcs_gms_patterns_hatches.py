@@ -37,7 +37,7 @@ x = vcs.init()
 x.setantialiasing(0)
 if bg:
     x.setbgoutputdimensions(1200, 1091, units="pixels")
-exec("gm=vcs.create%s()" % gm_type)
+gm = vcs.creategraphicsmethod(gm_type, "default")
 if args.projtype != "default":
     p = vcs.createprojection()
     try:
