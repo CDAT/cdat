@@ -441,6 +441,15 @@ class VTKVCSBackend(object):
         self.renWin.Finalize()
         self.renWin = None
 
+    def isopened(self):
+        if self.renWin is None:
+            return False
+        elif self.renWin.GetOffScreenRendering():
+            ## IN bg mode
+            return False
+        else:
+            return True
+
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
 

@@ -4908,6 +4908,10 @@ Options:::
 
         return top_margin, bottom_margin, right_margin, left_margin
 
+    def isopened(self):
+      """Is the Canvas opened?"""
+      return self.backend.isopened()
+
     def _compute_width_height(self, width, height, units, ps=True):
         dpi = 72.  # dot per inches
         if units in ["in", "inches"]:
@@ -4919,7 +4923,7 @@ Options:::
         else:
             factor = 1. / 72
         sfactor = factor
-        if width is None and height is None:
+        if width is None and height is None and self.isopened():
             try:
                 ci = self.canvasinfo()
                 height = ci['height']
