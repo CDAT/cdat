@@ -4982,8 +4982,6 @@ Options:::
             tmp = W
             W = H
             H = tmp
-        if H % 2 != 0:  # make sure it is even for x264
-            H += 1
         return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
