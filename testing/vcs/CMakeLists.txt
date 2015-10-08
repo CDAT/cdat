@@ -639,7 +639,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --gm_type=${gm}
           --fill_style=${style}
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
-          "--threshold=11"
+          "--threshold=15"
           )
       ENDFOREACH(style)
     ENDFOREACH(gm)
