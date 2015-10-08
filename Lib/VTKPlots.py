@@ -445,7 +445,7 @@ class VTKVCSBackend(object):
         if self.renWin is None:
             return False
         elif self.renWin.GetOffScreenRendering():
-            ## IN bg mode
+            # IN bg mode
             return False
         else:
             return True
@@ -996,7 +996,7 @@ class VTKVCSBackend(object):
             pass
 
         if width is not None and height is not None:
-            self.renWin.SetSize(width,height)
+            self.renWin.SetSize(width, height)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)

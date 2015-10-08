@@ -4909,8 +4909,8 @@ Options:::
         return top_margin, bottom_margin, right_margin, left_margin
 
     def isopened(self):
-      """Is the Canvas opened?"""
-      return self.backend.isopened()
+        """Is the Canvas opened?"""
+        return self.backend.isopened()
 
     def _compute_width_height(self, width, height, units, ps=True):
         dpi = 72.  # dot per inches
@@ -4923,44 +4923,48 @@ Options:::
         else:
             factor = 1. / 72
         sfactor = factor
-        if width is None and height is None and self.isopened():
-            try:
-                ci = self.canvasinfo()
-                height = ci['height']
-                width = ci['width']
-                sfactor = 1. / 72.
-                if ps is True:
-                    ratio = width / float(height)
-                    if self.size == 1.4142857142857141:
-                        # A4 output
+        if width is None and height is None:
+            if self.isopened():
+                try:
+                    ci = self.canvasinfo()
+                    height = ci['height']
+                    width = ci['width']
+                    sfactor = 1. / 72.
+                    if ps is True:
+                        ratio = width / float(height)
+                        if self.size == 1.4142857142857141:
+                            # A4 output
+                            width = 29.7
+                            sfactor = 0.393700787
+                            height = 21.
+                        elif self.size == 1. / 1.4142857142857141:
+                            width = 21.
+                            sfactor = 0.393700787
+                            height = 29.7
+                        else:
+                            sfactor = 1.
+                            if ratio > 1:
+                                width = 11.
+                                height = width / ratio
+                            else:
+                                height = 11.
+                                width = height * ratio
+                except:  # canvas never opened
+                    if self.size is None:
+                        sfactor = 1.
+                        height = 8.5
+                        width = 11.
+                    elif self.size == 1.4142857142857141:
+                        sfactor = 0.393700787
                         width = 29.7
-                        sfactor = 0.393700787
                         height = 21.
-                    elif self.size == 1. / 1.4142857142857141:
-                        width = 21.
-                        sfactor = 0.393700787
-                        height = 29.7
                     else:
                         sfactor = 1.
-                        if ratio > 1:
-                            width = 11.
-                            height = width / ratio
-                        else:
-                            height = 11.
-                            width = height * ratio
-            except:  # canvas never opened
-                if self.size is None:
-                    sfactor = 1.
-                    height = 8.5
-                    width = 11.
-                elif self.size == 1.4142857142857141:
-                    sfactor = 0.393700787
-                    width = 29.7
-                    height = 21.
-                else:
-                    sfactor = 1.
-                    height = 8.5
-                    width = self.size * height
+                        height = 8.5
+                        width = self.size * height
+            else:
+                width = self.bgX
+                height = self.bgY
         elif width is None:
             if self.size is None:
                 width = 1.2941176470588236 * height
@@ -4973,12 +4977,14 @@ Options:::
                 height = width / self.size
         W = int(width * dpi * sfactor)
         H = int(height * dpi * sfactor)
-        if (self.isportrait() and W>H) \
-            or (self.islandscape() and H>W):
-          tmp = W
-          W = H
-          H = tmp
-        return W,H
+        if (self.isportrait() and W > H) \
+                or (self.islandscape() and H > W):
+            tmp = W
+            W = H
+            H = tmp
+        if H % 2 != 0:  # make sure it is even for x264
+            H += 1
+        return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches'):
@@ -5011,7 +5017,6 @@ Options:::
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
-
 
         # figures out width/height
         W, H, units = self._compute_width_height(
@@ -5307,7 +5312,7 @@ Options:::
                     "data_continent_%s" % nms[
                         value - 1])
                 if not os.path.exists(self._continents):
-                    # fallback on installed with system one
+                        # fallback on installed with system one
                     self._continents = os.path.join(
                         vcs.prefix,
                         "share",
