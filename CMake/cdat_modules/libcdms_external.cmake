@@ -24,7 +24,7 @@ else()
     set(GIT_TAG )
 endif()
 set(LIBCDMS_MAKE_ARGS -j1)
-set(LIBCDMS_BUILD_ARGS -fPIC)
+set(LIBCDMS_BUILD_ARGS -g -O0 -fPIC)
 ExternalProject_Add(libcdms
   LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}

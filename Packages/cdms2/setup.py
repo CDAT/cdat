@@ -30,9 +30,9 @@ try:
       mpicc="mpicc"
       subprocess.check_call([mpicc,"--version"])
     os.environ["CC"]=mpicc
-    os.environ["CFLAGS"]="-w -g"
+    os.environ["CFLAGS"]="-w -g -O0 -fPIC"
 except:
-    os.environ["CFLAGS"]="-w -g"
+    os.environ["CFLAGS"]="-w -g -O0 -fPIC"
     pass
 
 setup (name = "cdms2",

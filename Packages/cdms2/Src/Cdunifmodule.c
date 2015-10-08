@@ -479,6 +479,7 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
 					     /* Check the filetype */
 	int saveopts;
 
+	Py_DebugTrap();
 	saveopts = cuErrOpts;
 	cuseterropts(0);
 	*filetype=CuGetFileType(controlpath);
@@ -489,8 +490,11 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
 #ifdef PARALLEL
       int ierr;
       int ncid;
-      ierr = nc_open_par(controlpath,NC_WRITE|NC_MPIIO,MPI_COMM_WORLD,MPI_INFO_NULL,&ncid);
-      if (ierr != NC_NOERR ) { /* ok it failed opening in regular netcdf*/
+
+      if(cdms_use_parallel == 1) {
+          ierr = nc_open_par(controlpath,mode|NC_MPIIO,MPI_COMM_WORLD,MPI_INFO_NULL,&ncid);
+      }
+      if((cdms_use_parallel == 0) || (ierr != NC_NOERR )) {
         ierr = nc_open(controlpath,mode,&ncid);
       }
       return ncid;
