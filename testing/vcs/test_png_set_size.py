@@ -22,9 +22,9 @@ x.plot([1,2,3,4,5,4,3,2,1],bg=1)
 
 fnm = "test_png_set_size.png"
 x.png(fnm,width=15)
-assert(get_image_info(fnm) == (15,11))
-x.png(fnm,height=15)
-assert(get_image_info(fnm) == (19,15))
+assert(get_image_info(fnm) == (15,12))
+x.png(fnm,height=16)
+assert(get_image_info(fnm) == (20,16))
 x.png(fnm,width=15,height=12)
 assert(get_image_info(fnm) == (15,12))
 
