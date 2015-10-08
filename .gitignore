@@ -28,6 +28,7 @@ TAGS
 *.class
 *.pyc
 *.project
+*.cproject
 *.pydevproject
 *.egg
 *#*
