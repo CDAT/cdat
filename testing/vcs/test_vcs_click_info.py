@@ -28,7 +28,7 @@ i.LeftButtonPressEvent()
 
 fnm = "test_vcs_click_info.png"
 
-x.png(Finn, width=814, height= 606)
+x.png(fnm, width=814, height= 606)
 
 print "fnm:", fnm
 print "src:", src
