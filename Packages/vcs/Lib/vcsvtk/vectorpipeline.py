@@ -147,10 +147,11 @@ class VectorPipeline(Pipeline):
         if geo is None:
             wc = [x1, x2, y1, y2]
         else:
-            wc = None
+            xrange = list(act.GetXRange())
+            yrange = list(act.GetYRange())
+            wc = [xrange[0], xrange[1], yrange[0], yrange[1]]
 
-        # TODO: doWrap is broken for vectors
-        # act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
+        act = vcs2vtk.doWrap(act, wc, self._dataWrapModulo)
 
         self._context().fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
                                             tmpl.data.y1, tmpl.data.y2],
