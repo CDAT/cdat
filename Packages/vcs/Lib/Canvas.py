@@ -5133,7 +5133,7 @@ Options:::
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
         # figures out width/height
-        W, H, units = self._compute_width_height(
+        W, H = self._compute_width_height(
             width, height, units)
 
 # print "will usE:",W,H,float(W)/H
