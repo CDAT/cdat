@@ -4805,7 +4805,7 @@ Options:::
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
         W, H = self._compute_width_height(
-            width, height, factor)
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['svg']:
             file += '.svg'
