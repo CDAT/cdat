@@ -120,7 +120,7 @@ def dictionarytovcslist(dictionary, name):
     for k in dictionary.keys():
         if not isinstance(k, (float, int, long)):
             raise Exception('Error, vcs list must have numbers only as keys')
-    _vcs.dictionarytovcslist(dictionary, name)
+    dictionarytovcslist(dictionary, name)
     return None
 
 
@@ -1153,128 +1153,13 @@ class Canvas(object):
     # Remove VCS primary and secondary methods wrapper functions for VCS.       #
     #                                                                           #
     ##########################################################################
+
     def removeobject(self, obj):
-        """
- Function: remove
-
- Description of Function:
-    The user has the ability to create primary and secondary class
-    objects. The function allows the user to remove these objects
-    from the appropriate class list.
-
-    Note, To remove the object completely from Python, remember to
-    use the "del" function.
-
-    Also note, The user is not allowed to remove a "default" class
-    object.
-
- Example of Use:
-    a=vcs.init()
-    line=a.getline('red')       # To Modify an existing line object
-    iso=x.createisoline('dean') # Create an instance of an isoline object
-    ...
-    x.remove(line)      # Removes line object from VCS list
-    del line            # Destroy instance "line", garbage collection
-    x.remove(iso)       # Remove isoline object from VCS list
-    del iso             # Destroy instance "iso", garbage collection
-"""
-        if istemplate(obj):
-            msg = _vcs.removeP(obj.name)
-            obj.__dict__['name'] = obj.__dict__[
-                'p_name'] = '__removed_from_VCS__'
-        elif isgraphicsmethod(obj):
-            if (obj.g_name == 'Gfb'):
-                msg = _vcs.removeGfb(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfi'):
-                msg = _vcs.removeGfi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gi'):
-                msg = _vcs.removeGi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Go'):
-                msg = _vcs.removeGo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfo'):
-                msg = _vcs.removeGfo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXy'):
-                msg = _vcs.removeGXy(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GYx'):
-                msg = _vcs.removeGYx(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXY'):
-                msg = _vcs.removeGXY(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gv'):
-                msg = _vcs.removeGv(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GSp'):
-                msg = _vcs.removeGSp(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gcon'):
-                msg = _vcs.removeGcon(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfm'):
-                msg = _vcs.removeGfm(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gtd'):
-                n = len(vcs.taylordiagrams)
-                ndel = 0
-                for i in range(n):
-                    t = vcs.taylordiagrams[i - ndel]
-                    if t.name == obj.name:
-                        msg = 'Removed Taylordiagram graphics method: ' + \
-                            t.name
-                        a = vcs.taylordiagrams.pop(i - ndel)
-                        ndel = ndel + 1
-                        del(a)
-            else:
-                msg = 'Could not find the correct graphics class object.'
-        elif issecondaryobject(obj):
-            if (obj.s_name == 'Tl'):
-                msg = _vcs.removeTl(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tm'):
-                msg = _vcs.removeTm(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tf'):
-                msg = _vcs.removeTf(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tt'):
-                msg = _vcs.removeTt(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'To'):
-                msg = _vcs.removeTo(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tc'):
-                msg = _vcs.removeTt(obj.Tt_name)
-                msg += _vcs.removeTo(obj.To_name)
-                obj.Tt_name = obj.s_name = '__removed_from_VCS__'
-                obj.To_name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Proj'):
-                msg = _vcs.removeProj(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Cp'):
-                msg = _vcs.removeCp(obj.name)
-                obj.s_name = obj.__dict__['name'] = '__removed_from_VCS__'
-            else:
-                msg = 'Could not find the correct secondary class object.'
-        else:
-            msg = 'This is not a template, graphics method, or secondary method object.'
-        return msg
-
-# Removed by C. Doutriaux, too many prints. We need to think
-# if we want to raise an exception here?
-# if msg[:7]!='Removed':
-# print msg
-
-    def syncP(self, *args):
-        return self.canvas.syncP(*args)
+        __doc__ = vcs.removeobject.__doc__  # noqa
+        return vcs.removeobject(obj)
 
     def removeP(self, *args):
-        return self.canvas.removeP(*args)
+        return vcs.removeP(*args)
 
     def clean_auto_generated_objects(self, type=None):
         """ cleans all self/auto genrated objects in vcs, only if they're not in use
@@ -4813,25 +4698,9 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
         # in pixels?
         self.bgX = W
         self.bgY = H
@@ -4869,8 +4738,16 @@ Options:::
         base = os.path.dirname(file)
         if base != "" and not os.path.exists(base):
             raise vcsError("Output path: %s does not exist" % base)
+        if units not in [
+                'inches', 'in', 'cm', 'mm',
+                None, 'pixel', 'pixels', 'dot', 'dots']:
+            raise Exception(
+                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
+
+        W, H = self._compute_width_height(
+            width, height, units)
         return self.backend.png(
-            file, width, height, units, draw_white_background, **args)
+            file, W, H, units, draw_white_background, **args)
 
     ##########################################################################
     #                                                                           #
@@ -4896,19 +4773,8 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
@@ -4938,25 +4804,8 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
+        W, H = self._compute_width_height(
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['svg']:
             file += '.svg'
@@ -5059,46 +4908,63 @@ Options:::
 
         return top_margin, bottom_margin, right_margin, left_margin
 
-    def _compute_width_height(self, width, height, factor, ps=True):
+    def isopened(self):
+        """Is the Canvas opened?"""
+        return self.backend.isopened()
+
+    def _compute_width_height(self, width, height, units, ps=True):
+        dpi = 72.  # dot per inches
+        if units in ["in", "inches"]:
+            factor = 1.
+        elif units == 'cm':
+            factor = 0.393700787
+        elif units == 'mm':
+            factor = 0.0393700787
+        else:
+            factor = 1. / 72
         sfactor = factor
         if width is None and height is None:
-            try:
-                ci = self.canvasinfo()
-                height = ci['height']
-                width = ci['width']
-                sfactor = 1. / 72.
-                if ps is True:
-                    ratio = width / float(height)
-                    if self.size == 1.4142857142857141:
-                        # A4 output
+            if self.isopened():
+                try:
+                    ci = self.canvasinfo()
+                    height = ci['height']
+                    width = ci['width']
+                    sfactor = 1. / 72.
+                    if ps is True:
+                        ratio = width / float(height)
+                        if self.size == 1.4142857142857141:
+                            # A4 output
+                            width = 29.7
+                            sfactor = 0.393700787
+                            height = 21.
+                        elif self.size == 1. / 1.4142857142857141:
+                            width = 21.
+                            sfactor = 0.393700787
+                            height = 29.7
+                        else:
+                            sfactor = 1.
+                            if ratio > 1:
+                                width = 11.
+                                height = width / ratio
+                            else:
+                                height = 11.
+                                width = height * ratio
+                except:  # canvas never opened
+                    if self.size is None:
+                        sfactor = 1.
+                        height = 8.5
+                        width = 11.
+                    elif self.size == 1.4142857142857141:
+                        sfactor = 0.393700787
                         width = 29.7
-                        sfactor = 0.393700787
                         height = 21.
-                    elif self.size == 1. / 1.4142857142857141:
-                        width = 21.
-                        sfactor = 0.393700787
-                        height = 29.7
                     else:
                         sfactor = 1.
-                        if ratio > 1:
-                            width = 11.
-                            height = width / ratio
-                        else:
-                            height = 11.
-                            width = height * ratio
-            except:  # canvas never opened
-                if self.size is None:
-                    sfactor = 1.
-                    height = 8.5
-                    width = 11.
-                elif self.size == 1.4142857142857141:
-                    sfactor = 0.393700787
-                    width = 29.7
-                    height = 21.
-                else:
-                    sfactor = 1.
-                    height = 8.5
-                    width = self.size * height
+                        height = 8.5
+                        width = self.size * height
+            else:
+                width = self.bgX
+                height = self.bgY
         elif width is None:
             if self.size is None:
                 width = 1.2941176470588236 * height
@@ -5109,11 +4975,17 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-        return width, height, sfactor
+        W = int(width * dpi * sfactor)
+        H = int(height * dpi * sfactor)
+        if (self.isportrait() and W > H) \
+                or (self.islandscape() and H > W):
+            tmp = W
+            W = H
+            H = tmp
+        return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', left_margin=None, right_margin=None,
-                   top_margin=None, bottom_margin=None):
+                   units='inches'):
         """
  Function: postscript
 
@@ -5144,46 +5016,19 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-
         # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
-# print "will usE:",W,H,float(W)/H
-        # figures out margins
-
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
             file += '.ps'
         if mode == 'r':
-            return self.backend.postscript(file, W, H, R, L, T, B)
+            return self.backend.postscript(file, W, H, units="pixels")
         else:
             n = random.randint(0, 10000000000000)
             psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-            self.backend.postscript(psnm, W, H, R, L, T, B)
+            self.backend.postscript(psnm, W, H, units="pixels")
             if os.path.exists(file):
                 f = open(file, 'r+')
                 f.seek(0, 2)  # goes to end of file
@@ -5194,167 +5039,6 @@ Options:::
                 os.remove(psnm)
             else:
                 shutil.move(psnm, file)
-
-    ##########################################################################
-    #                                                                           #
-    # Postscript wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
-    def postscript_old(self, file, mode='r', orientation=None):
-        """
- Function: postscript
-
- Description of Function:
-    Postscript output is another form of vector graphics. It is larger than its CGM output
-    counter part, because it is stored out in ASCII format. To save out a postscript file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen.
-
-    There are two modes for saving a postscript file: `Append' (a) mode appends postscript
-    output to an existing postscript file; and `Replace' (r) mode overwrites an existing
-    postscript file with new postscript output. The default mode is to overwrite an existing
-    postscript file (i.e. mode (r)).
-
-    The POSTSCRIPT command is used to create a postscript file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is the current orientation of your canvas.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.postscript('example')       # Overwrite a postscript file
-    a.postscript('example', 'a')  # Append postscript to an existing file
-    a.postscript('example', 'r')  # Overwrite an existing file
-    a.postscript('example', 'r', 'p')  # Overwrite postscript file with a portrait postscript file
-    a.postscript('example', mode='a')  # Append postscript to an existing file
-    a.postscript('example', orientation='r')  # Overwrite an existing file
-    a.postscript('example', mode='r', orientation='p')  # Overwrite postscript file with a portrait postscript file
-""" % self._dotdir
-        if orientation is None:
-            orientation = self.orientation()[0]
-        return self.canvas.postscript_old(*(file, mode, orientation))
-
-    ##########################################################################
-    #                                                                           #
-    # Old PDF wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def pdf_old(self, file, orientation=None, options='', width=None, height=None,
-                units='inches', left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: pdf
-
- Description of Function:
-    To save out a PDF file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen. And then convert it pdf using ps2pdf
-
-    The pdf command is used to create a pdf file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is landscape.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.pdf('example')      # Creates a landscape pdf file
-    a.pdf('example','p')  # Creates a portrait pdf file
-    a.pdf(file='example',orientation='p')  # Creates a portrait pdf file
-    a.pdf(file='example',options='-dCompressPages=false')
-    # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
-""" % (self._dotdir)
-
-        n = random.randint(0, 100000000000)
-        if file[-3:].lower() != 'pdf':
-            file += '.pdf'
-        psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-        a = self.postscript(
-            psnm,
-            orientation=orientation,
-            width=width,
-            height=height,
-            units=units,
-            left_margin=left_margin,
-            right_margin=right_margin,
-            top_margin=top_margin,
-            bottom_margin=bottom_margin)
-        os.popen('ps2pdf14 ' + options + ' ' + psnm + ' ' + file).readlines()
-        os.remove(psnm)
-        return a
-
-    ##########################################################################
-    #                                                                           #
-    # Printer wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def printer(self, printer=None, orientation=None, width=None, height=None, units='inches',
-                left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: printer
-
- Description of Function:
-    This function creates a temporary cgm file and then sends it to the specified
-    printer. Once the printer received the information, then the temporary cgm file
-    is deleted. The temporary cgm file is created in the user's %s directory.
-
-    The PRINTER command is used to send the VCS Canvas plot(s) directly to the printer.
-    Orientation can be either: 'l' = landscape, or 'p' = portrait.
-
-    Note: VCS graphical displays can be printed only if the user customizes a HARD_COPY
-    file (included with the VCS software) for the home system. The path to the HARD_COPY
-    file must be:
-
-              /$HOME/%s/HARD_COPY
-
-    where /$HOME denotes the user's home directory.
-
-
-    For more information on the HARD_COPY file, see URL:
-
-    http://www-pcmdi.llnl.gov/software/vcs/vcs_guidetoc.html#1.Setup
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.printer('printer_name') # Send plot(s) to postscript printer
-    a.printer('printer_name',top_margin=1,units='cm')
-    # Send plot(s) to postscript printer with 1cm margin on top of plot
-""" % (self._dotdir, self._dotdir)
-        if printer is None:
-            printer = (os.environ.get('PRINTER'),)
-
-        if units not in [
-                'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
-            raise Exception(
-                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
-
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
-
-        return self.canvas.printer(*(printer, W, H, R, L, T, B))
 
     ##########################################################################
     #                                                                           #
@@ -5626,7 +5310,7 @@ Options:::
                     "data_continent_%s" % nms[
                         value - 1])
                 if not os.path.exists(self._continents):
-                    # fallback on installed with system one
+                        # fallback on installed with system one
                     self._continents = os.path.join(
                         vcs.prefix,
                         "share",
@@ -5886,33 +5570,6 @@ Options:::
 
     ##########################################################################
     #                                                                           #
-    # Script to a file the current state of VCS wrapper for VCS.                #
-    #                                                                           #
-    ##########################################################################
-    def scriptstate(self, script_name):
-        """
- Function: scriptstate       # Save state of VCS
-
- Description of Function:
-    The VCS scripting capability serves many purposes. It allows one to save the
-    system state for replay in a later session; to save primary and secondary
-    element attributes for use in later visual presentations; to save a sequence
-    of interactive operations for replay; or to recover from a system failure.
-
- Example of Use:
-    a=vcs.init()
-    ...
-
-    a.scriptstate(script_filename)
-"""
-        msg = _vcs.scriptstate(script_name)
-        # Now adds the taylordiagram stuff
-        for td in vcs.taylordiagrams:
-            td.script(script_name)
-        return msg
-
-    ##########################################################################
-    #                                                                           #
     # Raise VCS Canvas to the top of all its siblings.                          #
     #                                                                           #
     ##########################################################################
@@ -5931,7 +5588,7 @@ Options:::
     a.canvasraised()
 """
 
-        return self.canvas.canvasraised(*args)
+        return self.backend.canvasraised(*args)
 
     ##########################################################################
     #                                                                           #
