@@ -642,7 +642,8 @@ cdat_add_test(vcs_test_taylor_2_quads
           "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
           --gm_type=${gm}
           --fill_style=${style}
-          "--source=${BASELINE_DIR}/test_${gm}_${style}_fill.png"
+          "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
+          "--threshold=15"
           )
       ENDFOREACH(style)
     ENDFOREACH(gm)
