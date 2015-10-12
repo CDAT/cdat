@@ -441,6 +441,15 @@ class VTKVCSBackend(object):
         self.renWin.Finalize()
         self.renWin = None
 
+    def isopened(self):
+        if self.renWin is None:
+            return False
+        elif self.renWin.GetOffScreenRendering():
+            # IN bg mode
+            return False
+        else:
+            return True
+
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
 
@@ -986,13 +995,11 @@ class VTKVCSBackend(object):
         except:
             pass
 
-        # if width is not None and height is not None:
-        #  self.renWin.SetSize(width,height)
-            # self.renWin.Render()
+        if width is not None and height is not None:
+            self.renWin.SetSize(width, height)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
-#        imgfiltr.SetMagnification(3)
         ignore_alpha = args.get('ignore_alpha', False)
         if ignore_alpha or draw_white_background:
             imgfiltr.SetInputBufferTypeToRGB()

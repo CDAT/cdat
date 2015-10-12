@@ -13,7 +13,7 @@ x.drawlogooff()
 # Needs to set the size of window so it is consistent accross
 # test platforms
 x.open()
-x.geometry(x.bgX,x.bgY)
+x.geometry(814, 606)
 
 f = cdms2.open(vcs.sample_data + "/clt.nc")
 s = f("clt")
@@ -28,7 +28,7 @@ i.LeftButtonPressEvent()
 
 fnm = "test_vcs_click_info.png"
 
-x.png(fnm)
+x.png(fnm, width=814, height= 606)
 
 print "fnm:", fnm
 print "src:", src
