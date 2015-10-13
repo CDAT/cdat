@@ -30,16 +30,16 @@ class Pattern(object):
                                    self.colors[1],
                                    self.colors[2],
                                    self.opacity)
-        self.draw(patternSource)
+        self.paint(patternSource)
         patternSource.Update()
         return patternSource.GetOutput()
 
-    def draw(self, pattern):
-        raise NotImplementedError("draw() not implemented for %s" % str(type(self)))
+    def paint(self, pattern):
+        raise NotImplementedError("paint() not implemented for %s" % str(type(self)))
 
 
 class BottomLeftTri(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -51,7 +51,7 @@ class BottomLeftTri(Pattern):
 
 
 class TopRightTri(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -63,7 +63,7 @@ class TopRightTri(Pattern):
 
 
 class SmallRectDot(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -74,7 +74,7 @@ class SmallRectDot(Pattern):
 
 
 class CheckerBoard(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -87,7 +87,7 @@ class CheckerBoard(Pattern):
 
 
 class HorizStripe(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -97,7 +97,7 @@ class HorizStripe(Pattern):
 
 
 class VertStripe(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -107,7 +107,7 @@ class VertStripe(Pattern):
 
 
 class HorizDash(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -118,7 +118,7 @@ class HorizDash(Pattern):
 
 
 class VertDash(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -170,7 +170,7 @@ class XDash(Pattern):
         self.width, self.height = o_width, o_height
         return slicer.GetOutput()
 
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
 
@@ -187,7 +187,7 @@ class XDash(Pattern):
 
 
 class ThinDiagDownRight(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -197,7 +197,7 @@ class ThinDiagDownRight(Pattern):
 
 
 class ThickDiagRownRight(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -207,7 +207,7 @@ class ThickDiagRownRight(Pattern):
 
 
 class ThinDiagUpRight(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -217,7 +217,7 @@ class ThinDiagUpRight(Pattern):
 
 
 class ThickDiagUpRight(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -227,7 +227,7 @@ class ThickDiagUpRight(Pattern):
 
 
 class ThickThinVertStripe(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -238,7 +238,7 @@ class ThickThinVertStripe(Pattern):
 
 
 class ThickThinHorizStripe(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -249,7 +249,7 @@ class ThickThinHorizStripe(Pattern):
 
 
 class LargeRectDot(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -260,7 +260,7 @@ class LargeRectDot(Pattern):
 
 
 class Diamond(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -287,7 +287,7 @@ class Diamond(Pattern):
 
 
 class Bubble(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -310,7 +310,7 @@ class Bubble(Pattern):
 
 
 class Snake(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
@@ -325,7 +325,7 @@ class Snake(Pattern):
 
 
 class EmptyCircle(Pattern):
-    def draw(self, patternSource):
+    def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
