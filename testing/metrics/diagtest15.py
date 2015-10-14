@@ -21,7 +21,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
 imagefilename = 'set15_Global_ANN_T-combined.png'
-imagethreshold = 1.0e6
+imagethreshold = None
 ncfiles = {}
 ncfiles['model_.nc'] = ['dv_T_Level model_ANN_ft0_None_None']
 ncfiles['obs_.nc'] = ['dv_T_Level obs_ANN_ft1_None_None']

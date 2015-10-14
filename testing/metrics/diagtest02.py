@@ -21,7 +21,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
 imagefilename = 'set2_Global_JAN_Ocean_Heat-combined.png'
-imagethreshold = 1.0e6
+imagethreshold = None
 ncfiles = {}
 ncfiles['CAM_&_NCEP_HEAT_TRANSPORT_ATLANTIC_None.nc'] = ['CAM_HEAT_TRANSPORT_ALL_1']
 ncfiles['CAM_&_NCEP_HEAT_TRANSPORT_GLOBAL_None.nc'] = ['CAM_HEAT_TRANSPORT_ALL_1']
