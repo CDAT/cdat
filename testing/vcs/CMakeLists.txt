@@ -723,6 +723,11 @@ cdat_add_test(vcs_test_taylor_2_quads
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
         "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
         )
+      cdat_add_test(vcs_test_vectors_robinson_wrap
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
+        "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
+        )
     endif()
   endif()
 
