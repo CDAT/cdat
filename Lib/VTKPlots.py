@@ -441,6 +441,15 @@ class VTKVCSBackend(object):
         self.renWin.Finalize()
         self.renWin = None
 
+    def isopened(self):
+        if self.renWin is None:
+            return False
+        elif self.renWin.GetOffScreenRendering():
+            # IN bg mode
+            return False
+        else:
+            return True
+
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
 
@@ -959,20 +968,7 @@ class VTKVCSBackend(object):
         self.showGUI()
 
     def postscript(self, file, width=None, height=None,
-                   units=None, left=None, right=None, top=None, bottom=None):
-        if right is not None:
-            warnings.warn(
-                "the right_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if left is not None:
-            warnings.warn(
-                "the left_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if top is not None:
-            warnings.warn(
-                "the top_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if bottom is not None:
-            warnings.warn(
-                "the bottom_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-
+                   units=None):
         return self.vectorGraphics("ps", file, width, height, units)
 
     def pdf(self, file, width=None, height=None, units=None):
@@ -999,13 +995,11 @@ class VTKVCSBackend(object):
         except:
             pass
 
-        # if width is not None and height is not None:
-        #  self.renWin.SetSize(width,height)
-            # self.renWin.Render()
+        if width is not None and height is not None:
+            self.renWin.SetSize(width, height)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
-#        imgfiltr.SetMagnification(3)
         ignore_alpha = args.get('ignore_alpha', False)
         if ignore_alpha or draw_white_background:
             imgfiltr.SetInputBufferTypeToRGB()
