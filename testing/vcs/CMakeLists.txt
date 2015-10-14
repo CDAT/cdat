@@ -15,6 +15,14 @@ cdat_add_test(vcs_test_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
 )
+cdat_add_test(vcs_verify_remove_objects
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_remove_objects.py
+)
+cdat_add_test(vcs_test_png_set_size
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
+)
 cdat_add_test(vcs_test_text_object_as_input.py
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
