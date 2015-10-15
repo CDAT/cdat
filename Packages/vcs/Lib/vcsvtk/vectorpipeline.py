@@ -4,8 +4,6 @@ import vcs
 from vcs import vcs2vtk
 import vtk
 
-import math
-
 
 class VectorPipeline(Pipeline):
 
