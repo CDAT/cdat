@@ -23,8 +23,8 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 imagefilename = 'set5_Global_ANN_T-combined.png'
 imagethreshold = None
 ncfiles = {}
-ncfiles['T_ANN_(1)_None.nc'] = ['rv_T_ANN_ft0_None']
-ncfiles['T_ANN_(2)_None.nc'] = ['rv_T_ANN_ft1_None']
+ncfiles['T_ANN_(1)_cam_output_.nc'] = ['rv_T_ANN_ft0_cam_output_']
+ncfiles['T_ANN_(2)_obs_atmos_NCEP.nc'] = ['rv_T_ANN_ft1_obs_atmos_NCEP']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3

@@ -23,7 +23,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 imagefilename = 'set3_Global_JJA_T-combined.png'
 imagethreshold = None
 ncfiles = {}
-ncfiles['set3_T_JJA_None,None.nc'] = ['set3_T_ft0_None', 'set3_T_ft1_None']
+ncfiles['set3_T_JJA_cam_output_,obs_atmos_NCEP.nc'] = ['set3_T_ft0_cam_output_', 'set3_T_ft1_obs_atmos_NCEP']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3
