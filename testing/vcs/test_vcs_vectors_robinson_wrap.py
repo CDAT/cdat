@@ -9,9 +9,9 @@ x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200, 1091, units="pixels")
 f = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
-lon1 = 0
-u = f("u")
-v = f("v")
+lon1 = -180
+u = f("clt")
+v = f("clt")
 u = u(longitude=(lon1,lon1+360.))
 v = v(longitude=(lon1,lon1+360.))
 V = x.createvector()
