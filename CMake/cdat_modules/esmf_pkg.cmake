@@ -41,7 +41,7 @@ if(CDAT_BUILD_ESMF_ESMP)
         ## On APPLE need to test for -arch as well!
         add_cdat_package(ESMF "" "Build ESMF" ON)
       else()
-        message(FATAL_ERROR "[ERROR] gfortran must be 4.3 < version < 5.0; you have ${Fortran_VERSION}")
+        message(FATAL_ERROR "[ERROR] gfortran must be 4.3 <= version < 5.0; you have ${Fortran_VERSION}")
       endif()
     else()
       add_cdat_package(ESMF "" "Build ESMF" ON)
