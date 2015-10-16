@@ -41,8 +41,8 @@ class DiagTest(object):
     
         #setup string to be executed and run script
         #diagstr = "diags --no-antialiasing --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_contains('NCEP')\",climos=yes --package AMWG --set 3 --var T --seasons JJA" % (outpath, modelpath, obspath)
-        diagstr_parts = [ " --outputdir %s "%(self.outpath), 
- 			 " --no-antialiasing",
+        diagstr_parts = [" --outputdir %s "%(self.outpath), 
+ 			             " --no-antialiasing",
                          " --model path=%s,climos=no "%(self.modelpath), 
                          " --obs path=%s,filter=\"%s('%s')\",climos=yes "%(self.obspath, filterid, obsid),
                          " --package AMWG ", 
