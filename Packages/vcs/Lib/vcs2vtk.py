@@ -1214,6 +1214,7 @@ def prepGlyph(g, marker, index=0):
     if t == 'dot':
         gs.SetGlyphTypeToCircle()
         gs.FilledOn()
+        s *= numpy.pi
     elif t == 'circle':
         gs.SetGlyphTypeToCircle()
         gs.FilledOff()
