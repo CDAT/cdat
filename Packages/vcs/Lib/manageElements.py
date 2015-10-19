@@ -843,7 +843,7 @@ vcs.show('xvsy')
         source = source[:-6]
     name, source = check_name_source(name, source, 'xvsy')
     gm = unified1D.G1d(name + "_xvsy_", source + "_xvsy_")
-    vcs.elements["xvsy"][name] = gm
+    vcs.elements["xvsy"][name + "_xvsy_"] = gm
     return gm
 createxvsy.__doc__ = createxvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output)
