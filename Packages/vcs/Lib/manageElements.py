@@ -628,7 +628,7 @@ vcs.show('xyvsy')
 
     gm = unified1D.G1d(name + "_xyvsy_", source + "_xyvsy_")
     gm.flip = True
-    vcs.elements["xyvsy"][name] = gm
+    vcs.elements["xyvsy"][gm.name] = gm
     return gm
 createxyvsy.__doc__ = createxyvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output)
@@ -737,7 +737,7 @@ vcs.show('yxvsx')
     name, source = check_name_source(name, source, 'yxvsx')
 
     gm = unified1D.G1d(name + "_yxvsx_", source + "_yxvsx_")
-    vcs.elements["yxvsx"][name] = gm
+    vcs.elements["yxvsx"][gm.name] = gm
     return gm
 createyxvsx.__doc__ = createyxvsx.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output)
@@ -843,7 +843,7 @@ vcs.show('xvsy')
         source = source[:-6]
     name, source = check_name_source(name, source, 'xvsy')
     gm = unified1D.G1d(name + "_xvsy_", source + "_xvsy_")
-    vcs.elements["xvsy"][name + "_xvsy_"] = gm
+    vcs.elements["xvsy"][gm.name] = gm
     return gm
 createxvsy.__doc__ = createxvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output)
@@ -1002,7 +1002,7 @@ vcs.show('scatter')
 
     gm = unified1D.G1d(name + "_scatter_", source + "_scatter_")
     gm.linewidth = 0
-    vcs.elements["scatter"][name] = gm
+    vcs.elements["scatter"][gm.name] = gm
     return gm
 createscatter.__doc__ = createscatter.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, scatter_output)
