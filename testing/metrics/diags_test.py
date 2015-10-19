@@ -48,7 +48,7 @@ class DiagTest(object):
                          " --package AMWG ", 
                          " --set %s "%(str(plotset)), 
                          " --var %s"%(varid), 
-                         " --seasons %s "%(seasonid)]
+                         " --seasons %s "%(seasonid)] 
         self.diagstr = "diags "
         for part in diagstr_parts:
             #print part
