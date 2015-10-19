@@ -1,0 +1,19 @@
+--- setup.py.ok	2015-07-28 15:37:07.000000000 -0700
++++ setup.py	2015-07-28 15:53:10.000000000 -0700
+@@ -27,12 +27,12 @@
+  the terms of the SPHEREPACK license at
+  http://www2.cisl.ucar.edu/resources/legacy/spherepack/license\n
+  """)
+-    download = raw_input('Do you want to download SPHEREPACK now? (yes or no)')
+-    if download not in ['Y','y','yes','Yes','YES']:
+-        sys.exit(0)
++    # download = raw_input('Do you want to download SPHEREPACK now? (yes or no)')
++    # if download not in ['Y','y','yes','Yes','YES']:
++    #     sys.exit(0)
+     import urllib, tarfile
+     tarfname = 'spherepack3.2.tar'
+-    URL="https://www2.cisl.ucar.edu/sites/default/files/"+tarfname
++    URL="http://uvcdat.llnl.gov/cdat/resources/"+tarfname
+     urllib.urlretrieve(URL,tarfname)
+     if not os.path.isfile(tarfname):
+         raise IOError('Sorry, download failed')

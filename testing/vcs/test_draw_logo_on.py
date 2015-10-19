@@ -5,6 +5,7 @@ sys.path.append(pth)
 import checkimage
 
 x=vcs.init()
+x.setantialiasing(0)
 x.setbgoutputdimensions(1200,1091,units="pixels")
 a=numpy.arange(100)
 a.shape=(10,10)

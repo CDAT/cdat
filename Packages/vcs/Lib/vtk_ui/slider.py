@@ -1,8 +1,11 @@
 from widget import Widget
 import vtk
+
+
 class Slider(Widget):
 
-    def __init__(self, interactor, value=0, min_val=0, max_val=1, point1=(0,.1), point2=(1,.1), end=None, update=None, title=""):
+    def __init__(self, interactor, value=0, min_val=0, max_val=1, point1=(
+            0, .1), point2=(1, .1), end=None, update=None, title=""):
 
         sliderWidget = vtk.vtkSliderWidget()
         sliderWidget.SetRepresentation(vtk.vtkSliderRepresentation2D())
@@ -15,28 +18,30 @@ class Slider(Widget):
         self.x1, self.y1 = point1
         self.x2, self.y2 = point2
 
-        self.repr.GetPoint1Coordinate().SetCoordinateSystemToNormalizedDisplay()
-        self.repr.GetPoint2Coordinate().SetCoordinateSystemToNormalizedDisplay()
+        self.repr.GetPoint1Coordinate(
+        ).SetCoordinateSystemToNormalizedDisplay()
+        self.repr.GetPoint2Coordinate(
+        ).SetCoordinateSystemToNormalizedDisplay()
 
         prop = self.repr.GetSliderProperty()
-        prop.SetColor( 1.0, 0.0, 0.0 )
-        prop.SetOpacity( 0.5 )
+        prop.SetColor(1.0, 0.0, 0.0)
+        prop.SetOpacity(0.5)
 
         sprop = self.repr.GetSelectedProperty()
-        sprop.SetOpacity( 0.8 )
+        sprop.SetOpacity(0.8)
 
         tprop = self.repr.GetTubeProperty()
-        tprop.SetColor( 0.5, 0.5, 0.5 )
-        tprop.SetOpacity( 0.5 )
+        tprop.SetColor(0.5, 0.5, 0.5)
+        tprop.SetOpacity(0.5)
 
         cprop = self.repr.GetCapProperty()
-        cprop.SetColor( 0.0, 0.0, 1.0 )
-        cprop.SetOpacity( 0.5 )
+        cprop.SetColor(0.0, 0.0, 1.0)
+        cprop.SetOpacity(0.5)
 
         self.repr.SetMinimumValue(float(min_val))
         self.repr.SetMaximumValue(float(max_val))
         if callable(value):
-            self.repr.SetValue(float(value()))
+            self.set_value(value())
             self.value_func = value
         else:
             self.repr.SetValue(float(value))
@@ -47,7 +52,7 @@ class Slider(Widget):
         self.repr.SetTubeWidth(0.01)
         self.repr.SetEndCapLength(0.02)
         self.repr.SetEndCapWidth(0.02)
-        self.repr.SetTitleHeight( 0.02 )
+        self.repr.SetTitleHeight(0.02)
         self.repr.SetTitleText(title)
 
         sliderWidget.SetAnimationModeToJump()
@@ -61,12 +66,28 @@ class Slider(Widget):
     def place(self):
         self.repr.GetPoint1Coordinate().SetValue((self.x1, self.y1, 0))
         self.repr.GetPoint2Coordinate().SetValue((self.x2, self.y2, 0))
+        self.repr.Modified()
+
+    def set_value(self, value):
+        f = float(value)  # Ensure value is floating-point
+        minimum = self.repr.GetMinimumValue()
+        maximum = self.repr.GetMaximumValue()
+
+        # Make sure value is between min and max
+        if f < minimum:
+            raise ValueError(
+                "Value for slider should be >= %f; received %f" % (minimum, f))
+        if f > maximum:
+            raise ValueError(
+                "Value for slider should be <= %f; received %f" % (maximum, f))
+
+        self.repr.SetValue(f)
 
     def show(self):
         if self.value_func:
-            self.repr.SetValue(float(self.value_func()))
+            f = self.value_func()
+            self.set_value(f)
         super(Slider, self).show()
-
 
     def end_slide(self, obj, event):
         value = self.repr.GetValue()

@@ -1,0 +1,12 @@
+ExternalProject_Add(mccabe
+  DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}"
+  SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/build/mccabe"
+  URL "${MCCABE_SOURCE}"
+  URL_MD5 ${MCCABE_MD5}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND "${PYTHON_EXECUTABLE}" setup.py build
+  INSTALL_COMMAND "${PYTHON_EXECUTABLE}" setup.py install "${PYTHON_EXTRA_PREFIX}"
+  DEPENDS ${mccabe_deps}
+  ${ep_log_options}
+  )

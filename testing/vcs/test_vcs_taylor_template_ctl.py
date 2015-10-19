@@ -9,6 +9,7 @@ import vcs,MV2
 bg=True
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")

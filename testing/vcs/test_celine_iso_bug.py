@@ -8,6 +8,7 @@ import checkimage
 f=cdms2.open(os.path.join(pth0,"celine.nc"))
 s=f("data")
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.scriptrun(os.path.join(pth0,"celine.json"))
 i=x.getisofill("celine")

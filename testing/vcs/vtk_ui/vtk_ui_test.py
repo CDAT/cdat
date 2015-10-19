@@ -7,7 +7,6 @@ import time
 
 def init():
     win = vtk.vtkRenderWindow()
-
     win.SetNumberOfLayers(3)
     win.SetSize(100, 250)
     win.SetMultiSamples(0)
@@ -58,18 +57,43 @@ class vtk_ui_test(object):
         self.inter.InvokeEvent("TimerEvent")
         self.win.Render()
 
-    def click_event(self, x, y):
-        self.win.Render()
+    def mouse_down(self, x, y):
+        self.inter.SetEventInformation(x, y)
+        self.inter.LeftButtonPressEvent()
+
+    def mouse_move(self, x, y):
         self.inter.SetEventInformation(x, y)
         self.inter.MouseMoveEvent()
-        self.inter.LeftButtonPressEvent()
+
+    def mouse_up(self, x, y):
+        self.inter.SetEventInformation(x, y)
         self.inter.LeftButtonReleaseEvent()
 
-    def key_event(self, keycode, control=False, shift=False):
+    def click_event(self, x, y):
         self.win.Render()
-        self.inter.SetKeyEventInformation(keycode, control, shift)
-        self.inter.KeyPressEvent()
-        self.inter.KeyReleaseEvent()
+        self.mouse_move(x, y)
+        self.mouse_down(x, y)
+        self.mouse_up(x, y)
+
+    def set_key(self, key, shift=False, alt=False, control=False):
+        if len(key) > 1:
+            # key is a symbol
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, '', 1, key)
+        else:
+            self.inter.SetEventInformation(0, 0, 1 if control else 0, 1 if shift else 0, key, 1, None)
+        self.inter.SetAltKey(alt)
+
+    def key_down(self):
+        self.inter.InvokeEvent("KeyPressEvent")
+
+    def key_up(self):
+        self.inter.InvokeEvent("KeyReleaseEvent")
+
+    def key_event(self, key, shift=False, alt=False, control=False):
+        self.set_key(key, shift, alt, control)
+        self.key_down()
+        self.set_key(key, shift, alt, control)
+        self.key_up()
 
     def do_test(self):
         raise NotImplementedError("Implement do_test to execute a test.")
@@ -105,5 +129,5 @@ class vtk_ui_test(object):
 
         self.win.Finalize()
         self.inter.TerminateApp()
-        print sys.argv[0], "passed" if self.passed == 0 else "failed"
-        sys.exit(self.passed)
+	print sys.argv[0], "passed" if self.passed == 0 else "failed"
+	sys.exit(self.passed)

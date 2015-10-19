@@ -11,6 +11,7 @@ dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")
 
 canvas = vcs.init()
+canvas.setantialiasing(0)
 canvas.setbgoutputdimensions(1200, 1091, units="pixels")
 canvas.drawlogooff()
 

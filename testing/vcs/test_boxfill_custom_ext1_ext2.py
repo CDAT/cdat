@@ -11,6 +11,7 @@ clt = clt(latitude=(-90.0, 90.0), longitude=(-180., 175.), squeeze=1,
 
 # Initialize canvas:
 canvas = vcs.init()
+canvas.setantialiasing(0)
 canvas.setbgoutputdimensions(1200,1091,units="pixels")
 canvas.drawlogooff()
 

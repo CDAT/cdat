@@ -1,12 +1,10 @@
-from button import ButtonState, Button, ToggleButton, SliderButton
-from toolbar import Toolbar
-from slider import Slider
-from configuration import *
-from resize_box import ResizeBox
-from handle import Handle
-import image_utils as image
-from text import Label
-from textbox import Textbox
-import vtk
-
-import text
+from button import ButtonState, Button, ToggleButton, SliderButton  # noqa
+from toolbar import Toolbar  # noqa
+from slider import Slider  # noqa
+from resize_box import ResizeBox  # noqa
+from handle import Handle  # noqa
+import image_utils as image  # noqa
+from text import Label  # noqa
+from textbox import Textbox  # noqa
+import vtk  # noqa
+import text  # noqa

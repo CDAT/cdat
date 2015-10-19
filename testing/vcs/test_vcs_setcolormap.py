@@ -13,6 +13,7 @@ cdmsfile = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = cdmsfile('clt')
 
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 

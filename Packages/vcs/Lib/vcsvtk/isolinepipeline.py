@@ -7,10 +7,11 @@ import vtk
 
 
 class IsolinePipeline(Pipeline2D):
+
     """Implementation of the Pipeline interface for VCS isoline plots."""
 
-    def __init__(self, context_):
-        super(IsolinePipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsolinePipeline, self).__init__(gm, context_)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -20,6 +21,7 @@ class IsolinePipeline(Pipeline2D):
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
@@ -84,10 +86,10 @@ class IsolinePipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = vcs.elements["colormap"][self._context.canvas.getcolormapname()]
+        cmap = self.getColorMap()
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
-            lut.SetTableValue(i, r/100., g/100., b/100.)
+            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
         # Setup isoline labels
         if self._gm.label:
@@ -117,7 +119,17 @@ class IsolinePipeline(Pipeline2D):
                 else:
                     colorOverrides = [None] * len(self._gm.text)
 
-                for tc, colorOverride in zip(texts, colorOverrides):
+                # Custom background colors and opacities:
+                backgroundColors = self._gm.labelbackgroundcolors
+                if backgroundColors:
+                    while len(backgroundColors) < numLevels:
+                        backgroundColors.append(backgroundColors[-1])
+                backgroundOpacities = self._gm.labelbackgroundopacities
+                if backgroundOpacities:
+                    while len(backgroundOpacities) < numLevels:
+                        backgroundOpacities.append(backgroundOpacities[-1])
+
+                for idx, tc in enumerate(texts):
                     if vcs.queries.istextcombined(tc):
                         tt, to = tuple(tc.name.split(":::"))
                     elif tc is None:
@@ -129,20 +141,30 @@ class IsolinePipeline(Pipeline2D):
                     elif vcs.queries.istextorientation(tc):
                         to = tc.name
                         tt = "default"
+
+                    colorOverride = colorOverrides[idx]
                     if colorOverride is not None:
                         tt = vcs.createtexttable(None, tt)
                         tt.color = colorOverride
                         tt = tt.name
+                    if backgroundColors is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundcolor = backgroundColors[idx]
+                    if backgroundOpacities is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundopacity = backgroundOpacities[idx]
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
-                                             self._context.renWin.GetSize(),
-                                             to, tt)
+                                             self._context().renWin.GetSize(),
+                                             to, tt, cmap=cmap)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
             else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
-                vcs2vtk.prepTextProperty(tprop, self._context.renWin.GetSize())
+                vcs2vtk.prepTextProperty(tprop,
+                                         self._context().renWin.GetSize(),
+                                         cmap=cmap)
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops
@@ -151,12 +173,13 @@ class IsolinePipeline(Pipeline2D):
             mapper.SetTextProperties(tprops)
             mapper.SetTextPropertyMapping(tpropMap)
             mapper.SetLabelVisibility(1)
+            mapper.SetSkipDistance(self._gm.labelskipdistance)
 
             pdMapper = mapper.GetPolyDataMapper()
 
             self._resultDict["vtk_backend_labeled_luts"] = [
-                  [lut,
-                   [self._contourLevels[0], self._contourLevels[-1], False]]]
+                [lut,
+                 [self._contourLevels[0], self._contourLevels[-1], False]]]
         else:  # No isoline labels:
             mapper = vtk.vtkPolyDataMapper()
             pdMapper = mapper
@@ -203,11 +226,12 @@ class IsolinePipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
-                  act, [self._template.data.x1, self._template.data.x2,
-                        self._template.data.y1, self._template.data.y2],
-                  wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
-                  priority=self._template.data.priority)
+            self._context().fitToViewport(
+                act, [self._template.data.x1, self._template.data.x2,
+                      self._template.data.y1, self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=True)
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -217,13 +241,14 @@ class IsolinePipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)

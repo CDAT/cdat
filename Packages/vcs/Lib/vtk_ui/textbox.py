@@ -15,7 +15,9 @@ def rotate(point, angle):
 
 
 class Textbox(Label):
-    def __init__(self, interactor, string, on_editing_end=None, highlight_color=None, highlight_opacity=None, **kwargs):
+
+    def __init__(self, interactor, string, on_editing_end=None,
+                 highlight_color=None, highlight_opacity=None, **kwargs):
 
         super(Textbox, self).__init__(interactor, string, **kwargs)
         self.drag_interval = timedelta(0, .1)
@@ -28,14 +30,22 @@ class Textbox(Label):
         self.on_editing_end = on_editing_end
         self.highlight_opacity = highlight_opacity
         self.highlight_color = highlight_color
-        self.cursor = Line((0, 0), (1, 1), renderer=self.widget.GetCurrentRenderer(), width=2)
+        self.cursor = Line(
+            (0, 0), (1, 1), renderer=self.widget.GetCurrentRenderer(), width=2)
         # Blink the cursor if we're editing.
         self.blink_timer = self.interactor.CreateRepeatingTimer(600)
-        self.blink_observer = self.interactor.AddObserver("TimerEvent", self.blink_cursor)
-        # All timer events trigger all listeners, so we will only update when the time elapsed is the expected period.
+        self.blink_observer = self.interactor.AddObserver(
+            "TimerEvent",
+            self.blink_cursor)
+        # All timer events trigger all listeners, so we will only update when
+        # the time elapsed is the expected period.
         self.last_blink = datetime.now()
-        # Use the third argument (priority) to intercept key events before anything else does
-        self.keyboard_observer = self.interactor.AddObserver("KeyPressEvent", self.typed, 1.0)
+        # Use the third argument (priority) to intercept key events before
+        # anything else does
+        self.keyboard_observer = self.interactor.AddObserver(
+            "KeyPressEvent",
+            self.typed,
+            1.0)
 
     def blink_cursor(self, obj, event):
         if datetime.now() - self.last_blink < timedelta(0, 0, 0, 400):
@@ -43,6 +53,7 @@ class Textbox(Label):
 
         self.last_blink = datetime.now()
         if self.editing:
+            self.place_cursor()
             if self.cursor.showing:
                 self.cursor.hide()
             else:
@@ -51,6 +62,7 @@ class Textbox(Label):
 
     def show_cursor(self):
         self.last_blink = datetime.now()
+        self.place_cursor()
         self.cursor.show()
         self.manager.queue_render()
 
@@ -66,11 +78,11 @@ class Textbox(Label):
         row = rows[self.row]
 
         if self.column >= len(row):
-            if self.blank:
-                self.blank = False
-                row = character
-            else:
-                row += character
+            # It shouldn't be possible for self.blank to be true here
+            # self.column will only be >= len(row) if we're navigating
+            # up from another row (indicating that blank is false, because
+            # there's text on another line)
+            row += character
             rows[self.row] = row
             if character == "\n":
                 self.column = 0
@@ -112,7 +124,7 @@ class Textbox(Label):
                 self.column -= 1
             else:
                 rows[self.row] = row[:-1]
-                self.column = len(row)
+                self.column = len(row) - 1
 
         self.text = "\n".join(rows)
         if self.text == "":
@@ -153,14 +165,17 @@ class Textbox(Label):
                     else:
                         self.column = max(0, self.column - 1)
                 elif c == "Right":
-                    if self.column == len(rows[self.row]) and self.row < len(rows) - 1:
+                    if self.column == len(
+                            rows[self.row]) and self.row < len(rows) - 1:
                         self.column = 0
                         self.row += 1
                     else:
                         self.column = min(self.column + 1, len(rows[self.row]))
                 elif c == "Up":
-                    self.row = max(0, self.row - 1)
-                    self.column = min(len(rows[self.row]), self.column)
+                    if self.row == 0:
+                        self.column = 0
+                    else:
+                        self.row = self.row - 1
                 elif c == "Down":
                     if self.row == len(rows) - 1:
                         self.column = len(rows[self.row])
@@ -286,7 +301,8 @@ class Textbox(Label):
         # Calculate the bounds of each row
         row_bounds = []
         max_width = 0
-        # We're iterating in reverse because y goes from 0 at the bottom to 1 at the top
+        # We're iterating in reverse because y goes from 0 at the bottom to 1
+        # at the top
         row_at_point = None
 
         for row in rows[::-1]:
@@ -309,7 +325,7 @@ class Textbox(Label):
                     row_at_point = rows.index(row)
 
         if row_at_point is None:
-            row_at_point = len(rows) - 1
+            row_at_point = 0
 
         # List was assembled backwards
         row_bounds.reverse()
@@ -318,7 +334,8 @@ class Textbox(Label):
         row = row_bounds[row_at_point]
         text = rows[row_at_point]
 
-        # If max_width == row[0], then offset is 0 and all of the calcs below still work
+        # If max_width == row[0], then offset is 0 and all of the calcs below
+        # still work
         just = prop.GetJustificationAsString()
 
         if just == "Left":
@@ -339,14 +356,16 @@ class Textbox(Label):
             return row_at_point, len(rows[row_at_point])
 
         if row == '':
-            # Clicked on the blank row (inserted a space when calculating width earlier, for height considerations)
+            # Clicked on the blank row (inserted a space when calculating width
+            # earlier, for height considerations)
             return row_at_point, 1
 
         # OK, no easy answer; have to calc the width of each letter in the row till we find the column
         # Start from left
         w = 0
         ind = 1
-        while row_left + w < x:
+
+        while row_left + w < x and ind < len(text):
             w, _ = text_dimensions(text[:ind], prop, dpi)
             ind += 1
 

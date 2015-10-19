@@ -5,13 +5,17 @@ import numpy
 import vcs
 import vtk
 import warnings
+import fillareautils
 
 
 class IsofillPipeline(Pipeline2D):
+
     """Implementation of the Pipeline interface for VCS isofill plots."""
 
-    def __init__(self, context_):
-        super(IsofillPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsofillPipeline, self).__init__(gm, context_)
+
+        self._patternActors = None
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -21,10 +25,12 @@ class IsofillPipeline(Pipeline2D):
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
                                             deep=False)
+
         self._vtkDataSet.GetPointData().SetScalars(data)
 
     def _updateContourLevelsAndColors(self):
@@ -45,7 +51,7 @@ class IsofillPipeline(Pipeline2D):
                 # user wants arrow at the end
                 levs2[-1] = 1.e20
             for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i+1]])
+                self._contourLevels.append([levs2[i], levs2[i + 1]])
         else:
             if not isinstance(self._gm.levels[0], (list, tuple)):
                 self._contourLevels = []
@@ -53,7 +59,7 @@ class IsofillPipeline(Pipeline2D):
                 if numpy.allclose(levs2[0], 1.e20):
                     levs2[0] = -1.e20
                 for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i+1]])
+                    self._contourLevels.append([levs2[i], levs2[i + 1]])
 
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
@@ -85,25 +91,38 @@ class IsofillPipeline(Pipeline2D):
         """Overrides baseclass implementation."""
         tmpLevels = []
         tmpColors = []
+        tmpIndices = []
+        tmpOpacities = []
         indices = self._gm.fillareaindices
+        opacities = self._gm.fillareaopacity
+        style = self._gm.fillareastyle
         if indices is None:
             indices = [1]
         while len(indices) < len(self._contourColors):
             indices.append(indices[-1])
         if len(self._contourLevels) > len(self._contourColors):
             raise RuntimeError(
-                  "You asked for %i levels but provided only %i colors\n"
-                  "Graphic Method: %s of type %s\nLevels: %s"
-                  % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name,
-                     repr(self._contourLevels)))
+                "You asked for %i levels but provided only %i colors\n"
+                "Graphic Method: %s of type %s\nLevels: %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name,
+                   repr(self._contourLevels)))
         elif len(self._contourLevels) < len(self._contourColors) - 1:
             warnings.warn(
-                  "You asked for %i lgridevels but provided %i colors, extra "
-                  "ones will be ignored\nGraphic Method: %s of type %s"
-                  % (len(self._contourLevels), len(self._contourColors),
-                     self._gm.name, self._gm.g_name))
+                "You asked for %i lgridevels but provided %i colors, extra "
+                "ones will be ignored\nGraphic Method: %s of type %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name))
 
+        if len(opacities) < len(self._contourColors):
+            # fill up the opacity values
+            if style == 'pattern':
+                opacities += [0] * (len(self._contourColors) - len(opacities))
+            else:
+                opacities += [100] * (len(self._contourColors) - len(opacities))
+
+        # The following loop attempts to group isosurfaces based on their attributes.
+        # Isosurfaces are grouped if and only if all the properties match
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 C = [self._contourColors[i]]
@@ -112,9 +131,12 @@ class IsofillPipeline(Pipeline2D):
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
                 else:
                     L = list(self._contourLevels[i])
-                I = [indices[i]]
+                I = indices[i]
+                O = opacities[i]
             else:
-                if l[0] == L[-1] and I[-1] == indices[i]:
+                if l[0] == L[-1] and I == indices[i] and\
+                        ((style == 'solid') or
+                            (C[-1] == self._contourColors[i] and O == opacities[i])):
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
@@ -124,19 +146,25 @@ class IsofillPipeline(Pipeline2D):
                 else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
+                    tmpIndices.append(I)
+                    tmpOpacities.append(O)
                     C = [self._contourColors[i]]
-                    L = tmpLevels[i]
-                    I = [indices[i]]
+                    L = [L[-1], l[1]]
+                    I = indices[i]
+                    O = opacities[i]
         tmpLevels.append(L)
         tmpColors.append(C)
+        tmpIndices.append(I)
+        tmpOpacities.append(O)
 
         luts = []
         cots = []
-        geos = []
         mappers = []
+        _colorMap = self.getColorMap()
+        self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
-            # will happen if: next set of levels contnues where one left off
+            # will happen if: next set of levels continues where one left off
             # AND pattern is identical
             mapper = vtk.vtkPolyDataMapper()
             lut = vtk.vtkLookupTable()
@@ -148,23 +176,36 @@ class IsofillPipeline(Pipeline2D):
             for j, v in enumerate(l):
                 cot.SetValue(j, v)
             cot.Update()
+
             cots.append(cot)
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                r, g, b = self._colorMap.index[color]
-                lut.SetTableValue(j, r / 100., g / 100., b / 100.)
+                r, g, b = _colorMap.index[color]
+                if style in ['solid', 'pattern']:
+                    lut.SetTableValue(j, r / 100., g / 100., b / 100.,
+                                      tmpOpacities[i] / 100.)
+                else:
+                    lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
             mapper.SetScalarRange(0, len(l) - 1)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
+            # Since pattern creation requires a single color, assuming the first
+            c = [val*255/100.0 for val in _colorMap.index[tmpColors[i][0]]]
+            act = fillareautils.make_patterned_polydata(cot.GetOutput(),
+                                                        fillareastyle=style,
+                                                        fillareaindex=tmpIndices[i],
+                                                        fillareacolors=c,
+                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0)
+            if act is not None:
+                self._patternActors.append(act)
+
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
             self._resultDict["vtk_backend_contours"] = cots
-        if len(geos) > 0:
-            self._resultDict["vtk_backend_geofilters"] = geos
 
         numLevels = len(self._contourLevels)
         if mappers == []:  # ok didn't need to have special banded contours
@@ -178,16 +219,16 @@ class IsofillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             lut.SetNumberOfTableValues(numLevels)
             for i in range(numLevels):
-                r, g, b = self._colorMap.index[self._contourColors[i]]
+                r, g, b = _colorMap.index[self._contourColors[i]]
                 lut.SetTableValue(i, r / 100., g / 100., b / 100.)
 
             mapper.SetLookupTable(lut)
             if numpy.allclose(self._contourLevels[0], -1.e20):
-                lmn = mn - 1.
+                lmn = self._min - 1.
             else:
                 lmn = self._contourLevels[0]
             if numpy.allclose(self._contourLevels[-1], 1.e20):
-                lmx = mx + 1.
+                lmx = self._max + 1.
             else:
                 lmx = self._contourLevels[-1]
             mapper.SetScalarRange(lmn, lmx)
@@ -220,11 +261,21 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            ren = self._context.fitToViewport(
-                  act, [self._template.data.x1, self._template.data.x2,
-                        self._template.data.y1, self._template.data.y2],
-                  wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
-                  priority=self._template.data.priority)
+            self._context().fitToViewport(
+                act, [self._template.data.x1, self._template.data.x2,
+                      self._template.data.y1, self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=True)
+
+        for act in self._patternActors:
+            self._context().fitToViewport(
+                act, [self._template.data.x1, self._template.data.x2,
+                      self._template.data.y1, self._template.data.y2],
+                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=True)
+            actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -234,9 +285,9 @@ class IsofillPipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context.renderTemplate(self._template,
-                                                             self._data1,
-                                                             self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(self._template,
+                                                               self._data1,
+                                                               self._gm, t, z))
 
         legend = getattr(self._gm, "legend", None)
 
@@ -244,7 +295,8 @@ class IsofillPipeline(Pipeline2D):
             if isinstance(self._contourLevels[0], list):
                 if numpy.less(abs(self._contourLevels[0][0]), 1.e20):
                     # Ok we need to add the ext levels
-                    self._contourLevels.insert(0, [-1.e20, levs[0][0]])
+                    self._contourLevels.insert(
+                        0, [-1.e20, self._contourLevels[0][0]])
             else:
                 if numpy.less(abs(self._contourLevels[0]), 1.e20):
                     # need to add an ext
@@ -261,13 +313,17 @@ class IsofillPipeline(Pipeline2D):
                     self._contourLevels.append(1.e20)
 
         self._resultDict.update(
-            self._context.renderColorBar(self._template, self._contourLevels,
-                                         self._contourColors, legend,
-                                         self._colorMap))
+            self._context().renderColorBar(self._template, self._contourLevels,
+                                           self._contourColors, legend,
+                                           self.getColorMap(),
+                                           style=style,
+                                           index=self._gm.fillareaindices,
+                                           opacity=opacities))
 
-        if self._context.canvas._continents is None:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context.plotContinents(x1, x2, y1, y2, projection,
-                                         self._dataWrapModulo, self._template)
+            self._context().plotContinents(x1, x2, y1, y2, projection,
+                                           self._dataWrapModulo,
+                                           self._template)

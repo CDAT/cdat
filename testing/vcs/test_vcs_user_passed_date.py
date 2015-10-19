@@ -6,6 +6,7 @@ import checkimage
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",squeeze=1)
 x=vcs.init()
+x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.plot(s,bg=1,time=cdtime.comptime(2015))

@@ -16,9 +16,7 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
-# Helper variables to locate programs and libraries
-set(SB_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -218,6 +216,8 @@ endif()
 # Checkout the baseline repository.
 #=============================================================================
 if(BUILD_TESTING)
+  # bots will turn this off
+  option(CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH "Do magic to find matching baseline branch" ON)
   set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
     CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
   set(REPO_URL "")
@@ -233,6 +233,7 @@ if(BUILD_TESTING)
       "-DTESTDATA_URL=${REPO_URL}"
       "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
       "-DSOURCE_DIR=${cdat_SOURCE_DIR}"
+      "-DCDAT_CHECKOUT_BASELINE_MATCHING_BRANCH=${CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH}"
       -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
     COMMENT "Updating uvcdat-testdata repo."
   )
@@ -267,6 +268,9 @@ cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering.
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
+# Option to enable CMOR
+option(CDAT_BUILD_CMOR "Build CMOR" ON)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
@@ -285,7 +289,7 @@ option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistra
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
 option(CDAT_BUILD_PARAVIEW "Build ParaView rather than just VTK" OFF)
-option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " OFF)
+option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " ON)
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
@@ -293,9 +297,11 @@ if (CDAT_BUILD_ESGF)
     message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
   endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
+  set(CDAT_DOWNLOAD_SAMPLE_DATA OFF)
 endif()
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
 set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
+message([INFO] BUILD MODE: ${CDAT_BUILD_MODE})
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -304,15 +310,18 @@ if (CDAT_BUILD_MODE STREQUAL "LEAN")
 elseif (CDAT_BUILD_MODE STREQUAL "ALL")
   set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL ON)
-else()
+elseif (CDAT_BUILD_MODE STREQUAL "DEFAULT")
   set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL OFF)
+else()
+  message(FATAL_ERROR "[ERROR] Unknown CDAT_BUILD_MODE \"${CDAT_BUILD_MODE}\" VALID MODES ARE \"DEFAULT\" \"ALL\" \"LEAN\"")
 endif()
 
 # First of all if LEAN then turn OFF GRAPHICS and PARALLEL
 if (CDAT_BUILD_LEAN)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE OFF)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE OFF)
   set(CDMS_ONLY --enable-cdms-only)
 else()
   set(CDMS_ONLY "")
@@ -324,6 +333,7 @@ if (CDAT_BUILD_ALL)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_ESGF PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE ON)
   set(CDMS_ONLY "")
 endif()
 
@@ -402,9 +412,13 @@ if(APPLE)
   set(cdat_osx_arch_flag_fortran "-m${CMAKE_OSX_ARCHITECTURES_M}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
-  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+if(APPLE)
+  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include -I/usr/X11R6/include ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+else()
+  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include  ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+endif()
   set(cdat_osx_flags_fortran "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_arch_flag_fortran} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
-  set(cdat_osx_ld_flags "-L/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources -bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  set(cdat_osx_ld_flags "-L${CMAKE_OSX_SYSROT}/usr/X11R6/lib -L/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources -bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_cxxflags "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_cppflag} ${cdat_osx_ld_flags}")
   set(cdat_osx_flags "${cdat_osx_cxxflags}")
 
@@ -458,6 +472,19 @@ set(external_packages)
 set(found_system_include_dirs)
 set(found_system_libraries)
 
+include(python_pkg)
+if (APPLE)
+  set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+  set(SB_DIR "${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}")
+else()
+  set(SB_DIR "${CMAKE_INSTALL_PREFIX}")
+  # Helper variables to locate programs and libraries
+  set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+endif()
+
+set(SB_LIB_DIR "${SB_DIR}/lib")
+set(SB_BIN_DIR "${SB_DIR}/bin")
+
 include(basemap_pkg)
 include(cdat_pkg)
 include(clapack_pkg)
@@ -466,7 +493,11 @@ include(configobj_pkg)
 include(cython_pkg)
 include(data_pkg)
 include(esmf_pkg)
+include(x264_pkg)
 include(ffmpeg_pkg)
+include(pyflakes_pkg)
+include(pep8_pkg)
+include(mccabe_pkg)
 include(flake8_pkg)
 include(g2clib_pkg)
 include(gdal_pkg)
@@ -486,8 +517,12 @@ include(libcf_pkg)
 include(libdrs_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
+include(cryptography_pkg)
+include(cffi_pkg)
+include(ffi_pkg)
 include(dateutils_pkg)
 include(pyparsing_pkg)
+include(pycparser_pkg)
 include(md5_pkg)
 include(mpi4py_pkg)
 include(pyopenssl_pkg)
@@ -498,7 +533,6 @@ include(numexpr_pkg)
 include(numpy_pkg)
 include(mpi_pkg)
 include(osmesa_pkg)
-include(python_pkg)
 include(seawater_pkg)
 include(vacumm_pkg)
 if (CDAT_BUILD_PARAVIEW)
@@ -513,6 +547,8 @@ include(pyspharm_pkg)
 include(pytables_pkg)
 include(readline_pkg)
 include(r_pkg)
+include(rpy2_pkg)
+include(singledispatch_pkg)
 include(scikits_pkg)
 include(scipy_pkg)
 ## Part of setuptools no need to extra build it
@@ -601,8 +637,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_st
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdatmpi_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdatmpi_configure_step.cmake
     @ONLY
 )
 
@@ -675,6 +711,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/lib64 "
   "lib "
 )
 string(REPLACE ";" " " SETUP_LIBRARY_PATHS ${SETUP_LIBRARY_PATHS})
@@ -799,9 +836,6 @@ set(CPACK_DESTINATION_LIB_PREFIX "UVCDAT/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "UVCDAT/bin")
 
 if (APPLE)
-  set(SB_EXTERNALS_DIR "Externals")
-  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
-
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
   set(CPACK_GENERATOR DragNDrop)
   set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")

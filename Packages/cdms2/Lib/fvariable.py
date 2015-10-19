@@ -51,6 +51,7 @@ class FileVariable(DatasetVariable):
         if self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
         if numpy.ma.isMaskedArray(data):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             saveFill = data.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -58,6 +59,7 @@ class FileVariable(DatasetVariable):
                 data.set_fill_value(self.getMissing())
         self._obj_.assignValue(numpy.ma.filled(data))
         if numpy.ma.isMaskedArray(data):
+          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
             data.set_fill_value(saveFill)
 
     def expertSlice (self, initslicelist):
@@ -94,6 +96,7 @@ class FileVariable(DatasetVariable):
         if self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             saveFill = value.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -101,6 +104,7 @@ class FileVariable(DatasetVariable):
                 value.set_fill_value(self.getMissing())
         apply(self._obj_.setitem,(index,numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             value.set_fill_value(saveFill)
 
     def __setslice__(self, low, high, value):
@@ -109,8 +113,11 @@ class FileVariable(DatasetVariable):
 
         # Hack to prevent netCDF overflow error on 64-bit architectures
         high = min(Max32int, high)
+        if high == Max32int and self.rank()==0:
+          high=1
         
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             saveFill = value.fill_value
             if self.getMissing() is None:
                 self.setMissing(saveFill)
@@ -118,6 +125,7 @@ class FileVariable(DatasetVariable):
                 value.set_fill_value(self.getMissing())
         apply(self._obj_.setslice,(low,high,numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
+          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             value.set_fill_value(saveFill)
 
     def _getShape (self):
@@ -132,7 +140,7 @@ class FileVariable(DatasetVariable):
     def __setattr__(self, name, value):
         if hasattr(self, "parent") and self.parent is None:
             raise CDMSError, FileClosedWrite+self.id
-        if (not name in self.__cdms_internals__) and (value is not None) and (name[0]!='_'):
+        if (not name in self.__cdms_internals__) and (value is not None):
             try:
                 setattr(self._obj_, name, value)
             except CdunifError:

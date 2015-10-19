@@ -16,4 +16,5 @@ class test_vtk_ui_button_alignment(vtk_ui_test):
         right_button.show()
         self.test_file = "test_vtk_ui_button_alignment.png"
 
-test_vtk_ui_button_alignment().test()
+if __name__ == "__main__":
+	test_vtk_ui_button_alignment().test()

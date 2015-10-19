@@ -4,6 +4,7 @@ pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 import checkimage
 x=vcs.init()
+x.setantialiasing(0)
 
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
@@ -15,6 +16,7 @@ data = MV2.arange(120,0,-1)
 data.id="data"
 data.setAxis(0,t)
 x=vcs.init()
+x.setantialiasing(0)
 x.plot(data,bg=1)
 fnm = 'test_vcs_monotonic_decreasing_yxvsx_default.png'
 

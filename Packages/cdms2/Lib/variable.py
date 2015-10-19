@@ -116,7 +116,7 @@ class DatasetVariable(AbstractVariable):
         return tuple(shape)
 
     def typecode (self):
-	return self._numericType_
+      return numpy.dtype(self._numericType_).char
 
     def size(self):
         "Number of elements."

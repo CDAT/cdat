@@ -3,6 +3,9 @@ import sys
 
 x = vcs.init()
 x.open()
+# Needs to set the size of window so it is consistent accross
+# test platforms
+x.geometry(x.bgX,x.bgY)
 
 m = x.createmarker()
 m.x = .1,
