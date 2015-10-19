@@ -26,11 +26,8 @@ add_subdirectory(cdutil)
 add_subdirectory(Thermo)
 add_subdirectory(unidata)
 add_subdirectory(cdms2)
-<<<<<<< HEAD
 add_subdirectory(WK)
-=======
 add_subdirectory(xmgrace)
->>>>>>> master
 if (CDAT_BUILD_UVCMETRICSPKG)
   add_subdirectory(metrics)
 endif()
