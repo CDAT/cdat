@@ -124,8 +124,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             prop,
             (w,
              h),
-            to=self.text,
-            tt=self.text,
+            to=self.text.To,
+            tt=self.text.Tt,
             cmap=cmap)
         prop.SetOrientation(-1 * self.text.angle)
 
@@ -146,8 +146,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                 box_prop,
                 (w,
                  h),
-                to=self.text,
-                tt=self.text,
+                to=self.text.To,
+                tt=self.text.Tt,
                 cmap=cmap)
             box_prop.SetOrientation(-1 * self.text.angle)
             text_color = box_prop.GetColor()
@@ -362,5 +362,5 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
 def text_dimensions(text, index, winsize, dpi):
     prop = vtkTextProperty()
-    vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
+    vcs.vcs2vtk.prepTextProperty(prop, winsize, text.To, text.Tt, vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop, dpi)
