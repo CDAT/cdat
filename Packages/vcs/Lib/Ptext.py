@@ -2,32 +2,32 @@
 """
 # Template Text (Pt) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       Template Text (Pt) module                                       #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's template text object.          #
-#                                                                               #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 #
 #
 #
 import VCS_validation_functions
-#############################################################################
-#                                                                           #
+#
+#
 # Template text (Pt) Class.                                                 #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Pt(object):
@@ -70,11 +70,11 @@ class Pt(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 '''
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the line attributes.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     __slots__ = [
         "_priority",
         "priority",
@@ -89,14 +89,14 @@ class Pt(object):
         "member"]
 
     def __init__(self, member):
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Initialize the line class and its members               #
         # The getPtmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #
-        ###########################################################
-        #                                                         #
+        #
+        #
         self.priority = 1
         self.texttable = "default"
         self.textorientation = "default"
@@ -173,21 +173,21 @@ class Pt(object):
             self.priority = 0
         self.member = member
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set template text  attributes.                                            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     priority = VCS_validation_functions.priority
     x = VCS_validation_functions.x
     y = VCS_validation_functions.y
     texttable = VCS_validation_functions.texttable
     textorientation = VCS_validation_functions.textorientation
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out template text members (attributes).                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def list(self):
         print "member = ", self.member
@@ -198,6 +198,6 @@ class Pt(object):
         print "     textorientation =", self.textorientation
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

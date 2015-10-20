@@ -52,11 +52,11 @@ def createTemplateandGM(x, min, max, deltaisof, deltaisol,
     tmpl.dataname.y = tmpl.data.y2 + .03
     tmpl.dataname.textorientation = to
 
-    tmpl.legend.x1 = .3
-    tmpl.legend.x2 = .7
+    tmpl.legend.x1 = tmpl.data.x1
+    tmpl.legend.x2 = tmpl.data.x2
 
     tmpl.yname.x = tmpl.yname.x - .01
-    tmpl.xname.y = tmpl.xname.y - .075
+    tmpl.xname.y = tmpl.xname.y
 
     tmpl.xtic2.y1 = tmpl.data.y1
     tmpl.xtic2.y2 = tmpl.data.y2
@@ -69,6 +69,9 @@ def createTemplateandGM(x, min, max, deltaisof, deltaisol,
     levs2 = list(numpy.arange(min, max, deltaisof))
     levs1a = list(numpy.arange(min, 0, deltaisol))
     levs1b = list(numpy.arange(0, max, deltaisol))
+    for i, l in enumerate(levs2):
+        if numpy.allclose(levs2[i], 0.):
+            levs2[i] = 0.
     isof.levels = levs2
     isof.fillareacolors = vcs.getcolors(levs2, colors=range(16, 40))
 

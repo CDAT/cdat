@@ -3,24 +3,24 @@
 #
 # The VCS Canvas API controls -  canvas module
 #
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       canvas module                                                 #
-#                                                                             #
+#
 # Copyright:    "See file Legal.htm for copyright information."               #
-#                                                                             #
+#
 # Authors:      PCMDI Software Team                                           #
-#               Lawrence Livermore National Laboratory:                       #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore National Laboratory:                       #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  PCMDI's VCS Canvas is used to display plots and to create and #
-#               run animations.  It is always visible on the screen in a      #
-#               landscape (width exceeding height), portrait (height exceeding#
-#               width), or full-screen mode.                                  #
-#                                                                             #
+# run animations.  It is always visible on the screen in a      #
+# landscape (width exceeding height), portrait (height exceeding#
+# width), or full-screen mode.                                  #
+#
 # Version: 2.4                                                          #
-#                                                                             #
-###############################################################################
+#
+#
 
 """Canvas: the class representing a vcs drawing window
 Normally, created by vcs.init()
@@ -307,6 +307,7 @@ def _process_keyword(obj, target, source, keyargs, default=None):
         setattr(obj, target, getattr(obj, source))
     return arg
 
+
 class Canvas(object):
 
     """
@@ -319,11 +320,11 @@ class Canvas(object):
  Example of Use:
     a=vcs.Canvas()                    # This examples constructs a VCS Canvas
 """
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set attributes for VCS Canvas Class (i.e., set VCS Canvas Mode).          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     __slots__ = [
         '_mode',
         '_pause_time',
@@ -833,11 +834,11 @@ class Canvas(object):
 #        tv = self._datawc_tv( tv, arglist )
         return tv
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Print out the object's doc string.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def objecthelp(self, *arg):
         """
  Function: objecthelp               # Print out the object's doc string
@@ -854,13 +855,13 @@ class Canvas(object):
         for x in arg:
             print getattr(x, "__doc__", "")
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the VCS Canvas and set the Canvas mode to 0. Because the mode  #
     # is set to 0, the user will have to manually update the VCS Canvas by      #
     # using the "update" function.                                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, gui=0, mode=1, pause_time=0,
                  call_from_gui=0, size=None, backend="vtk"):
         self._canvas_id = vcs.next_canvas_id
@@ -954,12 +955,12 @@ class Canvas(object):
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
-##########################################################################
-#  Okay, then this is redundant since it is done in main.c. When time perments, put the   #
-#  taylordiagram graphic methods attributes in main.c Because this is here we must check  #
-#  to make sure that the initial attributes file is called only once for normalization    #
-#  purposes....                                                                           #
-##########################################################################
+#
+# Okay, then this is redundant since it is done in main.c. When time perments, put the   #
+# taylordiagram graphic methods attributes in main.c Because this is here we must check  #
+# to make sure that the initial attributes file is called only once for normalization    #
+# purposes....                                                                           #
+#
         if called_initial_attributes_flg == 0:
             pth = vcs.__path__[0].split(os.path.sep)
             pth = pth[:-4]  # Maybe need to make sure on none framework config
@@ -1021,11 +1022,11 @@ class Canvas(object):
     def initLogoDrawing(self):
         self.drawLogo = self.enableLogo
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Update wrapper function for VCS.                                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def update(self, *args, **kargs):
         """
@@ -1054,11 +1055,11 @@ class Canvas(object):
 
         return self.backend.update(*args, **kargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Update wrapper function for VCS with a check to update the continents.    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _update_continents_check(self, *args):
 
         a = self.canvas.updatecanvas_continents(*args)
@@ -1068,11 +1069,11 @@ class Canvas(object):
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script VCS primary or secondary elements wrapper functions for VCS.       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def scriptobject(self, obj, script_filename=None, mode=None):
         """
  Function: scriptobject       # Script a single primary or secondary class object
@@ -1147,11 +1148,11 @@ class Canvas(object):
         else:
             print 'This is not a template, graphics method or secondary method object.'
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Remove VCS primary and secondary methods wrapper functions for VCS.       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def removeobject(self, obj):
         __doc__ = vcs.removeobject.__doc__  # noqa
@@ -1201,11 +1202,11 @@ class Canvas(object):
     def check_name_source(self, name, source, typ):
         return vcs.check_name_source(name, source, typ)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Template functions for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createtemplate(self, name=None, source='default'):
         return vcs.createtemplate(name, source)
     createtemplate.__doc__ = vcs.manageElements.createtemplate.__doc__
@@ -1214,11 +1215,11 @@ class Canvas(object):
         return vcs.gettemplate(Pt_name_src)
     gettemplate.__doc__ = vcs.manageElements.gettemplate.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Projection functions for VCS.                                             #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createprojection(self, name=None, source='default'):
         return vcs.createprojection(name, source)
     createprojection.__doc__ = vcs.manageElements.createprojection.__doc__
@@ -1227,11 +1228,11 @@ class Canvas(object):
         return vcs.getprojection(Proj_name_src)
     getprojection.__doc__ = vcs.manageElements.getprojection.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Boxfill functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createboxfill(self, name=None, source='default'):
         return vcs.createboxfill(name, source)
     createboxfill.__doc__ = vcs.manageElements.createboxfill.__doc__
@@ -1290,11 +1291,11 @@ Options:::
     boxfill.__doc__ = boxfill.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2D_input, plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Taylordiagram functions for VCS.                                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createtaylordiagram(self, name=None, source='default'):
         return vcs.createtaylordiagram(name, source)
     createtaylordiagram.__doc__ = vcs.manageElements.createtaylordiagram.__doc__
@@ -1325,11 +1326,11 @@ Options:::
         arglist = _determine_arg_list('taylordiagram', args)
         return self.__plot(arglist, parms)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Meshfill functions for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def createmeshfill(self, name=None, source='default'):
         return vcs.createmeshfill(name, source)
@@ -1376,11 +1377,11 @@ Options:::
         arglist = _determine_arg_list('meshfill', args)
         return self.__plot(arglist, parms)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # DV3D functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def create3d_scalar(self, name=None, source='default'):
         return vcs.create3d_scalar(name, source)
@@ -1421,11 +1422,11 @@ Options:::
         arglist = _determine_arg_list('3d_dual_scalar', args)
         return self.__plot(arglist, parms)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Isofill functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createisofill(self, name=None, source='default'):
         return vcs.createisofill(name, source)
     createisofill.__doc__ = vcs.manageElements.createisofill.__doc__
@@ -1477,11 +1478,11 @@ Options:::
     isofill.__doc__ = isofill.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2D_input, plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Isoline functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createisoline(self, name=None, source='default'):
         return vcs.createisoline(name, source)
     createisoline.__doc__ = vcs.manageElements.createisoline.__doc__
@@ -1541,11 +1542,11 @@ Options:::
         return vcs.get1d(name)
     create1d.__doc__ = vcs.manageElements.create1d.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Xyvsy functions for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createxyvsy(self, name=None, source='default'):
         return vcs.createxyvsy(name, source)
     createxyvsy.__doc__ = vcs.manageElements.createxyvsy.__doc__
@@ -1597,11 +1598,11 @@ Options:::
     xyvsy.__doc__ = xyvsy.__doc__ % (
         plot_keywords_doc, graphics_method_core, xaxisconvert, plot_1D_input, plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Yxvsx functions for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createyxvsx(self, name=None, source='default'):
         return vcs.createyxvsx(name, source)
     createyxvsx.__doc__ = vcs.manageElements.createyxvsx.__doc__
@@ -1653,11 +1654,11 @@ Options:::
     yxvsx.__doc__ = yxvsx.__doc__ % (
         plot_keywords_doc, graphics_method_core, xaxisconvert, plot_1D_input, plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # XvsY functions for VCS.                                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createxvsy(self, name=None, source='default'):
         return vcs.createxvsy(name, source)
     createxvsy.__doc__ = vcs.manageElements.createxvsy.__doc__
@@ -1710,11 +1711,11 @@ Options:::
                                    plot_2_1D_input,
                                    plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Vector functions for VCS.                                                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createvector(self, name=None, source='default'):
         return vcs.createvector(name, source)
     createvector.__doc__ = vcs.manageElements.createvector.__doc__
@@ -1745,11 +1746,11 @@ Options:::
         arglist = _determine_arg_list('vector', args)
         return self.__plot(arglist, parms)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Scatter functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createscatter(self, name=None, source='default'):
         return vcs.createscatter(name, source)
     createscatter.__doc__ = vcs.manageElements.createscatter.__doc__
@@ -1800,11 +1801,11 @@ Options:::
     scatter.__doc__ = scatter.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2_1D_input, plot_output)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Line  functions for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createline(self, name=None, source='default', ltype=None,  # noqa
                    width=None, color=None, priority=None,
                    viewport=None, worldcoordinate=None,
@@ -1884,11 +1885,11 @@ Options:::
 
         return ln
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Marker  functions for VCS.                                                #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createmarker(self, name=None, source='default', mtype=None,  # noqa
                      size=None, color=None, priority=1,
                      viewport=None, worldcoordinate=None,
@@ -1967,11 +1968,11 @@ Options:::
 
         return mrk
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Fillarea  functions for VCS.                                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createfillarea(self, name=None, source='default', style=None,
                        index=None, color=None, priority=1,
                        viewport=None, worldcoordinate=None,
@@ -2052,11 +2053,11 @@ Options:::
 
         return fa
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Text Table  functions for VCS.                                            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createtexttable(self, name=None, source='default', font=None,
                         spacing=None, expansion=None, color=None, priority=None,
                         viewport=None, worldcoordinate=None,
@@ -2074,11 +2075,11 @@ Options:::
                                 viewport, worldcoordinate, x, y)
     gettexttable.__doc__ = vcs.manageElements.gettexttable.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Text Orientation  functions for VCS.                                      #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createtextorientation(self, name=None, source='default'):
         return vcs.createtextorientation(name, source)
     createtextorientation.__doc__ = vcs.manageElements.createtextorientation.__doc__
@@ -2087,11 +2088,11 @@ Options:::
         return vcs.gettextorientation(To_name_src)
     gettextorientation.__doc__ = vcs.manageElements.gettextorientation.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Text Combined  functions for VCS.                                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createtextcombined(self, Tt_name=None, Tt_source='default', To_name=None, To_source='default',  # noqa
                            font=None, spacing=None, expansion=None, color=None,
                            priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
@@ -2268,11 +2269,11 @@ Options:::
     #    self.clear()
     #    self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Plot wrapper for VCS.                                                   #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def plot(self, *actual_args, **keyargs):
         """
 Options:::
@@ -3792,35 +3793,35 @@ Options:::
     def setAnimationStepper(self, stepper):
         self.backend.setAnimationStepper(stepper)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # VCS utility wrapper to return the number of displays that are "ON".       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def return_display_ON_num(self, *args):
         return self.canvas.return_display_ON_num(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # VCS utility wrapper to return the current display names.                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def return_display_names(self, *args):
         return self.display_names
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # VCS utility wrapper to remove the display names.                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def remove_display_name(self, *args):
         return self.canvas.remove_display_name(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # CGM  wrapper for VCS.                                                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def cgm(self, file, mode='w'):
         """
  Function: cgm
@@ -3851,11 +3852,11 @@ Options:::
                 mode)
         return self.backend.cgm(file)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Clear VCS Canvas wrapper for VCS.                                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def clear(self, *args, **kargs):
         """
  Function: clear
@@ -3894,11 +3895,11 @@ Options:::
         self.display_names = []
         return
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Close VCS Canvas wrapper for VCS.                                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def close(self, *args, **kargs):
         """
  Function: close
@@ -3920,11 +3921,11 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Destroy VCS Canvas Object (i.e., call the Dealloc C code).      		#
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def destroy(self):
         """
  Function: destroy
@@ -3944,11 +3945,11 @@ Options:::
         gc.garbage
         gc.collect()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Graphics Method Change display.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def change_display_graphic_method(self, display, type, name):
         '''
  Function: change_display_graphic_method
@@ -3959,11 +3960,11 @@ Options:::
 '''
         return self.canvas.change_display_graphic_method(
             *(display, type, name))
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Figures out which display is selected in graphic method editor mode       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def get_selected_display(self):
         """
@@ -3974,11 +3975,11 @@ Options:::
     If nothing selected returns None
     """
         return self.canvas.get_selected_display(*())
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Graphics Method Graphical User Interface wrapper for VCS.                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def graphicsmethodgui(self, gm_type='boxfill', gm_name='default',
                           gui_parent=None):
@@ -4000,11 +4001,11 @@ Options:::
     # _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
     # gui_parent=gui_parent)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Template Editor Graphical User Interface wrapper for VCS.                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def templateeditor(self, template_name='default', template_orig_name='default',
                        plot=None, gui_parent=None, canvas=None, called_from=0):
         '''
@@ -4046,92 +4047,92 @@ Options:::
                     'VCS will only allow one Template Editor at a time.' +
                     'Please the close previous template editor and try again.')
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Send a request to turn on a picture template object in the VCS Canvas.    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _select_one(self, template_name, attr_name, X1, X2, Y1, Y2):
         # flush and block the X main loop
 
         self.canvas._select_one(template_name, attr_name, X1, X2, Y1, Y2)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Send a request to turn off a picture template object in the VCS Canvas.   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _unselect_one(self, template_name, attr_name, X1, X2, Y1, Y2):
 
         self.canvas._unselect_one(template_name, attr_name, X1, X2, Y1, Y2)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the template editor event flag to select all template objects on the  #
     # VCS Canvas.                                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _select_all(self):
         # flush and block the X main loop
 
         self.canvas._select_all()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the template editor event flag to unselect all the template objects   #
     # on the VCS Canvas.                                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _unselect_all(self):
         # flush and block the X main loop
 
         self.canvas._unselect_all()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the template editor mode for the VCS Canvas screen.                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _SCREEN_TEMPLATE_FLAG(self):
         self.canvas.SCREEN_TEMPLATE_FLAG()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the graphic method editor mode for the VCS Canvas screen.                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _SCREEN_GM_FLAG(self):
         self.canvas.SCREEN_GM_FLAG()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the data mode for the VCS Canvas screen.                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _SCREEN_DATA_FLAG(self):
         self.canvas.SCREEN_DATA_FLAG()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set the screen check mode to DATA for the VCS Canvas.                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _SCREEN_CHECKMODE_DATA_FLAG(self):
         self.canvas.SCREEN_CHECKMODE_DATA_FLAG()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Return the Screen mode, either data mode or template editor mode.         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def SCREEN_MODE(self, *args):
         return self.canvas.SCREEN_MODE(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Return the Screen mode, either data mode or template editor mode.         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def plot_annotation(self, *args):
         self.canvas.plot_annotation(*args)
 
@@ -4152,11 +4153,11 @@ Options:::
         return _pagegui.PageDescriptionEditor(canvas=self, gui_parent=gui_parent,
                                               continents=continents)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Flush X event que wrapper for VCS.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def flush(self, *args):
         """
  Function: flush
@@ -4172,11 +4173,11 @@ Options:::
 """
         return self.backend.flush(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Geometry wrapper for VCS.                                                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def geometry(self, *args):
         """
  Function: geometry
@@ -4199,11 +4200,11 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # VCS Canvas Information wrapper.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def canvasinfo(self, *args, **kargs):
         """
  Function: canvasinfo
@@ -4219,11 +4220,11 @@ Options:::
 """
         return self.backend.canvasinfo(*args, **kargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Get continents type wrapper for VCS.                                      #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def getcontinentstype(self, *args):
         """
  Function: getcontinentstype
@@ -4241,11 +4242,11 @@ Options:::
         except:
             return None
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Postscript to GIF wrapper for VCS.                                      #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def pstogif(self, filename, *opt):
         """
   Function: pstogif
@@ -4289,11 +4290,11 @@ Options:::
         f.close()
         return
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Grid wrapper for VCS.                                                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def grid(self, *args):
         """
  Function: grid
@@ -4313,11 +4314,11 @@ Options:::
 
         return p
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Landscape VCS Canvas orientation wrapper for VCS.                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def landscape(self, width=-99, height=-99, x=-99, y=-99, clear=0):
         """
  Function: landscape
@@ -4376,11 +4377,11 @@ Options:::
 
         return l
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List Primary and Secondary elements wrapper for VCS.                      #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def listelements(self, *args):
         """
  Function: listelements
@@ -4402,11 +4403,11 @@ Options:::
 
         return L
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # update VCS's Canvas orientation wrapper for VCS.                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def updateorientation(self, *args):
         """
  Example of Use:
@@ -4418,11 +4419,11 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Open VCS Canvas wrapper for VCS.                                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def open(self, *args, **kargs):
         """
  Function: open
@@ -4440,11 +4441,11 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Return VCS Canvas ID.                                                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def canvasid(self, *args):
         '''
  Function: canvasid
@@ -4460,19 +4461,19 @@ Options:::
 '''
         return self._canvas_id
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Connect the VCS Canvas to the GUI.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _connect_gui_and_canvas(self, *args):
         return self.canvas.connect_gui_and_canvas(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Page VCS Canvas orientation ('portrait' or 'landscape') wrapper for VCS.  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def page(self, *args):
         """
  Function: page
@@ -4494,11 +4495,11 @@ Options:::
 
         return l
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Portrait VCS Canvas orientation wrapper for VCS.                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def portrait(self, width=-99, height=-99, x=-99, y=-99, clear=0):
         """
  Function: portrait
@@ -4557,11 +4558,11 @@ Options:::
 
         return p
 
-    ##########################################################################
-    #                                                                        #
+    #
+    #
     # png wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
+    #
+    #
     def ffmpeg(self, movie, files, bitrate=1024, rate=None, options=None):
         """
  Function: ffmpeg
@@ -4675,11 +4676,11 @@ Options:::
         """ Turn ON/OFF antialiasing"""
         self.backend.setantialiasing(antialiasing)
 
-    ##########################################################################
-    #                                                                        #
+    #
+    #
     # bg dims wrapper for VCS.                                               #
-    #                                                                        #
-    ##########################################################################
+    #
+    #
     def setbgoutputdimensions(self, width=None, height=None, units='inches'):
         """
  Function: setbgoutputdimensions
@@ -4716,11 +4717,11 @@ Options:::
             *args,
             **kargs)
 
-    ##########################################################################
-    #                                                                        #
+    #
+    #
     # png wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
+    #
+    #
     def png(self, file, width=None, height=None,
             units=None, draw_white_background=True, **args):
         """
@@ -4748,11 +4749,11 @@ Options:::
         return self.backend.png(
             file, W, H, units, draw_white_background, **args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # pdf wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def pdf(self, file, width=None, height=None, units='inches'):
         """
  Function: postscript
@@ -4778,11 +4779,11 @@ Options:::
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
         return self.backend.pdf(file, W, H)
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # SVG wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def svg(self, file, width=None, height=None, units='inches'):
         """
@@ -5039,11 +5040,11 @@ Options:::
             else:
                 shutil.move(psnm, file)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Showbg wrapper for VCS.                                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def showbg(self, *args):
         """
  Function: showbg
@@ -5064,11 +5065,11 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Backing Store wrapper for VCS.                                            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def backing_store(self, *args):
         """
  Function: backing_store
@@ -5082,27 +5083,27 @@ Options:::
 """
         return self.canvas.backing_store(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Update the animation slab. Used only for the VCS Canvas GUI.              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def update_animation_data(self, *args):
         return self.canvas.update_animation_data(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Return the dimension information. Used only for the VCS Canvas GUI.       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def return_dimension_info(self, *args):
         return self.canvas.return_dimension_info(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Raster wrapper for VCS.                                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def raster(self, file, mode='a'):
         """
  Function: raster
@@ -5130,11 +5131,11 @@ Options:::
 """ % (self._dotdir)
         return self.canvas.raster(*(file, mode))
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Reset grid wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def resetgrid(self, *args):
         """
  Function: resetgrid
@@ -5147,22 +5148,22 @@ Options:::
 """
         return self.canvas.resetgrid(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script wrapper for VCS.                                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def _scriptrun(self, *args):
         return vcs._scriptrun(*args)
 
     def scriptrun(self, aFile, *args, **kargs):
         vcs.scriptrun(aFile, *args, **kargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set default graphics method and template wrapper for VCS.                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def set(self, *args):
         """
  Function: set
@@ -5180,11 +5181,11 @@ Options:::
 """
         return self.canvas.set(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set VCS color map wrapper for VCS.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def setcolormap(self, name):
         """
  Function: setcolormap
@@ -5212,11 +5213,11 @@ Options:::
         self.update()
         return
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set VCS color map cell wrapper for VCS.                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def setcolorcell(self, *args):
         """
  Function: setcolorcell
@@ -5248,11 +5249,11 @@ Options:::
         a = vcs.setcolorcell(self.colormap, *args)
         return a
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set continents type wrapper for VCS.                           		#
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def setcontinentstype(self, value):
         """
    Function: setcontinentstype
@@ -5344,11 +5345,11 @@ Options:::
                     "data_continent_coarse")
             return
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Screen GIF wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def gif(self, filename='noname.gif', merge='r', orientation=None,
             geometry='1600x1200'):
         """
@@ -5396,11 +5397,11 @@ Options:::
         nargs = ('gif', filename, merge, orientation, geometry)
         return self.backend.gif(nargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Screen GhostScript (gs) wrapper for VCS.                                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def gs(self, filename='noname.gs', device='png256',
            orientation=None, resolution='792x612'):
         """
@@ -5446,11 +5447,11 @@ Options:::
         nargs = (filename, device, orientation, resolution)
         return self.canvas.gs(*nargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Screen Encapsulated PostScript wrapper for VCS.                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def eps(self, file, mode='r', orientation=None, width=None, height=None, units='inches',
             left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
         """
@@ -5497,20 +5498,20 @@ Options:::
         os.popen("ps2epsi %s %s" % (tmpfile, file)).readlines()
         os.remove(tmpfile)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Show VCS primary and secondary elements wrapper for VCS.                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def show(self, *args):
         return vcs.show(*args)
     show.__doc__ = vcs.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Look if a graphic method is in a file           .                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def isinfile(self, GM, file=None):
         """ Checks if a graphic method is stored in a file
         if no file name is passed then looks into the initial.attributes file"""
@@ -5528,11 +5529,11 @@ Options:::
                 f.close()
                 return 1
         return 0
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Save VCS initial.attribute file  wrapper for VCS.                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def saveinitialfile(self):
         """
@@ -5567,11 +5568,11 @@ Options:::
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Raise VCS Canvas to the top of all its siblings.                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def canvasraised(self, *args):
         """
  Function: canvasraised                         # Raise the VCS Canvas to the top
@@ -5589,12 +5590,12 @@ Options:::
 
         return self.backend.canvasraised(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Returns 1 if a VCS Canvas is displayed on the screen. Returns a 0 if no   #
     # VCS Canvas is displayed on the screen.                                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def iscanvasdisplayed(self, *args):
         """
  Function: iscanvasdisplayed          # Return 1 if a VCS Canvas is displayed
@@ -5612,11 +5613,11 @@ Options:::
 
         return self.canvas.iscanvasdisplayed(*args)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Is VCS's orientation landscape?                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def islandscape(self):
         """
  Function: islandscape
@@ -5639,11 +5640,11 @@ Options:::
         else:
             return 0
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Is VCS's orientation portrait?                                            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def isportrait(self):
         """
  Function: isportrait
@@ -5665,11 +5666,11 @@ Options:::
             return 1
         else:
             return 0
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Dislplay plot functions for VCS.                                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def getplot(self, Dp_name_src='default', template=None):
         """
@@ -5694,11 +5695,11 @@ Options:::
             display._template_origin = template
         return display
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Colormap functions for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def createcolormap(self, Cp_name=None, Cp_name_src='default'):
         return vcs.createcolormap(Cp_name, Cp_name_src)
     createcolormap.__doc__ = vcs.manageElements.createcolormap.__doc__
@@ -5707,11 +5708,11 @@ Options:::
         return vcs.getcolormap(Cp_name_src)
     getcolormap.__doc__ = vcs.manageElements.getcolormap.__doc__
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Font functions.                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def addfont(self, path, name=""):
         """
         Add a font to VCS, path then a name you'd like to associate it with
@@ -5822,11 +5823,11 @@ Options:::
             font = self.getfont(font)
         return self.copyfontto(font, 1)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Orientation VCS Canvas orientation wrapper for VCS.                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def orientation(self, *args, **kargs):
         """
  Function: orientation
@@ -5840,11 +5841,11 @@ Options:::
 """
         return self.backend.orientation(*args, **kargs)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Get VCS color map cell wrapper for VCS.                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def getcolorcell(self, *args):
         """
  Function: getcolorcell
@@ -5874,11 +5875,11 @@ Options:::
 """
         return vcs.getcolorcell(args[0], self)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Get VCS color map name wrapper for VCS.                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def getcolormapname(self, *args):
         """
  Function: getcolormapcell
@@ -5901,11 +5902,11 @@ Options:::
         print 'Keywords:', kargs
         return None
 
-#############################################################################
-#                                                                           #
+#
+#
 # Primarily used for reseting the animation date and time string.           #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def change_date_time(tv, number):

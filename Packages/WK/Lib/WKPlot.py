@@ -65,8 +65,6 @@ class WKPlot(object):
         if x is None:
             x = self.x
 
-        m = x.mode
-        x.mode = 1
         x.landscape()
         tmpl, tmplnoleg, isof, isol1, isol2 = graphics.createTemplateandGM(
             x, min, max, delta_isofill, delta_isoline, days_lines, ntemplate=2)
@@ -107,8 +105,6 @@ class WKPlot(object):
         tt.halign = 'center'
         tt.string = [title, ]
         displays.append(x.plot(tt, bg=bg))
-        x.update()
-        x.mode = m
         return displays
 
     def plot_figure2(self, bg_power, bg=0, x=None, min=-1.4, max=2.,

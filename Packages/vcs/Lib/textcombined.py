@@ -4,41 +4,41 @@ import vcs
 """
 # Text Combined (Tc) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       textcombined (Tc) module                                      #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's text combined secondary      #
-#               object. Can be thought of as the combination of text table    #
-#               and text orientation secondary objects.			      #
-#                                                                             #
+# object. Can be thought of as the combination of text table    #
+# and text orientation secondary objects.			      #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
 #
 #
 #
-###############################################################################
-#                                                                             #
+#
+#
+#
+#
 # Import: Text table (Tt), and  Text orientation  (To)                        #
-#                                                                             #
-###############################################################################
+#
+#
 import texttable
 import textorientation
 
-#############################################################################
-#                                                                           #
+#
+#
 # Text Combined (Tc) Class.                                                 #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Tc(object):
@@ -289,11 +289,11 @@ class Tc(object):
         self.To.valign = value
     valign = property(_getvalign, _setvalign)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the text combine attributes.                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Tt_name=None, Tt_name_src='default',
                  To_name=None, To_name_src='default'):
         import vcs
@@ -310,27 +310,27 @@ class Tc(object):
             raise Exception(
                 "Error textorientation object: '%s' already exists" %
                 To_name)
-        #                                                                 #
-        ###################################################################
+        #
+        #
         # Inherits texttable and textorientation secondary sub-classes.   #
-        ###################################################################
-        #                                                                 #
+        #
+        #
         self.Tt = texttable.Tt(Tt_name, Tt_name_src)
         self.To = textorientation.To(To_name, To_name_src)
         self.name = "%s:::%s" % (Tt_name, To_name)
         self.s_name = 'Tc'
         vcs.elements["textcombined"][self.name] = self
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Save the parent class.                                  #
-        ###########################################################
-        #                                                         #
+        #
+        #
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out text combined members (attributes).                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if ((self.Tt_name == '__removed_from_VCS__') or
                 (self.To_name == '__removed_from_VCS__')):
@@ -359,11 +359,11 @@ class Tc(object):
         print "halign =", self.halign
         print "valign =", self.valign
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary text table and orientation methods in VCS to a file. #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scripTo
@@ -483,6 +483,6 @@ class Tc(object):
             vcs.utils.dumpToJson(self.Tt, f)
             f.close()
 
-##########################################################################
-#        END OF FILE                                                            #
-##########################################################################
+#
+# END OF FILE                                                            #
+#

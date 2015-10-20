@@ -1,31 +1,31 @@
 """
 # Isofill (Gfi) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       isofill (Gfi) module                                          #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's isofill graphics method.     #
-#                                                                             #
+#
 # Version:      5.0                                                           #
-#                                                                             #
-###############################################################################
 #
 #
 #
-###############################################################################
-#                                                                             #
+#
+#
+#
+#
 # Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
+#
+#
 import vcs
 import VCS_validation_functions
 import cdtime
@@ -575,14 +575,14 @@ Class: Gfi				# Isofill
     levels = VCS_validation_functions.levels
 
     def __init__(self, Gfi_name, Gfi_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the isofill class and its members            #
                 # The getGfimember function retrieves the values of the   #
                 # isofill members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if not isinstance(Gfi_name, str):
             raise ValueError("Isofill name must be a string")
         if Gfi_name in vcs.elements["isofill"].keys():
@@ -638,13 +638,13 @@ Class: Gfi				# Isofill
                 setattr(self, "_" + att, getattr(src, "_" + att))
 
         vcs.elements["isofill"][self.name] = self
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Find and set the isofill structure in VCS C pointer     #
         # list. If the isofill name does not exist, then use      #
         # default isofill.                                        #
-        ###########################################################
-        #                                                         #
+        #
+        #
 
     def colors(self, color1=16, color2=239):
         self.fillareacolors = range(color1, color2)
@@ -723,11 +723,11 @@ Class: Gfi				# Isofill
         print "legend = ", self.legend
     list.__doc__ = xmldocs.listdoc
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Script out primary isofill graphics method in VCS to a file.            #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def script(self, script_filename, mode='a'):
         """
 %s
@@ -887,6 +887,6 @@ Function:     script                           # Calls _vcs.scriptGfi
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 
-###############################################################################
-#        END OF FILE						              #
-###############################################################################
+#
+# END OF FILE						              #
+#

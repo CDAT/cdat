@@ -937,7 +937,7 @@ def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
 
 # def doClip1(data,value,normal,axis=0):
 #     return data
-#     # We have the actor, do clipping
+# We have the actor, do clipping
 #     clpf = vtk.vtkPlane()
 #     if axis == 0:
 #       clpf.SetOrigin(value,0,0)

@@ -41,26 +41,26 @@ _colorMap = "default"
 _default_time_units = 'days since 2000'
 
 
-##########################################################################
-#                                                                               #
+#
+#
 # Set up the User's  directory if necessary. Copy files from      #
 # $PYTHONHOME/bin to the newly created $HOME/.uvcdat directory.          #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._files()
 
-##########################################################################
-#                                                                               #
+#
+#
 # Set the user's XGKSFontDir environment variable.                              #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._XGKSFontDir()
 
-##########################################################################
-#                                                                               #
+#
+#
 # Construct a VCS Canvas Object.                                                #
-#                                                                               #
-##########################################################################
+#
+#
 
 # Initialize the list of taylor diagrams objects
 

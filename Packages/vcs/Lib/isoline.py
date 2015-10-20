@@ -1,31 +1,31 @@
 #
 # Isoline (Gi) module
 #
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       isoline (Gi) module                                             #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's isoline graphics method.       #
-#                                                                               #
+#
 # Version:      5.0                                                             #
-#                                                                               #
-##########################################################################
 #
 #
 #
-##########################################################################
-#                                                                               #
+#
+#
+#
+#
 # Import: VCS C extension module.                                               #
-#                                                                               #
-##########################################################################
+#
+#
 import vcs
 import VCS_validation_functions
 import cdtime
@@ -746,14 +746,14 @@ class Gi(object):
     clockwise = property(_getclockwise, _setclockwise)
 
     def __init__(self, Gi_name, Gi_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the isoline class and its members            #
                 # The getGimember function retrieves the values of the   #
                 # isoline members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if not isinstance(Gi_name, str):
             raise ValueError("Isoline name must be a string")
         if Gi_name in vcs.elements["isoline"].keys():
@@ -888,11 +888,11 @@ class Gi(object):
         print "spacing = ", self.spacing
     list.__doc__ = xmldocs.listdoc
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out primary isoline graphics method in VCS to a file.              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename, mode='a'):
         """
  %s
@@ -1052,6 +1052,6 @@ class Gi(object):
             f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

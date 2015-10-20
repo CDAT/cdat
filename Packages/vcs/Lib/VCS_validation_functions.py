@@ -983,7 +983,6 @@ def checkLegend(self, name, value):
 def checkExt(self, name, value):
     checkName(self, name, value)
     if isinstance(value, unicode):
->>>>>>> master
         value = str(value)
     if isinstance(value, str):
         if value.strip().lower() in ('y', "yes",):
@@ -1815,22 +1814,22 @@ def _setprojection(self, value):
     self._projection = value
 projection = property(_getprojection, _setprojection)
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_1                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the left of the    #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the left of the    #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_1(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                     legend or 'y' to show the triangle on the triangle        #
-#                                                                               #
-##########################################################################
+# add_level_ext_1(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle        #
+#
+#
 
 
 def add_level_ext_1(self, ext_value):
@@ -1871,22 +1870,22 @@ def add_level_ext_1(self, ext_value):
             self.levels = ret_tup
             return self.levels
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_2                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the right of the   #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the right of the   #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_2(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                       legend or 'y' to show the triangle on the triangle      #
-#                                                                               #
-##########################################################################
+# add_level_ext_2(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle      #
+#
+#
 
 
 def add_level_ext_2(self, ext_value):

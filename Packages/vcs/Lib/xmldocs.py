@@ -169,11 +169,11 @@ markerdoc = """
     markersize :: (None/int) (None) size of markers
 """
 
-#############################################################################
-#                                                                           #
+#
+#
 # Graphics Method input section.                                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 create_GM_input = """
     new_GM_name :: (str) (0) name of the new graphics method object. If no name is given, then one will be created for use.
@@ -200,11 +200,11 @@ plot_2_1D_options = """
        template :: (str/vcs.template.P) ('default') vcs template
        gm :: (str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.xvsy.GXY/vcs.xyvsy.GXy/vcs.yxvsx.GYx/vcsaddons.core.VCSaddon/vcs.continents.Gcon) ('default') graphic method to use
 """  # noqa
-#############################################################################
-#                                                                           #
+#
+#
 # Graphics Methon output section.                                           #
-#                                                                           #
-#############################################################################
+#
+#
 plot_output = """
        display ::  (vcs.displayplot.Dp) (0) no default
 """

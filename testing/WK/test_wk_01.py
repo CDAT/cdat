@@ -10,7 +10,7 @@ src3 = os.path.join(test_data_dir, "baselines", "WK", "test_wk_01_c.png")
 pth = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(pth)
 import checkimage
-bg = False
+bg = True
 nmonths = 5
 # Getting about nmonths months worth of data
 
@@ -42,9 +42,10 @@ if not MV2.allclose(A, ok):
 WP = WK.WKPlot()
 WP.x.scriptrun(os.path.join(data_dir, "colormap.scr"))
 WP.x.setcolormap("cmap")
+WP.x.setantialiasing(0)
+WP.x.setbgoutputdimensions(814,606,units="pixels")
 print 'Plotting 1'
 WP.plot_figure1(S, A, bg=bg)
-WP.x.setantialiasing(0)
 fnm = "test_wk_01_a.png"
 WP.x.png(fnm)
 ret = checkimage.check_result_image(fnm, src1, checkimage.defaultThreshold)

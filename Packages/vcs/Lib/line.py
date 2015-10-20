@@ -2,23 +2,23 @@
 """
 # Line (Tl) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       line (Tl) module                                              #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's line secondary object.       #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -57,11 +57,11 @@ def process_src(nm, code):
             j = code[i:].find(",") + i
             f.projection = code[i + 11:j]
 
-###############################################################################
-#                                                                             #
+#
+#
 # Line (Tl) Class.                                                            #
-#                                                                             #
-###############################################################################
+#
+#
 
 
 class Tl(object):
@@ -282,20 +282,20 @@ class Tl(object):
         self._y = value
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the line attributes.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Tl_name, Tl_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the line class and its members               #
                 # The getTlmember function retrieves the values of the    #
                 # line members in the C structure and passes back the     #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if Tl_name in vcs.elements["line"].keys():
             raise ValueError("lineobject '%' already exists" % Tl_name)
         self._name = Tl_name
@@ -331,11 +331,11 @@ class Tl(object):
             self.colormap = src.colormap
         vcs.elements["line"][Tl_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out line members (attributes).                                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -353,11 +353,11 @@ class Tl(object):
         print "projection =", self.projection
         print "colormap =", self.colormap
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary line method in VCS to a file.                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         """
  Function:     script                           # Calls _vcs.scriptTl
@@ -452,6 +452,6 @@ class Tl(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

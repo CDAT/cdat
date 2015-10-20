@@ -1,27 +1,27 @@
 """
 # Colormap (Cp) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       colormap (Cp) module                                            #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's colormap secondary object.     #
-#                                                                               #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
 #
 #
 #
-#############################################################################
+#
+#
+#
 from UserDict import UserDict
 import vcs
 import copy
@@ -123,11 +123,11 @@ class RGB_Table(UserDict):
         return self.data[key]
 #
 #
-#############################################################################
-#                                                                           #
+#
+#
 # Colormap (Cp) Class.                                                      #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Cp(object):
@@ -196,22 +196,22 @@ class Cp(object):
                 d2[int(k)] = d[k]
             self.index.data.update(d2)
     index = property(getindex, setindex)
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the colormap attributes.                                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def __init__(self, Cp_name, Cp_name_src='default'):
-            #                                                             #
-            ###############################################################
+            #
+            #
             # Initialize the colormap class and its members               #
-            #                                                             #
+            #
             # The getCpmember function retrieves the values of the        #
             # colormap members in the C structure and passes back the     #
             # appropriate Python Object.                                  #
-            ###############################################################
-            #                                                             #
+            #
+            #
         self.s_name = 'Cp'
         self._name = Cp_name
         if Cp_name == "default":
@@ -246,11 +246,11 @@ class Cp(object):
         """
         return self.index[index]
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out colormap members (attributes).                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -259,11 +259,11 @@ class Cp(object):
         print "name =", self.name
         print "index =", self.index
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary colormap method in VCS to a file.                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptCp
@@ -348,6 +348,6 @@ class Cp(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE                                                            #
-##########################################################################
+#
+# END OF FILE                                                            #
+#

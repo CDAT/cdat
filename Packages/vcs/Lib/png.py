@@ -2,51 +2,51 @@
 """
 # Fillarea (Tf) module
 """
-##########################################################################
-#                                                                              #
+#
+#
 # Module:       fillarea (Tf) module                                           #
-#                                                                              #
+#
 # Copyright:    2000, Regents of the University of California                  #
-#               This software may not be distributed to others without         #
-#               permission of the author.                                      #
-#                                                                              #
+# This software may not be distributed to others without         #
+# permission of the author.                                      #
+#
 # Author:       PCMDI Software Team                                            #
-#               Lawrence Livermore NationalLaboratory:                         #
-#               support@pcmdi.llnl.gov                                         #
-#                                                                              #
+# Lawrence Livermore NationalLaboratory:                         #
+# support@pcmdi.llnl.gov                                         #
+#
 # Description:  Python command wrapper for VCS's fill area secondary object.   #
-#                                                                              #
+#
 # Version:      4.0                                                            #
-#                                                                              #
-##########################################################################
 #
 #
 #
-##########################################################################
-#                                                                              #
+#
+#
+#
+#
 # Import: VCS C extension module.                                              #
-#                                                                              #
-##########################################################################
+#
+#
 import _vcs
 import Canvas
 import VCS_validation_functions
 
-##########################################################################
-#                                                                              #
+#
+#
 # Function:	setTimember                                                    #
-#                                                                              #
+#
 # Description of Function:                                                     #
-# 	Private function to update the VCS canvas plot. If the canvas mode is  #
-#       set to 0, then this function does nothing.              	       #
-#                                                                              #
-#                                                                              #
+# Private function to update the VCS canvas plot. If the canvas mode is  #
+# set to 0, then this function does nothing.              	       #
+#
+#
 # Example of Use:                                                              #
-#      setTimember(self,name,value)					       #
-#              where: self is the class (e.g., Ti)                             #
-#                     name is the name of the member that is being changed     #
-#                     value is the new value of the member (or attribute)      #
-#                                                                              #
-##########################################################################
+# setTimember(self,name,value)					       #
+# where: self is the class (e.g., Ti)                             #
+# name is the name of the member that is being changed     #
+# value is the new value of the member (or attribute)      #
+#
+#
 
 
 def setTimember(self, member, value):
@@ -66,53 +66,53 @@ def setTimember(self, member, value):
         self.parent.canvas.UNBLOCK_X_SERVER()
 
 setmember = setTimember  # for validation functions...
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     getTimember                                                     #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that retrieves the fillarea members from the C         #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
+# Private function that retrieves the fillarea members from the C         #
+# structure and passes it back to Python.                                 #
+#
+#
 # Example of Use:                                                               #
-#      return_value =								#
-#      getTimember(self,name)                                                   #
-#              where: self is the class (e.g., Ti)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-##########################################################################
+# return_value =								#
+# getTimember(self,name)                                                   #
+# where: self is the class (e.g., Ti)                              #
+# name is the name of the member that is being found        #
+#
+#
 
 
 def getTimember(self, member):
     return _vcs.getTimember(self, member)
 getmember = getTimember
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     renameTi                                                        #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that renames the name of an existing fillarea          #
-#       graphics method.                                                        #
-#                                                                               #
-#                                                                               #
+# Private function that renames the name of an existing fillarea          #
+# graphics method.                                                        #
+#
+#
 # Example of Use:                                                               #
-#      renameTi(old_name, new_name)                                             #
-#              where: old_name is the current name of fillarea graphics method  #
-#                     new_name is the new name for the fillarea graphics method #
-#                                                                               #
-##########################################################################
+# renameTi(old_name, new_name)                                             #
+# where: old_name is the current name of fillarea graphics method  #
+# new_name is the new name for the fillarea graphics method #
+#
+#
 
 
 def renameTi(self, old_name, new_name):
     return _vcs.renameTi(old_name, new_name)
 
-#############################################################################
-#                                                                           #
+#
+#
 # Fillarea (Tm) Class.                                                      #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Ti(object):
@@ -305,21 +305,21 @@ class Ti(object):
         setmember(self, 'y', value)
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the fillarea attributes.                                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(
             self, parent, Ti_name=None, Ti_name_src='default', createTi=0):
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Initialize the fillarea class and its members           #
         # The getTimember function retrieves the values of the    #
         # fillarea members in the C structure and passes back the #
         # appropriate Python Object.                              #
-        ###########################################################
-        #                                                         #
+        #
+        #
         if (createTi == 0):
             if (Ti_name is None):
                 raise ValueError('Must provide a fillarea name.')
@@ -331,11 +331,11 @@ class Ti(object):
         self.s_name = 'Ti'
         self.parent = parent
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Fillarea out line members (attributes).                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -353,11 +353,11 @@ class Ti(object):
         print "y =", self.y
         print "projection =", self.projection
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary fillarea method in VCS to a file.                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         """
  Function:     script                           # Calls _vcs.scriptTf
@@ -442,6 +442,6 @@ class Ti(object):
             fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

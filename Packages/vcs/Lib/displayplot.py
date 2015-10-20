@@ -3,23 +3,23 @@
 """
 # Display Plot (Dp) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       Display Plot (Dp) module                                      #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Authors:      PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's display plot object.         #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -223,20 +223,20 @@ class Dp(object):
         None,
         "dictionary of things the backend wants to be able to reuse")
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the display plot attributes.                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Dp_name, Dp_name_src='default'):
-            #                                                                           #
-            ###################################################################
+            #
+            #
             # Initialize the display plot's class and its members                       #
             # The getDpmember function retrieves the values of the                      #
             # display plot members in the C structure and passes back the               #
             # appropriate Python Object.                                                #
-            ###################################################################
-            #                                                                           #
+            #
+            #
         self.extradisplays = []
         self._name = Dp_name
         self.s_name = 'Dp'
@@ -263,11 +263,11 @@ class Dp(object):
             self.ratio = src.ratio
 
         vcs.elements["display"][self._name] = self
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out display plot members (attributes).                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def list(self):
         if (self.name == '__removed_from_VCS__'):
@@ -286,11 +286,11 @@ class Dp(object):
         print "extradisplays =", self.extradisplays
         print "ratio =", self.ratio
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out display plot object in VCS to a file.                          #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptDp
@@ -370,6 +370,6 @@ class Dp(object):
             fp.write("%s.continents = %g\n\n" % (unique_name, self.continents))
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

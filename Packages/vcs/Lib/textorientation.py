@@ -1,24 +1,24 @@
 """
 # Text Orientation (To) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       textorientation (To) module                                     #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's text orientation secondary 	#
-#               object.                                                         #
-#                                                                               #
+# object.                                                         #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 #
 #
 #
@@ -41,11 +41,11 @@ def process_src(nm, code):
     to.valign = ["t", "c", "h", "b", "s"].index(sp[4])
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Text Orientation (To) Class.                                              #
-#                                                                           #
-#############################################################################
+#
+#
 class To(object):
 
     """
@@ -185,21 +185,21 @@ class To(object):
             vals)
     valign = property(_getvalign, _setvalign)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the text orientation attributes.                               #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, To_name, To_name_src='default'):
-        #                                                           #
-        #############################################################
+        #
+        #
         # Initialize the text orientation class and its members     #
-        #                                                           #
+        #
         # The getTomember function retrieves the values of the      #
         # text orientation members in the C structure and passes    #
         # back the appropriate Python Object.                       #
-        #############################################################
-        #                                                           #
+        #
+        #
         if To_name in vcs.elements["textorientation"].keys():
             raise ValueError(
                 "textorientation object '%' already exists" %
@@ -227,11 +227,11 @@ class To(object):
             self.valign = src.valign
         vcs.elements["textorientation"][To_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out text orientation members (attributes).                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -244,11 +244,11 @@ class To(object):
         print "halign =", self.halign
         print "valign =", self.valign
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary text orientation method in VCS to a file.            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scripTo
@@ -338,6 +338,6 @@ class To(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

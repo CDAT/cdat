@@ -14,11 +14,11 @@ def showerror(msg):
     raise Exception(msg)
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Animate wrapper for VCS.                                                  #
-#                                                                           #
-#############################################################################
+#
+#
 class animate_obj_old(object):
 
     """
@@ -38,9 +38,10 @@ class animate_obj_old(object):
 
  """
 
-    ##########################################################################
+    #
     # Initialize the animation flags						#
-    ##########################################################################
+    #
+
     def __init__(self, vcs_self):
         self.vcs_self = vcs_self
         self.gui_popup = 0
@@ -53,7 +54,7 @@ class animate_obj_old(object):
         # it still gets deleted at python exit time
         self.preserve_pngs = False
 
-    ##########################################################################
+    #
     # Create the animation images. If min or max is None, then			#
     # the animator will find the min and max values from the dataset.		#
     # If min and max are set to 1e20, then no min and max animation		#
@@ -63,7 +64,7 @@ class animate_obj_old(object):
     # If you are running animation from a program, set thread_it to 0.		#
     # This will cause the Python program to wait for the create function		#
     # to finish before moving onto the next command line.			#
-    ##########################################################################
+    #
     def create(self, parent=None, min=None, max=None, save_file=None,
                thread_it=1, rate=None, bitrate=None, ffmpegoptions=''):
         from vcs import minmax
@@ -233,9 +234,9 @@ class animate_obj_old(object):
             gname.append(d.g_name)
         return {"template": tmpl, "gtype": gtype, "gname": gname}
 
-    ##########################################################################
+    #
     # Save original min and max values    					#
-    ##########################################################################
+    #
     def save_original_min_max(self):
         animation_info = self.animate_info_from_python()
         self.save_min = {}
@@ -271,9 +272,9 @@ class animate_obj_old(object):
                 gm = self.vcs_self.getvector(animation_info['gname'][i])
                 self.save_mean_veloc[i] = gm.reference
 
-    ##########################################################################
+    #
     # Restore min and max values                                                 #
-    ##########################################################################
+    #
     def restore_min_max(self):
         animation_info = self.animate_info_from_python()
         try:
@@ -307,9 +308,9 @@ class animate_obj_old(object):
         except:
             pass
 
-    ##########################################################################
+    #
     # Set the animation min and max values    					#
-    ##########################################################################
+    #
     def set_animation_min_max(self, min, max, i):
         from vcs import mkscale, mklabels, getcolors
         animation_info = self.animate_info_from_python()
@@ -373,16 +374,16 @@ class animate_obj_old(object):
             gm.reference = mean_veloc
         animation_info['gname'][i] = gm.name
 
-    ##########################################################################
+    #
     # Return the animation min and max values                                    #
-    ##########################################################################
+    #
     def return_animation_min_max(self):
         dpy, slab = self.vcs_self.animate_info[0]
         return vcs.minmax(slab)
 
-    ##########################################################################
+    #
     # Load animation from a stored Raster file.   				#
-    ##########################################################################
+    #
     def load_from_file(self, parent=None, load_file=None, thread_it=1):
         if os.access(load_file, os.R_OK) == 0:
             showerror(
@@ -398,21 +399,21 @@ class animate_obj_old(object):
             self.vcs_self.canvas.animate_init(load_file)
         self.create_flg = 1
 
-    ##########################################################################
+    #
     # Creating animation flag                 					#
-    ##########################################################################
+    #
     def creating_animation_flg(self):
         return self.vcs_self.canvas.creating_animation()
 
-    ##########################################################################
+    #
     # Run animation flag                 					#
-    ##########################################################################
+    #
     def run_animation_flg(self):
         return self.run_flg
 
-    ##########################################################################
+    #
     # Run or start the animation              					#
-    ##########################################################################
+    #
     def run(self):
         # Cannot "Create" an animation while running an animation.
         if self.vcs_self.canvas.creating_animation() == 1:
@@ -422,16 +423,16 @@ class animate_obj_old(object):
             self.run_flg = 1
             self.vcs_self.canvas.animate_run()
 
-    ##########################################################################
+    #
     # Stop the animation creation                                                #
-    ##########################################################################
+    #
     def stop_create(self):
         if (self.create_flg == 1):
             self.vcs_self.canvas.animate_stop_create()
 
-    ##########################################################################
+    #
     # Stop the animation                                 			#
-    ##########################################################################
+    #
     def stop(self):
         if (self.create_flg == 1) and (self.run_flg == 1):
             self.run_flg = 0
@@ -439,23 +440,23 @@ class animate_obj_old(object):
         elif (self.create_flg == 1):
             self.vcs_self.canvas.animate_stop_create()
 
-    ##########################################################################
+    #
     # View the specified animation frame                          		#
-    ##########################################################################
+    #
     def frame(self, value=1):
         if (self.create_flg == 1) and (self.run_flg == 0):
             self.vcs_self.canvas.animate_frame(value)
 
-    ##########################################################################
+    #
     # Return the number of animate frames                                    	#
-    ##########################################################################
+    #
     def number_of_frames(self):
         return self._number_of_frames
 
-    ##########################################################################
+    #
     # Pause the animation loop                                               	#
     # Value ranges from 0 to 100                                                 #
-    ##########################################################################
+    #
     def pause(self, value=1):
         if (((not isinstance(value, int))) or (value not in range(0, 101))):
             raise vcsError(
@@ -464,10 +465,10 @@ class animate_obj_old(object):
         if (self.create_flg == 1) and (self.run_flg == 1):
             self.vcs_self.canvas.animate_pause(value)
 
-    ##########################################################################
+    #
     # Zoom in on the animation                                               	#
     # Value ranges from 0 to 20                                                  #
-    ##########################################################################
+    #
     def zoom(self, value=1):
         if (((not isinstance(value, int))) or (value not in range(1, 21))):
             raise vcsError(
@@ -479,10 +480,10 @@ class animate_obj_old(object):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_zoom(value)
 
-    ##########################################################################
+    #
     # Pan the zoomed animation or frame in the x (or horizontal) direction   	#
     # Value ranges from -100 to 100						#
-    ##########################################################################
+    #
     def horizontal(self, value=0):
         if (((not isinstance(value, int))) or (value not in range(-100, 101))):
             raise vcsError(
@@ -494,10 +495,10 @@ class animate_obj_old(object):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_horizontal(value)
 
-    ##########################################################################
+    #
     # Pan the zoomed animation or frame in the y (or vertical) direction   	#
     # Value ranges from -100 to 100						#
-    ##########################################################################
+    #
     def vertical(self, value=0):
         if (((not isinstance(value, int))) or (value not in range(-100, 101))):
             raise vcsError(
@@ -509,10 +510,10 @@ class animate_obj_old(object):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_vertical(value)
 
-    ##########################################################################
+    #
     # Set the direction of the animation:                                        #
     # Value 1 -> forward, 2 -> backward       	                                #
-    ##########################################################################
+    #
     def direction(self, value=1):
         if (((not isinstance(value, int))) or (value not in range(1, 3))):
             raise vcsError(
@@ -524,10 +525,10 @@ class animate_obj_old(object):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_direction(value)
 
-    ##########################################################################
+    #
     # Mode sets the cycle, forth and back, or animate once                   	#
     # Value: 1 -> cycle, 2 -> animate once, and 3 -> forth and back              #
-    ##########################################################################
+    #
     def mode(self, value=1):
         if (((not isinstance(value, int))) or (value not in [1, 3])):
             raise vcsError("Mode value must be between either 1 or 3.")
@@ -541,9 +542,9 @@ class animate_obj_old(object):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_mode(value)
 
-    ##########################################################################
+    #
     # Update the animation display list                                      	#
-    ##########################################################################
+    #
     def update_animate_display_list(self):
         current_display_list = self.vcs_self.return_display_names()
 
@@ -554,9 +555,9 @@ class animate_obj_old(object):
                                   self.vcs_self.animate_info[i][1]))
         self.vcs_self.animate_info = temp_list
 
-    ##########################################################################
+    #
     # Close the animate session                                              	#
-    ##########################################################################
+    #
     def close(self, preserve_pngs=False):
         if self.create_flg == 1:
             self.vcs_self.canvas.animate_close()

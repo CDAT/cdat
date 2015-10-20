@@ -2,22 +2,22 @@
 #
 # The VCS query controls -  query module
 #
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       query module                                                    #
-#                                                                               #
+#
 # Copyright:    "See file Legal.htm for copyright information."                 #
-#                                                                               #
+#
 # Authors:      PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Functions which get information about vcs graphics objects      #
-#               such as graphics methods and templates.                         #
-#                                                                               #
+# such as graphics methods and templates.                         #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 
 """
 ###########################################################################################
@@ -171,11 +171,11 @@ print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
     else:
         raise vcsError('The object passed is not a graphics method object.')
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a display plot object in VCS?                                     #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isplot(pobj):
@@ -204,11 +204,11 @@ def isplot(pobj):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary colormap in VCS?                                      #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def iscolormap(obj):
@@ -311,11 +311,11 @@ if queries.issecondaryobject(line):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary object, projectionmethod in VCS?                      #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isprojection(obj):
@@ -338,11 +338,11 @@ if queries.isprojection(p):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary taylor diagram graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def istaylordiagram(obj):
@@ -365,11 +365,11 @@ if queries.istaylordiagram(td):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary meshfill graphics method in VCS?                        #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def ismeshfill(obj):
@@ -392,11 +392,11 @@ if queries.ismeshfill(mesh):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary boxfill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isboxfill(obj):
@@ -420,11 +420,11 @@ if queries.isboxfill(box):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary 3d_scalar graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def is3d_scalar(obj):
@@ -450,11 +450,11 @@ if queries.is3d_scalar(plot):
         return 0
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary 3d_scalar graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 def is3d_dual_scalar(obj):
     """
  Function: is3d_dual_scalar
@@ -477,11 +477,11 @@ if queries.is3d_dual_scalar(plot):
         return 0
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary 3d_vector graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 def is3d_vector(obj):
     """
@@ -504,11 +504,11 @@ if queries.is3d_vector(plot):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary isofill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isisofill(obj):
@@ -532,11 +532,11 @@ if queries.isisofill(iso):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary isoline graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isisoline(obj):
@@ -560,11 +560,11 @@ if queries.isisoline(iso):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary scatter graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isscatter(obj):
@@ -589,11 +589,11 @@ if queries.isscatter(scr):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary Xyvsy graphics method in VCS?                           #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isxyvsy(obj):
@@ -618,11 +618,11 @@ if queries.isxyvsy(xyy):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary Yxvsx graphics method in VCS?                           #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isyxvsx(obj):
@@ -647,11 +647,11 @@ if queries.isyxvsx(yxx):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary XvsY graphics method in VCS?                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isxvsy(obj):
@@ -676,11 +676,11 @@ if queries.isxvsy(xy):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary oneD graphics method in VCS?                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def is1d(obj):
@@ -704,11 +704,11 @@ if queries.isxvsy(xy):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a primary vector graphics method in VCS?                          #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isvector(obj):
@@ -732,11 +732,11 @@ if queries.isvector(vec):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary line method in VCS?                                   #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isline(obj):
@@ -760,11 +760,11 @@ if queries.isline(ln):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary marker method in VCS?                                 #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def ismarker(obj):
@@ -788,11 +788,11 @@ if queries.ismarker(mk):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary fillarea method in VCS?                               #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def isfillarea(obj):
@@ -816,11 +816,11 @@ if queries.isfillarea(fa):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary text table  method in VCS?                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def istexttable(obj):
@@ -844,11 +844,11 @@ if queries.istexttable(tt):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary text orientation method in VCS?                       #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def istextorientation(obj):
@@ -872,11 +872,11 @@ if queries.istextorientation(to):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Is this a secondary text combined method in VCS?                          #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def istextcombined(obj):
@@ -904,15 +904,15 @@ if istextorientation(tc):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
+#
+#
 # Set an alias for the secondary text combined method in VCS.               #
 # This is much easier to type than 'textcombined'.                          #
-#                                                                           #
-#############################################################################
+#
+#
 istext = istextcombined
 
 
-##########################################################################
-#        END OF FILE                                                            #
-##########################################################################
+#
+# END OF FILE                                                            #
+#

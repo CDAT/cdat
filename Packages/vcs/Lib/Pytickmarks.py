@@ -2,32 +2,32 @@
 """
 # Template Y - Tick Marks (Pyt) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       Template Y - Tick Marks (Pyt) module                            #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's template Y - Tick Marks object.#
-#                                                                               #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 #
 #
 #
 import VCS_validation_functions
-#############################################################################
-#                                                                           #
+#
+#
 # Template text (Pyt) Class.                                                #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Pyt(object):
@@ -70,11 +70,11 @@ class Pyt(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 '''
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the line attributes.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     __slots__ = [
         "line",
         "priority",
@@ -88,14 +88,14 @@ class Pyt(object):
 
     def __init__(self, member):
         #    def __init__(self, template, member=None):
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Initialize the line class and its members               #
         # The getPytmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #
-        ###########################################################
-        #                                                         #
+        #
+        #
         self.member = member
         self.line = "default"
         self.priority = 1
@@ -120,11 +120,11 @@ class Pyt(object):
     x2 = VCS_validation_functions.x2
     line = VCS_validation_functions.line
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out template text members (attributes).                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         print "member = ", self.member
         print "     priority =", self.priority
@@ -133,6 +133,6 @@ class Pyt(object):
         print "     line =", self.line
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#
