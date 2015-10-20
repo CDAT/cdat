@@ -234,7 +234,9 @@ class WKPlot(object):
         yx.yticlabels1 = {}
         yx.xticlabels2 = {}
         yx.yticlabels2 = {}
-        yx.line = l
+        yx.line = l.type[0]
+        yx.linecolor = l.color[0]
+        yx.linewidth = l.width[0]
         yx.marker = 1
         yx.markersize = 1
         yx.markercolor = 242
