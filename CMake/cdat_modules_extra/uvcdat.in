@@ -25,7 +25,7 @@ do
             redirect=false
         fi
             ;;
-        --output-std) redirect=false
+    --output-std) redirect=false
               ;;
     *) ;;
     esac
