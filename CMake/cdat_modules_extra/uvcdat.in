@@ -1,4 +1,40 @@
 #!/bin/bash
 # source is not portable whereas . is
 . "@CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh"
-python@PYVER@ "@CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py" "$@"
+
+capture=false
+target="$HOME/.uvcdat/uvcdatsession.log"
+redirect=true
+
+for var in "$@"
+do
+    if [ $capture = true ]; then
+        target=$var
+        if [ "$target" = "" ]; then
+            redirect=false
+        fi
+        capture=false
+        continue
+    fi
+
+    case $var in
+    -o) capture=true;
+            ;;
+    --output=*) target=`sed "s/--output=\(.*\)/\1/" <<< $var`
+        if [ "$target" = "" ]; then
+            redirect=false
+        fi
+            ;;
+        --output-std) redirect=false
+              ;;
+    *) ;;
+    esac
+done
+
+if [ $redirect = false ]  ;then
+    python@PYVER@ "@CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py" "$@"
+else
+    target="${target/#\~/$HOME}"
+    touch $target
+    python@PYVER@ "@CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py" "$@" >>$target 2>&1
+fi
