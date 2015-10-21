@@ -38,6 +38,9 @@ do
                   # Do not redirect output
     --output-std) redirect=false
             ;;
+            # Shouldn't redirect for help
+    --help) redirect=false
+            ;;
     *)      ;;
     esac
 done
