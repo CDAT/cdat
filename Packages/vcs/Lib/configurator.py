@@ -674,6 +674,7 @@ class Configurator(object):
         if self.animation_timer is None:
             self.animation_timer = self.interactor.CreateRepeatingTimer(
                 self.animation_speed)
+            self.anim_button.set_state(1)
 
     def stop_animating(self):
         if self.animation_timer is not None:

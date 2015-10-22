@@ -240,23 +240,26 @@ class VTKVCSBackend(object):
         # Have to pull out the UI layer so it doesn't get borked by the clear
         self.hideGUI()
 
+        if self.canvas.configurator is not None:
+            restart_anim = self.canvas.configurator.animation_timer is not None
+        else:
+            restart_anim = False
         self.canvas.clear(render=False)
 
         for i, pargs in enumerate(plots_args):
             self.canvas.plot(*pargs, render=False, **key_args[i])
 
-        if self.canvas.animate.created(
-        ) and self.canvas.animate.frame_num != 0:
+        if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
             self.canvas.animate.draw_frame(
                 allow_static=False,
                 render_offscreen=False)
 
         self.showGUI(render=False)
-
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-
         self.renWin.Render()
+        if restart_anim:
+            self.canvas.configurator.start_animating()
 
     def clear(self, render=True):
         if self.renWin is None:  # Nothing to clear
@@ -891,6 +894,7 @@ class VTKVCSBackend(object):
             from vtk_ui.manager import get_manager, manager_exists
             if manager_exists(self.renWin.GetInteractor()):
                 manager = get_manager(self.renWin.GetInteractor())
+                manager.showing = False
                 self.renWin.RemoveRenderer(manager.renderer)
                 self.renWin.RemoveRenderer(manager.actor_renderer)
 
@@ -905,6 +909,7 @@ class VTKVCSBackend(object):
                 manager = get_manager(self.renWin.GetInteractor())
                 self.renWin.AddRenderer(manager.renderer)
                 self.renWin.AddRenderer(manager.actor_renderer)
+                manager.showing = True
                 # Bring the manager's renderer to the top of the stack
                 manager.elevate()
             if render:
