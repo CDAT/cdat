@@ -744,6 +744,31 @@ def checkIndicesList(self, name, value):
     return hvalue
 
 
+def checkOpacity(self, name, value):
+    checkName(self, name, value)
+    if isinstance(value, int) and value in range(0, 101):
+        return value
+    else:
+        checkedRaise(
+            self,
+            value,
+            ValueError,
+            'The ' +
+            name +
+            ' attribute must be an integer value within the range 0 to 100.')
+
+
+def checkOpacitiesList(self, name, value):
+    checkName(self, name, value)
+    value = checkListTuple(self, name, value)
+    hvalue = []
+    for v in value:
+        v = checkOpacity(self, name, v)
+        hvalue.append(v)
+
+    return hvalue
+
+
 def checkVectorType(self, name, value):
     checkName(self, name, value)
     if value in ('arrows', 0):

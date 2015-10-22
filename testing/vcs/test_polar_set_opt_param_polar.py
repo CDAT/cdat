@@ -14,10 +14,10 @@ s=f("clt",slice(0,1),squeeze=1)
 x=vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
+x.setbgoutputdimensions(1200,1091,units="pixels")
 i=x.createisofill()
 p=x.getprojection("polar")
 i.projection=p
-x.open()
 x.plot(s,i,bg=1)
 fnm= "test_polar_set_opt_param_polar.png"
 x.png(fnm)

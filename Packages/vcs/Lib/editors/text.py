@@ -1,5 +1,6 @@
 from vcs.vtk_ui import Textbox, Toolbar, Label
 import vcs.vtk_ui.text
+from font import FontEditor
 from vcs.colorpicker import ColorPicker
 from vtk import vtkTextProperty
 from vcs.vtk_ui.behaviors import ClickableMixin
@@ -67,6 +68,10 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
         self.toolbar.add_button(["Change Color"], action=self.change_color)
         self.toolbar.show()
 
+        # Adds itself to self.toolbar automatically
+        FontEditor(self.toolbar, self.set_font,
+                   current_font=vcs.getfontname(text.font))
+
         prop = vtkTextProperty()
         prop.SetBackgroundColor(.87, .79, .55)
         prop.SetBackgroundOpacity(1)
@@ -119,8 +124,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
             prop,
             (w,
              h),
-            to=self.text,
-            tt=self.text,
+            to=self.text.To,
+            tt=self.text.Tt,
             cmap=cmap)
         prop.SetOrientation(-1 * self.text.angle)
 
@@ -141,8 +146,8 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
                 box_prop,
                 (w,
                  h),
-                to=self.text,
-                tt=self.text,
+                to=self.text.To,
+                tt=self.text.Tt,
                 cmap=cmap)
             box_prop.SetOrientation(-1 * self.text.angle)
             text_color = box_prop.GetColor()
@@ -357,5 +362,5 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
 def text_dimensions(text, index, winsize, dpi):
     prop = vtkTextProperty()
-    vcs.vcs2vtk.prepTextProperty(prop, winsize, text, text, vcs.getcolormap())
+    vcs.vcs2vtk.prepTextProperty(prop, winsize, text.To, text.Tt, vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop, dpi)

@@ -43,6 +43,7 @@ assert(not a.isLongitude())
 #Now quick tests for making it level
 for u in ["Pa","hPa","psi","N/m2","N*m-2","kg*m-1*s-2","atm","bar","torr"]:
   a.units = u
+  print u,a.isLevel()
   assert(a.isLevel())
   a.units=""
   assert(not a.isLevel())

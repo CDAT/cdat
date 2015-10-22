@@ -1,5 +1,5 @@
-## Automatically adapted for numpy.oldnumeric Aug 01, 2007 by 
-## Further modified to be pure new numpy June 24th 2008
+# Automatically adapted for numpy.oldnumeric Aug 01, 2007 by 
+# Further modified to be pure new numpy June 24th 2008
 
 """
 TransientVariable (created by createVariable)
@@ -29,7 +29,7 @@ except:
     pass
 
 
-id_builtin = id                         # built_in gets clobbered by keyword
+id_builtin = id  # built_in gets clobbered by keyword
 
 def fromJSON(jsn):
     """ Recreate a TV from a dumped jsn object"""
@@ -56,7 +56,8 @@ def fromJSON(jsn):
 class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     "An in-memory variable."
     variable_count = 0
-    missing_value = numpy.ma.MaskedArray.fill_value
+    _missing = numpy.ma.MaskedArray.fill_value
+
 
     def _getShape(self):
         return self._data.shape
@@ -147,6 +148,16 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                  axes=None, attributes=None, id=None, dtype=None, order=False)
            The savespace argument is ignored, for backward compatibility only.
         """
+        try:
+            if data.fill_value is not None:
+                self._setmissing(data.fill_value)
+                fill_value=data.fill_value
+        except:
+            pass
+        if fill_value is not None:
+           self._setmissing(fill_value)
+        if attributes is not None  and "_FillValue" in attributes.keys():
+           self._setmissing(attributes["_FillValue"])
 
         # tile index, None means no mosaic 
         self.tileIndex = None
@@ -183,8 +194,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if grid is not None:
             self.setGrid(grid)
  
-        # Initialize attributes
-        fv = self.fill_value
+        # Initialize the attributes
         if attributes is not None:
             for key, value in attributes.items():
                 if (key in ['shape','flat','imaginary','real'] or key[0]=='_') and key not in ['_FillValue']:
@@ -192,12 +202,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 elif key == 'missing_value':
                     #ignore if fill value given explicitly
                     if fill_value is None:
-                        fv = value
+                        self._setmissing(value)
                 elif key not in ['scale_factor','add_offset']:
                     setattr(self, key, value)
 
         # Sync up missing_value attribute and the fill value.
-        self.missing_value = fv
+        self.missing_value = self._getmissing()
+        self._FillValue = self._getmissing()
         if id is not None:
             if not isinstance(id,(unicode,str)): 
                 raise CDMSError, 'id must be a string'
@@ -220,10 +231,15 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     def _getmissing(self):
         return self._missing
+
     def _setmissing(self,value):
         self._missing=numpy.array(value).astype(self.dtype)
 
-    missing = property(_getmissing,_setmissing)
+    missing       = property(_getmissing,_setmissing)
+    fill_value    = property(_getmissing,_setmissing)
+    _FillValue    = property(_getmissing,_setmissing)
+    missing_value = property(_getmissing,_setmissing)
+
     def __new__(cls, data, typecode=None, copy=0, savespace=0, 
                  mask=numpy.ma.nomask, fill_value=None, grid=None,
                  axes=None, attributes=None, id=None, copyaxes=1, dtype=None, order=False,**kargs):
@@ -264,10 +280,16 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 ##         if data.getattr('mask',None) is not numpy.ma.nomask:
 ##             mask = data.mask
 ##         print 'passing:',mask.shape,data.shape,numpy.shape(cls)
+        if fill_value is not None:
+            fill_value = numpy.array(fill_value).astype(dtype)
+        else:
+            fill_value = numpy.ma.MaskedArray(1).astype(dtype).item()
+
+
         self = numpy.ma.MaskedArray.__new__(cls, data, dtype = dtype,
                                       copy = ncopy,
                                       mask = mask,
-                                      fill_value = numpy.array(fill_value).astype(dtype),
+                                      fill_value = fill_value,
                                       subok = False,
                                       order = order)
 
@@ -399,7 +421,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def astype (self, tc):
         "return self as array of given type."
         maresult = numpy.ma.MaskedArray.astype(self,tc)
-        return TransientVariable(maresult, copy=0, axes=self.getAxisList(),
+        return TransientVariable(maresult, copy=0, axes=self.getAxisList(), fill_value=self.fill_value,
                                  attributes=self.attributes, id=self.id, grid=self.getGrid())
 
     def setMaskFromGridMask(self, mask, gridindices):

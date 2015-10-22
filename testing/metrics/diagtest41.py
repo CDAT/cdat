@@ -10,12 +10,18 @@ test_str = 'Test 41\n'
 example = "./diagtest41.py --datadir ~/uvcmetrics_test_data/ --baseline ~/uvcdat-testdata/baselines/metrics/ --keep True"
 
 plotset = 41
-filterid = 'f_contains'
+#filterid = 'f_contains'
+#obsid = 'NCEP'
+#varid = 'T'
+#seasonid = 'ANN'
+#modeldir = 'cam_output'
+#obsdir = 'obs_atmos'
+filterid = 'f_startswith'
 obsid = 'NCEP'
 varid = 'T'
 seasonid = 'ANN'
-modeldir = 'cam_output'
-obsdir = 'obs_atmos'
+modeldir = 'cam35_data'
+obsdir = 'obs'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
@@ -23,7 +29,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 imagefilename = 'set41_Global_ANN_T-combined.png'
 imagethreshold = 1.0e6
 ncfiles = {}
-ncfiles['T_ANN_(1)_None.nc'] = ['rv_T_ANN_ft0_None']
+ncfiles['T_ANN_(1)_None.nc'] = ['dv_T_levlon_ANN_ft0_None_None']#rv_T_ANN_ft0_None']
 ncfiles['T_ANN_(2)_None.nc'] = ['rv_T_ANN_ft1_None']
 
 # Test of NetCDF data (nc) file match:

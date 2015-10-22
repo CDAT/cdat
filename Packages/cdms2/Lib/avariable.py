@@ -18,6 +18,7 @@ import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
 from mvCdmsRegrid import CdmsRegrid
+from regrid2.mvGenericRegrid import guessPeriodicity
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -393,7 +394,11 @@ class AbstractVariable(CdmsObj, Slab):
     def getMissing(self, asarray=0):
         """Return the missing value as a scalar, or as
         a numpy array if asarray==1"""
-        mv = self.missing_value
+        try:
+            mv = self.missing_value.item()
+        except:
+            mv = self.missing_value
+
         if mv is None and hasattr(self,'_FillValue'):
             mv = self._FillValue
             
@@ -989,7 +994,8 @@ class AbstractVariable(CdmsObj, Slab):
 
             if self.getAxis(-1).attributes.has_key('topology'):
                 if self.getAxis(-1).attributes['topology'] == 'circular':
-                    keywords['periodicity'] = 1 # for the ESMF regridders
+                    # for the ESMF regridders
+                    keywords['periodicity'] = guessPeriodicity(self.getAxis(-1).getBounds())
                     keywords['mkCyclic'] = 1    # for LibCF regridder
 
             # check if there are bounds and we have esmf

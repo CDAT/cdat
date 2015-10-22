@@ -43,7 +43,10 @@
    "ext_1": false, 
    "ext_2": false, 
    "fillareacolors": null, 
-   "fillareaindices": null, 
+   "fillareaindices": [
+    1
+   ], 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "level_1": 1e+20, 
@@ -80,7 +83,10 @@
    "fillareacolors": [
     1
    ], 
-   "fillareaindices": null, 
+   "fillareaindices": [
+    1
+   ], 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "levels": [
@@ -161,6 +167,8 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "label": false, 
+   "labelbackgroundcolors": null, 
+   "labelbackgroundopacities": null, 
    "labelskipdistance": 0.0, 
    "level": [
     [
@@ -620,6 +628,7 @@
    "index": [
     1
    ], 
+   "opacity": [], 
    "priority": 1, 
    "projection": "default", 
    "style": [
@@ -711,6 +720,8 @@
  }, 
  "Tt": {
   "Charles.Doutriaux": {
+   "backgroundcolor": 0, 
+   "backgroundopacity": 0, 
    "color": 1, 
    "colormap": null, 
    "expansion": 100, 

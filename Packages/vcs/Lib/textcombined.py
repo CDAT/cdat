@@ -130,6 +130,7 @@ class Tc(object):
         'To',
         'Tt',
         'color',
+        'colormap',
         'fillincolor',
         'priority',
         'font',
@@ -168,6 +169,13 @@ class Tc(object):
     def _setcolor(self, value):
         self.Tt.color = value
     color = property(_getcolor, _setcolor)
+
+    def _getcolormap(self):
+        return self.Tt.colormap
+
+    def _setcolormap(self, value):
+        self.Tt.colormap = value
+    colormap = property(_getcolormap, _setcolormap)
 
     def _getfcolor(self):
         return self.Tt.fillincolor
