@@ -14,7 +14,7 @@ filterid = 'f_startswith'
 obsid = 'ISCCPCOSP'
 varid = 'CLISCCP'
 seasonid = 'ANN'
-modeldir = 'cam35_data'
+modeldir = 'cam35_data_smaller'
 obsdir = 'obs_data_13'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
@@ -23,7 +23,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 imagefilename = 'set13_Global_ANN_CLISCCP-combined.png'
 imagethreshold = None
 ncfiles = {}
-ncfiles['CLISCCP_ANN_Global_(1)_cam35_data.nc'] = ['dv_CLISCCP_ANN_ft0_cam35_data']
+ncfiles['CLISCCP_ANN_Global_(1)_cam35_data_smaller.nc'] = ['dv_CLISCCP_ANN_ft0_cam35_data_smaller']
 ncfiles['CLISCCP_ANN_Global_(2)_obs_data_13_ISCCPCOSP.nc'] = ['rv_CLISCCP_ANN_Global_ft1_obs_data_13_ISCCPCOSP']
 
 # Test of NetCDF data (nc) file match:

@@ -14,7 +14,7 @@ filterid = 'f_startswith'
 obsid = 'ERS'
 varid = 'STRESS'
 seasonid = 'ANN'
-modeldir = 'cam35_data'
+modeldir = 'cam35_data_smaller'
 obsdir = 'obs_data_5.6'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 

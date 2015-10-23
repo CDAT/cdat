@@ -15,7 +15,7 @@ filterid = 'f_startswith'
 obsid = 'NCEP'
 varid = 'T'
 seasonid = 'ANN'
-modeldir = 'cam35_data'
+modeldir = 'cam35_data_smaller'
 obsdir = 'obs'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
@@ -24,7 +24,7 @@ dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, sea
 imagefilename = 'set4_Global_ANN_T-combined.png'
 imagethreshold = None
 ncfiles = {}
-ncfiles['T_ANN_(1)_cam35_data.nc'] = ['dv_T_levlat_ANN_ft0_cam35_data']
+ncfiles['T_ANN_(1)_cam35_data_smaller.nc'] = ['dv_T_levlat_ANN_ft0_cam35_data_smaller']
 ncfiles['T_ANN_(2)_obs_NCEP.nc'] = ['rv_T_ANN_ft1_obs_NCEP']
 
 # Test of NetCDF data (nc) file match:
