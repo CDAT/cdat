@@ -38,6 +38,8 @@ class VTKVCSBackend(object):
         self.type = "vtk"
         self.plotApps = {}
         self.plotRenderers = set()
+        # Maps priorities to renderers
+        self.text_renderers = {}
         self.logoRenderer = None
         self.logoRepresentation = None
         self.renderer = None
@@ -267,6 +269,7 @@ class VTKVCSBackend(object):
         renderers = self.renWin.GetRenderers()
         renderers.InitTraversal()
         ren = renderers.GetNextItem()
+        self.text_renderers = {}
         hasValidRenderer = True if ren is not None else False
 
         for gm in self.plotApps:
@@ -325,6 +328,10 @@ class VTKVCSBackend(object):
             self.renWin.Render()
 
     def createRenderer(self, *args, **kargs):
+        """import inspect
+        c = inspect.currentframe()
+        caller = inspect.getouterframes(c)
+        print "createRenderer called by", caller[1][3], caller[1][2]"""
         # For now always use the canvas background
         ren = vtk.vtkRenderer()
         r, g, b = self.canvas.backgroundcolor
@@ -510,19 +517,20 @@ class VTKVCSBackend(object):
             returned.update(self.plot3D(data1, data2, tpl, gm, ren, **kargs))
         elif gtype in ["text"]:
             if tt.priority != 0:
-                # if not (None,None,None) in self._renderers.keys():
-                ren = self.createRenderer()
-                self.renWin.AddRenderer(ren)
-                self.setLayer(ren, 1)
-                #    self._renderers[(None,None,None)]=ren
-                # else:
-                #    ren = self._renderers[(None,None,None)]
+                if tt.priority in self.text_renderers:
+                    ren = self.text_renderers[tt.priority]
+                else:
+                    ren = self.createRenderer()
+                    self.renWin.AddRenderer(ren)
+                    self.setLayer(ren, 1)
+
                 returned["vtk_backend_text_actors"] = vcs2vtk.genTextActor(
                     ren,
                     to=to,
                     tt=tt,
                     cmap=self.canvas.colormap)
                 self.setLayer(ren, tt.priority)
+                self.text_renderers[tt.priority] = ren
         elif gtype == "line":
             if gm.priority != 0:
                 actors = vcs2vtk.prepLine(self.renWin, gm,
@@ -551,7 +559,7 @@ class VTKVCSBackend(object):
                         wc=gm.worldcoordinate,
                         geo=geo,
                         priority=gm.priority,
-                        create_renderer=True)
+                        create_renderer=create_renderer)
                     create_renderer = False
                     if pd is None and act.GetUserTransform():
                         vcs2vtk.scaleMarkerGlyph(g, gs, pd, act)
@@ -1124,7 +1132,7 @@ class VTKVCSBackend(object):
         # Ok at this point this is all the info we need
         # we can determine if it's a unique renderer or not
         # let's see if we did this already.
-        if not create_renderer and\
+        if not create_renderer or\
                 (vp, wc_used, sc, priority) in self._renderers.keys():
             # yep already have one, we will use this Renderer
             Renderer, xScale, yScale = self._renderers[
