@@ -183,7 +183,7 @@ def configure (configuration_files):
     if sys.platform == "sunos5":
         cdunif_include_directories.append('/usr/include')
 
-    drs_file = norm(options.get('drs_file', '/usr/local/lib/libdrs.a'))
+    drs_file = "@cdatEXTERNALS@/lib/libdrs.a"
 
     # Establish location of X11 include and library directories
     if options['x11include'] or options['x11libdir']:

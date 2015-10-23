@@ -5,7 +5,8 @@ set(LIBDRS_REPOSITORY ${GIT_PROTOCOL}github.com/UV-CDAT/libdrs.git )
 
 set(GIT_CMD_STR_LIBDRS GIT_REPOSITORY ${LIBDRS_REPOSITORY})
 set(GIT_TAG GIT_TAG "${LIBDRS_BRANCH}")
-
+message("[INFO] PCDMI ${CDAT_BUILD_PCMDI}")
 if (CDAT_BUILD_PCMDI)
+  set(CDAT_BUILD_LIBDRS ON)
   add_cdat_package(libdrs "" "" ON)
 endif()

@@ -418,7 +418,7 @@ else()
   set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include  ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
 endif()
   set(cdat_osx_flags_fortran "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_arch_flag_fortran} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
-  set(cdat_osx_ld_flags "-L${CMAKE_OSX_SYSROT}/usr/X11R6/lib -L/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources -bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  set(cdat_osx_ld_flags "-L${CMAKE_OSX_SYSROOT}/usr/X11R6/lib -L/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources -bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_cxxflags "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_cppflag} ${cdat_osx_ld_flags}")
   set(cdat_osx_flags "${cdat_osx_cxxflags}")
 
