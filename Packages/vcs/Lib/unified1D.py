@@ -527,7 +527,7 @@ class G1d(object):
 
     def _setmarkersize(self, value):
         if value is not None:
-            value = VCS_validation_functions.checkInt(
+            value = VCS_validation_functions.checkNumber(
                 self,
                 'markersize',
                 value,
