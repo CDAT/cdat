@@ -1104,6 +1104,15 @@ def prepPrimitive(prim):
     return n
 
 
+def __build_pd__():
+    pts = vtk.vtkPoints()
+    polygons = vtk.vtkCellArray()
+    polygonPolyData = vtk.vtkPolyData()
+    polygonPolyData.SetPoints(pts)
+    polygonPolyData.SetPolys(polygons)
+    return pts, polygons, polygonPolyData
+
+
 def prepFillarea(renWin, farea, cmap=None):
     n = prepPrimitive(farea)
     if n == 0:
@@ -1118,37 +1127,44 @@ def prepFillarea(renWin, farea, cmap=None):
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
 
+    # Create data structures
+    pts, polygons, polygonPolyData = __build_pd__()
+    colors = vtk.vtkUnsignedCharArray()
+    colors.SetNumberOfComponents(4)
+    colors.SetNumberOfTuples(n)
+    polygonPolyData.GetCellData().SetScalars(colors)
+
     # Iterate through polygons:
     for i in range(n):
         x = farea.x[i]
         y = farea.y[i]
         c = farea.color[i]
         st = farea.style[i]
+
+        if st == "solid":
+            points, polys, pd, color_arr = pts, polygons, polygonPolyData, colors
+        else:
+            points, polys, pd = __build_pd__()
+            color_arr = vtk.vtkUnsignedCharArray()
+            color_arr.SetNumberOfComponents(4)
+            color_arr.SetNumberOfTuples(1)
+            colors.SetNumberOfTuples(colors.GetNumberOfTuples() - 1)
+            pd.GetCellData().SetScalars(color_arr)
+
         idx = farea.index[i]
         N = max(len(x), len(y))
 
         for a in [x, y]:
             assert(len(a) == N)
 
-        # Create data structures
-        pts = vtk.vtkPoints()
-        polygons = vtk.vtkCellArray()
-        polygonPolyData = vtk.vtkPolyData()
-        polygonPolyData.SetPoints(pts)
-        polygonPolyData.SetPolys(polygons)
-
         polygon = vtk.vtkPolygon()
         # Add current polygon
         pid = polygon.GetPointIds()
         pid.SetNumberOfIds(N)
-        for j in range(N):
-            pid.SetId(j, pts.InsertNextPoint(x[j], y[j], 0.))
-        cellId = polygons.InsertNextCell(polygon)
 
-        colors = vtk.vtkUnsignedCharArray()
-        colors.SetNumberOfComponents(4)
-        colors.SetNumberOfTuples(1)
-        polygonPolyData.GetCellData().SetScalars(colors)
+        for j in range(N):
+            pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
+        cellId = polys.InsertNextCell(polygon)
 
         color = [int((C / 100.) * 255) for C in cmap.index[c]]
         if len(farea.opacity) > i:
@@ -1162,29 +1178,32 @@ def prepFillarea(renWin, farea, cmap=None):
         if st in ['solid', 'pattern']:
             # Add the color to the color array:
             color = color + [int(opacity)]
-            colors.SetTupleValue(cellId, color)
+            color_arr.SetTupleValue(cellId, color)
         else:
-            colors.SetTupleValue(cellId, [255, 255, 255, 0])
-
-        # Transform points:
-        geo, pts = project(pts, farea.projection, farea.worldcoordinate)
-
-        # Setup rendering
-        m = vtk.vtkPolyDataMapper()
-        m.SetInputData(polygonPolyData)
-        a = vtk.vtkActor()
-        a.SetMapper(m)
-        actors.append((a, geo))
+            color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
 
         if st in ['pattern', 'hatch']:
             # Patterns/hatches support
-            act = fillareautils.make_patterned_polydata(polygonPolyData,
+            act = fillareautils.make_patterned_polydata(pd,
                                                         st,
                                                         idx,
                                                         color,
                                                         opacity)
             if act is not None:
+                geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+                pd.SetPoints(proj_points)
                 actors.append((act, geo))
+
+    # Transform points
+    geo, pts = project(pts, farea.projection, farea.worldcoordinate)
+    polygonPolyData.SetPoints(pts)
+    # Setup rendering
+    m = vtk.vtkPolyDataMapper()
+    m.SetInputData(polygonPolyData)
+    a = vtk.vtkActor()
+    a.SetMapper(m)
+    actors.append((a, geo))
+
     return actors
 
 
