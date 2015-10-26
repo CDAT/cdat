@@ -1475,31 +1475,56 @@ def prepMarker(renWin, marker, cmap=None):
     return actors
 
 
+def __build_ld__():
+    pts = vtk.vtkPoints()
+    lines = vtk.vtkCellArray()
+    linePolyData = vtk.vtkPolyData()
+    linePolyData.SetPoints(pts)
+    linePolyData.SetLines(lines)
+    colors = vtk.vtkUnsignedCharArray()
+    colors.SetNumberOfComponents(3)
+    colors.SetName("Colors")
+    return pts, lines, linePolyData, colors
+
+
 def prepLine(renWin, line, cmap=None):
     number_lines = prepPrimitive(line)
-
     if number_lines == 0:
         return []
 
     actors = []
 
+    line_data = {}
+
+    if line.colormap is not None:
+        cmap = line.colormap
+    elif cmap is None:
+        cmap = vcs._colorMap
+
+    if isinstance(cmap, str):
+        cmap = vcs.elements["colormap"][cmap]
+
     for i in range(number_lines):
-        l = vtk.vtkLine()
-        lines = vtk.vtkCellArray()
+
         x = line.x[i]
         y = line.y[i]
-        c = line.color[i]
+        c = cmap.index[line.color[i]]
         w = line.width[i]
         t = line.type[i]
+
+        if (t, w) not in line_data:
+            line_data[(t, w)] = __build_ld__()
+        pts, lines, linesPoly, colors = line_data[(t, w)]
+        vtk_color = [int(component / 100. * 255) for component in c]
+
         number_points = max(len(x), len(y))
 
+        point_offset = pts.GetNumberOfPoints()
         # Extend x or y to the length of the other by duplicating the last
         # coord.
         for a in [x, y]:
             while len(a) < number_points:
                 a.append(a[-1])
-
-        pts = vtk.vtkPoints()
 
         if vcs.elements["projection"][line.projection].type == "linear":
             for j in range(number_points):
@@ -1528,31 +1553,28 @@ def prepLine(renWin, line, cmap=None):
                     pts.InsertNextPoint(tmpx, tmpy, 0.)
                     n2 += 1
         for j in range(n2):
-            l.GetPointIds().SetId(0, j)
-            l.GetPointIds().SetId(1, j + 1)
+            colors.InsertNextTupleValue(vtk_color)
+            l = vtk.vtkLine()
+            l.GetPointIds().SetId(0, j + point_offset)
+            l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
-        linesPoly = vtk.vtkPolyData()
+    for t, w in line_data:
+        pts, _, linesPoly, colors = line_data[(t, w)]
+
+        linesPoly.GetCellData().SetScalars(colors)
+
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
-        linesPoly.SetLines(lines)
+
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
         m.SetInputData(linesPoly)
         a.SetMapper(m)
+
         p = a.GetProperty()
         p.SetLineWidth(w)
 
-        if line.colormap is not None:
-            cmap = line.colormap
-        elif cmap is None:
-            cmap = vcs._colorMap
-
-        if isinstance(cmap, str):
-            cmap = vcs.elements["colormap"][cmap]
-        color = cmap.index[c]
-        p.SetColor([C / 100. for C in color])
-        # stipple
         if t == 'long-dash':
             p.SetLineStipplePattern(int('1111111100000000', 2))
             p.SetLineStippleRepeatFactor(1)
