@@ -576,18 +576,6 @@ class Gfb(object):
             self._fillareaindices = value
     fillareaindices = property(_getfillareaindices, _setfillareaindices)
 
-    def _getfillareaopacity(self):
-        return self._fillareaopacity
-
-    def _setfillareaopacity(self, value):
-        if value is not None:
-            value = VCS_validation_functions.checkOpacitiesList(
-                self,
-                'fillareaopacity',
-                value)
-            self._fillareaopacity = value
-    fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
-
     def _getfillareastyle(self):
         return self._fillareastyle
 
@@ -598,6 +586,8 @@ class Gfb(object):
             value)
         self._fillareastyle = value
     fillareastyle = property(_getfillareastyle, _setfillareastyle)
+
+    fillareaopacity = VCS_validation_functions.fillareaopacity
 
     ext_1 = VCS_validation_functions.ext_1
     ext_2 = VCS_validation_functions.ext_2

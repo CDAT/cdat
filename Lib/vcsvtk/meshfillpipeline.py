@@ -69,51 +69,13 @@ class MeshfillPipeline(Pipeline2D):
             self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
 
     def _plotInternal(self):
-        tmpLevels = []
-        tmpColors = []
-        indices = self._gm.fillareaindices
-        if indices is None:
-            indices = [1]
-        while len(indices) < len(self._contourColors):
-            indices.append(indices[-1])
-        if len(self._contourLevels) > len(self._contourColors):
-            raise RuntimeError(
-                "You asked for %i levels but provided only %i colors\n"
-                "Graphic Method: %s of type %s\nLevels: %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name,
-                   repr(self._contourLevels)))
-        elif len(self._contourLevels) < len(self._contourColors) - 1:
-            warnings.warn(
-                "You asked for %i lgridevels but provided %i colors, extra "
-                "ones will be ignored\nGraphic Method: %s of type %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name))
-        for i, l in enumerate(self._contourLevels):
-            if i == 0:
-                C = [self._contourColors[i]]
-                if numpy.allclose(self._contourLevels[0][0], -1.e20):
-                    # ok it's an extension arrow
-                    L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
-                else:
-                    L = list(self._contourLevels[i])
-                I = [indices[i]]
-            else:
-                if l[0] == L[-1] and I[-1] == indices[i]:
-                    # Ok same type lets keep going
-                    if numpy.allclose(l[1], 1.e20):
-                        L.append(self._scalarRange[1] + 1.)
-                    else:
-                        L.append(l[1])
-                    C.append(self._contourColors[i])
-                else:  # ok we need new contouring
-                    tmpLevels.append(L)
-                    tmpColors.append(C)
-                    C = [self._contourColors[i]]
-                    L = self._contourLevels[i]
-                    I = [indices[i]]
-        tmpLevels.append(L)
-        tmpColors.append(C)
+
+        prepedContours = self._prepContours()
+        tmpLevels = prepedContours["tmpLevels"]
+        tmpIndices = prepedContours["tmpIndices"]
+        tmpColors = prepedContours["tmpColors"]
+        tmpOpacities = prepedContours["tmpOpacities"]
+        style = self._gm.fillareastyle
 
         mappers = []
         luts = []
@@ -134,11 +96,19 @@ class MeshfillPipeline(Pipeline2D):
                 th.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
                 geoFilter2 = vtk.vtkDataSetSurfaceFilter()
                 geoFilter2.SetInputConnection(th.GetOutputPort())
+                # Make the polydata output available here for patterning later
+                geoFilter2.Update()
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = _colorMap.index[color]
-                lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
+                if style in ['solid', 'pattern']:
+                    tmpOpacity = tmpOpacities[i]
+                    if tmpOpacity is None:
+                        tmpOpacity = a / 100.
+                    else:
+                        tmpOpacity = tmpOpacities[i] / 100.
+                lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
                 luts.append([lut, [l[j], l[j + 1], True]])
@@ -147,6 +117,9 @@ class MeshfillPipeline(Pipeline2D):
                 # purposes
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     mappers.append(mapper)
+
+            # Since pattern creation requires a single color, assuming the first
+            self._patternCreation(geoFilter2,_colorMap.index[tmpColors[i][0]],style,tmpIndices[i],tmpOpacities[i])
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
@@ -286,10 +259,16 @@ class MeshfillPipeline(Pipeline2D):
                     # need exts
                     self._contourLevels.append(1.e20)
 
+        patternArgs={}
+        patternArgs['style'] = self._gm.fillareastyle
+        patternArgs['index'] = self._gm.fillareaindices
+        patternArgs['opacity'] = self._gm.fillareaopacity
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
-                                           self._contourColors, legend,
-                                           self.getColorMap()))
+                                           self._contourColors,
+                                           legend,
+                                           self.getColorMap(),
+                                           **patternArgs))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
