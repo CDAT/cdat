@@ -305,7 +305,34 @@ class Configurator(object):
         obj = None
         layer_obj = 0
 
+        actors = []
+        for display in self.displays:
+            for key in display.backend:
+                back = display.backend[key]
+                if back is None:
+                    continue
+                if type(back) not in (list, tuple):
+                    if back.IsA("vtkProp"):
+                        actors.append(back)
+                else:
+                    for back_obj in back:
+                        if type(back_obj) in (list, tuple):
+                            for o in back_obj:
+                                if type(o) == vtk.vtkObject:
+                                    if o.IsA("vtkProp"):
+                                        actors.append(o)
+                        elif type(back_obj) == vtk.vtkObject and back_obj.IsA("vtkProp"):
+                            actors.append(back_obj)
+
         for ren in vtkIterate(self.render_window.GetRenderers()):
+            keep_checking = False
+            for actor in actors:
+                if ren.HasViewProp(actor):
+                    keep_checking = True
+                    break
+            if keep_checking is False:
+                continue
+
             layer = ren.GetLayer()
 
             if self.interactor is not None:
@@ -319,7 +346,6 @@ class Configurator(object):
             if self.picker.PickProp(x, y, ren):
                 obj = self.picker.GetViewProp()
                 layer_obj = layer
-
         return obj
 
     def hover(self, object, event):
