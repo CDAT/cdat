@@ -328,10 +328,6 @@ class VTKVCSBackend(object):
             self.renWin.Render()
 
     def createRenderer(self, *args, **kargs):
-        """import inspect
-        c = inspect.currentframe()
-        caller = inspect.getouterframes(c)
-        print "createRenderer called by", caller[1][3], caller[1][2]"""
         # For now always use the canvas background
         ren = vtk.vtkRenderer()
         r, g, b = self.canvas.backgroundcolor
