@@ -88,8 +88,8 @@ class IsolinePipeline(Pipeline2D):
         lut.SetNumberOfTableValues(len(self._contourColors))
         cmap = self.getColorMap()
         for i, col in enumerate(self._contourColors):
-            r, g, b = cmap.index[col]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b, a = cmap.index[col]
+            lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
         # Setup isoline labels
         if self._gm.label:

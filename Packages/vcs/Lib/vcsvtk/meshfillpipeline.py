@@ -137,8 +137,8 @@ class MeshfillPipeline(Pipeline2D):
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b = _colorMap.index[color]
-                lut.SetTableValue(0, r / 100., g / 100., b / 100.)
+                r, g, b, a = _colorMap.index[color]
+                lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
                 luts.append([lut, [l[j], l[j + 1], True]])
@@ -164,8 +164,8 @@ class MeshfillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             lut.SetNumberOfTableValues(numLevels)
             for i in range(numLevels):
-                r, g, b = self._colorMap.index[self._contourColors[i]]
-                lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+                r, g, b, a = self._colorMap.index[self._contourColors[i]]
+                lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
             mapper.SetLookupTable(lut)
             if numpy.allclose(self._contourLevels[0], -1.e20):

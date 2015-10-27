@@ -676,7 +676,8 @@ def checkColor(self, name, value, NoneOk=False):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        value = color2vcs(value)
+        value2 = color2vcs(value)
+        return value
     if value is None and NoneOk:
         return value
     if isinstance(value, int) and value in range(0, 256):
@@ -746,7 +747,9 @@ def checkIndicesList(self, name, value):
 
 def checkOpacity(self, name, value):
     checkName(self, name, value)
-    if isinstance(value, int) and value in range(0, 101):
+    if value is None:  # not overwritten by user
+        return value
+    if 0. <= value <= 100.:
         return value
     else:
         checkedRaise(
