@@ -517,8 +517,9 @@ class VTKVCSBackend(object):
             returned.update(self.plot3D(data1, data2, tpl, gm, ren, **kargs))
         elif gtype in ["text"]:
             if tt.priority != 0:
-                if tt.priority in self.text_renderers:
-                    ren = self.text_renderers[tt.priority]
+                tt_key = (tt.priority, tuple(tt.viewport), tuple(tt.worldcoordinate), tt.projection)
+                if tt_key in self.text_renderers:
+                    ren = self.text_renderers[tt_key]
                 else:
                     ren = self.createRenderer()
                     self.renWin.AddRenderer(ren)
@@ -530,7 +531,7 @@ class VTKVCSBackend(object):
                     tt=tt,
                     cmap=self.canvas.colormap)
                 self.setLayer(ren, tt.priority)
-                self.text_renderers[tt.priority] = ren
+                self.text_renderers[tt_key] = ren
         elif gtype == "line":
             if gm.priority != 0:
                 actors = vcs2vtk.prepLine(self.renWin, gm,
