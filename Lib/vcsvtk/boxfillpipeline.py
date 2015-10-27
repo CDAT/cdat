@@ -289,8 +289,8 @@ class BoxfillPipeline(Pipeline2D):
         lut.SetNumberOfTableValues(numLevels)
         _colorMap = self.getColorMap()
         for i in range(numLevels):
-            r, g, b = _colorMap.index[self._contourColors[i]]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b, a = _colorMap.index[self._contourColors[i]]
+            lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
         mapper.SetLookupTable(lut)
         if numpy.allclose(self._contourLevels[0], -1.e20):
@@ -336,9 +336,9 @@ class BoxfillPipeline(Pipeline2D):
         if len(opacities) < len(self._contourColors):
             # fill up the opacity values
             if style == 'pattern':
-                opacities += [0] * (len(self._contourColors) - len(opacities))
+                opacities += [None] * (len(self._contourColors) - len(opacities))
             else:
-                opacities += [100] * (len(self._contourColors) - len(opacities))
+                opacities += [None] * (len(self._contourColors) - len(opacities))
 
         # The following loop attempts to group isosurfaces based on their
         # attributes. Isosurfaces grouped if and only if all properties match.
@@ -401,10 +401,15 @@ class BoxfillPipeline(Pipeline2D):
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b = _colorMap.index[color]
+                r, g, b, a = _colorMap.index[color]
                 if style in ['solid', 'pattern']:
+                    tmpOpacity = tmpOpacities[i]
+                    if tmpOpacity is None:
+                        tmpOpacity = a / 100.
+                    else:
+                        tmpOpacity = tmpOpacities[i] / 100.
                     lut.SetTableValue(0, r / 100., g / 100., b / 100.,
-                                      tmpOpacities[i] / 100.)
+                                      tmpOpacity)
                 else:
                     lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
@@ -418,11 +423,16 @@ class BoxfillPipeline(Pipeline2D):
 
                 #  Since pattern creation requires a single color, assuming the first
                 c = [val * 255 / 100.0 for val in _colorMap.index[tmpColors[i][0]]]
+                tmpOpacity = tmpOpacities[i]
+                if tmpOpacity is None:
+                    tmpOpacity = c[-1]
+                else:
+                    tmpOpacity = tmpOpacity * 255 / 100.
                 act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
                                                             fillareastyle=style,
                                                             fillareaindex=tmpIndices[i],
                                                             fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0)
+                                                            fillareaopacity=tmpOpacity)
                 if act is not None:
                     self._patternActors.append(act)
 
