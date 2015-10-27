@@ -29,7 +29,7 @@ prefix = cdat_info.get_prefix()
 sample_data = cdat_info.get_sampledata_path()
 cdat_info.pingPCMDIdb("cdat", "vcs")
 from utils import *  # noqa
-import colors
+import colors  # noqa
 import Canvas
 from vcshelp import *  # noqa
 from queries import *  # noqa
