@@ -1975,3 +1975,15 @@ def _setvp(self, value):
         maxvalue=1.)
     self._viewport = value
 viewport = property(_getvp, _setvp)
+
+def _getfillareaopacity(self):
+    return self._fillareaopacity
+
+def _setfillareaopacity(self, value):
+    if value is not None:
+        value = VCS_validation_functions.checkOpacitiesList(
+            self,
+            'fillareaopacity',
+            value)
+        self._fillareaopacity = value
+fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
