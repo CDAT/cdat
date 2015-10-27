@@ -318,11 +318,18 @@ class Configurator(object):
                     for back_obj in back:
                         if type(back_obj) in (list, tuple):
                             for o in back_obj:
-                                if type(o) == vtk.vtkObject:
-                                    if o.IsA("vtkProp"):
-                                        actors.append(o)
-                        elif type(back_obj) == vtk.vtkObject and back_obj.IsA("vtkProp"):
-                            actors.append(back_obj)
+                                if o is not None:
+                                    try:
+                                        if o.IsA("vtkProp"):
+                                            actors.append(o)
+                                    except AttributeError:
+                                        continue
+                        else:
+                            try:
+                                if back_obj.IsA("vtkProp"):
+                                    actors.append(back_obj)
+                            except AttributeError:
+                                continue
 
         for ren in vtkIterate(self.render_window.GetRenderers()):
             keep_checking = False
