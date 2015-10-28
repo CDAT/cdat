@@ -14,6 +14,8 @@ class MeshfillPipeline(Pipeline2D):
     def __init__(self, gm, context_):
         super(MeshfillPipeline, self).__init__(gm, context_)
 
+        self._patternActors = []
+
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
         # We don't trim _data2 for meshfill:
@@ -75,17 +77,20 @@ class MeshfillPipeline(Pipeline2D):
         tmpIndices = prepedContours["tmpIndices"]
         tmpColors = prepedContours["tmpColors"]
         tmpOpacities = prepedContours["tmpOpacities"]
+
         style = self._gm.fillareastyle
+        #self._patternActors = []
 
         mappers = []
         luts = []
         geos = []
+        wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
+        self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels contnues where one left off
             # AND pattern is identical
-            wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
             # TODO this should really just be a single polydata that is
             # colored by scalars:
             for j, color in enumerate(tmpColors[i]):
@@ -108,10 +113,12 @@ class MeshfillPipeline(Pipeline2D):
                         tmpOpacity = a / 100.
                     else:
                         tmpOpacity = tmpOpacities[i] / 100.
-                lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
+                    lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
+                else:
+                    lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
-                luts.append([lut, [l[j], l[j + 1], True]])
+                luts.append([lut, [l[j], l[j + 1], False]])  # Was True but boxfill says false
                 # Store the mapper only if it's worth it?
                 # Need to do it with the whole slab min/max for animation
                 # purposes
@@ -125,6 +132,7 @@ class MeshfillPipeline(Pipeline2D):
         if len(geos) > 0:
             self._resultDict["vtk_backend_geofilters"] = geos
 
+        """
         numLevels = len(self._contourLevels)
         if mappers == []:  # ok didn't need to have special banded contours
             mapper = vtk.vtkPolyDataMapper()
@@ -151,6 +159,7 @@ class MeshfillPipeline(Pipeline2D):
                 lmx = self._contourLevels[-1]
             mapper.SetScalarRange(lmn, lmx)
             self._resultDict["vtk_backend_luts"] = [[lut, [lmn, lmx, True]]]
+            """
 
         if self._maskedDataMapper is not None:
             # Note that this is different for meshfill -- others prepend.
@@ -222,6 +231,18 @@ class MeshfillPipeline(Pipeline2D):
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
+
+        for act in self._patternActors:
+            if self._vtkGeoTransform is None:
+                # If using geofilter on wireframed does not get wrapped not sure
+                # why so sticking to many mappers
+                self._context().fitToViewport(
+                    act, [self._template.data.x1, self._template.data.x2,
+                          self._template.data.y1, self._template.data.y2],
+                    wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                    priority=self._template.data.priority,
+                    create_renderer=True)
+                actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
 
