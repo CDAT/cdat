@@ -94,6 +94,8 @@ class IsofillPipeline(Pipeline2D):
         tmpIndices = prepedContours["tmpIndices"]
         tmpColors = prepedContours["tmpColors"]
         tmpOpacities = prepedContours["tmpOpacities"]
+        style = self._gm.fillareastyle
+        opacities = self._gm.fillareaopacity
 
         luts = []
         cots = []
