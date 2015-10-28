@@ -145,7 +145,7 @@ class VectorPipeline(Pipeline):
         act.SetMapper(mapper)
 
         cmap = self.getColorMap()
-        r, g, b = cmap.index[lcolor]
+        r, g, b, a = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm, data1.getAxis(-1),

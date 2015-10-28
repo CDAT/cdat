@@ -87,6 +87,7 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid2.CopyStructure(grid)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
+            print "ACTOR COLOR:",actorColor
             r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
             if not cellData:
@@ -1123,8 +1124,11 @@ def prepFillarea(renWin, farea, cmap=None):
     for i in range(n):
         x = farea.x[i]
         y = farea.y[i]
-        c = farea.color[i]
         st = farea.style[i]
+        if st == "pattern":
+          c = 241
+        else:
+          c = farea.color[i]
         idx = farea.index[i]
         N = max(len(x), len(y))
 
@@ -1156,13 +1160,9 @@ def prepFillarea(renWin, farea, cmap=None):
             opacity = farea.opacity[i]
             if opacity is not None:
                 opacity = int(farea.opacity[i] * 255 / 100.0)
-        elif st == 'pattern':
-            opacity = 0
-        else:
-            opacity = 255
-        # Draw colored background for solid or patterns
-        # or white background for hatches
-        if st in ['solid', 'pattern']:
+        # Draw colored background for solid 
+        # transparent/white background for hatches/patterns
+        if st == 'solid':
             # Add the color to the color array:
             if opacity is not None:
                 color[-1] = opacity

@@ -4,7 +4,6 @@ from .. import vcs2vtk
 import numpy
 import vcs
 import vtk
-import warnings
 
 
 class BoxfillPipeline(Pipeline2D):
@@ -340,7 +339,7 @@ class BoxfillPipeline(Pipeline2D):
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = _colorMap.index[color]
-                if style in ['solid', 'pattern']:
+                if style == 'solid':
                     tmpOpacity = tmpOpacities[i]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.

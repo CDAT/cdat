@@ -44,7 +44,7 @@ def matchVcsColor(r, g, b, colormap="default"):
     color = None
     cmap = vcs.elements["colormap"][colormap]
     for i in range(256):
-        r2, g2, b2 = cmap.index[i]
+        r2, g2, b2 = cmap.index[i][:3]
         rms = numpy.sqrt((r2 - r) ** 2 + (g2 - g) ** 2 + (b2 - b) ** 2)
         if rms < rmsmin:
             rmsmin = rms
@@ -1981,7 +1981,7 @@ def _getfillareaopacity(self):
 
 def _setfillareaopacity(self, value):
     if value is not None:
-        value = VCS_validation_functions.checkOpacitiesList(
+        value = checkOpacitiesList(
             self,
             'fillareaopacity',
             value)
