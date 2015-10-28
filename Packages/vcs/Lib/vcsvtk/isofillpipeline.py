@@ -4,7 +4,6 @@ from .. import vcs2vtk
 import numpy
 import vcs
 import vtk
-import warnings
 
 
 class IsofillPipeline(Pipeline2D):
@@ -122,7 +121,7 @@ class IsofillPipeline(Pipeline2D):
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
                 r, g, b, a = _colorMap.index[color]
-                if style in ['solid', 'pattern']:
+                if style == 'solid':
                     tmpOpacity = tmpOpacities[i]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.

@@ -4,7 +4,6 @@ from .. import vcs2vtk
 import numpy
 import vcs
 import vtk
-import warnings
 
 
 class MeshfillPipeline(Pipeline2D):
@@ -107,7 +106,7 @@ class MeshfillPipeline(Pipeline2D):
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = _colorMap.index[color]
-                if style in ['solid', 'pattern']:
+                if style == 'solid':
                     tmpOpacity = tmpOpacities[i]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.
@@ -283,6 +282,8 @@ class MeshfillPipeline(Pipeline2D):
         patternArgs={}
         patternArgs['style'] = self._gm.fillareastyle
         patternArgs['index'] = self._gm.fillareaindices
+        if patternArgs['index'] is None:
+            patternArgs['index'] = [1,]
         patternArgs['opacity'] = self._gm.fillareaopacity
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,

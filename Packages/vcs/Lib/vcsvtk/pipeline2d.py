@@ -4,6 +4,7 @@ from .. import vcs2vtk
 import vcs
 import numpy
 import fillareautils
+import warnings
 
 class IPipeline2D(Pipeline):
 
@@ -164,16 +165,15 @@ class Pipeline2D(IPipeline2D):
                    self._gm.name, self._gm.g_name))
         if len(opacities) < len(self._contourColors):
             # fill up the opacity values
-            if style == 'pattern':
-                opacities += [None] * (len(self._contourColors) - len(opacities))
-            else:
-                opacities += [None] * (len(self._contourColors) - len(opacities))
+            opacities += [None] * (len(self._contourColors) - len(opacities))
 
         # The following loop attempts to group isosurfaces based on their
         # attributes. Isosurfaces grouped if and only if all properties match.
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 C = [self._contourColors[i]]
+                if style == "pattern":
+                  C = [241]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
                     # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]

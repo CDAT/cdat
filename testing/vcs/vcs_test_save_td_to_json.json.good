@@ -45,11 +45,11 @@
      null
     ], 
     "line_color": [
-     1, 
-     1, 
-     1, 
-     1, 
-     1
+     "black", 
+     "black", 
+     "black", 
+     "black", 
+     "black"
     ], 
     "line_size": [
      1.0, 

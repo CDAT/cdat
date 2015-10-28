@@ -184,6 +184,8 @@ class Cp(object):
     name = property(getname, setname)
 
     def getindex(self):
+        if len(self._index)==3:
+          return self._index+[100.]
         return self._index
 
     def setindex(self, value):
@@ -195,6 +197,8 @@ class Cp(object):
             d2 = {}
             d = value[u'data']
             for k in d.keys():
+                if len(d[k])==3:  # Old style only r,g,b no a
+                  d[k]+=[100.]
                 d2[int(k)] = d[k]
             self.index.data.update(d2)
     index = property(getindex, setindex)

@@ -124,6 +124,7 @@
     1
    ], 
    "fillareaindices": null, 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "levels": [
