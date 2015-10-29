@@ -54,6 +54,7 @@ set(_vtk_modules
 )
 
 if(NOT CDAT_BUILD_LEAN)
+  include(FindFFMPEG)
   list(APPEND _vtk_modules "vtkIOFFMPEG")
 endif()
 

@@ -1,181 +1,150 @@
-#
-# Find the native FFMPEG includes and library
-#
+# Locate ffmpeg
 # This module defines
-# FFMPEG_INCLUDE_DIR, where to find avcodec.h, avformat.h ...
-# FFMPEG_LIBRARIES, the libraries to link against to use FFMPEG.
-# FFMPEG_FOUND, If false, do not try to use FFMPEG.
+# FFMPEG_LIBRARIES
+# FFMPEG_FOUND, if false, do not try to link to ffmpeg
+# FFMPEG_INCLUDE_DIR, where to find the headers
+#
+# $FFMPEG_DIR is an environment variable that would
+# correspond to the ./configure --prefix=$FFMPEG_DIR
+#
+# Created by Robert Osfield.
 
-# also defined, but not for general use are
-# FFMPEG_avformat_LIBRARY and FFMPEG_avcodec_LIBRARY, where to find the FFMPEG library.
-# This is usefull to do it this way so that we can always add more libraries
-# if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
-# if ffmpeg headers are all in one directory
-FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
-       PATHS
-       $ENV{FFMPEG_DIR}/include
-       $ENV{OSGDIR}/include
-       $ENV{OSG_ROOT}/include
-       ~/Library/Frameworks
-       /Library/Frameworks
-       /usr/local/include
-       /usr/include
-       /sw/include # Fink
-       /opt/local/include # DarwinPorts
-       /opt/csw/include # Blastwave
-       /opt/include
-       /usr/freeware/include
-       PATH_SUFFIXES ffmpeg
-       DOC "Location of FFMPEG Headers"
-)
+#In ffmpeg code, old version use "#include <header.h>" and newer use "#include <libname/header.h>"
+#In OSG ffmpeg plugin, we use "#include <header.h>" for compatibility with old version of ffmpeg
 
-# if ffmpeg headers are seperated to each of libavformat, libavcodec etc..
-IF( NOT FFMPEG_INCLUDE_DIR )
-  FIND_PATH(FFMPEG_INCLUDE_DIR libavformat/avformat.h
-       PATHS
-       $ENV{FFMPEG_DIR}/include
-       $ENV{OSGDIR}/include
-       $ENV{OSG_ROOT}/include
-       ~/Library/Frameworks
-       /Library/Frameworks
-       /usr/local/include
-       /usr/include
-       /sw/include # Fink
-       /opt/local/include # DarwinPorts
-       /opt/csw/include # Blastwave
-       /opt/include
-       /usr/freeware/include
-       PATH_SUFFIXES ffmpeg
-       DOC "Location of FFMPEG Headers"
-)
+#We have to search the path which contain the header.h (usefull for old version)
+#and search the path which contain the libname/header.h (usefull for new version)
 
-ENDIF( NOT FFMPEG_INCLUDE_DIR )
+#Then we need to include ${FFMPEG_libname_INCLUDE_DIRS} (in old version case, use by ffmpeg header and osg plugin code)
+#                                                       (in new version case, use by ffmpeg header)
+#and ${FFMPEG_libname_INCLUDE_DIRS/libname}             (in new version case, use by osg plugin code)
 
-# we want the -I include line to use the parent directory of ffmpeg as
-# ffmpeg uses relative includes such as <ffmpeg/avformat.h> or <libavcodec/avformat.h>
-get_filename_component(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE_DIR} ABSOLUTE)
 
-FIND_LIBRARY(FFMPEG_avformat_LIBRARY avformat
-  /usr/local/lib
-  /usr/lib
-)
+# Macro to find header and lib directories
+# example: FFMPEG_FIND(AVFORMAT avformat avformat.h)
+MACRO(FFMPEG_FIND varname shortname headername)
+    # old version of ffmpeg put header in $prefix/include/[ffmpeg]
+    # so try to find header in include directory
+    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
+        PATHS
+        ${cdat_Externals}
+        ${FFMPEG_ROOT}/include/lib${shortname}
+        $ENV{FFMPEG_DIR}/include/lib${shortname}
+        ~/Library/Frameworks/lib${shortname}
+        /Library/Frameworks/lib${shortname}
+        /usr/local/include/lib${shortname}
+        /usr/include/lib${shortname}
+        /sw/include/lib${shortname} # Fink
+        /opt/local/include/lib${shortname} # DarwinPorts
+        /opt/csw/include/lib${shortname} # Blastwave
+        /opt/include/lib${shortname}
+        /usr/freeware/include/lib${shortname}
+        PATH_SUFFIXES ffmpeg
+        DOC "Location of FFMPEG Headers"
+    )
 
-FIND_LIBRARY(FFMPEG_avcodec_LIBRARY avcodec
-  /usr/local/lib
-  /usr/lib
-)
+    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
+        PATHS
+        ${cdat_Externals}
+        ${FFMPEG_ROOT}/include
+        $ENV{FFMPEG_DIR}/include
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local/include
+        /usr/include
+        /sw/include # Fink
+        /opt/local/include # DarwinPorts
+        /opt/csw/include # Blastwave
+        /opt/include
+        /usr/freeware/include
+        PATH_SUFFIXES ffmpeg
+        DOC "Location of FFMPEG Headers"
+    )
 
-FIND_LIBRARY(FFMPEG_avutil_LIBRARY avutil
-  /usr/local/lib
-  /usr/lib
-)
+    FIND_LIBRARY(FFMPEG_${varname}_LIBRARIES
+        NAMES ${shortname}
+        PATHS
+        ${cdat_Externals}
+        ${FFMPEG_ROOT}/lib
+        $ENV{FFMPEG_DIR}/lib
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local/lib
+        /usr/local/lib64
+        /usr/lib
+        /usr/lib64
+        /sw/lib
+        /opt/local/lib
+        /opt/csw/lib
+        /opt/lib
+        /usr/freeware/lib64
+        DOC "Location of FFMPEG Libraries"
+    )
 
-FIND_LIBRARY(FFMPEG_vorbis_LIBRARY vorbis
-  /usr/local/lib
-  /usr/lib
-)
+    IF (FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
+        SET(FFMPEG_${varname}_FOUND 1)
+    ENDIF(FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
 
-FIND_LIBRARY(FFMPEG_dc1394_LIBRARY dc1394_control
-  /usr/local/lib
-  /usr/lib
-)
+ENDMACRO(FFMPEG_FIND)
 
-FIND_LIBRARY(FFMPEG_vorbisenc_LIBRARY vorbisenc
-  /usr/local/lib
-  /usr/lib
-)
+SET(FFMPEG_ROOT "$ENV{FFMPEG_DIR}" CACHE PATH "Location of FFMPEG")
 
-FIND_LIBRARY(FFMPEG_theora_LIBRARY theora
-  /usr/local/lib
-  /usr/lib
-)
+# find stdint.h
+IF(WIN32)
 
-FIND_LIBRARY(FFMPEG_dts_LIBRARY dts
-  /usr/local/lib
-  /usr/lib
-)
+    FIND_PATH(FFMPEG_STDINT_INCLUDE_DIR stdint.h
+        PATHS
+        ${FFMPEG_ROOT}/include
+        $ENV{FFMPEG_DIR}/include
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local/include
+        /usr/include
+        /sw/include # Fink
+        /opt/local/include # DarwinPorts
+        /opt/csw/include # Blastwave
+        /opt/include
+        /usr/freeware/include
+        PATH_SUFFIXES ffmpeg
+        DOC "Location of FFMPEG stdint.h Header"
+    )
 
-FIND_LIBRARY(FFMPEG_gsm_LIBRARY gsm
-  /usr/local/lib
-  /usr/lib
-)
+    IF (FFMPEG_STDINT_INCLUDE_DIR)
+        SET(STDINT_OK TRUE)
+    ENDIF()
 
-FIND_LIBRARY(FFMPEG_swscale_LIBRARY swscale
-  /usr/local/lib
-  /usr/lib
-)
+ELSE()
 
-FIND_LIBRARY(FFMPEG_z_LIBRARY z
-  /usr/local/lib
-  /usr/lib
-)
+    # SET(STDINT_OK TRUE)
 
-SET(FFMPEG_LIBRARIES)
-IF(FFMPEG_INCLUDE_DIR)
-  IF(FFMPEG_avformat_LIBRARY)
-    IF(FFMPEG_avcodec_LIBRARY)
-      IF(FFMPEG_avutil_LIBRARY)
-        SET( FFMPEG_FOUND "YES" )
-        SET( FFMPEG_BASIC_LIBRARIES 
-          ${FFMPEG_avcodec_LIBRARY} 
-          ${FFMPEG_avformat_LIBRARY}
-          ${FFMPEG_avutil_LIBRARY} 
-          )
+ENDIF()
 
-        # swscale is always a part of newer ffmpeg distros
-        IF(FFMPEG_swscale_LIBRARY)
-          LIST(APPEND FFMPEG_BASIC_LIBRARIES ${FFMPEG_swscale_LIBRARY})
-        ENDIF(FFMPEG_swscale_LIBRARY)
+FFMPEG_FIND(LIBAVFORMAT avformat avformat.h)
+FFMPEG_FIND(LIBAVDEVICE avdevice avdevice.h)
+FFMPEG_FIND(LIBAVCODEC  avcodec  avcodec.h)
+FFMPEG_FIND(LIBAVUTIL   avutil   avutil.h)
+FFMPEG_FIND(LIBSWSCALE  swscale  swscale.h)  # not sure about the header to look for here.
 
-        SET(FFMPEG_LIBRARIES ${FFMPEG_BASIC_LIBRARIES})
+SET(FFMPEG_FOUND "NO")
+# Note we don't check FFMPEG_LIBSWSCALE_FOUND here, it's optional.
+IF   (FFMPEG_LIBAVFORMAT_FOUND AND FFMPEG_LIBAVDEVICE_FOUND AND FFMPEG_LIBAVCODEC_FOUND AND FFMPEG_LIBAVUTIL_FOUND AND STDINT_OK)
 
-        IF(FFMPEG_vorbis_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_vorbis_LIBRARY})
-        ENDIF(FFMPEG_vorbis_LIBRARY)
+    SET(FFMPEG_FOUND "YES")
 
-        IF(FFMPEG_dc1394_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_dc1394_LIBRARY})
-        ENDIF(FFMPEG_dc1394_LIBRARY)
+    SET(FFMPEG_INCLUDE_DIRS ${FFMPEG_LIBAVFORMAT_INCLUDE_DIRS})
 
-        IF(FFMPEG_vorbisenc_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_vorbisenc_LIBRARY})
-        ENDIF(FFMPEG_vorbisenc_LIBRARY)
+    SET(FFMPEG_LIBRARY_DIRS ${FFMPEG_LIBAVFORMAT_LIBRARY_DIRS})
 
-        IF(FFMPEG_theora_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_theora_LIBRARY})
-        ENDIF(FFMPEG_theora_LIBRARY)
+    # Note we don't add FFMPEG_LIBSWSCALE_LIBRARIES here, it will be added if found later.
+    SET(FFMPEG_LIBRARIES
+        ${FFMPEG_LIBAVFORMAT_LIBRARIES}
+        ${FFMPEG_LIBAVDEVICE_LIBRARIES}
+        ${FFMPEG_LIBAVCODEC_LIBRARIES}
+        ${FFMPEG_LIBAVUTIL_LIBRARIES})
 
-        IF(FFMPEG_dts_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_dts_LIBRARY})
-        ENDIF(FFMPEG_dts_LIBRARY)
+ELSE ()
 
-        IF(FFMPEG_gsm_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_gsm_LIBRARY})
-        ENDIF(FFMPEG_gsm_LIBRARY)
+#    MESSAGE(STATUS "Could not find FFMPEG")
 
-        IF(FFMPEG_z_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_z_LIBRARY})
-        ENDIF(FFMPEG_z_LIBRARY)
-
-        SET(FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} CACHE INTERNAL "All presently found FFMPEG libraries.")
-
-      ENDIF(FFMPEG_avutil_LIBRARY)
-    ENDIF(FFMPEG_avcodec_LIBRARY)
-  ENDIF(FFMPEG_avformat_LIBRARY)
-ENDIF(FFMPEG_INCLUDE_DIR)
-
-MARK_AS_ADVANCED(
-  FFMPEG_INCLUDE_DIR
-  FFMPEG_avformat_LIBRARY
-  FFMPEG_avcodec_LIBRARY
-  FFMPEG_avutil_LIBRARY
-  FFMPEG_vorbis_LIBRARY
-  FFMPEG_dc1394_LIBRARY
-  FFMPEG_vorbisenc_LIBRARY
-  FFMPEG_theora_LIBRARY
-  FFMPEG_dts_LIBRARY
-  FFMPEG_gsm_LIBRARY
-  FFMPEG_swscale_LIBRARY
-  FFMPEG_z_LIBRARY
-  )
+ENDIF()
