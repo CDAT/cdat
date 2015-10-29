@@ -1129,7 +1129,7 @@ class VTKVCSBackend(object):
         # Ok at this point this is all the info we need
         # we can determine if it's a unique renderer or not
         # let's see if we did this already.
-        if not create_renderer or\
+        if not create_renderer and\
                 (vp, wc_used, sc, priority) in self._renderers.keys():
             # yep already have one, we will use this Renderer
             Renderer, xScale, yScale = self._renderers[
