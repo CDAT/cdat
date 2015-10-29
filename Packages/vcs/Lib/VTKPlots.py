@@ -240,23 +240,26 @@ class VTKVCSBackend(object):
         # Have to pull out the UI layer so it doesn't get borked by the clear
         self.hideGUI()
 
+        if self.canvas.configurator is not None:
+            restart_anim = self.canvas.configurator.animation_timer is not None
+        else:
+            restart_anim = False
         self.canvas.clear(render=False)
 
         for i, pargs in enumerate(plots_args):
             self.canvas.plot(*pargs, render=False, **key_args[i])
 
-        if self.canvas.animate.created(
-        ) and self.canvas.animate.frame_num != 0:
+        if self.canvas.animate.created() and self.canvas.animate.frame_num != 0:
             self.canvas.animate.draw_frame(
                 allow_static=False,
                 render_offscreen=False)
 
         self.showGUI(render=False)
-
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-
         self.renWin.Render()
+        if restart_anim:
+            self.canvas.configurator.start_animating()
 
     def clear(self, render=True):
         if self.renWin is None:  # Nothing to clear
@@ -440,6 +443,15 @@ class VTKVCSBackend(object):
         self.clear()
         self.renWin.Finalize()
         self.renWin = None
+
+    def isopened(self):
+        if self.renWin is None:
+            return False
+        elif self.renWin.GetOffScreenRendering():
+            # IN bg mode
+            return False
+        else:
+            return True
 
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
@@ -882,6 +894,7 @@ class VTKVCSBackend(object):
             from vtk_ui.manager import get_manager, manager_exists
             if manager_exists(self.renWin.GetInteractor()):
                 manager = get_manager(self.renWin.GetInteractor())
+                manager.showing = False
                 self.renWin.RemoveRenderer(manager.renderer)
                 self.renWin.RemoveRenderer(manager.actor_renderer)
 
@@ -896,6 +909,7 @@ class VTKVCSBackend(object):
                 manager = get_manager(self.renWin.GetInteractor())
                 self.renWin.AddRenderer(manager.renderer)
                 self.renWin.AddRenderer(manager.actor_renderer)
+                manager.showing = True
                 # Bring the manager's renderer to the top of the stack
                 manager.elevate()
             if render:
@@ -959,20 +973,7 @@ class VTKVCSBackend(object):
         self.showGUI()
 
     def postscript(self, file, width=None, height=None,
-                   units=None, left=None, right=None, top=None, bottom=None):
-        if right is not None:
-            warnings.warn(
-                "the right_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if left is not None:
-            warnings.warn(
-                "the left_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if top is not None:
-            warnings.warn(
-                "the top_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-        if bottom is not None:
-            warnings.warn(
-                "the bottom_margin keyword for postscript has been deprecated in 2.0 and is being ignored")
-
+                   units=None):
         return self.vectorGraphics("ps", file, width, height, units)
 
     def pdf(self, file, width=None, height=None, units=None):
@@ -999,13 +1000,11 @@ class VTKVCSBackend(object):
         except:
             pass
 
-        # if width is not None and height is not None:
-        #  self.renWin.SetSize(width,height)
-            # self.renWin.Render()
+        if width is not None and height is not None:
+            self.renWin.SetSize(width, height)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
-#        imgfiltr.SetMagnification(3)
         ignore_alpha = args.get('ignore_alpha', False)
         if ignore_alpha or draw_white_background:
             imgfiltr.SetInputBufferTypeToRGB()

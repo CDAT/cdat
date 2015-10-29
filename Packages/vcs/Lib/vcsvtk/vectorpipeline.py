@@ -4,8 +4,6 @@ import vcs
 from vcs import vcs2vtk
 import vtk
 
-import math
-
 
 class VectorPipeline(Pipeline):
 
@@ -41,9 +39,6 @@ class VectorPipeline(Pipeline):
         if lonAccesrsor:
             lon = lonAccesrsor[:]
 
-        if None not in (projection, lat, lon):
-            scale = (lat.max() - lat.min()) * (lon.max() - lon.min())
-
         gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
                                               geo=transform, data2=data2)
 
@@ -68,9 +63,20 @@ class VectorPipeline(Pipeline):
                                   gridGenDict['ym'], gridGenDict['yM']])
             dimMin = [0, 0, 0]
             dimMax = [0, 0, 0]
+
             newv.GetTupleValue(0, dimMin)
             newv.GetTupleValue(1, dimMax)
-            scale = (dimMax[1] - dimMin[1]) * (dimMax[0] - dimMin[0])/scale
+
+            maxDimX = max(dimMin[0], dimMax[0])
+            maxDimY = max(dimMin[1], dimMax[1])
+
+            if lat.max() != 0.0:
+                scale = abs((maxDimY / lat.max()))
+
+            if lon.max() != 0.0:
+                temp = abs((maxDimX / lon.max()))
+                if scale < temp:
+                    scale = temp
         else:
             scale = 1.0
 
@@ -121,7 +127,7 @@ class VectorPipeline(Pipeline):
 
         # Scale to vector magnitude:
         glyphFilter.SetScaleModeToScaleByVector()
-        glyphFilter.SetScaleFactor(math.sqrt(scale) * 2.0 * self._gm.scale)
+        glyphFilter.SetScaleFactor(scale * 2.0 * self._gm.scale)
 
         # These are some unfortunately named methods. It does *not* clamp the
         # scale range to [min, max], but rather remaps the range
@@ -147,10 +153,11 @@ class VectorPipeline(Pipeline):
         if geo is None:
             wc = [x1, x2, y1, y2]
         else:
-            wc = None
+            xrange = list(act.GetXRange())
+            yrange = list(act.GetYRange())
+            wc = [xrange[0], xrange[1], yrange[0], yrange[1]]
 
-        # TODO: doWrap is broken for vectors
-        # act = vcs2vtk.doWrap(act, [x1, x2, y1, y2], self._dataWrapModulo)
+        act = vcs2vtk.doWrap(act, wc, self._dataWrapModulo)
 
         self._context().fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
                                             tmpl.data.y1, tmpl.data.y2],

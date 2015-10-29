@@ -28,7 +28,7 @@ class DiagTest(object):
         print 'datadir = ', self.datadir
         self.baselinepath = args.baseline + 'plotset' + str(plotset)
         print "baselinepath = ", self.baselinepath
-        self.keep = True
+        self.keep = False
         if args.keep:
             self.keep = args.keep
          
@@ -40,14 +40,15 @@ class DiagTest(object):
         print "outpath=", self.outpath
     
         #setup string to be executed and run script
-        #diagstr = "diags --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_contains('NCEP')\",climos=yes --package AMWG --set 3 --var T --seasons JJA" % (outpath, modelpath, obspath)
-        diagstr_parts = [ " --outputdir %s "%(self.outpath), 
+        #diagstr = "diags --no-antialiasing --outputdir '%s' --model path=%s,climos=no --obs path=%s,filter=\"f_contains('NCEP')\",climos=yes --package AMWG --set 3 --var T --seasons JJA" % (outpath, modelpath, obspath)
+        diagstr_parts = [" --outputdir %s "%(self.outpath), 
+ 			             " --no-antialiasing",
                          " --model path=%s,climos=no "%(self.modelpath), 
                          " --obs path=%s,filter=\"%s('%s')\",climos=yes "%(self.obspath, filterid, obsid),
                          " --package AMWG ", 
                          " --set %s "%(str(plotset)), 
                          " --var %s"%(varid), 
-                         " --seasons %s "%(seasonid)]
+                         " --seasons %s "%(seasonid)] 
         self.diagstr = "diags "
         for part in diagstr_parts:
             #print part
@@ -82,6 +83,8 @@ class DiagTest(object):
         return close
     def execute(self, test_str, imagefilename, imagethreshold, ncfiles, rtol, atol):
         print test_str
+        if imagethreshold is None:  # user didn't specify a value
+     	    imagethreshold = checkimage.defaultThreshold
         # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
         cdms2.setNetcdfShuffleFlag(0)
         cdms2.setNetcdfDeflateFlag(0)
@@ -103,6 +106,7 @@ class DiagTest(object):
             imagefname = os.path.join( self.outpath, imagefilename )
             imagebaselinefname = os.path.join( self.baselinepath, imagefilename )
             #pdb.set_trace()
+            print "OK THRESHOLD IS:",imagethreshold
             graphics_result = checkimage.check_result_image( imagefname, imagebaselinefname, imagethreshold )
             print "Graphics file", imagefname, "match difference:", graphics_result
             
