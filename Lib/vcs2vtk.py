@@ -1169,29 +1169,30 @@ def prepFillarea(renWin, farea, cmap=None):
         color = [int((C / 100.) * 255) for C in cmap.index[c]]
         if len(farea.opacity) > i:
             opacity = farea.opacity[i] * 255 / 100.0
-        elif st == 'pattern':
-            opacity = 0
         else:
             opacity = 255
         # Draw colored background for solid or patterns
         # or white background for hatches
-        if st in ['solid', 'pattern']:
+        if st == 'solid':
             # Add the color to the color array:
             color = color + [int(opacity)]
             color_arr.SetTupleValue(cellId, color)
         else:
             color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
 
-        if st in ['pattern', 'hatch']:
+        if st != "solid":
             # Patterns/hatches support
+            # We're switching patterns over to hatches that are black
+            if st == "pattern":
+                color = [0, 0, 0]
+            geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+            pd.SetPoints(proj_points)
             act = fillareautils.make_patterned_polydata(pd,
-                                                        st,
+                                                        "hatch",
                                                         idx,
                                                         color,
                                                         opacity)
             if act is not None:
-                geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
-                pd.SetPoints(proj_points)
                 actors.append((act, geo))
 
     # Transform points
