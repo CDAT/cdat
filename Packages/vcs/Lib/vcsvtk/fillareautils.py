@@ -34,7 +34,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
-    if xBounds < 1 and yBounds < 1 and size is not None:
+    if xBounds <= 1 and yBounds <= 1 and size is not None:
         xBounds *= size[0]
         yBounds *= size[1]
         xres, yres = int(xBounds), int(yBounds)
