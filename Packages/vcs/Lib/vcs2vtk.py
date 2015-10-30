@@ -1182,7 +1182,8 @@ def prepFillarea(renWin, farea, cmap=None):
                                                         st,
                                                         idx,
                                                         color,
-                                                        opacity)
+                                                        opacity,
+                                                        renWin.GetSize())
             if act is not None:
                 actors.append((act, geo))
     return actors
