@@ -41,7 +41,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     else:
         xres = int(4.0*xBounds)
         yres = int(4.0*yBounds)
-    print xres, yres, size
     # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds < 1 or yBounds < 1:
         boundsAspect = xBounds / yBounds
