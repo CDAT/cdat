@@ -1,1 +1,1 @@
-set(Cycler_deps ${python_pkg})
+set(cycler_deps ${python_pkg})

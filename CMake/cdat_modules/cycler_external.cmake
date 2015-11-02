@@ -11,6 +11,6 @@ ExternalProject_Add(Cycler
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install
-  DEPENDS ${Cycler_deps}
+  DEPENDS ${cycler_deps}
   ${ep_log_options}
 )
