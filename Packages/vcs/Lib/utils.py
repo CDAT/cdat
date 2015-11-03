@@ -595,7 +595,14 @@ def scriptrun(script):
         try:
             f = open(script)
             jsn = json.load(f)
-            for typ in jsn.keys():
+            keys = []
+            for k in ["Tt","To","Tl","Tm"]:  # always read these first
+                if k in jsn.keys():
+                    keys.append(k)
+            for k in jsn.keys():
+                if not k in keys:
+                    keys.append(k)
+            for typ in keys:
                 for nm, v in jsn[typ].iteritems():
                     if typ == "P":
                         try:
@@ -612,7 +619,7 @@ def scriptrun(script):
             if os.path.split(script)[-1] == "initial.attributes":
                 _scriptrun(script)
             else:
-                warnings.warn("unable to source file: %si %s" % (script, err))
+                warnings.warn("unable to source file: %s %s" % (script, err))
     vcs._doValidation = True
     return
 
