@@ -7,4 +7,4 @@ set(CYCLER_GZ cycler-${CYCLER_VERSION}.tar.gz)
 set(CYCLER_MD5 c10ade5ca3f0aadf575eb25203b225a5)
 set(CYCLER_SOURCE ${CYCLER_URL}/${CYCLER_GZ})
 
-add_cdat_package_dependent(Cycler "" "" OFF "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(Cycler "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
