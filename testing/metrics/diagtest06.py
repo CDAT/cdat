@@ -14,14 +14,14 @@ filterid = 'f_startswith'
 obsid = 'ERS'
 varid = 'STRESS'
 seasonid = 'ANN'
-modeldir = 'cam35_data'
+modeldir = 'cam35_data_smaller'
 obsdir = 'obs_data_5.6'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
 imagefilename = 'set6_Global_ANN_STRESS-combined.png'
-imagethreshold = 1.0e6
+imagethreshold = None
 ncfiles = {}
 
 # Test of NetCDF data (nc) file match:

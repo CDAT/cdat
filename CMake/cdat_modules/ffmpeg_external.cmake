@@ -3,15 +3,16 @@ set(ffmpeg_source "${CMAKE_CURRENT_BINARY_DIR}/build/FFMPEG")
 set(ffmpeg_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
-    @ONLY)
+find_program(YASM_BIN "yasm")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_build_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
-    @ONLY)
+if (NOT YASM_BIN)
+  set(ffmpeg_conf_args --disable-yasm^^--enable-gpl^^--enable-libx264^^--extra-cxxflags=@ffmpeg_source@^^--enable-shared^^--enable-zlib)
+else()
+  set(ffmpeg_conf_args --enable-gpl^^--enable-libx264^^--extra-cxxflags=@ffmpeg_source@^^--enable-shared^^--enable-zlib)
+endif()
 
 ExternalProject_Add(FFMPEG
+  LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ffmpeg_source}
   INSTALL_DIR ${ffmpeg_install}
@@ -19,8 +20,7 @@ ExternalProject_Add(FFMPEG
   URL_MD5 ${FFMPEG_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
-  #  BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${ffmpeg_conf_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${FFMPEG_deps}
   ${ep_log_options}
   )

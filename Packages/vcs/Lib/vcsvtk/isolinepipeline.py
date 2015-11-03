@@ -10,8 +10,8 @@ class IsolinePipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isoline plots."""
 
-    def __init__(self, context_):
-        super(IsolinePipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsolinePipeline, self).__init__(gm, context_)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -21,6 +21,7 @@ class IsolinePipeline(Pipeline2D):
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
@@ -85,8 +86,7 @@ class IsolinePipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = self._context().canvas.getcolormapname()
-        cmap = vcs.elements["colormap"][cmap]
+        cmap = self.getColorMap()
         for i, col in enumerate(self._contourColors):
             r, g, b = cmap.index[col]
             lut.SetTableValue(i, r / 100., g / 100., b / 100.)
@@ -119,7 +119,17 @@ class IsolinePipeline(Pipeline2D):
                 else:
                     colorOverrides = [None] * len(self._gm.text)
 
-                for tc, colorOverride in zip(texts, colorOverrides):
+                # Custom background colors and opacities:
+                backgroundColors = self._gm.labelbackgroundcolors
+                if backgroundColors:
+                    while len(backgroundColors) < numLevels:
+                        backgroundColors.append(backgroundColors[-1])
+                backgroundOpacities = self._gm.labelbackgroundopacities
+                if backgroundOpacities:
+                    while len(backgroundOpacities) < numLevels:
+                        backgroundOpacities.append(backgroundOpacities[-1])
+
+                for idx, tc in enumerate(texts):
                     if vcs.queries.istextcombined(tc):
                         tt, to = tuple(tc.name.split(":::"))
                     elif tc is None:
@@ -131,21 +141,30 @@ class IsolinePipeline(Pipeline2D):
                     elif vcs.queries.istextorientation(tc):
                         to = tc.name
                         tt = "default"
+
+                    colorOverride = colorOverrides[idx]
                     if colorOverride is not None:
                         tt = vcs.createtexttable(None, tt)
                         tt.color = colorOverride
                         tt = tt.name
+                    if backgroundColors is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundcolor = backgroundColors[idx]
+                    if backgroundOpacities is not None:
+                        texttbl = vcs.gettexttable(tt)
+                        texttbl.backgroundopacity = backgroundOpacities[idx]
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
                                              self._context().renWin.GetSize(),
-                                             to, tt)
+                                             to, tt, cmap=cmap)
                     tprops.AddItem(tprop)
                     if colorOverride is not None:
                         del(vcs.elements["texttable"][tt])
             else:  # No text properties specified. Use the default:
                 tprop = vtk.vtkTextProperty()
                 vcs2vtk.prepTextProperty(tprop,
-                                         self._context().renWin.GetSize())
+                                         self._context().renWin.GetSize(),
+                                         cmap=cmap)
                 tprops.AddItem(tprop)
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 tprops
