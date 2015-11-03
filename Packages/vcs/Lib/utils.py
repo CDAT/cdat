@@ -185,11 +185,11 @@ def listelements(typ=None):
     return sorted(vcs.elements[typ].keys())
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Show VCS primary and secondary elements wrapper for VCS.                  #
-#                                                                           #
-#############################################################################
+#
+#
 def show(*args):
     """
 Function: show
@@ -290,11 +290,11 @@ def _scriptrun(script, canvas=None):
                 except:
                     setattr(g, att, getattr(gd, att))
 
-#############################################################################
-#                                                                           #
+#
+#
 # Import old VCS file script commands into CDAT.                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def scriptrun_scr(*args):
@@ -315,7 +315,7 @@ def scriptrun_scr(*args):
             (l[3][0:31] == "#                             #") and
             (l[4][0:29] == "#############################")):
         fin.close()
-        execfile(args[0], __main__.__dict__)
+        exec(compile(open(args[0]).read(), args[0], 'exec'), __main__.__dict__)
         return
 
     while i < line_ct:
@@ -557,18 +557,18 @@ def saveinitialfile():
     # extension .json has been auto-added, removing it in this specific case
     os.rename(fnm + ".json", fnm)
 
-#############################################################################
-#                                                                           #
+#
+#
 # Import old VCS file script commands into CDAT.
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def scriptrun(script):
     if script.split(".")[-1] == "scr":
         scriptrun_scr(script)
     elif script.split(".")[-1] == "py":
-        execfile(script)
+        exec(compile(open(script).read(), script, 'exec'))
     else:
         if os.path.split(script)[-1] == "initial.attributes":
             vcs._doValidation = False
@@ -596,11 +596,11 @@ def scriptrun(script):
             f = open(script)
             jsn = json.load(f)
             keys = []
-            for k in ["Tt","To","Tl","Tm"]:  # always read these first
+            for k in ["Tt", "To", "Tl", "Tm"]:  # always read these first
                 if k in jsn.keys():
                     keys.append(k)
             for k in jsn.keys():
-                if not k in keys:
+                if k not in keys:
                     keys.append(k)
             for typ in keys:
                 for nm, v in jsn[typ].iteritems():
