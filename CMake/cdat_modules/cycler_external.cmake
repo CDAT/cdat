@@ -10,7 +10,7 @@ ExternalProject_Add(Cycler
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
-  INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install
+  INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install --old-and-unmanageable ${PYTHON_EXTRA_PREFIX}
   DEPENDS ${cycler_deps}
   ${ep_log_options}
 )
