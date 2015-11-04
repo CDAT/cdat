@@ -13,7 +13,8 @@ if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
     )
 
   if (NOT ${res} EQUAL 0)
-    message("[INFO] Failed to fetch test data for uvcmetrics, tests will fail")
+    message(WARNING "${ver}")
+    message(FATAL_ERROR "Failed to fetch test data for uvcmetrics, tests will fail")
   endif()
 endif()
 
