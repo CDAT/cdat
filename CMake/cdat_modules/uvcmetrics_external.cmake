@@ -5,15 +5,18 @@ if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
     ${cdat_CMAKE_BINARY_DIR}/fetch_uvcmetrics_testdata.py
     @ONLY)
 
+  message(INFO "Running \"${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fetch_uvcmetrics_testdata.py\"")
+  message(INFO "in \"${cdat_CMAKE_SOURCE_DIR}\"")
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fetch_uvcmetrics_testdata.py
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+    WORKING_DIRECTORY ${cdat_CMAKE_SOURCE_DIR}
     RESULT_VARIABLE res
     OUTPUT_VARIABLE ver
     )
 
   if (NOT ${res} EQUAL 0)
-    message("[INFO] Failed to fetch test data for uvcmetrics, tests will fail")
+    message(WARNING "${ver}")
+    message(FATAL_ERROR "Failed to fetch test data for uvcmetrics, tests will fail")
   endif()
 endif()
 
