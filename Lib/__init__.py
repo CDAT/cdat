@@ -41,19 +41,19 @@ _colorMap = "default"
 
 _default_time_units = 'days since 2000'
 
-##########################################################################
-#                                                                               #
+#
+#
 # Set up the User's  directory if necessary. Copy files from      #
 # $PYTHONHOME/bin to the newly created $HOME/.uvcdat directory.          #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._files()
 
-##########################################################################
-#                                                                               #
+#
+#
 # Set the user's XGKSFontDir environment variable.                              #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._XGKSFontDir()
 
 
@@ -86,7 +86,7 @@ elements["scatter"] = {}
 elements["colormap"] = {}
 elements["display"] = {}
 
-_protected_elements={}
+_protected_elements = {}
 for k in elements.keys():
     _protected_elements[k] = set()
 
@@ -225,11 +225,12 @@ if os.path.exists(user_init):
     vcs.scriptrun(user_init)
 
 canvaslist = []
-##########################################################################
-#                                                                               #
+#
+#
 # Construct a VCS Canvas Object.                                                #
-#                                                                               #
-##########################################################################
+#
+#
+
 
 def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
          backend="vtk"):

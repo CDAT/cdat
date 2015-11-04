@@ -959,7 +959,6 @@ class Canvas(object):
 #  purposes....                                                                           #
 ##########################################################################
 
-        called_initial_attributes_flg = 1
         self.canvas_template_editor = None
         self.ratio = 0
         self._user_actions_names = [

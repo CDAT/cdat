@@ -23,7 +23,6 @@ import tempfile
 import vcsaddons
 import cdms2
 import genutil
-import copy
 
 indent = 1
 sort_keys = True
@@ -522,16 +521,17 @@ def scriptrun_scr(*args):
                 os.remove(temporary_file_name)
     fin.close()
 
+
 def saveinitialfile():
     _dotdir, _dotdirenv = vcs.getdotdirectory()
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
         os.remove(fnm)
-    Skip={}
+    Skip = {}
     for k in vcs.elements.keys():
         Skip[k] = []
         for e in vcs.elements[k].keys():
-            if e in vcs._protected_elements[k] or  e[:2]=="__":  # temporary elt
+            if e in vcs._protected_elements[k] or e[:2] == "__":  # temporary elt
                 Skip[k].append(e)
     for k in vcs.elements.keys():
         if k in ["display", "font", "fontNumber"]:
@@ -540,16 +540,16 @@ def saveinitialfile():
             D2 = {}
             D2["L"] = {}
             for l in vcs.elements["list"].keys():
-                if not l in Skip["list"]:
-                    D2["L"][l]=vcs.elements["list"][l]
-            if len(D2["L"].keys())!=0:
+                if l not in Skip["list"]:
+                    D2["L"][l] = vcs.elements["list"][l]
+            if len(D2["L"].keys()) != 0:
                 f = open(fnm + ".json", "w")
                 json.dump(D2, f)
                 f.close()
             continue
         e = vcs.elements[k]
         for nm, g in e.iteritems():
-            if not nm in Skip[k]:
+            if nm not in Skip[k]:
                 try:
                     g.script(fnm)
                 except Exception as err:
