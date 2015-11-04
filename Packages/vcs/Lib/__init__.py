@@ -41,7 +41,6 @@ _colorMap = "default"
 
 _default_time_units = 'days since 2000'
 
-
 ##########################################################################
 #                                                                               #
 # Set up the User's  directory if necessary. Copy files from      #
@@ -59,6 +58,7 @@ install_vcs._XGKSFontDir()
 
 
 elements = collections.OrderedDict()
+elements["list"] = {}
 elements["projection"] = {}
 elements["texttable"] = {}
 elements["textorientation"] = {}
@@ -66,7 +66,6 @@ elements["textcombined"] = {}
 elements["line"] = {}
 elements["marker"] = {}
 elements["fillarea"] = {}
-elements["list"] = {}
 elements["font"] = {}
 elements["fontNumber"] = {}
 elements["boxfill"] = {}
@@ -217,10 +216,10 @@ for typ in elements.keys():
     for k in elts.keys():  # let's save which elements should be saved and untouched
         _protected_elements[typ].add(k)
 
-self._dotdir, self._dotdirenv = vcs.getdotdirectory()
+_dotdir, _dotdirenv = vcs.getdotdirectory()
 user_init = os.path.join(
     os.environ['HOME'],
-    self._dotdir,
+    _dotdir,
     'initial.attributes')
 if os.path.exists(user_init):
     vcs.scriptrun(user_init)
