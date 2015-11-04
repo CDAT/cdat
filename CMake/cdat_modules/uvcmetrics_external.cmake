@@ -7,7 +7,7 @@ if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
 
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fetch_uvcmetrics_testdata.py
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+    WORKING_DIRECTORY ${cdat_CMAKE_SOURCE_DIR}
     RESULT_VARIABLE res
     OUTPUT_VARIABLE ver
     )
