@@ -23,6 +23,7 @@ import tempfile
 import vcsaddons
 import cdms2
 import genutil
+import copy
 
 indent = 1
 sort_keys = True
@@ -103,7 +104,7 @@ def dumpToJson(obj, fileout, skipped=[
             f.close()
             for etype in associated.keys():
                 for asso in associated[etype]:
-                    if asso is not None:
+                    if asso is not None and asso not in vcs._protected_elements[etype]:
                         dumpToJson(
                             vcs.elements[etype][asso],
                             fileout,
@@ -521,38 +522,39 @@ def scriptrun_scr(*args):
                 os.remove(temporary_file_name)
     fin.close()
 
-
 def saveinitialfile():
     _dotdir, _dotdirenv = vcs.getdotdirectory()
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
         os.remove(fnm)
-    items = vcs.elements.keys()
-    for k in ["projection", "marker", "texttable",
-              "textorientation", "line", "list"]:
-        items.remove(k)
-        items.insert(0, k)
-    for k in items:
-        if k in ["font", "fontNumber"]:
+    Skip={}
+    for k in vcs.elements.keys():
+        Skip[k] = []
+        for e in vcs.elements[k].keys():
+            if e in vcs._protected_elements[k] or  e[:2]=="__":  # temporary elt
+                Skip[k].append(e)
+    for k in vcs.elements.keys():
+        if k in ["display", "font", "fontNumber"]:
             continue
         elif k == "list":
-            D = {}
-            D["L"] = vcs.elements["list"]
-            f = open(fnm + ".json", "w")
-            json.dump(D, f)
-            f.close()
+            D2 = {}
+            D2["L"] = {}
+            for l in vcs.elements["list"].keys():
+                if not l in Skip["list"]:
+                    D2["L"][l]=vcs.elements["list"][l]
+            if len(D2["L"].keys())!=0:
+                f = open(fnm + ".json", "w")
+                json.dump(D2, f)
+                f.close()
             continue
         e = vcs.elements[k]
         for nm, g in e.iteritems():
-            if nm != "default" and not nm[:2] == "__" \
-                    and nm not in ["default_scatter_",
-                                   "default_xvsy_", "default_xyvsy_",
-                                   "default_yxvsx_"]:  # skip defaults and temp ones
+            if not nm in Skip[k]:
                 try:
                     g.script(fnm)
                 except Exception as err:
                     warnings.warn(
-                        "Could not save graphic method %s named %si: %s" %
+                        "Could not save graphic method %s named %s: %s" %
                         (k, nm, err))
     # extension .json has been auto-added, removing it in this specific case
     os.rename(fnm + ".json", fnm)
@@ -596,7 +598,7 @@ def scriptrun(script):
             f = open(script)
             jsn = json.load(f)
             keys = []
-            for k in ["Tt", "To", "Tl", "Tm"]:  # always read these first
+            for k in ["Tt", "To", "Tl", "Tm", "Proj"]:  # always read these first
                 if k in jsn.keys():
                     keys.append(k)
             for k in jsn.keys():
