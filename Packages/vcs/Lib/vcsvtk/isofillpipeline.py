@@ -199,7 +199,8 @@ class IsofillPipeline(Pipeline2D):
                                                         fillareastyle=style,
                                                         fillareaindex=tmpIndices[i],
                                                         fillareacolors=c,
-                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0)
+                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0,
+                                                        size=self._context().canvas.backend.renWin.GetSize())
             if act is not None:
                 self._patternActors.append(act)
 

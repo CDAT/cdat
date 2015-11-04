@@ -1,8 +1,13 @@
 import vtk
 from patterns import pattern_list
+import math
 
-# number of pixels per individual pattern block
-NUM_PIXELS = 16
+
+def num_pixels_for_size(size):
+    # Select the largest dimension available
+    dim = max(size)
+    log2 = math.log(dim, 2)
+    return 2 ** (int(log2))
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
@@ -16,10 +21,13 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
         fillareaindex = 1
     if fillareaopacity is None:
         fillareaopacity = 255
+    num_pixels = num_pixels_for_size(size)
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
     bounds = inputContours.GetBounds()
+    import debug
+    print debug.calling_info()
 
     patternPlane = vtk.vtkPlaneSource()
     patternPlane.SetOrigin(bounds[0], bounds[2], 0.0)
@@ -34,26 +42,21 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
-    if xBounds <= 1 and yBounds <= 1 and size is not None:
-        xBounds *= size[0]
-        yBounds *= size[1]
-        xres, yres = int(xBounds), int(yBounds)
-    else:
-        xres = int(4.0*xBounds)
-        yres = int(4.0*yBounds)
+    xres = int(4.0*xBounds)
+    yres = int(4.0*yBounds)
     # Handle the case when the bounds are less than 1 in physical dimensions
-    if xBounds < 1 or yBounds < 1:
+    if xBounds <= 1 or yBounds <= 1:
         boundsAspect = xBounds / yBounds
-        global NUM_PIXELS
         if boundsAspect > 1.0:
-            yres = 2 * NUM_PIXELS
-            xres = int(boundsAspect * yres)
+            yres = num_pixels
+            xres = int(yres * boundsAspect)
         else:
-            xres = 2 * NUM_PIXELS
+            xres = num_pixels
             yres = int(xres / boundsAspect)
-    patternImage = create_pattern(xres, yres, fillareastyle,
+    patternImage = create_pattern(xres, yres, num_pixels, fillareastyle,
                                   fillareaindex, fillareacolors,
                                   fillareaopacity)
+    print patternImage.GetDimensions(), xres, yres, num_pixels, xBounds, yBounds
     if patternImage is None:
         return None
 
@@ -78,11 +81,13 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Stencil out the fillarea from the pattern image
     stenc = vtk.vtkImageStencil()
     stenc.SetInputData(patternImage)
+    print patternImage.GetDimensions()
     stenc.SetStencilConnection(pol2stenc.GetOutputPort())
     stenc.ReverseStencilOff()
     stenc.SetBackgroundColor(0, 0, 0, 0)
     stenc.Update()
     patternImage = stenc.GetOutput()
+    print patternImage.GetDimensions()
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
@@ -96,7 +101,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     return actor
 
 
-def create_pattern(width, height, fillareastyle=None,
+def create_pattern(width, height, num_pixels, fillareastyle=None,
                    fillareaindex=None, fillareacolors=None, fillareaopacity=None):
     if fillareastyle == 'solid':
         return None
@@ -111,5 +116,5 @@ def create_pattern(width, height, fillareastyle=None,
         fillareaopacity = 255
 
     # Create a pattern source image of the given size
-    pattern = pattern_list[fillareaindex](width, height, fillareacolors, fillareastyle, fillareaopacity)
+    pattern = pattern_list[fillareaindex](width, height, num_pixels, fillareacolors, fillareastyle, fillareaopacity)
     return pattern.render()
