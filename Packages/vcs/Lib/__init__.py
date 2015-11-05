@@ -146,6 +146,7 @@ for nm, fnt in [
 p = projection.Proj("default")
 p = projection.Proj("linear")
 line.Tl("default")
+line.Tl("solid")
 line.Tl("deftaylordot")
 line.type = ["dot"]
 texttable.Tt("default")
