@@ -7,7 +7,7 @@ x = vcs.init()
 # Needs to set the size of window so it is consistent accross
 # test platforms
 x.open()
-x.geometry(x.bgX,x.bgY)
+x.geometry(800, 606)
 
 cltfile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt = cltfile("clt")
@@ -47,7 +47,7 @@ c = x.configurator
 # Make sure the displays are current
 c.update()
 
-w, h = x.bgX, x.bgY
+w, h = 800, 606
 
 # Retrieve the actor at the specified point
 actor = c.actor_at_point(.1 * w + 5, .9 * h + 5)
