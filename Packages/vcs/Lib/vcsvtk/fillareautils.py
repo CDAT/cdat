@@ -6,8 +6,8 @@ import math
 def num_pixels_for_size(size):
     # Select the largest dimension available
     dim = max(size)
-    log2 = math.log(dim, 2)
-    return 2 ** (int(log2))
+    log4 = math.log(dim, 4)
+    return 2 ** (int(log4))
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
@@ -22,12 +22,11 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     if fillareaopacity is None:
         fillareaopacity = 255
     num_pixels = num_pixels_for_size(size)
+    print num_pixels
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
     bounds = inputContours.GetBounds()
-    import debug
-    print debug.calling_info()
 
     patternPlane = vtk.vtkPlaneSource()
     patternPlane.SetOrigin(bounds[0], bounds[2], 0.0)
@@ -48,10 +47,10 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     if xBounds <= 1 or yBounds <= 1:
         boundsAspect = xBounds / yBounds
         if boundsAspect > 1.0:
-            yres = num_pixels
+            yres = num_pixels * 2
             xres = int(yres * boundsAspect)
         else:
-            xres = num_pixels
+            xres = num_pixels * 2
             yres = int(xres / boundsAspect)
     patternImage = create_pattern(xres, yres, num_pixels, fillareastyle,
                                   fillareaindex, fillareacolors,
@@ -93,6 +92,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     patternTexture = vtk.vtkTexture()
     patternTexture.SetInputData(patternImage)
     patternTexture.InterpolateOn()
+    patternTexture.RepeatOn()
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(textureMap.GetOutputPort())
     actor = vtk.vtkActor()
