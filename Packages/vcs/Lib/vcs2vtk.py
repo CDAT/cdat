@@ -1123,10 +1123,11 @@ def prepFillarea(renWin, farea, cmap=None):
     range_x = farea.viewport[1] - farea.viewport[0]
     range_y = farea.viewport[3] - farea.viewport[2]
 
+    """
     # Adjust size appropriately
     w, h = w * range_x, h * range_y
     print "W/H of viewport", w, h
-
+    """
 
     # Find color map:
     if farea.colormap is not None:
@@ -1172,8 +1173,7 @@ def prepFillarea(renWin, farea, cmap=None):
         pid.SetNumberOfIds(N)
 
         for j in range(N):
-            pid.SetId(j, points.InsertNextPoint(x[j] * w, y[j] * h, 0.))
-            print points.GetPoint(j)
+            pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
         color = [int((C / 100.) * 255) for C in cmap.index[c]]
@@ -1196,7 +1196,6 @@ def prepFillarea(renWin, farea, cmap=None):
             # Patterns/hatches support
             geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
             pd.SetPoints(proj_points)
-            print "make patterned"
             act = fillareautils.make_patterned_polydata(pd,
                                                         st,
                                                         idx,

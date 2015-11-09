@@ -1,13 +1,11 @@
 import vtk
 from patterns import pattern_list
-import math
 
 
 def num_pixels_for_size(size):
     # Select the largest dimension available
     dim = max(size)
-    log4 = math.log(dim, 4)
-    return 2 ** (int(log4))
+    return int(round(dim / 20))
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
@@ -22,7 +20,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     if fillareaopacity is None:
         fillareaopacity = 255
     num_pixels = num_pixels_for_size(size)
-    print num_pixels
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
@@ -41,21 +38,16 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
-    xres = int(4.0*xBounds)
-    yres = int(4.0*yBounds)
-    # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds <= 1 or yBounds <= 1:
-        boundsAspect = xBounds / yBounds
-        if boundsAspect > 1.0:
-            yres = num_pixels * 2
-            xres = int(yres * boundsAspect)
-        else:
-            xres = num_pixels * 2
-            yres = int(xres / boundsAspect)
+        xBounds *= size[0]
+        yBounds *= size[1]
+    xres = int(4.0 * xBounds)
+    yres = int(4.0 * yBounds)
+    # Handle the case when the bounds are less than 1 in physical dimensions
+
     patternImage = create_pattern(xres, yres, num_pixels, fillareastyle,
                                   fillareaindex, fillareacolors,
                                   fillareaopacity)
-    print patternImage.GetDimensions(), xres, yres, num_pixels, xBounds, yBounds
     if patternImage is None:
         return None
 
@@ -80,13 +72,11 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Stencil out the fillarea from the pattern image
     stenc = vtk.vtkImageStencil()
     stenc.SetInputData(patternImage)
-    print patternImage.GetDimensions()
     stenc.SetStencilConnection(pol2stenc.GetOutputPort())
     stenc.ReverseStencilOff()
     stenc.SetBackgroundColor(0, 0, 0, 0)
     stenc.Update()
     patternImage = stenc.GetOutput()
-    print patternImage.GetDimensions()
 
     # Create the texture using the stenciled pattern
     patternTexture = vtk.vtkTexture()
