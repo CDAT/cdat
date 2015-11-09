@@ -65,8 +65,8 @@ class SmallRectDot(Pattern):
             return None
         for x in xrange(0, self.width, self.num_pixels):
             for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillBox(x + self.num_pixels * 3 / 8, x + self.num_pixels * 5 / 8,
-                                      y + self.num_pixels * 3 / 8, y + self.num_pixels * 5 / 8)
+                patternSource.FillBox(x + self.num_pixels / 4, x + self.num_pixels * 3 / 4,
+                                      y + self.num_pixels / 4, y + self.num_pixels * 3 / 4)
 
 
 class CheckerBoard(Pattern):
@@ -165,7 +165,7 @@ class XDash(Pattern):
         if patternSource is None:
             return None
 
-        thickness = 2
+        thickness = self.num_pixels / 8
         for x in range(thickness, self.width, self.num_pixels):
             patternSource.FillBox(x - thickness, x + thickness, 0, self.height)
 
@@ -297,11 +297,11 @@ class Snake(Pattern):
             return None
         for x in xrange(0, self.width, self.num_pixels):
             for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillBox(x, x + self.num_pixels * 3 / 8,
-                                      y, y + self.num_pixels / 4)
-                patternSource.FillBox(x + self.num_pixels * 5 / 8, x + self.num_pixels,
-                                      y, y + self.num_pixels / 4)
-                patternSource.FillBox(x + self.num_pixels / 4, x + self.num_pixels * 3 / 4,
+                patternSource.FillBox(x, x + self.num_pixels / 3,
+                                      y, y + self.num_pixels / 3)
+                patternSource.FillBox(x + self.num_pixels * 2 / 3, x + self.num_pixels,
+                                      y, y + self.num_pixels / 3)
+                patternSource.FillBox(x + self.num_pixels / 6, x + self.num_pixels * 5 / 6,
                                       y + self.num_pixels / 3, y + self.num_pixels * 2 / 3)
 
 
@@ -311,9 +311,12 @@ class EmptyCircle(Pattern):
             return None
         for x in xrange(0, self.width, self.num_pixels):
             for y in xrange(0, self.height, self.num_pixels):
-                patternSource.DrawCircle(x + self.num_pixels / 2, y + self.num_pixels / 2, self.num_pixels / 4.)
+                # Draw 1/3 or the radius as border by making several smaller circles
+                for r in range(self.num_pixels / 8):
+                    patternSource.DrawCircle(x + self.num_pixels / 2, y + self.num_pixels / 2, self.num_pixels / 4. - r)
 
 
+# Patterns are 1-indexed, so we always skip the 0th element in this list
 pattern_list = [Pattern, BottomLeftTri, TopRightTri, SmallRectDot, CheckerBoard,
                 HorizStripe, VertStripe, HorizDash, VertDash, XDash, ThinDiagDownRight,
                 ThickDiagRownRight, ThinDiagUpRight, ThickDiagUpRight, ThickThinVertStripe,
