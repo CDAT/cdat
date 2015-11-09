@@ -1119,16 +1119,6 @@ def prepFillarea(renWin, farea, cmap=None):
         return []
     actors = []
 
-    w, h = renWin.GetSize()
-    range_x = farea.viewport[1] - farea.viewport[0]
-    range_y = farea.viewport[3] - farea.viewport[2]
-
-    """
-    # Adjust size appropriately
-    w, h = w * range_x, h * range_y
-    print "W/H of viewport", w, h
-    """
-
     # Find color map:
     if farea.colormap is not None:
         cmap = farea.colormap
