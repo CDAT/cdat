@@ -4747,7 +4747,6 @@ Options:::
 
         W, H = self._compute_width_height(
             width, height, units)
-        print "Requesting png with:",width,height
         return self.backend.png(
             file, W, H, units, draw_white_background, **args)
 
@@ -4766,9 +4765,9 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.plot(array)
-    a.png('example')       # Overwrite a postscript file
-    a.png('example', width=11.5, height= 8.5)  # US Legal
-    a.png('example', width=21, height=29.7, units='cm')  # A4
+    a.pdf('example')       # Overwrite a postscript file
+    a.pdf('example', width=11.5, height= 8.5)  # US Legal
+    a.pdf('example', width=21, height=29.7, units='cm')  # A4
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4914,7 +4913,7 @@ Options:::
         """Is the Canvas opened?"""
         return self.backend.isopened()
 
-    def _compute_width_height(self, width, height, units, ps=True):
+    def _compute_width_height(self, width, height, units, ps=False):
         dpi = 72.  # dot per inches
         if units in ["in", "inches"]:
             factor = 1.
@@ -4984,6 +4983,8 @@ Options:::
             tmp = W
             W = H
             H = tmp
+        if H % 2 == 1:
+            H-=1
         return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
@@ -5020,7 +5021,7 @@ Options:::
 
         # figures out width/height
         W, H = self._compute_width_height(
-            width, height, units)
+            width, height, units, ps=True)
 
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
