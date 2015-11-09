@@ -10,7 +10,7 @@ import checkimage
 
 canvas = vcs.init()
 canvas.setantialiasing(0)
-canvas.setbgoutputdimensions(1200, 1091, units="pixels")
+canvas.setbgoutputdimensions(792, 611, units="pixels")
 canvas.drawlogooff()
 
 fillarea = vcs.createfillarea()
@@ -20,11 +20,10 @@ fillarea.style = ["solid", "pattern", "hatch"]
 fillarea.index = [1, 5, 5]
 fillarea.color = [50, 50, 50]
 
-canvas.plot(fillarea)
+canvas.plot(fillarea, bg=1)
 
 testImage = os.path.abspath("test_vcs_large_pattern_hatch.png")
-canvas.png(testImage, bg=1)
-print testImage
+canvas.png(testImage)
 
 ret = checkimage.check_result_image(testImage, baseline,
                                     checkimage.defaultThreshold)

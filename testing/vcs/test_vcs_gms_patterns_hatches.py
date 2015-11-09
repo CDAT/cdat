@@ -80,7 +80,7 @@ xtra["squeeze"] = 1
 f = cdms2.open(os.path.join(vcs.sample_data, 'tas_ccsr-95a_1979.01-1979.12.nc'))
 s = f("tas", **xtra)
 f.close()
-gm.list()
+
 x.plot(s, gm, bg=bg)
 fnm = "test_vcs_%s_%s" % (args.gm.lower(), args.fill_style.lower())
 if args.projtype != "default":
