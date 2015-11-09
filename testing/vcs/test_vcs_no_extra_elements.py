@@ -1,5 +1,6 @@
 import vcs
 import numpy
+import pdb
 
 x = vcs.init()
 
@@ -14,11 +15,13 @@ for k in vcs.elements.keys():
     new[k] = []
     orig[k]=vcs.elements[k].keys()
 
-x.plot(data,"default","boxfill",bg=1)
-x.plot(data,"default","isofill",bg=1)
-x.plot(data,"default","isoline",bg=1)
-x.plot(data,data,"default","vector",bg=1)
-x.plot(data,"default","1d",bg=1)
+#x.plot(data,"default","boxfill",bg=1)
+#x.plot(data,"default","isofill",bg=1)
+#x.plot(data,"default","isoline",bg=1)
+#x.plot(data,data,"default","vector",bg=1)
+print data
+pdb.set_trace()
+x.plot(data,"default","1d",bg=0)
 x.clear()
 
 diff = False
