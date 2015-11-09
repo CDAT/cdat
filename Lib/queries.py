@@ -149,19 +149,7 @@ print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
     elif (isinstance(gobj, vector.Gv)):
         return 'vector'
     elif (isinstance(gobj, unified1D.G1d)):
-        nm = gobj.name.split("_")[-1]
-        if nm in ["yxvsx", "xvsy", "xyvsy", "scatter"]:
-            nm = "_".join(gobj.name.split("_")[:-1])
-            if nm in vcs.elements["scatter"]:
-                return 'scatter'
-            elif nm in vcs.elements["xvsy"]:
-                return 'xvsy'
-            elif nm in vcs.elements["xyvsy"]:
-                return 'xyvsy'
-            elif nm in vcs.elements["yxvsx"]:
-                return 'yxvsx'
-        else:
-            return "1d"
+        return "1d"
     elif (isinstance(gobj, taylor.Gtd)):
         return 'taylordiagram'
     elif (isinstance(gobj, meshfill.Gfm)):
@@ -583,8 +571,7 @@ if queries.isscatter(scr):
    scr.list()
 
 """
-    if (isinstance(obj, unified1D.G1d)) and obj.name[-8:] == "scatter_" and "_".join(
-            obj.name.split("_")[:-2]) in vcs.elements["scatter"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.g_type == "scatter":
         return 1
     else:
         return 0
@@ -612,8 +599,7 @@ if queries.isxyvsy(xyy):
    xyy.list()
 
 """
-    if (isinstance(obj, unified1D.G1d)) and obj.name[-6:] == "xyvsy_" and "_".join(
-            obj.name.split("_")[:-2]) in vcs.elements["xyvsy"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.g_type == "xyvsy":
         return 1
     else:
         return 0
@@ -641,8 +627,7 @@ if queries.isyxvsx(yxx):
    yxx.list()
 
 """
-    if (isinstance(obj, unified1D.G1d)) and obj.name[-6:] == "yxvsx_" and "_".join(
-            obj.name.split("_")[:-2]) in vcs.elements["yxvsx"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
         return 1
     else:
         return 0
@@ -670,8 +655,7 @@ if queries.isxvsy(xy):
    xy.list()
 
 """
-    if (isinstance(obj, unified1D.G1d)) and obj.name[-5:] == "xvsy_" and "_".join(
-            obj.name.split("_")[:-2]) in vcs.elements["xvsy"]:
+    if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
         return 1
     else:
         return 0
