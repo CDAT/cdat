@@ -317,7 +317,9 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            self.initialSize()
+            width = kargs.get("width",None)
+            height = kargs.get("height",None)
+            self.initialSize(width,height)
 
         if self.renderer is None:
             self.renderer = self.createRenderer()
@@ -422,8 +424,13 @@ class VTKVCSBackend(object):
     def landscape(self, W=-99, H=-99, x=-99, y=-99, clear=0):
         self.resize_or_rotate_window(W, H, x, y, clear)
 
-    def initialSize(self):
+    def initialSize(self, width=None, height=None):
         # Gets user physical screen dimensions
+        if isinstance(width,int) and isinstance(height,int):
+            self.renWin.SetSize(width,height)
+            self._lastSize=(width,height)
+            return
+
         screenSize = self.renWin.GetScreenSize()
         try:
             # following works on some machines but not all
@@ -437,8 +444,8 @@ class VTKVCSBackend(object):
         self.renWin.SetSize(bgX, bgY)
         self._lastSize = (bgX, bgY)
 
-    def open(self):
-        self.createRenWin(open=True)
+    def open(self, width=None, height=None, **kargs):
+        self.createRenWin(open=True, width=width, height=height)
 
     def close(self):
         if self.renWin is None:
@@ -458,6 +465,7 @@ class VTKVCSBackend(object):
 
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
+        self._lastSize = (x, y)
 
     def flush(self):
         if self.renWin is not None:
