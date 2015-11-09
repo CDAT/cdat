@@ -1014,7 +1014,9 @@ class VTKVCSBackend(object):
             pass
 
         if width is not None and height is not None:
-            self.renWin.SetSize(width, height)
+            if self.renWin.GetSize() != (width,height):
+                self.renWin.SetSize(width, height)
+                self.configureEvent(None,None)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
