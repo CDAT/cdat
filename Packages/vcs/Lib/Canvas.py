@@ -4424,7 +4424,7 @@ Options:::
     # Open VCS Canvas wrapper for VCS.                                          #
     #                                                                           #
     ##########################################################################
-    def open(self, *args, **kargs):
+    def open(self, width=None, height=None, **kargs):
         """
  Function: open
 
@@ -4435,9 +4435,10 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.open()
+    a.open(800,600)
 """
 
-        a = self.backend.open(*args, **kargs)
+        a = self.backend.open(width, height, **kargs)
 
         return a
 
@@ -4746,6 +4747,7 @@ Options:::
 
         W, H = self._compute_width_height(
             width, height, units)
+        print "Requesting png with:",width,height
         return self.backend.png(
             file, W, H, units, draw_white_background, **args)
 
