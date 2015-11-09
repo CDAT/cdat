@@ -33,7 +33,8 @@ from dataset import createDataset, openDataset, useNetcdf3, \
         setNetcdfUseNCSwitchModeFlag,getNetcdfUseNCSwitchModeFlag,\
         setCompressionWarnings,\
         setNetcdf4Flag, getNetcdf4Flag,\
-        setNetcdfUseParallelFlag, getNetcdfUseParallelFlag
+        setNetcdfUseParallelFlag, getNetcdfUseParallelFlag, \
+        getMpiRank, getMpiSize
 
 open = openDataset
 
