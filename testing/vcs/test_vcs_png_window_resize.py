@@ -9,7 +9,7 @@ import checkimage
 x=vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
-x.open(814,629)
+x.open(814,628)
 x.plot([1,2,3,4,5,6,7])
 fnm = __file__[:-3]+".png"
 x.png(fnm)
