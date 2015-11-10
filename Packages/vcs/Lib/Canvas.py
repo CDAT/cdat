@@ -4650,11 +4650,10 @@ Options:::
         if test_file is not False:
             # H264 requires even numbered heights and widths
             width, height = self.backend.png_dimensions(test_file)
-            print width, height
             if width % 2 == 1:
-                width = width - 1
+                width = width + 1
             if height % 2 == 1:
-                height = height - 1
+                height = height + 1
             args.extend(("-vf", "scale=%d:%d" % (width, height)))
 
         if options is not None:
@@ -4983,8 +4982,6 @@ Options:::
             tmp = W
             W = H
             H = tmp
-        if H % 2 == 1:
-            H-=1
         return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
