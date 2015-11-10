@@ -652,6 +652,18 @@ cdat_add_test(vcs_test_taylor_2_quads
       ENDFOREACH(style)
     ENDFOREACH(gm)
 
+    FOREACH(gm isofill meshfill boxfill)
+      FOREACH(proj polar robinson mercator mollweide lambert)
+        cdat_add_test(vcs_test_animate_projected_${gm}_${proj}
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
+          --gm_type=${gm}
+          --projection_type=${proj}
+          --source_dir=${BASELINE_DIR}
+          )
+      ENDFOREACH(proj)
+    ENDFOREACH(gm)
+
     FOREACH(flip None X XY Y)
       cdat_add_test(vcs_test_flip${flip}
         "${PYTHON_EXECUTABLE}"
