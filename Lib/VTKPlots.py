@@ -317,9 +317,9 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            width = kargs.get("width",None)
-            height = kargs.get("height",None)
-            self.initialSize(width,height)
+            width = kargs.get("width", None)
+            height = kargs.get("height", None)
+            self.initialSize(width, height)
 
         if self.renderer is None:
             self.renderer = self.createRenderer()
@@ -426,9 +426,9 @@ class VTKVCSBackend(object):
 
     def initialSize(self, width=None, height=None):
         # Gets user physical screen dimensions
-        if isinstance(width,int) and isinstance(height,int):
-            self.renWin.SetSize(width,height)
-            self._lastSize=(width,height)
+        if isinstance(width, int) and isinstance(height, int):
+            self.renWin.SetSize(width, height)
+            self._lastSize = (width, height)
             return
 
         screenSize = self.renWin.GetScreenSize()
@@ -1014,9 +1014,9 @@ class VTKVCSBackend(object):
             pass
 
         if width is not None and height is not None:
-            if self.renWin.GetSize() != (width,height):
+            if self.renWin.GetSize() != (width, height):
                 self.renWin.SetSize(width, height)
-                self.configureEvent(None,None)
+                self.configureEvent(None, None)
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
