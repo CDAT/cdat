@@ -36,12 +36,12 @@ endif()
 
 if(CDAT_BUILD_ESMF_ESMP)
     if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
-      # GNU gfortran must be >= 4.3
-      if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 1)
+      # GNU gfortran must be >= 4.3 last 4.2 gfortran release was 4.2.4
+      if(${Fortran_VERSION} VERSION_GREATER "4.2.9" AND ${Fortran_VERSION} VERSION_LESS "5.2.2")
         ## On APPLE need to test for -arch as well!
         add_cdat_package(ESMF "" "Build ESMF" ON)
       else()
-        message(FATAL_ERROR "[ERROR] gfortran must be 4.1 <= version < 5.2; you have ${Fortran_VERSION}")
+        message(FATAL_ERROR "[ERROR] gfortran must be 4.3 <= version < 5.2.2; you have ${Fortran_VERSION}")
       endif()
     else()
       add_cdat_package(ESMF "" "Build ESMF" ON)
