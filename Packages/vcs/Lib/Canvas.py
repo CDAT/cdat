@@ -3497,6 +3497,8 @@ Options:::
                     tp = "textcombined"
                 elif tp == "default":
                     tp = "boxfill"
+                elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+                    tp = "1d"
                 gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return

@@ -483,6 +483,8 @@ class VTKVCSBackend(object):
             tt = vcs.elements["texttable"][tt]
             to = vcs.elements["textorientation"][to]
             gm = tt
+        elif gtype in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+            gm = vcs.elements["1d"][gname]
         else:
             gm = vcs.elements[gtype][gname]
         tpl = vcs.elements["template"][template]
