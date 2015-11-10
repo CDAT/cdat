@@ -1,13 +1,16 @@
 import vtk
 from patterns import pattern_list
 
-# number of pixels per individual pattern block
-NUM_PIXELS = 16
+
+def num_pixels_for_size(size):
+    # Select the largest dimension available
+    dim = max(size)
+    return int(round(dim / 20))
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
                             fillareaindex=None, fillareacolors=None,
-                            fillareaopacity=None):
+                            fillareaopacity=None, size=None):
     if inputContours is None or fillareastyle == 'solid':
         return None
     if inputContours.GetNumberOfCells() == 0:
@@ -16,7 +19,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
         fillareaindex = 1
     if fillareaopacity is None:
         fillareaopacity = 255
-    num_pixels = NUM_PIXELS
+    num_pixels = num_pixels_for_size(size)
 
     # Create the plane that will be textured with the pattern
     # The bounds of the plane match the bounds of the input polydata
@@ -35,19 +38,16 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
+
+    if xBounds <= 1 and yBounds <= 1 and size is not None:
+        xBounds *= size[0]
+        yBounds *= size[1]
+        xres, yres = int(xBounds), int(yBounds)
+
     xres = int(4.0*xBounds)
     yres = int(4.0*yBounds)
 
     # Handle the case when the bounds are less than 1 in physical dimensions
-    if xBounds < 1 or yBounds < 1:
-        boundsAspect = xBounds / yBounds
-        global NUM_PIXELS
-        if boundsAspect > 1.0:
-            yres = 2 * NUM_PIXELS
-            xres = int(boundsAspect * yres)
-        else:
-            xres = 2 * NUM_PIXELS
-            yres = int(xres / boundsAspect)
 
     patternImage = create_pattern(xres, yres, num_pixels, fillareastyle,
                                   fillareaindex, fillareacolors,

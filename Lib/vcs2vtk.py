@@ -1190,7 +1190,8 @@ def prepFillarea(renWin, farea, cmap=None):
                                                         st,
                                                         idx,
                                                         color,
-                                                        opacity)
+                                                        opacity,
+                                                        renWin.GetSize())
             if act is not None:
                 if opacity > 0:
                     m = vtk.vtkPolyDataMapper()
