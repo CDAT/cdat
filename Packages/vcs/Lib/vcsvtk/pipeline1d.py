@@ -36,6 +36,10 @@ class Pipeline1D(Pipeline):
             Y = X
             X = tmp
 
+        if len(Y) != len(X):
+            raise RuntimeError("VCS 1D Plot received plots with different length: %s and %s" %
+                               (len(X), len(Y)))
+
         if self._gm.smooth is not None:
             Y = smooth(Y, self._gm.smooth)
 
