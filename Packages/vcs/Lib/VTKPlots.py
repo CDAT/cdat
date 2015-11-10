@@ -1013,10 +1013,16 @@ class VTKVCSBackend(object):
         except:
             pass
 
+        sz = self.renWin.GetSize()
         if width is not None and height is not None:
             if self.renWin.GetSize() != (width, height):
+                user_dims = (self.canvas.bgX,self.canvas.bgY,sz[0],sz[1])
                 self.renWin.SetSize(width, height)
+                self.canvas.bgX = width
+                self.canvas.bgY = height
                 self.configureEvent(None, None)
+            else:
+                user_dims = None
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
@@ -1035,6 +1041,10 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+        if user_dims is not None:
+            self.canvas.bgX, self.canvas.bgY, w, h = user_dims
+            self.renWin.SetSize(w,h)
+            self.configureEvent(None,None)
 
     def cgm(self, file):
         if self.renWin is None:
