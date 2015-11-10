@@ -133,13 +133,15 @@ def handleProjectionEdgeCases(projection, data):
     # For mercator projection, latitude values of -90 or 90
     # transformation result in infinity values. We chose -85, 85
     # as that's the typical limit used by the community.
-    pname = projDict.get(projection._type, projection.type)
-    if (pname.lower() == "merc"):
-        lat = data.getLatitude()[:]
-        # Reverse the latitudes incase the starting latitude is greater
-        # than the ending one
-        if lat[-1] < lat[0]:
-            lat = lat[::-1]
+    ptype = projDict.get(projection._type, projection.type)
+    if (ptype.lower() == "merc"):
+        lat = data.getLatitude()
+        if isinstance(lat,cdms2.axis.TransientAxis):
+            lat=lat[:]
+            # Reverse the latitudes incase the starting latitude is greater
+            # than the ending one
+            if lat[-1] < lat[0]:
+                lat = lat[::-1]
         data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
     return data
 
