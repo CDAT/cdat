@@ -382,6 +382,9 @@ class BoxfillPipeline(Pipeline2D):
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
         self._patternActors = []
+        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
+                                                       self._data1.getAxis(-1),
+                                                       self._data1.getAxis(-2))
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -422,7 +425,8 @@ class BoxfillPipeline(Pipeline2D):
                                                             fillareastyle=style,
                                                             fillareaindex=tmpIndices[i],
                                                             fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0)
+                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0,
+                                                            size=(x2 - x1, y2 - y1))
                 if act is not None:
                     self._patternActors.append(act)
 
