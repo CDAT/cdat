@@ -35,7 +35,6 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
-    # Scaled the size to 2 times to make the pattern image of a finer resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
 
