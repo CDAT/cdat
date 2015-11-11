@@ -1,9 +1,9 @@
 set(NC4_MAJOR_SRC 4)
 set(NC4_MINOR_SRC 4)
-set(NC4_PATCH_SRC 0-rc4)
+set(NC4_PATCH_SRC 0-rc5)
 set(NC4_URL ${LLNL_URL})
-set(NC4_GZ netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
-set(NC4_MD5 df5181806190510df238cfc00f6e5905)
+set(NC4_GZ netcdf-c-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
+set(NC4_MD5 a542254b7fc27258be9e8a11d74c97a0)
 
 set (nm NC4)
 string(TOUPPER ${nm} uc_nm)
