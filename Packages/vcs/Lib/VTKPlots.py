@@ -234,10 +234,14 @@ class VTKVCSBackend(object):
             parg.append(d.g_type)
             parg.append(d.g_name)
             plots_args.append(parg)
+            kwarg = {}
             if d.ratio is not None:
-                key_args.append({"ratio": d.ratio})
-            else:
-                key_args.append({})
+                kwarg["ratio"] = d.ratio
+
+            kwarg["continents"] = d.continents
+            kwarg["continents_line"] = d.continents_line
+
+            key_args.append(kwarg)
 
         # Have to pull out the UI layer so it doesn't get borked by the clear
         self.hideGUI()
@@ -651,7 +655,7 @@ class VTKVCSBackend(object):
                 plot.onClosing(cell)
 
     def plotContinents(self, x1, x2, y1, y2, projection, wrap, tmpl):
-        contData = vcs2vtk.prepContinents(self.canvas._continents)
+        contData = vcs2vtk.prepContinents(self.canvas._continentspath())
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()

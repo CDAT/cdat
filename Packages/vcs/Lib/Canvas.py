@@ -801,14 +801,12 @@ class Canvas(object):
         # Draw continental outlines if specified.
         contout = keyargs.get('continents', None)
         if contout is None:
-            #            if xdim>=0 and ydim>=0 and isgridded:
-            # Charles put back the self.isplottinggridded in addition for
-            # meshfill,
             if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
                     and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
                 contout = 1
             else:
                 contout = 0
+
         if (isinstance(arglist[GRAPHICS_METHOD], str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or (
                 (xdim >= 0 and ydim >= 0 and (contout >= 1) and (contout < 12))):
             self.setcontinentstype(contout)
@@ -2410,11 +2408,15 @@ Options:::
             pass
 
         if "continents_line" in keyargs:
+            # Stash the current line type
             old_line = self.getcontinentsline()
             self.setcontinentsline(keyargs["continents_line"])
+
         # Plot the data
         a = self.__plot(arglist, keyargs)
+
         if "continents_line" in keyargs:
+            # Restore the canvas line type
             self.setcontinentsline(old_line)
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options,
@@ -3480,6 +3482,8 @@ Options:::
             t.plot(arglist[0], canvas=self, template=arglist[2], **keyargs)
             nm, src = self.check_name_source(None, "default", "display")
             dn = displayplot.Dp(nm)
+            dn.continents = self.getcontinentstype()
+            dn.continents_line = self.getcontinentsline()
             dn.template = arglist[2]
             dn.g_type = arglist[3]
             dn.g_name = arglist[4]
@@ -3694,7 +3698,7 @@ Options:::
             if hasattr(self, '_isplottinggridded'):
                 del(self._isplottinggridded)
             # Get the continents for animation generation
-            self.animate.continents_value = self.getcontinentstype()
+            self.animate.continents_value = self._continentspath()
 
             # Get the option for doing graphics in the background.
             if bg:
@@ -3746,6 +3750,8 @@ Options:::
             if dn is not None:
                 dn._template_origin = template_origin
                 dn.ratio = Doratio
+                dn.continents = self.getcontinentstype()
+                dn.continents_line = self.getcontinentsline()
                 dn.newelements = self.__new_elts(original_elts, new_elts)
 
             if self.mode != 0:
@@ -4237,8 +4243,8 @@ Options:::
  Function: getcontinentstype
 
  Description of Function:
-    Retrieve continents type from VCS. Remember the value can only be between
-    0 and 11.
+    Retrieve continents type from VCS; either an integer between 0 and 11 or the
+    path to a custom continentstype.
 
  Example of Use:
      a=vcs.init()
@@ -5261,7 +5267,7 @@ Options:::
     # Set continents line wrapper for VCS.                                   #
     #                                                                        #
     ##########################################################################
-    def setcontinentsline(self, line):
+    def setcontinentsline(self, line="default"):
         """
     Function: setcontinentsline
 
@@ -5278,7 +5284,7 @@ Options:::
         # Use default line
         a.setcontinentsline("default")
         """
-        linename = VCS_validation_functions.checkLine(self, "continents_line", line)
+        linename = VCS_validation_functions.checkLine(self, "continentsline", line)
         line = vcs.getline(linename)
         self._continents_line = line
 
@@ -5322,67 +5328,19 @@ Options:::
       #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
       a.plot(array,'default','isofill','quick')
   """
-        nms = [
-            "fine",
-            "coarse",
-            "states",
-            "political",
-            "river",
-            "other6",
-            "other7",
-            "other8",
-            "other9",
-            "other10",
-            "other11",
-            "other12"]
-        if isinstance(value, int):
-            if value == 0:
-                self._continents = None
-            elif 0 < value < 12:
-                self._continents = os.path.join(
-                    os.environ.get(
-                        "HOME",
-                        ""),
-                    os.environ.get(
-                        vcs.getdotdirectory()[1],
-                        vcs.getdotdirectory()[0]),
-                    "data_continent_%s" % nms[
-                        value - 1])
-                if not os.path.exists(self._continents):
-                        # fallback on installed with system one
-                    self._continents = os.path.join(
-                        vcs.prefix,
-                        "share",
-                        "vcs",
-                        "data_continent_%s" % nms[
-                            value - 1])
-            else:
-                raise Exception(
-                    "Error continents value must be file or int < 12")
-        elif isinstance(value, str):
-            self._continents = value
-        else:
-            self._continents = None
-        if self._continents is not None and not os.path.exists(
-                self._continents):
+        continent_path = VCS_validation_functions.checkContinents(self, value)
+        self._continents = value
+        if continent_path is not None and not os.path.exists(
+                continent_path):
             warnings.warn(
-                "Continents file not found: %s, substituing with coarse continents" %
-                self._continents)
-            self._continents = os.path.join(
-                os.environ.get(
-                    "HOME",
-                    ""),
-                os.environ.get(
-                    vcs.getdotdirectory()[1],
-                    vcs.getdotdirectory()[0]),
-                "data_continent_coarse")
-            if not os.path.exists(self._continent):
-                self._continents = os.path.join(
-                    vcs.prefix,
-                    "share",
-                    "vcs",
-                    "data_continent_coarse")
+                "Continents file not found: %s, substituing with fine continents" %
+                value)
+            self._continents = 1
             return
+
+    def _continentspath(self):
+        continent_path = VCS_validation_functions.checkContinents(self, self._continents)
+        return continent_path
 
     ##########################################################################
     #                                                                           #

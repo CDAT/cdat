@@ -87,6 +87,50 @@ def checkElements(self, name, value, function):
     return value
 
 
+def checkContinents(self, value):
+    import os
+    nms = [
+        "fine",
+        "coarse",
+        "states",
+        "political",
+        "river",
+        "other6",
+        "other7",
+        "other8",
+        "other9",
+        "other10",
+        "other11",
+        "other12"]
+    path = None
+    if isinstance(value, int):
+        if value == 0:
+            path = None
+        elif 0 < value < 12:
+            path = os.path.join(
+                os.environ.get(
+                    "HOME",
+                    ""),
+                os.environ.get(
+                    vcs.getdotdirectory()[1],
+                    vcs.getdotdirectory()[0]),
+                "data_continent_%s" % nms[
+                    value - 1])
+            if not os.path.exists(path):
+                    # fallback on installed with system one
+                path = os.path.join(
+                    vcs.prefix,
+                    "share",
+                    "vcs",
+                    "data_continent_%s" % nms[
+                        value - 1])
+        else:
+            raise ValueError("Continents value must be file or int < 12")
+    else:
+        path = value
+    return path
+
+
 def checkContType(self, name, value):
     checkName(self, name, value)
     checkInt(self, name, value, minvalue=0)
