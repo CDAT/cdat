@@ -660,6 +660,21 @@ class VTKVCSBackend(object):
         contActor = vcs2vtk.doWrap(
             contActor, [
                 x1, x2, y1, y2], wrap, fastClip=False)
+
+        contLine = self.canvas.getcontinentsline()
+        line_prop = contActor.GetProperty()
+
+        # Width
+        line_prop.SetLineWidth(contLine.width[0])
+
+        # Color
+        cmap = vcs.getcolormap(contLine.colormap if contLine.colormap is not None else "default")
+        color = [int(c / 100. * 255) for c in cmap.index[contLine.color[0]]]
+        line_prop.SetColor(*color)
+
+        # Stippling
+        vcs2vtk.stippleLine(line_prop, contLine.type[0])
+
         if projection.type != "linear":
             contData = contActor.GetMapper().GetInput()
             cpts = contData.GetPoints()
