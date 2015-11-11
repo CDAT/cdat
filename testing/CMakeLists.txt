@@ -60,6 +60,9 @@ if (CDAT_BUILD_PCMDI)
     add_subdirectory(pcmdi)
 endif()
 
+# Test ipython
+add_test(run_ipython ${CMAKE_INSTALL_PREFIX}/bin/ipython -V)
+
 # CMake module tests:
 # Test that out-of-source build detection is working:
 add_test(cmake_checkBuildOutOfSource
