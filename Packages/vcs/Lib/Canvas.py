@@ -373,6 +373,7 @@ class Canvas(object):
         '__last_plot_actual_args',
         '__last_plot_keyargs',
         '_continents',
+        '_continents_line',
         '_savedcontinentstype',
         '__weakref__',
     ]
@@ -952,6 +953,7 @@ class Canvas(object):
         self._animate = self.backend.Animate(self)
 
         self.configurator = None
+        self.setcontinentsline("default")
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
@@ -2261,7 +2263,7 @@ Options:::
                        'xbounds', 'ybounds', 'xname', 'yname', 'xunits', 'yunits', 'xweights', 'yweights',
                        'comment1', 'comment2', 'comment3', 'comment4', 'hms', 'long_name', 'zaxis',
                        'zarray', 'zname', 'zunits', 'taxis', 'tarray', 'tname', 'tunits', 'waxis', 'warray',
-                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render']
+                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render', 'continents_line']
 
     # def replot(self):
     #    """ Clears and plots with last used plot arguments
@@ -2407,8 +2409,13 @@ Options:::
         except:
             pass
 
+        if "continents_line" in keyargs:
+            old_line = self.getcontinentsline()
+            self.setcontinentsline(keyargs["continents_line"])
         # Plot the data
         a = self.__plot(arglist, keyargs)
+        if "continents_line" in keyargs:
+            self.setcontinentsline(old_line)
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options,
                                    plot_keywords_doc,
@@ -5250,9 +5257,41 @@ Options:::
         return a
 
     ##########################################################################
-    #                                                                           #
-    # Set continents type wrapper for VCS.                           		#
-    #                                                                           #
+    #                                                                        #
+    # Set continents line wrapper for VCS.                                   #
+    #                                                                        #
+    ##########################################################################
+    def setcontinentsline(self, line):
+        """
+    Function: setcontinentsline
+
+    Description of Function:
+        One has the option of configuring the appearance of the lines used to
+        draw continents by providing a VCS Line object.
+
+    Example of Use:
+        a = vcs.init()
+        line = vcs.createline()
+        line.width = 5
+        # Use custom continents line
+        a.setcontinentsline(line)
+        # Use default line
+        a.setcontinentsline("default")
+        """
+        linename = VCS_validation_functions.checkLine(self, "continents_line", line)
+        line = vcs.getline(linename)
+        self._continents_line = line
+
+    def getcontinentsline(self):
+        if self._continents_line is None:
+            return vcs.getline("default")
+        else:
+            return self._continents_line
+
+    ##########################################################################
+    #                                                                        #
+    # Set continents type wrapper for VCS.                           		 #
+    #                                                                        #
     ##########################################################################
     def setcontinentstype(self, value):
         """
