@@ -120,11 +120,6 @@ class IsolinePipeline(Pipeline2D):
         tmpLineWidths.append(W)
         tmpLineStyles.append(S)
 
-        print "tmpLevels", tmpLevels
-        print "tmpColors", tmpColors
-        print "tmpLineStyles", tmpLineStyles
-        print "tmpLineWidths", tmpLineWidths
-
         cots = []
         textprops = []
         luts = []
@@ -132,6 +127,34 @@ class IsolinePipeline(Pipeline2D):
         actors = []
         mappers = []
 
+        if self._gm.label and (self._gm.text or self._gm.textcolors):
+            # Text objects:
+            if self._gm.text:
+                texts = self._gm.text
+                while len(texts) < len(self._contourLevels):
+                    texts.append(texts[-1])
+            else:
+                texts = [None] * len(self._contourLevels)
+
+            # Custom colors:
+            if self._gm.textcolors:
+                colorOverrides = self._gm.textcolors
+                while len(colorOverrides) < len(self._contourLevels):
+                    colorOverrides.append(colorOverrides[-1])
+            else:
+                colorOverrides = [None] * len(self._gm.text)
+
+            # Custom background colors and opacities:
+            backgroundColors = self._gm.labelbackgroundcolors
+            if backgroundColors:
+                while len(backgroundColors) < len(self._contourLevels):
+                    backgroundColors.append(backgroundColors[-1])
+            backgroundOpacities = self._gm.labelbackgroundopacities
+            if backgroundOpacities:
+                while len(backgroundOpacities) < len(self._contourLevels):
+                    backgroundOpacities.append(backgroundOpacities[-1])
+
+        countLevels = 0
         for i, l in enumerate(tmpLevels):
             numLevels = len(l)
 
@@ -142,8 +165,6 @@ class IsolinePipeline(Pipeline2D):
                 cot.SetInputData(self._vtkDataSet)
             cot.SetNumberOfContours(numLevels)
 
-#            if self._contourLevels[0] == 1.e20:
-#                self._contourLevels[0] = -1.e20
             for n in range(numLevels):
                 cot.SetValue(n, l[n])
             cot.SetValue(numLevels, l[-1])
@@ -169,33 +190,9 @@ class IsolinePipeline(Pipeline2D):
                 # Prep text properties:
                 tprops = vtk.vtkTextPropertyCollection()
                 if self._gm.text or self._gm.textcolors:
-                    # Text objects:
-                    if self._gm.text:
-                        texts = self._gm.text
-                        while len(texts) < numLevels:
-                            texts.append(texts[-1])
-                    else:
-                        texts = [None] * len(self._gm.textcolors)
+                    ttexts = texts[countLevels:(countLevels + len(l))]
 
-                    # Custom colors:
-                    if self._gm.textcolors:
-                        colorOverrides = self._gm.textcolors
-                        while len(colorOverrides) < numLevels:
-                            colorOverrides.append(colorOverrides[-1])
-                    else:
-                        colorOverrides = [None] * len(self._gm.text)
-
-                    # Custom background colors and opacities:
-                    backgroundColors = self._gm.labelbackgroundcolors
-                    if backgroundColors:
-                        while len(backgroundColors) < numLevels:
-                            backgroundColors.append(backgroundColors[-1])
-                    backgroundOpacities = self._gm.labelbackgroundopacities
-                    if backgroundOpacities:
-                        while len(backgroundOpacities) < numLevels:
-                            backgroundOpacities.append(backgroundOpacities[-1])
-
-                    for idx, tc in enumerate(texts):
+                    for idx, tc in enumerate(ttexts):
                         if vcs.queries.istextcombined(tc):
                             tt, to = tuple(tc.name.split(":::"))
                         elif tc is None:
@@ -208,17 +205,17 @@ class IsolinePipeline(Pipeline2D):
                             to = tc.name
                             tt = "default"
 
-                        colorOverride = colorOverrides[idx]
+                        colorOverride = colorOverrides[countLevels + idx]
                         if colorOverride is not None:
                             tt = vcs.createtexttable(None, tt)
                             tt.color = colorOverride
                             tt = tt.name
                         if backgroundColors is not None:
                             texttbl = vcs.gettexttable(tt)
-                            texttbl.backgroundcolor = backgroundColors[idx]
+                            texttbl.backgroundcolor = backgroundColors[countLevels + idx]
                         if backgroundOpacities is not None:
                             texttbl = vcs.gettexttable(tt)
-                            texttbl.backgroundopacity = backgroundOpacities[idx]
+                            texttbl.backgroundopacity = backgroundOpacities[countLevels + idx]
                         tprop = vtk.vtkTextProperty()
                         vcs2vtk.prepTextProperty(tprop,
                                                  self._context().renWin.GetSize(),
@@ -299,11 +296,16 @@ class IsolinePipeline(Pipeline2D):
                 priority=self._template.data.priority,
                 create_renderer=True)
 
+            countLevels += len(l)
+
         if len(textprops) > 0:
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 textprops
         if len(luts) > 0:
-            self._resultDict["vtk_backend_labeled_luts"] = luts
+            if self._gm.label:
+                self._resultDict["vtk_backend_labeled_luts"] = luts
+            else:
+                self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
             self._resultDict["vtk_backend_contours"] = cots
 
