@@ -95,18 +95,12 @@ def checkContinents(self, value):
         "states",
         "political",
         "river",
-        "other6",
-        "other7",
-        "other8",
-        "other9",
-        "other10",
-        "other11",
-        "other12"]
+        "other7"]
     path = None
     if isinstance(value, int):
         if value == 0:
             path = None
-        elif 0 < value < 12:
+        elif 0 < value < 7:
             path = os.path.join(
                 os.environ.get(
                     "HOME",

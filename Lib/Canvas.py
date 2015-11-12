@@ -5334,13 +5334,19 @@ Options:::
                 continent_path):
             warnings.warn(
                 "Continents file not found: %s, substituing with fine continents" %
-                value)
+                continent_path)
             self._continents = 1
             return
 
     def _continentspath(self):
-        continent_path = VCS_validation_functions.checkContinents(self, self._continents)
-        return continent_path
+        try:
+            path = VCS_validation_functions.checkContinents(self, self._continents)
+            if path is None and self._continents != 0:
+                return VCS_validation_functions(self, 1)
+            else:
+                return path
+        except:
+            return VCS_validation_functions(self, 1)
 
     ##########################################################################
     #                                                                           #
