@@ -114,6 +114,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         return
 
     
+    def __copy__(self):
+        return numpy.ma.MaskedArray.copy(self)
+
     __mul__    = AbstractVariable.__mul__
     __rmul__   = AbstractVariable.__rmul__
     __imul__   = AbstractVariable.__imul__
@@ -582,7 +585,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     # For aggregation server interface. Use clone to make a true copy.
     def copy(self):
-        return self.filled()
+        return self.__copy__()
 
     def setTileIndex(self, index):
         """
