@@ -4424,7 +4424,7 @@ Options:::
     # Open VCS Canvas wrapper for VCS.                                          #
     #                                                                           #
     ##########################################################################
-    def open(self, *args, **kargs):
+    def open(self, width=None, height=None, **kargs):
         """
  Function: open
 
@@ -4435,9 +4435,10 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.open()
+    a.open(800,600)
 """
 
-        a = self.backend.open(*args, **kargs)
+        a = self.backend.open(width, height, **kargs)
 
         return a
 
@@ -4649,11 +4650,10 @@ Options:::
         if test_file is not False:
             # H264 requires even numbered heights and widths
             width, height = self.backend.png_dimensions(test_file)
-            print width, height
             if width % 2 == 1:
-                width = width - 1
+                width = width + 1
             if height % 2 == 1:
-                height = height - 1
+                height = height + 1
             args.extend(("-vf", "scale=%d:%d" % (width, height)))
 
         if options is not None:
@@ -4764,9 +4764,9 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.plot(array)
-    a.png('example')       # Overwrite a postscript file
-    a.png('example', width=11.5, height= 8.5)  # US Legal
-    a.png('example', width=21, height=29.7, units='cm')  # A4
+    a.pdf('example')       # Overwrite a postscript file
+    a.pdf('example', width=11.5, height= 8.5)  # US Legal
+    a.pdf('example', width=21, height=29.7, units='cm')  # A4
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4912,7 +4912,7 @@ Options:::
         """Is the Canvas opened?"""
         return self.backend.isopened()
 
-    def _compute_width_height(self, width, height, units, ps=True):
+    def _compute_width_height(self, width, height, units, ps=False):
         dpi = 72.  # dot per inches
         if units in ["in", "inches"]:
             factor = 1.
@@ -5018,7 +5018,7 @@ Options:::
 
         # figures out width/height
         W, H = self._compute_width_height(
-            width, height, units)
+            width, height, units, ps=True)
 
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:

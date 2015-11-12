@@ -185,6 +185,11 @@ cdat_add_test(vcs_test_remove_marker_none_1d
   ${cdat_SOURCE_DIR}/testing/vcs/test_remove_marker_none_1d.py
   "${BASELINE_DIR}/test_remove_marker_none_1d.png"
   )
+cdat_add_test(vcs_test_png_window_resize
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_png_window_resize.py
+  "${BASELINE_DIR}/test_vcs_png_window_resize.png"
+  )
 cdat_add_test(vcs_test_draw_logo_on
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_draw_logo_on.py
