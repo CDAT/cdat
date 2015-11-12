@@ -5317,10 +5317,9 @@ Options:::
           4 signifies "Political Borders" (with "Fine Continents")
           5 signifies "Rivers" (with "Fine Continents")
 
-      Values 6 through 11 signify the line type defined by the files
-      data_continent_other7 through data_continent_other12.
+          6 uses a custom continent set
 
-      You can also pass a file
+      You can also pass a file by path.
 
    Example of Use:
       a=vcs.init()
