@@ -1342,18 +1342,23 @@ class Seasons(ASeason):
         self.month_restore(m,slab)
         return m
                                     
-    def climatology(self,slab,criteriaarg=None,criteriaargclim=None,statusbar=None,sum=False):
+    def climatology(self,slab,criteriaarg=None,criteriaargclim=None,statusbar=None,sum=False,unsafe=False):
         ''' Compute the climatology from a slab
         Input:
           slab
           criteriaarg     : the argument for criteria function when slicing the season (and clim)
           criteriaargclim : the argument for criteria function when averaging the seasons together
                             if different from criteriarg
+          unsafe          : create an average using numpy without checking any metadata
         Output:
           The Average of the seasons in the order passed when constructing it
           i.e if DJF and JJA are asked, the output will have the average DJF first, then the average JJA
           2 criteria can be passed one for the slicing part and one for the climatology part
         '''
+        if( unsafe ):
+            s = self.seasonal_cycle( slab )
+            return s
+
         cdat_info.pingPCMDIdb("cdat","cdutil.times.Seasons.climatology -%s-" % self.seasons)
         u=self.month_fix(slab)
         #if criteriaargclim is None: criteriaargclim=criteriaarg
@@ -1429,11 +1434,27 @@ class Seasons(ASeason):
         else:
             return s
     
+
+    def get_subset( self, input_data, subset_index, subset_index_array ):
+	im_mask = subset_index_array <> subset_index
+	if input_data.ndim > 1:
+	    im_mask = numpy.tile( im_mask, input_data.shape[1:] )
+	return numpy.ma.masked_array( input_data, mask = im_mask )
+
+
+    def seasonal_cycle( self, input_variable ):
+	time_vals = input_variable.getTime().asComponentTime()
+	season_index_array = numpy.array( [  season_def_array[tv.month-1] for tv in time_vals ] )
+	squeezed_input = input_variable.squeeze()
+	acycle = [ numpy.ma.average( self.get_subset( squeezed_input, season_index, season_index_array ) ) for season_index in range(0,4) ]
+	return numpy.ma.array(acycle)
+
 ## Seasons.get.__doc__=Seasons.get.__doc__+Seasons._get.__doc__
 ## Seasons.departures.__doc__=Seasons.departures.__doc__+Seasons._departures.__doc__
 
 ANNUALCYCLE=Seasons([1,2,3,4,5,6,7,8,9,10,11,12])
 SEASONALCYCLE=Seasons(['DJF','MAM','JJA','SON'])
+season_def_array = [ 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0]
 
 DJF=Seasons('DJF')
 MAM=Seasons('MAM')
