@@ -15,8 +15,6 @@ class IsofillPipeline(Pipeline2D):
     def __init__(self, gm, context_):
         super(IsofillPipeline, self).__init__(gm, context_)
 
-        self._patternActors = None
-
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
@@ -161,7 +159,6 @@ class IsofillPipeline(Pipeline2D):
         cots = []
         mappers = []
         _colorMap = self.getColorMap()
-        self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -192,16 +189,6 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetScalarRange(0, len(l) - 1)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
-
-            # Since pattern creation requires a single color, assuming the first
-            c = [val*255/100.0 for val in _colorMap.index[tmpColors[i][0]]]
-            act = fillareautils.make_patterned_polydata(cot.GetOutput(),
-                                                        fillareastyle=style,
-                                                        fillareaindex=tmpIndices[i],
-                                                        fillareacolors=c,
-                                                        fillareaopacity=tmpOpacities[i] * 255 / 100.0)
-            if act is not None:
-                self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
@@ -243,6 +230,8 @@ class IsofillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        patternActors = []
+        ct = 0
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -253,11 +242,22 @@ class IsofillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
                                      self._dataWrapModulo)
 
+            patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             else:
                 actors.append([act, [x1, x2, y1, y2]])
+                # Since pattern creation requires a single color, assuming the first
+                c = [val*255/100.0 for val in _colorMap.index[tmpColors[ct][0]]]
+                patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
+                                                               fillareastyle=style,
+                                                               fillareaindex=tmpIndices[ct],
+                                                               fillareacolors=c,
+                                                               fillareaopacity=tmpOpacities[ct] * 255 / 100.0)
+
+                if patact is not None:
+                    patternActors.append(patact)
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
@@ -268,7 +268,10 @@ class IsofillPipeline(Pipeline2D):
                 priority=self._template.data.priority,
                 create_renderer=True)
 
-        for act in self._patternActors:
+            # increment the count
+            ct += 1
+
+        for act in patternActors:
             self._context().fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
