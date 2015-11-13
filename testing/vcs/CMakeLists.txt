@@ -660,6 +660,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --gm_type=${gm}
           --projection_type=${proj}
           --source_dir=${BASELINE_DIR}
+          --threshold=40
           )
       ENDFOREACH(proj)
     ENDFOREACH(gm)
