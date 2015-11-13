@@ -71,11 +71,13 @@ pngs = x.animate.close(preserve_pngs=True)  # so we can look at them again
 
 baseline_pth = os.path.join(args.src, prefix)
 ret = 0
-for p in pngs:
-    ret += checkimage.check_result_image(p, os.path.join(baseline_pth,
-                                         os.path.split(p)[1]),
-                                         args.threshold)
+p = pngs[-1]
+ret = checkimage.check_result_image(p, os.path.join(baseline_pth,
+                                    os.path.split(p)[1]),
+                                    args.threshold)
 if ret == 0 and not args.keep:
+    for f in pngs[0:len(pngs) - 1]:
+        os.remove(f)
     os.removedirs(os.path.split(p)[0])
     os.remove("%s.mp4" % prefix)
 sys.exit(ret)
