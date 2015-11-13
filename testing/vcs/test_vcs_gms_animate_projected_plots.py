@@ -15,7 +15,7 @@ p = argparse.ArgumentParser(description="Testing animation of projected plots")
 p.add_argument("--gm_type", dest="gm", help="gm to test")
 p.add_argument("--projection_type", dest="projtype", default="default",
                help="use a specific projection type")
-p.add_argument("--source_dir", dest="src", help="baseline directory")
+p.add_argument("--source", dest="src", help="path to baseline image")
 p.add_argument("--keep", dest="keep", action="store_true", default=False,
                help="Save images, even if baseline matches.")
 p.add_argument("--threshold", dest="threshold", type=int,
@@ -69,12 +69,9 @@ prefix = "test_vcs_animate_%s_%s" % (gm_type.lower(), args.projtype.lower())
 x.animate.save("%s.mp4" % prefix)
 pngs = x.animate.close(preserve_pngs=True)  # so we can look at them again
 
-baseline_pth = os.path.join(args.src, prefix)
 ret = 0
 p = pngs[-1]
-ret = checkimage.check_result_image(p, os.path.join(baseline_pth,
-                                    os.path.split(p)[1]),
-                                    args.threshold)
+ret = checkimage.check_result_image(p, args.src, args.threshold)
 if ret == 0 and not args.keep:
     for f in pngs[0:len(pngs) - 1]:
         os.remove(f)
