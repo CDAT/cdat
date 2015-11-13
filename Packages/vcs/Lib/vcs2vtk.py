@@ -1106,6 +1106,15 @@ def prepPrimitive(prim):
     return n
 
 
+def __build_pd__():
+    pts = vtk.vtkPoints()
+    polygons = vtk.vtkCellArray()
+    polygonPolyData = vtk.vtkPolyData()
+    polygonPolyData.SetPoints(pts)
+    polygonPolyData.SetPolys(polygons)
+    return pts, polygons, polygonPolyData
+
+
 def prepFillarea(renWin, farea, cmap=None):
     n = prepPrimitive(farea)
     if n == 0:
@@ -1120,6 +1129,13 @@ def prepFillarea(renWin, farea, cmap=None):
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
 
+    # Create data structures
+    pts, polygons, polygonPolyData = __build_pd__()
+    colors = vtk.vtkUnsignedCharArray()
+    colors.SetNumberOfComponents(4)
+    colors.SetNumberOfTuples(n)
+    polygonPolyData.GetCellData().SetScalars(colors)
+
     # Iterate through polygons:
     for i in range(n):
         x = farea.x[i]
@@ -1129,31 +1145,31 @@ def prepFillarea(renWin, farea, cmap=None):
           c = 241
         else:
           c = farea.color[i]
+
+        if st == "solid":
+            points, polys, pd, color_arr = pts, polygons, polygonPolyData, colors
+        else:
+            points, polys, pd = __build_pd__()
+            color_arr = vtk.vtkUnsignedCharArray()
+            color_arr.SetNumberOfComponents(4)
+            color_arr.SetNumberOfTuples(1)
+            colors.SetNumberOfTuples(colors.GetNumberOfTuples() - 1)
+            pd.GetCellData().SetScalars(color_arr)
+
         idx = farea.index[i]
         N = max(len(x), len(y))
 
         for a in [x, y]:
             assert(len(a) == N)
 
-        # Create data structures
-        pts = vtk.vtkPoints()
-        polygons = vtk.vtkCellArray()
-        polygonPolyData = vtk.vtkPolyData()
-        polygonPolyData.SetPoints(pts)
-        polygonPolyData.SetPolys(polygons)
-
         polygon = vtk.vtkPolygon()
         # Add current polygon
         pid = polygon.GetPointIds()
         pid.SetNumberOfIds(N)
-        for j in range(N):
-            pid.SetId(j, pts.InsertNextPoint(x[j], y[j], 0.))
-        cellId = polygons.InsertNextCell(polygon)
 
-        colors = vtk.vtkUnsignedCharArray()
-        colors.SetNumberOfComponents(4)
-        colors.SetNumberOfTuples(1)
-        polygonPolyData.GetCellData().SetScalars(colors)
+        for j in range(N):
+            pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
+        cellId = polys.InsertNextCell(polygon)
 
         color = [int((C / 100.) * 255) for C in cmap.index[c]]
         if len(farea.opacity) > i:
@@ -1168,27 +1184,36 @@ def prepFillarea(renWin, farea, cmap=None):
                 color[-1] = opacity
             colors.SetTupleValue(cellId, color)
         else:
-            colors.SetTupleValue(cellId, [255, 255, 255, 0])
+            color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
 
-        # Transform points:
-        geo, pts = project(pts, farea.projection, farea.worldcoordinate)
-
-        # Setup rendering
-        m = vtk.vtkPolyDataMapper()
-        m.SetInputData(polygonPolyData)
-        a = vtk.vtkActor()
-        a.SetMapper(m)
-        actors.append((a, geo))
-
-        if st in ['pattern', 'hatch']:
+        if st != "solid":
             # Patterns/hatches support
-            act = fillareautils.make_patterned_polydata(polygonPolyData,
+            geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+            pd.SetPoints(proj_points)
+            act = fillareautils.make_patterned_polydata(pd,
                                                         st,
                                                         idx,
                                                         color,
                                                         opacity)
             if act is not None:
+                if opacity > 0:
+                    m = vtk.vtkPolyDataMapper()
+                    m.SetInputData(pd)
+                    a = vtk.vtkActor()
+                    a.SetMapper(m)
+                    actors.append((a, geo))
                 actors.append((act, geo))
+
+    # Transform points
+    geo, pts = project(pts, farea.projection, farea.worldcoordinate)
+    polygonPolyData.SetPoints(pts)
+    # Setup rendering
+    m = vtk.vtkPolyDataMapper()
+    m.SetInputData(polygonPolyData)
+    a = vtk.vtkActor()
+    a.SetMapper(m)
+    actors.append((a, geo))
+
     return actors
 
 
@@ -1461,31 +1486,56 @@ def prepMarker(renWin, marker, cmap=None):
     return actors
 
 
+def __build_ld__():
+    pts = vtk.vtkPoints()
+    lines = vtk.vtkCellArray()
+    linePolyData = vtk.vtkPolyData()
+    linePolyData.SetPoints(pts)
+    linePolyData.SetLines(lines)
+    colors = vtk.vtkUnsignedCharArray()
+    colors.SetNumberOfComponents(3)
+    colors.SetName("Colors")
+    return pts, lines, linePolyData, colors
+
+
 def prepLine(renWin, line, cmap=None):
     number_lines = prepPrimitive(line)
-
     if number_lines == 0:
         return []
 
     actors = []
 
+    line_data = {}
+
+    if line.colormap is not None:
+        cmap = line.colormap
+    elif cmap is None:
+        cmap = vcs._colorMap
+
+    if isinstance(cmap, str):
+        cmap = vcs.elements["colormap"][cmap]
+
     for i in range(number_lines):
-        l = vtk.vtkLine()
-        lines = vtk.vtkCellArray()
+
         x = line.x[i]
         y = line.y[i]
-        c = line.color[i]
+        c = cmap.index[line.color[i]]
         w = line.width[i]
         t = line.type[i]
+
+        if (t, w) not in line_data:
+            line_data[(t, w)] = __build_ld__()
+        pts, lines, linesPoly, colors = line_data[(t, w)]
+        vtk_color = [int(component / 100. * 255) for component in c]
+
         number_points = max(len(x), len(y))
 
+        point_offset = pts.GetNumberOfPoints()
         # Extend x or y to the length of the other by duplicating the last
         # coord.
         for a in [x, y]:
             while len(a) < number_points:
                 a.append(a[-1])
-
-        pts = vtk.vtkPoints()
 
         if vcs.elements["projection"][line.projection].type == "linear":
             for j in range(number_points):
@@ -1514,18 +1564,25 @@ def prepLine(renWin, line, cmap=None):
                     pts.InsertNextPoint(tmpx, tmpy, 0.)
                     n2 += 1
         for j in range(n2):
-            l.GetPointIds().SetId(0, j)
-            l.GetPointIds().SetId(1, j + 1)
+            colors.InsertNextTupleValue(vtk_color)
+            l = vtk.vtkLine()
+            l.GetPointIds().SetId(0, j + point_offset)
+            l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
-        linesPoly = vtk.vtkPolyData()
+    for t, w in line_data:
+        pts, _, linesPoly, colors = line_data[(t, w)]
+
+        linesPoly.GetCellData().SetScalars(colors)
+
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
-        linesPoly.SetLines(lines)
+
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
         m.SetInputData(linesPoly)
         a.SetMapper(m)
+
         p = a.GetProperty()
         p.SetLineWidth(w)
 

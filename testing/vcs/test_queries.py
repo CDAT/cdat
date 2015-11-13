@@ -9,7 +9,7 @@ for gm in gms:
   exec("res = vcs.is%s(g)" % gm)
   assert(res==1)
   for gm2 in gms:
-    if gm2==gm:
+    if gm2==gm or (gm in ("yxvsx", "xvsy") and gm2 in ("yxvsx", "xvsy")):
       continue
     print "Asserting %s is not %s" % (gm,gm2)
     exec("res = vcs.is%s(g)" % gm2)
