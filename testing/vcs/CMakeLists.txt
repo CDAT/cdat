@@ -649,6 +649,16 @@ cdat_add_test(vcs_test_taylor_2_quads
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
           "--threshold=15"
           )
+        cdat_add_test(vcs_test_${gm}_${style}_fill_0_360
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+          --gm_type=${gm}
+          --fill_style=${style}
+          --lon1=0
+          --lon2=360
+          "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_0_360.png"
+          "--threshold=15"
+          )
       ENDFOREACH(style)
     ENDFOREACH(gm)
 
