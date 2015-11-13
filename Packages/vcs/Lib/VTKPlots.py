@@ -687,7 +687,7 @@ class VTKVCSBackend(object):
             cmap = vcs.getcolormap(contLine.colormap)
         else:
             cmap = self.canvas.getcolormap()
-        color = [int(c / 100.) for c in cmap.index[contLine.color[0]]]
+        color = [c / 100. for c in cmap.index[contLine.color[0]]]
         line_prop.SetColor(*color)
 
         # Stippling
