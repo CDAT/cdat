@@ -1024,6 +1024,10 @@ class VTKVCSBackend(object):
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
+        # add text chunks to the writer
+        m = args.get('metadata', {})
+        for k, v in m.iteritems():
+            writer.AddText(k, v)
         writer.Write()
 
     def cgm(self, file):
