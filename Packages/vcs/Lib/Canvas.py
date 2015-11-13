@@ -5341,11 +5341,11 @@ Options:::
         try:
             path = VCS_validation_functions.checkContinents(self, self._continents)
             if path is None and self._continents != 0:
-                return VCS_validation_functions(self, 1)
+                return VCS_validation_functions.checkContinents(self, 1)
             else:
                 return path
         except:
-            return VCS_validation_functions(self, 1)
+            return VCS_validation_functions.checkContinents(self, 1)
 
     ##########################################################################
     #                                                                           #
