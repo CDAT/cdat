@@ -24,7 +24,7 @@ class BoxfillPipeline(Pipeline2D):
 
         self._contourLabels = None
         self._mappers = None
-        self._patternActors = []
+        self._customBoxfillArgs = {}
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -155,6 +155,10 @@ class BoxfillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        patternActors = []
+        ct = 0
+        _colorMap = self.getColorMap()
+        _style = self._gm.fillareastyle
         for mapper in self._mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -165,6 +169,7 @@ class BoxfillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
                                      self._dataWrapModulo)
 
+            patact = None
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
@@ -173,6 +178,17 @@ class BoxfillPipeline(Pipeline2D):
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             else:
                 actors.append([act, [x1, x2, y1, y2]])
+
+                #  Since pattern creation requires a single color, assuming the first
+                c = [val * 255 / 100.0 for val in _colorMap.index[self._customBoxfillArgs["colors"][ct][0]]]
+                op = self._customBoxfillArgs["opacities"][ct] * 255 / 100.0
+                patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
+                                                               fillareastyle=_style,
+                                                               fillareaindex=self._customBoxfillArgs["indices"][ct],
+                                                               fillareacolors=c,
+                                                               fillareaopacity=op)
+                if patact is not None:
+                    patternActors.append(patact)
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
@@ -183,7 +199,10 @@ class BoxfillPipeline(Pipeline2D):
                 priority=self._template.data.priority,
                 create_renderer=True)
 
-        for act in self._patternActors:
+            # increment the count
+            ct += 1
+
+        for act in patternActors:
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrapped not sure
                 # why so sticking to many mappers
@@ -307,6 +326,7 @@ class BoxfillPipeline(Pipeline2D):
     def _plotInternalCustomBoxfill(self):
         """Implements the logic to render a custom boxfill."""
         self._mappers = []
+        self._customBoxfillArgs = {}
         tmpLevels = []
         tmpColors = []
         tmpIndices = []
@@ -377,11 +397,15 @@ class BoxfillPipeline(Pipeline2D):
         tmpIndices.append(I)
         tmpOpacities.append(O)
 
+        self._customBoxfillArgs["levels"] = tmpLevels
+        self._customBoxfillArgs["indices"] = tmpIndices
+        self._customBoxfillArgs["colors"] = tmpColors
+        self._customBoxfillArgs["opacities"] = tmpOpacities
+
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
-        self._patternActors = []
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -415,16 +439,6 @@ class BoxfillPipeline(Pipeline2D):
                 # purposes
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
-
-                #  Since pattern creation requires a single color, assuming the first
-                c = [val * 255 / 100.0 for val in _colorMap.index[tmpColors[i][0]]]
-                act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
-                                                            fillareastyle=style,
-                                                            fillareaindex=tmpIndices[i],
-                                                            fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0)
-                if act is not None:
-                    self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
