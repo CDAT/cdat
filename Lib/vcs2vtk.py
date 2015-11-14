@@ -1176,6 +1176,8 @@ def prepFillarea(renWin, farea, cmap=None):
             opacity = farea.opacity[i]
             if opacity is not None:
                 opacity = int(farea.opacity[i] * 255 / 100.0)
+        else:
+            opacity = 255
         # Draw colored background for solid 
         # transparent/white background for hatches/patterns
         if st == 'solid':
@@ -1493,7 +1495,7 @@ def __build_ld__():
     linePolyData.SetPoints(pts)
     linePolyData.SetLines(lines)
     colors = vtk.vtkUnsignedCharArray()
-    colors.SetNumberOfComponents(3)
+    colors.SetNumberOfComponents(4)
     colors.SetName("Colors")
     return pts, lines, linePolyData, colors
 
@@ -1593,7 +1595,10 @@ def prepLine(renWin, line, cmap=None):
 
         if isinstance(cmap, str):
             cmap = vcs.elements["colormap"][cmap]
-        color = cmap.index[c]
+        if isinstance(c,int):
+            color = cmap.index[c]
+        else:
+            color = c
         p.SetColor([C / 100. for C in color[:3]])
         p.SetOpacity(color[-1])
         # stipple
