@@ -676,7 +676,6 @@ def checkColor(self, name, value, NoneOk=False):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        value2 = color2vcs(value)
         return value
     if value is None and NoneOk:
         return value
@@ -1976,8 +1975,10 @@ def _setvp(self, value):
     self._viewport = value
 viewport = property(_getvp, _setvp)
 
+
 def _getfillareaopacity(self):
     return self._fillareaopacity
+
 
 def _setfillareaopacity(self, value):
     if value is not None:

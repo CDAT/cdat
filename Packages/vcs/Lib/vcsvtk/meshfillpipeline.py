@@ -78,7 +78,7 @@ class MeshfillPipeline(Pipeline2D):
         tmpOpacities = prepedContours["tmpOpacities"]
 
         style = self._gm.fillareastyle
-        #self._patternActors = []
+        # self._patternActors = []
 
         mappers = []
         luts = []
@@ -112,20 +112,29 @@ class MeshfillPipeline(Pipeline2D):
                         tmpOpacity = a / 100.
                     else:
                         tmpOpacity = tmpOpacities[i] / 100.
-                    lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
+                    lut.SetTableValue(
+                        0, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
                     lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
-                luts.append([lut, [l[j], l[j + 1], False]])  # Was True but boxfill says false
+                # Was True but boxfill says false
+                luts.append([lut, [l[j], l[j + 1], False]])
                 # Store the mapper only if it's worth it?
                 # Need to do it with the whole slab min/max for animation
                 # purposes
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     mappers.append(mapper)
 
-            # Since pattern creation requires a single color, assuming the first
-            self._patternCreation(geoFilter2,_colorMap.index[tmpColors[i][0]],style,tmpIndices[i],tmpOpacities[i])
+            # Since pattern creation requires a single color, assuming the
+            # first
+            self._patternCreation(
+                geoFilter2,
+                _colorMap.index[
+                    tmpColors[i][0]],
+                style,
+                tmpIndices[i],
+                tmpOpacities[i])
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
@@ -279,11 +288,11 @@ class MeshfillPipeline(Pipeline2D):
                     # need exts
                     self._contourLevels.append(1.e20)
 
-        patternArgs={}
+        patternArgs = {}
         patternArgs['style'] = self._gm.fillareastyle
         patternArgs['index'] = self._gm.fillareaindices
         if patternArgs['index'] is None:
-            patternArgs['index'] = [1,]
+            patternArgs['index'] = [1, ]
         patternArgs['opacity'] = self._gm.fillareaopacity
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,

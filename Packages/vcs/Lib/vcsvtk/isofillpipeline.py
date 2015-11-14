@@ -137,8 +137,15 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
-            # Since pattern creation requires a single color, assuming the first
-            self._patternCreation(cot,_colorMap.index[tmpColors[i][0]],style,tmpIndices[i],tmpOpacities[i])
+            # Since pattern creation requires a single color, assuming the
+            # first
+            self._patternCreation(
+                cot,
+                _colorMap.index[
+                    tmpColors[i][0]],
+                style,
+                tmpIndices[i],
+                tmpOpacities[i])
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:

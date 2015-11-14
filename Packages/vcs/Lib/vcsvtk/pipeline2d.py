@@ -6,6 +6,7 @@ import numpy
 import fillareautils
 import warnings
 
+
 class IPipeline2D(Pipeline):
 
     """Interface class for Pipeline2D.
@@ -119,21 +120,21 @@ class Pipeline2D(IPipeline2D):
     def __init__(self, gm, context_):
         super(Pipeline2D, self).__init__(gm, context_)
 
-    def _patternCreation(self,vtkFilter,color,style,index,opacity):
-      """ Creates pattern things """
-      c = [val*255/100.0 for val in color]
-      if opacity is None:
-          opacity = c[-1]
-      else:
-          opacity = opacity * 255 / 100.
-      act = fillareautils.make_patterned_polydata(vtkFilter.GetOutput(),
-                                                  fillareastyle=style,
-                                                  fillareaindex=index,
-                                                  fillareacolors=c,
-                                                  fillareaopacity=opacity)
-      if act is not None:
-          self._patternActors.append(act)
-      return
+    def _patternCreation(self, vtkFilter, color, style, index, opacity):
+        """ Creates pattern things """
+        c = [val * 255 / 100.0 for val in color]
+        if opacity is None:
+            opacity = c[-1]
+        else:
+            opacity = opacity * 255 / 100.
+        act = fillareautils.make_patterned_polydata(vtkFilter.GetOutput(),
+                                                    fillareastyle=style,
+                                                    fillareaindex=index,
+                                                    fillareacolors=c,
+                                                    fillareaopacity=opacity)
+        if act is not None:
+            self._patternActors.append(act)
+        return
 
     def _prepContours(self):
         """ Prep contours bands"""
@@ -173,7 +174,7 @@ class Pipeline2D(IPipeline2D):
             if i == 0:
                 C = [self._contourColors[i]]
                 if style == "pattern":
-                  C = [241]
+                    C = [241]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
                     # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
@@ -207,11 +208,11 @@ class Pipeline2D(IPipeline2D):
         tmpOpacities.append(O)
 
         result = {
-            "tmpLevels":tmpLevels,
-            "tmpColors":tmpColors,
-            "tmpIndices":tmpIndices,
-            "tmpOpacities":tmpOpacities,
-            }
+            "tmpLevels": tmpLevels,
+            "tmpColors": tmpColors,
+            "tmpIndices": tmpIndices,
+            "tmpOpacities": tmpOpacities,
+        }
 
         return result
 
