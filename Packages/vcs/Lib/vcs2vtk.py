@@ -87,7 +87,6 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid2.CopyStructure(grid)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
-            print "ACTOR COLOR:",actorColor
             r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
             if not cellData:
