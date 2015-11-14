@@ -30,11 +30,12 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
     # Create the pattern image of the size of the input polydata
     # and type defined by fillareaindex
-    # Scaled the size to 2 times to make the pattern image of a finer resolution
+    # Scaled the size to 2 times to make the pattern image of a finer
+    # resolution
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
-    xres = int(4.0*xBounds)
-    yres = int(4.0*yBounds)
+    xres = int(4.0 * xBounds)
+    yres = int(4.0 * yBounds)
     # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds < 1 or yBounds < 1:
         boundsAspect = xBounds / yBounds
@@ -105,5 +106,6 @@ def create_pattern(width, height, fillareastyle=None,
         fillareaopacity = 255
 
     # Create a pattern source image of the given size
-    pattern = pattern_list[fillareaindex](width, height, fillareacolors, fillareastyle, fillareaopacity)
+    pattern = pattern_list[fillareaindex](
+        width, height, fillareacolors, fillareastyle, fillareaopacity)
     return pattern.render()

@@ -1141,9 +1141,9 @@ def prepFillarea(renWin, farea, cmap=None):
         y = farea.y[i]
         st = farea.style[i]
         if st == "pattern":
-          c = 241
+            c = 241
         else:
-          c = farea.color[i]
+            c = farea.color[i]
 
         if st == "solid":
             points, polys, pd, color_arr = pts, polygons, polygonPolyData, colors
@@ -1177,7 +1177,7 @@ def prepFillarea(renWin, farea, cmap=None):
                 opacity = int(farea.opacity[i] * 255 / 100.0)
         else:
             opacity = 255
-        # Draw colored background for solid 
+        # Draw colored background for solid
         # transparent/white background for hatches/patterns
         if st == 'solid':
             # Add the color to the color array:
@@ -1189,7 +1189,8 @@ def prepFillarea(renWin, farea, cmap=None):
 
         if st != "solid":
             # Patterns/hatches support
-            geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+            geo, proj_points = project(
+                points, farea.projection, farea.worldcoordinate)
             pd.SetPoints(proj_points)
             act = fillareautils.make_patterned_polydata(pd,
                                                         st,
@@ -1594,7 +1595,7 @@ def prepLine(renWin, line, cmap=None):
 
         if isinstance(cmap, str):
             cmap = vcs.elements["colormap"][cmap]
-        if isinstance(c,int):
+        if isinstance(c, int):
             color = cmap.index[c]
         else:
             color = c

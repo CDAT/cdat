@@ -4,6 +4,7 @@ NUM_PIXELS = 16
 
 
 class Pattern(object):
+
     def __init__(self, width, height, colors, style, opacity):
         self.width = width
         self.height = height
@@ -35,10 +36,13 @@ class Pattern(object):
         return patternSource.GetOutput()
 
     def paint(self, pattern):
-        raise NotImplementedError("paint() not implemented for %s" % str(type(self)))
+        raise NotImplementedError(
+            "paint() not implemented for %s" % str(
+                type(self)))
 
 
 class BottomLeftTri(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -51,6 +55,7 @@ class BottomLeftTri(Pattern):
 
 
 class TopRightTri(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -63,6 +68,7 @@ class TopRightTri(Pattern):
 
 
 class SmallRectDot(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -74,6 +80,7 @@ class SmallRectDot(Pattern):
 
 
 class CheckerBoard(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -87,26 +94,37 @@ class CheckerBoard(Pattern):
 
 
 class HorizStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
         patternLevels = range(0, self.height, NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillBox(0, self.width, lev + NUM_PIXELS / 4, lev + NUM_PIXELS * 3 / 4)
+            patternSource.FillBox(
+                0,
+                self.width,
+                lev + NUM_PIXELS / 4,
+                lev + NUM_PIXELS * 3 / 4)
 
 
 class VertStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
         patternLevels = range(0, self.width, NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillBox(lev + NUM_PIXELS / 4, lev + NUM_PIXELS * 3 / 4, 0, self.height)
+            patternSource.FillBox(
+                lev + NUM_PIXELS / 4,
+                lev + NUM_PIXELS * 3 / 4,
+                0,
+                self.height)
 
 
 class HorizDash(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -118,6 +136,7 @@ class HorizDash(Pattern):
 
 
 class VertDash(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -131,6 +150,7 @@ class VertDash(Pattern):
 
 
 class XDash(Pattern):
+
     def render(self):
         """
         Returns vtkImageData for pattern
@@ -182,73 +202,118 @@ class XDash(Pattern):
             patternSource.FillBox(0, self.width, y - thickness, y + thickness)
             patternSource.SetDrawColor(255, 255, 255, 0)
             for x in range(thickness, self.width, NUM_PIXELS):
-                patternSource.FillBox(x - thickness, x + thickness, y - thickness, y + thickness)
-            patternSource.SetDrawColor(self.colors[0], self.colors[1], self.colors[2], self.opacity)
+                patternSource.FillBox(
+                    x - thickness,
+                    x + thickness,
+                    y - thickness,
+                    y + thickness)
+            patternSource.SetDrawColor(
+                self.colors[0],
+                self.colors[1],
+                self.colors[2],
+                self.opacity)
 
 
 class ThinDiagDownRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
+        patternLevels = range(
+            0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
         for lev in patternLevels:
             patternSource.FillTube(0, lev, lev, 0, NUM_PIXELS / 8)
 
 
 class ThickDiagRownRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
+        patternLevels = range(
+            0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
         for lev in patternLevels:
             patternSource.FillTube(0, lev, lev, 0, NUM_PIXELS / 4)
 
 
 class ThinDiagUpRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
+        patternLevels = range(
+            0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillTube(lev, self.height, 0, self.height - lev, NUM_PIXELS / 8)
+            patternSource.FillTube(
+                lev,
+                self.height,
+                0,
+                self.height - lev,
+                NUM_PIXELS / 8)
 
 
 class ThickDiagUpRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
+        patternLevels = range(
+            0, max(self.width, self.height) + min(self.width, self.height), NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillTube(lev, self.height, 0, self.height - lev, NUM_PIXELS / 4)
+            patternSource.FillTube(
+                lev,
+                self.height,
+                0,
+                self.height - lev,
+                NUM_PIXELS / 4)
 
 
 class ThickThinVertStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
         patternLevels = range(0, self.width, NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillBox(lev + NUM_PIXELS / 8, lev + NUM_PIXELS * 1 / 2, 0, self.height)
-            patternSource.FillBox(lev + NUM_PIXELS * 3 / 4, lev + NUM_PIXELS * 7 / 8, 0, self.height)
+            patternSource.FillBox(
+                lev + NUM_PIXELS / 8,
+                lev + NUM_PIXELS * 1 / 2,
+                0,
+                self.height)
+            patternSource.FillBox(
+                lev + NUM_PIXELS * 3 / 4,
+                lev + NUM_PIXELS * 7 / 8,
+                0,
+                self.height)
 
 
 class ThickThinHorizStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
         patternLevels = range(0, self.height, NUM_PIXELS)
         for lev in patternLevels:
-            patternSource.FillBox(0, self.width, lev + NUM_PIXELS / 8, lev + NUM_PIXELS * 1 / 2)
-            patternSource.FillBox(0, self.width, lev + NUM_PIXELS * 3 / 4, lev + NUM_PIXELS * 7 / 8)
+            patternSource.FillBox(
+                0,
+                self.width,
+                lev + NUM_PIXELS / 8,
+                lev + NUM_PIXELS * 1 / 2)
+            patternSource.FillBox(
+                0,
+                self.width,
+                lev + NUM_PIXELS * 3 / 4,
+                lev + NUM_PIXELS * 7 / 8)
 
 
 class LargeRectDot(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -260,6 +325,7 @@ class LargeRectDot(Pattern):
 
 
 class Diamond(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -287,6 +353,7 @@ class Diamond(Pattern):
 
 
 class Bubble(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -304,12 +371,13 @@ class Bubble(Pattern):
                 patternSource.FillBox(x + NUM_PIXELS * 5 / 8, x + NUM_PIXELS,
                                       y + NUM_PIXELS * 5 / 8, y + NUM_PIXELS)
                 patternSource.FillBox(x + NUM_PIXELS / 8, x + NUM_PIXELS * 3 / 8,
-                                      y + NUM_PIXELS * 5 / 8, y + NUM_PIXELS * 3/4)
+                                      y + NUM_PIXELS * 5 / 8, y + NUM_PIXELS * 3 / 4)
                 patternSource.FillBox(x + NUM_PIXELS * 5 / 8, x + NUM_PIXELS * 7 / 8,
                                       y + NUM_PIXELS / 8, y + NUM_PIXELS * 1 / 4)
 
 
 class Snake(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -325,13 +393,17 @@ class Snake(Pattern):
 
 
 class EmptyCircle(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
         global NUM_PIXELS
         for x in xrange(0, self.width, NUM_PIXELS):
             for y in xrange(0, self.height, NUM_PIXELS):
-                patternSource.DrawCircle(x + NUM_PIXELS / 2, y + NUM_PIXELS / 2, NUM_PIXELS / 4.)
+                patternSource.DrawCircle(
+                    x + NUM_PIXELS / 2,
+                    y + NUM_PIXELS / 2,
+                    NUM_PIXELS / 4.)
 
 
 pattern_list = [Pattern, BottomLeftTri, TopRightTri, SmallRectDot, CheckerBoard,

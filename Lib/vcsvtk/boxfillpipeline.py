@@ -358,8 +358,15 @@ class BoxfillPipeline(Pipeline2D):
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
 
-                #  Since pattern creation requires a single color, assuming the first
-                self._patternCreation(geoFilter2,_colorMap.index[tmpColors[i][0]],style,tmpIndices[i],tmpOpacities[i])
+                # Since pattern creation requires a single color, assuming the
+                # first
+                self._patternCreation(
+                    geoFilter2,
+                    _colorMap.index[
+                        tmpColors[i][0]],
+                    style,
+                    tmpIndices[i],
+                    tmpOpacities[i])
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:

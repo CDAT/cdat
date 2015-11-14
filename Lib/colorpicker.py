@@ -232,7 +232,7 @@ def colors_to_scalars(colors):
     colorData.SetNumberOfComponents(3)
 
     for color in colors:
-      colorData.InsertNextTuple3(*color[:3])
+        colorData.InsertNextTuple3(*color[:3])
 
     return colorData
 
