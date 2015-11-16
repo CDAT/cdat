@@ -966,14 +966,14 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
-    if isinstance(colorIndex,int):
+    if isinstance(colorIndex, int):
         c = cmap.index[colorIndex]
     else:
         c = colorIndex
     p.SetColor([C / 100. for C in c[:3]])
     p.SetOpacity(c[-1])
     bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
-    if isinstance(bcolorIndex,int):
+    if isinstance(bcolorIndex, int):
         bc = cmap.index[bcolorIndex]
     else:
         bc = bcolorIndex
@@ -1176,7 +1176,7 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
-        if isinstance(c,int):
+        if isinstance(c, int):
             color = [int((C / 100.) * 255) for C in cmap.index[c]]
         else:
             color = [int((C / 100.) * 255) for C in c]
@@ -1436,7 +1436,7 @@ def setMarkerColor(p, marker, c, cmap=None):
         cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
-    if isinstance(c,int):
+    if isinstance(c, int):
         color = cmap.index[c]
     else:
         color = c
@@ -1534,7 +1534,7 @@ def prepLine(renWin, line, cmap=None):
 
         x = line.x[i]
         y = line.y[i]
-        if isinstance(line.color[i],int):
+        if isinstance(line.color[i], int):
             c = cmap.index[line.color[i]]
         else:
             c = line.color[i]

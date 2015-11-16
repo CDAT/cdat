@@ -1775,7 +1775,7 @@ class P(object):
         fa.index = index
         # Boxfill default comes in here with [] we need to fix this
         if opacity == []:
-            opacity = [None,]*len(colors)
+            opacity = [None, ] * len(colors)
         fa.opacity = opacity
         fa.priority = priority
         if cmap is not None:

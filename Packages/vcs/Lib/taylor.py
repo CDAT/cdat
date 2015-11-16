@@ -941,7 +941,7 @@ class Gtd(object):
                     a[j, i] = function(std, cor)
         iso = createnewvcsobj(canvas, 'isoline', 'td_new_')
         cols = []
-        c = VCS_validation_functions.checkColor(self,"color",color)
+        c = VCS_validation_functions.checkColor(self, "color", color)
         for i in range(len(values)):
             cols.append(c)
 
@@ -1172,8 +1172,7 @@ class Gtd(object):
             markers.append(m)
             markers[-1].size = s
             markers[-1].type = t
-            checked = VCS_validation_functions.checkColor(self,"color",c)
-            markers[-1].color = [c,]
+            markers[-1].color = [c, ]
             markers[-1].x = [d0 * d1, ]
             markers[-1].y = [float(d0 * numpy.ma.sin(numpy.ma.arccos(d1))), ]
 
