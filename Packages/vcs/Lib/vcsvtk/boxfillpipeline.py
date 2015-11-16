@@ -156,7 +156,8 @@ class BoxfillPipeline(Pipeline2D):
         # And now we need actors to actually render this thing
         actors = []
         patternActors = []
-        ct = 0
+        cti = 0
+        ctj = 0
         _colorMap = self.getColorMap()
         _style = self._gm.fillareastyle
         for mapper in self._mappers:
@@ -182,14 +183,22 @@ class BoxfillPipeline(Pipeline2D):
                     # Patterns/hatches creation for custom boxfill plots
                     patact = None
 
+                    tmpColors = self._customBoxfillArgs["colors"]
+                    if ctj >= len(tmpColors[cti]):
+                        ctj = 0
+                        cti += 1
                     # Since pattern creation requires a single color, assuming the first
-                    c = [val * 255 / 100.0 for val in _colorMap.index[self._customBoxfillArgs["colors"][ct][0]]]
-                    op = self._customBoxfillArgs["opacities"][ct] * 255 / 100.0
-                    patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
-                                                                   fillareastyle=_style,
-                                                                   fillareaindex=self._customBoxfillArgs["indices"][ct],
-                                                                   fillareacolors=c,
-                                                                   fillareaopacity=op)
+                    c = [val * 255 / 100.0 for val in _colorMap.index[tmpColors[cti][ctj]]]
+                    op = self._customBoxfillArgs["opacities"][cti] * 255 / 100.0
+                    patact = fillareautils.make_patterned_polydata(
+                        mapper.GetInput(),
+                        fillareastyle=_style,
+                        fillareaindex=self._customBoxfillArgs["indices"][cti],
+                        fillareacolors=c,
+                        fillareaopacity=op)
+
+                    ctj += 1
+
                     if patact is not None:
                         patternActors.append(patact)
 
@@ -201,9 +210,6 @@ class BoxfillPipeline(Pipeline2D):
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
-
-            # increment the count
-            ct += 1
 
         for act in patternActors:
             if self._vtkGeoTransform is None:
