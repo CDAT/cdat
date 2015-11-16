@@ -35,7 +35,7 @@ __Gtd__vcs_test_save_taylor_to_json_and_python.addMarker(
     size = 5,
     xoffset = 2.0380499362945557,
     yoffset = 1.0833240747451782,
-    line_color = 'black',
+    line_color = [0.0, 0.0, 0.0, 100.0],
     line_size = 1.0,
     line_type = 'solid'
 )
@@ -51,7 +51,7 @@ __Gtd__vcs_test_save_taylor_to_json_and_python.addMarker(
     size = 5,
     xoffset = 2.1889517307281494,
     yoffset = 1.5037295818328857,
-    line_color = 'black',
+    line_color = [0.0, 0.0, 0.0, 100.0],
     line_size = 1.0,
     line_type = 'solid'
 )
@@ -67,7 +67,7 @@ __Gtd__vcs_test_save_taylor_to_json_and_python.addMarker(
     size = 5,
     xoffset = 2.005732774734497,
     yoffset = 1.2790908813476562,
-    line_color = 'black',
+    line_color = [0.0, 0.0, 0.0, 100.0],
     line_size = 1.0,
     line_type = 'solid'
 )
@@ -83,7 +83,7 @@ __Gtd__vcs_test_save_taylor_to_json_and_python.addMarker(
     size = 5,
     xoffset = 2.194457530975342,
     yoffset = 1.4414606094360352,
-    line_color = 'black',
+    line_color = [0.0, 0.0, 0.0, 100.0],
     line_size = 1.0,
     line_type = 'solid'
 )
@@ -99,7 +99,7 @@ __Gtd__vcs_test_save_taylor_to_json_and_python.addMarker(
     size = 5,
     xoffset = 0.0,
     yoffset = 0.0,
-    line_color = 'black',
+    line_color = [0.0, 0.0, 0.0, 100.0],
     line_size = 1.0,
     line_type = 'solid'
 )

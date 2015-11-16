@@ -398,27 +398,27 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
   cdat_add_test(test_vcs_set_colors_name_rgba_1d
       "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs__settings_color_name_rgba_1d.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_1d.py
       "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_1d.png"
       )
   cdat_add_test(test_vcs_set_colors_name_rgba_isoline
       "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs__settings_color_name_rgba_isoline.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_isoline.py
       "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isoline.png"
       )
   cdat_add_test(test_vcs_set_colors_name_rgba_meshfill
       "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs__settings_color_name_rgba_meshfill.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_meshfill.py
       "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_meshfill.png"
       )
   cdat_add_test(test_vcs_set_colors_name_rgba_boxfill
       "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs__settings_color_name_rgba_boxfill.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_boxfill.py
       "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_boxfill.png"
       )
   cdat_add_test(test_vcs_set_colors_name_rgba_isofill
       "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs__settings_color_name_rgba.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba.py
       "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isofill.png"
       )
     cdat_add_test(test_vcs_isofill_mask_cell_shift
