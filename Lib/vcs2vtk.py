@@ -966,11 +966,17 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
-    c = cmap.index[colorIndex]
+    if isinstance(colorIndex,int):
+        c = cmap.index[colorIndex]
+    else:
+        c = colorIndex
     p.SetColor([C / 100. for C in c[:3]])
     p.SetOpacity(c[-1])
     bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
-    bc = cmap.index[bcolorIndex]
+    if isinstance(bcolorIndex,int):
+        bc = cmap.index[bcolorIndex]
+    else:
+        bc = bcolorIndex
     p.SetBackgroundColor([C / 100. for C in bc[:3]])
     bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
     p.SetBackgroundOpacity(bopacity)
