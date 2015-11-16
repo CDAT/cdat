@@ -105,7 +105,7 @@ class MeshfillPipeline(Pipeline2D):
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b, a = self.getColorIndexOrRGBA(_colorMap,color)
+                r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
                 if style == 'solid':
                     tmpOpacity = tmpOpacities[i]
                     if tmpOpacity is None:
@@ -128,7 +128,7 @@ class MeshfillPipeline(Pipeline2D):
 
             # Since pattern creation requires a single color, assuming the
             # first
-            rgba = self.getColorIndexOrRGBA(_colorMap,tmpColors[i][0])
+            rgba = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
             self._patternCreation(
                 geoFilter2,
                 rgba,

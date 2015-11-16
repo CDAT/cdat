@@ -677,23 +677,23 @@ def checkColor(self, name, value, NoneOk=False):
         value = str(value)
     if isinstance(value, str):
         # Ok it is a string let's see if that is a valid color name
-        r,g,b = vcs.str2rgb(value)
+        r, g, b = vcs.str2rgb(value)
         if r is None:  # ok not a valid color
-            checkRaise(self,value,ValueError,
-                    'Invalid color name: %s' % value)
-        return r/2.55,g/2.55,b/2.55,100.
+            checkedRaise(self, value, ValueError,
+                         'Invalid color name: %s' % value)
+        return r / 2.55, g / 2.55, b / 2.55, 100.
     if value is None and NoneOk:
         return value
     if isinstance(value, int) and value in range(0, 256):
         return value
-    elif isinstance(value,(list,tuple)):  # for r,g,b,a tuples
-       value = checkListOfNumbers(self,name,value,
-               minvalue=0,maxvalue=100.,
-               minelements = 3,
-               maxelements = 4)
-       if len(value)==3:
-           value.append(100.)
-       return value
+    elif isinstance(value, (list, tuple)):  # for r,g,b,a tuples
+        value = checkListOfNumbers(self, name, value,
+                                   minvalue=0, maxvalue=100.,
+                                   minelements=3,
+                                   maxelements=4)
+        if len(value) == 3:
+            value.append(100.)
+        return value
     else:
         checkedRaise(
             self,
@@ -2004,8 +2004,10 @@ def _setfillareaopacity(self, value):
         self._fillareaopacity = value
 fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
 
+
 def _getfillareacolors(self):
     return self._fillareacolors
+
 
 def _setfillareacolors(self, value):
     if value is not None:
