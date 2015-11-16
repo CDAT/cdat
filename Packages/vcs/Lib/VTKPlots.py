@@ -1040,6 +1040,10 @@ class VTKVCSBackend(object):
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
+        # add text chunks to the writer
+        m = args.get('metadata', {})
+        for k, v in m.iteritems():
+            writer.AddText(k, v)
         writer.Write()
         if user_dims is not None:
             self.canvas.bgX, self.canvas.bgY, w, h = user_dims
