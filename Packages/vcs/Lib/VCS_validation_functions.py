@@ -889,7 +889,7 @@ def checkTextOrientation(self, name, value):
     return value
 
 
-def checkTextsList(self, name, value):
+def checkTextsList(self, name, value, storeName=False):
     import queries
     checkName(self, name, value)
     if isinstance(value, int):
@@ -907,11 +907,20 @@ def checkTextsList(self, name, value):
             hvalue.append(v)
         elif isinstance(v, str):
             if v in vcs.listelements("textcombined"):
-                hvalue.append(vcs.gettextcombined(v))
+                if storeName:
+                    hvalue.append(vcs.gettextcombined(v).name)
+                else:
+                    hvalue.append(vcs.gettextcombined(v))
             elif v in vcs.listelements("texttable"):
-                hvalue.append(vcs.gettexttable(v))
+                if storeName:
+                    hvalue.append(vcs.gettexttable(v).name)
+                else:
+                    hvalue.append(vcs.gettexttable(v))
             elif v in vcs.listelements("textorientation"):
-                hvalue.append(vcs.gettextorientation(v))
+                if storeName:
+                    hvalue.append(vcs.gettextorientation(v).name)
+                else:
+                    hvalue.append(vcs.gettextorientation(v))
             else:
                 checkedRaise(
                     self,
@@ -1814,22 +1823,22 @@ def _setprojection(self, value):
     self._projection = value
 projection = property(_getprojection, _setprojection)
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_1                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the left of the    #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the left of the    #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_1(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                     legend or 'y' to show the triangle on the triangle        #
-#                                                                               #
-##########################################################################
+# add_level_ext_1(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle        #
+#
+#
 
 
 def add_level_ext_1(self, ext_value):
@@ -1870,22 +1879,22 @@ def add_level_ext_1(self, ext_value):
             self.levels = ret_tup
             return self.levels
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_2                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the right of the   #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the right of the   #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_2(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                       legend or 'y' to show the triangle on the triangle      #
-#                                                                               #
-##########################################################################
+# add_level_ext_2(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle      #
+#
+#
 
 
 def add_level_ext_2(self, ext_value):
