@@ -15,8 +15,7 @@ def process_src(name, code):
     # now gets the name and prepare the graphics method
     if name != 'default':  # we cannot change default
         try:
-            td = Gtd()
-            td._name = name
+            td = Gtd(name)
         except Exception as err:
             print "Err:", err
             td = vcs.elements["taylordiagram"][name]
