@@ -6,6 +6,15 @@ import vcs
 import vtk
 
 
+LINE_PATTERNS = {
+    "solid": 0xFFFF,
+    "dash": 0xF0F0,
+    "dot": 0xCCCC,
+    "dash-dot": 0xE4E4,
+    "long-dash": 0xFCFC
+}
+
+
 class IsolinePipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isoline plots."""
@@ -223,8 +232,11 @@ class IsolinePipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
-        for mapper in mappers:
+        for index, mapper in enumerate(mappers):
             act = vtk.vtkActor()
+            actor_property = act.GetProperty()
+            actor_property.SetLineWidth(self._gm.linewidths[index])
+            actor_property.SetLineStipplePattern(LINE_PATTERNS[self._gm.line[index]])
             act.SetMapper(mapper)
 
             if self._vtkGeoTransform is None:
