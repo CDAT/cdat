@@ -552,17 +552,7 @@ class Gfb(object):
 
     levels = VCS_validation_functions.levels
 
-    def _getfillareacolors(self):
-        return self._fillareacolors
-
-    def _setfillareacolors(self, value):
-        if value is not None:
-            value = VCS_validation_functions.checkColorList(
-                self,
-                'fillareacolors',
-                value)
-        self._fillareacolors = value
-    fillareacolors = property(_getfillareacolors, _setfillareacolors)
+    fillareacolors = VCS_validation_functions.fillareacolors
 
     def _getfillareaindices(self):
         return self._fillareaindices

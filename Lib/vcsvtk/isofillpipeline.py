@@ -120,7 +120,7 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetInputConnection(cot.GetOutputPort())
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             for j, color in enumerate(tmpColors[i]):
-                r, g, b, a = _colorMap.index[color]
+                r, g, b, a = self.getColorIndexOrRGBA(_colorMap,color)
                 if style == 'solid':
                     tmpOpacity = tmpOpacities[i]
                     if tmpOpacity is None:
@@ -139,10 +139,10 @@ class IsofillPipeline(Pipeline2D):
 
             # Since pattern creation requires a single color, assuming the
             # first
+            rgba = self.getColorIndexOrRGBA(_colorMap,tmpColors[i][0])
             self._patternCreation(
                 cot,
-                _colorMap.index[
-                    tmpColors[i][0]],
+                rgba,
                 style,
                 tmpIndices[i],
                 tmpOpacities[i])
@@ -163,7 +163,7 @@ class IsofillPipeline(Pipeline2D):
             lut = vtk.vtkLookupTable()
             lut.SetNumberOfTableValues(numLevels)
             for i in range(numLevels):
-                r, g, b = _colorMap.index[self._contourColors[i]]
+                r, g, b, a = self.getColorIndexOrRGBA(_colorMap,self._contourColors[i])
                 lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
             mapper.SetLookupTable(lut)
