@@ -23,6 +23,8 @@ import tempfile
 import vcsaddons
 import cdms2
 import genutil
+import vtk
+
 from colors import rgb2str, str2rgb, matplotlib2vcs  # noqa
 
 indent = 1
@@ -1703,3 +1705,14 @@ def getworldcoordinates(gm, X, Y):
         wc[0] -= .0001
         wc[1] += .0001
     return wc
+
+
+def png_read_metadata(path):
+    reader = vtk.vtkPNGReader()
+    reader.SetFileName(path)
+    reader.Update()
+    numberOfTextChunks = reader.GetNumberOfTextChunks()
+    m = {}
+    for i in range(0, numberOfTextChunks):
+        m[reader.GetTextKey(i)] = reader.GetTextValue(i)
+    return m
