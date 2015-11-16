@@ -1170,7 +1170,11 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
-        color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        if isinstance(c,int):
+            color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        else:
+            color = [int((C / 100.) * 255) for C in c]
+
         if len(farea.opacity) > i:
             opacity = farea.opacity[i]
             if opacity is not None:
@@ -1426,7 +1430,10 @@ def setMarkerColor(p, marker, c, cmap=None):
         cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
-    color = cmap.index[c]
+    if isinstance(c,int):
+        color = cmap.index[c]
+    else:
+        color = c
     p.SetColor([C / 100. for C in color[:3]])
     p.SetOpacity(color[-1])
 
@@ -1521,7 +1528,10 @@ def prepLine(renWin, line, cmap=None):
 
         x = line.x[i]
         y = line.y[i]
-        c = cmap.index[line.color[i]]
+        if isinstance(line.color[i],int):
+            c = cmap.index[line.color[i]]
+        else:
+            c = line.color[i]
         w = line.width[i]
         t = line.type[i]
 

@@ -64,7 +64,7 @@ class Pipeline1D(Pipeline):
 
         l._x = xs
         l._y = ys
-        l.color = self._gm.linecolor
+        l.color = [self._gm.linecolor,]
         if self._gm.linewidth > 0:
             l.width = self._gm.linewidth
         else:
@@ -85,7 +85,7 @@ class Pipeline1D(Pipeline):
         if self._gm.marker is not None:
             m = self._context().canvas.createmarker()
             m.type = self._gm.marker
-            m.color = self._gm.markercolor
+            m.color = [self._gm.markercolor,]
             if self._gm.markersize > 0:
                 m.size = self._gm.markersize
             else:

@@ -400,7 +400,7 @@ Class: Gfi				# Isofill
                 'fillareacolors',
                 value)
             self._fillareacolors = value
-    fillareacolors = property(_getfillareacolors, _setfillareacolors)
+    fillareacolors = VCS_validation_functions.fillareacolors
 
     def _getfillareaindices(self):
         return self._fillareaindices

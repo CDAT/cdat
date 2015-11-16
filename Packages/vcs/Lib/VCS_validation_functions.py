@@ -676,11 +676,24 @@ def checkColor(self, name, value, NoneOk=False):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        return value
+        # Ok it is a string let's see if that is a valid color name
+        r,g,b = vcs.str2rgb(value)
+        if r is None:  # ok not a valid color
+            checkRaise(self,value,ValueError,
+                    'Invalid color name: %s' % value)
+        return r/2.55,g/2.55,b/2.55,100.
     if value is None and NoneOk:
         return value
     if isinstance(value, int) and value in range(0, 256):
         return value
+    elif isinstance(value,(list,tuple)):  # for r,g,b,a tuples
+       value = checkListOfNumbers(self,name,value,
+               minvalue=0,maxvalue=100.,
+               minelements = 3,
+               maxelements = 4)
+       if len(value)==3:
+           value.append(100.)
+       return value
     else:
         checkedRaise(
             self,
@@ -688,15 +701,17 @@ def checkColor(self, name, value, NoneOk=False):
             ValueError,
             'The ' +
             name +
-            ' attribute must be an integer value within the range 0 to 255.')
+            ' attribute must be an integer value within the range 0 to 255.' +
+            'a color name or an (r,g,b,[a]) tuple/list)')
 
 
 def checkColorList(self, name, value):
     checkName(self, name, value)
     value = checkListTuple(self, name, value)
+    returned_values = []
     for v in value:
-        checkColor(self, name + '_list_value', v, NoneOk=True)
-    return value
+        returned_values.append(checkColor(self, name + '_list_value', v, NoneOk=True))
+    return returned_values
 
 
 def checkIsolineLevels(self, name, value):
@@ -1988,3 +2003,15 @@ def _setfillareaopacity(self, value):
             value)
         self._fillareaopacity = value
 fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
+
+def _getfillareacolors(self):
+    return self._fillareacolors
+
+def _setfillareacolors(self, value):
+    if value is not None:
+        value = checkColorList(
+            self,
+            'fillareacolors',
+            value)
+    self._fillareacolors = value
+fillareacolors = property(_getfillareacolors, _setfillareacolors)
