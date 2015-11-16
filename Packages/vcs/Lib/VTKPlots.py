@@ -1040,6 +1040,10 @@ class VTKVCSBackend(object):
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
+        # add text chunks to the writer
+        m = args.get('metadata', {})
+        for k, v in m.iteritems():
+            writer.AddText(k, v)
         writer.Write()
         if user_dims is not None:
             self.canvas.bgX, self.canvas.bgY, w, h = user_dims
@@ -1319,6 +1323,10 @@ class VTKVCSBackend(object):
                 vg.GetPointData().AddArray(w)
                 ports[0].SetInputData(vg)
 
+            projection = None
+            if "vtk_backend_geo" in vtkobjects:
+                projection = vtkobjects["vtk_backend_geo"]
+
             if "vtk_backend_actors" in vtkobjects:
                 i = 0
                 for a in vtkobjects["vtk_backend_actors"]:
@@ -1365,8 +1373,9 @@ class VTKVCSBackend(object):
                                 mapper.SetScalarModeToUseCellData()
                             mapper.SetScalarRange(rg[0], rg[1])
                     act.SetMapper(mapper)
-                    act = vcs2vtk.doWrap(a[0], wrp)
-                    a[0].SetMapper(act.GetMapper())
+                    if not projection:
+                        # Wrap only if the data is not projected
+                        act = vcs2vtk.doWrap(a[0], wrp)
                     i += 1
 
         taxis = array1.getTime()

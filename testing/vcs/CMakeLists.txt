@@ -23,6 +23,10 @@ cdat_add_test(vcs_test_png_set_size
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
 )
+cdat_add_test(vcs_test_png_metadata
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_png_metadata.py
+)
 cdat_add_test(vcs_test_text_object_as_input.py
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
@@ -687,6 +691,19 @@ cdat_add_test(vcs_test_taylor_2_quads
           "--threshold=15"
           )
       ENDFOREACH(style)
+    ENDFOREACH(gm)
+
+    FOREACH(gm isofill meshfill boxfill)
+      FOREACH(proj polar robinson mercator mollweide lambert)
+        cdat_add_test(vcs_test_animate_projected_${gm}_${proj}
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
+          --gm_type=${gm}
+          --projection_type=${proj}
+          --source=${BASELINE_DIR}/test_vcs_animate_projected_${gm}_${proj}.png
+          --threshold=40
+          )
+      ENDFOREACH(proj)
     ENDFOREACH(gm)
 
     FOREACH(flip None X XY Y)
