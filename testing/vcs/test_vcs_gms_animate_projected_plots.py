@@ -70,11 +70,13 @@ x.animate.save("%s.mp4" % prefix)
 pngs = x.animate.close(preserve_pngs=True)  # so we can look at them again
 
 ret = 0
-p = pngs[-1]
+pdir = os.path.split(pngs[0])[0]
+p = pdir + os.sep + "anim_0.png"
 ret = checkimage.check_result_image(p, args.src, args.threshold)
 if ret == 0 and not args.keep:
-    for f in pngs[0:len(pngs) - 1]:
-        os.remove(f)
-    os.removedirs(os.path.split(p)[0])
+    for f in pngs:
+        if os.path.isfile(f):
+            os.remove(f)
+    os.removedirs(pdir)
     os.remove("%s.mp4" % prefix)
 sys.exit(ret)
