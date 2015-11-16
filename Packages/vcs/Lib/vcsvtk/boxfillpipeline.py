@@ -169,7 +169,6 @@ class BoxfillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
                                      self._dataWrapModulo)
 
-            patact = None
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
@@ -179,16 +178,20 @@ class BoxfillPipeline(Pipeline2D):
             else:
                 actors.append([act, [x1, x2, y1, y2]])
 
-                #  Since pattern creation requires a single color, assuming the first
-                c = [val * 255 / 100.0 for val in _colorMap.index[self._customBoxfillArgs["colors"][ct][0]]]
-                op = self._customBoxfillArgs["opacities"][ct] * 255 / 100.0
-                patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
-                                                               fillareastyle=_style,
-                                                               fillareaindex=self._customBoxfillArgs["indices"][ct],
-                                                               fillareacolors=c,
-                                                               fillareaopacity=op)
-                if patact is not None:
-                    patternActors.append(patact)
+                if self._gm.boxfill_type == "custom":
+                    # Patterns/hatches creation for custom boxfill plots
+                    patact = None
+
+                    # Since pattern creation requires a single color, assuming the first
+                    c = [val * 255 / 100.0 for val in _colorMap.index[self._customBoxfillArgs["colors"][ct][0]]]
+                    op = self._customBoxfillArgs["opacities"][ct] * 255 / 100.0
+                    patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
+                                                                   fillareastyle=_style,
+                                                                   fillareaindex=self._customBoxfillArgs["indices"][ct],
+                                                                   fillareacolors=c,
+                                                                   fillareaopacity=op)
+                    if patact is not None:
+                        patternActors.append(patact)
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
