@@ -259,6 +259,9 @@ class IsofillPipeline(Pipeline2D):
                 if patact is not None:
                     patternActors.append(patact)
 
+                # increment the count
+                ct += 1
+
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             self._context().fitToViewport(
@@ -267,9 +270,6 @@ class IsofillPipeline(Pipeline2D):
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
-
-            # increment the count
-            ct += 1
 
         for act in patternActors:
             self._context().fitToViewport(
