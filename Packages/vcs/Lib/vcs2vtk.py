@@ -1179,10 +1179,9 @@ def prepFillarea(renWin, farea, cmap=None):
         cellId = polys.InsertNextCell(polygon)
 
         if isinstance(c, int):
-            color = cmap.index[c]
+            color = [int(C) for C in cmap.index[c]]
         else:
-            color = c
-
+            color = [int(C) for C in c]
         if len(farea.opacity) > i:
             opacity = farea.opacity[i]
             if opacity is not None:

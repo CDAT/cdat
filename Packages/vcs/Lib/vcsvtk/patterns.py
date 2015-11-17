@@ -10,7 +10,7 @@ class Pattern(object):
         self.style = style
         if self.style != "hatch":
             self.colors = [0, 0, 0]
-        if self.style in ["hatch","pattern"]:
+        if self.style in ["hatch", "pattern"]:
             self.opacity = int(opacity / 100. * 255)
         else:
             self.opacity = 255
