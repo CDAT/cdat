@@ -1514,6 +1514,26 @@ def __build_ld__():
     return pts, lines, linePolyData, colors
 
 
+def stippleLine(prop, line_type):
+    if line_type == 'long-dash':
+        prop.SetLineStipplePattern(int('1111111100000000', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dot':
+        prop.SetLineStipplePattern(int('1010101010101010', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dash':
+        prop.SetLineStipplePattern(int('1111000011110000', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dash-dot':
+        prop.SetLineStipplePattern(int('0011110000110011', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'solid':
+        prop.SetLineStipplePattern(int('1111111111111111', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    else:
+        raise Exception("Unknown line type: '%s'" % line_type)
+
+
 def prepLine(renWin, line, cmap=None):
     number_lines = prepPrimitive(line)
     if number_lines == 0:
@@ -1605,37 +1625,7 @@ def prepLine(renWin, line, cmap=None):
         p = a.GetProperty()
         p.SetLineWidth(w)
 
-        if line.colormap is not None:
-            cmap = line.colormap
-        elif cmap is None:
-            cmap = vcs._colorMap
-
-        if isinstance(cmap, str):
-            cmap = vcs.elements["colormap"][cmap]
-        if isinstance(c, int):
-            color = cmap.index[c]
-        else:
-            color = c
-        p.SetColor([C / 100. for C in color[:3]])
-        p.SetOpacity(color[-1])
-        # stipple
-        if t == 'long-dash':
-            p.SetLineStipplePattern(int('1111111100000000', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dot':
-            p.SetLineStipplePattern(int('1010101010101010', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dash':
-            p.SetLineStipplePattern(int('1111000011110000', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dash-dot':
-            p.SetLineStipplePattern(int('0011110000110011', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'solid':
-            p.SetLineStipplePattern(int('1111111111111111', 2))
-            p.SetLineStippleRepeatFactor(1)
-        else:
-            raise Exception("Unknown line type: '%s'" % t)
+        stippleLine(p, t)
         actors.append((a, geo))
     return actors
 

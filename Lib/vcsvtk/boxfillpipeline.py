@@ -1,5 +1,6 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
+import fillareautils
 
 import numpy
 import vcs
@@ -367,7 +368,7 @@ class BoxfillPipeline(Pipeline2D):
                                                             fillareastyle=style,
                                                             fillareaindex=tmpIndices[i],
                                                             fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0,
+                                                            fillareaopacity=tmpOpacities[i],
                                                             size=(x2 - x1, y2 - y1))
                 if act is not None:
                     self._patternActors.append(act)
