@@ -1177,16 +1177,16 @@ def prepFillarea(renWin, farea, cmap=None):
         cellId = polys.InsertNextCell(polygon)
 
         if isinstance(c, int):
-            color = [int((C / 100.) * 255) for C in cmap.index[c]]
+            color = cmap.index[c]
         else:
-            color = [int((C / 100.) * 255) for C in c]
+            color = c
 
         if len(farea.opacity) > i:
             opacity = farea.opacity[i]
             if opacity is not None:
-                opacity = int(farea.opacity[i] * 255 / 100.0)
+                opacity = farea.opacity[i]
         else:
-            opacity = 255
+            opacity = 100
         # Draw colored background for solid
         # transparent/white background for hatches/patterns
         if st == 'solid':

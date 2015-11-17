@@ -363,12 +363,13 @@ class BoxfillPipeline(Pipeline2D):
                     self._mappers.append(mapper)
 
                 #  Since pattern creation requires a single color, assuming the first
-                c = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
+                c = self.getColorIndexOrRGBA(_colorMap, color)
+                opacity = tmpOpacities[i]
                 act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
                                                             fillareastyle=style,
                                                             fillareaindex=tmpIndices[i],
                                                             fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i],
+                                                            fillareaopacity=opacity,
                                                             size=(x2 - x1, y2 - y1))
                 if act is not None:
                     self._patternActors.append(act)
