@@ -136,8 +136,8 @@ def handleProjectionEdgeCases(projection, data):
     ptype = projDict.get(projection._type, projection.type)
     if (ptype.lower() == "merc"):
         lat = data.getLatitude()
-        if isinstance(lat,cdms2.axis.TransientAxis):
-            lat=lat[:]
+        if isinstance(lat, cdms2.axis.TransientAxis):
+            lat = lat[:]
             # Reverse the latitudes incase the starting latitude is greater
             # than the ending one
             if lat[-1] < lat[0]:
