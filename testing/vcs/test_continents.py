@@ -54,5 +54,5 @@ baseline = sys.argv[1]
 testFile = "test_continents.png"
 canvas.png(testFile)
 ret = checkimage.check_result_image(testFile, baseline,
-                                    checkimage.defaultThreshold)
+                                    25)
 sys.exit(ret)
