@@ -124,7 +124,6 @@ def process_src(nm, code):
         fac = []
         fai = []
         fas = []
-        fao = []
         badfa = True
         for l in lines:
             if l.find("(id=") > -1:
@@ -140,7 +139,6 @@ def process_src(nm, code):
                     fac.append(fa.color[0])
                     fai.append(fa.index[0])
                     fas.append(fa.style[0])
-                    fao.append(fa.opacity[0])
                 i += 1
         gm.levels = levs
         if badfa:
@@ -149,7 +147,6 @@ def process_src(nm, code):
             gm.fillareacolor = fac
             gm.fillareaindices = fai
             gm.fillareastyle = fas[0]
-            gm.fillareaopacity = fao[0]
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #

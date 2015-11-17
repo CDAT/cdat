@@ -319,6 +319,9 @@ class BoxfillPipeline(Pipeline2D):
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
         self._patternActors = []
+        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
+                                                       self._data1.getAxis(-1),
+                                                       self._data1.getAxis(-2))
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -358,15 +361,16 @@ class BoxfillPipeline(Pipeline2D):
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
 
-                # Since pattern creation requires a single color, assuming the
-                # first
-                rgba = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
-                self._patternCreation(
-                    geoFilter2,
-                    rgba,
-                    style,
-                    tmpIndices[i],
-                    tmpOpacities[i])
+                #  Since pattern creation requires a single color, assuming the first
+                c = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
+                act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
+                                                            fillareastyle=style,
+                                                            fillareaindex=tmpIndices[i],
+                                                            fillareacolors=c,
+                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0,
+                                                            size=(x2 - x1, y2 - y1))
+                if act is not None:
+                    self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
