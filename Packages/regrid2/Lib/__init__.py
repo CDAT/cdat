@@ -29,4 +29,3 @@ if not ESMP_HAS_BEEN_INITIALIZED:
         ESMP_HAS_BEEN_INITIALIZED = True
     except:
         pass
-

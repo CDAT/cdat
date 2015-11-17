@@ -11,4 +11,3 @@ fnm = "test_png_metadata.png"
 m = {'one':'value one','two':'value two'}
 x.png(fnm, width=15, metadata=m)
 assert(vcs.png_read_metadata(fnm) == m)
-

@@ -67,4 +67,3 @@ except:
 from restApi import esgfConnection,esgfDataset,FacetConnection
 
 MV = MV2
-
