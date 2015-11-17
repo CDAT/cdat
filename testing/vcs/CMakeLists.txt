@@ -839,6 +839,11 @@ cdat_add_test(vcs_test_mercator_edge
   ${BASELINE_DIR}/test_vcs_mercator_edge.png
 )
 
+cdat_add_test(vcs_test_continents
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_continents.py
+  ${BASELINE_DIR}/test_continents.png
+)
 cdat_add_test(vcs_test_large_pattern_hatch
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
