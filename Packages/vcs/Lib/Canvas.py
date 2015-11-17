@@ -66,8 +66,6 @@ import VCS_validation_functions
 from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisconvert, \
     plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, \
     plot_2_1D_options
-# Flag to set if the initial attributes file has aready been read in
-called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
 import vcsaddons
@@ -883,7 +881,6 @@ class Canvas(object):
         if found is False:
             os.environ["PATH"] = os.environ["PATH"] + \
                 ":" + os.path.join(sys.prefix, "bin")
-        global called_initial_attributes_flg
         global gui_canvas_closed
         global canvas_closed
 
@@ -961,25 +958,7 @@ class Canvas(object):
 #  to make sure that the initial attributes file is called only once for normalization    #
 #  purposes....                                                                           #
 ##########################################################################
-        if called_initial_attributes_flg == 0:
-            pth = vcs.__path__[0].split(os.path.sep)
-            pth = pth[:-4]  # Maybe need to make sure on none framework config
-            pth = ['/'] + pth + ['share', 'vcs', 'initial.attributes']
-            try:
-                vcs.scriptrun(os.path.join(*pth))
-            except:
-                pass
-            self._dotdir, self._dotdirenv = vcs.getdotdirectory()
-            user_init = os.path.join(
-                os.environ['HOME'],
-                self._dotdir,
-                'initial.attributes')
-            if os.path.exists(user_init):
-                vcs.scriptrun(user_init)
-            else:
-                shutil.copy2(os.path.join(*pth), user_init)
 
-        called_initial_attributes_flg = 1
         self.canvas_template_editor = None
         self.ratio = 0
         self._user_actions_names = [
@@ -3497,6 +3476,8 @@ Options:::
                     tp = "textcombined"
                 elif tp == "default":
                     tp = "boxfill"
+                elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+                    tp = "1d"
                 gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
