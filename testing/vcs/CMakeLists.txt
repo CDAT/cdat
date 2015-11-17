@@ -23,6 +23,10 @@ cdat_add_test(vcs_test_png_set_size
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
 )
+cdat_add_test(vcs_test_png_metadata
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_png_metadata.py
+)
 cdat_add_test(vcs_test_text_object_as_input.py
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_text_object_as_input.py
@@ -184,6 +188,11 @@ cdat_add_test(vcs_test_remove_marker_none_1d
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_remove_marker_none_1d.py
   "${BASELINE_DIR}/test_remove_marker_none_1d.png"
+  )
+cdat_add_test(vcs_test_png_window_resize
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_png_window_resize.py
+  "${BASELINE_DIR}/test_vcs_png_window_resize.png"
   )
 cdat_add_test(vcs_test_draw_logo_on
   "${PYTHON_EXECUTABLE}"
@@ -652,6 +661,19 @@ cdat_add_test(vcs_test_taylor_2_quads
       ENDFOREACH(style)
     ENDFOREACH(gm)
 
+    FOREACH(gm isofill meshfill boxfill)
+      FOREACH(proj polar robinson mercator mollweide lambert)
+        cdat_add_test(vcs_test_animate_projected_${gm}_${proj}
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
+          --gm_type=${gm}
+          --projection_type=${proj}
+          --source=${BASELINE_DIR}/test_vcs_animate_projected_${gm}_${proj}.png
+          --threshold=40
+          )
+      ENDFOREACH(proj)
+    ENDFOREACH(gm)
+
     FOREACH(flip None X XY Y)
       cdat_add_test(vcs_test_flip${flip}
         "${PYTHON_EXECUTABLE}"
@@ -789,6 +811,11 @@ cdat_add_test(vcs_test_continents
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_continents.py
   ${BASELINE_DIR}/test_continents.png
+)
+cdat_add_test(vcs_test_large_pattern_hatch
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
+  ${BASELINE_DIR}/test_vcs_large_pattern_hatch.png
 )
 
 add_subdirectory(vtk_ui)

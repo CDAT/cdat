@@ -1190,9 +1190,10 @@ def prepFillarea(renWin, farea, cmap=None):
                                                         st,
                                                         idx,
                                                         color,
-                                                        opacity)
+                                                        opacity,
+                                                        renWin.GetSize())
             if act is not None:
-                if opacity > 0:
+                if (st == "pattern" and opacity > 0) or st == "hatch":
                     m = vtk.vtkPolyDataMapper()
                     m.SetInputData(pd)
                     a = vtk.vtkActor()

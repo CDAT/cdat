@@ -321,7 +321,9 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            self.initialSize()
+            width = kargs.get("width", None)
+            height = kargs.get("height", None)
+            self.initialSize(width, height)
 
         if self.renderer is None:
             self.renderer = self.createRenderer()
@@ -426,8 +428,13 @@ class VTKVCSBackend(object):
     def landscape(self, W=-99, H=-99, x=-99, y=-99, clear=0):
         self.resize_or_rotate_window(W, H, x, y, clear)
 
-    def initialSize(self):
+    def initialSize(self, width=None, height=None):
         # Gets user physical screen dimensions
+        if isinstance(width, int) and isinstance(height, int):
+            self.renWin.SetSize(width, height)
+            self._lastSize = (width, height)
+            return
+
         screenSize = self.renWin.GetScreenSize()
         try:
             # following works on some machines but not all
@@ -441,8 +448,8 @@ class VTKVCSBackend(object):
         self.renWin.SetSize(bgX, bgY)
         self._lastSize = (bgX, bgY)
 
-    def open(self):
-        self.createRenWin(open=True)
+    def open(self, width=None, height=None, **kargs):
+        self.createRenWin(open=True, width=width, height=height)
 
     def close(self):
         if self.renWin is None:
@@ -462,6 +469,7 @@ class VTKVCSBackend(object):
 
     def geometry(self, x, y, *args):
         self.renWin.SetSize(x, y)
+        self._lastSize = (x, y)
 
     def flush(self):
         if self.renWin is not None:
@@ -487,6 +495,8 @@ class VTKVCSBackend(object):
             tt = vcs.elements["texttable"][tt]
             to = vcs.elements["textorientation"][to]
             gm = tt
+        elif gtype in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+            gm = vcs.elements["1d"][gname]
         else:
             gm = vcs.elements[gtype][gname]
         tpl = vcs.elements["template"][template]
@@ -1025,8 +1035,16 @@ class VTKVCSBackend(object):
         except:
             pass
 
+        sz = self.renWin.GetSize()
         if width is not None and height is not None:
-            self.renWin.SetSize(width, height)
+            if self.renWin.GetSize() != (width, height):
+                user_dims = (self.canvas.bgX, self.canvas.bgY, sz[0], sz[1])
+                self.renWin.SetSize(width, height)
+                self.canvas.bgX = width
+                self.canvas.bgY = height
+                self.configureEvent(None, None)
+            else:
+                user_dims = None
 
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
@@ -1044,7 +1062,15 @@ class VTKVCSBackend(object):
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
+        # add text chunks to the writer
+        m = args.get('metadata', {})
+        for k, v in m.iteritems():
+            writer.AddText(k, v)
         writer.Write()
+        if user_dims is not None:
+            self.canvas.bgX, self.canvas.bgY, w, h = user_dims
+            self.renWin.SetSize(w, h)
+            self.configureEvent(None, None)
 
     def cgm(self, file):
         if self.renWin is None:
@@ -1319,6 +1345,10 @@ class VTKVCSBackend(object):
                 vg.GetPointData().AddArray(w)
                 ports[0].SetInputData(vg)
 
+            projection = None
+            if "vtk_backend_geo" in vtkobjects:
+                projection = vtkobjects["vtk_backend_geo"]
+
             if "vtk_backend_actors" in vtkobjects:
                 i = 0
                 for a in vtkobjects["vtk_backend_actors"]:
@@ -1365,8 +1395,9 @@ class VTKVCSBackend(object):
                                 mapper.SetScalarModeToUseCellData()
                             mapper.SetScalarRange(rg[0], rg[1])
                     act.SetMapper(mapper)
-                    act = vcs2vtk.doWrap(a[0], wrp)
-                    a[0].SetMapper(act.GetMapper())
+                    if not projection:
+                        # Wrap only if the data is not projected
+                        act = vcs2vtk.doWrap(a[0], wrp)
                     i += 1
 
         taxis = array1.getTime()
