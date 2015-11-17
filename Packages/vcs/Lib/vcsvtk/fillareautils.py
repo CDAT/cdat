@@ -106,7 +106,7 @@ def create_pattern(width, height, num_pixels, fillareastyle=None,
         fillareacolors = [0, 0, 0]
 
     if fillareaopacity is None:
-        fillareaopacity = 255
+        fillareaopacity = 100
 
     # Create a pattern source image of the given size
     pattern = pattern_list[fillareaindex](width, height, num_pixels, fillareacolors, fillareastyle, fillareaopacity)
