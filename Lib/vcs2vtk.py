@@ -87,15 +87,15 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid2.CopyStructure(grid)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
-            r, g, b = actorColor
+            r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
             if not cellData:
                 grid2.GetPointData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
                 grid2.GetPointData().SetScalars(imsk)
                 geoFilter.SetInputData(grid2)
-                lut.SetTableValue(0, r / 100., g / 100., b / 100., 1.)
-                lut.SetTableValue(1, r / 100., g / 100., b / 100., 1.)
+                lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
+                lut.SetTableValue(1, r / 100., g / 100., b / 100., a / 100.)
             else:
                 grid2.GetCellData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
@@ -133,13 +133,15 @@ def handleProjectionEdgeCases(projection, data):
     # For mercator projection, latitude values of -90 or 90
     # transformation result in infinity values. We chose -85, 85
     # as that's the typical limit used by the community.
-    pname = projDict.get(projection._type, projection.type)
-    if (pname.lower() == "merc"):
-        lat = data.getLatitude()[:]
-        # Reverse the latitudes incase the starting latitude is greater
-        # than the ending one
-        if lat[-1] < lat[0]:
-            lat = lat[::-1]
+    ptype = projDict.get(projection._type, projection.type)
+    if (ptype.lower() == "merc"):
+        lat = data.getLatitude()
+        if isinstance(lat, cdms2.axis.TransientAxis):
+            lat = lat[:]
+            # Reverse the latitudes incase the starting latitude is greater
+            # than the ending one
+            if lat[-1] < lat[0]:
+                lat = lat[::-1]
         data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
     return data
 
@@ -966,11 +968,18 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
-    c = cmap.index[colorIndex]
-    p.SetColor([C / 100. for C in c])
+    if isinstance(colorIndex, int):
+        c = cmap.index[colorIndex]
+    else:
+        c = colorIndex
+    p.SetColor([C / 100. for C in c[:3]])
+    p.SetOpacity(c[-1])
     bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
-    bc = cmap.index[bcolorIndex]
-    p.SetBackgroundColor([C / 100. for C in bc])
+    if isinstance(bcolorIndex, int):
+        bc = cmap.index[bcolorIndex]
+    else:
+        bc = bcolorIndex
+    p.SetBackgroundColor([C / 100. for C in bc[:3]])
     bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
     p.SetBackgroundOpacity(bopacity)
     if to.halign in [0, 'left']:
@@ -1138,8 +1147,11 @@ def prepFillarea(renWin, farea, cmap=None):
     for i in range(n):
         x = farea.x[i]
         y = farea.y[i]
-        c = farea.color[i]
         st = farea.style[i]
+        if st == "pattern":
+            c = 241
+        else:
+            c = farea.color[i]
 
         if st == "solid":
             points, polys, pd, color_arr = pts, polygons, polygonPolyData, colors
@@ -1166,33 +1178,40 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
-        color = [int((C / 100.) * 255) for C in cmap.index[c]]
-        if len(farea.opacity) > i:
-            opacity = farea.opacity[i] * 255 / 100.0
-        elif st == "pattern":
-            opacity = 0
+        if isinstance(c, int):
+            color = [C for C in cmap.index[c]]
         else:
-            opacity = 255
-        # Draw colored background for solid or patterns
-        # or white background for hatches
-        if st in ('solid', "pattern"):
+            color = [C for C in c]
+        if len(farea.opacity) > i:
+            opacity = farea.opacity[i]
+            if opacity is not None:
+                opacity = farea.opacity[i]
+        else:
+            opacity = 100
+        # Draw colored background for solid
+        # transparent/white background for hatches/patterns
+        if st == 'solid':
             # Add the color to the color array:
-            color = color + [int(opacity)]
-            color_arr.SetTupleValue(cellId, color)
+            if opacity is not None:
+                color[-1] = opacity
+            color = [int(C / 100. * 255) for C in color]
+            colors.SetTupleValue(cellId, color)
         else:
             color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
 
         if st != "solid":
             # Patterns/hatches support
-            geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+            geo, proj_points = project(
+                points, farea.projection, farea.worldcoordinate)
             pd.SetPoints(proj_points)
             act = fillareautils.make_patterned_polydata(pd,
                                                         st,
                                                         idx,
                                                         color,
-                                                        opacity)
+                                                        opacity,
+                                                        renWin.GetSize())
             if act is not None:
-                if opacity > 0:
+                if (st == "pattern" and opacity > 0) or st == "hatch":
                     m = vtk.vtkPolyDataMapper()
                     m.SetInputData(pd)
                     a = vtk.vtkActor()
@@ -1420,8 +1439,12 @@ def setMarkerColor(p, marker, c, cmap=None):
         cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
-    color = cmap.index[c]
-    p.SetColor([C / 100. for C in color])
+    if isinstance(c, int):
+        color = cmap.index[c]
+    else:
+        color = c
+    p.SetColor([C / 100. for C in color[:3]])
+    p.SetOpacity(color[-1])
 
 
 def scaleMarkerGlyph(g, gs, pd, a):
@@ -1488,9 +1511,29 @@ def __build_ld__():
     linePolyData.SetPoints(pts)
     linePolyData.SetLines(lines)
     colors = vtk.vtkUnsignedCharArray()
-    colors.SetNumberOfComponents(3)
+    colors.SetNumberOfComponents(4)
     colors.SetName("Colors")
     return pts, lines, linePolyData, colors
+
+
+def stippleLine(prop, line_type):
+    if line_type == 'long-dash':
+        prop.SetLineStipplePattern(int('1111111100000000', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dot':
+        prop.SetLineStipplePattern(int('1010101010101010', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dash':
+        prop.SetLineStipplePattern(int('1111000011110000', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'dash-dot':
+        prop.SetLineStipplePattern(int('0011110000110011', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    elif line_type == 'solid':
+        prop.SetLineStipplePattern(int('1111111111111111', 2))
+        prop.SetLineStippleRepeatFactor(1)
+    else:
+        raise Exception("Unknown line type: '%s'" % line_type)
 
 
 def prepLine(renWin, line, cmap=None):
@@ -1514,7 +1557,10 @@ def prepLine(renWin, line, cmap=None):
 
         x = line.x[i]
         y = line.y[i]
-        c = cmap.index[line.color[i]]
+        if isinstance(line.color[i], int):
+            c = cmap.index[line.color[i]]
+        else:
+            c = line.color[i]
         w = line.width[i]
         t = line.type[i]
 
@@ -1581,23 +1627,7 @@ def prepLine(renWin, line, cmap=None):
         p = a.GetProperty()
         p.SetLineWidth(w)
 
-        if t == 'long-dash':
-            p.SetLineStipplePattern(int('1111111100000000', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dot':
-            p.SetLineStipplePattern(int('1010101010101010', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dash':
-            p.SetLineStipplePattern(int('1111000011110000', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'dash-dot':
-            p.SetLineStipplePattern(int('0011110000110011', 2))
-            p.SetLineStippleRepeatFactor(1)
-        elif t == 'solid':
-            p.SetLineStipplePattern(int('1111111111111111', 2))
-            p.SetLineStippleRepeatFactor(1)
-        else:
-            raise Exception("Unknown line type: '%s'" % t)
+        stippleLine(p, t)
         actors.append((a, geo))
     return actors
 

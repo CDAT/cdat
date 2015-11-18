@@ -65,8 +65,7 @@ def process_src(nm, code):
         tt.priority = int(sp[5])
         if len(sp) != 14:
             tt.fillincolor = int(sp[6])
-            tt.backgroundcolor = int(sp[7])
-            tt.backgroundopacity = int(sp[8])
+
 
 #############################################################################
 #                                                                           #

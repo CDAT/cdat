@@ -35,3 +35,9 @@ class Pipeline(object):
         if isinstance(_colorMap, str):
             _colorMap = vcs.elements["colormap"][_colorMap]
         return _colorMap
+
+    def getColorIndexOrRGBA(self, colormap, color):
+        if isinstance(color, (list, tuple)):
+            return color
+        else:
+            return colormap.index[color]
