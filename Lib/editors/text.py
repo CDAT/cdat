@@ -362,5 +362,10 @@ class TextEditor(ClickableMixin, priority.PriorityEditor):
 
 def text_dimensions(text, index, winsize, dpi):
     prop = vtkTextProperty()
-    vcs.vcs2vtk.prepTextProperty(prop, winsize, text.To, text.Tt, vcs.getcolormap())
+    vcs.vcs2vtk.prepTextProperty(
+        prop,
+        winsize,
+        text.To,
+        text.Tt,
+        vcs.getcolormap())
     return vcs.vtk_ui.text.text_dimensions(text.string[index], prop, dpi)

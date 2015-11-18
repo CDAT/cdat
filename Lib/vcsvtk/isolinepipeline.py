@@ -175,8 +175,8 @@ class IsolinePipeline(Pipeline2D):
             lut.SetNumberOfTableValues(len(tmpColors[i]))
             cmap = self.getColorMap()
             for n, col in enumerate(tmpColors[i]):
-                r, g, b = cmap.index[col]
-                lut.SetTableValue(n, r / 100., g / 100., b / 100.)
+                r, g, b, a = self.getColorIndexOrRGBA(cmap, col)
+                lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
             # Setup isoline labels
             if self._gm.label:

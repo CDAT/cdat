@@ -87,15 +87,15 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             grid2.CopyStructure(grid)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
-            r, g, b = actorColor
+            r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
             if not cellData:
                 grid2.GetPointData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
                 grid2.GetPointData().SetScalars(imsk)
                 geoFilter.SetInputData(grid2)
-                lut.SetTableValue(0, r / 100., g / 100., b / 100., 1.)
-                lut.SetTableValue(1, r / 100., g / 100., b / 100., 1.)
+                lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
+                lut.SetTableValue(1, r / 100., g / 100., b / 100., a / 100.)
             else:
                 grid2.GetCellData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
@@ -966,11 +966,18 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
-    c = cmap.index[colorIndex]
-    p.SetColor([C / 100. for C in c])
+    if isinstance(colorIndex, int):
+        c = cmap.index[colorIndex]
+    else:
+        c = colorIndex
+    p.SetColor([C / 100. for C in c[:3]])
+    p.SetOpacity(c[-1])
     bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
-    bc = cmap.index[bcolorIndex]
-    p.SetBackgroundColor([C / 100. for C in bc])
+    if isinstance(bcolorIndex, int):
+        bc = cmap.index[bcolorIndex]
+    else:
+        bc = bcolorIndex
+    p.SetBackgroundColor([C / 100. for C in bc[:3]])
     bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
     p.SetBackgroundOpacity(bopacity)
     if to.halign in [0, 'left']:
@@ -1138,8 +1145,11 @@ def prepFillarea(renWin, farea, cmap=None):
     for i in range(n):
         x = farea.x[i]
         y = farea.y[i]
-        c = farea.color[i]
         st = farea.style[i]
+        if st == "pattern":
+            c = 241
+        else:
+            c = farea.color[i]
 
         if st == "solid":
             points, polys, pd, color_arr = pts, polygons, polygonPolyData, colors
@@ -1166,25 +1176,31 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
-        color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        if isinstance(c, int):
+            color = [int((C / 100.) * 255) for C in cmap.index[c]]
+        else:
+            color = [int((C / 100.) * 255) for C in c]
+
         if len(farea.opacity) > i:
-            opacity = farea.opacity[i] * 255 / 100.0
-        elif st == "pattern":
-            opacity = 0
+            opacity = farea.opacity[i]
+            if opacity is not None:
+                opacity = int(farea.opacity[i] * 255 / 100.0)
         else:
             opacity = 255
-        # Draw colored background for solid or patterns
-        # or white background for hatches
-        if st in ('solid', "pattern"):
+        # Draw colored background for solid
+        # transparent/white background for hatches/patterns
+        if st == 'solid':
             # Add the color to the color array:
-            color = color + [int(opacity)]
-            color_arr.SetTupleValue(cellId, color)
+            if opacity is not None:
+                color[-1] = opacity
+            colors.SetTupleValue(cellId, color)
         else:
             color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
 
         if st != "solid":
             # Patterns/hatches support
-            geo, proj_points = project(points, farea.projection, farea.worldcoordinate)
+            geo, proj_points = project(
+                points, farea.projection, farea.worldcoordinate)
             pd.SetPoints(proj_points)
             act = fillareautils.make_patterned_polydata(pd,
                                                         st,
@@ -1420,8 +1436,12 @@ def setMarkerColor(p, marker, c, cmap=None):
         cmap = vcs._colorMap
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
-    color = cmap.index[c]
-    p.SetColor([C / 100. for C in color])
+    if isinstance(c, int):
+        color = cmap.index[c]
+    else:
+        color = c
+    p.SetColor([C / 100. for C in color[:3]])
+    p.SetOpacity(color[-1])
 
 
 def scaleMarkerGlyph(g, gs, pd, a):
@@ -1488,7 +1508,7 @@ def __build_ld__():
     linePolyData.SetPoints(pts)
     linePolyData.SetLines(lines)
     colors = vtk.vtkUnsignedCharArray()
-    colors.SetNumberOfComponents(3)
+    colors.SetNumberOfComponents(4)
     colors.SetName("Colors")
     return pts, lines, linePolyData, colors
 
@@ -1514,7 +1534,10 @@ def prepLine(renWin, line, cmap=None):
 
         x = line.x[i]
         y = line.y[i]
-        c = cmap.index[line.color[i]]
+        if isinstance(line.color[i], int):
+            c = cmap.index[line.color[i]]
+        else:
+            c = line.color[i]
         w = line.width[i]
         t = line.type[i]
 
@@ -1581,6 +1604,20 @@ def prepLine(renWin, line, cmap=None):
         p = a.GetProperty()
         p.SetLineWidth(w)
 
+        if line.colormap is not None:
+            cmap = line.colormap
+        elif cmap is None:
+            cmap = vcs._colorMap
+
+        if isinstance(cmap, str):
+            cmap = vcs.elements["colormap"][cmap]
+        if isinstance(c, int):
+            color = cmap.index[c]
+        else:
+            color = c
+        p.SetColor([C / 100. for C in color[:3]])
+        p.SetOpacity(color[-1])
+        # stipple
         if t == 'long-dash':
             p.SetLineStipplePattern(int('1111111100000000', 2))
             p.SetLineStippleRepeatFactor(1)
