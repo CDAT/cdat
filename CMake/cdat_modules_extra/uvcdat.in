@@ -50,6 +50,13 @@ if [ $redirect = false ]  ;then
 else
     # Replace all uses of ~ with $HOME
     target="${target/#\~/$HOME}"
+
+    # Check if path exists
+    target_dir="$(dirname $target)"
+    if [ ! -d "$target_dir" ] ;then
+        mkdir -p $target_dir
+    fi
+
     # Make sure the file exists and that we have write privileges
     touch $target
     # Launch with redirection
