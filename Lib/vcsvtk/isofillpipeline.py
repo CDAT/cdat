@@ -1,5 +1,6 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
+import fillareautils
 
 import numpy
 import vcs
@@ -101,6 +102,9 @@ class IsofillPipeline(Pipeline2D):
         mappers = []
         _colorMap = self.getColorMap()
         self._patternActors = []
+        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
+                                                       self._data1.getAxis(-1),
+                                                       self._data1.getAxis(-2))
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -137,15 +141,20 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
-            # Since pattern creation requires a single color, assuming the
-            # first
-            rgba = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
-            self._patternCreation(
-                cot,
-                rgba,
-                style,
-                tmpIndices[i],
-                tmpOpacities[i])
+            # Since pattern creation requires a single color, assuming the first
+            c = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
+
+            # The isofill actor is scaled by the camera, so we need to use this size
+            # instead of window size for scaling the pattern.
+            viewsize = (x2 - x1, y2 - y1)
+            act = fillareautils.make_patterned_polydata(cots[i].GetOutput(),
+                                                        fillareastyle=style,
+                                                        fillareaindex=tmpIndices[i],
+                                                        fillareacolors=c,
+                                                        fillareaopacity=tmpOpacities[i],
+                                                        size=viewsize)
+            if act is not None:
+                self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
@@ -180,10 +189,6 @@ class IsofillPipeline(Pipeline2D):
 
         if self._maskedDataMapper is not None:
             mappers.insert(0, self._maskedDataMapper)
-
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
 
         # And now we need actors to actually render this thing
         actors = []

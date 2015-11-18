@@ -87,6 +87,44 @@ def checkElements(self, name, value, function):
     return value
 
 
+def checkContinents(self, value):
+    import os
+    nms = [
+        "fine",
+        "coarse",
+        "states",
+        "political",
+        "river",
+        "other7"]
+    path = None
+    if isinstance(value, int):
+        if value == 0:
+            path = None
+        elif 0 < value < 7:
+            path = os.path.join(
+                os.environ.get(
+                    "HOME",
+                    ""),
+                os.environ.get(
+                    vcs.getdotdirectory()[1],
+                    vcs.getdotdirectory()[0]),
+                "data_continent_%s" % nms[
+                    value - 1])
+            if not os.path.exists(path):
+                    # fallback on installed with system one
+                path = os.path.join(
+                    vcs.prefix,
+                    "share",
+                    "vcs",
+                    "data_continent_%s" % nms[
+                        value - 1])
+        else:
+            raise ValueError("Continents value must be file or int < 12")
+    else:
+        path = value
+    return path
+
+
 def checkContType(self, name, value):
     checkName(self, name, value)
     checkInt(self, name, value, minvalue=0)
@@ -906,7 +944,7 @@ def checkTextOrientation(self, name, value):
     return value
 
 
-def checkTextsList(self, name, value):
+def checkTextsList(self, name, value, storeName=False):
     import queries
     checkName(self, name, value)
     if isinstance(value, int):
@@ -924,11 +962,20 @@ def checkTextsList(self, name, value):
             hvalue.append(v)
         elif isinstance(v, str):
             if v in vcs.listelements("textcombined"):
-                hvalue.append(vcs.gettextcombined(v))
+                if storeName:
+                    hvalue.append(vcs.gettextcombined(v).name)
+                else:
+                    hvalue.append(vcs.gettextcombined(v))
             elif v in vcs.listelements("texttable"):
-                hvalue.append(vcs.gettexttable(v))
+                if storeName:
+                    hvalue.append(vcs.gettexttable(v).name)
+                else:
+                    hvalue.append(vcs.gettexttable(v))
             elif v in vcs.listelements("textorientation"):
-                hvalue.append(vcs.gettextorientation(v))
+                if storeName:
+                    hvalue.append(vcs.gettextorientation(v).name)
+                else:
+                    hvalue.append(vcs.gettextorientation(v))
             else:
                 checkedRaise(
                     self,
@@ -1831,22 +1878,22 @@ def _setprojection(self, value):
     self._projection = value
 projection = property(_getprojection, _setprojection)
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_1                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the left of the    #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the left of the    #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_1(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                     legend or 'y' to show the triangle on the triangle        #
-#                                                                               #
-##########################################################################
+# add_level_ext_1(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle        #
+#
+#
 
 
 def add_level_ext_1(self, ext_value):
@@ -1887,22 +1934,22 @@ def add_level_ext_1(self, ext_value):
             self.levels = ret_tup
             return self.levels
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_2                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the right of the   #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the right of the   #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_2(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                       legend or 'y' to show the triangle on the triangle      #
-#                                                                               #
-##########################################################################
+# add_level_ext_2(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle      #
+#
+#
 
 
 def add_level_ext_2(self, ext_value):
