@@ -627,7 +627,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       cdat_add_test(vcs_test_isoline_width_stipple
         "${PYTHON_EXECUTABLE}"
         "${cdat_SOURCE_DIR}/testing/vcs/test_isoline_width_stipple.py"
-        "${BASELINE_DIR}/test_isofill_isoline_width_stipple.png"
+        "${BASELINE_DIR}/test_isoline_width_stipple.png"
         )
       cdat_add_test(vcs_test_isoline_labels_background
         "${PYTHON_EXECUTABLE}"
