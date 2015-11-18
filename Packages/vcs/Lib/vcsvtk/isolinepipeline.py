@@ -88,8 +88,8 @@ class IsolinePipeline(Pipeline2D):
         lut.SetNumberOfTableValues(len(self._contourColors))
         cmap = self.getColorMap()
         for i, col in enumerate(self._contourColors):
-            r, g, b = cmap.index[col]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b, a = self.getColorIndexOrRGBA(cmap, col)
+            lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
         # Setup isoline labels
         if self._gm.label:
@@ -141,6 +141,21 @@ class IsolinePipeline(Pipeline2D):
                     elif vcs.queries.istextorientation(tc):
                         to = tc.name
                         tt = "default"
+                    elif isinstance(tc, (str, unicode)):
+                        sp = tc.split(":::")
+                        if len(sp) == 2:
+                            tt = sp[0]
+                            to = sp[1]
+                        else:  # Hum don't know what do do with this
+                            if sp[0] in vcs.listelements("textcombined"):
+                                tc = vcs.gettextcombined(tc)
+                                tt, to = tuple(tc.name.split(":::"))
+                            elif sp[0] in vcs.listelements("textorientation"):
+                                to = sp[0]
+                                tt = "default"
+                            elif sp[0] in vcs.listelements("texttable"):
+                                tt = sp[0]
+                                to = "default"
 
                     colorOverride = colorOverrides[idx]
                     if colorOverride is not None:
