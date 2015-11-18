@@ -29,13 +29,18 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 
+# Default is serial mode until setNetcdfUseParallelFlag(1) is called
+rk = 0
+sz = 1
+Cdunif.CdunifSetNCFLAGS("use_parallel",0)
+CdMpi = False
+
 try:
-    import mpi4py
-    rk = mpi4py.MPI.COMM_WORLD.Get_rank()
-    hasMpi = True
+    from mpi4py import rc
+    rc.initialize = False
+    from mpi4py import MPI
 except:
     rk = 0
-    hasMpi = False
 
 try:
     import gsHost
@@ -97,18 +102,20 @@ def setCompressionWarnings(value=None):
         else:
             value = 0
     if not isinstance(value, (int,bool)):
-        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
+        raise CDMSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
 
     if value in [1,True]:
         _showCompressWarnings = True
     elif value in [0,False]:
         _showCompressWarnings = False
     else:
-        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
+        raise CDMSError("setCompressionWarnings flags must be yes\/no or 1\/0, or None to invert it")
+
     return _showCompressWarnings
 
 def setNetcdfUseNCSwitchModeFlag(value):
     """ Tells cdms2 to switch constantly between netcdf define/write modes"""
+
     if value not in [True,False,0,1]:
         raise CDMSError("Error UseNCSwitchMode flag must be 1(can use)/0(do not use) or true/False")
     if value in [0,False]:
@@ -118,12 +125,32 @@ def setNetcdfUseNCSwitchModeFlag(value):
 
 def setNetcdfUseParallelFlag(value):
     """ Sets NetCDF classic flag value"""
+    global CdMpi
     if value not in [True,False,0,1]:
         raise CDMSError("Error UseParallel flag must be 1(can use)/0(do not use) or true/False")
     if value in [0,False]:
         Cdunif.CdunifSetNCFLAGS("use_parallel",0)
     else:
         Cdunif.CdunifSetNCFLAGS("use_parallel",1)
+        CdMpi = True
+        if not MPI.Is_initialized():
+            MPI.Init()
+        rk = MPI.COMM_WORLD.Get_rank()
+
+def getMpiRank():
+    ''' Return number of processor available '''
+    if CdMpi:
+        rk = MPI.COMM_WORLD.Get_rank()
+        return rk
+    else:
+        return 0
+
+def getMpiSize():
+    if CdMpi:
+        sz = MPI.COMM_WORLD.Get_size()
+        return sz
+    else:
+        return 1
 
 def setNetcdf4Flag(value):
     """ Sets NetCDF classic flag value"""
@@ -265,13 +292,14 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
         else:
             # If the doesn't exist allow it to be created
             ##Ok mpi has issues with bellow we need to test this only with 1 rank
-
             if not os.path.exists(path):
-              return CdmsFile(path,mode,mpiBarrier=hasMpi)
+                return CdmsFile(path,mode,mpiBarrier=CdMpi)
             elif mode=="w":
-              if rk == 0 :
-                os.remove(path)
-              return CdmsFile(path,mode,mpiBarrier=hasMpi)
+                try:
+                    os.remove(path)
+                except:
+                    pass
+                return CdmsFile(path,mode,mpiBarrier=CdMpi)
             
             # The file exists
             file1 = CdmsFile(path,"r")
@@ -687,12 +715,12 @@ class Dataset(CdmsObj, cuDataset):
 
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
     # order and type are strings
-    def createRectGrid(id, lat, lon, order, type="generic", mask=None):
+    def createRectGrid(self,id, lat, lon, order, type="generic", mask=None):
         node = cdmsNode.RectGridNode(id, lat.id, lon.id, type, order, mask.id)
         grid = RectGrid(self,node)
         grid.initDomain(self.axes, self.variables)
         self.grids[grid.id] = grid
-        self._gridmap_[gridkey] = grid
+#        self._gridmap_[gridkey] = grid
 
     # Create a variable
     # 'name' is the string name of the Variable
@@ -921,7 +949,7 @@ class CdmsFile(CdmsObj, cuDataset):
     def __init__(self, path, mode, hostObj = None, mpiBarrier=False):
 
         if mpiBarrier:
-            mpi4py.MPI.COMM_WORLD.Barrier()
+            MPI.COMM_WORLD.Barrier()
 
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)

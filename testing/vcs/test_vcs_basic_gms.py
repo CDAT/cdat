@@ -15,6 +15,7 @@ p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the r
 p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
 p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
+p.add_argument("--transparent", dest="transparent", action="store_true",help="Add transparency to colors")
 
 dataMods = p.add_mutually_exclusive_group()
 dataMods.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
@@ -113,6 +114,12 @@ else:
 if args.bigvalues:
     gm.levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 1.e36]
 
+if args.transparent:
+    cmap = x.createcolormap()
+    for i in range(256):  # tweaks all colors
+        cmap.setcolorcell(i,100.,0,0,i/2.55)
+    x.setcolormap(cmap)
+
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
@@ -128,10 +135,14 @@ if args.projtype!="default":
     fnm+="_%s_proj" % args.projtype
 if args.zero:
    fnm+="_zero"
+if args.transparent:
+    fnm+="_transparent"
 fnm+=nm_xtra
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
+if args.show:
+    raw_input("Press Enter")
 ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")

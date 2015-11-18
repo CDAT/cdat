@@ -23,6 +23,7 @@ import tempfile
 import vcsaddons
 import cdms2
 import genutil
+from colors import rgb2str, str2rgb, matplotlib2vcs  # noqa
 
 indent = 1
 sort_keys = True

@@ -1,11 +1,9 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
 
-import fillareautils
 import numpy
 import vcs
 import vtk
-import warnings
 
 
 class BoxfillPipeline(Pipeline2D):
@@ -289,8 +287,8 @@ class BoxfillPipeline(Pipeline2D):
         lut.SetNumberOfTableValues(numLevels)
         _colorMap = self.getColorMap()
         for i in range(numLevels):
-            r, g, b = _colorMap.index[self._contourColors[i]]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b, a = self.getColorIndexOrRGBA(_colorMap, self._contourColors[i])
+            lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
         mapper.SetLookupTable(lut)
         if numpy.allclose(self._contourLevels[0], -1.e20):
@@ -307,75 +305,14 @@ class BoxfillPipeline(Pipeline2D):
     def _plotInternalCustomBoxfill(self):
         """Implements the logic to render a custom boxfill."""
         self._mappers = []
-        tmpLevels = []
-        tmpColors = []
-        tmpIndices = []
-        tmpOpacities = []
 
-        indices = self._gm.fillareaindices
-        opacities = self._gm.fillareaopacity
+        prepedContours = self._prepContours()
+        tmpLevels = prepedContours["tmpLevels"]
+        tmpIndices = prepedContours["tmpIndices"]
+        tmpColors = prepedContours["tmpColors"]
+        tmpOpacities = prepedContours["tmpOpacities"]
+
         style = self._gm.fillareastyle
-
-        if indices is None:
-            indices = [1]
-        while len(indices) < len(self._contourColors):
-            indices.append(indices[-1])
-        if len(self._contourLevels) > len(self._contourColors):
-            raise RuntimeError(
-                "You asked for %i levels but provided only %i colors\n"
-                "Graphic Method: %s of type %s\nLevels: %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name,
-                   repr(self._contourLevels)))
-        elif len(self._contourLevels) < len(self._contourColors) - 1:
-            warnings.warn(
-                "You asked for %i lgridevels but provided %i colors, "
-                "extra ones will be ignored\nGraphic Method: %s of type %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name))
-        if len(opacities) < len(self._contourColors):
-            # fill up the opacity values
-            if style == 'pattern':
-                opacities += [0] * (len(self._contourColors) - len(opacities))
-            else:
-                opacities += [100] * (len(self._contourColors) - len(opacities))
-
-        # The following loop attempts to group isosurfaces based on their
-        # attributes. Isosurfaces grouped if and only if all properties match.
-        for i, l in enumerate(self._contourLevels):
-            if i == 0:
-                C = [self._contourColors[i]]
-                if numpy.allclose(self._contourLevels[0][0], -1.e20):
-                    # ok it's an extension arrow
-                    L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
-                else:
-                    L = list(self._contourLevels[i])
-                I = indices[i]
-                O = opacities[i]
-            else:
-                if l[0] == L[-1] and I == indices[i] and\
-                        ((style == 'solid') or
-                            (C[-1] == self._contourColors[i] and O == opacities[i])):
-                    # Ok same type lets keep going
-                    if numpy.allclose(l[1], 1.e20):
-                        L.append(self._scalarRange[1] + 1.)
-                    else:
-                        L.append(l[1])
-                    C.append(self._contourColors[i])
-                else:  # ok we need new contouring
-                    tmpLevels.append(L)
-                    tmpColors.append(C)
-                    tmpIndices.append(I)
-                    tmpOpacities.append(O)
-                    C = [self._contourColors[i]]
-#                    L = self._contourLevels[i]
-                    L = [L[-1], l[1]]
-                    I = indices[i]
-                    O = opacities[i]
-        tmpLevels.append(L)
-        tmpColors.append(C)
-        tmpIndices.append(I)
-        tmpOpacities.append(O)
 
         luts = []
         geos = []
@@ -401,10 +338,15 @@ class BoxfillPipeline(Pipeline2D):
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b = _colorMap.index[color]
-                if style in ['solid', 'pattern']:
+                r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
+                if style == 'solid':
+                    tmpOpacity = tmpOpacities[i]
+                    if tmpOpacity is None:
+                        tmpOpacity = a / 100.
+                    else:
+                        tmpOpacity = tmpOpacities[i] / 100.
                     lut.SetTableValue(0, r / 100., g / 100., b / 100.,
-                                      tmpOpacities[i] / 100.)
+                                      tmpOpacity)
                 else:
                     lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
@@ -416,15 +358,15 @@ class BoxfillPipeline(Pipeline2D):
                 if not (l[j + 1] < wholeDataMin or l[j] > wholeDataMax):
                     self._mappers.append(mapper)
 
-                #  Since pattern creation requires a single color, assuming the first
-                c = [val * 255 / 100.0 for val in _colorMap.index[tmpColors[i][0]]]
-                act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
-                                                            fillareastyle=style,
-                                                            fillareaindex=tmpIndices[i],
-                                                            fillareacolors=c,
-                                                            fillareaopacity=tmpOpacities[i] * 255 / 100.0)
-                if act is not None:
-                    self._patternActors.append(act)
+                # Since pattern creation requires a single color, assuming the
+                # first
+                rgba = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
+                self._patternCreation(
+                    geoFilter2,
+                    rgba,
+                    style,
+                    tmpIndices[i],
+                    tmpOpacities[i])
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
