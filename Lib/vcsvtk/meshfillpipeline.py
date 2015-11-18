@@ -126,8 +126,7 @@ class MeshfillPipeline(Pipeline2D):
                     lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
-                # Was True but boxfill says false
-                luts.append([lut, [l[j], l[j + 1], False]])
+                luts.append([lut, [l[j], l[j + 1], True]])
                 # Store the mapper only if it's worth it?
                 # Need to do it with the whole slab min/max for animation
                 # purposes
