@@ -58,7 +58,7 @@ test_values_setting(b,['xaxisconvert','yaxisconvert'],['linear', 'log10', 'ln', 
 test_values_setting(b,"boxfill_type",['linear', 'log10','custom',0,1,2],['bla',45,(),[],{},None])
 test_values_setting(b,["level_1","level_2"],[2,2.,1.e20,],['1',[1,2,3,4],[1,],{3:"3"},None])
 test_values_setting(b,"levels",[[1,2,3,4],[1,2.,45.],[[1,2],[4,5],[6,7]]],[1,[1,2,'4'],[],{},{1:'1'},None,[[1,2],[1,2,3]]])
-test_values_setting(b,["color_1","color_2","missing"],[2,"red",242],["foo",-5,345,[],{},None])
+test_values_setting(b,["color_1","color_2","missing"],[2,"red",[100,5.,4],[23,4,5,50],242],["foo",-5,345,[56,],[1,2,3,4,5],[],{},None])
 test_values_setting(b,"fillareacolors",[[1,2,3],[1,"red","blue"],None],['1',{},[-3,-5,-6],[1,2,"foo"]])
 fa = x.createfillarea()
 test_values_setting(b,"fillareaindices",[[1,2,3],[1,fa],None],['1',{},[-3,-5,-6],[1,2,"foo"],[0,1,2],[1,23]])

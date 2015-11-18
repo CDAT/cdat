@@ -29,7 +29,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
 
 class VTKVCSBackend(object):
 
-    def __init__(self, canvas, renWin=None, debug=False, bg=None):
+    def __init__(self, canvas, renWin=None, debug=False, bg=None, geometry=None):
         self._lastSize = None
         self.canvas = canvas
         self.renWin = renWin
@@ -57,6 +57,7 @@ class VTKVCSBackend(object):
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
         self._rasterPropsInVectorFormats = False
+        self._initialGeometry = geometry
 
         if renWin is not None:
             self.renWin = renWin
@@ -321,8 +322,14 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            width = kargs.get("width", None)
-            height = kargs.get("height", None)
+            if self._initialGeometry is not None:
+                width = self._initialGeometry["width"]
+                height = self._initialGeometry["height"]
+            else:
+                width = None
+                height = None
+            width = kargs.get("width", width)
+            height = kargs.get("height", height)
             self.initialSize(width, height)
 
         if self.renderer is None:
@@ -697,8 +704,11 @@ class VTKVCSBackend(object):
             cmap = vcs.getcolormap(contLine.colormap)
         else:
             cmap = self.canvas.getcolormap()
-        color = [c / 100. for c in cmap.index[contLine.color[0]]]
-        line_prop.SetColor(*color)
+        if isinstance(contLine.color[0], int):
+            color = [c / 100. for c in cmap.index[contLine.color[0]]]
+        else:
+            color = contLine.color[0]
+        line_prop.SetColor(*color[:3])
 
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])

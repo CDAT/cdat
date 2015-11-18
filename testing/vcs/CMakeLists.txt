@@ -400,6 +400,31 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_lon_axes_freak_out.py
       "${BASELINE_DIR}/test_lon_axes_freak_out.png"
       )
+  cdat_add_test(test_vcs_set_colors_name_rgba_1d
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_1d.py
+      "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_1d.png"
+      )
+  cdat_add_test(test_vcs_set_colors_name_rgba_isoline
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_isoline.py
+      "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isoline.png"
+      )
+  cdat_add_test(test_vcs_set_colors_name_rgba_meshfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_meshfill.py
+      "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_meshfill.png"
+      )
+  cdat_add_test(test_vcs_set_colors_name_rgba_boxfill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_boxfill.py
+      "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_boxfill.png"
+      )
+  cdat_add_test(test_vcs_set_colors_name_rgba_isofill
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba.py
+      "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isofill.png"
+      )
     cdat_add_test(test_vcs_isofill_mask_cell_shift
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
@@ -431,6 +456,13 @@ cdat_add_test(vcs_test_taylor_2_quads
       ENDFOREACH(ori)
     ENDFOREACH(gm)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
+      cdat_add_test(vcs_test_basic_${gm}_transparent
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+        --gm_type=${gm}
+        --transparent
+        "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_transparent.png"
+        )
       cdat_add_test(vcs_test_basic_${gm}_zero
         "${PYTHON_EXECUTABLE}"
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py

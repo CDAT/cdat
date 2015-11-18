@@ -5,13 +5,13 @@ class Pattern(object):
     def __init__(self, width, height, num_pixels, colors, style, opacity):
         self.width = width
         self.height = height
-        self.colors = colors
+        self.colors = [int(C / 100. * 255) for C in colors]
         self.num_pixels = num_pixels
         self.style = style
         if self.style != "hatch":
             self.colors = [0, 0, 0]
-        if self.style == "hatch":
-            self.opacity = opacity
+        if self.style in ["hatch", "pattern"]:
+            self.opacity = int(opacity / 100. * 255)
         else:
             self.opacity = 255
 
@@ -34,10 +34,13 @@ class Pattern(object):
         return patternSource.GetOutput()
 
     def paint(self, pattern):
-        raise NotImplementedError("paint() not implemented for %s" % str(type(self)))
+        raise NotImplementedError(
+            "paint() not implemented for %s" % str(
+                type(self)))
 
 
 class BottomLeftTri(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -49,6 +52,7 @@ class BottomLeftTri(Pattern):
 
 
 class TopRightTri(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -60,6 +64,7 @@ class TopRightTri(Pattern):
 
 
 class SmallRectDot(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -70,6 +75,7 @@ class SmallRectDot(Pattern):
 
 
 class CheckerBoard(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -82,6 +88,7 @@ class CheckerBoard(Pattern):
 
 
 class HorizStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -91,6 +98,7 @@ class HorizStripe(Pattern):
 
 
 class VertStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -100,6 +108,7 @@ class VertStripe(Pattern):
 
 
 class HorizDash(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -110,6 +119,7 @@ class HorizDash(Pattern):
 
 
 class VertDash(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -122,6 +132,7 @@ class VertDash(Pattern):
 
 
 class XDash(Pattern):
+
     def render(self):
         """
         Returns vtkImageData for pattern
@@ -178,6 +189,7 @@ class XDash(Pattern):
 
 
 class ThinDiagDownRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -187,6 +199,7 @@ class ThinDiagDownRight(Pattern):
 
 
 class ThickDiagRownRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -196,6 +209,7 @@ class ThickDiagRownRight(Pattern):
 
 
 class ThinDiagUpRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -205,6 +219,7 @@ class ThinDiagUpRight(Pattern):
 
 
 class ThickDiagUpRight(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -214,6 +229,7 @@ class ThickDiagUpRight(Pattern):
 
 
 class ThickThinVertStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -224,6 +240,7 @@ class ThickThinVertStripe(Pattern):
 
 
 class ThickThinHorizStripe(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -234,6 +251,7 @@ class ThickThinHorizStripe(Pattern):
 
 
 class LargeRectDot(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -244,6 +262,7 @@ class LargeRectDot(Pattern):
 
 
 class Diamond(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -270,6 +289,7 @@ class Diamond(Pattern):
 
 
 class Bubble(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -292,6 +312,7 @@ class Bubble(Pattern):
 
 
 class Snake(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
@@ -306,6 +327,7 @@ class Snake(Pattern):
 
 
 class EmptyCircle(Pattern):
+
     def paint(self, patternSource):
         if patternSource is None:
             return None
