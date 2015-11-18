@@ -235,7 +235,7 @@ canvaslist = []
 
 
 def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
-         backend="vtk"):
+         backend="vtk", geometry=None):
     '''
  Function: init                 # Initialize, Construct a VCS Canvas Object
 
@@ -270,7 +270,8 @@ def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
         pause_time=pause_time,
         call_from_gui=call_from_gui,
         size=size,
-        backend=backend)
+        backend=backend,
+        geometry=geometry)
     global canvaslist
     canvaslist.append(canvas)
     return canvas
