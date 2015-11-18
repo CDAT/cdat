@@ -277,23 +277,7 @@ class IsolinePipeline(Pipeline2D):
             # Set line properties here
             p = act.GetProperty()
             p.SetLineWidth(tmpLineWidths[i])
-            if tmpLineStyles[i] == 'long-dash':
-                p.SetLineStipplePattern(int('1111111100000000', 2))
-                p.SetLineStippleRepeatFactor(1)
-            elif tmpLineStyles[i] == 'dot':
-                p.SetLineStipplePattern(int('1010101010101010', 2))
-                p.SetLineStippleRepeatFactor(1)
-            elif tmpLineStyles[i] == 'dash':
-                p.SetLineStipplePattern(int('1111000011110000', 2))
-                p.SetLineStippleRepeatFactor(1)
-            elif tmpLineStyles[i] == 'dash-dot':
-                p.SetLineStipplePattern(int('0011110000110011', 2))
-                p.SetLineStippleRepeatFactor(1)
-            elif tmpLineStyles[i] == 'solid':
-                p.SetLineStipplePattern(int('1111111111111111', 2))
-                p.SetLineStippleRepeatFactor(1)
-            else:
-                raise Exception("Unknown line type: '%s'" % tmpLineStyles[i])
+            vcs2vtk.stippleLine(p, tmpLineStyles[i])
 
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
