@@ -18,7 +18,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     if fillareaindex is None:
         fillareaindex = 1
     if fillareaopacity is None:
-        fillareaopacity = 255
+        fillareaopacity = 100
     num_pixels = num_pixels_for_size(size)
 
     # Create the plane that will be textured with the pattern
