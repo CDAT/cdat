@@ -1,5 +1,6 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
+import fillareautils
 
 import numpy
 import vcs
@@ -84,6 +85,13 @@ class MeshfillPipeline(Pipeline2D):
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
+        # This is also different for meshfill, others use
+        # vcs.utils.getworldcoordinates
+        x1, x2, y1, y2 = vcs2vtk.getRange(self._gm,
+                                          self._vtkDataSetBounds[0],
+                                          self._vtkDataSetBounds[1],
+                                          self._vtkDataSetBounds[2],
+                                          self._vtkDataSetBounds[3])
         _colorMap = self.getColorMap()
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
@@ -118,8 +126,7 @@ class MeshfillPipeline(Pipeline2D):
                     lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
-                # Was True but boxfill says false
-                luts.append([lut, [l[j], l[j + 1], False]])
+                luts.append([lut, [l[j], l[j + 1], True]])
                 # Store the mapper only if it's worth it?
                 # Need to do it with the whole slab min/max for animation
                 # purposes
@@ -128,13 +135,15 @@ class MeshfillPipeline(Pipeline2D):
 
             # Since pattern creation requires a single color, assuming the
             # first
-            rgba = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
-            self._patternCreation(
-                geoFilter2,
-                rgba,
-                style,
-                tmpIndices[i],
-                tmpOpacities[i])
+            c = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
+            act = fillareautils.make_patterned_polydata(geoFilter2.GetOutput(),
+                                                        fillareastyle=style,
+                                                        fillareaindex=tmpIndices[i],
+                                                        fillareacolors=c,
+                                                        fillareaopacity=tmpOpacities[i],
+                                                        size=(x2 - x1, y2 - y1))
+            if act is not None:
+                self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(geos) > 0:
@@ -172,14 +181,6 @@ class MeshfillPipeline(Pipeline2D):
         if self._maskedDataMapper is not None:
             # Note that this is different for meshfill -- others prepend.
             mappers.append(self._maskedDataMapper)
-
-        # This is also different for meshfill, others use
-        # vcs.utils.getworldcoordinates
-        x1, x2, y1, y2 = vcs2vtk.getRange(self._gm,
-                                          self._vtkDataSetBounds[0],
-                                          self._vtkDataSetBounds[1],
-                                          self._vtkDataSetBounds[2],
-                                          self._vtkDataSetBounds[3])
 
         # Add a second mapper for wireframe meshfill:
         if self._gm.mesh:

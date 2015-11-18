@@ -2,9 +2,9 @@ index d8cc3c9..b91398c 100755
 --- a/ncurses/base/MKlib_gen.sh
 +++ b/ncurses/base/MKlib_gen.sh
 @@ -491,11 +492,22 @@ sed -n -f $ED1 \
- 	-e 's/gen_$//' \
- 	-e 's/  / /g' >>$TMP
- 
+	-e 's/gen_$//' \
+	-e 's/  / /g' >>$TMP
+
 +cat >$ED1 <<EOF
 +s/  / /g
 +s/^ //
@@ -28,4 +28,3 @@ index d8cc3c9..b91398c 100755
  | $AWK -f $AW2 \
  | sed -f $ED3 \
  | sed \
-
