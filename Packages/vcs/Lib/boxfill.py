@@ -147,7 +147,6 @@ def process_src(nm, code):
             gm.fillareacolor = fac
             gm.fillareaindices = fai
             gm.fillareastyle = fas[0]
-            gm.fillareaopacity = fao[0]
 #
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
