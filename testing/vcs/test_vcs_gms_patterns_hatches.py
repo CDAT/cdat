@@ -59,6 +59,9 @@ else:
 if args.gm == "boxfill":
     gm.boxfill_type = "custom"
 
+if args.gm == "meshfill":
+    gm.mesh = True
+
 nm_xtra = ""
 xtra = {}
 if args.lat1 != args.lat2:
