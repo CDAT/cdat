@@ -14,8 +14,6 @@ class IsofillPipeline(Pipeline2D):
     def __init__(self, gm, context_):
         super(IsofillPipeline, self).__init__(gm, context_)
 
-        self._patternActors = None
-
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
         # Force point data for isoline/isofill
@@ -95,13 +93,12 @@ class IsofillPipeline(Pipeline2D):
         tmpColors = prepedContours["tmpColors"]
         tmpOpacities = prepedContours["tmpOpacities"]
         style = self._gm.fillareastyle
-        opacities = self._gm.fillareaopacity
 
         luts = []
         cots = []
         mappers = []
         _colorMap = self.getColorMap()
-        self._patternActors = []
+
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
                                                        self._data1.getAxis(-1),
                                                        self._data1.getAxis(-2))
@@ -131,8 +128,7 @@ class IsofillPipeline(Pipeline2D):
                         tmpOpacity = a / 100.
                     else:
                         tmpOpacity = tmpOpacities[i] / 100.
-                    lut.SetTableValue(j, r / 100., g / 100., b / 100.,
-                                      tmpOpacity)
+                    lut.SetTableValue(j, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
@@ -140,21 +136,6 @@ class IsofillPipeline(Pipeline2D):
             mapper.SetScalarRange(0, len(l) - 1)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
-
-            # Since pattern creation requires a single color, assuming the first
-            c = self.getColorIndexOrRGBA(_colorMap, tmpColors[i][0])
-
-            # The isofill actor is scaled by the camera, so we need to use this size
-            # instead of window size for scaling the pattern.
-            viewsize = (x2 - x1, y2 - y1)
-            act = fillareautils.make_patterned_polydata(cots[i].GetOutput(),
-                                                        fillareastyle=style,
-                                                        fillareaindex=tmpIndices[i],
-                                                        fillareacolors=c,
-                                                        fillareaopacity=tmpOpacities[i],
-                                                        size=viewsize)
-            if act is not None:
-                self._patternActors.append(act)
 
         self._resultDict["vtk_backend_luts"] = luts
         if len(cots) > 0:
@@ -192,6 +173,8 @@ class IsofillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        patternActors = []
+        ct = 0
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -202,11 +185,31 @@ class IsofillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
                                      self._dataWrapModulo)
 
+            patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
                 actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             else:
                 actors.append([act, [x1, x2, y1, y2]])
+
+                # Since pattern creation requires a single color, assuming the first
+                c = self.getColorIndexOrRGBA(_colorMap, tmpColors[ct][0])
+
+                # The isofill actor is scaled by the camera, so we need to use this size
+                # instead of window size for scaling the pattern.
+                viewsize = (x2 - x1, y2 - y1)
+                patact = fillareautils.make_patterned_polydata(mapper.GetInput(),
+                                                               fillareastyle=style,
+                                                               fillareaindex=tmpIndices[ct],
+                                                               fillareacolors=c,
+                                                               fillareaopacity=tmpOpacities[ct],
+                                                               size=viewsize)
+
+                if patact is not None:
+                    patternActors.append(patact)
+
+                # increment the count
+                ct += 1
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
@@ -217,7 +220,7 @@ class IsofillPipeline(Pipeline2D):
                 priority=self._template.data.priority,
                 create_renderer=True)
 
-        for act in self._patternActors:
+        for act in patternActors:
             self._context().fitToViewport(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
@@ -267,7 +270,7 @@ class IsofillPipeline(Pipeline2D):
                                            self.getColorMap(),
                                            style=style,
                                            index=self._gm.fillareaindices,
-                                           opacity=opacities))
+                                           opacity=self._gm.fillareaopacity))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
