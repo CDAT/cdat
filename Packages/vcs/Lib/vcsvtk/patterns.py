@@ -2,6 +2,7 @@ import vtk
 
 
 class Pattern(object):
+
     def __init__(self, width, height, num_pixels, colors, style, opacity):
         self.width = width
         self.height = height
@@ -306,7 +307,7 @@ class Bubble(Pattern):
                 patternSource.FillBox(x + self.num_pixels * 5 / 8, x + self.num_pixels,
                                       y + self.num_pixels * 5 / 8, y + self.num_pixels)
                 patternSource.FillBox(x + self.num_pixels / 8, x + self.num_pixels * 3 / 8,
-                                      y + self.num_pixels * 5 / 8, y + self.num_pixels * 3/4)
+                                      y + self.num_pixels * 5 / 8, y + self.num_pixels * 3 / 4)
                 patternSource.FillBox(x + self.num_pixels * 5 / 8, x + self.num_pixels * 7 / 8,
                                       y + self.num_pixels / 8, y + self.num_pixels * 1 / 4)
 

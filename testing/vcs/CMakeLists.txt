@@ -184,6 +184,11 @@ cdat_add_test(vcs_test_vectors_missing
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
   "--source=${BASELINE_DIR}/test_vcs_vectors_missing.png"
   )
+cdat_add_test(vcs_test_1d_log10_axes.py
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1d_log10_axes.py
+  "${BASELINE_DIR}/test_vcs_1d_log10_axes.png"
+  )
 cdat_add_test(vcs_test_remove_marker_none_1d
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_remove_marker_none_1d.py
@@ -327,6 +332,11 @@ cdat_add_test(vcs_test_taylor_2_quads
       ENDFOREACH()
     ENDFOREACH()
 
+    cdat_add_test(vcs_test_1d_areawt_axes.py
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1d_areawt_axes.py
+      "${BASELINE_DIR}/test_vcs_1d_areawt_axes.png"
+      )
     cdat_add_test(test_vcs_meshfill_regular_grid
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_meshfill_regular_grid.py
