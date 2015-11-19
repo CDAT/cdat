@@ -860,7 +860,7 @@ class Canvas(object):
     #                                                                           #
     ##########################################################################
     def __init__(self, gui=0, mode=1, pause_time=0,
-                 call_from_gui=0, size=None, backend="vtk"):
+                 call_from_gui=0, size=None, backend="vtk", geometry=None):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
@@ -935,7 +935,7 @@ class Canvas(object):
         self.drawLogo = False
         self.enableLogo = True
         if backend == "vtk":
-            self.backend = VTKVCSBackend(self)
+            self.backend = VTKVCSBackend(self, geometry=geometry)
         elif isinstance(backend, vtk.vtkRenderWindow):
             self.backend = VTKVCSBackend(self, renWin=backend)
         else:
