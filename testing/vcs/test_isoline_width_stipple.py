@@ -45,6 +45,5 @@ canvas.plot(data, isoline, bg=1)
 testImage = os.path.abspath("test_isoline_width_stipple.png")
 canvas.png(testImage)
 
-ret = checkimage.check_result_image(testImage, baselineImage,
-                                    checkimage.defaultThreshold)
+ret = checkimage.check_result_image(testImage, baselineImage, 30)
 sys.exit(ret)
