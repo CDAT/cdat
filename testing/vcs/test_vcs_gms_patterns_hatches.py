@@ -8,8 +8,7 @@ import vcs
 
 pth = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(pth)
-import checkimage
-
+import checkimage  # noqa
 
 p = argparse.ArgumentParser(description="Patterns/hatches testing code for vcs gms")
 p.add_argument("--source", dest="src", help="source image file")

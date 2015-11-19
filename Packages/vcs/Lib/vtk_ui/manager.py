@@ -25,6 +25,7 @@ class InterfaceManager(object):
 
         self.window.AddRenderer(self.renderer)
         self.window.AddRenderer(self.actor_renderer)
+        self.showing = True
 
         self.widgets = []
         self.timer_listener = self.interactor.AddObserver(
@@ -51,7 +52,7 @@ class InterfaceManager(object):
             return
         self.last_size = size
         for widget in self.widgets:
-            if widget.showing() == 1:
+            if widget.showing():
                 widget.place()
 
     def __render(self, obj, event):

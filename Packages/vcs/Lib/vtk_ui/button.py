@@ -177,7 +177,9 @@ class Button(Widget):
             h_state = self.repr.GetHighlightState()
             self.repr.Highlight((h_state + 1) % 3)
             self.repr.Highlight(h_state)
-
+        else:
+            # Can't properly place if not showing, so let's save some cycles.
+            return
         text_width, text_height = self.text_widget.get_dimensions()
         swidth, sheight = self.interactor.GetRenderWindow().GetSize()
 

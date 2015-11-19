@@ -124,6 +124,7 @@
     1
    ], 
    "fillareaindices": null, 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "levels": [
@@ -579,26 +580,6 @@
  }, 
  "Proj": {
   "Charles.Doutriaux": {
-   "parameters": [
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20
-   ], 
-   "type": "linear"
-  }, 
-  "linear": {
    "parameters": [
     1e+20, 
     1e+20, 

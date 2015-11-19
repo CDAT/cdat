@@ -169,9 +169,9 @@ def process_src(nm, code):
             except:
                 g._text = to
             try:
-                g.textcolor = tt
+                g.textcolors = tt
             except:
-                g._textcolor = tt
+                g._textcolors = tt
 
             gd = vcs.elements["isoline"]["default"]
             try:
@@ -633,7 +633,8 @@ class Gi(object):
             value = VCS_validation_functions.checkTextsList(
                 self,
                 'text',
-                value)
+                value,
+                storeName=True)
         self._text = value
     text = property(_gettext, _settext)
 

@@ -86,6 +86,8 @@ class Dp(object):
                  "_g_name",
                  "_array",
                  "_continents",
+                 "_continents_line",
+                 "continents_line",
                  "_backend",
                  "ratio",
                  "newelements",
@@ -124,13 +126,19 @@ class Dp(object):
         return self._continents
 
     def _setcontinents(self, value):
-        self._continents = VCS_validation_functions.checkInt(
+        VCS_validation_functions.checkContinents(
             self,
-            'continents',
-            value,
-            minvalue=-
-            1)
+            value)
+        self._continents = value
     continents = property(_getcontinents, _setcontinents)
+
+    def _getcontinents_line(self):
+        return self._continents_line
+
+    def _setcontinents_line(self, value):
+        self._continents_line = VCS_validation_functions.checkLine(
+            self, "continents_line", value)
+    continents_line = property(_getcontinents_line, _setcontinents_line)
 
     def _getpriority(self):
         return self._priority
@@ -248,7 +256,7 @@ class Dp(object):
             self._g_type = "boxfill"
             self._g_name = "default"
             self._array = []
-            self._continents = -1
+            self._continents = 1
             self.ratio = None
         else:
             src = vcs.elements["display"][Dp_name_src]
