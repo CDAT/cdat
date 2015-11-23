@@ -102,6 +102,7 @@ class IsofillPipeline(Pipeline2D):
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
                                                        self._data1.getAxis(-1),
                                                        self._data1.getAxis(-2))
+        assert(style != 'solid' or len(tmpLevels) == 1)
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -123,11 +124,11 @@ class IsofillPipeline(Pipeline2D):
             for j, color in enumerate(tmpColors[i]):
                 r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
                 if style == 'solid':
-                    tmpOpacity = tmpOpacities[i]
+                    tmpOpacity = tmpOpacities[j]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.
                     else:
-                        tmpOpacity = tmpOpacities[i] / 100.
+                        tmpOpacity = tmpOpacities[j] / 100.
                     lut.SetTableValue(j, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
                     lut.SetTableValue(j, 1., 1., 1., 0.)

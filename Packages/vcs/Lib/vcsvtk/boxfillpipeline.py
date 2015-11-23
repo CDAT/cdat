@@ -346,7 +346,7 @@ class BoxfillPipeline(Pipeline2D):
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
-
+        assert(style != 'solid' or len(tmpLevels) == 1)
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -368,11 +368,11 @@ class BoxfillPipeline(Pipeline2D):
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
                 if style == 'solid':
-                    tmpOpacity = tmpOpacities[i]
+                    tmpOpacity = tmpOpacities[j]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.
                     else:
-                        tmpOpacity = tmpOpacities[i] / 100.
+                        tmpOpacity = tmpOpacities[j] / 100.
                     lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
                     lut.SetTableValue(0, 1., 1., 1., 0.)

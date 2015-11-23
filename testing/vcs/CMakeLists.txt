@@ -685,7 +685,7 @@ cdat_add_test(vcs_test_taylor_2_quads
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hatches_patterns.py
       "${BASELINE_DIR}/test_vcs_hatches_patterns.png"
       )
-    FOREACH(gm isofill boxfill)
+    FOREACH(gm isofill boxfill meshfill)
       FOREACH(style solid pattern hatch)
         cdat_add_test(vcs_test_${gm}_${style}_fill
           "${PYTHON_EXECUTABLE}"
@@ -693,7 +693,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --gm_type=${gm}
           --fill_style=${style}
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
-          "--threshold=15"
+          "--threshold=25"
           )
         cdat_add_test(vcs_test_${gm}_${style}_fill_0_360
           "${PYTHON_EXECUTABLE}"
@@ -703,7 +703,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --lon1=0
           --lon2=360
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_0_360.png"
-          "--threshold=15"
+          "--threshold=25"
           )
       ENDFOREACH(style)
     ENDFOREACH(gm)

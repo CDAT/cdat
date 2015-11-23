@@ -183,15 +183,18 @@ class Pipeline2D(IPipeline2D):
                 I = indices[i]
                 O = opacities[i]
             else:
-                if l[0] == L[-1] and I == indices[i] and\
+                if l[0] == L[-1] and\
                         ((style == 'solid') or
-                            (C[-1] == self._contourColors[i] and O == opacities[i])):
+                            (I == indices[i] and C[-1] == self._contourColors[i] and
+                             O == opacities[i])):
                     # Ok same type lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
                     else:
                         L.append(l[1])
                     C.append(self._contourColors[i])
+                    tmpOpacities.append(O)
+                    O = opacities[i]
                 else:  # ok we need new contouring
                     tmpLevels.append(L)
                     tmpColors.append(C)
