@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+import os
+import string
+import shutil
+
+
+def get_package_modules(package):
+    modules = [package.__file__]
+
+    if not package.__file__.endswith("__init__.pyc"):
+        # It's not a package; return just the package
+        return modules
+
+    # Get the root path of the package
+    package_dir = os.path.dirname(package.__file__)
+
+    # Find all python files in the package_dir
+    package_name = package.__name__
+    package_attrs = set(dir(package))
+    for f in os.listdir(package_dir):
+        if package.__file__.startswith(os.path.join(package_dir, f)):
+            continue
+        fname, extension = os.path.splitext(f)
+        fpath = os.path.join(package_dir, f)
+        module_name = package_name + "." + fname
+        if extension == ".py":
+            modules.append(fpath)
+        """
+        else:
+            if os.path.isdir(f):
+                subpkg_init = os.path.join(package_dir, f, "__init__.py")
+                if os.path.exists(subpkg_init):
+                    if f in package_attrs:
+                        subpkg = getattr(package, f)
+                    else:
+                        try:
+                            subpkg = __import__(module_name)
+                        except:
+                            continue
+                    modules.extend(get_package_modules(subpkg))
+        """
+    return modules
+
+
+build_dir = "@CMAKE_BINARY_DIR@/Testing"
+packages = "@COVERAGE_PKGS@".split(",")
+packages.sort(key=string.lower)
+testing_dir = build_dir
+
+coverage_files = []
+for dirpath, dirnames, filenames in os.walk(testing_dir):
+    for fname in filenames:
+        if fname.startswith(".coverage"):
+            coverage_files.append(os.path.join(dirpath, fname))
+
+# Create coverage directory
+coverage_dir = os.path.join(build_dir, "coverage")
+use_existing_coverage = False
+if not os.path.exists(coverage_dir):
+    os.mkdir(coverage_dir)
+else:
+    coverage_file = os.path.join(coverage_dir, ".coverage")
+    if os.path.exists(coverage_file):
+        should_delete = raw_input("Coverage data exists; do you want to delete it? y/[N]: ")
+        if should_delete.lower() == "y":
+            os.remove(coverage_file)
+        else:
+            use_existing_coverage = True
+
+if not use_existing_coverage:
+    # Gather all of the coverage files into build_dir/coverage
+    for cov_file in coverage_files:
+        filename = os.path.basename(cov_file)
+        if os.path.dirname(cov_file) == coverage_dir:
+            continue
+        shutil.move(cov_file, os.path.join(coverage_dir, filename))
+
+# Use coverage to merge coverage files
+import coverage
+coverage_file = os.path.join(coverage_dir, ".coverage")
+cov = coverage.Coverage(data_file=coverage_file, source=packages)
+if not use_existing_coverage:
+    cov.combine()
+    cov.save()
+
+data = coverage.CoverageData()
+data.read_file(coverage_file)
+# Report on coverage % per interesting package
+rows = []
+col_width = 0
+for package in packages:
+    # Import the package
+    py_pack = __import__(package)
+    # Find all files in the package
+    files = get_package_modules(py_pack)
+
+    total_lines = 0
+    lines_executed = 0
+
+    # Run coverage.analysis on each of them
+    for module in files:
+        fname, lines, missing, missing_line_nums = cov.analysis(module)
+        total_lines += len(lines)
+        lines = data.lines(module)
+        if lines is not None:
+            lines_executed += len(lines)
+
+    lines_missing = total_lines - lines_executed
+    coverage_percent = lines_executed / float(total_lines) * 100
+
+    # Print package info
+    columns = [package, "%.2f%%" % coverage_percent, str(lines_missing), str(total_lines)]
+    col_width = max(col_width, *[len(s) for s in columns])
+    rows.append(columns)
+
+col_headers = ["Package", "% Covered", "Lines Missing", "Total Lines"]
+max_col_header_width = max([len(s) for s in col_headers])
+if col_width < max_col_header_width:
+    col_width = max_col_header_width
+
+
+def print_row(row, col_width):
+    padded_values = []
+    for v in row:
+        difference = col_width - len(v)
+        # Put extra space on right
+        left_spaces = difference / 2
+        right_spaces = difference - left_spaces
+        padded_values.append(" " * left_spaces + v + " " * right_spaces)
+    print "|".join(padded_values)
+
+
+print_row(col_headers, col_width)
+print_row(["-" * col_width for _ in range(len(col_headers))], col_width)
+for row in rows:
+    print_row(row, col_width)
