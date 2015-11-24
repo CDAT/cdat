@@ -832,7 +832,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt"
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(CPACK_RPM_PACAKGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
+set(CPACK_RPM_PACKAGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
 set(CPACK_DESTINATION_BIN_PREFIX "bin")
 
 if (APPLE)
