@@ -328,8 +328,10 @@ class VTKVCSBackend(object):
             else:
                 width = None
                 height = None
-            width = kargs.get("width", width)
-            height = kargs.get("height", height)
+            if "width" in kargs and kargs["width"] is not None:
+                width = kargs["width"]
+            if "height" in kargs and kargs["height"] is not None:
+                height = kargs["height"]
             self.initialSize(width, height)
 
         if self.renderer is None:
