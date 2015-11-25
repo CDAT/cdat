@@ -339,6 +339,8 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+        if self.bg:
+            self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
             self.renWin.Render()
 

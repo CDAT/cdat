@@ -864,6 +864,10 @@ cdat_add_test(vcs_test_large_pattern_hatch
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
   ${BASELINE_DIR}/test_vcs_large_pattern_hatch.png
 )
+cdat_add_test(vcs_test_init_open_sizing
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py
+)
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
