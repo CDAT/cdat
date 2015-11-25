@@ -934,6 +934,16 @@ class Canvas(object):
             gui_canvas_closed = 1
         self.drawLogo = False
         self.enableLogo = True
+
+        if geometry is not None:
+            # Extract width and height, create dict
+            try:
+                width = geometry["width"]
+                height = geometery["height"]
+            except TypeError:
+                width, height = VCS_validation_functions.checkListOfNumbers(self, 'geometry', geometry, minvalue=1, minelements=2, maxelements=2, ints=True)
+            geometry = {"width": width, "height": height}
+
         if backend == "vtk":
             self.backend = VTKVCSBackend(self, geometry=geometry)
         elif isinstance(backend, vtk.vtkRenderWindow):
