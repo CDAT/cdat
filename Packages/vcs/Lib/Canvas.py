@@ -946,11 +946,12 @@ class Canvas(object):
                 height = geometry.get("height", None)
 
                 check_vals = [v for v in (width, height) if v is not None]
-                VCS_validation_functions.checkListOfNumbers(self, 'geometry', check_vals, 
+                VCS_validation_functions.checkListOfNumbers(self, 'geometry', check_vals,
                                                             minvalue=1, minelements=1, maxelements=2, ints=True)
             elif type(geometry) in (list, tuple):
                 width, height = VCS_validation_functions.checkListOfNumbers(self, 'geometry', geometry,
-                                                                            minvalue=1, minelements=2, maxelements=2, ints=True)
+                                                                            minvalue=1, minelements=2,
+                                                                            maxelements=2, ints=True)
             else:
                 raise ValueError("geometry should be list, tuple, or dict")
             geometry = {"width": width, "height": height}
