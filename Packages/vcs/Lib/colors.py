@@ -7,7 +7,7 @@ def matplotlib2vcs(cmap, vcs_name=None):
     Optional second argument: vcs_name, name of the resulting vcs colormap
     """
     import vcs
-    import matplotlib
+    import matplotlib.cm
     import warnings
     if isinstance(cmap, (str, unicode)):
         try:
