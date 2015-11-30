@@ -704,11 +704,18 @@ class VTKVCSBackend(object):
             cmap = vcs.getcolormap(contLine.colormap)
         else:
             cmap = self.canvas.getcolormap()
-        if isinstance(contLine.color[0], int):
-            color = [c / 100. for c in cmap.index[contLine.color[0]]]
+
+        if type(contLine.color[0]) in (float, int):
+            c_index = int(contLine.color[0])
+            color = cmap.index[c_index]
         else:
             color = contLine.color[0]
+
+        color = [c / 100. for c in color]
+
         line_prop.SetColor(*color[:3])
+        if len(color) == 4:
+            line_prop.SetOpacity(color[3])
 
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])
