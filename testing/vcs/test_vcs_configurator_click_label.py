@@ -6,8 +6,7 @@ import os
 x = vcs.init()
 # Needs to set the size of window so it is consistent accross
 # test platforms
-x.open()
-x.geometry(800, 606)
+x.open(800, 606)
 
 cltfile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt = cltfile("clt")
