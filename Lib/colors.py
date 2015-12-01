@@ -7,7 +7,7 @@ def matplotlib2vcs(cmap, vcs_name=None):
     Optional second argument: vcs_name, name of the resulting vcs colormap
     """
     import vcs
-    import matplotlib
+    import matplotlib.cm
     import warnings
     if isinstance(cmap, (str, unicode)):
         try:
@@ -29,6 +29,6 @@ def matplotlib2vcs(cmap, vcs_name=None):
     vcs_cmap = vcs.createcolormap(vcs_name_final)
     cmap_rgbs = cmap(range(0, cmap.N))
     for i in range(0, min(cmap.N, 256)):
-        vcs_cmap.setcolorcell(i, *([int(x / 2.55) for x in cmap_rgbs[i][:4]]))
+        vcs_cmap.setcolorcell(i, *([int(x * 100) for x in cmap_rgbs[i][:4]]))
 
     return vcs_cmap
