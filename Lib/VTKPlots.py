@@ -328,8 +328,10 @@ class VTKVCSBackend(object):
             else:
                 width = None
                 height = None
-            width = kargs.get("width", width)
-            height = kargs.get("height", height)
+            if "width" in kargs and kargs["width"] is not None:
+                width = kargs["width"]
+            if "height" in kargs and kargs["height"] is not None:
+                height = kargs["height"]
             self.initialSize(width, height)
 
         if self.renderer is None:
@@ -337,6 +339,8 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+        if self.bg:
+            self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
             self.renWin.Render()
 
@@ -704,11 +708,18 @@ class VTKVCSBackend(object):
             cmap = vcs.getcolormap(contLine.colormap)
         else:
             cmap = self.canvas.getcolormap()
-        if isinstance(contLine.color[0], int):
-            color = [c / 100. for c in cmap.index[contLine.color[0]]]
+
+        if type(contLine.color[0]) in (float, int):
+            c_index = int(contLine.color[0])
+            color = cmap.index[c_index]
         else:
             color = contLine.color[0]
+
+        color = [c / 100. for c in color]
+
         line_prop.SetColor(*color[:3])
+        if len(color) == 4:
+            line_prop.SetOpacity(color[3])
 
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])
