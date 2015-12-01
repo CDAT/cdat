@@ -328,8 +328,10 @@ class VTKVCSBackend(object):
             else:
                 width = None
                 height = None
-            width = kargs.get("width", width)
-            height = kargs.get("height", height)
+            if "width" in kargs and kargs["width"] is not None:
+                width = kargs["width"]
+            if "height" in kargs and kargs["height"] is not None:
+                height = kargs["height"]
             self.initialSize(width, height)
 
         if self.renderer is None:
@@ -337,6 +339,8 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+        if self.bg:
+            self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
             self.renWin.Render()
 
