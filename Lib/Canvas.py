@@ -860,7 +860,7 @@ class Canvas(object):
     #                                                                           #
     ##########################################################################
     def __init__(self, gui=0, mode=1, pause_time=0,
-                 call_from_gui=0, size=None, backend="vtk", geometry=None):
+                 call_from_gui=0, size=None, backend="vtk", geometry=None, bg=None):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
@@ -934,10 +934,32 @@ class Canvas(object):
             gui_canvas_closed = 1
         self.drawLogo = False
         self.enableLogo = True
+
+        if geometry is not None:
+            # Extract width and height, create dict
+            if type(geometry) == dict:
+                for key in geometry:
+                    if key not in ("width", "height"):
+                        raise ValueError("Unexpected key %s in geometry" % key)
+
+                width = geometry.get("width", None)
+                height = geometry.get("height", None)
+
+                check_vals = [v for v in (width, height) if v is not None]
+                VCS_validation_functions.checkListOfNumbers(self, 'geometry', check_vals,
+                                                            minvalue=1, minelements=1, maxelements=2, ints=True)
+            elif type(geometry) in (list, tuple):
+                width, height = VCS_validation_functions.checkListOfNumbers(self, 'geometry', geometry,
+                                                                            minvalue=1, minelements=2,
+                                                                            maxelements=2, ints=True)
+            else:
+                raise ValueError("geometry should be list, tuple, or dict")
+            geometry = {"width": width, "height": height}
+
         if backend == "vtk":
-            self.backend = VTKVCSBackend(self, geometry=geometry)
+            self.backend = VTKVCSBackend(self, geometry=geometry, bg=bg)
         elif isinstance(backend, vtk.vtkRenderWindow):
-            self.backend = VTKVCSBackend(self, renWin=backend)
+            self.backend = VTKVCSBackend(self, renWin=backend, bg=bg)
         else:
             warnings.warn(
                 "Unknown backend type: '%s'\nAssiging 'as is' to "
