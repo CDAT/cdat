@@ -693,7 +693,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --gm_type=${gm}
           --fill_style=${style}
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
-          "--threshold=25"
+          "--threshold=45"
           )
         cdat_add_test(vcs_test_${gm}_${style}_fill_0_360
           "${PYTHON_EXECUTABLE}"
@@ -703,7 +703,7 @@ cdat_add_test(vcs_test_taylor_2_quads
           --lon1=0
           --lon2=360
           "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_0_360.png"
-          "--threshold=25"
+          "--threshold=45"
           )
       ENDFOREACH(style)
     ENDFOREACH(gm)
@@ -859,15 +859,22 @@ cdat_add_test(vcs_test_continents
   ${cdat_SOURCE_DIR}/testing/vcs/test_continents.py
   ${BASELINE_DIR}/test_continents.png
 )
+
 cdat_add_test(vcs_test_large_pattern_hatch
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
   ${BASELINE_DIR}/test_vcs_large_pattern_hatch.png
 )
+
 cdat_add_test(vcs_test_matplotlib_colormap
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_matplotlib_colormap.py
   ${BASELINE_DIR}/test_matplotlib_colormap.png
+)
+
+cdat_add_test(vcs_test_init_open_sizing
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py
 )
 
 add_subdirectory(vtk_ui)
