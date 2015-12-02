@@ -344,10 +344,22 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 try:
                     blat = lat.getBounds()
                     blon = lon.getBounds()
-                    lat2[:len(lat)] = blat[:, 0]
-                    lat2[len(lat)] = blat[-1, 1]
-                    lon2[:len(lon)] = blon[:, 0]
-                    lon2[len(lon)] = blon[-1, 1]
+                    if (lat[0] < lat[-1]):
+                        # latitude is increasing
+                        lat2[:len(lat)] = blat[:, 0]
+                        lat2[len(lat)] = blat[-1, 1]
+                    else:
+                        # latitude is decreasing
+                        lat2[:len(lat)] = blat[:, 1]
+                        lat2[len(lat)] = blat[-1, 0]
+                    if (lon[0] < lon[-1]):
+                        # longitude is incresing
+                        lon2[:len(lon)] = blon[:, 0]
+                        lon2[len(lon)] = blon[-1, 1]
+                    else:
+                        # longitude is decreasing
+                        lon2[:len(lon)] = blon[:, 1]
+                        lon2[len(lon)] = blon[-1, 0]
                     xm = blon[0][0]
                     xM = blon[-1][1]
                     ym = blat[0][0]

@@ -30,4 +30,4 @@ assert(get_image_info(fnm) == (20,16))
 x.png(fnm,width=15,height=12)
 print get_image_info(fnm)
 assert(get_image_info(fnm) == (15,12))
-
+os.remove(fnm)
