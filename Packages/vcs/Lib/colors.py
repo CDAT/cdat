@@ -28,7 +28,7 @@ def matplotlib2vcs(cmap, vcs_name=None):
             (vcs_name, vcs_name_final))
     vcs_cmap = vcs.createcolormap(vcs_name_final)
     cmap_rgbs = cmap(range(0, cmap.N))
-    for i in range(0, min(cmap.N, 256)):
-        vcs_cmap.setcolorcell(i, *([int(x * 100) for x in cmap_rgbs[i][:4]]))
+    for i in range(5, min(cmap.N, 256)):
+        vcs_cmap.setcolorcell(i, *([int(x * 100) for x in cmap_rgbs[(i - 5)][:4]]))
 
     return vcs_cmap
