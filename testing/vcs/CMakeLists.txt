@@ -291,6 +291,12 @@ cdat_add_test(vcs_test_taylor_2_quads
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background_update.py
     "${BASELINE_DIR}/test_canvas_background_update.png"
     )
+  cdat_add_test(vcs_test_boxfill_decreasing_latitude
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_decreasing_latitude.py
+    "${BASELINE_DIR}/test_vcs_boxfill_decreasing_latitude.png"
+    "${UVCDAT_GIT_TESTDATA_DIR}/data/decreasing_latitude.nc"
+    )
   cdat_add_test(vcs_test_boxfill_10x10_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
