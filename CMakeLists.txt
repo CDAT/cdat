@@ -283,6 +283,9 @@ cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering.
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
+# Option to enable CMOR
+option(CDAT_BUILD_CMOR "Build CMOR" ON)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
@@ -301,7 +304,7 @@ option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistra
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
 option(CDAT_BUILD_PARAVIEW "Build ParaView rather than just VTK" OFF)
-option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " OFF)
+option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " ON)
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
@@ -309,6 +312,7 @@ if (CDAT_BUILD_ESGF)
     message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
   endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
+  set(CDAT_DOWNLOAD_SAMPLE_DATA OFF)
 endif()
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
 set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
@@ -332,6 +336,7 @@ endif()
 if (CDAT_BUILD_LEAN)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE OFF)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE OFF)
   set(CDMS_ONLY --enable-cdms-only)
 else()
   set(CDMS_ONLY "")
@@ -343,6 +348,7 @@ if (CDAT_BUILD_ALL)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_ESGF PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE ON)
   set(CDMS_ONLY "")
 endif()
 
@@ -499,9 +505,11 @@ include(cdat_pkg)
 include(clapack_pkg)
 #include(curl_pkg)
 include(configobj_pkg)
+include(cycler_pkg)
 include(cython_pkg)
 include(data_pkg)
 include(esmf_pkg)
+include(x264_pkg)
 include(ffmpeg_pkg)
 include(pyflakes_pkg)
 include(pep8_pkg)
@@ -828,29 +836,30 @@ add_custom_target(wrappers ALL DEPENDS
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
 
-
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
 set(CPACK_PACKAGE_NAME "UVCDAT")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_MAJOR "2")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
-set(CPACK_DESTINATION_PREFIX "UVCDAT")
-set(CPACK_DESTINATION_LIB_PREFIX "UVCDAT/lib")
-set(CPACK_DESTINATION_BIN_PREFIX "UVCDAT/bin")
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_RPM_PACKAGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
+set(CPACK_DESTINATION_BIN_PREFIX "bin")
 
 if (APPLE)
-  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
+  set(SB_EXTERNALS_DIR "Externals")
+  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
   set(CPACK_GENERATOR DragNDrop)
-  set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
+  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
   set(CPACK_DESTINATION_BIN_PREFIX "${CPACK_DESTINATION_PREFIX}/MacOS")
 endif()
 
 include(CPack)
+
 
 install(CODE "
   set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
@@ -860,6 +869,9 @@ install(CODE "
   set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
   set(VISIT_VERSION ${VISIT_VERSION})
   set(CDAT_BUILD_PARAVIEW ${CDAT_BUILD_PARAVIEW})
+  set(SETUP_EXECUTABLE_PATHS \"${SETUP_EXECUTABLE_PATHS}\")
+  set(SETUP_PYTHON_PATHS \"${SETUP_PYTHON_PATHS}\")
+  set(SETUP_LIBRARY_PATHS \"${SETUP_LIBRARY_PATHS}\")
 
   file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
@@ -872,69 +884,129 @@ install(CODE "
   set (resolved_programs \"\")
   foreach (program \${programs})
     get_filename_component(res_program \"\${program}\" REALPATH)
-    list (APPEND resolved_programs \"\${res_program}\")
+    set (regex_match \"\")
+    # Do not install uuid as its dependencies are not resolved when using
+    # RPMBuild
+    file (STRINGS \"\${res_program}\" regex_match REGEX \"uuid\")
+    if (\"\${regex_match}\" STREQUAL \"\")
+      file (STRINGS \"\${res_program}\" regex_match REGEX \"#!${CMAKE_INSTALL_PREFIX}\")
+      if (\"\${regex_match}\" STREQUAL \"\")
+        list (APPEND resolved_programs \"\${res_program}\")
+      endif ()
+    endif ()
   endforeach()
+  
 
-  file(INSTALL FILES \${resolved_programs} DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+  file(INSTALL FILES \${resolved_programs} DESTINATION
+    \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
        PERMISSIONS USE_SOURCE_PERMISSIONS
   )
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/images\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/images\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Externals\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Externals\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX}
-         PERMISSIONS USE_SOURCE_PERMISSIONS
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+      PERMISSIONS USE_SOURCE_PERMISSIONS
+      REGEX \"uuid\" EXCLUDE
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/include\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/include\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/lib\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/lib\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_LIB_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  # Patch cgi.py to look for installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\")
+    file (READ \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\" CGI_FILE)
+    SET (SEARCH_REGEX \"\\\#! /usr/local/bin/python\")
+    SET (REPLACEMENT_TEXT \"#! /usr/bin/env python\")
+    STRING (REGEX REPLACE \"\${SEARCH_REGEX}\" \"\${REPLACEMENT_TEXT}\"
+      MODIFIED_FILE \"\${CGI_FILE}\")
+    file (WRITE \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\"
+      \"\${MODIFIED_FILE}\")
+  endif ()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/share\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/share\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/share DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/wrappers\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/wrappers\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/wrappers DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/man\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/man\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Library\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Library\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
+  
+  file(INSTALL FILES ${cdat_BINARY_DIR}/build_info.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/info)
 
   # Unset QT_LIB_DIR as we need to use the one in user's environment
   # We need to keep in ming that we might need to build Qt on some systems
   # (e.g. RH6) in which case this might break something
   set(QT_LIB_DIR)
+
+  # Configure the environment setup script to point to the installation
+  # Creating a temporary file that will be installed.
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
+    \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh\"
     @ONLY
   )
+
+  # Finally, create a symlink for python to point to point to installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      AND
+      NOT EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\")
+    execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\"
+      )
+  endif ()
 
   if (APPLE)
     configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
@@ -974,3 +1046,4 @@ install(CODE "
 
   COMPONENT superbuild
 )
+

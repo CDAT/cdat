@@ -29,7 +29,7 @@ x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
 gm=x.createmeshfill()
-x.plot(s2,gm,bg=1)
+x.plot(s2, gm, bg=1)
 x.animate.create()
 prefix= os.path.split(__file__)[1][:-3]
 x.animate.save("%s.mp4"%prefix)

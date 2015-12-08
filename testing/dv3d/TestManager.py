@@ -126,7 +126,7 @@ class vcsTest:
         self.build()
 #        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
-        self.canvas.png( test_image )
+        self.canvas.png( test_image, width = 900, height = 600 )
 
         ret = checkimage.check_result_image( test_image, self.image_name,\
                 checkimage.defaultThreshold+3. )
@@ -141,7 +141,7 @@ class vcsTest:
 
     def update_image(self):
         self.update_baseline_repo()
-        self.canvas.png( self.image_name )
+        self.canvas.png( self.image_name, width = 900, height = 600 )
         baseline_dir = os.path.dirname( self.image_name  )
         ref_image =os.path.basename( self.image_name  )
         git_cmd = " cd %s; git add %s; git commit -a -m 'Adding ref image %s'; git push origin HEAD" %  ( baseline_dir, ref_image, ref_image )

@@ -25,11 +25,12 @@ from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert,\
     scatter_output
 import random
 from error import vcsError
+import warnings
 import dv3d
 
 
 def check_name_source(name, source, typ):
-    """makes ure it is a unique name for this type or generates a name for user"""
+    """make sure it is a unique name for this type or generates a name for user"""
     elts = vcs.listelements(typ)
     if name is None:
         rnd = random.randint(0, 1000000000000000)
@@ -621,14 +622,17 @@ vcs.show('xyvsy')
 #######################################################################################################################
 
 """
-
-    if source[-7:] == "_xyvsy_":
-        source = source[:-7]
-    name, source = check_name_source(name, source, 'xyvsy')
-
-    gm = unified1D.G1d(name + "_xyvsy_", source + "_xyvsy_")
+    try:
+        gm = vcs.create1d(name, source)
+    except vcsError as ve:
+        if ve.message == "Error 1d object named %s already exists" % name:
+            warning_message = "A 1D graphics method named %s already exists, creating yours as %s" % (name,
+                                                                                                      name + "_xyvsy")
+            warnings.warn(warning_message)
+            gm = vcs.create1d(name + "_xyvsy", source)
+        else:
+            raise ve
     gm.flip = True
-    vcs.elements["xyvsy"][name] = gm
     return gm
 createxyvsy.__doc__ = createxyvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output)
@@ -673,18 +677,11 @@ xyy2=vcs.getxyvsy('quick')            # xyy2 instance of existing 'quick' Xyvsy
 ####################################################################################################################
 
 """
-
-    # Check to make sure the argument passed in is a STRING
-    if not isinstance(GXy_name_src, str):
-        raise vcsError('The argument must be a string.')
-    if GXy_name_src[-7:] == "_xyvsy_":
-        GXy_name_src = GXy_name_src[:-7]
-
-    if GXy_name_src not in vcs.elements["xyvsy"]:
-        raise ValueError(
-            "The xyvsy '%s' graphics method does not exists" %
-            GXy_name_src)
-    return vcs.elements["xyvsy"][GXy_name_src]
+    gm = vcs.get1d(GXy_name_src)
+    if gm.g_type != "xyvsy":
+        # Already existed when name_src was created, most likely
+        return vcs.get1d(GXy_name_src + "_xyvsy")
+    return gm
 getxyvsy.__doc__ = getxyvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output)
 
@@ -731,13 +728,16 @@ vcs.show('yxvsx')
 #######################################################################################################################
 
 """
-
-    if source[-7:] == "_yxvsx_":
-        source = source[:-7]
-    name, source = check_name_source(name, source, 'yxvsx')
-
-    gm = unified1D.G1d(name + "_yxvsx_", source + "_yxvsx_")
-    vcs.elements["yxvsx"][name] = gm
+    try:
+        gm = vcs.create1d(name, source)
+    except vcsError as ve:
+        if ve.message == "Error 1d object named %s already exists" % name:
+            warning_message = "A 1D graphics method named %s already exists, creating yours as %s" % (name,
+                                                                                                      name + "_yxvsx")
+            warnings.warn(warning_message)
+            gm = vcs.create1d(name + "_yxvsx", source)
+        else:
+            raise ve
     return gm
 createyxvsx.__doc__ = createyxvsx.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output)
@@ -782,17 +782,10 @@ yxx2=vcs.getyxvsx('quick')            # yxx2 instance of existing 'quick' Yxvsx
 ####################################################################################################################
 
 """
-
-    # Check to make sure the argument passed in is a STRING
-    if not isinstance(GYx_name_src, str):
-        raise vcsError('The argument must be a string.')
-    if GYx_name_src[-7:] == "_yxvsx_":
-        GYx_name_src = GYx_name_src[:-7]
-    if GYx_name_src not in vcs.elements["yxvsx"]:
-        raise ValueError(
-            "The Yxvsx '%s' graphics method does not exists" %
-            GYx_name_src)
-    return vcs.elements["yxvsx"][GYx_name_src]
+    gm = vcs.get1d(GYx_name_src)
+    if gm.g_type != "yxvsx":
+        return vcs.get1d(GYx_name_src + "_yxvsx")
+    return gm
 getyxvsx.__doc__ = getyxvsx.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output)
 
@@ -838,12 +831,16 @@ vcs.show('xvsy')
 ######################################################################################################################
 
 """
-
-    if source[-6:] == "_xvsy_":
-        source = source[:-6]
-    name, source = check_name_source(name, source, 'xvsy')
-    gm = unified1D.G1d(name + "_xvsy_", source + "_xvsy_")
-    vcs.elements["xvsy"][name] = gm
+    try:
+        gm = vcs.create1d(name, source)
+    except vcsError as ve:
+        if ve.message == "Error 1d object named %s already exists" % name:
+            warning_message = "A 1D graphics method named %s already exists, creating yours as %s" % (name,
+                                                                                                      name + "_xvsy")
+            warnings.warn(warning_message)
+            gm = vcs.create1d(name + "_xvsy", source)
+        else:
+            raise ve
     return gm
 createxvsy.__doc__ = createxvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output)
@@ -889,18 +886,11 @@ xy2=vcs.getxvsy('quick')              # xy2 instance of existing 'quick' XvsY
 ###################################################################################################################
 
 """
-
-    # Check to make sure the argument passed in is a STRING
-    if not isinstance(GXY_name_src, str):
-        raise vcsError('The argument must be a string.')
-    if GXY_name_src[-6:] == "_xvsy_":
-        GXY_name_src = GXY_name_src[:-6]
-    if GXY_name_src not in vcs.elements["xvsy"]:
-        raise ValueError(
-            "The xvsy '%s' graphics method does not exists" %
-            GXY_name_src)
-
-    return vcs.elements["xvsy"][GXY_name_src]
+    gm = vcs.get1d(GXY_name_src)
+    # Deliberately yxvsx here; xvsy is just an alias
+    if gm.g_type != "yxvsx":
+        return vcs.get1d(GXY_name_src + "_xvsy")
+    return gm
 getxvsy.__doc__ = getxvsy.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output)
 
@@ -996,13 +986,17 @@ sct=vcs.createscatter('example2','quick')
 vcs.show('scatter')
 
 """
-    if source[-9:] == "_scatter_":
-        source = source[:-9]
-    name, source = check_name_source(name, source, 'scatter')
-
-    gm = unified1D.G1d(name + "_scatter_", source + "_scatter_")
+    try:
+        gm = vcs.create1d(name, source)
+    except vcsError as ve:
+        if ve.message == "Error 1d object named %s already exists" % name:
+            warning_message = "A 1D graphics method named %s already exists, creating yours as %s" % (name,
+                                                                                                      name + "_scatter")
+            warnings.warn(warning_message)
+            gm = vcs.create1d(name + "_scatter", source)
+        else:
+            raise ve
     gm.linewidth = 0
-    vcs.elements["scatter"][name] = gm
     return gm
 createscatter.__doc__ = createscatter.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, scatter_output)
@@ -1048,17 +1042,10 @@ sct2=vcs.getscatter('quick')          # sct2 instance of existing 'quick' scatte
 ######################################################################################################################
 
 """
-    # Check to make sure the argument passed in is a STRING
-    if not isinstance(GSp_name_src, str):
-        raise vcsError('The argument must be a string.')
-    if GSp_name_src[-9:] == "_scatter_":
-        GSp_name_src = GSp_name_src[:-9]
-
-    if GSp_name_src not in vcs.elements["scatter"]:
-        raise ValueError(
-            "The scatter '%s' graphics method does not exists" %
-            GSp_name_src)
-    return vcs.elements["scatter"][GSp_name_src]
+    gm = vcs.get1d(GSp_name_src)
+    if gm.g_type != "scatter":
+        return vcs.get1d(GSp_name_src + "_scatter")
+    return gm
 getscatter.__doc__ = getscatter.__doc__ % (
     plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, scatter_output)
 
@@ -1934,3 +1921,182 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' color
         raise ValueError('Error -  The argument must be a string.')
 
     return vcs.elements["colormap"][Cp_name_src]
+
+# Function that deal with removing existing vcs elements
+
+
+def removeG(obj, gtype="boxfill"):
+    exec("res = vcs.is%s(obj)" % gtype)
+    if isinstance(obj, str):
+        name = obj
+        if obj not in vcs.elements[gtype].keys():
+            raise RuntimeError("Cannot remove inexisting %s %s" % (gtype, obj))
+    else:
+        name = obj.name
+        if not res:  # noqa
+            raise RuntimeError("You are trying to remove a VCS %s but %s is not one" % (gtype, repr(obj)))
+    msg = "Removed %s object %s" % (gtype, name)
+    del(vcs.elements[gtype][name])
+    return msg
+
+
+def removeGfb(obj):
+    return removeG(obj, "boxfill")
+
+
+def removeGfi(obj):
+    return removeG(obj, "isofill")
+
+
+def removeGi(obj):
+    return removeG(obj, "isoline")
+
+
+def removeGXy(obj):
+    return removeG(obj, "xyvsx")
+
+
+def removeGYx(obj):
+    return removeG(obj, "yxvsx")
+
+
+def removeGXY(obj):
+    return removeG(obj, "xvsy")
+
+
+def removeG1d(obj):
+    return removeG(obj, "1d")
+
+
+def removeGv(obj):
+    return removeG(obj, "vector")
+
+
+def removeGSp(obj):
+    return removeG(obj, "scatter")
+
+
+def removeGfm(obj):
+    return removeG(obj, "meshfill")
+
+
+def removeGtd(obj):
+    return removeG(obj, "taylordiagram")
+
+
+def removeTl(obj):
+    return removeG(obj, "line")
+
+
+def removeTm(obj):
+    return removeG(obj, "marker")
+
+
+def removeTf(obj):
+    return removeG(obj, "fillarea")
+
+
+def removeTt(obj):
+    return removeG(obj, "texttable")
+
+
+def removeTo(obj):
+    return removeG(obj, "textorientation")
+
+
+def removeTc(obj):
+    if isinstance(obj, str):
+        Tt, To = obj.split(":::")
+    else:
+        To = obj.To_name
+        Tt = obj.Tt_name
+    msg = removeTt(Tt)
+    msg += removeTo(To)
+    removeG(obj, "textcombined")
+    return msg
+
+
+def removeProj(obj):
+    return removeG(obj, "projection")
+
+
+def removeCp(obj):
+    return removeG(obj, "colormap")
+
+
+def removeP(obj):
+    return removeG(obj, "template")
+
+
+def removeobject(obj):
+    """
+Function: remove
+
+Description of Function:
+The user has the ability to create primary and secondary class
+objects. The function allows the user to remove these objects
+from the appropriate class list.
+
+Note, To remove the object completely from Python, remember to
+use the "del" function.
+
+Also note, The user is not allowed to remove a "default" class
+object.
+
+Example of Use:
+a=vcs.init()
+line=a.getline('red')       # To Modify an existing line object
+iso=x.createisoline('dean') # Create an instance of an isoline object
+...
+x.remove(line)      # Removes line object from VCS list
+x.remove(iso)       # Remove isoline object from VCS list
+"""
+    if vcs.istemplate(obj):
+        msg = vcs.removeP(obj.name)
+    elif vcs.isgraphicsmethod(obj):
+        if (obj.g_name == 'Gfb'):
+            msg = vcs.removeGfb(obj.name)
+        elif (obj.g_name == 'Gfi'):
+            msg = vcs.removeGfi(obj.name)
+        elif (obj.g_name == 'Gi'):
+            msg = vcs.removeGi(obj.name)
+        elif (obj.g_name == 'GXy'):
+            msg = vcs.removeGXy(obj.name)
+        elif (obj.g_name == 'GYx'):
+            msg = vcs.removeGYx(obj.name)
+        elif (obj.g_name == 'GXY'):
+            msg = vcs.removeGXY(obj.name)
+        elif (obj.g_name == 'Gv'):
+            msg = vcs.removeGv(obj.name)
+        elif (obj.g_name == 'GSp'):
+            msg = vcs.removeGSp(obj.name)
+        elif (obj.g_name == 'Gfm'):
+            msg = vcs.removeGfm(obj.name)
+        elif (obj.g_name == 'G1d'):
+            msg = vcs.removeG1d(obj.name)
+        elif (obj.g_name == 'Gtd'):
+            msg = vcs.removeGtd(obj.name)
+        else:
+            msg = 'Could not find the correct graphics class object.'
+    elif vcs.issecondaryobject(obj):
+        if (obj.s_name == 'Tl'):
+            msg = vcs.removeTl(obj.name)
+        elif (obj.s_name == 'Tm'):
+            msg = vcs.removeTm(obj.name)
+        elif (obj.s_name == 'Tf'):
+            msg = vcs.removeTf(obj.name)
+        elif (obj.s_name == 'Tt'):
+            msg = vcs.removeTt(obj.name)
+        elif (obj.s_name == 'To'):
+            msg = vcs.removeTo(obj.name)
+        elif (obj.s_name == 'Tc'):
+            msg = vcs.removeTc(obj.name)
+        elif (obj.s_name == 'Proj'):
+            msg = vcs.removeProj(obj.name)
+        elif (obj.s_name == 'Cp'):
+            msg = vcs.removeCp(obj.name)
+        else:
+            msg = 'Could not find the correct secondary class object.'
+    else:
+        msg = 'This is not a template, graphics method, or secondary method object.'
+    return msg
