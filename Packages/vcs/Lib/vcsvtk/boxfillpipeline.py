@@ -1,10 +1,10 @@
 from .pipeline2d import Pipeline2D
 from .. import vcs2vtk
+import fillareautils
 
 import numpy
 import vcs
 import vtk
-import warnings
 
 
 class BoxfillPipeline(Pipeline2D):
@@ -18,11 +18,12 @@ class BoxfillPipeline(Pipeline2D):
             set of ivars (at minimum, identify what the mappers are rendering).
     """
 
-    def __init__(self, context_):
-        super(BoxfillPipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(BoxfillPipeline, self).__init__(gm, context_)
 
         self._contourLabels = None
         self._mappers = None
+        self._customBoxfillArgs = {}
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -153,6 +154,11 @@ class BoxfillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        patternActors = []
+        cti = 0
+        ctj = 0
+        _colorMap = self.getColorMap()
+        _style = self._gm.fillareastyle
         for mapper in self._mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -172,6 +178,29 @@ class BoxfillPipeline(Pipeline2D):
             else:
                 actors.append([act, [x1, x2, y1, y2]])
 
+                if self._gm.boxfill_type == "custom":
+                    # Patterns/hatches creation for custom boxfill plots
+                    patact = None
+
+                    tmpColors = self._customBoxfillArgs["tmpColors"]
+                    if ctj >= len(tmpColors[cti]):
+                        ctj = 0
+                        cti += 1
+                    # Since pattern creation requires a single color, assuming the first
+                    c = self.getColorIndexOrRGBA(_colorMap, tmpColors[cti][ctj])
+                    patact = fillareautils.make_patterned_polydata(
+                        mapper.GetInput(),
+                        fillareastyle=_style,
+                        fillareaindex=self._customBoxfillArgs["tmpIndices"][cti],
+                        fillareacolors=c,
+                        fillareaopacity=self._customBoxfillArgs["tmpOpacities"][cti],
+                        size=(x2 - x1, y2 - y1))
+
+                    ctj += 1
+
+                    if patact is not None:
+                        patternActors.append(patact)
+
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
             self._context().fitToViewport(
@@ -180,6 +209,18 @@ class BoxfillPipeline(Pipeline2D):
                 wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
+
+        for act in patternActors:
+            if self._vtkGeoTransform is None:
+                # If using geofilter on wireframed does not get wrapped not sure
+                # why so sticking to many mappers
+                self._context().fitToViewport(
+                    act, [self._template.data.x1, self._template.data.x2,
+                          self._template.data.y1, self._template.data.y2],
+                    wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                    priority=self._template.data.priority,
+                    create_renderer=True)
+                actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -216,11 +257,20 @@ class BoxfillPipeline(Pipeline2D):
                     # need exts
                     self._contourLevels.append(1.e20)
 
+        # Do not pass patterning parameters for color bar rendering if the
+        # boxfill type is non-custom
+        patternArgs = {}
+        if self._gm.boxfill_type == "custom":
+            patternArgs['style'] = self._gm.fillareastyle
+            patternArgs['index'] = self._gm.fillareaindices
+            patternArgs['opacity'] = self._gm.fillareaopacity
+
         self._resultDict.update(
             self._context().renderColorBar(self._template, self._contourLevels,
                                            self._contourColors,
                                            self._contourLabels,
-                                           self._colorMap))
+                                           self.getColorMap(),
+                                           **patternArgs))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
@@ -264,9 +314,10 @@ class BoxfillPipeline(Pipeline2D):
 
         lut = vtk.vtkLookupTable()
         lut.SetNumberOfTableValues(numLevels)
+        _colorMap = self.getColorMap()
         for i in range(numLevels):
-            r, g, b = self._colorMap.index[self._contourColors[i]]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+            r, g, b, a = self.getColorIndexOrRGBA(_colorMap, self._contourColors[i])
+            lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
 
         mapper.SetLookupTable(lut)
         if numpy.allclose(self._contourLevels[0], -1.e20):
@@ -283,59 +334,22 @@ class BoxfillPipeline(Pipeline2D):
     def _plotInternalCustomBoxfill(self):
         """Implements the logic to render a custom boxfill."""
         self._mappers = []
-        tmpLevels = []
-        tmpColors = []
-        indices = self._gm.fillareaindices
-        if indices is None:
-            indices = [1]
-        while len(indices) < len(self._contourColors):
-            indices.append(indices[-1])
-        if len(self._contourLevels) > len(self._contourColors):
-            raise RuntimeError(
-                "You asked for %i levels but provided only %i colors\n"
-                "Graphic Method: %s of type %s\nLevels: %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name,
-                   repr(self._contourLevels)))
-        elif len(self._contourLevels) < len(self._contourColors) - 1:
-            warnings.warn(
-                "You asked for %i lgridevels but provided %i colors, "
-                "extra ones will be ignored\nGraphic Method: %s of type %s"
-                % (len(self._contourLevels), len(self._contourColors),
-                   self._gm.name, self._gm.g_name))
 
-        for i, l in enumerate(self._contourLevels):
-            if i == 0:
-                C = [self._contourColors[i]]
-                if numpy.allclose(self._contourLevels[0][0], -1.e20):
-                    # ok it's an extension arrow
-                    L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
-                else:
-                    L = list(self._contourLevels[i])
-                I = [indices[i]]
-            else:
-                if l[0] == L[-1] and I[-1] == indices[i]:
-                    # Ok same type lets keep going
-                    if numpy.allclose(l[1], 1.e20):
-                        L.append(self._scalarRange[1] + 1.)
-                    else:
-                        L.append(l[1])
-                    C.append(self._contourColors[i])
-                else:  # ok we need new contouring
-                    tmpLevels.append(L)
-                    tmpColors.append(C)
-                    C = [self._contourColors[i]]
-                    L = self._contourLevels[i]
-                    I = [indices[i]]
-        tmpLevels.append(L)
-        tmpColors.append(C)
+        self._customBoxfillArgs = self._prepContours()
+        tmpLevels = self._customBoxfillArgs["tmpLevels"]
+        tmpColors = self._customBoxfillArgs["tmpColors"]
+        tmpOpacities = self._customBoxfillArgs["tmpOpacities"]
+
+        style = self._gm.fillareastyle
 
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
+        _colorMap = self.getColorMap()
+        assert(style != 'solid' or len(tmpLevels) == 1)
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
-            # will happen if: next set of levels contnues where one left off
+            # will happen if: next set of levels continues where one left off
             # AND pattern is identical
 
             # TODO this should really just be a single polydata/mapper/actor:
@@ -347,11 +361,21 @@ class BoxfillPipeline(Pipeline2D):
                 th.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
                 geoFilter2 = vtk.vtkDataSetSurfaceFilter()
                 geoFilter2.SetInputConnection(th.GetOutputPort())
+                # Make the polydata output available here for patterning later
+                geoFilter2.Update()
                 geos.append(geoFilter2)
                 mapper.SetInputConnection(geoFilter2.GetOutputPort())
                 lut.SetNumberOfTableValues(1)
-                r, g, b = self._colorMap.index[color]
-                lut.SetTableValue(0, r / 100., g / 100., b / 100.)
+                r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
+                if style == 'solid':
+                    tmpOpacity = tmpOpacities[j]
+                    if tmpOpacity is None:
+                        tmpOpacity = a / 100.
+                    else:
+                        tmpOpacity = tmpOpacities[j] / 100.
+                    lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
+                else:
+                    lut.SetTableValue(0, 1., 1., 1., 0.)
                 mapper.SetLookupTable(lut)
                 mapper.SetScalarRange(l[j], l[j + 1])
                 luts.append([lut, [l[j], l[j + 1], False]])

@@ -50,7 +50,8 @@ def find_alternates(fname):
             results.append(os.path.join(dirname, i))
     return results
 
-def check_result_image(fname, baselinefname, threshold, baseline = False, cleanup=True):
+def check_result_image(fname, baselinefname, threshold = defaultThreshold,
+                       baseline = False, cleanup=True):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."
@@ -91,14 +92,14 @@ def check_result_image(fname, baselinefname, threshold, baseline = False, cleanu
       print "No baseline images found. Test failed."
       return -1
 
-    if bestDiff < defaultThreshold:
+    if bestDiff < threshold:
         print "Baseline '%s' is the best match with a difference of %f."%(bestFilename, bestDiff)
         if cleanup:
             print "Deleting test image '%s'..."%(fname)
             os.remove(fname)
         return 0
 
-    print "All baselines failed! Lowest error (%f) exceeds threshold (%f)."%(bestDiff, defaultThreshold)
+    print "All baselines failed! Lowest error (%f) exceeds threshold (%f)."%(bestDiff, threshold)
 
     sp = fname.split(".")
     diffFilename = ".".join(sp[:-1])+"_diff."+sp[-1]

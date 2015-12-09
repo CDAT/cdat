@@ -29,110 +29,67 @@ prefix = cdat_info.get_prefix()
 sample_data = cdat_info.get_sampledata_path()
 cdat_info.pingPCMDIdb("cdat", "vcs")
 from utils import *  # noqa
+import colors  # noqa
 import Canvas
 from vcshelp import *  # noqa
 from queries import *  # noqa
 import install_vcs
 import os
 from manageElements import *  # noqa
+import collections
+
+_colorMap = "default"
 
 _default_time_units = 'days since 2000'
 
-
-##########################################################################
-#                                                                               #
+#
+#
 # Set up the User's  directory if necessary. Copy files from      #
 # $PYTHONHOME/bin to the newly created $HOME/.uvcdat directory.          #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._files()
 
-##########################################################################
-#                                                                               #
+#
+#
 # Set the user's XGKSFontDir environment variable.                              #
-#                                                                               #
-##########################################################################
+#
+#
 install_vcs._XGKSFontDir()
 
-##########################################################################
-#                                                                               #
-# Construct a VCS Canvas Object.                                                #
-#                                                                               #
-##########################################################################
 
-# Initialize the list of taylor diagrams objects
+elements = collections.OrderedDict()
+elements["list"] = {}
+elements["projection"] = {}
+elements["texttable"] = {}
+elements["textorientation"] = {}
+elements["textcombined"] = {}
+elements["line"] = {}
+elements["marker"] = {}
+elements["fillarea"] = {}
+elements["font"] = {}
+elements["fontNumber"] = {}
+elements["boxfill"] = {}
+elements["isofill"] = {}
+elements["isoline"] = {}
+elements["meshfill"] = {}
+elements["3d_scalar"] = {}
+elements["3d_dual_scalar"] = {}
+elements["3d_vector"] = {}
+elements["template"] = {}
+elements["taylordiagram"] = {}
+elements["1d"] = {}
+elements["vector"] = {}
+elements["yxvsx"] = {}
+elements["xyvsy"] = {}
+elements["xvsy"] = {}
+elements["scatter"] = {}
+elements["colormap"] = {}
+elements["display"] = {}
 
-
-def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
-         backend="vtk"):
-    '''
- Function: init                 # Initialize, Construct a VCS Canvas Object
-
- Description of Function:
-    Construct the VCS Canas object. There can only be at most 8 VCS
-    Canvases open at any given time.
-
-    Graphics User Interface Mode:
-            gui = 0|1    if ==1, create the canvas with GUI controls
-                         (Default setting is *not* to display GUI controls)
-
- Example of Use:
-    import vcs,cu
-
-    file=cu.open('filename.nc')
-    slab=file.getslab('variable')
-    a=vcs.init()                        # This examples constructs 4 VCS Canvas
-    a.plot(slab)                        # Plot slab using default settings
-    b=vcs.init()                        # Construct VCS object
-    template=b.gettemplate('AMIP')      # Get 'example' template object
-    b.plot(slab,template)               # Plot slab using template 'AMIP'
-    c=vcs.init()                        # Construct new VCS object
-    isofill=c.getisofill('quick')       # Get 'quick' isofill graphics method
-    c.plot(slab,template,isofill)       # Plot slab using template and isofill objects
-    d=vcs.init()                        # Construct new VCS object
-    isoline=c.getisoline('quick')       # Get 'quick' isoline graphics method
-    c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
-'''
-    canvas = Canvas.Canvas(
-        gui=gui,
-        mode=mode,
-        pause_time=pause_time,
-        call_from_gui=call_from_gui,
-        size=size,
-        backend=backend)
-    global canvaslist
-    canvaslist.append(canvas)
-    return canvas
-
-
-elements = {"boxfill": {},
-            "isofill": {},
-            "isoline": {},
-            "meshfill": {},
-            "3d_scalar": {},
-            "3d_dual_scalar": {},
-            "3d_vector": {},
-            "template": {},
-            "taylordiagram": {},
-            "1d": {},
-            "vector": {},
-            "yxvsx": {},
-            "xyvsy": {},
-            "xvsy": {},
-            "scatter": {},
-            "list": {},
-            "projection": {},
-            "fillarea": {},
-            "texttable": {},
-            "textorientation": {},
-            "textcombined": {},
-            "line": {},
-            "marker": {},
-            "colormap": {},
-            "font": {},
-            "fontNumber": {},
-            "display": {},
-            }
+_protected_elements = {}
+for k in elements.keys():
+    _protected_elements[k] = set()
 
 dic = {}
 for i in range(-5, 5):
@@ -143,7 +100,7 @@ for i in range(-5, 5):
             dic[i * 360 + j] = "%iE" % j
         else:
             dic[i * 360] = "0"
-vcs.elements["list"]["Lon30"] = dic
+elements["list"]["Lon30"] = dic
 
 dic = {}
 for j in range(-80, 81, 20):
@@ -155,7 +112,7 @@ for j in range(-80, 81, 20):
         dic[0] = "Eq"
 dic[-90] = "90S"
 dic[90] = "90N"
-vcs.elements["list"]["Lat20"] = dic
+elements["list"]["Lat20"] = dic
 
 d, e = vcs.getdotdirectory()
 i = 0
@@ -190,6 +147,7 @@ for nm, fnt in [
 p = projection.Proj("default")
 p = projection.Proj("linear")
 line.Tl("default")
+line.Tl("solid")
 line.Tl("deftaylordot")
 line.type = ["dot"]
 texttable.Tt("default")
@@ -247,5 +205,74 @@ template.P("default")
 t = taylor.Gtd("default")
 
 
+pth = vcs.__path__[0].split(os.path.sep)
+pth = pth[:-4]  # Maybe need to make sure on none framework config
+pth = ['/'] + pth + ['share', 'vcs', 'initial.attributes']
+try:
+    vcs.scriptrun(os.path.join(*pth))
+except:
+    pass
+
+for typ in elements.keys():
+    elts = elements[typ]
+    for k in elts.keys():  # let's save which elements should be saved and untouched
+        _protected_elements[typ].add(k)
+
+_dotdir, _dotdirenv = vcs.getdotdirectory()
+user_init = os.path.join(
+    os.environ['HOME'],
+    _dotdir,
+    'initial.attributes')
+if os.path.exists(user_init):
+    vcs.scriptrun(user_init)
+
 canvaslist = []
-# meshfills=[meshfill.Gfm()]
+#
+#
+# Construct a VCS Canvas Object.                                                #
+#
+#
+
+
+def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
+         backend="vtk", geometry=None, bg=None):
+    '''
+ Function: init                 # Initialize, Construct a VCS Canvas Object
+
+ Description of Function:
+    Construct the VCS Canas object. There can only be at most 8 VCS
+    Canvases open at any given time.
+
+    Graphics User Interface Mode:
+            gui = 0|1    if ==1, create the canvas with GUI controls
+                         (Default setting is *not* to display GUI controls)
+
+ Example of Use:
+    import vcs,cu
+
+    file=cu.open('filename.nc')
+    slab=file.getslab('variable')
+    a=vcs.init()                        # This examples constructs 4 VCS Canvas
+    a.plot(slab)                        # Plot slab using default settings
+    b=vcs.init()                        # Construct VCS object
+    template=b.gettemplate('AMIP')      # Get 'example' template object
+    b.plot(slab,template)               # Plot slab using template 'AMIP'
+    c=vcs.init()                        # Construct new VCS object
+    isofill=c.getisofill('quick')       # Get 'quick' isofill graphics method
+    c.plot(slab,template,isofill)       # Plot slab using template and isofill objects
+    d=vcs.init()                        # Construct new VCS object
+    isoline=c.getisoline('quick')       # Get 'quick' isoline graphics method
+    c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
+'''
+    canvas = Canvas.Canvas(
+        gui=gui,
+        mode=mode,
+        pause_time=pause_time,
+        call_from_gui=call_from_gui,
+        size=size,
+        backend=backend,
+        geometry=geometry,
+        bg=bg)
+    global canvaslist
+    canvaslist.append(canvas)
+    return canvas

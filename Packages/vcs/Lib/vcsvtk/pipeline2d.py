@@ -2,6 +2,9 @@ from .pipeline import Pipeline
 from .. import vcs2vtk
 
 import vcs
+import numpy
+import fillareautils
+import warnings
 
 
 class IPipeline2D(Pipeline):
@@ -47,8 +50,8 @@ class IPipeline2D(Pipeline):
         - _maskedDataMapper: The mapper used to render masked data.
     """
 
-    def __init__(self, context_):
-        super(IPipeline2D, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IPipeline2D, self).__init__(gm, context_)
 
         # TODO This should be replaced by getters that retrieve the info
         # needed, or document the members of the map somewhere. Much of this
@@ -57,7 +60,6 @@ class IPipeline2D(Pipeline):
         # reexecute visualization operations.
         self._resultDict = None
 
-        self._gm = None
         self._template = None
         self._originalData1 = None
         self._originalData2 = None
@@ -115,22 +117,118 @@ class Pipeline2D(IPipeline2D):
 
     """Common VTK pipeline functionality for 2D VCS plot."""
 
-    def __init__(self, context_):
-        super(Pipeline2D, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(Pipeline2D, self).__init__(gm, context_)
 
-    def plot(self, data1, data2, tmpl, gm, grid, transform):
+    def _patternCreation(self, vtkFilter, color, style, index, opacity):
+        """ Creates pattern things """
+        c = [val * 255 / 100.0 for val in color]
+        if opacity is None:
+            opacity = c[-1]
+        else:
+            opacity = opacity * 255 / 100.
+        act = fillareautils.make_patterned_polydata(vtkFilter.GetOutput(),
+                                                    fillareastyle=style,
+                                                    fillareaindex=index,
+                                                    fillareacolors=c,
+                                                    fillareaopacity=opacity)
+        if act is not None:
+            self._patternActors.append(act)
+        return
+
+    def _prepContours(self):
+        """ Prep contours bands"""
+        tmpLevels = []
+        tmpColors = []
+        tmpIndices = []
+        tmpOpacities = []
+
+        indices = self._gm.fillareaindices
+        opacities = self._gm.fillareaopacity
+        style = self._gm.fillareastyle
+
+        if indices is None:
+            indices = [1]
+        while len(indices) < len(self._contourColors):
+            indices.append(indices[-1])
+        if len(self._contourLevels) > len(self._contourColors):
+            raise RuntimeError(
+                "You asked for %i levels but provided only %i colors\n"
+                "Graphic Method: %s of type %s\nLevels: %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name,
+                   repr(self._contourLevels)))
+        elif len(self._contourLevels) < len(self._contourColors) - 1:
+            warnings.warn(
+                "You asked for %i lgridevels but provided %i colors, "
+                "extra ones will be ignored\nGraphic Method: %s of type %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name))
+        if len(opacities) < len(self._contourColors):
+            # fill up the opacity values
+            opacities += [None] * (len(self._contourColors) - len(opacities))
+
+        # The following loop attempts to group isosurfaces based on their
+        # attributes. Isosurfaces grouped if and only if all properties match.
+        for i, l in enumerate(self._contourLevels):
+            if i == 0:
+                C = [self._contourColors[i]]
+                if style == "pattern":
+                    C = [241]
+                if numpy.allclose(self._contourLevels[0][0], -1.e20):
+                    # ok it's an extension arrow
+                    L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
+                else:
+                    L = list(self._contourLevels[i])
+                I = indices[i]
+                O = opacities[i]
+            else:
+                if l[0] == L[-1] and\
+                        ((style == 'solid') or
+                            (I == indices[i] and C[-1] == self._contourColors[i] and
+                             O == opacities[i])):
+                    # Ok same type lets keep going
+                    if numpy.allclose(l[1], 1.e20):
+                        L.append(self._scalarRange[1] + 1.)
+                    else:
+                        L.append(l[1])
+                    C.append(self._contourColors[i])
+                    tmpOpacities.append(O)
+                    O = opacities[i]
+                else:  # ok we need new contouring
+                    tmpLevels.append(L)
+                    tmpColors.append(C)
+                    tmpIndices.append(I)
+                    tmpOpacities.append(O)
+                    C = [self._contourColors[i]]
+#                    L = self._contourLevels[i]
+                    L = [L[-1], l[1]]
+                    I = indices[i]
+                    O = opacities[i]
+        tmpLevels.append(L)
+        tmpColors.append(C)
+        tmpIndices.append(I)
+        tmpOpacities.append(O)
+
+        result = {
+            "tmpLevels": tmpLevels,
+            "tmpColors": tmpColors,
+            "tmpIndices": tmpIndices,
+            "tmpOpacities": tmpOpacities,
+        }
+
+        return result
+
+    def plot(self, data1, data2, tmpl, grid, transform):
         """Overrides baseclass implementation."""
         # Clear old results:
         self._resultDict = {}
 
-        self._gm = gm
         self._template = tmpl
         self._originalData1 = data1
         self._originalData2 = data2
         self._vtkDataSet = grid
         self._vtkGeoTransform = transform
-        self._colorMap = \
-            vcs.elements["colormap"][self._context().canvas.getcolormapname()]
 
         # Preprocess the input scalar data:
         self._updateScalarData()
@@ -171,6 +269,8 @@ class Pipeline2D(IPipeline2D):
                                       deep=False,
                                       grid=self._vtkDataSet,
                                       geo=self._vtkGeoTransform)
+
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
@@ -193,8 +293,9 @@ class Pipeline2D(IPipeline2D):
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
         color = getattr(self._gm, "missing", None)
+        _colorMap = self.getColorMap()
         if color is not None:
-            color = self._colorMap.index[color]
+            color = _colorMap.index[color]
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
             self._data1, self._vtkDataSet, color, self._useCellScalars,
             deep=False)

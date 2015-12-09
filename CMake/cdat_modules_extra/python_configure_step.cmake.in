@@ -29,9 +29,10 @@ if(APPLE)
 endif()
 
 if(APPLE)
-  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
+  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --with-system-expat --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
 elseif(UNIX)
-  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-shared)
+  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-shared --enable-unicode=ucs4)
+
 endif()
 
 EXECUTE_PROCESS(

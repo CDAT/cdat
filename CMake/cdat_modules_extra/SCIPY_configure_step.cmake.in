@@ -1,6 +1,8 @@
 message("Configuring SCIPY:\n@SCIPY_binary@")
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
+set(ENV{PYTHONPATH} "@PYTHONPATH@")
+set(ENV{PATH} "@SB_BIN_DIR@:$ENV{PATH}")
 
 # As explained in site.cfg.example - See http://projects.scipy.org/scipy/browser/trunk/site.cfg.example
 # Directories listed in variable such as library_dirs or source_dirs should be separated using os.pathsep

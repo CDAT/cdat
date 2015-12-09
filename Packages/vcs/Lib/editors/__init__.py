@@ -8,3 +8,4 @@ import marker  # noqa
 import point  # noqa
 import text  # noqa
 import group  # noqa
+import font  # noqa

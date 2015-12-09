@@ -369,6 +369,8 @@
  }, 
  "Tt": {
   "this_is_my_test_tt": {
+   "backgroundcolor": 0, 
+   "backgroundopacity": 0, 
    "color": 1, 
    "colormap": null, 
    "expansion": 100, 

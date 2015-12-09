@@ -285,6 +285,7 @@ Class: Gfi				# Isofill
         'fillareacolors',
         'fillareastyle',
         'fillareaindices',
+        'fillareaopacity',
         'ext_1',
         'ext_2',
         'missing',
@@ -311,6 +312,7 @@ Class: Gfi				# Isofill
         '_fillareacolors',
         '_fillareastyle',
         '_fillareaindices',
+        '_fillareaopacity',
         '_ext_1',
         '_ext_2',
         '_missing',
@@ -394,8 +396,8 @@ Class: Gfi				# Isofill
                 self,
                 'fillareacolors',
                 value)
-        self._fillareacolors = value
-    fillareacolors = property(_getfillareacolors, _setfillareacolors)
+            self._fillareacolors = value
+    fillareacolors = VCS_validation_functions.fillareacolors
 
     def _getfillareaindices(self):
         return self._fillareaindices
@@ -406,7 +408,7 @@ Class: Gfi				# Isofill
                 self,
                 'fillareaindices',
                 value)
-        self._fillareaindices = value
+            self._fillareaindices = value
     fillareaindices = property(_getfillareaindices, _setfillareaindices)
 
     def _getfillareastyle(self):
@@ -419,6 +421,8 @@ Class: Gfi				# Isofill
             value)
         self._fillareastyle = value
     fillareastyle = property(_getfillareastyle, _setfillareastyle)
+
+    fillareaopacity = VCS_validation_functions.fillareaopacity
 
     ext_1 = VCS_validation_functions.ext_1
     ext_2 = VCS_validation_functions.ext_2
@@ -595,8 +599,9 @@ Class: Gfi				# Isofill
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'
-            self._fillareaindices = None
+            self._fillareaindices = [1, ]
             self._fillareacolors = [1, ]
+            self._fillareaopacity = []
             self._levels = ([1.0000000200408773e+20, 1.0000000200408773e+20],)
             self._legend = None
             self._datawc_timeunits = "days since 2000"
@@ -615,7 +620,7 @@ Class: Gfi				# Isofill
             for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'levels', 'xaxisconvert', 'yaxisconvert', 'missing', 'ext_1', 'ext_2',
-                        'fillareastyle', 'fillareaindices', 'fillareacolors', 'legend',
+                        'fillareastyle', 'fillareaindices', 'fillareacolors', 'fillareaopacity', 'legend',
                         'datawc_timeunits', 'datawc_calendar']:
                 setattr(self, "_" + att, getattr(src, "_" + att))
 
@@ -700,6 +705,7 @@ Class: Gfi				# Isofill
         print "fillareastyle = ", self.fillareastyle
         print "fillareaindices = ", self.fillareaindices
         print "fillareacolors = ", self.fillareacolors
+        print "fillareaopacity = ", self.fillareaopacity
         print "levels = ", self.levels
         print "legend = ", self.legend
     list.__doc__ = xmldocs.listdoc
@@ -850,6 +856,9 @@ Function:     script                           # Calls _vcs.scriptGfi
             fp.write(
                 "%s.fillareacolors = %s\n" %
                 (unique_name, self.fillareacolors))
+            fp.write(
+                "%s.fillareaopacity = '%s'\n" %
+                (unique_name, self.fillareaopacity))
             fp.write("%s.levels = %s\n" % (unique_name, self.levels))
             fp.write("%s.legend = %s\n" % (unique_name, self.legend))
             fp.write(

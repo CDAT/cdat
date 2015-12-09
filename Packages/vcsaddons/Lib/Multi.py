@@ -344,7 +344,10 @@ class Multi(object):
         return t
 
     def preview(self,out='EZTemplate_Multi',bg=1):
-        """ Draws the layout for your setup"""
+        """ Draws the layout for your setup, return the vcs canvas on which this was drawn
+        Usage
+        canvas = Multi.preview(out='EZTemplate_Multi',bg=1)
+        """
         n=self.rows*self.columns
         ir=0
         ic=0
@@ -388,6 +391,7 @@ class Multi(object):
         self.x.postscript(out)
         self.x.pdf(out)
         self.x.png(out)
+        return self.x
             
             
     
