@@ -1497,7 +1497,7 @@ def getcolorcell(cell, obj=None):
     return cmap.index[cell]
 
 
-def setcolorcell(obj, num, r, g, b):
+def setcolorcell(obj, num, r, g, b, a=100):
     """
 Function: setcolorcell
 
@@ -1526,7 +1526,7 @@ vcs.setcolorcell("AMIP",61,70,70,70)
         cmap = getcolormap(obj)
     else:
         cmap = getcolormap(obj.colormap)
-    cmap.index[num] = (r, g, b)
+    cmap.index[num] = (r, g, b, a)
 
     return
 
