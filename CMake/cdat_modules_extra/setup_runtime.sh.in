@@ -78,6 +78,7 @@ if [ -d "${install_prefix}/Externals/lib/R" ] ; then
   export R_HOME="${install_prefix}/Externals/lib/R"
 fi
 
+export GDAL_DATA="${install_prefix}/Externals/share/gdal"
 export OPAL_PREFIX="${install_prefix}/Externals"
 export LIBOVERLAY_SCROLLBAR=0
 

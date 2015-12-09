@@ -86,6 +86,7 @@ if ( -d ${install_prefix}/Externals/lib/R ) then
   setenv R_HOME ${install_prefix}/Externals/lib/R
 endif
 
+setenv GDAL_DATA ${install_prefix}/Externals/share/gdal
 setenv OPAL_PREFIX ${install_prefix}/Externals
 setenv LIBOVERLAY_SCROLLBAR 0
 
