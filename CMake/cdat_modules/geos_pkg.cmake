@@ -1,9 +1,9 @@
 set( GEOS_MAJOR 3  )
-set( GEOS_MINOR 3  )
-set( GEOS_PATCH 5  )
+set( GEOS_MINOR 5  )
+set( GEOS_PATCH 0  )
 set(GEOS_URL ${LLNL_URL})
 set(GEOS_BZ2 geos-${GEOS_MAJOR}.${GEOS_MINOR}.${GEOS_PATCH}.tar.bz2)
-set(GEOS_MD5 2ba61afb7fe2c5ddf642d82d7b16e75b)
+set(GEOS_MD5 136842690be7f504fba46b3c539438dd)
 
 set (nm GEOS)
 string(TOUPPER ${nm} uc_nm)

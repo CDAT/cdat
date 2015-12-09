@@ -64,7 +64,7 @@ foreach d ( @SETUP_LIBRARY_PATHS@ )
 end
 
 if ( `uname` == 'Darwin' ) then
-  setenv LD_LIBRARY_PATH /usr/X11R6/lib:${LD_LIBRARY_PATH}
+  setenv LD_LIBRARY_PATH /usr/X11R6/lib:/usr/lib:${LD_LIBRARY_PATH}
   setenv DYLD_FALLBACK_LIBRARY_PATH ${LD_LIBRARY_PATH}
 endif
 
