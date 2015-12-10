@@ -25,8 +25,8 @@ cmap.setcolorcell(242,0,0,100,50)
 
 fa2.colormap = cmap
 
-x.plot(fa1)
-x.plot(fa2)
+x.plot(fa1,bg=True)
+x.plot(fa2,bg=True)
 
 fnm = os.path.split(__file__[:-2]+"png")[-1]
 x.png(fnm)
