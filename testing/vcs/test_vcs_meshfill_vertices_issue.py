@@ -1,7 +1,16 @@
 import numpy
 import vcs
+import sys
+import os
+pth = os.path.join(os.path.dirname(__file__),"..")
+sys.path.append(pth)
+import checkimage
 
 x=vcs.init()
+
+x.setantialiasing(0)
+x.drawlogooff()
+x.setbgoutputdimensions(1200,1091,units="pixels")
 
 data_values = [ 25, 45, 55.]
 
@@ -40,5 +49,8 @@ m = x.createmeshfill()
 m.mesh = True
 
 x.plot(numpy.array(data_values,),mesh,m)
-x.png("mesh_miss")
+x.png("test_vcs_meshfill_vertices_issue.png")
+src = sys.argv[1]
+ret = checkimage.check_result_image("test_vcs_meshfill_vertices_issue.png",src,checkimage.defaultThreshold)
+
 raw_input("press enter")

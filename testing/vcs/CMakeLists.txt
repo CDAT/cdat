@@ -23,6 +23,11 @@ cdat_add_test(vcs_test_png_set_size
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
 )
+cdat_add_test(vcs_meshfill_missing_vertice
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_vertices_issue.py
+  "${BASELINE_DIR}/test_vcs_meshfill_vertices_issue.png"
+)
 cdat_add_test(vcs_test_png_metadata
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_metadata.py
