@@ -1199,7 +1199,7 @@ def prepFillarea(renWin, farea, cmap=None):
             if opacity is not None:
                 opacity = farea.opacity[i]
         else:
-            opacity = 100
+            opacity = None
         # Draw colored background for solid
         # transparent/white background for hatches/patterns
         if st == 'solid':
