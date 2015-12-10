@@ -89,7 +89,6 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             lut = vtk.vtkLookupTable()
             r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
-            print "CELL DATA:",cellData
             if not cellData:
                 grid2.GetPointData().RemoveArray(
                     vtk.vtkDataSetAttributes.GhostArrayName())
@@ -286,9 +285,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 ym = data2[:, 0].min()
                 yM = data2[:, 0].max()
                 N = data2.shape[0]
-                print "DATA2",data2
                 data2 = data2.filled(numpy.nan)
-                print "DATA2",data2
                 m2 = numpy.ascontiguousarray(numpy.transpose(data2, (0, 2, 1)))
                 nVertices = m2.shape[-2]
                 m2.resize((m2.shape[0] * m2.shape[1], m2.shape[2]))
