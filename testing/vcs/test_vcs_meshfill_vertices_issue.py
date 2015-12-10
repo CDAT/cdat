@@ -46,6 +46,7 @@ print mesh[0][0]
 print "Triangle lons:"
 print mesh[0][1]
 m = x.createmeshfill()
+m.levels = [20,30,50,70,80]
 m.mesh = True
 
 x.plot(numpy.array(data_values,),mesh,m)
