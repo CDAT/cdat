@@ -1,2 +1,2 @@
-# Check whether matplotlib imports cleanly
+# Check whether ocgis imports cleanly
 import ocgis
