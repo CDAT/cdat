@@ -1,5 +1,5 @@
 set(proj4_source "${CMAKE_CURRENT_BINARY_DIR}/build/proj4")
-set(proj4_install "${cdat_EXTERNALS}")
+set(proj4_install "${cdat_EXTERNALS}/proj4")
 set(proj4_configure_args "")
 
 ExternalProject_Add(proj4
