@@ -229,14 +229,14 @@ class Tm(object):
         return self._size
 
     def _setsize(self, value):
-        if isinstance(value, int):
+        if VCS_validation_functions.isNumber(value):
             value = [value, ]
         if value is not None:
             value = VCS_validation_functions.checkListOfNumbers(
                 self,
                 'size',
                 value,
-                minvalue=1,
+                minvalue=0,
                 maxvalue=300)
         self._size = value
     size = property(_getsize, _setsize)

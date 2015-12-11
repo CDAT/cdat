@@ -246,6 +246,7 @@ calendarMap = tagToCalendar
 reverseCalendarMap = calendarToTag
 
 attrPattern = re.compile(r'\s*(\w*)\.(\w+)\s*=\s*(.*)$')
+cdms2.setNetcdfUseParallelFlag(0)
 def timestamp():
     "Generate a timestamp."
     import time

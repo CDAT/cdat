@@ -5,7 +5,6 @@ sys.path.append(pth)
 import checkimage
 
 x = vcs.init()
-x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200, 1091, units="pixels")
@@ -18,7 +17,7 @@ p.type = "robinson"
 V.projection = p
 x.plot(u,v,V, bg=1)
 
-fnm= "test_vcs_vectors_robinson.png"
+fnm = "test_vcs_vectors_robinson.png"
 x.png(fnm)
 ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
 sys.exit(ret)
