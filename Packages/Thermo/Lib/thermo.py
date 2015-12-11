@@ -956,7 +956,7 @@ class Gth(object):
                 iso.linecolors = col
                 iso.line = [iso.line[0], ] * len(values)
                 if iso.text is None:
-                    iso.text = [1, ] * len(values)
+                    iso.text = ["default", ] * len(values)
                 else:
                     iso.text = [iso.text[0], ] * len(values)
                 iso.textcolors = col
@@ -1121,6 +1121,10 @@ class Gth(object):
         if self.drawisothermsfilled:
             self.displays.append(self.x.plot(T, isotemplate, self.isothermsfilled, bg=bg))
         if self.drawisotherms:
+            print "************"
+            self.isotherms.list()
+            print "************"
+
             self.displays.append(self.x.plot(T, isotemplate, self.isotherms, bg=bg))
         if self.drawisobars:
             self.displays.append(self.x.plot(P, isotemplate, self.isobars, bg=bg))
@@ -1235,7 +1239,7 @@ class Gth(object):
                 x, y = self.make_barb(n[i], d[i], n1[i], n2[i], n3[i], rw * r * rv, Y)
                 lin.x = x
                 lin.y = y
-                lin.linetype = ['solid']
+                lin.type = ['solid']
                 self.displays.append(self.x.plot(lin, bg=bg))
 
     def make_barb(self, n, d, n1, n2, n3, ydeformation, yoff):
