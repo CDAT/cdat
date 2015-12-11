@@ -263,7 +263,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 xM = m[:, 1].max()
                 ym = m[:, 0].min()
                 yM = m[:, 0].max()
-                N = m.shape[0]
+                numberOfCells = m.shape[0]
                 # For vtk we need to reorder things
                 m2 = numpy.ascontiguousarray(numpy.transpose(m, (0, 2, 1)))
                 m2.resize((m2.shape[0] * m2.shape[1], m2.shape[2]))
@@ -284,7 +284,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 xM = data2[:, 1].max()
                 ym = data2[:, 0].min()
                 yM = data2[:, 0].max()
-                N = data2.shape[0]
+                numberOfCells = data2.shape[0]
                 data2 = data2.filled(numpy.nan)
                 m2 = numpy.ascontiguousarray(numpy.transpose(data2, (0, 2, 1)))
                 nVertices = m2.shape[-2]
@@ -300,20 +300,15 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     if m3 is not None:
         # Create unstructured grid points
         vg = vtk.vtkUnstructuredGrid()
-        lst = vtk.vtkIdTypeArray()
-        cells = vtk.vtkCellArray()
-        numberOfCells = N
-        lst.SetNumberOfComponents(nVertices + 1)
-        lst.SetNumberOfTuples(numberOfCells)
-        for i in range(N):
-            tuple = [None] * (nVertices + 1)
-            tuple[0] = nVertices
+        for i in range(numberOfCells):
+            pt_ids = []
             for j in range(nVertices):
-                tuple[j + 1] = i * nVertices + j
-            lst.SetTuple(i, tuple)
-            # ??? TODO ??? when 3D use CUBE?
-        cells.SetCells(numberOfCells, lst)
-        vg.SetCells(vtk.VTK_POLYGON, cells)
+                indx = i * nVertices + j
+                if not numpy.isnan(m3[indx][0]):  # missing value means skip vertex
+                    pt_ids.append(indx)
+            vg.InsertNextCell(vtk.VTK_POLYGON,
+                              len(pt_ids),
+                              pt_ids)
     else:
         # Ok a simple structured grid is enough
         if grid is None:
