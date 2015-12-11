@@ -10,7 +10,7 @@ x=vcs.init()
 
 x.setantialiasing(0)
 x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
+x.setbgoutputdimensions(1200,1090,units="pixels")
 
 data_values = [ 25, 45, 55.]
 
@@ -51,9 +51,8 @@ m = x.createmeshfill()
 m.levels = [20,30,50,70,80]
 m.mesh = True
 
-x.plot(numpy.array(data_values,),mesh,m)
+x.plot(numpy.array(data_values,),mesh,m,bg=True)
 x.png("test_vcs_meshfill_vertices_issue.png")
 src = sys.argv[1]
-#ret = checkimage.check_result_image("test_vcs_meshfill_vertices_issue.png",src,checkimage.defaultThreshold)
-
-raw_input("press enter")
+ret = checkimage.check_result_image("test_vcs_meshfill_vertices_issue.png",src,checkimage.defaultThreshold)
+sys.exit(ret)
