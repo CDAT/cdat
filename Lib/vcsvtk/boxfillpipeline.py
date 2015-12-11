@@ -5,7 +5,6 @@ import fillareautils
 import numpy
 import vcs
 import vtk
-import isofillpipeline
 
 
 class BoxfillPipeline(Pipeline2D):
