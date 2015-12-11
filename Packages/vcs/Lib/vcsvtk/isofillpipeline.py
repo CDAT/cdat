@@ -57,6 +57,8 @@ class IsofillPipeline(Pipeline2D):
                     levs2[0] = -1.e20
                 for i in range(len(levs2) - 1):
                     self._contourLevels.append([levs2[i], levs2[i + 1]])
+            else:
+                levs2 = self._gm.levels
 
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
@@ -102,7 +104,7 @@ class IsofillPipeline(Pipeline2D):
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
                                                        self._data1.getAxis(-1),
                                                        self._data1.getAxis(-2))
-        assert(style != 'solid' or len(tmpLevels) == 1)
+        #assert(style != 'solid' or len(tmpLevels) == 1)
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off

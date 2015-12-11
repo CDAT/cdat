@@ -201,8 +201,7 @@ class Pipeline2D(IPipeline2D):
                     tmpIndices.append(I)
                     tmpOpacities.append(O)
                     C = [self._contourColors[i]]
-#                    L = self._contourLevels[i]
-                    L = [L[-1], l[1]]
+                    L = self._contourLevels[i]
                     I = indices[i]
                     O = opacities[i]
         tmpLevels.append(L)
