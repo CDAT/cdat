@@ -23,6 +23,11 @@ cdat_add_test(vcs_test_png_set_size
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
 )
+cdat_add_test(vcs_meshfill_missing_vertice
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_vertices_issue.py
+  "${BASELINE_DIR}/test_vcs_meshfill_vertices_issue.png"
+)
 cdat_add_test(vcs_test_png_metadata
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_metadata.py
@@ -153,7 +158,7 @@ cdat_add_test(vcs_test_background_mode_rotate
   ${cdat_SOURCE_DIR}/testing/vcs/test_background_mode_rotate.py
   )
 
-# Some vector plot testing
+# Some vector plot tests
 FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
   cdat_add_test(vcs_test_vectors_angle_${angle}
     "${PYTHON_EXECUTABLE}"
