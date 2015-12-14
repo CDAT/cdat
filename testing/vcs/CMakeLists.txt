@@ -11,6 +11,11 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_fillarea_transparency
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_transparency.py
+  "${BASELINE_DIR}/test_vcs_fillarea_transparency.png"
+)
 cdat_add_test(vcs_test_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
