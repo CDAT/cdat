@@ -37,6 +37,7 @@ from Pdata import *  # noqa
 import inspect
 import cdutil
 from projection import round_projections
+from projection import elliptical_projections
 
 # Following for class properties
 
@@ -1140,6 +1141,8 @@ class P(object):
                         ys.append([obj.y1, obj.y2])
                         txs.append((l - wc[0]) / dx + vp[0])
                         tys.append(objlabl.y)
+                    elif vcs.elements["projection"][gm.projection].type in elliptical_projections:
+                        pass
                     else:
                         xs.append([l, l])
                         end = wc[

@@ -21,7 +21,7 @@ import copy
 round_projections = ['polar (non gctp)', 'stereographic',
                      'orthographic', "ortho", ]
 
-
+elliptical_projections = ["robinson", "mollweide"]
 def process_src(nm, code):
     try:
         gm = Proj(nm)
