@@ -40,7 +40,7 @@ class BoxfillPipeline(Pipeline2D):
         if self._gm.boxfill_type != "custom":
             self._updateContourLevelsAndColorsForBoxfill()
         else:
-            self._updateContourLevelsAndColorsForCustomBoxfill()
+            self._updateContourLevelsAndColorsGeneric()
 
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
@@ -92,40 +92,6 @@ class BoxfillPipeline(Pipeline2D):
 
         # Use consecutive colors:
         self._contourColors = range(self._gm.color_1, self._gm.color_2 + 1)
-
-    def _updateContourLevelsAndColorsForCustomBoxfill(self):
-        """Set contour information for a custom boxfill."""
-        self._contourLevels = self._gm.levels
-
-        if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-           numpy.allclose(self._contourLevels, 1.e20):
-            levs2 = vcs.mkscale(self._scalarRange[0],
-                                self._scalarRange[1])
-            if len(levs2) == 1:  # constant value ?
-                levs2 = [levs2[0], levs2[0] + .00001]
-            self._contourLevels = []
-            if self._gm.ext_1:
-                # user wants arrow at the end
-                levs2[0] = -1.e20
-            if self._gm.ext_2:
-                # user wants arrow at the end
-                levs2[-1] = 1.e20
-            for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i + 1]])
-        else:
-            if not isinstance(self._gm.levels[0], (list, tuple)):
-                self._contourLevels = []
-                levs2 = self._gm.levels
-                if numpy.allclose(levs2[0], 1.e20):
-                    levs2[0] = 0
-                for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i + 1]])
-
-        # Contour colors:
-        self._contourColors = self._gm.fillareacolors
-        if self._contourColors is None:
-            # TODO BUG levs2 may not be defined here...
-            self._contourColors = vcs.getcolors(levs2, split=0)
 
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
@@ -346,7 +312,6 @@ class BoxfillPipeline(Pipeline2D):
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
-        assert(style != 'solid' or len(tmpLevels) == 1)
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off

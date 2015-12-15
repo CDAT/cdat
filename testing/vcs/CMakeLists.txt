@@ -11,6 +11,11 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_fillarea_transparency
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_transparency.py
+  "${BASELINE_DIR}/test_vcs_fillarea_transparency.png"
+)
 cdat_add_test(vcs_test_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
@@ -698,6 +703,15 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
     FOREACH(gm isofill boxfill meshfill)
       FOREACH(style solid pattern hatch)
+        cdat_add_test(vcs_test_${gm}_${style}_fill_non-contig
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+          --gm_type=${gm}
+          --fill_style=${style}
+          --non-contiguous
+          "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180_non-contig.png"
+          "--threshold=45"
+          )
         cdat_add_test(vcs_test_${gm}_${style}_fill
           "${PYTHON_EXECUTABLE}"
           "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
