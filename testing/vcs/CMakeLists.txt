@@ -703,6 +703,15 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
     FOREACH(gm isofill boxfill meshfill)
       FOREACH(style solid pattern hatch)
+        cdat_add_test(vcs_test_${gm}_${style}_fill_non-contig
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+          --gm_type=${gm}
+          --fill_style=${style}
+          --non-contiguous
+          "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180_non-contig.png"
+          "--threshold=45"
+          )
         cdat_add_test(vcs_test_${gm}_${style}_fill
           "${PYTHON_EXECUTABLE}"
           "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
