@@ -109,6 +109,11 @@ if(APPLE)
   endif()
 
   # Support only 10.8 or higher for now
+  if (CURRENT_OSX_VERSION VERSION_LESS 10.8)
+    message(FATAL_ERROR "Found Mac OSX version ${CURRENT_OSX_VERSION}; "
+            "However, Mac OSX versions less than 10.8 not supported.")
+  endif ()
+
   set(HAVE_10_8_SDK FALSE)
   set(HAVE_10_9_SDK FALSE)
   set(HAVE_10_10_SDK FALSE)
