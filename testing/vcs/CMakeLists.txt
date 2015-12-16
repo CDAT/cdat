@@ -11,6 +11,11 @@ cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+cdat_add_test(vcs_fillarea_transparency
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_transparency.py
+  "${BASELINE_DIR}/test_vcs_fillarea_transparency.png"
+)
 cdat_add_test(vcs_test_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_bad_png_path.py
@@ -22,6 +27,11 @@ cdat_add_test(vcs_verify_remove_objects
 cdat_add_test(vcs_test_png_set_size
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_png_set_size.py
+)
+cdat_add_test(vcs_meshfill_missing_vertice
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_vertices_issue.py
+  "${BASELINE_DIR}/test_vcs_meshfill_vertices_issue.png"
 )
 cdat_add_test(vcs_test_png_metadata
   "${PYTHON_EXECUTABLE}"
@@ -153,7 +163,7 @@ cdat_add_test(vcs_test_background_mode_rotate
   ${cdat_SOURCE_DIR}/testing/vcs/test_background_mode_rotate.py
   )
 
-# Some vector plot testing
+# Some vector plot tests
 FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
   cdat_add_test(vcs_test_vectors_angle_${angle}
     "${PYTHON_EXECUTABLE}"
@@ -290,6 +300,12 @@ cdat_add_test(vcs_test_taylor_2_quads
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background_update.py
     "${BASELINE_DIR}/test_canvas_background_update.png"
+    )
+  cdat_add_test(vcs_test_boxfill_decreasing_latitude
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_decreasing_latitude.py
+    "${BASELINE_DIR}/test_vcs_boxfill_decreasing_latitude.png"
+    "${UVCDAT_GIT_TESTDATA_DIR}/data/decreasing_latitude.nc"
     )
   cdat_add_test(vcs_test_boxfill_10x10_numpy
     "${PYTHON_EXECUTABLE}"
@@ -687,6 +703,15 @@ cdat_add_test(vcs_test_taylor_2_quads
       )
     FOREACH(gm isofill boxfill meshfill)
       FOREACH(style solid pattern hatch)
+        cdat_add_test(vcs_test_${gm}_${style}_fill_non-contig
+          "${PYTHON_EXECUTABLE}"
+          "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+          --gm_type=${gm}
+          --fill_style=${style}
+          --non-contiguous
+          "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180_non-contig.png"
+          "--threshold=45"
+          )
         cdat_add_test(vcs_test_${gm}_${style}_fill
           "${PYTHON_EXECUTABLE}"
           "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
