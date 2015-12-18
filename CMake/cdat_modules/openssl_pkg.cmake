@@ -1,8 +1,10 @@
 find_package (OpenSSL QUIET)
 if (OPENSSL_FOUND)
-  message(STATUS "System OpenSSL found. OpenSSL Version: ${OPENSSL_VERSION}")
   get_filename_component (OPENSSL_LIBRARY_DIR
     "${OPENSSL_SSL_LIBRARY}" DIRECTORY)
+  message(STATUS "System OpenSSL found. "
+    "OpenSSL library directory: ${OPENSSL_LIBRARY_DIR}. "
+    "OpenSSL Version: ${OPENSSL_VERSION}")
 else (OPENSSL_FOUND)
 
   set(OPENSSL_MAJOR_SRC 1)
@@ -11,7 +13,7 @@ else (OPENSSL_FOUND)
   set(OPENSSL_VERSION
     ${OPENSSL_MAJOR_SRC}.${OPENSSL_MINOR_SRC}.${OPENSSL_PATCH_SRC})
   
-  message(STATUS "System OpenSSL not found. "
+  message(STATUS "System OpenSSL *NOT* found. "
   "Compiling from source. Version: ${OPENSSL_VERSION}")
 
   set(OPENSSL_URL "https://www.openssl.org/source")
