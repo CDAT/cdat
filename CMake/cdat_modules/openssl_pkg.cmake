@@ -20,7 +20,7 @@ if(NOT CDAT_USE_SYSTEM_OPENSSL OR NOT OPENSSL_FOUND OR NOT OPENSSL_INCLUDE_DIR)
   
   message(STATUS "Compiling OpenSSL from source. Version: ${OPENSSL_VERSION}")
 
-  set(OPENSSL_URL "https://www.openssl.org/source")
+  set(OPENSSL_URL ${LLNL_URL})
   set(OPENSSL_GZ "openssl-${OPENSSL_VERSION}.tar.gz")
   set(OPENSSL_MD5 5262bfa25b60ed9de9f28d5d52d77fc5)
   set(OPENSSL_SOURCE_URL ${OPENSSL_URL}/${OPENSSL_GZ})
