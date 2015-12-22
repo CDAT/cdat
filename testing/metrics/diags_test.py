@@ -65,8 +65,19 @@ class DiagTest(object):
         #print '>>>>>>>>>>>>>>>>>>> ', baselinefname
         f = cdms2.open( testfname )
         g = cdms2.open( baselinefname )
-        fvar = f(varname)
-        gvar = g(varname)
+        
+        try:
+            fvar = f(varname)
+        except:
+            print varname, ' is not in file ', testname
+            sys.exit(1)
+        
+        try:
+            gvar = g(varname)
+        except:
+            print varname, ' is not in file ', baselinefname
+            sys.exit(1)     
+                   
         #print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
         #print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
         close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
