@@ -136,7 +136,7 @@ def setNetcdfUseParallelFlag(value):
         if not MPI.Is_initialized():
             MPI.Init()
         rk = MPI.COMM_WORLD.Get_rank()
-        
+
 def getMpiRank():
     ''' Return number of processor available '''
     if CdMpi:

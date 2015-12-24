@@ -55,8 +55,8 @@ class VectorPipeline(Pipeline):
         if geo is not None:
             newv = vtk.vtkDoubleArray()
             newv.SetNumberOfComponents(3)
-            newv.InsertTupleValue(0, [lon.min(), lat.min(),  0])
-            newv.InsertTupleValue(1, [lon.max(), lat.max(),  0])
+            newv.InsertTupleValue(0, [lon.min(), lat.min(), 0])
+            newv.InsertTupleValue(1, [lon.max(), lat.max(), 0])
 
             vcs2vtk.projectArray(newv, projection,
                                  [gridGenDict['xm'], gridGenDict['xM'],
@@ -145,7 +145,7 @@ class VectorPipeline(Pipeline):
         act.SetMapper(mapper)
 
         cmap = self.getColorMap()
-        r, g, b = cmap.index[lcolor]
+        r, g, b, a = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
         x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm, data1.getAxis(-1),
@@ -166,7 +166,7 @@ class VectorPipeline(Pipeline):
                                       create_renderer=True)
 
         returned.update(self._context().renderTemplate(tmpl, data1,
-                        self._gm, taxis, zaxis))
+                                                       self._gm, taxis, zaxis))
 
         if self._context().canvas._continents is None:
             continents = False

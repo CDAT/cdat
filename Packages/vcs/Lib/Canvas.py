@@ -66,8 +66,6 @@ import VCS_validation_functions
 from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisconvert, \
     plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, \
     plot_2_1D_options
-# Flag to set if the initial attributes file has aready been read in
-called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
 import vcsaddons
@@ -373,6 +371,7 @@ class Canvas(object):
         '__last_plot_actual_args',
         '__last_plot_keyargs',
         '_continents',
+        '_continents_line',
         '_savedcontinentstype',
         '__weakref__',
     ]
@@ -800,14 +799,12 @@ class Canvas(object):
         # Draw continental outlines if specified.
         contout = keyargs.get('continents', None)
         if contout is None:
-            #            if xdim>=0 and ydim>=0 and isgridded:
-            # Charles put back the self.isplottinggridded in addition for
-            # meshfill,
             if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
                     and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
                 contout = 1
             else:
                 contout = 0
+
         if (isinstance(arglist[GRAPHICS_METHOD], str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or (
                 (xdim >= 0 and ydim >= 0 and (contout >= 1) and (contout < 12))):
             self.setcontinentstype(contout)
@@ -863,7 +860,7 @@ class Canvas(object):
     #                                                                           #
     ##########################################################################
     def __init__(self, gui=0, mode=1, pause_time=0,
-                 call_from_gui=0, size=None, backend="vtk"):
+                 call_from_gui=0, size=None, backend="vtk", geometry=None, bg=None):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
@@ -883,7 +880,6 @@ class Canvas(object):
         if found is False:
             os.environ["PATH"] = os.environ["PATH"] + \
                 ":" + os.path.join(sys.prefix, "bin")
-        global called_initial_attributes_flg
         global gui_canvas_closed
         global canvas_closed
 
@@ -938,10 +934,32 @@ class Canvas(object):
             gui_canvas_closed = 1
         self.drawLogo = False
         self.enableLogo = True
+
+        if geometry is not None:
+            # Extract width and height, create dict
+            if type(geometry) == dict:
+                for key in geometry:
+                    if key not in ("width", "height"):
+                        raise ValueError("Unexpected key %s in geometry" % key)
+
+                width = geometry.get("width", None)
+                height = geometry.get("height", None)
+
+                check_vals = [v for v in (width, height) if v is not None]
+                VCS_validation_functions.checkListOfNumbers(self, 'geometry', check_vals,
+                                                            minvalue=1, minelements=1, maxelements=2, ints=True)
+            elif type(geometry) in (list, tuple):
+                width, height = VCS_validation_functions.checkListOfNumbers(self, 'geometry', geometry,
+                                                                            minvalue=1, minelements=2,
+                                                                            maxelements=2, ints=True)
+            else:
+                raise ValueError("geometry should be list, tuple, or dict")
+            geometry = {"width": width, "height": height}
+
         if backend == "vtk":
-            self.backend = VTKVCSBackend(self)
+            self.backend = VTKVCSBackend(self, geometry=geometry, bg=bg)
         elif isinstance(backend, vtk.vtkRenderWindow):
-            self.backend = VTKVCSBackend(self, renWin=backend)
+            self.backend = VTKVCSBackend(self, renWin=backend, bg=bg)
         else:
             warnings.warn(
                 "Unknown backend type: '%s'\nAssiging 'as is' to "
@@ -952,6 +970,7 @@ class Canvas(object):
         self._animate = self.backend.Animate(self)
 
         self.configurator = None
+        self.setcontinentsline("default")
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
@@ -961,25 +980,7 @@ class Canvas(object):
 #  to make sure that the initial attributes file is called only once for normalization    #
 #  purposes....                                                                           #
 ##########################################################################
-        if called_initial_attributes_flg == 0:
-            pth = vcs.__path__[0].split(os.path.sep)
-            pth = pth[:-4]  # Maybe need to make sure on none framework config
-            pth = ['/'] + pth + ['share', 'vcs', 'initial.attributes']
-            try:
-                vcs.scriptrun(os.path.join(*pth))
-            except:
-                pass
-            self._dotdir, self._dotdirenv = vcs.getdotdirectory()
-            user_init = os.path.join(
-                os.environ['HOME'],
-                self._dotdir,
-                'initial.attributes')
-            if os.path.exists(user_init):
-                vcs.scriptrun(user_init)
-            else:
-                shutil.copy2(os.path.join(*pth), user_init)
 
-        called_initial_attributes_flg = 1
         self.canvas_template_editor = None
         self.ratio = 0
         self._user_actions_names = [
@@ -2261,7 +2262,7 @@ Options:::
                        'xbounds', 'ybounds', 'xname', 'yname', 'xunits', 'yunits', 'xweights', 'yweights',
                        'comment1', 'comment2', 'comment3', 'comment4', 'hms', 'long_name', 'zaxis',
                        'zarray', 'zname', 'zunits', 'taxis', 'tarray', 'tname', 'tunits', 'waxis', 'warray',
-                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render']
+                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render', 'continents_line']
 
     # def replot(self):
     #    """ Clears and plots with last used plot arguments
@@ -2407,8 +2408,17 @@ Options:::
         except:
             pass
 
+        if "continents_line" in keyargs:
+            # Stash the current line type
+            old_line = self.getcontinentsline()
+            self.setcontinentsline(keyargs["continents_line"])
+
         # Plot the data
         a = self.__plot(arglist, keyargs)
+
+        if "continents_line" in keyargs:
+            # Restore the canvas line type
+            self.setcontinentsline(old_line)
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options,
                                    plot_keywords_doc,
@@ -3473,6 +3483,8 @@ Options:::
             t.plot(arglist[0], canvas=self, template=arglist[2], **keyargs)
             nm, src = self.check_name_source(None, "default", "display")
             dn = displayplot.Dp(nm)
+            dn.continents = self.getcontinentstype()
+            dn.continents_line = self.getcontinentsline()
             dn.template = arglist[2]
             dn.g_type = arglist[3]
             dn.g_name = arglist[4]
@@ -3497,6 +3509,8 @@ Options:::
                     tp = "textcombined"
                 elif tp == "default":
                     tp = "boxfill"
+                elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+                    tp = "1d"
                 gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
@@ -3687,7 +3701,7 @@ Options:::
             if hasattr(self, '_isplottinggridded'):
                 del(self._isplottinggridded)
             # Get the continents for animation generation
-            self.animate.continents_value = self.getcontinentstype()
+            self.animate.continents_value = self._continentspath()
 
             # Get the option for doing graphics in the background.
             if bg:
@@ -3739,6 +3753,8 @@ Options:::
             if dn is not None:
                 dn._template_origin = template_origin
                 dn.ratio = Doratio
+                dn.continents = self.getcontinentstype()
+                dn.continents_line = self.getcontinentsline()
                 dn.newelements = self.__new_elts(original_elts, new_elts)
 
             if self.mode != 0:
@@ -4230,8 +4246,8 @@ Options:::
  Function: getcontinentstype
 
  Description of Function:
-    Retrieve continents type from VCS. Remember the value can only be between
-    0 and 11.
+    Retrieve continents type from VCS; either an integer between 0 and 11 or the
+    path to a custom continentstype.
 
  Example of Use:
      a=vcs.init()
@@ -5250,9 +5266,41 @@ Options:::
         return a
 
     ##########################################################################
-    #                                                                           #
-    # Set continents type wrapper for VCS.                           		#
-    #                                                                           #
+    #                                                                        #
+    # Set continents line wrapper for VCS.                                   #
+    #                                                                        #
+    ##########################################################################
+    def setcontinentsline(self, line="default"):
+        """
+    Function: setcontinentsline
+
+    Description of Function:
+        One has the option of configuring the appearance of the lines used to
+        draw continents by providing a VCS Line object.
+
+    Example of Use:
+        a = vcs.init()
+        line = vcs.createline()
+        line.width = 5
+        # Use custom continents line
+        a.setcontinentsline(line)
+        # Use default line
+        a.setcontinentsline("default")
+        """
+        linename = VCS_validation_functions.checkLine(self, "continentsline", line)
+        line = vcs.getline(linename)
+        self._continents_line = line
+
+    def getcontinentsline(self):
+        if self._continents_line is None:
+            return vcs.getline("default")
+        else:
+            return self._continents_line
+
+    ##########################################################################
+    #                                                                        #
+    # Set continents type wrapper for VCS.                           		 #
+    #                                                                        #
     ##########################################################################
     def setcontinentstype(self, value):
         """
@@ -5272,10 +5320,9 @@ Options:::
           4 signifies "Political Borders" (with "Fine Continents")
           5 signifies "Rivers" (with "Fine Continents")
 
-      Values 6 through 11 signify the line type defined by the files
-      data_continent_other7 through data_continent_other12.
+          6 uses a custom continent set
 
-      You can also pass a file
+      You can also pass a file by path.
 
    Example of Use:
       a=vcs.init()
@@ -5283,67 +5330,25 @@ Options:::
       #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
       a.plot(array,'default','isofill','quick')
   """
-        nms = [
-            "fine",
-            "coarse",
-            "states",
-            "political",
-            "river",
-            "other6",
-            "other7",
-            "other8",
-            "other9",
-            "other10",
-            "other11",
-            "other12"]
-        if isinstance(value, int):
-            if value == 0:
-                self._continents = None
-            elif 0 < value < 12:
-                self._continents = os.path.join(
-                    os.environ.get(
-                        "HOME",
-                        ""),
-                    os.environ.get(
-                        vcs.getdotdirectory()[1],
-                        vcs.getdotdirectory()[0]),
-                    "data_continent_%s" % nms[
-                        value - 1])
-                if not os.path.exists(self._continents):
-                        # fallback on installed with system one
-                    self._continents = os.path.join(
-                        vcs.prefix,
-                        "share",
-                        "vcs",
-                        "data_continent_%s" % nms[
-                            value - 1])
-            else:
-                raise Exception(
-                    "Error continents value must be file or int < 12")
-        elif isinstance(value, str):
-            self._continents = value
-        else:
-            self._continents = None
-        if self._continents is not None and not os.path.exists(
-                self._continents):
+        continent_path = VCS_validation_functions.checkContinents(self, value)
+        self._continents = value
+        if continent_path is not None and not os.path.exists(
+                continent_path):
             warnings.warn(
-                "Continents file not found: %s, substituing with coarse continents" %
-                self._continents)
-            self._continents = os.path.join(
-                os.environ.get(
-                    "HOME",
-                    ""),
-                os.environ.get(
-                    vcs.getdotdirectory()[1],
-                    vcs.getdotdirectory()[0]),
-                "data_continent_coarse")
-            if not os.path.exists(self._continent):
-                self._continents = os.path.join(
-                    vcs.prefix,
-                    "share",
-                    "vcs",
-                    "data_continent_coarse")
+                "Continents file not found: %s, substituing with fine continents" %
+                continent_path)
+            self._continents = 1
             return
+
+    def _continentspath(self):
+        try:
+            path = VCS_validation_functions.checkContinents(self, self._continents)
+            if path is None and self._continents != 0:
+                return VCS_validation_functions.checkContinents(self, 1)
+            else:
+                return path
+        except:
+            return VCS_validation_functions.checkContinents(self, 1)
 
     ##########################################################################
     #                                                                           #

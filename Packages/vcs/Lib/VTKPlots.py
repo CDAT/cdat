@@ -29,7 +29,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
 
 class VTKVCSBackend(object):
 
-    def __init__(self, canvas, renWin=None, debug=False, bg=None):
+    def __init__(self, canvas, renWin=None, debug=False, bg=None, geometry=None):
         self._lastSize = None
         self.canvas = canvas
         self.renWin = renWin
@@ -57,6 +57,7 @@ class VTKVCSBackend(object):
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
         self._rasterPropsInVectorFormats = False
+        self._initialGeometry = geometry
 
         if renWin is not None:
             self.renWin = renWin
@@ -234,10 +235,14 @@ class VTKVCSBackend(object):
             parg.append(d.g_type)
             parg.append(d.g_name)
             plots_args.append(parg)
+            kwarg = {}
             if d.ratio is not None:
-                key_args.append({"ratio": d.ratio})
-            else:
-                key_args.append({})
+                kwarg["ratio"] = d.ratio
+
+            kwarg["continents"] = d.continents
+            kwarg["continents_line"] = d.continents_line
+
+            key_args.append(kwarg)
 
         # Have to pull out the UI layer so it doesn't get borked by the clear
         self.hideGUI()
@@ -317,8 +322,16 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            width = kargs.get("width", None)
-            height = kargs.get("height", None)
+            if self._initialGeometry is not None:
+                width = self._initialGeometry["width"]
+                height = self._initialGeometry["height"]
+            else:
+                width = None
+                height = None
+            if "width" in kargs and kargs["width"] is not None:
+                width = kargs["width"]
+            if "height" in kargs and kargs["height"] is not None:
+                height = kargs["height"]
             self.initialSize(width, height)
 
         if self.renderer is None:
@@ -326,6 +339,8 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+        if self.bg:
+            self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
             self.renWin.Render()
 
@@ -491,6 +506,8 @@ class VTKVCSBackend(object):
             tt = vcs.elements["texttable"][tt]
             to = vcs.elements["textorientation"][to]
             gm = tt
+        elif gtype in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+            gm = vcs.elements["1d"][gname]
         else:
             gm = vcs.elements[gtype][gname]
         tpl = vcs.elements["template"][template]
@@ -659,15 +676,15 @@ class VTKVCSBackend(object):
                 plot.onClosing(cell)
 
     def plotContinents(self, x1, x2, y1, y2, projection, wrap, tmpl):
-        contData = vcs2vtk.prepContinents(self.canvas._continents)
+        contData = vcs2vtk.prepContinents(self.canvas._continentspath())
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
         contActor.SetMapper(contMapper)
-        contActor.GetProperty().SetColor(0., 0., 0.)
         contActor = vcs2vtk.doWrap(
             contActor, [
                 x1, x2, y1, y2], wrap, fastClip=False)
+
         if projection.type != "linear":
             contData = contActor.GetMapper().GetInput()
             cpts = contData.GetPoints()
@@ -677,9 +694,35 @@ class VTKVCSBackend(object):
             contMapper.SetInputData(contData)
             contActor = vtk.vtkActor()
             contActor.SetMapper(contMapper)
-            contActor.GetProperty().SetColor(0., 0., 0.)
         else:
             geo = None
+
+        contLine = self.canvas.getcontinentsline()
+        line_prop = contActor.GetProperty()
+
+        # Width
+        line_prop.SetLineWidth(contLine.width[0])
+
+        # Color
+        if contLine.colormap:
+            cmap = vcs.getcolormap(contLine.colormap)
+        else:
+            cmap = self.canvas.getcolormap()
+
+        if type(contLine.color[0]) in (float, int):
+            c_index = int(contLine.color[0])
+            color = cmap.index[c_index]
+        else:
+            color = contLine.color[0]
+
+        color = [c / 100. for c in color]
+
+        line_prop.SetColor(*color[:3])
+        if len(color) == 4:
+            line_prop.SetOpacity(color[3])
+
+        # Stippling
+        vcs2vtk.stippleLine(line_prop, contLine.type[0])
 
         self.fitToViewport(contActor,
                            [tmpl.data.x1, tmpl.data.x2,
@@ -1040,6 +1083,10 @@ class VTKVCSBackend(object):
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
+        # add text chunks to the writer
+        m = args.get('metadata', {})
+        for k, v in m.iteritems():
+            writer.AddText(k, v)
         writer.Write()
         if user_dims is not None:
             self.canvas.bgX, self.canvas.bgY, w, h = user_dims
@@ -1176,17 +1223,17 @@ class VTKVCSBackend(object):
                 pt = vtk.vtkPoints()
                 Xrg2 = [1.e20, -1.e20]
                 Yrg2 = [1.e20, -1.e20]
-                if geo.GetDestinationProjection().GetName() in ["aeqd", ]:
+                if geo.GetDestinationProjection().GetName() in ["aeqd", "robin", "moll"]:
                     # These need more precision to compute actual range
                     Npts = 250
                 else:
                     Npts = 50
                 NGridCover = 0
                 pt.SetNumberOfPoints(Npts * Npts)
-                for x in numpy.arange(
-                        Xrg[0], Xrg[1], (Xrg[1] - Xrg[0]) / Npts):
-                    for y in numpy.arange(
-                            Yrg[0], Yrg[1], (Yrg[1] - Yrg[0]) / Npts):
+                for x in numpy.linspace(
+                        Xrg[0], Xrg[1], Npts, endpoint=True):
+                    for y in numpy.linspace(
+                            Yrg[0], Yrg[1], Npts, endpoint=True):
                         pt.InsertPoint(NGridCover, x, y, 0)
                         NGridCover += 1
                 pts = vtk.vtkPoints()
@@ -1319,6 +1366,10 @@ class VTKVCSBackend(object):
                 vg.GetPointData().AddArray(w)
                 ports[0].SetInputData(vg)
 
+            projection = None
+            if "vtk_backend_geo" in vtkobjects:
+                projection = vtkobjects["vtk_backend_geo"]
+
             if "vtk_backend_actors" in vtkobjects:
                 i = 0
                 for a in vtkobjects["vtk_backend_actors"]:
@@ -1352,7 +1403,7 @@ class VTKVCSBackend(object):
                                     stripper.GetOutputPort())
                                 stripper.Update()
                                 tprops = vtkobjects[
-                                    "vtk_backend_contours_labels_text_properties"]
+                                    "vtk_backend_contours_labels_text_properties"][i]
                                 mapper.GetPolyDataMapper().SetLookupTable(lut)
                                 mapper.GetPolyDataMapper(
                                 ).SetScalarModeToUsePointData()
@@ -1365,8 +1416,9 @@ class VTKVCSBackend(object):
                                 mapper.SetScalarModeToUseCellData()
                             mapper.SetScalarRange(rg[0], rg[1])
                     act.SetMapper(mapper)
-                    act = vcs2vtk.doWrap(a[0], wrp)
-                    a[0].SetMapper(act.GetMapper())
+                    if not projection:
+                        # Wrap only if the data is not projected
+                        act = vcs2vtk.doWrap(a[0], wrp)
                     i += 1
 
         taxis = array1.getTime()
