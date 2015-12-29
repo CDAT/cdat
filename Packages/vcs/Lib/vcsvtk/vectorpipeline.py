@@ -159,20 +159,22 @@ class VectorPipeline(Pipeline):
 
         act = vcs2vtk.doWrap(act, wc, self._dataWrapModulo)
 
-        self._context().fitToViewport(act, [tmpl.data.x1, tmpl.data.x2,
+        self._context().fitToViewportBounds(act, [tmpl.data.x1, tmpl.data.x2,
                                             tmpl.data.y1, tmpl.data.y2],
-                                      wc=wc,
-                                      priority=tmpl.data.priority,
-                                      create_renderer=True)
+                                            wc=wc,
+                                            priority=tmpl.data.priority,
+                                            create_renderer=True)
 
         returned.update(self._context().renderTemplate(tmpl, data1,
-                                                       self._gm, taxis, zaxis))
+                                                       self._gm, taxis, zaxis,
+                                                       vtk_backend_grid=returned["vtk_backend_grid"]))
 
         if self._context().canvas._continents is None:
             continents = False
         if continents:
             self._context().plotContinents(x1, x2, y1, y2, projection,
-                                           self._dataWrapModulo, tmpl)
+                                           self._dataWrapModulo, tmpl,
+                                           vtk_backend_grid=returned["vtk_backend_grid"])
 
         returned["vtk_backend_actors"] = [[act, [x1, x2, y1, y2]]]
         returned["vtk_backend_glyphfilters"] = [glyphFilter]
