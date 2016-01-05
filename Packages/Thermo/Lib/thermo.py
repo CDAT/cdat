@@ -1121,10 +1121,6 @@ class Gth(object):
         if self.drawisothermsfilled:
             self.displays.append(self.x.plot(T, isotemplate, self.isothermsfilled, bg=bg))
         if self.drawisotherms:
-            print "************"
-            self.isotherms.list()
-            print "************"
-
             self.displays.append(self.x.plot(T, isotemplate, self.isotherms, bg=bg))
         if self.drawisobars:
             self.displays.append(self.x.plot(P, isotemplate, self.isobars, bg=bg))
