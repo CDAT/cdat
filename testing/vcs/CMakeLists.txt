@@ -754,6 +754,12 @@ cdat_add_test(vcs_test_taylor_2_quads
         )
     ENDFOREACH(flip)
 
+    cdat_add_test(vcs_test_lambert
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lambert.py
+      "${BASELINE_DIR}/test_vcs_lambert.png"
+      )
+
     cdat_add_test(vcs_test_boxfill_lev1_lev2_ta_missing
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
