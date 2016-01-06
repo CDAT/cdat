@@ -3741,7 +3741,7 @@ Options:::
                 if not keyargs.get("donotstoredisplay", False):
                     nm, src = self.check_name_source(
                         None, "default", "display")
-                    dn = displayplot.Dp(nm)
+                    dn = displayplot.Dp(nm, parent=self)
                     dn.template = arglist[2]
                     dn.g_type = arglist[3]
                     dn.g_name = arglist[4]
