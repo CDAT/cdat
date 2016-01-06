@@ -2049,7 +2049,7 @@ class P(object):
         self.data._x2 = t.data._x2
         self.data._y1 = t.data._y1
         self.data._y2 = t.data._y2
-    # print odx,ndx
+
         if odx != ndx:
             self.data._x1 = max(0, min(1, self.data.x1 + (odx - ndx) / 2.))
             self.data._x2 = max(0, min(1, self.data.x2 + (odx - ndx) / 2.))
@@ -2058,6 +2058,13 @@ class P(object):
             self.data._y2 = max(0, min(1, self.data.y2 + (ody - ndy) / 2.))
 
         if box_and_ticks:
+            # Used to calculate label positions
+            x_scale = ndx / float(odx)
+            y_scale = ndy / float(ody)
+
+            x_label_name_diff = self.xlabel1.y - self.xname.y
+            y_label_name_diff = self.ylabel1.x - self.yname.x
+
             # Box1 resize
             self.box1._x1 = self.data._x1
             self.box1._x2 = self.data._x2
@@ -2103,6 +2110,10 @@ class P(object):
             # Ylabels
             self.ylabel1._x = max(0, min(1, self.ytic1._x1 + dX1))
             self.ylabel2._x = max(0, min(1, self.ytic2._x1 + dX2))
+
+            # Axis Names
+            self.xname.y = max(0, min(1, self.xlabel1._y - x_scale * x_label_name_diff))
+            self.yname.x = max(0, min(1, self.ylabel1._x - y_scale * y_label_name_diff))
             self.data._ratio = -Rwished
         else:
             self.data._ratio = Rwished
