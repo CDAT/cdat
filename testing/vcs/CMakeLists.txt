@@ -902,5 +902,12 @@ cdat_add_test(vcs_test_init_open_sizing
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py
 )
 
+cdat_add_test(vcs_test_autot_axis_titles
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_autot_axis_titles.py
+  ${BASELINE_DIR}/test_autot_axis_titles_yname.png
+  ${BASELINE_DIR}/test_autot_axis_titles_xname.png
+)
+
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
