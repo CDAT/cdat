@@ -17,7 +17,7 @@ success = 0
 try:
     display._repr_png()
 except Exception as exc:
-    print "Convertion to base64 binary string failed.", exc
+    print "Conversion to base64 binary string failed.", exc
     success = 1
 
 sys.exit(success)
