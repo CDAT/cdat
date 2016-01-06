@@ -628,9 +628,25 @@ def project(pts, projection, wc, geo=None):
                     pd.SetCentralMeridian(xm + 180.)
             else:
                 setProjectionParameters(pd, projection)
-                if (not hasattr(projection, 'centralmeridian') or
+                if (hasattr(projection, 'centralmeridian') and
                         numpy.allclose(projection.centralmeridian, 1e+20)):
                     pd.SetCentralMeridian(float(xm + xM) / 2.0)
+                if (hasattr(projection, 'centerlongitude') and
+                        numpy.allclose(projection.centerlongitude, 1e+20)):
+                    pd.SetOptionalParameter("lon_0",str(float(xm + xM) / 2.0))
+                if (hasattr(projection, 'originlatitude') and
+                        numpy.allclose(projection.originlatitude, 1e+20)):
+                    pd.SetOptionalParameter("lat_0",str(float(ym + yM) / 2.0))
+                if (hasattr(projection, 'centerlatitude') and
+                        numpy.allclose(projection.centerlatitude, 1e+20)):
+                    pd.SetOptionalParameter("lat_0",str(float(ym + yM) / 2.0))
+                if (hasattr(projection,'standardparallel1') and
+                        numpy.allclose(projection.standardparallel1, 1.e20)):
+                    pd.SetOptionalParameter('lat_1',str(min(ym,yM)))
+                if (hasattr(projection,'standardparallel2') and
+                        numpy.allclose(projection.standardparallel2, 1.e20)):
+                    pd.SetOptionalParameter('lat_2',str(max(ym,yM)))
+
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
     geopts = vtk.vtkPoints()
