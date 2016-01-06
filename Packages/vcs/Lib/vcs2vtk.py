@@ -555,7 +555,7 @@ def prepContinents(fnm):
     return poly
 
 
-def apply_geo_parameters(pd,projection,xm,xM,ym,yM):
+def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     pname = projDict.get(projection._type, projection.type)
     projName = pname
     pd.SetName(projName)
@@ -606,7 +606,7 @@ def projectArray(w, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd,projection,xm,xM,ym,yM)
+        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
@@ -630,7 +630,7 @@ def project(pts, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd,projection,xm,xM,ym,yM)
+        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
