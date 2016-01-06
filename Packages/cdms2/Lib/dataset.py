@@ -966,7 +966,10 @@ class CdmsFile(CdmsObj, cuDataset):
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
-        self.uri="file://"+path
+        if "://" in path:
+            self.uri = path
+        else:
+            self.uri = "file://" + path
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
