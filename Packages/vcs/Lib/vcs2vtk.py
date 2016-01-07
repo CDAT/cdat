@@ -562,7 +562,7 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     if projection.type == 'aeqd':
         setProjectionParameters(pd, projection)
     else:
-        if not projection.type in no_over_proj4_parameter_projections:
+        if projection.type not in no_over_proj4_parameter_projections:
             pd.SetOptionalParameter("over", "true")
         if projection.type == "polar (non gctp)":
             if ym < yM:
