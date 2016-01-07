@@ -560,8 +560,6 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     projName = pname
     pd.SetName(projName)
     if projection.type == 'aeqd':
-        # this is a temporary branch to keep the same
-        # baselines
         setProjectionParameters(pd, projection)
     else:
         pd.SetOptionalParameter("over", "true")

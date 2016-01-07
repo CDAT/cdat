@@ -9,10 +9,6 @@ x.setbgoutputdimensions(1200,1090,units="pixels")
 iso = x.createisofill()
 p=x.createprojection()
 p.type="lambert"
-#p.centralmeridian = -80
-#p.originlatitude=40
-#p.standardparallel1 = 22
-#p.standardparallel2= 58
 
 iso.projection = p
 x.plot(s(latitude=(20, 60),longitude=(-140,-20)), iso, bg=True)
