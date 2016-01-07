@@ -564,6 +564,8 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     else:
         if projection.type not in no_over_proj4_parameter_projections:
             pd.SetOptionalParameter("over", "true")
+        else:
+            pd.SetOptionalParameter("over", "false")
         if projection.type == "polar (non gctp)":
             if ym < yM:
                 pd.SetOptionalParameter("lat_0", "-90.")
