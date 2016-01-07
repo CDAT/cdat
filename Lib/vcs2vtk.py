@@ -9,7 +9,7 @@ from vtk.util import numpy_support as VN
 import cdms2
 import warnings
 import cdtime
-from projection import round_projections
+from projection import round_projections, no_over_proj4_parameter_projections
 from vcsvtk import fillareautils
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
@@ -562,7 +562,8 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     if projection.type == 'aeqd':
         setProjectionParameters(pd, projection)
     else:
-        pd.SetOptionalParameter("over", "true")
+        if not projection.type in no_over_proj4_parameter_projections:
+            pd.SetOptionalParameter("over", "true")
         if projection.type == "polar (non gctp)":
             if ym < yM:
                 pd.SetOptionalParameter("lat_0", "-90.")
