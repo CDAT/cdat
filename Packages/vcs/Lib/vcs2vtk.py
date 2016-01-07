@@ -214,6 +214,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         vg = grid
     xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if geo is None:
+        print "projection ", projection
         geo, geopts = project(pts, projection, [xm, xM, ym, yM])
         pts = geopts
     # Sets the vertices into the grid
@@ -559,6 +560,7 @@ def projectArray(w, projection, wc, geo=None):
     xm, xM, ym, yM = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
+    print "projection ", projection
     if projection.type == "linear":
         return None, w
 
@@ -570,7 +572,7 @@ def projectArray(w, projection, wc, geo=None):
         pname = projDict.get(projection._type, projection.type)
         projName = pname
         pd.SetName(projName)
-        if projection.type == 'aeqd':
+        if projName == 'aeqd':
             # this is a temporary branch to keep the same
             # baselines
             setProjectionParameters(pd, projection)
@@ -613,6 +615,7 @@ def project(pts, projection, wc, geo=None):
         pname = projDict.get(projection._type, projection.type)
         projName = pname
         pd.SetName(projName)
+        print "projection ", projection
         if projection.type == 'aeqd':
             # this is a temporary branch to keep the same
             # baselines
