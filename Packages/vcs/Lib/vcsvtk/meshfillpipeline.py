@@ -219,17 +219,12 @@ class MeshfillPipeline(Pipeline2D):
                 actors.append([act, [x1, x2, y1, y2]])
 
         self._resultDict["vtk_backend_actors"] = actors
-
-        self._template.plot(self._context().canvas, self._data1, self._gm,
-                            bg=self._context().bg,
-                            X=numpy.arange(self._vtkDataSetBounds[0],
-                                           self._vtkDataSetBounds[1] * 1.1,
-                                           (self._vtkDataSetBounds[1] -
-                                            self._vtkDataSetBounds[0]) / 10.),
-                            Y=numpy.arange(self._vtkDataSetBounds[2],
-                                           self._vtkDataSetBounds[3] * 1.1,
-                                           (self._vtkDataSetBounds[3] -
-                                            self._vtkDataSetBounds[2]) / 10.))
+        t = self._originalData1.getTime()
+        if self._originalData1.ndim > 2:
+            z = self._originalData1.getAxis(-3)
+        else:
+            z = None
+        self._resultDict.update(self._context().renderTemplate(self._template, self._data1, self._gm, t, z))
 
         legend = getattr(self._gm, "legend", None)
 
