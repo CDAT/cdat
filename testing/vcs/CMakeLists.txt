@@ -744,7 +744,7 @@ cdat_add_test(test_vcs_set_colors_name_rgba_isofill
   ENDFOREACH(gm)
 
   FOREACH(gm isofill meshfill boxfill)
-    FOREACH(proj polar robinson mercator mollweide lambert)
+    FOREACH(proj polar robinson mercator mollweide)
       cdat_add_test(vcs_test_animate_projected_${gm}_${proj}
         "${PYTHON_EXECUTABLE}"
         "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
