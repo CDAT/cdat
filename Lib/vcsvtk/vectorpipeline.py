@@ -141,6 +141,7 @@ class VectorPipeline(Pipeline):
         data = glyphFilter.GetOutput()
 
         mapper.SetInputData(data)
+        mapper.ScalarVisibilityOff()
         act = vtk.vtkActor()
         act.SetMapper(mapper)
 
