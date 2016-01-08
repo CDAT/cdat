@@ -570,24 +570,22 @@ def projectArray(w, projection, wc, geo=None):
         pname = projDict.get(projection._type, projection.type)
         projName = pname
         pd.SetName(projName)
-        if projection.type == 'aeqd':
-            # this is a temporary branch to keep the same
-            # baselines
+        if (projection.type == 'aeqd' or
+                projection.type == 'polar stereographic'):
             setProjectionParameters(pd, projection)
+        elif projection.type == "polar (non gctp)":
+            if ym < yM:
+                pd.SetOptionalParameter("lat_0", "-90.")
+                pd.SetCentralMeridian(xm)
+            else:
+                pd.SetOptionalParameter("lat_0", "90.")
+                pd.SetCentralMeridian(xm + 180.)
         else:
             pd.SetOptionalParameter("over", "true")
-            if projection.type == "polar (non gctp)":
-                if ym < yM:
-                    pd.SetOptionalParameter("lat_0", "-90.")
-                    pd.SetCentralMeridian(xm)
-                else:
-                    pd.SetOptionalParameter("lat_0", "90.")
-                    pd.SetCentralMeridian(xm + 180.)
-            else:
-                setProjectionParameters(pd, projection)
-                if ((not hasattr(projection, 'centralmeridian') or
-                     numpy.allclose(projection.centralmeridian, 1e+20))):
-                    pd.SetCentralMeridian(float(xm + xM) / 2.0)
+            setProjectionParameters(pd, projection)
+            if ((not hasattr(projection, 'centralmeridian') or
+                 numpy.allclose(projection.centralmeridian, 1e+20))):
+                pd.SetCentralMeridian(float(xm + xM) / 2.0)
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
 
@@ -613,24 +611,22 @@ def project(pts, projection, wc, geo=None):
         pname = projDict.get(projection._type, projection.type)
         projName = pname
         pd.SetName(projName)
-        if projection.type == 'aeqd':
-            # this is a temporary branch to keep the same
-            # baselines
+        if (projection.type == 'aeqd' or
+                projection.type == 'polar stereographic'):
             setProjectionParameters(pd, projection)
+        elif projection.type == "polar (non gctp)":
+            if ym < yM:
+                pd.SetOptionalParameter("lat_0", "-90.")
+                pd.SetCentralMeridian(xm)
+            else:
+                pd.SetOptionalParameter("lat_0", "90.")
+                pd.SetCentralMeridian(xm + 180.)
         else:
             pd.SetOptionalParameter("over", "true")
-            if projection.type == "polar (non gctp)":
-                if ym < yM:
-                    pd.SetOptionalParameter("lat_0", "-90.")
-                    pd.SetCentralMeridian(xm)
-                else:
-                    pd.SetOptionalParameter("lat_0", "90.")
-                    pd.SetCentralMeridian(xm + 180.)
-            else:
-                setProjectionParameters(pd, projection)
-                if (not hasattr(projection, 'centralmeridian') or
-                        numpy.allclose(projection.centralmeridian, 1e+20)):
-                    pd.SetCentralMeridian(float(xm + xM) / 2.0)
+            setProjectionParameters(pd, projection)
+            if (not hasattr(projection, 'centralmeridian') or
+                    numpy.allclose(projection.centralmeridian, 1e+20)):
+                pd.SetCentralMeridian(float(xm + xM) / 2.0)
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
     geopts = vtk.vtkPoints()
