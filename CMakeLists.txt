@@ -462,6 +462,7 @@ include(pep8_pkg)
 include(mccabe_pkg)
 include(flake8_pkg)
 include(g2clib_pkg)
+include(proj4_pkg)
 include(gdal_pkg)
 include(geos_pkg)
 include(gsw_pkg)
@@ -674,6 +675,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/proj4/lib "
   "Externals/lib64 "
   "lib "
 )

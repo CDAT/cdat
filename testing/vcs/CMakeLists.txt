@@ -744,7 +744,7 @@ cdat_add_test(test_vcs_set_colors_name_rgba_isofill
   ENDFOREACH(gm)
 
   FOREACH(gm isofill meshfill boxfill)
-    FOREACH(proj polar robinson mercator mollweide lambert)
+    FOREACH(proj polar robinson mercator mollweide)
       cdat_add_test(vcs_test_animate_projected_${gm}_${proj}
         "${PYTHON_EXECUTABLE}"
         "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
@@ -764,10 +764,16 @@ cdat_add_test(test_vcs_set_colors_name_rgba_isofill
       )
   ENDFOREACH(flip)
 
+  cdat_add_test(vcs_test_lambert
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lambert.py
+     "${BASELINE_DIR}/test_vcs_lambert.png"
+    )
+
   cdat_add_test(vcs_test_boxfill_lev1_lev2_ta_missing
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
-    "${BASELINE_DIR}/test_boxfill_lev1_lev2_ta_missing.png"
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
+     "${BASELINE_DIR}/test_boxfill_lev1_lev2_ta_missing.png"
     )
 
   cdat_add_test(vcs_test_close

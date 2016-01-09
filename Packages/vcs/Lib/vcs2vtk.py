@@ -9,7 +9,7 @@ from vtk.util import numpy_support as VN
 import cdms2
 import warnings
 import cdtime
-from projection import round_projections
+from projection import round_projections, no_over_proj4_parameter_projections
 from vcsvtk import fillareautils
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
@@ -555,6 +555,40 @@ def prepContinents(fnm):
     return poly
 
 
+def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
+    pname = projDict.get(projection._type, projection.type)
+    projName = pname
+    pd.SetName(projName)
+    pd.SetOptionalParameter("over", "true")
+    if projection.type == "polar (non gctp)":
+        if ym < yM:
+            pd.SetOptionalParameter("lat_0", "-90.")
+            pd.SetCentralMeridian(xm)
+        else:
+            pd.SetOptionalParameter("lat_0", "90.")
+            pd.SetCentralMeridian(xm + 180.)
+    else:
+        setProjectionParameters(pd, projection)
+        if (hasattr(projection, 'centralmeridian') and
+                numpy.allclose(projection.centralmeridian, 1e+20)):
+            pd.SetCentralMeridian(float(xm + xM) / 2.0)
+        if (hasattr(projection, 'centerlongitude') and
+                numpy.allclose(projection.centerlongitude, 1e+20)):
+            pd.SetOptionalParameter("lon_0", str(float(xm + xM) / 2.0))
+        if (hasattr(projection, 'originlatitude') and
+                numpy.allclose(projection.originlatitude, 1e+20)):
+            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+        if (hasattr(projection, 'centerlatitude') and
+                numpy.allclose(projection.centerlatitude, 1e+20)):
+            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+        if (hasattr(projection, 'standardparallel1') and
+                numpy.allclose(projection.standardparallel1, 1.e20)):
+            pd.SetOptionalParameter('lat_1', str(min(ym, yM)))
+        if (hasattr(projection, 'standardparallel2') and
+                numpy.allclose(projection.standardparallel2, 1.e20)):
+            pd.SetOptionalParameter('lat_2', str(max(ym, yM)))
+
+
 def projectArray(w, projection, wc, geo=None):
     xm, xM, ym, yM = wc
     if isinstance(projection, (str, unicode)):
@@ -567,27 +601,8 @@ def projectArray(w, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        pname = projDict.get(projection._type, projection.type)
-        projName = pname
-        pd.SetName(projName)
-        if projection.type == 'aeqd':
-            # this is a temporary branch to keep the same
-            # baselines
-            setProjectionParameters(pd, projection)
-        else:
-            pd.SetOptionalParameter("over", "true")
-            if projection.type == "polar (non gctp)":
-                if ym < yM:
-                    pd.SetOptionalParameter("lat_0", "-90.")
-                    pd.SetCentralMeridian(xm)
-                else:
-                    pd.SetOptionalParameter("lat_0", "90.")
-                    pd.SetCentralMeridian(xm + 180.)
-            else:
-                setProjectionParameters(pd, projection)
-                if ((not hasattr(projection, 'centralmeridian') or
-                     numpy.allclose(projection.centralmeridian, 1e+20))):
-                    pd.SetCentralMeridian(float(xm + xM) / 2.0)
+        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
 
@@ -610,27 +625,8 @@ def project(pts, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        pname = projDict.get(projection._type, projection.type)
-        projName = pname
-        pd.SetName(projName)
-        if projection.type == 'aeqd':
-            # this is a temporary branch to keep the same
-            # baselines
-            setProjectionParameters(pd, projection)
-        else:
-            pd.SetOptionalParameter("over", "true")
-            if projection.type == "polar (non gctp)":
-                if ym < yM:
-                    pd.SetOptionalParameter("lat_0", "-90.")
-                    pd.SetCentralMeridian(xm)
-                else:
-                    pd.SetOptionalParameter("lat_0", "90.")
-                    pd.SetCentralMeridian(xm + 180.)
-            else:
-                setProjectionParameters(pd, projection)
-                if (not hasattr(projection, 'centralmeridian') or
-                        numpy.allclose(projection.centralmeridian, 1e+20)):
-                    pd.SetCentralMeridian(float(xm + xM) / 2.0)
+        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
     geopts = vtk.vtkPoints()
@@ -964,7 +960,7 @@ def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
 
 # def doClip1(data,value,normal,axis=0):
 #     return data
-#     # We have the actor, do clipping
+# We have the actor, do clipping
 #     clpf = vtk.vtkPlane()
 #     if axis == 0:
 #       clpf.SetOrigin(value,0,0)
