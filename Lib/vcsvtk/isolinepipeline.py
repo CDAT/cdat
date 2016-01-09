@@ -288,10 +288,11 @@ class IsolinePipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
+            self._context().fitToViewportBounds(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
 
@@ -320,10 +321,11 @@ class IsolinePipeline(Pipeline2D):
             actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
+            self._context().fitToViewportBounds(
                 act, [self._template.data.x1, self._template.data.x2,
                       self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
 
@@ -337,7 +339,8 @@ class IsolinePipeline(Pipeline2D):
 
         self._resultDict.update(self._context().renderTemplate(self._template,
                                                                self._data1,
-                                                               self._gm, t, z))
+                                                               self._gm, t, z,
+                                                               vtk_backend_grid=self._vtkDataSet))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
@@ -345,4 +348,5 @@ class IsolinePipeline(Pipeline2D):
             projection = vcs.elements["projection"][self._gm.projection]
             self._context().plotContinents(x1, x2, y1, y2, projection,
                                            self._dataWrapModulo,
-                                           self._template)
+                                           self._template,
+                                           vtk_backend_grid=self._vtkDataSet)
