@@ -143,7 +143,7 @@ print "fnm:",fnm
 print "src:",src
 if args.show:
     raw_input("Press Enter")
-ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
+ret = checkimage.check_result_image(fnm+'.png',src,20., cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)
