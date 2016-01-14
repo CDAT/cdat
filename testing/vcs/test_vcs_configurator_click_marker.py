@@ -2,7 +2,8 @@ import vcs
 import sys
 
 x = vcs.init()
-
+x.bgX = 800
+x.bgY = 606
 m = x.createmarker()
 m.x = .1,
 m.y = .1,

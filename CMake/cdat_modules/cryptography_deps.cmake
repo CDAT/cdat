@@ -1,1 +1,1 @@
-set(CRYPTOGRAPHY_deps ${python_pkg} ${pip_pkg} ${cffi_pkg})
+set(CRYPTOGRAPHY_deps ${python_pkg} ${pip_pkg} ${cffi_pkg} ${openssl_pkg})

@@ -2,7 +2,8 @@ import vcs
 import sys
 
 x = vcs.init()
-
+x.bgX = 800
+x.bgY = 606
 t = x.createtext()
 t.string = "test string"
 t.x = .1
