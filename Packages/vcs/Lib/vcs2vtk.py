@@ -272,6 +272,28 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
     return out
 
 
+# Returns the bounds list for 'axis'. If axis has n elements the
+# bounds list will have n+1 elements
+def getBoundsList(axis):
+    bounds = numpy.zeros(len(axis) + 1)
+    try:
+        axisBounds = axis.getBounds()
+        if (axis[0] < axis[-1]):
+            # axis is increasing
+            bounds[:len(axis)] = axisBounds[:, 0]
+            bounds[len(axis)] = axisBounds[-1, 1]
+        else:
+            # axis is decreasing
+            bounds[:len(axis)] = axisBounds[:, 1]
+            bounds[len(axis)] = axisBounds[-1, 0]
+    except Exception:
+        # No luck we have to generate bounds ourselves
+        bounds[1:-1] = (axis[:-1] + axis[1:]) / 2.
+        bounds[0] = axis[0] - (axis[1] - axis[0]) / 2.
+        bounds[-1] = axis[-1] + (axis[-1] - axis[-2]) / 2.
+    return bounds
+
+
 def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     continents = False
     wrap = None
@@ -362,44 +384,16 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
             elif grid is None:
                 lon = data1.getAxis(-1)
                 lat = data1.getAxis(-2)
-                xm = lon[0]
-                xM = lon[-1]
-                ym = lat[0]
-                yM = lat[-1]
-                lat2 = numpy.zeros(len(lat) + 1)
-                lon2 = numpy.zeros(len(lon) + 1)
                 # Ok let's try to get the bounds
-                try:
-                    blat = lat.getBounds()
-                    blon = lon.getBounds()
-                    if (lat[0] < lat[-1]):
-                        # latitude is increasing
-                        lat2[:len(lat)] = blat[:, 0]
-                        lat2[len(lat)] = blat[-1, 1]
-                    else:
-                        # latitude is decreasing
-                        lat2[:len(lat)] = blat[:, 1]
-                        lat2[len(lat)] = blat[-1, 0]
-                    if (lon[0] < lon[-1]):
-                        # longitude is incresing
-                        lon2[:len(lon)] = blon[:, 0]
-                        lon2[len(lon)] = blon[-1, 1]
-                    else:
-                        # longitude is decreasing
-                        lon2[:len(lon)] = blon[:, 1]
-                        lon2[len(lon)] = blon[-1, 0]
-                    xm = blon[0][0]
-                    xM = blon[-1][1]
-                    ym = blat[0][0]
-                    yM = blat[-1][1]
-                except Exception:
-                    # No luck we have to generate bounds ourselves
-                    lat2[1:-1] = (lat[:-1] + lat[1:]) / 2.
-                    lat2[0] = lat[0] - (lat[1] - lat[0]) / 2.
-                    lat2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
-                    lon2[1:-1] = (lon[:-1] + lon[1:]) / 2.
-                    lon2[0] = lon[0] - (lon[1] - lon[0]) / 2.
-                    lon2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
+                lon2 = getBoundsList(lon)
+                lat2 = getBoundsList(lat)
+                # Note that m,M is min,max for an increasing list
+                # and max,min for a decreasing list
+                xm = lon2[0]
+                xM = lon2[-1]
+                ym = lat2[0]
+                yM = lat2[-1]
+
                 lat = lat2[:, numpy.newaxis] * \
                     numpy.ones(lon2.shape)[numpy.newaxis, :]
                 lon = lon2[numpy.newaxis,
@@ -410,32 +404,15 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
             data1 = cdms2.asVariable(data1)
             lon = data1.getAxis(-1)
             lat = data1.getAxis(-2)
-            xm = lon[0]
-            xM = lon[-1]
-            ym = lat[0]
-            yM = lat[-1]
-            lat2 = numpy.zeros(len(lat) + 1)
-            lon2 = numpy.zeros(len(lon) + 1)
             # Ok let's try to get the bounds
-            try:
-                blat = lat.getBounds()
-                blon = lon.GetBounds()
-                lat2[:len(lat)] = blat[:][0]
-                lat2[len(lat2)] = blat[-1][1]
-                lon2[:len(lon)] = blon[:][0]
-                lon2[len(lon2)] = blon[-1][1]
-                xm = blon[0][0]
-                xM = blon[-1][1]
-                ym = blat[0][0]
-                yM = blat[-1][1]
-            except:
-                # No luck we have to generate bounds ourselves
-                lat2[1:-1] = (lat[:-1] + lat[1:]) / 2.
-                lat2[0] = lat[0] - (lat[1] - lat[0]) / 2.
-                lat2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
-                lon2[1:-1] = (lon[:-1] + lon[1:]) / 2.
-                lon2[0] = lon[0] - (lon[1] - lon[0]) / 2.
-                lon2[-1] = lon[-1] + (lon[-1] - lon[-2]) / 2.
+            lon2 = getBoundsList(lon)
+            lat2 = getBoundsList(lat)
+            # Note that m,M is min,max for an increasing list
+            # and max,min for a decreasing list
+            xm = lon2[0]
+            xM = lon2[-1]
+            ym = lat2[0]
+            yM = lat2[-1]
             lat = lat2[:, numpy.newaxis] * \
                 numpy.ones(lon2.shape)[numpy.newaxis, :]
             lon = lon2[numpy.newaxis, :] * \
