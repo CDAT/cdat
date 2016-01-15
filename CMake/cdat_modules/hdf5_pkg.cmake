@@ -1,9 +1,9 @@
 set(HDF5_MAJOR_SRC 1)
 set(HDF5_MINOR_SRC 8)
-set(HDF5_PATCH_SRC 15)
+set(HDF5_PATCH_SRC 16)
 set(HDF5_URL ${LLNL_URL})
 set(HDF5_GZ hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz)
-set(HDF5_MD5 03cccb5b33dbe975fdcd8ae9dc021f24 )
+set(HDF5_MD5 b8ed9a36ae142317f88b0c7ef4b9c618)
 
 set (nm HDF5)
 string(TOUPPER ${nm} uc_nm)
