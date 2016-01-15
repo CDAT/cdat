@@ -977,6 +977,7 @@ class Canvas(object):
 
         self.configurator = None
         self.setcontinentsline("default")
+        self.setcontinentstype(1)
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
