@@ -801,7 +801,7 @@ class Canvas(object):
         if contout is None:
             if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
                     and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
-                contout = 1
+                contout = self.getcontinentstype()
             else:
                 contout = 0
 
@@ -5353,7 +5353,8 @@ Options:::
                 return VCS_validation_functions.checkContinents(self, 1)
             else:
                 return path
-        except:
+        except Exception as e:
+            print "Returning continents 1"
             return VCS_validation_functions.checkContinents(self, 1)
 
     ##########################################################################
