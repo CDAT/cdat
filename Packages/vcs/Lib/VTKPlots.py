@@ -559,12 +559,14 @@ class VTKVCSBackend(object):
                                           cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
                 create_renderer = True
+                # bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
                         geo=geo,
+                        # geoBounds=bounds,
                         priority=gm.priority,
                         create_renderer=create_renderer)
                     create_renderer = False
@@ -575,11 +577,12 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_marker_actors"] = actors
                 create_renderer = True
                 for g, gs, pd, act, geo in actors:
-                    ren = self.fitToViewport(
+                    ren = self.fitToViewportBounds(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
-                        geo=geo,
+                        geoBounds=None,
+                        geo=None,
                         priority=gm.priority,
                         create_renderer=create_renderer)
                     create_renderer = False
@@ -593,11 +596,12 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_fillarea_actors"] = actors
                 create_renderer = True
                 for act, geo in actors:
-                    ren = self.fitToViewport(
+                    ren = self.fitToViewportBounds(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
-                        geo=geo,
+                        geoBounds=None,
+                        geo=None,
                         priority=gm.priority,
                         create_renderer=create_renderer)
                     create_renderer = False
@@ -675,7 +679,7 @@ class VTKVCSBackend(object):
             if hasattr(plot, 'onClosing'):
                 plot.onClosing(cell)
 
-    def plotContinents(self, x1, x2, y1, y2, projection, wrap, tmpl):
+    def plotContinents(self, x1, x2, y1, y2, projection, wrap, tmpl, **kargs):
         contData = vcs2vtk.prepContinents(self.canvas._continentspath())
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
@@ -723,19 +727,21 @@ class VTKVCSBackend(object):
 
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])
-
+        # vtk_backend_grid = kargs.get("vtk_backend_grid", None)
         self.fitToViewport(contActor,
                            [tmpl.data.x1, tmpl.data.x2,
                             tmpl.data.y1, tmpl.data.y2],
                            wc=[x1, x2, y1, y2], geo=geo,
+                           # geoBounds=vtk_backend_grid.GetBounds(),
                            priority=tmpl.data.priority,
                            create_renderer=True)
         return {}
 
-    def renderTemplate(self, tmpl, data, gm, taxis, zaxis):
+    def renderTemplate(self, tmpl, data, gm, taxis, zaxis, **kargs):
         # ok first basic template stuff, let's store the displays
         # because we need to return actors for min/max/mean
-        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg)
+        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg,
+                             vtk_backend_grid=kargs.get("vtk_backend_grid"))
         returned = {}
         for d in displays:
             if d is None:
@@ -1176,6 +1182,133 @@ class VTKVCSBackend(object):
                 self.setLayer(self.logoRenderer, 1)
                 self.renWin.AddRenderer(self.logoRenderer)
 
+    def fitToViewportBounds(self, Actor, vp, wc=None, geoBounds=None, geo=None, priority=None,
+                            create_renderer=False):
+
+        # Data range in World Coordinates
+        if priority == 0:
+            return None
+        vp = tuple(vp)
+        if wc is None:
+            Xrg = list(Actor.GetXRange())
+            Yrg = list(Actor.GetYRange())
+        else:
+            Xrg = [float(wc[0]), float(wc[1])]
+            Yrg = [float(wc[2]), float(wc[3])]
+
+        wc_used = (float(Xrg[0]), float(Xrg[1]), float(Yrg[0]), float(Yrg[1]))
+        sc = self.renWin.GetSize()
+
+        # Ok at this point this is all the info we need
+        # we can determine if it's a unique renderer or not
+        # let's see if we did this already.
+        if not create_renderer and\
+                (vp, wc_used, sc, priority) in self._renderers.keys():
+            # yep already have one, we will use this Renderer
+            Renderer, xScale, yScale = self._renderers[
+                (vp, wc_used, sc, priority)]
+        else:
+            Renderer = self.createRenderer()
+            self.renWin.AddRenderer(Renderer)
+            Renderer.SetViewport(vp[0], vp[2], vp[1], vp[3])
+
+            if Yrg[0] > Yrg[1]:
+                # Yrg=[Yrg[1],Yrg[0]]
+                # T.RotateY(180)
+                Yrg = [Yrg[1], Yrg[0]]
+                flipY = True
+            else:
+                flipY = False
+            if Xrg[0] > Xrg[1]:
+                Xrg = [Xrg[1], Xrg[0]]
+                flipX = True
+            else:
+                flipX = False
+
+            if geo is not None and geoBounds is not None:
+                Xrg = geoBounds[0:2]
+                Yrg = geoBounds[2:4]
+
+            wRatio = float(sc[0]) / float(sc[1])
+            dRatio = (Xrg[1] - Xrg[0]) / (Yrg[1] - Yrg[0])
+            vRatio = float(vp[1] - vp[0]) / float(vp[3] - vp[2])
+
+            if wRatio > 1.:  # landscape orientated window
+                yScale = 1.
+                xScale = vRatio * wRatio / dRatio
+            else:
+                xScale = 1.
+                yScale = dRatio / (vRatio * wRatio)
+            self.setLayer(Renderer, priority)
+            self._renderers[
+                (vp, wc_used, sc, priority)] = Renderer, xScale, yScale
+
+            xc = xScale * float(Xrg[1] + Xrg[0]) / 2.
+            yc = yScale * float(Yrg[1] + Yrg[0]) / 2.
+            yd = yScale * float(Yrg[1] - Yrg[0]) / 2.
+            cam = Renderer.GetActiveCamera()
+            cam.ParallelProjectionOn()
+            cam.SetParallelScale(yd)
+            cd = cam.GetDistance()
+            cam.SetPosition(xc, yc, cd)
+            cam.SetFocalPoint(xc, yc, 0.)
+            if geo is None:
+                if flipY:
+                    cam.Elevation(180.)
+                    cam.Roll(180.)
+                    pass
+                if flipX:
+                    cam.Azimuth(180.)
+
+        T = vtk.vtkTransform()
+        T.Scale(xScale, yScale, 1.)
+
+        Actor.SetUserTransform(T)
+
+        mapper = Actor.GetMapper()
+        planeCollection = mapper.GetClippingPlanes()
+
+        # We have to transform the hardware clip planes as well
+        if (planeCollection is not None):
+            planeCollection.InitTraversal()
+            plane = planeCollection.GetNextItem()
+            while (plane):
+                origin = plane.GetOrigin()
+                inOrigin = [origin[0], origin[1], origin[2], 1.0]
+                outOrigin = [origin[0], origin[1], origin[2], 1.0]
+
+                normal = plane.GetNormal()
+                inNormal = [normal[0], normal[1], normal[2], 0.0]
+                outNormal = [normal[0], normal[1], normal[2], 0.0]
+
+                T.MultiplyPoint(inOrigin, outOrigin)
+                if (outOrigin[3] != 0.0):
+                    outOrigin[0] /= outOrigin[3]
+                    outOrigin[1] /= outOrigin[3]
+                    outOrigin[2] /= outOrigin[3]
+                plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
+
+                # For normal matrix, compute the transpose of inverse
+                normalTransform = vtk.vtkTransform()
+                normalTransform.DeepCopy(T)
+                mat = vtk.vtkMatrix4x4()
+                normalTransform.GetTranspose(mat)
+                normalTransform.GetInverse(mat)
+                normalTransform.SetMatrix(mat)
+                normalTransform.MultiplyPoint(inNormal, outNormal)
+                if (outNormal[3] != 0.0):
+                    outNormal[0] /= outNormal[3]
+                    outNormal[1] /= outNormal[3]
+                    outNormal[2] /= outNormal[3]
+                plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
+                plane = planeCollection.GetNextItem()
+
+        Renderer.AddActor(Actor)
+        return Renderer
+
+    # Deprecated: It is going to be removed in the future.
+    # This is the same as fitToViewportBounds but it also computes the
+    # geographic projection bounds using an array of points.
     def fitToViewport(self, Actor, vp, wc=None, geo=None, priority=None,
                       create_renderer=False):
 

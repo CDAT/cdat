@@ -866,9 +866,7 @@ class Canvas(object):
         vcs.next_canvas_id += 1
         self.colormap = None
         self.backgroundcolor = 255, 255, 255
-        # default size for bg
-        self.bgX = 814
-        self.bgY = 606
+
         # displays plotted
         self.display_names = []
         ospath = os.environ["PATH"]
@@ -955,6 +953,14 @@ class Canvas(object):
             else:
                 raise ValueError("geometry should be list, tuple, or dict")
             geometry = {"width": width, "height": height}
+
+        if geometry is not None and bg:
+            self.bgX = geometry["width"]
+            self.bgY = geometry["height"]
+        else:
+            # default size for bg
+            self.bgX = 814
+            self.bgY = 606
 
         if backend == "vtk":
             self.backend = VTKVCSBackend(self, geometry=geometry, bg=bg)
@@ -3741,7 +3747,7 @@ Options:::
                 if not keyargs.get("donotstoredisplay", False):
                     nm, src = self.check_name_source(
                         None, "default", "display")
-                    dn = displayplot.Dp(nm)
+                    dn = displayplot.Dp(nm, parent=self)
                     dn.template = arglist[2]
                     dn.g_type = arglist[3]
                     dn.g_name = arglist[4]
