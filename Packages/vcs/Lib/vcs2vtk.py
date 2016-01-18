@@ -601,7 +601,10 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
     projName = pname
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
-        if ym < yM:
+        minY = min(ym, yM)
+        maxY = max(ym, yM)
+        if ((minY + 90.0) <= (90.0 - maxY)):
+            # minY is closer to -90 than maxY to 90
             pd.SetOptionalParameter("lat_0", "-90.")
             pd.SetCentralMeridian(xm)
         else:
