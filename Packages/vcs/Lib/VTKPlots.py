@@ -378,23 +378,18 @@ class VTKVCSBackend(object):
 
     def canvasinfo(self):
         if self.renWin is None:
-            mapstate = False
-            height = self.canvas.bgY
-            width = self.canvas.bgX
-            depth = None
-            x = 0
-            y = 0
-        else:
-            try:  # mac but not linux
-                mapstate = self.renWin.GetWindowCreated()
-            except:
-                mapstate = True
-            width, height = self.renWin.GetSize()
-            depth = self.renWin.GetDepthBufferSize()
-            try:  # mac not linux
-                x, y = self.renWin.GetPosition()
-            except:
-                x, y = 0, 0
+            self.createRenWin(open=False)
+
+        try:  # mac but not linux
+            mapstate = self.renWin.GetWindowCreated()
+        except:
+            mapstate = True
+        width, height = self.renWin.GetSize()
+        depth = self.renWin.GetDepthBufferSize()
+        try:  # mac not linux
+            x, y = self.renWin.GetPosition()
+        except:
+            x, y = 0, 0
         info = {
             "mapstate": mapstate,
             "height": height,
