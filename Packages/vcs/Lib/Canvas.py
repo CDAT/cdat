@@ -5354,8 +5354,7 @@ Options:::
                 return VCS_validation_functions.checkContinents(self, 1)
             else:
                 return path
-        except Exception as e:
-            print "Returning continents 1"
+        except:
             return VCS_validation_functions.checkContinents(self, 1)
 
     ##########################################################################
