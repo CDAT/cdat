@@ -209,18 +209,11 @@ class Multi(object):
         self.spacing = Spacing(horizontal_spacing,vertical_spacing)
         self.legend  = Legend(direction=legend_direction,fat=legend_fat,thickness=legend_thickness,stretch=legend_stretch)
 
-        found=False
-	if x is not None:
-		self.x=x
-	else:
-          for obj in globals():
-            if isinstance(obj,vcs.Canvas.Canvas):
-                self.x=obj
-                found=True
-                break
-          if found is False:
-            self.x=vcs.init()
-            
+        if x is not None:
+            self.x = x
+        else:
+            self.x = vcs.init(bg=True)
+
         self.template_names = []
         self.template=template
 
@@ -343,7 +336,7 @@ class Multi(object):
         t.legend.y2=min(1,max(0,y2-(y2-y1)*(1.-dy)/2.))
         return t
 
-    def preview(self,out='EZTemplate_Multi',bg=1):
+    def preview(self,out='EZTemplate_Multi',bg=True):
         """ Draws the layout for your setup, return the vcs canvas on which this was drawn
         Usage
         canvas = Multi.preview(out='EZTemplate_Multi',bg=1)
