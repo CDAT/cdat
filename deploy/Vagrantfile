@@ -1,12 +1,42 @@
+require 'yaml'
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.provider "virtualbox" do |v|
-    v.memory = 4096
-    v.cpus = 2
+
+  defaults = {
+    "gui" => false,
+    "metrics" => true,
+    "memory" => 4096,
+    "cpus" => 2
+  }
+
+  # load user config
+  if File.exists?("config.yml")
+    uv = YAML.load_file("config.yml")
   end
-  config.vm.network "forwarded_port", guest: 80, host: 9080
+
+
+  # merge user config into defults
+  uv = defaults.merge(uv || {})
+
+  config.vm.box = "ubuntu/trusty64"
+  if uv["gui"]
+    config.vm.box = "box-cutter/ubuntu1404-desktop"
+  end
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = uv["memory"]
+    v.cpus = uv["cpus"]
+    if uv["gui"]
+      v.gui = true
+    end
+  end
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "ansible/provision.yml"
     ansible.verbose = "v"
+    ansible.extra_vars = {
+      gui: uv["gui"],
+      uvcmetrics: uv["metrics"],
+      cpus: uv["cpus"]
+    }
   end
 end

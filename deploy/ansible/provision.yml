@@ -11,7 +11,7 @@
       apt: update_cache=yes
       sudo: yes
 
-    - name: Install system packages
+    - name: Install base packages
       apt: name={{ item }} state=present
       sudo: yes
       with_items:
@@ -19,7 +19,7 @@
         - gfortran
         - g++
         - libffi-dev
-        - libsqlite-dev
+        - libsqlite3-dev
         - libssl-dev
         - libbz2-dev
         - libexpat-dev
@@ -31,6 +31,16 @@
         - libpng-dev
         - m4
         - cmake
+        - automake
+        - zlib1g-dev
+
+    - name: Install GUI packages
+      apt: name={{ item }} state=present
+      sudo: yes
+      with_items:
+        - libxt-dev
+        - qt-sdk
+      when: "{{ gui|bool }}"
 
     - name: Clone UVCDAT source repo
       git:
@@ -48,19 +58,30 @@
           regexp: 'set\(UVCMETRICS_BRANCH'
           line: 'set(UVCMETRICS_BRANCH devel)'
       sudo: yes
+      when: "{{ uvcmetrics|bool }}"
 
     - name: Create build directory if it does not exist
       file: path={{build_root}}/uvcdat-build state=directory mode=0775
       sudo: yes
 
+    - name: Set UV-CDAT build options
+      set_fact:
+        cdat_opts:
+          - "-DCDAT_BUILD_WEB=ON"
+          - "-DCDAT_BUILD_GUI={{ 'ON' if gui else 'OFF' }}"
+          - "-DCDAT_BUILD_OSMESA={{ 'OFF' if gui else 'ON' }}"
+          - "-DCDAT_BUILD_OFFSCREEN={{ 'OFF' if gui else 'ON' }}"
+          - "-DCDAT_DOWNLOAD_UVCMETRICS_TESTDATA={{ 'ON' if uvcmetrics else 'OFF' }}"
+
     - name: Configure UVCDAT
-      command: cmake -DCDAT_BUILD_WEB=ON -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_OSMESA=ON -DCDAT_BUILD_OFFSCREEN=ON -DCMAKE_INSTALL_PREFIX={{uvcdat_install_dir}} -DCDAT_DOWNLOAD_UVCMETRICS_TESTDATA=ON {{build_root}}/uvcdat chdir={{build_root}}/uvcdat-build
+      command: cmake {{ cdat_opts|join(' ') }} -DCMAKE_INSTALL_PREFIX={{uvcdat_install_dir}} {{build_root}}/uvcdat chdir={{build_root}}/uvcdat-build
       sudo: yes
 
     - name: Build UVCDAT
-      command: make -j3 chdir={{build_root}}/uvcdat-build
+      command: make -j{{ cpus|int + 1 }} chdir={{build_root}}/uvcdat-build
       sudo: yes
 
     - name: Create script for running climatology2.py example
       template: src=run_climatology_example.sh.j2 dest={{uvcdat_install_dir}}/run_climatology_example.sh mode=0775
       sudo: yes
+      when: "{{ uvcmetrics|bool }}"
