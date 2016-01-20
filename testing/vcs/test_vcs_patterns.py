@@ -13,7 +13,7 @@ s = f("clt", time=slice(0, 1), squeeze=1)
 x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
-x.setbgoutputdimensions(1200, 1091, units="pixels")
+x.setbgoutputdimensions(1200, 1090, units="pixels")
 iso = vcs.createisofill("isoleg")
 iso.levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 iso.fillareastyle = "pattern"

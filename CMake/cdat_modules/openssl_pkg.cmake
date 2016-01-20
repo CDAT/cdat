@@ -3,8 +3,14 @@ mark_as_advanced(CDAT_USE_SYSTEM_OPENSSL)
 if(CDAT_USE_SYSTEM_OPENSSL)
   find_package(OpenSSL QUIET)
   if(OPENSSL_FOUND)
+    set(FILENAME_PATH_ARG "DIRECTORY")
+    if(CMAKE_VERSION VERSION_LESS 2.8.12)
+      # Support older version of GET_FILENAME_COMPONENT macro
+      # with legacy PATH argument
+      set(FILENAME_PATH_ARG "PATH")
+    endif(CMAKE_VERSION VERSION_LESS 2.8.12)
     get_filename_component(OPENSSL_LIBRARY_DIR
-      "${OPENSSL_SSL_LIBRARY}" DIRECTORY)
+      "${OPENSSL_SSL_LIBRARY}" ${FILENAME_PATH_ARG})
     message(STATUS "System OpenSSL found. "
       "OpenSSL library directory: ${OPENSSL_LIBRARY_DIR}. "
       "OpenSSL Version: ${OPENSSL_VERSION}")
