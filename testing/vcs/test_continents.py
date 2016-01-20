@@ -35,6 +35,7 @@ multitemplate = EzTemplate.Multi(template=dataonly, rows=4, columns=3)
 
 line_styles = ['long-dash', 'dot', 'dash', 'dash-dot', 'solid']
 
+
 for i in range(12):
     cont_index = i % 6 + 1
     cont_line = vcs.createline()
@@ -42,7 +43,12 @@ for i in range(12):
     cont_line.type = line_styles[i % 5]
     cont_line.color = i + 200
     template = multitemplate.get(i)
-    canvas.plot(clt, template, boxfill, continents=cont_index, continents_line=cont_line, bg=1)
+    if cont_index != 3:
+        canvas.plot(clt, template, boxfill, continents=cont_index, continents_line=cont_line, bg=1)
+    else:
+        canvas.setcontinentsline(cont_line)
+        canvas.setcontinentstype(3)
+        canvas.plot(clt, template, boxfill, bg=1)
 
 # Load the image testing module:
 testingDir = os.path.join(os.path.dirname(__file__), "..")
