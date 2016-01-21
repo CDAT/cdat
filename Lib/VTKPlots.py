@@ -146,14 +146,24 @@ class VTKVCSBackend(object):
                     except:
                         V = d.array[0][..., I]
                     if isinstance(V, numpy.ndarray):
-                        V = V.flat[0]
+                        # Grab the appropriate time slice
+                        if self.canvas.animate.created():
+                            t = self.canvas.animate.frame_num
+                            try:
+                                taxis = V.getTime()
+                                V = V(time=taxis[t % len(taxis)])
+                            except:
+                                V = V.flat[0]
+                        else:
+                            V = V.flat[0]
                     try:
                         st += "Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (
                             d.array[0].id, I, X, J, Y, V)
                     except:
                         st += "Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (
                             d.array[0].id, X, I, Y, V)
-                except:
+                except Exception as e:
+                    print e
                     st += "Var: %s\nX=%g\nY=%g\nValue = N/A" % (
                         d.array[0].id, X, Y)
         if st == "":
