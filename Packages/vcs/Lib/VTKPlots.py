@@ -162,8 +162,7 @@ class VTKVCSBackend(object):
                     except:
                         st += "Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (
                             d.array[0].id, X, I, Y, V)
-                except Exception as e:
-                    print e
+                except:
                     st += "Var: %s\nX=%g\nY=%g\nValue = N/A" % (
                         d.array[0].id, X, Y)
         if st == "":
