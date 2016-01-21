@@ -1,1 +1,1 @@
-set(libdrs_deps )
+set(libdrs_deps ${netcdf_pkg} ${g2clib_pkg})
