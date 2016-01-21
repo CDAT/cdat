@@ -151,7 +151,7 @@ class VTKVCSBackend(object):
                             t = self.canvas.animate.frame_num
                             try:
                                 taxis = V.getTime()
-                                V = V(time=taxis[t % len(taxis)])
+                                V = V(time=taxis[t % len(taxis)]).flat[0]
                             except:
                                 V = V.flat[0]
                         else:
