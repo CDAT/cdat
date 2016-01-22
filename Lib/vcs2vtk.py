@@ -596,20 +596,20 @@ def prepContinents(fnm):
     return poly
 
 
-def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
+def apply_proj_parameters(pd, projection, x1, x2, y1, y2):
     pname = projDict.get(projection._type, projection.type)
     projName = pname
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
-        minY = min(ym, yM)
-        maxY = max(ym, yM)
+        minY = min(y1, y2)
+        maxY = max(y1, y2)
         if ((minY + 90.0) <= (90.0 - maxY)):
             # minY is closer to -90 than maxY to 90
             pd.SetOptionalParameter("lat_0", "-90.")
-            pd.SetCentralMeridian(xm)
+            pd.SetCentralMeridian(x1)
         else:
             pd.SetOptionalParameter("lat_0", "90.")
-            pd.SetCentralMeridian(xm + 180.)
+            pd.SetCentralMeridian(x1 + 180.)
     else:
         if projection.type not in no_over_proj4_parameter_projections:
             pd.SetOptionalParameter("over", "true")
@@ -618,26 +618,26 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
             setProjectionParameters(pd, projection)
         if (hasattr(projection, 'centralmeridian') and
                 numpy.allclose(projection.centralmeridian, 1e+20)):
-            pd.SetCentralMeridian(float(xm + xM) / 2.0)
+            pd.SetCentralMeridian(float(x1 + x2) / 2.0)
         if (hasattr(projection, 'centerlongitude') and
                 numpy.allclose(projection.centerlongitude, 1e+20)):
-            pd.SetOptionalParameter("lon_0", str(float(xm + xM) / 2.0))
+            pd.SetOptionalParameter("lon_0", str(float(x1 + x2) / 2.0))
         if (hasattr(projection, 'originlatitude') and
                 numpy.allclose(projection.originlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
         if (hasattr(projection, 'centerlatitude') and
                 numpy.allclose(projection.centerlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
         if (hasattr(projection, 'standardparallel1') and
                 numpy.allclose(projection.standardparallel1, 1.e20)):
-            pd.SetOptionalParameter('lat_1', str(min(ym, yM)))
+            pd.SetOptionalParameter('lat_1', str(min(y1, y2)))
         if (hasattr(projection, 'standardparallel2') and
                 numpy.allclose(projection.standardparallel2, 1.e20)):
-            pd.SetOptionalParameter('lat_2', str(max(ym, yM)))
+            pd.SetOptionalParameter('lat_2', str(max(y1, y2)))
 
 
 def projectArray(w, projection, wc, geo=None):
-    xm, xM, ym, yM = wc
+    x1, x2, y1, y2 = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
     if projection.type == "linear":
@@ -648,7 +648,7 @@ def projectArray(w, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+        apply_proj_parameters(pd, projection, x1, x2, y1, y2)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
@@ -662,7 +662,7 @@ def projectArray(w, projection, wc, geo=None):
 
 # Geo projection
 def project(pts, projection, wc, geo=None):
-    xm, xM, ym, yM = wc
+    x1, x2, y1, y2 = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
     if projection.type == "linear":
@@ -672,7 +672,7 @@ def project(pts, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+        apply_proj_parameters(pd, projection, x1, x2, y1, y2)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
