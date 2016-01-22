@@ -21,6 +21,7 @@
         - libffi-dev
         - libsqlite3-dev
         - libssl-dev
+        - libcurl3-openssl-dev
         - libbz2-dev
         - libexpat-dev
         - ncurses-dev
