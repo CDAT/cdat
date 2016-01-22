@@ -8,12 +8,14 @@ import meshfill
 from vtk.util import numpy_support as VN
 import cdms2
 import warnings
-import cdtime
 from projection import round_projections, no_over_proj4_parameter_projections
 from vcsvtk import fillareautils
+import numbers
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
+
+_DEBUG_VTK = False
 
 projNames = [
     "linear",
@@ -237,12 +239,18 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         # Convert nupmy array to vtk ones
         ppV = numpy_to_vtk_wrapper(m3, deep=deep)
         pts.SetData(ppV)
+        xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
-    xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
+    oldpts = pts
     if geo is None:
-        geo, geopts = project(pts, projection, [xm, xM, ym, yM])
+        bounds = pts.GetBounds()
+        xm, xM, ym, yM = [bounds[0], bounds[1], bounds[2], bounds[3]]
+        # we use plotting coordinates for doing the projection
+        # such that parameters such that central meridian are set correctly
+        geo, geopts = project(pts, projection, getBoundsForPlotting(
+            [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         pts = geopts
     # Sets the vertices into the grid
     if grid is None:
@@ -251,7 +259,20 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
             vg.SetDimensions(data1.shape[1], data1.shape[0], 1)
         else:
             vg = vtk.vtkUnstructuredGrid()
+        vg.SetPoints(oldpts)
+        if (_DEBUG_VTK):
+            writer = vtk.vtkXMLDataSetWriter()
+            writer.SetFileName("lonlat-p.vts")
+            writer.SetInputData(vg)
+            writer.Write()
+
         vg.SetPoints(pts)
+        if _DEBUG_VTK:
+            writerg = vtk.vtkXMLDataSetWriter()
+            writerg.SetFileName("geo-p.vts")
+            writerg.SetInputData(vg)
+            writerg.Write()
+
     else:
         vg = grid
     scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
@@ -457,6 +478,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         pts.SetData(ppV)
         ptsBounds = pts.GetBounds()
         xRange = ptsBounds[1] - ptsBounds[0]
+        xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
         if (isinstance(g, cdms2.hgrid.TransientCurveGrid) and
                 xRange > 360 and not numpy.isclose(xRange, 360)):
             vg.SetPoints(pts)
@@ -480,13 +502,33 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
     projection = vcs.elements["projection"][gm.projection]
-    xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if grid is None:
-        geo, geopts = project(pts, projection, [xm, xM, ym, yM], geo)
+        vg.SetPoints(pts)
+
+        writer = vtk.vtkXMLDataSetWriter()
+        ext = "vts" if (vg.GetDataObjectType() == vtk.VTK_STRUCTURED_GRID) else "vtu"
+        writer.SetFileName("lonlat." + ext)
+        writer.SetInputData(vg)
+        writer.Write()
+        # we use plotting coordinates for doing the projection
+        # such that parameters such that central meridian are set correctly
+        geo, geopts = project(pts, projection, getBoundsForPlotting(
+            [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
+
+        writerg = vtk.vtkXMLDataSetWriter()
+        writerg.SetFileName("geo." + ext)
+        writerg.SetInputData(vg)
+        writerg.Write()
+
     else:
         vg = grid
+        writer = vtk.vtkXMLDataSetWriter()
+        writer.SetFileName("lonlat.vts")
+        writer.SetInputData(vg)
+        writer.Write()
+
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -499,28 +541,6 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
            "data": data1
            }
     return out
-
-
-def getRange(gm, xm, xM, ym, yM):
-        # Also need to make sure it fills the whole space
-    rtype = type(cdtime.reltime(0, "days since 2000"))
-    X1, X2 = gm.datawc_x1, gm.datawc_x2
-    if isinstance(X1, rtype) or isinstance(X2, rtype):
-        X1 = X1.value
-        X2 = X2.value
-    if not numpy.allclose([X1, X2], 1.e20):
-        x1, x2 = X1, X2
-    else:
-        x1, x2 = xm, xM
-    Y1, Y2 = gm.datawc_y1, gm.datawc_y2
-    if isinstance(Y1, rtype) or isinstance(Y2, rtype):
-        Y1 = Y1.value
-        Y2 = Y2.value
-    if not numpy.allclose([Y1, Y2], 1.e20):
-        y1, y2 = Y1, Y2
-    else:
-        y1, y2 = ym, yM
-    return x1, x2, y1, y2
 
 # Continents first
 # Try to save time and memorize these continents
@@ -1650,7 +1670,11 @@ def stippleLine(prop, line_type):
         raise Exception("Unknown line type: '%s'" % line_type)
 
 
+counti = 0
+
+
 def prepLine(renWin, line, cmap=None):
+    global counti
     number_lines = prepPrimitive(line)
     if number_lines == 0:
         return []
@@ -1725,13 +1749,25 @@ def prepLine(renWin, line, cmap=None):
             l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
+    countj = 0
     for t, w in line_data:
         pts, _, linesPoly, colors = line_data[(t, w)]
 
         linesPoly.GetCellData().SetScalars(colors)
+        if _DEBUG_VTK:
+            writer = vtk.vtkXMLPolyDataWriter()
+            writer.SetFileName("poly" + str(counti) + "-" + str(countj) + ".vtp")
+            writer.SetInputData(linesPoly)
+            writer.Write()
 
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
+
+        if _DEBUG_VTK:
+            writerg = vtk.vtkXMLPolyDataWriter()
+            writerg.SetFileName("polyg" + str(counti) + "-" + str(countj) + ".vtp")
+            writerg.SetInputData(linesPoly)
+            writerg.Write()
 
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
@@ -1743,6 +1779,9 @@ def prepLine(renWin, line, cmap=None):
 
         stippleLine(p, t)
         actors.append((a, geo))
+        countj = countj + 1
+
+    counti = counti + 1
     return actors
 
 
@@ -1864,3 +1903,45 @@ def vtkIterate(iterator):
     while obj is not None:
         yield obj
         obj = iterator.GetNextItem()
+
+
+# transforms [v1,v2] and returns it
+# such that it is in the same order
+# and has the same middle interval as [gm1, gm2]
+def switchAndTranslate(gm1, gm2, v1, v2, wrapModulo):
+    assert(v1 < v2)
+    # keep the same middle of the interval
+    if (wrapModulo):
+        gmMiddle = float(gm1 + gm2) / 2.0
+        half = float(v2 - v1) / 2.0
+        v1 = gmMiddle - half
+        v2 = gmMiddle + half
+    # if gm margins are increasing and dataset bounds are decreasing
+    # or the other way around switch them
+    if ((gm1 - gm2) * (v1 - v2) < 0):
+        v1, v2 = v2, v1
+    return [v1, v2]
+
+
+# TODO: Get rid of this funtion and pass instead: flip and central meridian
+# This function can fail for gmbounds -89, -2 where databounds are 89, 0
+# (the cells in the margins have different sizes: 2 and 4)
+#
+# returns bounds with the same interval size as databounds
+# but in the same order and with the same middle interval
+# as gmbounds. The middle and the order are used for
+# plotting. wrapModule has YWrap, XWrap in degrees, 0 means no wrap
+def getBoundsForPlotting(gmbounds, databounds, wrapModulo):
+    """ Returns the same interval as databounds but it
+    matches the order and also it keeps the same center interval as gmbounds
+    So for instance if databounds is -40, 320 and gmbounds is -180, 180
+    this function returns
+    """
+    x1gm, x2gm, y1gm, y2gm = gmbounds[:4]
+    x1, x2, y1, y2 = databounds[:4]
+    assert (x1 < x2 and y1 < y2)
+    if not numpy.allclose([x1gm, x2gm], 1.e20):
+        x1, x2 = switchAndTranslate(x1gm, x2gm, x1, x2, wrapModulo[1] if wrapModulo else None)
+    if (isinstance(y1gm, numbers.Number) and not numpy.allclose([y1gm, y2gm], 1.e20)):
+        y1, y2 = switchAndTranslate(y1gm, y2gm, y1, y2, wrapModulo[0] if wrapModulo else None)
+    return [x1, x2, y1, y2]
