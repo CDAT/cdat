@@ -801,7 +801,7 @@ class Canvas(object):
         if contout is None:
             if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
                     and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
-                contout = 1
+                contout = self.getcontinentstype()
             else:
                 contout = 0
 
@@ -977,6 +977,7 @@ class Canvas(object):
 
         self.configurator = None
         self.setcontinentsline("default")
+        self.setcontinentstype(1)
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....

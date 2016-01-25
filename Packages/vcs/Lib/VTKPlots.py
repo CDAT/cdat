@@ -1465,14 +1465,10 @@ class VTKVCSBackend(object):
         if "vtk_backend_grid" in vtkobjects:
             # Ok ths is where we update the input data
             vg = vtkobjects["vtk_backend_grid"]
-            data = vcs2vtk.numpy_to_vtk_wrapper(
-                array1.filled(0.).flat,
-                deep=False)
-            pData = vg.GetPointData().GetScalars()
-            if pData is not None:
-                vg.GetPointData().SetScalars(data)
-            else:
-                vg.GetCellData().SetScalars(data)
+            vcs2vtk.setArray(vg, array1.filled(0).flat, "scalar",
+                             isCellData=vg.GetCellData().GetScalars(),
+                             isScalars=True)
+
             if "vtk_backend_filter" in vtkobjects:
                 vtkobjects["vtk_backend_filter"].Update()
             if "vtk_backend_missing_mapper" in vtkobjects:
