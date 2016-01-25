@@ -73,34 +73,61 @@ def numpy_to_vtk_wrapper(numpyArray, deep=False, array_type=None):
     return result
 
 
+# Adds 'array' to 'grid' as cell or point attribute based on 'isCellData'
+# It also sets it as the active scalar if 'isScalars'.
+# If the grid has pedigree ids (it was wrapped) we use them to set the array.
+def setArray(grid, array, arrayName, isCellData, isScalars):
+    attributes = grid.GetCellData() if isCellData else grid.GetPointData()
+    pedigreeId = attributes.GetPedigreeIds()
+    if (pedigreeId):
+        vtkarray = attributes.GetArray(arrayName)
+        for i in range(0, vtkarray.GetNumberOfTuples()):
+            vtkarray.SetValue(i, array[pedigreeId.GetValue(i)])
+    else:
+        vtkarray = numpy_to_vtk_wrapper(array, deep=False)
+        vtkarray.SetName(arrayName)
+        attributes.AddArray(vtkarray)
+    if (isScalars):
+        attributes.SetActiveScalars(arrayName)
+
+
 def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
     # Ok now looking
     msk = data.mask
-    imsk = numpy_to_vtk_wrapper(msk.astype(numpy.int).flat, deep=deep)
     mapper = None
     if msk is not numpy.ma.nomask and not numpy.allclose(msk, False):
         if actorColor is not None:
+            flatIMask = msk.astype(numpy.int).flat
             if grid.IsA("vtkStructuredGrid"):
                 grid2 = vtk.vtkStructuredGrid()
+                vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep)
+                attributes2 = grid2.GetCellData() if cellData else grid2.GetPointData()
             else:
                 grid2 = vtk.vtkUnstructuredGrid()
+                if (cellData):
+                    attributes2 = grid2.GetCellData()
+                    attributes = grid.GetCellData()
+                else:
+                    attributes2 = grid2.GetPointData()
+                    attributes = grid.GetPointData()
+                attributes2.SetPedigreeIds(attributes.GetPedigreeIds())
+                vtkmask = vtk.vtkIntArray()
+                vtkmask.SetNumberOfTuples(attributes2.GetPedigreeIds().GetNumberOfTuples())
+            vtkmask.SetName("scalar")
+            attributes2.RemoveArray(vtk.vtkDataSetAttributes.GhostArrayName())
+            attributes2.SetScalars(vtkmask)
             grid2.CopyStructure(grid)
+            setArray(grid2, flatIMask, "scalar", isCellData=cellData,
+                     isScalars=True)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
             r, g, b, a = actorColor
             lut.SetNumberOfTableValues(2)
+            geoFilter.SetInputData(grid2)
             if not cellData:
-                grid2.GetPointData().RemoveArray(
-                    vtk.vtkDataSetAttributes.GhostArrayName())
-                grid2.GetPointData().SetScalars(imsk)
-                geoFilter.SetInputData(grid2)
                 lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
                 lut.SetTableValue(1, r / 100., g / 100., b / 100., a / 100.)
             else:
-                grid2.GetCellData().RemoveArray(
-                    vtk.vtkDataSetAttributes.GhostArrayName())
-                grid2.GetCellData().SetScalars(imsk)
-                geoFilter.SetInputData(grid2)
                 lut.SetTableValue(0, r / 100., g / 100., b / 100., 0.)
                 lut.SetTableValue(1, r / 100., g / 100., b / 100., 1.)
             geoFilter.Update()
@@ -119,13 +146,14 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
         for i, isInvalid in enumerate(flatMask):
             if isInvalid:
                 ghost[i] = invalidMaskValue
-
-        ghost = numpy_to_vtk_wrapper(ghost, deep=deep)
-        ghost.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
-        if cellData:
-            grid.GetCellData().AddArray(ghost)
-        else:
-            grid.GetPointData().AddArray(ghost)
+        attributes = grid.GetCellData() if cellData else grid.GetPointData()
+        if (grid.GetDataObjectType() is vtk.VTK_UNSTRUCTURED_GRID):
+            vtkghost = vtk.vtkUnsignedCharArray()
+            vtkghost.SetNumberOfTuples(attributes.GetPedigreeIds().GetNumberOfTuples())
+            vtkghost.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
+            attributes.AddArray(vtkghost)
+        setArray(grid, ghost, vtk.vtkDataSetAttributes.GhostArrayName(),
+                 cellData, isScalars=False)
     return mapper
 
 
@@ -226,6 +254,10 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         vg.SetPoints(pts)
     else:
         vg = grid
+    scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
+                                  deep=False)
+    scalar.SetName("scalar")
+    vg.GetPointData().SetScalars(scalar)
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -430,12 +462,44 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                     xM = lon.max()
                     ym = lat.min()
                     yM = lat.max()
+
+    # scalar data
+    scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
+                                  deep=False)
+    scalar.SetName("scalar")
+    gridForScalar = grid if grid else vg
+    if cellData:
+        gridForScalar.GetCellData().SetScalars(scalar)
+    else:
+        gridForScalar.GetPointData().SetScalars(scalar)
     if grid is None:
         # First create the points/vertices (in vcs terms)
         pts = vtk.vtkPoints()
         # Convert nupmy array to vtk ones
         ppV = numpy_to_vtk_wrapper(m3, deep=deep)
         pts.SetData(ppV)
+        ptsBounds = pts.GetBounds()
+        xRange = ptsBounds[1] - ptsBounds[0]
+        if (isinstance(g, cdms2.hgrid.TransientCurveGrid) and
+                xRange > 360 and not numpy.isclose(xRange, 360)):
+            vg.SetPoints(pts)
+            # index into the scalar array. Used for upgrading
+            # the scalar after wrapping. Note this will work
+            # correctly only for cell data. For point data
+            # the indexes for points on the border will be incorrect after
+            # wrapping
+            pedigreeId = vtk.vtkIntArray()
+            pedigreeId.SetName("PedigreeIds")
+            pedigreeId.SetNumberOfTuples(scalar.GetNumberOfTuples())
+            for i in range(0, scalar.GetNumberOfTuples()):
+                pedigreeId.SetValue(i, i)
+            if cellData:
+                vg.GetCellData().SetPedigreeIds(pedigreeId)
+            else:
+                vg.GetPointData().SetPedigreeIds(pedigreeId)
+            vg = wrapDataSetX(vg)
+            pts = vg.GetPoints()
+            xm, xM, ym, yM, tmp, tmp2 = vg.GetPoints().GetBounds()
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
     projection = vcs.elements["projection"][gm.projection]
@@ -915,6 +979,52 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
 
     Mapper.SetInputData(clipper.GetOutput())
     return Act
+
+
+# Wrap grid in interval minX, minX + 360
+# minX is the minimum x value for 'grid'
+def wrapDataSetX(grid):
+    # Clip the dataset into 2 pieces: left and right
+    bounds = grid.GetBounds()
+    minX = bounds[0]
+    intervalX = 360
+    maxX = minX + intervalX
+
+    plane = vtk.vtkPlane()
+    plane.SetOrigin(maxX, 0, 0)
+    plane.SetNormal(1, 0, 0)
+
+    clipRight = vtk.vtkClipDataSet()
+    clipRight.SetClipFunction(plane)
+    clipRight.SetInputData(grid)
+    clipRight.Update()
+    right = clipRight.GetOutputDataObject(0)
+
+    plane.SetNormal(-1, 0, 0)
+    clipLeft = vtk.vtkClipDataSet()
+    clipLeft.SetClipFunction(plane)
+    clipLeft.SetInputData(grid)
+    clipLeft.Update()
+    left = clipLeft.GetOutputDataObject(0)
+
+    # translate the right piece
+    tl = vtk.vtkTransform()
+    tl.Translate(-intervalX, 0, 0)
+    translateLeft = vtk.vtkTransformFilter()
+    translateLeft.SetTransform(tl)
+    translateLeft.SetInputData(right)
+    translateLeft.Update()
+    right = translateLeft.GetOutput()
+
+    # append the pieces together
+    append = vtk.vtkAppendFilter()
+    append.AddInputData(left)
+    append.AddInputData(right)
+    append.MergePointsOn()
+    append.Update()
+    whole = append.GetOutput()
+
+    return whole
 
 
 def setClipPlanes(mapper, xmin, xmax, ymin, ymax):

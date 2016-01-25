@@ -312,13 +312,6 @@ class Pipeline2D(IPipeline2D):
         self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
-        data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
-        if self._useCellScalars:
-            self._vtkDataSet.GetCellData().SetScalars(data)
-        else:
-            self._vtkDataSet.GetPointData().SetScalars(data)
-
     def _updateFromGenGridDict(self, genGridDict):
         """Overrides baseclass implementation."""
         self._vtkDataSet = genGridDict['vtk_backend_grid']
