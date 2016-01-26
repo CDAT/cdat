@@ -123,16 +123,19 @@ def process_src(nm, code):
                 g.datawc_calendar)
     irg = code.find("range")
     if irg > -1:
+        rg_code= code[irg:]
         lines = code[irg:].split("\n")
         i = 0
         levs = []
         fac = []
         fai = []
         fas = []
-        badfa = True
-        for l in lines:
-            if l.find("(id=") > -1:
-                sp = lines[i].split(",")
+        badfa = False
+        while rg_code.find("(id=")>-1:
+                iend = rg_code.find(")")+1
+                line = rg_code[:iend]
+                rg_code = rg_code[iend:]
+                sp = line.split(",")
                 levs.append([float(sp[1][7:]), float(sp[2][7:])])
                 fa = sp[-1][3:]
                 fa = fa[:fa.find(")")]
@@ -144,15 +147,14 @@ def process_src(nm, code):
                     fac.append(fa.color[0])
                     fai.append(fa.index[0])
                     fas.append(fa.style[0])
-                i += 1
         if not numpy.allclose(levs, 1.e20):
             g.levels = levs
-            if badfa:
-                g._fillareaindices = fai
-            else:
-                g.fillareacolor = fac
-                g.fillareaindices = fai
-                g.fillareastyle = fas[0]
+        if badfa:
+            g._fillareaindices = fai
+        else:
+            g.fillareacolors = fac
+            g.fillareaindices = fai
+            g.fillareastyle = fas[0]
 
 
 class Gfi(object):
