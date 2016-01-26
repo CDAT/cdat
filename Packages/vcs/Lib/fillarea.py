@@ -37,43 +37,53 @@ def process_src(nm, code):
     except:
         f = vcs.elements["fillarea"][nm]
     atts = {}
-    for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
-        i = code.find(a + "(")
-        v = genutil.get_parenthesis_content(code[i:])
-        # print nm,a,v
-        if v != "":
-            vals = []
-            for V in v.split(","):
-                try:
-                    vals.append(int(V))
-                except:
-                    vals.append(float(V))
-            atts[a] = vals
-        f.style = atts.get("fais", f.style)
+    if code.find("()")>-1:  # ok with have the keywords speeled out
+        for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
+            i = code.find(a + "(")
+            v = genutil.get_parenthesis_content(code[i:])
+            print nm,a,v
+            if v != "":
+                vals = []
+                for V in v.split(","):
+                    try:
+                        vals.append(int(V))
+                    except:
+                        vals.append(float(V))
+                atts[a] = vals
+    else:
+        sp = code.split(",")
+        atts["fais"]=int(sp[0])-1
+        atts["faci"]=int(sp[2])
+        atts["fasi"]=int(sp[1])
+        atts["vp"]=[10.*float(sp[-4]),10.*float(sp[-3]),10.*float(sp[-2]),10.*float(sp[-1])]
+
+    f.style = atts.get("fais", f.style)
+    try:  # in case these are strings?
         I = atts.get("fasi", f.index)
         for i, v in enumerate(I):
             if v == 0:
                 I[i] = 1
-        f.index = I
-        f.color = atts.get("faci", f.color)
-        f.opacity = atts.get("faoi", f.opacity)
-        f.viewport = atts.get("vp", f.viewport)
-        f.worldcoordinate = atts.get("wc", f.worldcoordinate)
-        f.x = atts.get('x', f.x)
-        f.y = atts.get('y', f.y)
-        i = code.find("projection=")
-        if i > -1:
-            j = code[i:].find(",") + i
-            f.projection = code[i + 11:j]
-        for b in vcs.elements["boxfill"].values(
-        ) + vcs.elements["isofill"].values() + vcs.elements["meshfill"].values():
-            if b.fillareaindices is not None:
-                for i, v in enumerate(b.fillareaindices):
-                    if isinstance(v, str) and v == nm:
-                        b._fillareaindices[i] = f.index
-                        b._fillareacolor[i] = f.color
-                        b._fillareastyle = f.style
-                        b._fillareaopacity = f.opacity
+    except:
+        pass
+    f.index = I
+    f.color = atts.get("faci", f.color)
+    f.viewport = atts.get("vp", f.viewport)
+    f.worldcoordinate = atts.get("wc", f.worldcoordinate)
+    f.x = atts.get('x', f.x)
+    f.y = atts.get('y', f.y)
+    i = code.find("projection=")
+    if i > -1:
+        j = code[i:].find(",") + i
+        f.projection = code[i + 11:j]
+    for b in vcs.elements["boxfill"].values(
+    ) + vcs.elements["isofill"].values() + vcs.elements["meshfill"].values():
+        if b.fillareaindices is not None:
+            for i, v in enumerate(b.fillareaindices):
+                if isinstance(v, str) and v == nm:
+                    b._fillareaindices[i] = f.index
+                    b._fillareacolor[i] = f.color
+                    b._fillareastyle = f.style
+                    b._fillareaopacity = f.opacity
 
 #############################################################################
 #                                                                           #

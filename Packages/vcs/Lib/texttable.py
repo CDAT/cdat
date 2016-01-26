@@ -58,13 +58,13 @@ def process_src(nm, code):
             tt.projection = code[i + 11:j]
         # rest of attributes
         sp = code.split(",")
-        tt.font = int(sp[0])
+        tt.priority = int(sp[0])
+        tt.font = int(sp[1])
         tt.expansion = int(float(sp[2]) * 100.)
         tt.spacing = int(float(sp[3]) * 10.)
         tt.color = int(sp[4])
-        tt.priority = int(sp[5])
-        if len(sp) != 14:
-            tt.fillincolor = int(sp[6])
+        if len(sp) > 5:
+            tt.fillincolor = int(sp[5])
 
 
 #############################################################################

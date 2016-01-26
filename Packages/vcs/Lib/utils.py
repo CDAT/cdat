@@ -286,7 +286,7 @@ def _scriptrun(script, canvas=None):
                     for e in g.line:
                         if e in vcs.elements["textorientation"]:
                             lst.append(vcs.elements["line"][e])
-                        elif e in vcs.elements["text"]:
+                        elif e in vcs.elements["textcombined"]:
                             lst.append(vcs.elements["line"][e])
                         else:
                             lst.append(e)
