@@ -1,7 +1,7 @@
 import vcsaddons,vcs
 import numpy
 
-class VCSaddon:
+class VCSaddon(object):
     def __init__(self,name=None,source='default',x=None,template=None):
         self._saves={}
         self.g_nslabs=1
@@ -139,14 +139,14 @@ class VCSaddon:
             self._saves={}
 
 
-    def getgm(self,name):
+    def getgm(self,source="default"):
         gm = None
         for nm in vcsaddons.gms[self.g_name].keys():
-            if name == nm:
+            if source == nm:
                 return vcsaddons.gms[self.g_name][nm]
 
         if gm is None:
-            raise "Could not find graphic method %s named: %s" % (self.g_type, name)
+            raise "Could not find graphic method %s named: %s" % (self.g_type, source)
 
     def creategm(self,name,source='default'):
         return self.__init__(name,source=source,x=self.x,template=self.template)
