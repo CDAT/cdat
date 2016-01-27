@@ -116,37 +116,7 @@ def process_src(nm, code):
                 gm.datawc_y2,
                 gm.datawc_timeunits).tocomp(
                 gm.datawc_calendar)
-    irg = code.find("range")
-    if irg > -1:
-        lines = code[irg:].split("\n")
-        i = 0
-        levs = []
-        fac = []
-        fai = []
-        fas = []
-        badfa = True
-        for l in lines:
-            if l.find("(id=") > -1:
-                sp = lines[i].split(",")
-                levs.append([float(sp[1][7:]), float(sp[2][7:])])
-                fa = sp[-1][3:]
-                fa = fa[:fa.find(")")]
-                if fa not in vcs.elements["fillarea"].keys():
-                    badfa = True
-                    fai.append(fa)
-                else:
-                    fa = vcs.elements["fillarea"][fa]
-                    fac.append(fa.color[0])
-                    fai.append(fa.index[0])
-                    fas.append(fa.style[0])
-                i += 1
-        gm.levels = levs
-        if badfa:
-            gm._fillareaindices = fai
-        else:
-            gm.fillareacolor = fac
-            gm.fillareaindices = fai
-            gm.fillareastyle = fas[0]
+    vcs.utils.process_range_from_old_scr(code,gm)
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #

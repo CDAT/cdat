@@ -31,6 +31,41 @@ indent = 1
 sort_keys = True
 
 
+def process_range_from_old_scr(code,g):
+    irg = code.find("range")
+    if irg > -1:
+        rg_code = code[irg:]
+        i = 0
+        levs = []
+        fac = []
+        fai = []
+        fas = []
+        badfa = False
+        while rg_code.find("(id=") > -1:
+                iend = rg_code.find(")") + 1
+                line = rg_code[:iend]
+                rg_code = rg_code[iend:]
+                sp = line.split(",")
+                levs.append([float(sp[1][7:]), float(sp[2][7:])])
+                fa = sp[-1][3:]
+                fa = fa[:fa.find(")")]
+                if fa not in vcs.elements["fillarea"].keys():
+                    badfa = True
+                    fai.append(fa)
+                else:
+                    fa = vcs.elements["fillarea"][fa]
+                    fac.append(fa.color[0])
+                    fai.append(fa.index[0])
+                    fas.append(fa.style[0])
+        if not numpy.allclose(levs, 1.e20):
+            g.levels = levs
+        if badfa:
+            g._fillareaindices = fai
+        else:
+            g.fillareacolors = fac
+            g.fillareaindices = fai
+            g.fillareastyle = fas[0]
+
 def dumpToDict(obj, skipped=[], must=[]):
     dic = {}
     associated = {"texttable": set(),
@@ -138,7 +173,7 @@ def process_src_element(code):
     i = code.find("(")
     nm = code[:i]
     code = code[i + 1:-1]
-    #try:
+    # try:
     if 1:
         if typ == "Gfb":
             boxfill.process_src(nm, code)
@@ -174,7 +209,7 @@ def process_src_element(code):
             marker.process_src(nm, code)
         elif typ == "C":
             colormap.process_src(nm, code)
-    #except Exception as err:
+    # except Exception as err:
     #    print "Processing error for %s,%s: %s" % (nm, typ, err)
 
 
