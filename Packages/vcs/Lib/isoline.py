@@ -146,8 +146,10 @@ def process_src(nm, code):
             angles = []
             spacing = []
             levs = []
-            while scode.find("id=") > -1:
-                sub = genutil.get_parenthesis_content(code[irg:])
+            #print code[irg:]
+            iid = scode.find("(id=")
+            while iid > -1:
+                sub = genutil.get_parenthesis_content(scode[iid:])
                 if get_att_from_sub(sub, "label") not in ["*", None]:
                     g.label = 'y'
                 levs.append(get_att_from_sub(sub, "level"))
@@ -158,7 +160,9 @@ def process_src(nm, code):
                 scales.append(get_att_from_sub(sub, "length"))
                 angles.append(get_att_from_sub(sub, "angle"))
                 spacing.append(get_att_from_sub(sub, "spacing"))
-                scode = scode[scode.find(sub) + len(sub):]
+                iend=scode[iid:].find(")")+1
+                scode=scode[iid+iend:]
+                iid = scode.find("(id=")
             g.level = levs
             try:
                 g.line = tl

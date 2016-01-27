@@ -23,6 +23,11 @@ for gm,gm2 in [(boxes,boxes2),(isofs,isofs2)]:
 
 
 gm = x.getisofill("pr_time_lat_1")
+gm = x.getboxfill("lon_lat_mjop05")
+gm = x.getisoline("div_anom")
+gm = x.getvector("lon_lat_IO_p1")
+x.getline("red_solid").list()
+gm = x.getyxvsx("pr_lsfit_lat")
 gm.list()
 """
 n=linear,xticlabels#1=*,xticlabels#2=*,yticlabels#1=*,
