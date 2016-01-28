@@ -1,5 +1,6 @@
 #=============================================================================
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+CMAKE_POLICY(SET CMP0012 NEW)
 
 if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
   message(WARNING "Your CMake version is ${CMAKE_VERSION} which is depreciated for UV-CDAT. The recommended minimum CMake version is 2.8.12. Using older versions can result in build errors particularly with Xcode 5")
@@ -97,47 +98,7 @@ endif()
 # calls so that it's set properly to detect 64-bit-ness...
 #-----------------------------------------------------------------------------
 if(APPLE)
-
-  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" OSX_VER_MAJOR "${CURRENT_OSX_VERSION}")
-  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\2" OSX_VER_MINOR "${CURRENT_OSX_VERSION}")
-
-  if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
-    set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
-  endif()
-
-  # Support only 10.8 or higher for now
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk")
-    set(HAVE_10_8_SDK TRUE)
-  endif()
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk")
-    set(HAVE_10_9_SDK TRUE)
-  endif()
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk")
-    set(HAVE_10_10_SDK TRUE)
-  endif()
-  # Try for the lowest version SDK we can
-  if ((${OSX_VER_MINOR} VERSION_EQUAL 8) AND (HAVE_10_8_SDK))
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk" CACHE PATH "" FORCE)
-  elseif((${OSX_VER_MINOR} VERSION_EQUAL 9) AND (HAVE_10_9_SDK))
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk" CACHE PATH "" FORCE)
-  elseif((${OSX_VER_MINOR} VERSION_EQUAL 10) AND (HAVE_10_10_SDK))
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.10 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk" CACHE PATH "" FORCE)
-  else()
-    message(FATAL_ERROR "[ERROR] Could not match your OS VERSION (${OSX_VER_MAJOR}.${OSX_VER_MINOR}) with any of your SDKs, or OS not supported yet")
-  endif()
-
+ include (AppleSDKUtils)
 endif()
 
 # Setup git and related options
@@ -524,6 +485,7 @@ include(libcf_pkg)
 include(libdrs_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
+include(openssl_pkg)
 include(cryptography_pkg)
 include(cffi_pkg)
 include(ffi_pkg)
