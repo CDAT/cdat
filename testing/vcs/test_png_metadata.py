@@ -1,5 +1,6 @@
 # Check if text chunks are saved correctly in a PNG file
 import vcs
+import os
 
 x=vcs.init()
 x.drawlogooff()
@@ -11,3 +12,4 @@ fnm = "test_png_metadata.png"
 m = {'one':'value one','two':'value two'}
 x.png(fnm, width=15, metadata=m)
 assert(vcs.png_read_metadata(fnm) == m)
+os.remove(fnm)

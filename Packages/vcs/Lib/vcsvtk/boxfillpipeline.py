@@ -40,7 +40,7 @@ class BoxfillPipeline(Pipeline2D):
         if self._gm.boxfill_type != "custom":
             self._updateContourLevelsAndColorsForBoxfill()
         else:
-            self._updateContourLevelsAndColorsForCustomBoxfill()
+            self._updateContourLevelsAndColorsGeneric()
 
         if isinstance(self._contourLevels, numpy.ndarray):
             self._contourLevels = self._contourLevels.tolist()
@@ -93,40 +93,6 @@ class BoxfillPipeline(Pipeline2D):
         # Use consecutive colors:
         self._contourColors = range(self._gm.color_1, self._gm.color_2 + 1)
 
-    def _updateContourLevelsAndColorsForCustomBoxfill(self):
-        """Set contour information for a custom boxfill."""
-        self._contourLevels = self._gm.levels
-
-        if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-           numpy.allclose(self._contourLevels, 1.e20):
-            levs2 = vcs.mkscale(self._scalarRange[0],
-                                self._scalarRange[1])
-            if len(levs2) == 1:  # constant value ?
-                levs2 = [levs2[0], levs2[0] + .00001]
-            self._contourLevels = []
-            if self._gm.ext_1:
-                # user wants arrow at the end
-                levs2[0] = -1.e20
-            if self._gm.ext_2:
-                # user wants arrow at the end
-                levs2[-1] = 1.e20
-            for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i + 1]])
-        else:
-            if not isinstance(self._gm.levels[0], (list, tuple)):
-                self._contourLevels = []
-                levs2 = self._gm.levels
-                if numpy.allclose(levs2[0], 1.e20):
-                    levs2[0] = 0
-                for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i + 1]])
-
-        # Contour colors:
-        self._contourColors = self._gm.fillareacolors
-        if self._contourColors is None:
-            # TODO BUG levs2 may not be defined here...
-            self._contourColors = vcs.getcolors(levs2, split=0)
-
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
         self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
@@ -148,9 +114,7 @@ class BoxfillPipeline(Pipeline2D):
         if self._maskedDataMapper is not None:
             self._mappers.insert(0, self._maskedDataMapper)
 
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
+        x1, x2, y1, y2 = self.getBoundsForPlotting()
 
         # And now we need actors to actually render this thing
         actors = []
@@ -159,6 +123,8 @@ class BoxfillPipeline(Pipeline2D):
         ctj = 0
         _colorMap = self.getColorMap()
         _style = self._gm.fillareastyle
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
         for mapper in self._mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -203,10 +169,10 @@ class BoxfillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            self._context().fitToViewportBounds(
+                act, vp,
+                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
 
@@ -214,10 +180,10 @@ class BoxfillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrapped not sure
                 # why so sticking to many mappers
-                self._context().fitToViewport(
-                    act, [self._template.data.x1, self._template.data.x2,
-                          self._template.data.y1, self._template.data.y2],
-                    wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                self._context().fitToViewportBounds(
+                    act, vp,
+                    wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                    geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
                     create_renderer=True)
                 actors.append([act, [x1, x2, y1, y2]])
@@ -229,9 +195,13 @@ class BoxfillPipeline(Pipeline2D):
             z = self._originalData1.getAxis(-3)
         else:
             z = None
-        self._resultDict.update(self._context().renderTemplate(self._template,
-                                                               self._data1,
-                                                               self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(
+            self._template,
+            self._data1,
+            self._gm, t, z,
+            vtk_backend_grid=self._vtkDataSet,
+            dataset_bounds=self._vtkDataSetBounds,
+            plotting_dataset_bounds=[x1, x2, y1, y2]))
 
         if getattr(self._gm, "legend", None) is not None:
             self._contourLabels = self._gm.legend
@@ -278,7 +248,9 @@ class BoxfillPipeline(Pipeline2D):
             projection = vcs.elements["projection"][self._gm.projection]
             self._context().plotContinents(x1, x2, y1, y2, projection,
                                            self._dataWrapModulo,
-                                           self._template)
+                                           vp, self._template.data.priority,
+                                           vtk_backend_grid=self._vtkDataSet,
+                                           dataset_bounds=self._vtkDataSetBounds)
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
@@ -346,7 +318,6 @@ class BoxfillPipeline(Pipeline2D):
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
         _colorMap = self.getColorMap()
-
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -368,11 +339,11 @@ class BoxfillPipeline(Pipeline2D):
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
                 if style == 'solid':
-                    tmpOpacity = tmpOpacities[i]
+                    tmpOpacity = tmpOpacities[j]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.
                     else:
-                        tmpOpacity = tmpOpacities[i] / 100.
+                        tmpOpacity = tmpOpacities[j] / 100.
                     lut.SetTableValue(0, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
                     lut.SetTableValue(0, 1., 1., 1., 0.)
