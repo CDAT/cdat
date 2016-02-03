@@ -1026,8 +1026,6 @@ class P(object):
         if Y is None:
             Y = slab.getAxis(-2)
         displays = []
-        wc = vcs.utils.getworldcoordinates(gm, X, Y)
-        vp = [self.data._x1, self.data._x2, self.data._y1, self.data._y2]
         dx = wc[1] - wc[0]
         dy = wc[3] - wc[2]
         dx = dx / (vp[1] - vp[0])
@@ -1537,6 +1535,15 @@ class P(object):
                 del(vcs.elements["textorientation"][sp[1]])
                 del(vcs.elements["textcombined"][tt.name])
 
+        if X is None:
+            X = slab.getAxis(-1)
+        if Y is None:
+            Y = slab.getAxis(-2)
+        wc2 = vcs.utils.getworldcoordinates(gm, X, Y)
+        wc2 = kargs.get("plotting_dataset_bounds", wc2)
+        vp2 = [self.data._x1, self.data._x2, self.data._y1, self.data._y2]
+        vp2 = kargs.get("dataset_viewport", vp2)
+
         # Do the tickmarks/labels
         if not isinstance(gm, vcs.taylor.Gtd):
             displays += self.drawTicks(slab,
@@ -1544,8 +1551,8 @@ class P(object):
                                        x,
                                        axis='x',
                                        number='1',
-                                       vp=vp,
-                                       wc=wc,
+                                       vp=vp2,
+                                       wc=wc2,
                                        bg=bg,
                                        X=X,
                                        Y=Y,
@@ -1555,8 +1562,8 @@ class P(object):
                                        x,
                                        axis='x',
                                        number='2',
-                                       vp=vp,
-                                       wc=wc,
+                                       vp=vp2,
+                                       wc=wc2,
                                        bg=bg,
                                        X=X,
                                        Y=Y,
@@ -1566,8 +1573,8 @@ class P(object):
                                        x,
                                        axis='y',
                                        number='1',
-                                       vp=vp,
-                                       wc=wc,
+                                       vp=vp2,
+                                       wc=wc2,
                                        bg=bg,
                                        X=X,
                                        Y=Y,
@@ -1577,8 +1584,8 @@ class P(object):
                                        x,
                                        axis='y',
                                        number='2',
-                                       vp=vp,
-                                       wc=wc,
+                                       vp=vp2,
+                                       wc=wc2,
                                        bg=bg,
                                        X=X,
                                        Y=Y,
@@ -1590,6 +1597,8 @@ class P(object):
             Y = slab.getAxis(-2)
 
         wc2 = vcs.utils.getworldcoordinates(gm, X, Y)
+        wc2 = kargs.get("dataset_bounds", wc2)
+
         # Do the boxes and lines
         for tp in ["box", "line"]:
             for num in ["1", "2"]:
@@ -1600,7 +1609,7 @@ class P(object):
                         l.projection = gm.projection
                     if vcs.elements["projection"][
                             l.projection].type != "linear":
-                        l.worldcoordinate = wc2
+                        l.worldcoordinate = wc2[:4]
                         l.viewport = [e._x1, e._x2, e._y1, e._y2]
                         dx = (e._x2 - e._x1) / \
                             (self.data.x2 - self.data.x1) * (wc2[1] - wc2[0])
@@ -1612,7 +1621,7 @@ class P(object):
                         elif tp == "box" and \
                                 vcs.elements["projection"][l.projection].type in\
                                 round_projections:
-                            l._x = [[-180., 180], [-180., 180]]
+                            l._x = [[wc2[0], wc2[1]], [wc2[0], wc2[1]]]
                             l._y = [wc2[3], wc2[3]], [wc2[2], wc2[2]]
                         else:
                             l._x = [
