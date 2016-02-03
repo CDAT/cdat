@@ -50,13 +50,7 @@ class MeshfillPipeline(Pipeline2D):
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
-        # This is also different for meshfill, others use
-        # vcs.utils.getworldcoordinates
-        x1, x2, y1, y2 = vcs2vtk.getRange(self._gm,
-                                          self._vtkDataSetBounds[0],
-                                          self._vtkDataSetBounds[1],
-                                          self._vtkDataSetBounds[2],
-                                          self._vtkDataSetBounds[3])
+        x1, x2, y1, y2 = self.getBoundsForPlotting()
         _colorMap = self.getColorMap()
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
@@ -175,6 +169,8 @@ class MeshfillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -198,10 +194,7 @@ class MeshfillPipeline(Pipeline2D):
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             self._context().fitToViewportBounds(
-                act, [self._template.data.x1,
-                      self._template.data.x2,
-                      self._template.data.y1,
-                      self._template.data.y2],
+                act, vp,
                 wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
@@ -212,8 +205,7 @@ class MeshfillPipeline(Pipeline2D):
                 # If using geofilter on wireframed does not get wrapped not sure
                 # why so sticking to many mappers
                 self._context().fitToViewportBounds(
-                    act, [self._template.data.x1, self._template.data.x2,
-                          self._template.data.y1, self._template.data.y2],
+                    act, vp,
                     wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
                     geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
@@ -224,14 +216,15 @@ class MeshfillPipeline(Pipeline2D):
 
         self._template.plot(self._context().canvas, self._data1, self._gm,
                             bg=self._context().bg,
-                            X=numpy.arange(self._vtkDataSetBounds[0],
-                                           self._vtkDataSetBounds[1] * 1.1,
-                                           (self._vtkDataSetBounds[1] -
-                                            self._vtkDataSetBounds[0]) / 10.),
-                            Y=numpy.arange(self._vtkDataSetBounds[2],
-                                           self._vtkDataSetBounds[3] * 1.1,
-                                           (self._vtkDataSetBounds[3] -
-                                            self._vtkDataSetBounds[2]) / 10.))
+                            X=numpy.arange(min(x1, x2),
+                                           max(x1, x2) * 1.1,
+                                           abs(x2 - x1) / 10.),
+                            Y=numpy.arange(min(y1, y2),
+                                           max(y1, y2) * 1.1,
+                                           abs(y2 - y1) / 10.),
+                            vtk_backend_grid=self._vtkDataSet,
+                            dataset_bounds=self._vtkDataSetBounds,
+                            plotting_dataset_bounds=[x1, x2, y1, y2])
 
         legend = getattr(self._gm, "legend", None)
 
@@ -275,5 +268,14 @@ class MeshfillPipeline(Pipeline2D):
             projection = vcs.elements["projection"][self._gm.projection]
             self._context().plotContinents(x1, x2, y1, y2, projection,
                                            self._dataWrapModulo,
-                                           self._template,
-                                           vtk_backend_grid=self._vtkDataSet)
+                                           vp, self._template.data.priority,
+                                           vtk_backend_grid=self._vtkDataSet,
+                                           dataset_bounds=self._vtkDataSetBounds)
+
+    def getBoundsForPlotting(self):
+        """This is the same as lon/lat dataset bounds but it
+           matches the order of the bounds comming from gm
+        """
+        return vcs2vtk.getBoundsForPlotting(
+            [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
+            self._vtkDataSetBounds, self._dataWrapModulo)
