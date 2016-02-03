@@ -124,27 +124,16 @@ class VTKVCSBackend(object):
                 continue
             t = vcs.elements["template"][d.template]
             gm = vcs.elements[d.g_type][d.g_name]
+            if gm.projection != "linear":
+                return
             if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
-                # Ok we clicked within template
-                if numpy.allclose(gm.datawc_x1, 1.e20):
-                    x1 = d.array[0].getAxis(-1)[0]
-                else:
-                    x1 = gm.datawc_x1
-                if numpy.allclose(gm.datawc_x2, 1.e20):
-                    x2 = d.array[0].getAxis(-1)[-1]
-                else:
-                    x2 = gm.datawc_x2
-                if numpy.allclose(gm.datawc_y1, 1.e20):
-                    y1 = d.array[0].getAxis(-2)[0]
-                else:
-                    y1 = gm.datawc_y1
-                if numpy.allclose(gm.datawc_y2, 1.e20):
-                    y2 = d.array[0].getAxis(-2)[-1]
-                else:
-                    y2 = gm.datawc_y2
+                x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm,
+                                                               d.array[0].getAxis(-1),
+                                                               d.array[0].getAxis(-2))
 
                 X = (x - t.data.x1) / (t.data.x2 - t.data.x1) * (x2 - x1) + x1
                 Y = (y - t.data.y1) / (t.data.y2 - t.data.y1) * (y2 - y1) + y1
+
                 # Ok we now have the X/Y values we need to figure out the
                 # indices
                 try:
@@ -157,7 +146,16 @@ class VTKVCSBackend(object):
                     except:
                         V = d.array[0][..., I]
                     if isinstance(V, numpy.ndarray):
-                        V = V.flat[0]
+                        # Grab the appropriate time slice
+                        if self.canvas.animate.created():
+                            t = self.canvas.animate.frame_num
+                            try:
+                                taxis = V.getTime()
+                                V = V(time=taxis[t % len(taxis)]).flat[0]
+                            except:
+                                V = V.flat[0]
+                        else:
+                            V = V.flat[0]
                     try:
                         st += "Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (
                             d.array[0].id, I, X, J, Y, V)
