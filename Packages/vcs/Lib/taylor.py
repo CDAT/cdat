@@ -1358,7 +1358,7 @@ class Gtd(object):
 # Cx.append(self.outtervalue*numpy.cos(self.quadrans/2.*numpy.pi))
 # Cy.append(self.outtervalue*numpy.sin(self.quadrans/2.*numpy.pi))
 
-    def drawFrame(self, canvas, data):
+    def setWorldCoordinate(self, canvas):
         viewport = [self.template.data.x1, self.template.data.x2,
                     self.template.data.y1, self.template.data.y2]
         self.viewport = viewport
@@ -1396,6 +1396,9 @@ class Gtd(object):
             else:   # ys are bigger
                 self.worldcoordinate = [wc[0], wc[1],
                                         wc[2], wc[2] + (wc[3] - wc[2]) / r]
+        return wc
+
+    def drawFrame(self, canvas, data, wc):
         O = createnewvcsobj(canvas, 'line', 'tdiag_', self.template.line2.line)
         frame = createnewvcsobj(
             canvas,
@@ -1875,8 +1878,12 @@ class Gtd(object):
             else:
                 self.outtervalue = float(self.referencevalue * 1.2)
             resetoutter = 1
-        self.drawFrame(canvas, data=data)
+        wc = self.setWorldCoordinate(canvas)
         self.drawSkill(canvas, values=self.skillValues, function=skill)
+        if (len(self.displays) > 0):
+            datasetBounds = self.displays[-1].backend['dataset_bounds']
+            self.worldcoordinate = datasetBounds
+        self.drawFrame(canvas, data, wc)
         self.draw(canvas, data)
         # Ok now draws the little comment/source, etc
         self.displays += self.template.plot(canvas, data, self, bg=bg)
