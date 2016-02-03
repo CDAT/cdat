@@ -8,12 +8,14 @@ import meshfill
 from vtk.util import numpy_support as VN
 import cdms2
 import warnings
-import cdtime
 from projection import round_projections, no_over_proj4_parameter_projections
 from vcsvtk import fillareautils
+import numbers
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
+
+_DEBUG_VTK = False
 
 projNames = [
     "linear",
@@ -237,12 +239,18 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         # Convert nupmy array to vtk ones
         ppV = numpy_to_vtk_wrapper(m3, deep=deep)
         pts.SetData(ppV)
+        xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
-    xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
+    oldpts = pts
     if geo is None:
-        geo, geopts = project(pts, projection, [xm, xM, ym, yM])
+        bounds = pts.GetBounds()
+        xm, xM, ym, yM = [bounds[0], bounds[1], bounds[2], bounds[3]]
+        # we use plotting coordinates for doing the projection
+        # such that parameters such that central meridian are set correctly
+        geo, geopts = project(pts, projection, getBoundsForPlotting(
+            [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         pts = geopts
     # Sets the vertices into the grid
     if grid is None:
@@ -251,7 +259,20 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
             vg.SetDimensions(data1.shape[1], data1.shape[0], 1)
         else:
             vg = vtk.vtkUnstructuredGrid()
+        vg.SetPoints(oldpts)
+        if (_DEBUG_VTK):
+            writer = vtk.vtkXMLDataSetWriter()
+            writer.SetFileName("lonlat-p.vts")
+            writer.SetInputData(vg)
+            writer.Write()
+
         vg.SetPoints(pts)
+        if _DEBUG_VTK:
+            writerg = vtk.vtkXMLDataSetWriter()
+            writerg.SetFileName("geo-p.vts")
+            writerg.SetInputData(vg)
+            writerg.Write()
+
     else:
         vg = grid
     scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
@@ -270,6 +291,28 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
            "data2": data2
            }
     return out
+
+
+# Returns the bounds list for 'axis'. If axis has n elements the
+# bounds list will have n+1 elements
+def getBoundsList(axis):
+    bounds = numpy.zeros(len(axis) + 1)
+    try:
+        axisBounds = axis.getBounds()
+        if (axis[0] < axis[-1]):
+            # axis is increasing
+            bounds[:len(axis)] = axisBounds[:, 0]
+            bounds[len(axis)] = axisBounds[-1, 1]
+        else:
+            # axis is decreasing
+            bounds[:len(axis)] = axisBounds[:, 1]
+            bounds[len(axis)] = axisBounds[-1, 0]
+    except Exception:
+        # No luck we have to generate bounds ourselves
+        bounds[1:-1] = (axis[:-1] + axis[1:]) / 2.
+        bounds[0] = axis[0] - (axis[1] - axis[0]) / 2.
+        bounds[-1] = axis[-1] + (axis[-1] - axis[-2]) / 2.
+    return bounds
 
 
 def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
@@ -362,44 +405,16 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
             elif grid is None:
                 lon = data1.getAxis(-1)
                 lat = data1.getAxis(-2)
-                xm = lon[0]
-                xM = lon[-1]
-                ym = lat[0]
-                yM = lat[-1]
-                lat2 = numpy.zeros(len(lat) + 1)
-                lon2 = numpy.zeros(len(lon) + 1)
                 # Ok let's try to get the bounds
-                try:
-                    blat = lat.getBounds()
-                    blon = lon.getBounds()
-                    if (lat[0] < lat[-1]):
-                        # latitude is increasing
-                        lat2[:len(lat)] = blat[:, 0]
-                        lat2[len(lat)] = blat[-1, 1]
-                    else:
-                        # latitude is decreasing
-                        lat2[:len(lat)] = blat[:, 1]
-                        lat2[len(lat)] = blat[-1, 0]
-                    if (lon[0] < lon[-1]):
-                        # longitude is incresing
-                        lon2[:len(lon)] = blon[:, 0]
-                        lon2[len(lon)] = blon[-1, 1]
-                    else:
-                        # longitude is decreasing
-                        lon2[:len(lon)] = blon[:, 1]
-                        lon2[len(lon)] = blon[-1, 0]
-                    xm = blon[0][0]
-                    xM = blon[-1][1]
-                    ym = blat[0][0]
-                    yM = blat[-1][1]
-                except Exception:
-                    # No luck we have to generate bounds ourselves
-                    lat2[1:-1] = (lat[:-1] + lat[1:]) / 2.
-                    lat2[0] = lat[0] - (lat[1] - lat[0]) / 2.
-                    lat2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
-                    lon2[1:-1] = (lon[:-1] + lon[1:]) / 2.
-                    lon2[0] = lon[0] - (lon[1] - lon[0]) / 2.
-                    lon2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
+                lon2 = getBoundsList(lon)
+                lat2 = getBoundsList(lat)
+                # Note that m,M is min,max for an increasing list
+                # and max,min for a decreasing list
+                xm = lon2[0]
+                xM = lon2[-1]
+                ym = lat2[0]
+                yM = lat2[-1]
+
                 lat = lat2[:, numpy.newaxis] * \
                     numpy.ones(lon2.shape)[numpy.newaxis, :]
                 lon = lon2[numpy.newaxis,
@@ -410,32 +425,15 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
             data1 = cdms2.asVariable(data1)
             lon = data1.getAxis(-1)
             lat = data1.getAxis(-2)
-            xm = lon[0]
-            xM = lon[-1]
-            ym = lat[0]
-            yM = lat[-1]
-            lat2 = numpy.zeros(len(lat) + 1)
-            lon2 = numpy.zeros(len(lon) + 1)
             # Ok let's try to get the bounds
-            try:
-                blat = lat.getBounds()
-                blon = lon.GetBounds()
-                lat2[:len(lat)] = blat[:][0]
-                lat2[len(lat2)] = blat[-1][1]
-                lon2[:len(lon)] = blon[:][0]
-                lon2[len(lon2)] = blon[-1][1]
-                xm = blon[0][0]
-                xM = blon[-1][1]
-                ym = blat[0][0]
-                yM = blat[-1][1]
-            except:
-                # No luck we have to generate bounds ourselves
-                lat2[1:-1] = (lat[:-1] + lat[1:]) / 2.
-                lat2[0] = lat[0] - (lat[1] - lat[0]) / 2.
-                lat2[-1] = lat[-1] + (lat[-1] - lat[-2]) / 2.
-                lon2[1:-1] = (lon[:-1] + lon[1:]) / 2.
-                lon2[0] = lon[0] - (lon[1] - lon[0]) / 2.
-                lon2[-1] = lon[-1] + (lon[-1] - lon[-2]) / 2.
+            lon2 = getBoundsList(lon)
+            lat2 = getBoundsList(lat)
+            # Note that m,M is min,max for an increasing list
+            # and max,min for a decreasing list
+            xm = lon2[0]
+            xM = lon2[-1]
+            ym = lat2[0]
+            yM = lat2[-1]
             lat = lat2[:, numpy.newaxis] * \
                 numpy.ones(lon2.shape)[numpy.newaxis, :]
             lon = lon2[numpy.newaxis, :] * \
@@ -480,6 +478,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         pts.SetData(ppV)
         ptsBounds = pts.GetBounds()
         xRange = ptsBounds[1] - ptsBounds[0]
+        xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
         if (isinstance(g, cdms2.hgrid.TransientCurveGrid) and
                 xRange > 360 and not numpy.isclose(xRange, 360)):
             vg.SetPoints(pts)
@@ -503,13 +502,33 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     else:
         xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
     projection = vcs.elements["projection"][gm.projection]
-    xm, xM, ym, yM = getRange(gm, xm, xM, ym, yM)
     if grid is None:
-        geo, geopts = project(pts, projection, [xm, xM, ym, yM], geo)
+        vg.SetPoints(pts)
+
+        writer = vtk.vtkXMLDataSetWriter()
+        ext = "vts" if (vg.GetDataObjectType() == vtk.VTK_STRUCTURED_GRID) else "vtu"
+        writer.SetFileName("lonlat." + ext)
+        writer.SetInputData(vg)
+        writer.Write()
+        # we use plotting coordinates for doing the projection
+        # such that parameters such that central meridian are set correctly
+        geo, geopts = project(pts, projection, getBoundsForPlotting(
+            [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
+
+        writerg = vtk.vtkXMLDataSetWriter()
+        writerg.SetFileName("geo." + ext)
+        writerg.SetInputData(vg)
+        writerg.Write()
+
     else:
         vg = grid
+        writer = vtk.vtkXMLDataSetWriter()
+        writer.SetFileName("lonlat.vts")
+        writer.SetInputData(vg)
+        writer.Write()
+
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -522,28 +541,6 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
            "data": data1
            }
     return out
-
-
-def getRange(gm, xm, xM, ym, yM):
-        # Also need to make sure it fills the whole space
-    rtype = type(cdtime.reltime(0, "days since 2000"))
-    X1, X2 = gm.datawc_x1, gm.datawc_x2
-    if isinstance(X1, rtype) or isinstance(X2, rtype):
-        X1 = X1.value
-        X2 = X2.value
-    if not numpy.allclose([X1, X2], 1.e20):
-        x1, x2 = X1, X2
-    else:
-        x1, x2 = xm, xM
-    Y1, Y2 = gm.datawc_y1, gm.datawc_y2
-    if isinstance(Y1, rtype) or isinstance(Y2, rtype):
-        Y1 = Y1.value
-        Y2 = Y2.value
-    if not numpy.allclose([Y1, Y2], 1.e20):
-        y1, y2 = Y1, Y2
-    else:
-        y1, y2 = ym, yM
-    return x1, x2, y1, y2
 
 # Continents first
 # Try to save time and memorize these continents
@@ -619,17 +616,20 @@ def prepContinents(fnm):
     return poly
 
 
-def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
+def apply_proj_parameters(pd, projection, x1, x2, y1, y2):
     pname = projDict.get(projection._type, projection.type)
     projName = pname
     pd.SetName(projName)
     if projection.type == "polar (non gctp)":
-        if ym < yM:
+        minY = min(y1, y2)
+        maxY = max(y1, y2)
+        if ((minY + 90.0) <= (90.0 - maxY)):
+            # minY is closer to -90 than maxY to 90
             pd.SetOptionalParameter("lat_0", "-90.")
-            pd.SetCentralMeridian(xm)
+            pd.SetCentralMeridian(x1)
         else:
             pd.SetOptionalParameter("lat_0", "90.")
-            pd.SetCentralMeridian(xm + 180.)
+            pd.SetCentralMeridian(x1 + 180.)
     else:
         if projection.type not in no_over_proj4_parameter_projections:
             pd.SetOptionalParameter("over", "true")
@@ -638,26 +638,26 @@ def apply_proj_parameters(pd, projection, xm, xM, ym, yM):
             setProjectionParameters(pd, projection)
         if (hasattr(projection, 'centralmeridian') and
                 numpy.allclose(projection.centralmeridian, 1e+20)):
-            pd.SetCentralMeridian(float(xm + xM) / 2.0)
+            pd.SetCentralMeridian(float(x1 + x2) / 2.0)
         if (hasattr(projection, 'centerlongitude') and
                 numpy.allclose(projection.centerlongitude, 1e+20)):
-            pd.SetOptionalParameter("lon_0", str(float(xm + xM) / 2.0))
+            pd.SetOptionalParameter("lon_0", str(float(x1 + x2) / 2.0))
         if (hasattr(projection, 'originlatitude') and
                 numpy.allclose(projection.originlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
         if (hasattr(projection, 'centerlatitude') and
                 numpy.allclose(projection.centerlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(ym + yM) / 2.0))
+            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
         if (hasattr(projection, 'standardparallel1') and
                 numpy.allclose(projection.standardparallel1, 1.e20)):
-            pd.SetOptionalParameter('lat_1', str(min(ym, yM)))
+            pd.SetOptionalParameter('lat_1', str(min(y1, y2)))
         if (hasattr(projection, 'standardparallel2') and
                 numpy.allclose(projection.standardparallel2, 1.e20)):
-            pd.SetOptionalParameter('lat_2', str(max(ym, yM)))
+            pd.SetOptionalParameter('lat_2', str(max(y1, y2)))
 
 
 def projectArray(w, projection, wc, geo=None):
-    xm, xM, ym, yM = wc
+    x1, x2, y1, y2 = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
     if projection.type == "linear":
@@ -668,7 +668,7 @@ def projectArray(w, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+        apply_proj_parameters(pd, projection, x1, x2, y1, y2)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
@@ -682,7 +682,7 @@ def projectArray(w, projection, wc, geo=None):
 
 # Geo projection
 def project(pts, projection, wc, geo=None):
-    xm, xM, ym, yM = wc
+    x1, x2, y1, y2 = wc
     if isinstance(projection, (str, unicode)):
         projection = vcs.elements["projection"][projection]
     if projection.type == "linear":
@@ -692,7 +692,7 @@ def project(pts, projection, wc, geo=None):
         ps = vtk.vtkGeoProjection()
         pd = vtk.vtkGeoProjection()
 
-        apply_proj_parameters(pd, projection, xm, xM, ym, yM)
+        apply_proj_parameters(pd, projection, x1, x2, y1, y2)
 
         geo.SetSourceProjection(ps)
         geo.SetDestinationProjection(pd)
@@ -1670,7 +1670,11 @@ def stippleLine(prop, line_type):
         raise Exception("Unknown line type: '%s'" % line_type)
 
 
+counti = 0
+
+
 def prepLine(renWin, line, cmap=None):
+    global counti
     number_lines = prepPrimitive(line)
     if number_lines == 0:
         return []
@@ -1745,13 +1749,25 @@ def prepLine(renWin, line, cmap=None):
             l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
+    countj = 0
     for t, w in line_data:
         pts, _, linesPoly, colors = line_data[(t, w)]
 
         linesPoly.GetCellData().SetScalars(colors)
+        if _DEBUG_VTK:
+            writer = vtk.vtkXMLPolyDataWriter()
+            writer.SetFileName("poly" + str(counti) + "-" + str(countj) + ".vtp")
+            writer.SetInputData(linesPoly)
+            writer.Write()
 
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
+
+        if _DEBUG_VTK:
+            writerg = vtk.vtkXMLPolyDataWriter()
+            writerg.SetFileName("polyg" + str(counti) + "-" + str(countj) + ".vtp")
+            writerg.SetInputData(linesPoly)
+            writerg.Write()
 
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
@@ -1763,6 +1779,9 @@ def prepLine(renWin, line, cmap=None):
 
         stippleLine(p, t)
         actors.append((a, geo))
+        countj = countj + 1
+
+    counti = counti + 1
     return actors
 
 
@@ -1884,3 +1903,45 @@ def vtkIterate(iterator):
     while obj is not None:
         yield obj
         obj = iterator.GetNextItem()
+
+
+# transforms [v1,v2] and returns it
+# such that it is in the same order
+# and has the same middle interval as [gm1, gm2]
+def switchAndTranslate(gm1, gm2, v1, v2, wrapModulo):
+    assert(v1 < v2)
+    # keep the same middle of the interval
+    if (wrapModulo):
+        gmMiddle = float(gm1 + gm2) / 2.0
+        half = float(v2 - v1) / 2.0
+        v1 = gmMiddle - half
+        v2 = gmMiddle + half
+    # if gm margins are increasing and dataset bounds are decreasing
+    # or the other way around switch them
+    if ((gm1 - gm2) * (v1 - v2) < 0):
+        v1, v2 = v2, v1
+    return [v1, v2]
+
+
+# TODO: Get rid of this funtion and pass instead: flip and central meridian
+# This function can fail for gmbounds -89, -2 where databounds are 89, 0
+# (the cells in the margins have different sizes: 2 and 4)
+#
+# returns bounds with the same interval size as databounds
+# but in the same order and with the same middle interval
+# as gmbounds. The middle and the order are used for
+# plotting. wrapModule has YWrap, XWrap in degrees, 0 means no wrap
+def getBoundsForPlotting(gmbounds, databounds, wrapModulo):
+    """ Returns the same interval as databounds but it
+    matches the order and also it keeps the same center interval as gmbounds
+    So for instance if databounds is -40, 320 and gmbounds is -180, 180
+    this function returns
+    """
+    x1gm, x2gm, y1gm, y2gm = gmbounds[:4]
+    x1, x2, y1, y2 = databounds[:4]
+    assert (x1 < x2 and y1 < y2)
+    if not numpy.allclose([x1gm, x2gm], 1.e20):
+        x1, x2 = switchAndTranslate(x1gm, x2gm, x1, x2, wrapModulo[1] if wrapModulo else None)
+    if (isinstance(y1gm, numbers.Number) and not numpy.allclose([y1gm, y2gm], 1.e20)):
+        y1, y2 = switchAndTranslate(y1gm, y2gm, y1, y2, wrapModulo[0] if wrapModulo else None)
+    return [x1, x2, y1, y2]

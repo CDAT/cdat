@@ -114,9 +114,7 @@ class BoxfillPipeline(Pipeline2D):
         if self._maskedDataMapper is not None:
             self._mappers.insert(0, self._maskedDataMapper)
 
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
+        x1, x2, y1, y2 = self.getBoundsForPlotting()
 
         # And now we need actors to actually render this thing
         actors = []
@@ -125,6 +123,8 @@ class BoxfillPipeline(Pipeline2D):
         ctj = 0
         _colorMap = self.getColorMap()
         _style = self._gm.fillareastyle
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
         for mapper in self._mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -170,8 +170,7 @@ class BoxfillPipeline(Pipeline2D):
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
             self._context().fitToViewportBounds(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
+                act, vp,
                 wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
@@ -182,8 +181,7 @@ class BoxfillPipeline(Pipeline2D):
                 # If using geofilter on wireframed does not get wrapped not sure
                 # why so sticking to many mappers
                 self._context().fitToViewportBounds(
-                    act, [self._template.data.x1, self._template.data.x2,
-                          self._template.data.y1, self._template.data.y2],
+                    act, vp,
                     wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
                     geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
@@ -197,10 +195,13 @@ class BoxfillPipeline(Pipeline2D):
             z = self._originalData1.getAxis(-3)
         else:
             z = None
-        self._resultDict.update(self._context().renderTemplate(self._template,
-                                                               self._data1,
-                                                               self._gm, t, z,
-                                                               vtk_backend_grid=self._vtkDataSet))
+        self._resultDict.update(self._context().renderTemplate(
+            self._template,
+            self._data1,
+            self._gm, t, z,
+            vtk_backend_grid=self._vtkDataSet,
+            dataset_bounds=self._vtkDataSetBounds,
+            plotting_dataset_bounds=[x1, x2, y1, y2]))
 
         if getattr(self._gm, "legend", None) is not None:
             self._contourLabels = self._gm.legend
@@ -247,8 +248,9 @@ class BoxfillPipeline(Pipeline2D):
             projection = vcs.elements["projection"][self._gm.projection]
             self._context().plotContinents(x1, x2, y1, y2, projection,
                                            self._dataWrapModulo,
-                                           self._template,
-                                           vtk_backend_grid=self._vtkDataSet)
+                                           vp, self._template.data.priority,
+                                           vtk_backend_grid=self._vtkDataSet,
+                                           dataset_bounds=self._vtkDataSetBounds)
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
