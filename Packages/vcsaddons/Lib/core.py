@@ -38,6 +38,7 @@ class VCSaddon(object):
             self.datawc_x2=1.e20
             self.datawc_y1=1.e20
             self.datawc_y2=1.e20
+            self.colormap="default"
             self.xmtics1='*'
             self.xmtics2='*'
             self.ymtics1='*'
@@ -48,6 +49,8 @@ class VCSaddon(object):
             self.yticlabels2='*'
             self.xaxisconvert= 'linear'
             self.yaxisconvert= 'linear'
+            self.color_1 = 16
+            self.color_2 = 239
             self.legend = None
             self.projection='linear'
         else:
@@ -58,6 +61,7 @@ class VCSaddon(object):
             self.datawc_x2=gm.datawc_x2
             self.datawc_y1=gm.datawc_y1
             self.datawc_y2=gm.datawc_x2
+            self.colormap=gm.colormap
             self.xmtics1=gm.xmtics1
             self.xmtics2=gm.xmtics2
             self.ymtics1=gm.ymtics1
@@ -68,6 +72,8 @@ class VCSaddon(object):
             self.yticlabels2=gm.yticlabels2
             self.xaxisconvert=gm.xaxisconvert
             self.yaxisconvert= gm.yaxisconvert
+            self.color_1 = gm.color_1
+            self.color_2 = gm.color_2
             self.legend = gm.legend
             self.projection=gm.projection
         self.name = name
