@@ -88,7 +88,8 @@ class Ghg(VCSaddon):
             template.data.x1, template.data.x2, template.data.y1, template.data.y2]
 
         xmn, xmx = vcs.minmax(self.bins)
-        ymn, ymx = 0, len(data)
+        # Make the y scale be slightly larger than the largest bar
+        ymn, ymx = 0, max(y_values) * 1.25
 
         xmn, xmx, ymn, ymx = self.prep_plot(xmn, xmx, ymn, ymx)
 
