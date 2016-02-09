@@ -25,6 +25,7 @@
 #
 import VCS_validation_functions
 import vcs
+import vcsaddons
 
 
 class Dp(object):
@@ -211,7 +212,7 @@ class Dp(object):
     def _setg_type(self, value):
         value = VCS_validation_functions.checkString(self, 'g_type', value)
         value = value.lower()
-        if value not in vcs.elements and value != "text":
+        if value not in vcs.elements and value != "text" and value not in vcsaddons.gms:
             raise ValueError(
                 "invalid g_type '%s' must be one of: %s " %
                 (value, vcs.elements.keys()))
@@ -259,6 +260,7 @@ class Dp(object):
             self._g_name = "default"
             self._array = []
             self._continents = 1
+            self._continents_line = "default"
             self.ratio = None
         else:
             src = vcs.elements["display"][Dp_name_src]
@@ -269,6 +271,7 @@ class Dp(object):
             self.g_type = src.g_type
             self.g_name = src.g_name
             self.continents = src.continents
+            self.continents_line = src.continents_line
             self.priority = src.priority
             self.ratio = src.ratio
 
