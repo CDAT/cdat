@@ -42,7 +42,7 @@ class Ghg(VCSaddon):
         print 'linecolors = ', self.linecolors
         print 'bins = ', self.bins
 
-    def plot(self, data, template=None, bg=0, x=None):
+    def plot(self, data, template=None, bg=0, x=None, **kwargs):
         if x is None:
             x = self.x
         if template is None:
@@ -190,9 +190,11 @@ class Ghg(VCSaddon):
 
         dsp = template.plot(x, MV2.masked_array(data), self, bg=bg, X=x_axis, Y=y_axis)
         for d in dsp:
-            displays.append(d)
+            if d is not None:
+                displays.append(d)
 
         self.restore()
         # Ugh, hack
         x.backend.renWin.Render()
+        print displays
         return displays

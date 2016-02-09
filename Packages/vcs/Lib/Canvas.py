@@ -3518,9 +3518,14 @@ Options:::
                     tp = "boxfill"
                 elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
                     tp = "1d"
-                gm = vcs.elements[tp][arglist[4]]
+                if tp in vcsaddons.gms:
+                    gm = vcsaddons.gms[tp][arglist[4]]
+                    arglist[3] = gm
+                else:
+                    gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
+
             p = self.getprojection(gm.projection)
             if p.type in round_projections and (
                     doratio == "0" or doratio[:4] == "auto"):
@@ -3729,20 +3734,22 @@ Options:::
                 del(keyargs["bg"])
             if isinstance(arglist[3], vcsaddons.core.VCSaddon):
                 if arglist[1] is None:
-                    dn = arglist[3].plot(
+                    dn = arglist[3].plot_internal(
                         arglist[0],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
                 else:
-                    dn = arglist[3].plot(
+                    dn = arglist[3].plot_internal(
                         arglist[0],
                         arglist[1],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
+                self.display_names.append(dn.name)
+                return dn
             else:
                 returned_kargs = self.backend.plot(*arglist, **keyargs)
                 if not keyargs.get("donotstoredisplay", False):
