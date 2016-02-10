@@ -44,7 +44,7 @@ def process_src(nm, code):
                 except:
                     vals.append(float(V))
             atts[a] = vals
-    if not "lci" in atts.keys():
+    if "lci" not in atts.keys():
         sp = code.split(",")
         atts["lci"] = int(sp[2])
         atts["ltyp"] = abs(int(sp[0])-1)
@@ -169,7 +169,7 @@ class Tl(object):
     def _settype(self, value):
         if isinstance(value, (str, int)):
             value = [value, ]
-        self._type,colors,width = VCS_validation_functions.checkLinesList(
+        self._type, colors, width = VCS_validation_functions.checkLinesList(
             self,
             'index',
             value)

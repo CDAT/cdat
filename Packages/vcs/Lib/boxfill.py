@@ -116,7 +116,7 @@ def process_src(nm, code):
                 gm.datawc_y2,
                 gm.datawc_timeunits).tocomp(
                 gm.datawc_calendar)
-    vcs.utils.process_range_from_old_scr(code,gm)
+    vcs.utils.process_range_from_old_scr(code, gm)
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
