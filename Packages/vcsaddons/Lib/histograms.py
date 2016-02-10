@@ -76,7 +76,7 @@ class Ghg(VCSaddon):
                 max_possible_deviance = max(means[ind] - self.bins[ind], max_possible_deviance)
 
         color_values = [std / max_possible_deviance for std in stds]
-        y_values, _ = numpy.histogram(data, self.bins)
+        y_values = [len(databin) for databin in binned]
         nbars = len(self.bins) - 1
 
         # create the primitive
@@ -91,7 +91,7 @@ class Ghg(VCSaddon):
         # Make the y scale be slightly larger than the largest bar
         ymn, ymx = 0, max(y_values) * 1.25
 
-        xmn, xmx, ymn, ymx = self.prep_plot(xmn, xmx, ymn, ymx)
+        #xmn, xmx, ymn, ymx = self.prep_plot(xmn, xmx, ymn, ymx)
 
         fill.worldcoordinate = [xmn, xmx, ymn, ymx]
         line.worldcoordinate = [xmn, xmx, ymn, ymx]
@@ -180,13 +180,11 @@ class Ghg(VCSaddon):
         line.width = lw
         line.color = lc
         displays = []
-        displays.append(x.plot(fill, bg=bg))
-        displays.append(x.plot(line, bg=bg))
-
-        x.worldcoordinate = fill.worldcoordinate
 
         x_axis = cdms2.createAxis(self.bins, id="x")
         y_axis = cdms2.createAxis(vcs.mkscale(0, len(data)), id="y")
+
+        displays.append(x.plot(fill, bg=bg, render=False))
 
         dsp = template.plot(x, MV2.masked_array(data), self, bg=bg, X=x_axis, Y=y_axis)
         for d in dsp:
@@ -198,7 +196,10 @@ class Ghg(VCSaddon):
             if d is not None:
                 displays.append(d)
 
+
+        displays.append(x.plot(line, bg=bg))
+
+        x.worldcoordinate = fill.worldcoordinate
+
         self.restore()
-        # Ugh, hack
-        x.backend.renWin.Render()
         return displays
