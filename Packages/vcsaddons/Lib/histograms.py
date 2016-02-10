@@ -109,41 +109,41 @@ class Ghg(VCSaddon):
 
         # Extend fillarea and line attrs to levels
         if self.fillareastyles:
-            while len(self.fillareastyles) < len(levels):
+            while len(self.fillareastyles) < (len(levels) - 1):
                 self.fillareastyles.append(self.fillareastyles[-1])
         else:
-            self.fillareastyles = ["solid"] * len(levels)
+            self.fillareastyles = ["solid"] * (len(levels) - 1)
 
         if self.fillareacolors:
-            while len(self.fillareacolors) < len(levels):
+            while len(self.fillareacolors) < (len(levels) - 1):
                 self.fillareacolors.append(self.fillareacolors[-1])
         else:
-            for lev in levels:
+            for lev in levels[:-1]:
                 self.fillareacolors.append(int((self.color_2 - self.color_1) * lev) + self.color_1)
 
         if self.fillareaindices:
-            while len(self.fillareaindices) < len(levels):
+            while len(self.fillareaindices) < (len(levels) - 1):
                 self.fillareaindices.append(self.fillareaindices[-1])
         else:
-            self.fillareaindices = [1] * len(levels)
+            self.fillareaindices = [1] * (len(levels) - 1)
 
         if self.line:
-            while len(self.line) < len(levels):
+            while len(self.line) < (len(levels) - 1):
                 self.line.append(self.line[-1])
         else:
-            self.line = ["solid"] * len(levels)
+            self.line = ["solid"] * (len(levels) - 1)
 
         if self.linewidth:
-            while len(self.linewidth) < len(levels):
+            while len(self.linewidth) < (len(levels) - 1):
                 self.linewidth.append(self.linewidth[-1])
         else:
-            self.linewidth = [1] * len(levels)
+            self.linewidth = [1] * (len(levels) - 1)
 
         if self.linecolors:
-            while len(self.linecolors) < len(levels):
+            while len(self.linecolors) < (len(levels) - 1):
                 self.linecolors.append(self.linecolors[-1])
         else:
-            self.linecolors = ["black"] * len(levels)
+            self.linecolors = ["black"] * (len(levels) - 1)
 
         for i in range(nbars):
             # Calculate level for bar
@@ -193,8 +193,12 @@ class Ghg(VCSaddon):
             if d is not None:
                 displays.append(d)
 
+        dsp = template.drawColorBar(self.fillareacolors, levels, legend={0: "No Variance", .1:"", .2: "", .3:"", .4:"", .5:"", .6:"", .7:"", .8:"", .9:"", 1: "High Variance"}, x=x)
+        for d in dsp:
+            if d is not None:
+                displays.append(d)
+
         self.restore()
         # Ugh, hack
         x.backend.renWin.Render()
-        print displays
         return displays
