@@ -456,6 +456,12 @@ class VTKVCSBackend(object):
             # following works on some machines but not all
             # Creates the window to be 60% of user's screen's width
             bgX = int(screenSize[0] * .6)
+            bgY = int(bgX / self.canvas.size)
+            if bgY > screenSize[1]:
+                # If still too big use 60% of height
+                # typical case: @doutriaux1 screens
+                bgY = int(screenSize[1] * .6)
+                bgX = int(bgY * self.canvas.size)
         except:
             bgX = self.canvas.bgX
         # Respect user chosen aspect ratio
