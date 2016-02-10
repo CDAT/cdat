@@ -99,97 +99,97 @@ def process_src(nm, code):
                     setattr(g, nm, sp[1])
                 except:
                     pass  # oh well we stick to default value
-        # Datawc
-        idwc = code.find(" datawc(")
-        if idwc > -1:
-            jdwc = code[idwc:].find(")") + idwc
-            cd = code[idwc + 8:jdwc]
-            vals = cd.split(",")
-            g.datawc_x1 = float(vals[0])
-            g.datawc_y1 = float(vals[1])
-            g.datawc_x2 = float(vals[2])
-            g.datawc_y2 = float(vals[3])
-        # idatawc
-        idwc = code.find("idatawc(")
-        if idwc > -1:
-            jdwc = code[idwc:].find(")") + idwc
-            cd = code[idwc + 8:jdwc]
-            vals = cd.split(",")
-            if int(vals[0]) == 1:
-                g.datawc_x1 = cdtime.reltime(
-                    g.datawc_x1,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[1]) == 1:
-                g.datawc_y1 = cdtime.reltime(
-                    g.datawc_x2,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[2]) == 1:
-                g.datawc_x2 = cdtime.reltime(
-                    g.datawc_y1,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[3]) == 1:
-                g.datawc_y2 = cdtime.reltime(
-                    g.datawc_y2,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-        irg = code.find("lines")
-        if irg > -1:
-            scode = code[irg:]
-            tl = []
-            tt = []
-            to = []
-            clock = []
-            scales = []
-            angles = []
-            spacing = []
-            levs = []
-            #print code[irg:]
+    # Datawc
+    idwc = code.find(" datawc(")
+    if idwc > -1:
+        jdwc = code[idwc:].find(")") + idwc
+        cd = code[idwc + 8:jdwc]
+        vals = cd.split(",")
+        g.datawc_x1 = float(vals[0])
+        g.datawc_y1 = float(vals[1])
+        g.datawc_x2 = float(vals[2])
+        g.datawc_y2 = float(vals[3])
+    # idatawc
+    idwc = code.find("idatawc(")
+    if idwc > -1:
+        jdwc = code[idwc:].find(")") + idwc
+        cd = code[idwc + 8:jdwc]
+        vals = cd.split(",")
+        if int(vals[0]) == 1:
+            g.datawc_x1 = cdtime.reltime(
+                g.datawc_x1,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[1]) == 1:
+            g.datawc_y1 = cdtime.reltime(
+                g.datawc_x2,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[2]) == 1:
+            g.datawc_x2 = cdtime.reltime(
+                g.datawc_y1,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[3]) == 1:
+            g.datawc_y2 = cdtime.reltime(
+                g.datawc_y2,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+    irg = code.find("lines")
+    if irg > -1:
+        scode = code[irg:]
+        tl = []
+        tt = []
+        to = []
+        clock = []
+        scales = []
+        angles = []
+        spacing = []
+        levs = []
+        #print code[irg:]
+        iid = scode.find("(id=")
+        while iid > -1:
+            sub = genutil.get_parenthesis_content(scode[iid:])
+            if get_att_from_sub(sub, "label") not in ["*", None]:
+                g.label = 'y'
+            levs.append(get_att_from_sub(sub, "level"))
+            tl.append(get_att_from_sub(sub, "Tl"))
+            to.append(get_att_from_sub(sub, "To"))
+            tt.append(get_att_from_sub(sub, "Tt"))
+            clock.append(get_att_from_sub(sub, "clockwise"))
+            scales.append(get_att_from_sub(sub, "length"))
+            angles.append(get_att_from_sub(sub, "angle"))
+            spacing.append(get_att_from_sub(sub, "spacing"))
+            iend=scode[iid:].find(")")+1
+            scode=scode[iid+iend:]
             iid = scode.find("(id=")
-            while iid > -1:
-                sub = genutil.get_parenthesis_content(scode[iid:])
-                if get_att_from_sub(sub, "label") not in ["*", None]:
-                    g.label = 'y'
-                levs.append(get_att_from_sub(sub, "level"))
-                tl.append(get_att_from_sub(sub, "Tl"))
-                to.append(get_att_from_sub(sub, "To"))
-                tt.append(get_att_from_sub(sub, "Tt"))
-                clock.append(get_att_from_sub(sub, "clockwise"))
-                scales.append(get_att_from_sub(sub, "length"))
-                angles.append(get_att_from_sub(sub, "angle"))
-                spacing.append(get_att_from_sub(sub, "spacing"))
-                iend=scode[iid:].find(")")+1
-                scode=scode[iid+iend:]
-                iid = scode.find("(id=")
-            g.level = levs
-            try:
-                g.line = tl
-            except:
-                g._line = tl
-            try:
-                g.text = to
-            except:
-                g._text = to
-            try:
-                g.textcolors = tt
-            except:
-                g._textcolors = tt
+    g.level = levs
+    try:
+        g.line = tl
+    except Exception,err:
+        g._line = tl
+    try:
+        g.text = to
+    except:
+        g._text = to
+    try:
+        g.textcolors = tt
+    except:
+        g._textcolors = tt
 
-            gd = vcs.elements["isoline"]["default"]
-            try:
-                g.scale = scales
-            except:
-                g.scale = gd.scale
-            try:
-                g.angle = angles
-            except:
-                g.angle = gd.angle
-            try:
-                g.clockwise = clock
-            except:
-                g.clockwise = gd.clockwise
+    gd = vcs.elements["isoline"]["default"]
+    try:
+        g.scale = scales
+    except:
+        g.scale = gd.scale
+    try:
+        g.angle = angles
+    except:
+        g.angle = gd.angle
+    try:
+        g.clockwise = clock
+    except:
+        g.clockwise = gd.clockwise
 
 
 class Gi(object):
@@ -621,12 +621,24 @@ class Gi(object):
         return self._line
 
     def _setline(self, value):
+        ovalue = str(value)
         if value is not None:
-            value = VCS_validation_functions.checkLinesList(
+            value,cvalue,wvalue = VCS_validation_functions.checkLinesList(
                 self,
                 'line',
                 value)
         self._line = value
+        try:
+            if self.linecolors is None or len(self.linecolors)<len(cvalue):
+                self.linecolors = cvalue
+        except:
+            pass
+        try:
+            if self.linewidths is None or len(self.linewidths)<len(wvalue):
+                self.linewidths = wvalue
+        except:
+            pass
+
     line = property(_getline, _setline)
 
     def _gettext(self):

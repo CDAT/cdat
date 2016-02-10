@@ -877,6 +877,10 @@ def checkLineType(self, name, value):
         hvalue = 'long-dash'
     elif (queries.isline(value) == 1):
         hvalue = value.name
+    elif value in vcs.elements["line"]:
+        self.linecolor = vcs.elements["line"][value].color[0]
+        self.linewidth = vcs.elements["line"][value].width[0]
+        hvalue = vcs.elements["line"][value].type[0]
     else:
         checkedRaise(
             self,
@@ -894,9 +898,19 @@ def checkLinesList(self, name, value):
         value = list(value)
     value = checkListTuple(self, name, value)
     hvalue = []
+    cvalues = []
+    wvalues = []
     for v in value:
-        hvalue.append(checkLineType(self, name, v))
-    return hvalue
+        if v not in ["solid","dash","dot","dash-dot","long-dash"] and v in vcs.elements["line"]:
+            l = vcs.elements["line"][v]
+            hvalue.append(l.type[0])
+            cvalues.append(l.color[0])
+            wvalues.append(l.width[0])
+        else:
+            hvalue.append(checkLineType(self, name, v))
+            cvalues.append(1)
+            wvalues.append(1.0)
+    return hvalue,cvalues,wvalues
 
 
 def checkTextTable(self, name, value):

@@ -89,6 +89,7 @@ def process_src(nm, code):
                 try:
                     setattr(gm, nm, sp[1])
                 except:
+                    if nm == "line" : print "And it fails"
                     pass  # oh well we stick to default value
         # Datawc
         idwc = code.find(" datawc(")
