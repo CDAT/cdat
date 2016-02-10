@@ -748,7 +748,13 @@ def checkColorList(self, name, value):
     value = checkListTuple(self, name, value)
     returned_values = []
     for v in value:
-        returned_values.append(checkColor(self, name + '_list_value', v, NoneOk=True))
+        returned_values.append(
+            checkColor(
+                self,
+                name +
+                '_list_value',
+                v,
+                NoneOk=True))
     return returned_values
 
 
@@ -901,7 +907,8 @@ def checkLinesList(self, name, value):
     cvalues = []
     wvalues = []
     for v in value:
-        if v not in ["solid","dash","dot","dash-dot","long-dash"] and v in vcs.elements["line"]:
+        if v not in ["solid", "dash", "dot", "dash-dot",
+                     "long-dash"] and v in vcs.elements["line"]:
             l = vcs.elements["line"][v]
             hvalue.append(l.type[0])
             cvalues.append(l.color[0])
@@ -910,7 +917,7 @@ def checkLinesList(self, name, value):
             hvalue.append(checkLineType(self, name, v))
             cvalues.append(1)
             wvalues.append(1.0)
-    return hvalue,cvalues,wvalues
+    return hvalue, cvalues, wvalues
 
 
 def checkTextTable(self, name, value):

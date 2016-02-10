@@ -146,7 +146,7 @@ def process_src(nm, code):
         angles = []
         spacing = []
         levs = []
-        #print code[irg:]
+        # print code[irg:]
         iid = scode.find("(id=")
         while iid > -1:
             sub = genutil.get_parenthesis_content(scode[iid:])
@@ -160,13 +160,13 @@ def process_src(nm, code):
             scales.append(get_att_from_sub(sub, "length"))
             angles.append(get_att_from_sub(sub, "angle"))
             spacing.append(get_att_from_sub(sub, "spacing"))
-            iend=scode[iid:].find(")")+1
-            scode=scode[iid+iend:]
+            iend = scode[iid:].find(")") + 1
+            scode = scode[iid + iend:]
             iid = scode.find("(id=")
     g.level = levs
     try:
         g.line = tl
-    except Exception,err:
+    except:
         g._line = tl
     try:
         g.text = to
@@ -621,20 +621,19 @@ class Gi(object):
         return self._line
 
     def _setline(self, value):
-        ovalue = str(value)
         if value is not None:
-            value,cvalue,wvalue = VCS_validation_functions.checkLinesList(
+            value, cvalue, wvalue = VCS_validation_functions.checkLinesList(
                 self,
                 'line',
                 value)
         self._line = value
         try:
-            if self.linecolors is None or len(self.linecolors)<len(cvalue):
+            if self.linecolors is None or len(self.linecolors) < len(cvalue):
                 self.linecolors = cvalue
         except:
             pass
         try:
-            if self.linewidths is None or len(self.linewidths)<len(wvalue):
+            if self.linewidths is None or len(self.linewidths) < len(wvalue):
                 self.linewidths = wvalue
         except:
             pass
@@ -698,7 +697,9 @@ class Gi(object):
                 'labelbackgroundcolors',
                 value)
         self._labelbackgroundcolors = value
-    labelbackgroundcolors = property(_getlabelbackgroundcolors, _setlabelbackgroundcolors)
+    labelbackgroundcolors = property(
+        _getlabelbackgroundcolors,
+        _setlabelbackgroundcolors)
 
     def _getlabelbackgroundopacities(self):
         return self._labelbackgroundopacities
@@ -710,7 +711,9 @@ class Gi(object):
                 'labelbackgroundopacities',
                 value)
         self._labelbackgroundopacities = value
-    labelbackgroundopacities = property(_getlabelbackgroundopacities, _setlabelbackgroundopacities)
+    labelbackgroundopacities = property(
+        _getlabelbackgroundopacities,
+        _setlabelbackgroundopacities)
 
     def _getspacing(self):
         return self._spacing

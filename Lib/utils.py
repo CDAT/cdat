@@ -31,32 +31,31 @@ indent = 1
 sort_keys = True
 
 
-def process_range_from_old_scr(code,g):
+def process_range_from_old_scr(code, g):
     irg = code.find("range")
     if irg > -1:
         rg_code = code[irg:]
-        i = 0
         levs = []
         fac = []
         fai = []
         fas = []
         badfa = False
         while rg_code.find("(id=") > -1:
-                iend = rg_code.find(")") + 1
-                line = rg_code[:iend]
-                rg_code = rg_code[iend:]
-                sp = line.split(",")
-                levs.append([float(sp[1][7:]), float(sp[2][7:])])
-                fa = sp[-1][3:]
-                fa = fa[:fa.find(")")]
-                if fa not in vcs.elements["fillarea"].keys():
-                    badfa = True
-                    fai.append(fa)
-                else:
-                    fa = vcs.elements["fillarea"][fa]
-                    fac.append(fa.color[0])
-                    fai.append(fa.index[0])
-                    fas.append(fa.style[0])
+            iend = rg_code.find(")") + 1
+            line = rg_code[:iend]
+            rg_code = rg_code[iend:]
+            sp = line.split(",")
+            levs.append([float(sp[1][7:]), float(sp[2][7:])])
+            fa = sp[-1][3:]
+            fa = fa[:fa.find(")")]
+            if fa not in vcs.elements["fillarea"].keys():
+                badfa = True
+                fai.append(fa)
+            else:
+                fa = vcs.elements["fillarea"][fa]
+                fac.append(fa.color[0])
+                fai.append(fa.index[0])
+                fas.append(fa.style[0])
         if not numpy.allclose(levs, 1.e20):
             g.levels = levs
         if badfa:
@@ -65,6 +64,7 @@ def process_range_from_old_scr(code,g):
             g.fillareacolors = fac
             g.fillareaindices = fai
             g.fillareastyle = fas[0]
+
 
 def dumpToDict(obj, skipped=[], must=[]):
     dic = {}
@@ -141,7 +141,8 @@ def dumpToJson(obj, fileout, skipped=[
             f.close()
             for etype in associated.keys():
                 for asso in associated[etype]:
-                    if asso is not None and asso not in vcs._protected_elements[etype]:
+                    if asso is not None and asso not in vcs._protected_elements[
+                            etype]:
                         dumpToJson(
                             vcs.elements[etype][asso],
                             fileout,
@@ -579,7 +580,8 @@ def saveinitialfile():
     for k in vcs.elements.keys():
         Skip[k] = []
         for e in vcs.elements[k].keys():
-            if e in vcs._protected_elements[k] or e[:2] == "__":  # temporary elt
+            if e in vcs._protected_elements[k] or e[
+                    :2] == "__":  # temporary elt
                 Skip[k].append(e)
     for k in vcs.elements.keys():
         if k in ["display", "font", "fontNumber"]:
@@ -646,7 +648,8 @@ def scriptrun(script):
             f = open(script)
             jsn = json.load(f)
             keys = []
-            for k in ["Tt", "To", "Tl", "Tm", "Proj"]:  # always read these first
+            for k in ["Tt", "To", "Tl",
+                      "Tm", "Proj"]:  # always read these first
                 if k in jsn.keys():
                     keys.append(k)
             for k in jsn.keys():

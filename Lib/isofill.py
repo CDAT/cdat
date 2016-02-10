@@ -30,7 +30,7 @@ import vcs
 import VCS_validation_functions
 import cdtime
 import xmldocs
-import numpy
+
 
 def load(nm, json_dict={}):
     return
@@ -121,7 +121,8 @@ def process_src(nm, code):
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
 
-    vcs.utils.process_range_from_old_scr(code,g)
+    vcs.utils.process_range_from_old_scr(code, g)
+
 
 class Gfi(object):
 
