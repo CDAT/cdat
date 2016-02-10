@@ -1880,7 +1880,49 @@ def generateVectorArray(data1, data2, vtk_grid):
 
 def vtkIterate(iterator):
     iterator.InitTraversal()
-    obj = iterator.GetNextItem()
+    obj = iterator.GetNextItemAsObject()
     while obj is not None:
         yield obj
-        obj = iterator.GetNextItem()
+        obj = iterator.GetNextItemAsObject()
+
+
+# transforms [v1,v2] and returns it
+# such that it is in the same order
+# and has the same middle interval as [gm1, gm2]
+def switchAndTranslate(gm1, gm2, v1, v2, wrapModulo):
+    assert(v1 < v2)
+    # keep the same middle of the interval
+    if (wrapModulo):
+        gmMiddle = float(gm1 + gm2) / 2.0
+        half = float(v2 - v1) / 2.0
+        v1 = gmMiddle - half
+        v2 = gmMiddle + half
+    # if gm margins are increasing and dataset bounds are decreasing
+    # or the other way around switch them
+    if ((gm1 - gm2) * (v1 - v2) < 0):
+        v1, v2 = v2, v1
+    return [v1, v2]
+
+
+# TODO: Get rid of this funtion and pass instead: flip and central meridian
+# This function can fail for gmbounds -89, -2 where databounds are 89, 0
+# (the cells in the margins have different sizes: 2 and 4)
+#
+# returns bounds with the same interval size as databounds
+# but in the same order and with the same middle interval
+# as gmbounds. The middle and the order are used for
+# plotting. wrapModule has YWrap, XWrap in degrees, 0 means no wrap
+def getBoundsForPlotting(gmbounds, databounds, wrapModulo):
+    """ Returns the same interval as databounds but it
+    matches the order and also it keeps the same center interval as gmbounds
+    So for instance if databounds is -40, 320 and gmbounds is -180, 180
+    this function returns
+    """
+    x1gm, x2gm, y1gm, y2gm = gmbounds[:4]
+    x1, x2, y1, y2 = databounds[:4]
+    assert (x1 < x2 and y1 < y2)
+    if not numpy.allclose([x1gm, x2gm], 1.e20):
+        x1, x2 = switchAndTranslate(x1gm, x2gm, x1, x2, wrapModulo[1] if wrapModulo else None)
+    if (isinstance(y1gm, numbers.Number) and not numpy.allclose([y1gm, y2gm], 1.e20)):
+        y1, y2 = switchAndTranslate(y1gm, y2gm, y1, y2, wrapModulo[0] if wrapModulo else None)
+    return [x1, x2, y1, y2]
