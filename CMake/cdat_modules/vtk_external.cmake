@@ -38,6 +38,7 @@ set(_vtk_modules
   vtkInteractionWidgets
   vtkIOCore
   vtkIOExport
+  vtkIOExportOpenGL
   vtkIOGeometry
   vtkIOImage
   vtkIOImport
