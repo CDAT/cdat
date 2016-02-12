@@ -102,14 +102,11 @@ def checkContinents(self, value):
             path = None
         elif 0 < value < 7:
             path = os.path.join(
-                os.environ.get(
-                    "HOME",
-                    ""),
-                os.environ.get(
-                    vcs.getdotdirectory()[1],
-                    vcs.getdotdirectory()[0]),
-                "data_continent_%s" % nms[
-                    value - 1])
+                os.environ.get("HOME", ""),
+                os.environ.get(vcs.getdotdirectory()[1],
+                               vcs.getdotdirectory()[0]),
+                "data_continent_%s" % nms[value - 1])
+
             if not os.path.exists(path):
                     # fallback on installed with system one
                 path = os.path.join(
@@ -119,9 +116,18 @@ def checkContinents(self, value):
                     "data_continent_%s" % nms[
                         value - 1])
         else:
-            raise ValueError("Continents value must be file or int < 12")
+            path = os.path.join(os.environ.get("HOME", ""),
+                                os.environ.get(vcs.getdotdirectory()[1],
+                                               vcs.getdotdirectory()[0]),
+                                "data_continent_other%d" % value)
+            if not os.path.exists(path):
+                raise ValueError("Couldn't find continents file at %s" % path)
     else:
-        path = value
+        try:
+            if os.path.exists(value):
+                path = value
+        except:
+            raise ValueError("Continents should be a path to a file or an index.")
     return path
 
 
