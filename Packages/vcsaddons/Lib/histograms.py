@@ -51,6 +51,16 @@ class Ghg(VCSaddon):
             template = x.gettemplate(template)
         elif not vcs.istemplate(template):
             raise ValueError("Error did not know what to do with template: %s" % template)
+        try:
+            data_name = data.title
+        except AttributeError:
+            try:
+                data_name = data.long_name
+            except AttributeError:
+                try:
+                    data_name = data.id + data.units
+                except AttributeError:
+                    data_name = data.id
 
         # We'll just flatten the data... if they want to be more precise, should pass in more precise data
         data = data.flatten().asma()
@@ -181,12 +191,13 @@ class Ghg(VCSaddon):
         line.color = lc
         displays = []
 
-        x_axis = cdms2.createAxis(self.bins, id="x")
-        y_axis = cdms2.createAxis(vcs.mkscale(0, len(data)), id="y")
+        x_axis = cdms2.createAxis(self.bins, id=data_name)
+        y_axis = cdms2.createAxis(vcs.mkscale(0, ymx), id="bin_size")
 
         displays.append(x.plot(fill, bg=bg, render=False))
-
-        dsp = template.plot(x, MV2.masked_array(data), self, bg=bg, X=x_axis, Y=y_axis)
+        arr = MV2.masked_array(y_values)
+        arr.setAxis(0, x_axis)
+        dsp = template.plot(x, arr, self, bg=bg, X=x_axis, Y=y_axis)
         for d in dsp:
             if d is not None:
                 displays.append(d)
@@ -195,7 +206,6 @@ class Ghg(VCSaddon):
         for d in dsp:
             if d is not None:
                 displays.append(d)
-
 
         displays.append(x.plot(line, bg=bg))
 
