@@ -317,6 +317,11 @@ cdat_add_test(vcs_test_meshfill_no_wrapping
   "${BASELINE_DIR}/vcs_test_meshfill_no_wrapping.png"
   "${UVCDAT_GIT_TESTDATA_DIR}/data/heat.nc"
   )
+cdat_add_test(vcs_test_boxfill_robinson_wrap
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_boxfill_robinson_wrap.py
+  "${BASELINE_DIR}/vcs_test_boxfill_robinson_wrap.png"
+  )
 cdat_add_test(vcs_test_boxfill_10x10_numpy
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
