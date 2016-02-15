@@ -112,9 +112,13 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
                 else:
                     attributes2 = grid2.GetPointData()
                     attributes = grid.GetPointData()
-                attributes2.SetPedigreeIds(attributes.GetPedigreeIds())
-                vtkmask = vtk.vtkIntArray()
-                vtkmask.SetNumberOfTuples(attributes2.GetPedigreeIds().GetNumberOfTuples())
+                if (attributes.GetPedigreeIds()):
+                    attributes2.SetPedigreeIds(attributes.GetPedigreeIds())
+                    vtkmask = vtk.vtkIntArray()
+                    vtkmask.SetNumberOfTuples(attributes2.GetPedigreeIds().GetNumberOfTuples())
+                else:
+                    # the unstructured grid is not wrapped
+                    vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep)
             vtkmask.SetName("scalar")
             attributes2.RemoveArray(vtk.vtkDataSetAttributes.GhostArrayName())
             attributes2.SetScalars(vtkmask)
@@ -149,9 +153,11 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             if isInvalid:
                 ghost[i] = invalidMaskValue
         attributes = grid.GetCellData() if cellData else grid.GetPointData()
-        if (grid.GetDataObjectType() is vtk.VTK_UNSTRUCTURED_GRID):
+        pedigreeIds = attributes.GetPedigreeIds()
+        if (pedigreeIds):
+            # we need to create the ghost array because setArray does not create it in this case
             vtkghost = vtk.vtkUnsignedCharArray()
-            vtkghost.SetNumberOfTuples(attributes.GetPedigreeIds().GetNumberOfTuples())
+            vtkghost.SetNumberOfTuples(pedigreeIds.GetNumberOfTuples())
             vtkghost.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
             attributes.AddArray(vtkghost)
         setArray(grid, ghost, vtk.vtkDataSetAttributes.GhostArrayName(),
