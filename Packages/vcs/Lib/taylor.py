@@ -922,15 +922,17 @@ class Gtd(object):
         if function is None:
             return
         color = self.skillColor
-        a = MV2.ones((self.detail, self.detail), typecode=MV2.float)
+        a = MV2.ones((self.detail + 1, self.detail + 1), typecode=MV2.float)
         a = MV2.masked_equal(a, 1)
         v1 = []
         v2 = []
-        for i in range(self.detail):
+        # we generate data with range -self._stdmax, self._stdmax so
+        # we want i/self.detail to vary between [0, 1]
+        for i in range(self.detail + 1):
             x = float(i) / self.detail * self._stdmax * \
                 self.quadrans - self._stdmax * (self.quadrans - 1)
             v1.append(x)
-            for j in range(self.detail):
+            for j in range(self.detail + 1):
                 y = float(j) / self.detail * self._stdmax
                 if i == 0:
                     v2.append(y)
@@ -972,7 +974,7 @@ class Gtd(object):
         tmpl.data.x2 = self.template.data.x2
         tmpl.data.y1 = self.template.data.y1
         tmpl.data.y2 = self.template.data.y2
-        self.displays.append(canvas.plot(a, iso, tmpl, bg=self.bg))
+        return canvas.plot(a, iso, tmpl, bg=self.bg)
 
     def list(self):
         print ' ----------Taylordiagram (Gtd) member (attribute) listings ----------'
@@ -1358,7 +1360,7 @@ class Gtd(object):
 # Cx.append(self.outtervalue*numpy.cos(self.quadrans/2.*numpy.pi))
 # Cy.append(self.outtervalue*numpy.sin(self.quadrans/2.*numpy.pi))
 
-    def drawFrame(self, canvas, data):
+    def setWorldCoordinate(self, canvas):
         viewport = [self.template.data.x1, self.template.data.x2,
                     self.template.data.y1, self.template.data.y2]
         self.viewport = viewport
@@ -1396,6 +1398,9 @@ class Gtd(object):
             else:   # ys are bigger
                 self.worldcoordinate = [wc[0], wc[1],
                                         wc[2], wc[2] + (wc[3] - wc[2]) / r]
+        return wc
+
+    def drawFrame(self, canvas, data, wc):
         O = createnewvcsobj(canvas, 'line', 'tdiag_', self.template.line2.line)
         frame = createnewvcsobj(
             canvas,
@@ -1875,8 +1880,14 @@ class Gtd(object):
             else:
                 self.outtervalue = float(self.referencevalue * 1.2)
             resetoutter = 1
-        self.drawFrame(canvas, data=data)
-        self.drawSkill(canvas, values=self.skillValues, function=skill)
+        wc = self.setWorldCoordinate(canvas)
+        d = self.drawSkill(canvas, values=self.skillValues, function=skill)
+        if (d):
+            self.displays.append(d)
+        if (len(self.displays) > 0):
+            datasetBounds = self.displays[-1].backend['dataset_bounds']
+            self.worldcoordinate = datasetBounds
+        self.drawFrame(canvas, data, wc)
         self.draw(canvas, data)
         # Ok now draws the little comment/source, etc
         self.displays += self.template.plot(canvas, data, self, bg=bg)
