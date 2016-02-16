@@ -68,7 +68,7 @@ class VTKVCSBackend(object):
 
         if renWin is not None:
             self.renWin = renWin
-            if renWin.GetInteractor() is None and self.bg is False:
+            if renWin.GetInteractor() is None and not self.bg:
                 self.createDefaultInteractor()
 
         if sys.platform == "darwin":
@@ -316,6 +316,22 @@ class VTKVCSBackend(object):
         defaultInteractor.SetRenderWindow(self.renWin)
         self.vcsInteractorStyle.On()
 
+    def calcInitialSize(self, renWin=None):
+        # Gets user physical screen dimensions
+        if renWin is None:
+            # Create temp one to use to get the screen size
+            renWin = vtk.vtkRenderWindow()
+        screenSize = renWin.GetScreenSize()
+        try:
+            # following works on some machines but not all
+            # Creates the window to be 60% of user's screen's width
+            bgX = int(screenSize[0] * .6)
+        except:
+            bgX = self.canvas.bgX
+        # Respect user chosen aspect ratio
+        bgY = int(bgX / self.canvas.size)
+        return bgX, bgY
+
     def createRenWin(self, *args, **kargs):
         if self.renWin is None:
             # Create the usual rendering stuff.
@@ -384,8 +400,10 @@ class VTKVCSBackend(object):
     def canvasinfo(self):
         if self.renWin is None:
             mapstate = False
-            height = self.canvas.bgY
-            width = self.canvas.bgX
+            if self.bg:
+                width, height = self.canvas.bgX, self.canvas.bgY
+            else:
+                width, height = self.calcInitialSize()
             depth = None
             x = 0
             y = 0
@@ -445,24 +463,14 @@ class VTKVCSBackend(object):
         self.resize_or_rotate_window(W, H, x, y, clear)
 
     def initialSize(self, width=None, height=None):
-        # Gets user physical screen dimensions
         if isinstance(width, int) and isinstance(height, int):
-            self.renWin.SetSize(width, height)
-            self._lastSize = (width, height)
-            return
+            w, h = width, height
+        else:
+            w, h = self.calcInitialSize(renWin=self.renWin)
 
-        screenSize = self.renWin.GetScreenSize()
-        try:
-            # following works on some machines but not all
-            # Creates the window to be 60% of user's screen's width
-            bgX = int(screenSize[0] * .6)
-        except:
-            bgX = self.canvas.bgX
-        # Respect user chosen aspect ratio
-        bgY = int(bgX / self.canvas.size)
         # Sets renWin dimensions
-        self.renWin.SetSize(bgX, bgY)
-        self._lastSize = (bgX, bgY)
+        self.renWin.SetSize(w, h)
+        self._lastSize = (w, h)
 
     def open(self, width=None, height=None, **kargs):
         self.createRenWin(open=True, width=width, height=height)

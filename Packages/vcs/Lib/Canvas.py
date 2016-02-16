@@ -359,8 +359,8 @@ class Canvas(object):
         'ParameterChanged',
         'colormap',
         'backgroundcolor',
-        'bgX',
-        'bgY',
+        '_bgX',
+        '_bgY',
         'display_names',
         '_dotdir',
         '_dotdirenv',
@@ -954,13 +954,7 @@ class Canvas(object):
                 raise ValueError("geometry should be list, tuple, or dict")
             geometry = {"width": width, "height": height}
 
-        if geometry is not None and bg:
-            self.bgX = geometry["width"]
-            self.bgY = geometry["height"]
-        else:
-            # default size for bg
-            self.bgX = 814
-            self.bgY = 606
+
 
         if backend == "vtk":
             self.backend = VTKVCSBackend(self, geometry=geometry, bg=bg)
@@ -972,6 +966,14 @@ class Canvas(object):
                 "backend, no warranty about anything working from this point on" %
                 backend)
             self.backend = backend
+
+        if geometry is not None and bg:
+            self.bgX = geometry["width"]
+            self.bgY = geometry["height"]
+        else:
+            # default size for bg
+            self._bgX = 814
+            self._bgY = 606
 
         self._animate = self.backend.Animate(self)
 
@@ -2474,14 +2476,16 @@ Options:::
         return new
 
     def __plot(self, arglist, keyargs):
+        # Make sure the backend is in bg mode
+        if "bg" in keyargs:
+            self.backend.bg = keyargs["bg"]
+        # This routine has five arguments in arglist from _determine_arg_list
+        # It adds one for bg and passes those on to Canvas.plot as its sixth
+        # arguments.
 
-            # This routine has five arguments in arglist from _determine_arg_list
-            # It adds one for bg and passes those on to Canvas.plot as its sixth
-            # arguments.
-
-            # First of all let's remember which elets we have before comin in here
-            # so that anything added (temp objects) can be removed at clear
-            # time
+        # First of all let's remember which elets we have before comin in here
+        # so that anything added (temp objects) can be removed at clear
+        # time
         original_elts = {}
         new_elts = {}
         for k in vcs.elements.keys():
@@ -4698,6 +4702,24 @@ Options:::
     def setantialiasing(self, antialiasing):
         """ Turn ON/OFF antialiasing"""
         self.backend.setantialiasing(antialiasing)
+
+    def _setbgx(self, value):
+        self.backend.bg = True
+        self._bgX = value
+
+    def _getbgx(self):
+        return self._bgX
+
+    bgX = property(_getbgx, _setbgx)
+
+    def _setbgy(self, value):
+        self.backend.bg = True
+        self._bgY = value
+
+    def _getbgy(self):
+        return self._bgY
+
+    bgY = property(_getbgy, _setbgy)
 
     ##########################################################################
     #                                                                        #
