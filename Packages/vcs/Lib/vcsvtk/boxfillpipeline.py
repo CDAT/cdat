@@ -242,7 +242,7 @@ class BoxfillPipeline(Pipeline2D):
                                            self.getColorMap(),
                                            **patternArgs))
 
-        if self._context().canvas._continents is None or self._context().canvas._continents == 0:
+        if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
