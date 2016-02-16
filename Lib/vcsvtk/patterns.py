@@ -5,7 +5,7 @@ class Pattern(object):
     def __init__(self, width, height, num_pixels, colors, style, opacity):
         self.width = width
         self.height = height
-        self.colors = colors
+        self.colors = [int(c / 100. * 255) for c in colors]
         self.num_pixels = num_pixels
         self.style = style
         if self.style != "hatch":
