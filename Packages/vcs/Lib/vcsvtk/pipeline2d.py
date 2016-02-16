@@ -329,7 +329,7 @@ class Pipeline2D(IPipeline2D):
         color = getattr(self._gm, "missing", None)
         _colorMap = self.getColorMap()
         if color is not None:
-            color = vcs.utils.rgba_color(color, _colorMap)
+            color = self.getColorIndexOrRGBA(_colorMap, color)
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
             self._data1, self._vtkDataSet, color, self._useCellScalars,
             deep=False)
