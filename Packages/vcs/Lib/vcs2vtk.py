@@ -1102,15 +1102,17 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
     if isinstance(cmap, str):
         cmap = vcs.elements["colormap"][cmap]
     colorIndex = overrideColorIndex if overrideColorIndex else tt.color
-
-    c = vcs.utils.rgba_color(colorIndex, cmap)
-
+    if isinstance(colorIndex, int):
+        c = cmap.index[colorIndex]
+    else:
+        c = colorIndex
     p.SetColor([C / 100. for C in c[:3]])
     p.SetOpacity(c[-1])
     bcolorIndex = tt.backgroundcolor if tt.backgroundcolor else 255
-
-    bc = vcs.utils.rgba_color(bcolorIndex, cmap)
-
+    if isinstance(bcolorIndex, int):
+        bc = cmap.index[bcolorIndex]
+    else:
+        bc = bcolorIndex
     p.SetBackgroundColor([C / 100. for C in bc[:3]])
     bopacity = (tt.backgroundopacity / 100.) if tt.backgroundopacity else 0
     p.SetBackgroundOpacity(bopacity)
@@ -1310,15 +1312,14 @@ def prepFillarea(renWin, farea, cmap=None):
             pid.SetId(j, points.InsertNextPoint(x[j], y[j], 0.))
         cellId = polys.InsertNextCell(polygon)
 
-        color = vcs.utils.rgba_color(c, cmap)
-
-        color = [int(C / 100. * 255) for C in color]
-
+        if isinstance(c, int):
+            color = [C for C in cmap.index[c]]
+        else:
+            color = [C for C in c]
         if len(farea.opacity) > i:
-
             opacity = farea.opacity[i]
             if opacity is not None:
-                opacity = opacity / 100 * 255
+                opacity = farea.opacity[i]
         else:
             opacity = None
         # Draw colored background for solid
@@ -1327,7 +1328,7 @@ def prepFillarea(renWin, farea, cmap=None):
             # Add the color to the color array:
             if opacity is not None:
                 color[-1] = opacity
-
+            color = [int(C / 100. * 255) for C in color]
             colors.SetTupleValue(cellId, color)
         else:
             color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
