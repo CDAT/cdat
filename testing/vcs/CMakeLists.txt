@@ -16,6 +16,11 @@ cdat_add_test(vcs_read_old_scr
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
   ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old.scr
 )
+cdat_add_test(vcs_read_old_scr_2
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
+  ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old_2.scr
+)
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
