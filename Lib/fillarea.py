@@ -37,7 +37,7 @@ def process_src(nm, code):
     except:
         f = vcs.elements["fillarea"][nm]
     atts = {}
-    if code.find("()") > -1:  # ok with have the keywords speeled out
+    if code.find("(") > -1:  # ok with have the keywords speeled out
         for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
             i = code.find(a + "(")
             v = genutil.get_parenthesis_content(code[i:])
@@ -48,6 +48,8 @@ def process_src(nm, code):
                         vals.append(int(V))
                     except:
                         vals.append(float(V))
+                    if a in ["fais"]:
+                        vals[-1] = vals[-1]-1
                 atts[a] = vals
     else:
         sp = code.split(",")
