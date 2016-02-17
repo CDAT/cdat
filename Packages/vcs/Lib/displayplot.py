@@ -78,6 +78,7 @@ class Dp(object):
                  "continents",
                  "extradisplays",
                  "parent",
+                 "_parent",
                  "_off",
                  "_priority",
                  "_template",
@@ -94,10 +95,10 @@ class Dp(object):
                  "_newelements",
                  ]
 
-    def _repr_png_(self):
+    def _repr_png(self):
         import tempfile
         tmp = tempfile.mktemp() + ".png"
-        self.parent.png(tmp)
+        self._parent.png(tmp)
         f = open(tmp)
         st = f.read()
         f.close()
@@ -236,7 +237,7 @@ class Dp(object):
     # Initialize the display plot attributes.                                   #
     #                                                                           #
     ##########################################################################
-    def __init__(self, Dp_name, Dp_name_src='default'):
+    def __init__(self, Dp_name, Dp_name_src='default', parent=None):
             #                                                                           #
             ###################################################################
             # Initialize the display plot's class and its members                       #
@@ -248,6 +249,7 @@ class Dp(object):
         self.extradisplays = []
         self._name = Dp_name
         self.s_name = 'Dp'
+        self._parent = parent
         if self._name == "default":
             self._off = 0
             self._priority = 0
