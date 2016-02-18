@@ -33,6 +33,13 @@ def process_src(nm, code):
     except:
         f = vcs.elements["line"][nm]
     atts = {}
+    # ltyp: line type
+    # lwsf: line width
+    # lci: line color index
+    # vp: viewport
+    # wc: world coordinates
+    # x: x coordinates
+    # y: y coordinates
     for a in ["ltyp", "lwsf", "lci", "vp", "wc", "x", "y"]:
         i = code.find(a + "(")
         v = genutil.get_parenthesis_content(code[i:])
