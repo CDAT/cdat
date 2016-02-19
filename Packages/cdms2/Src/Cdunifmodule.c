@@ -1116,12 +1116,26 @@ int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *stri
     ret = nc_put_att_text(fileid, varid, name, len, string);
   return ret;
 }
-
 static int
 set_attribute(int fileid, int varid, PyObject *attributes,
 	      char *name, PyObject *value)
 {
   if (value==Py_None) {
+    return 0;
+  }
+  /* Delete attribute */
+  if (value==NULL) {
+    int ret;
+    Py_BEGIN_ALLOW_THREADS;
+    acquire_Cdunif_lock();
+    ret = nc_del_att(fileid, varid, name);
+    release_Cdunif_lock();
+    Py_END_ALLOW_THREADS;
+    if (ret != NC_NOERR) {
+      cdunif_signalerror(ret);
+      return -1;
+    }
+    PyDict_DelItemString(attributes, name);
     return 0;
   }
   if (PyString_Check(value)) {
