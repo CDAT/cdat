@@ -145,6 +145,10 @@ cdat_add_test("CDMS_Test_write_extended_dimension"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/test_simple_write.py)
 
+cdat_add_test("CDMS_Test_del_attributes"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/CDMS_Test_del_attributes.py)
+
 
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
