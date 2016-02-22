@@ -198,11 +198,16 @@ class MultiVarPointCollection():
 
         return np_var_data_block
 
-    def processCoordinates( self, lat, lon ):
+    def processCoordinates( self, lat, lon, **args ):
 #        print "Process Coordinates, lat = %s%s, lon = %s%s " % ( lat.id, str(lat.shape), lon.id, str(lon.shape)  )
         nz = len( self.lev ) if self.lev else 1
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
         if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
+        value_range = args.get('vrange',None)
+        lat = lat.flatten()
+        lon = lon.flatten()
+        self.roi_mask = None
+        value_mask = None
         if lon.__class__.__name__ == "TransientVariable":
             self.lat_data = lat.flatten()[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat.flatten()[::]
             self.lon_data = lon.flatten()[self.istart::self.istep]
@@ -224,7 +229,31 @@ class MultiVarPointCollection():
                 print>>sys.stderr, "Ignoring empty ROI"
                 self.roi_mask = None
         else:
-            self.roi_mask = None
+            self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
+            self.lon_data = lon[self.istart::self.istep]
+        if ( self.point_layout == PlotType.List ) :
+            # if value_range is not None:
+            #     if hasattr(value_range, '__iter__'):
+            #         value_mask =  numpy.logical_and( self.var > value_range[0], self.var < value_range[1] )
+            #     else:
+            #         value_mask = ( self.var > value_range )
+            if ( self.roi <> None ):
+                if ( self.roi[2] <= 0.0 ) and ( self.lon_data.data.min() >= 0.0 ):
+                    self.roi = [ self.roi[0]+360.0, self.roi[1], self.roi[2]+360.0, self.roi[3] ]
+                if ( self.roi[0] > 180.0 ) and ( self.lon_data.data.max() <= 180.0 ):
+                    self.roi = [ self.roi[0]-360.0, self.roi[1], self.roi[2]-360.0, self.roi[3] ]
+                lat_roi_mask = numpy.logical_and( self.lat_data > self.roi[1], self.lat_data < self.roi[3] )
+                lon_roi_mask = numpy.logical_and( self.lon_data > self.roi[0], self.lon_data < self.roi[2] )
+#                self.roi_mask = numpy.logical_and( lat_roi_mask, lon_roi_mask  ) if value_mask is None else numpy.logical_and( lat_roi_mask, lon_roi_mask, value_mask )
+                self.roi_mask = numpy.logical_and( lat_roi_mask, lon_roi_mask  )
+
+                if self.roi_mask.any():
+                    self.lat_data = numpy.compress( self.roi_mask, self.lat_data )
+                    self.lon_data = numpy.compress( self.roi_mask, self.lon_data )
+                else:
+                    print>>sys.stderr, "Ignoring empty ROI"
+                    self.roi_mask = None
+
         if self.lat_data.__class__.__name__ == "TransientVariable":
             self.lat_data = self.lat_data.data
             self.lon_data = self.lon_data.data
