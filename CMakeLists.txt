@@ -539,6 +539,7 @@ include(jinja2_pkg)
 include(docutils_pkg)
 include(sphinx_pkg)
 include(freetype_pkg)
+include(coverage_pkg)
 ## C. Doutriaux: We need to replace the following with a findPackage at some point
 if (APPLE)
 else()

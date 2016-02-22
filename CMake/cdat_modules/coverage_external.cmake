@@ -1,5 +1,4 @@
-# The coverage.py external project
-
+# External coverage.py package
 set(nm COVERAGE)
+
 include(pipinstaller)
-unset(nm)
