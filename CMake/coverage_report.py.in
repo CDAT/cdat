@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import importlib
 import string
 import shutil
 
@@ -25,20 +26,7 @@ def get_package_modules(package):
         module_name = package_name + "." + fname
         if extension == ".py":
             modules.append(fpath)
-        """
-        else:
-            if os.path.isdir(f):
-                subpkg_init = os.path.join(package_dir, f, "__init__.py")
-                if os.path.exists(subpkg_init):
-                    if f in package_attrs:
-                        subpkg = getattr(package, f)
-                    else:
-                        try:
-                            subpkg = __import__(module_name)
-                        except:
-                            continue
-                    modules.extend(get_package_modules(subpkg))
-        """
+
     return modules
 
 
@@ -82,6 +70,7 @@ cov = coverage.Coverage(data_file=coverage_file, source=packages)
 if not use_existing_coverage:
     cov.combine()
     cov.save()
+cov.load()
 
 data = coverage.CoverageData()
 data.read_file(coverage_file)
@@ -90,28 +79,41 @@ rows = []
 col_width = 0
 for package in packages:
     # Import the package
-    py_pack = __import__(package)
+    py_pack = importlib.import_module(package)
     # Find all files in the package
     files = get_package_modules(py_pack)
 
     total_lines = 0
     lines_executed = 0
+    lines_missing = 0
+    lines_excluded = 0
 
     # Run coverage.analysis on each of them
     for module in files:
-        fname, lines, missing, missing_line_nums = cov.analysis(module)
-        total_lines += len(lines)
-        lines = data.lines(module)
-        if lines is not None:
-            lines_executed += len(lines)
+        fname, executable, excluded, missing, _ = cov.analysis2(module)
 
-    lines_missing = total_lines - lines_executed
+        executable = set(executable)
+        excluded = set(excluded)
+        missing = set(missing)
+
+        total_lines += len(executable - excluded)
+        lines = data.lines(module)
+        if lines is None:
+            lines = set()
+        else:
+            lines = set(lines)
+
+        lines_executed += len(executable & lines)
+        lines_excluded += len(excluded)
+        lines_missing += len(executable - lines - excluded)
+
     coverage_percent = lines_executed / float(total_lines) * 100
 
     # Print package info
     columns = [package, "%.2f%%" % coverage_percent, str(lines_missing), str(total_lines)]
     col_width = max(col_width, *[len(s) for s in columns])
     rows.append(columns)
+
 
 col_headers = ["Package", "% Covered", "Lines Missing", "Total Lines"]
 max_col_header_width = max([len(s) for s in col_headers])
@@ -134,3 +136,9 @@ print_row(col_headers, col_width)
 print_row(["-" * col_width for _ in range(len(col_headers))], col_width)
 for row in rows:
     print_row(row, col_width)
+
+if raw_input("Do you want the HTML report? [y/N]: ").lower() in ("y", "yes"):
+    print "Generating report at:", os.path.join(coverage_dir, "covhtml")
+    cov.html_report(directory=os.path.join(coverage_dir, "covhtml"))
+
+cov.save()

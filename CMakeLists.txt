@@ -72,7 +72,7 @@ option(CDAT_MEASURE_COVERAGE "Measure test coverage while running tests" OFF)
 
 if(CDAT_MEASURE_COVERAGE)
   message("Coverage measurement enabled; tests will run slower.")
-  set(COVERAGE_PKGS "cdms2,vcs,cdutil,genutil,DV3D,vcsaddons,vcs.vtk_ui,vcs.editors,vcs.vcsvtk")
+  set(COVERAGE_PKGS "cdms2,vcs,cdutil,genutil,DV3D,vcsaddons,vcs.vtk_ui,vcs.editors,vcs.vcsvtk,regrid2")
   configure_file(${cdat_CMAKE_SOURCE_DIR}/coverage_report.py.in
     ${CMAKE_INSTALL_PREFIX}/bin/coverage_report
     @ONLY
