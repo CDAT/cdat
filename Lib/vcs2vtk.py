@@ -253,9 +253,10 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
     if geo is None:
         bounds = pts.GetBounds()
         xm, xM, ym, yM = [bounds[0], bounds[1], bounds[2], bounds[3]]
-        # we use plotting coordinates for doing the projection
+        # We don't use the zooming feature (gm.datawc) for geographic
+        # projections. We use wrapped coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
-        geo, geopts = project(pts, projection, getBoundsForPlotting(
+        geo, geopts = project(pts, projection, getWrappedBounds(
             [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         pts = geopts
     # Sets the vertices into the grid
@@ -516,9 +517,11 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         writer.SetFileName("lonlat." + ext)
         writer.SetInputData(vg)
         writer.Write()
+        # Even if we don't use the zooming feature (gm.datawc) for geographic
+        # projections
         # we use plotting coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
-        geo, geopts = project(pts, projection, getBoundsForPlotting(
+        geo, geopts = project(pts, projection, getWrappedBounds(
             [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
@@ -1911,6 +1914,20 @@ def vtkIterate(iterator):
         obj = iterator.GetNextItem()
 
 
+# Return gmbounds if gmbounds are different than 1.e20
+def getPlottingBounds(gmbounds, databounds, geo):
+    x1gm, x2gm, y1gm, y2gm = gmbounds[:4]
+    x1, x2, y1, y2 = databounds[:4]
+    if geo:
+        return [x1, x2, y1, y2]
+    assert (x1 < x2 and y1 < y2)
+    if not numpy.allclose([x1gm, x2gm], 1.e20):
+        x1, x2 = [x1gm, x2gm]
+    if (isinstance(y1gm, numbers.Number) and not numpy.allclose([y1gm, y2gm], 1.e20)):
+        y1, y2 = [y1gm, y2gm]
+    return [x1, x2, y1, y2]
+
+
 # transforms [v1,v2] and returns it
 # such that it is in the same order
 # and has the same middle interval as [gm1, gm2]
@@ -1929,15 +1946,11 @@ def switchAndTranslate(gm1, gm2, v1, v2, wrapModulo):
     return [v1, v2]
 
 
-# TODO: Get rid of this funtion and pass instead: flip and central meridian
-# This function can fail for gmbounds -89, -2 where databounds are 89, 0
-# (the cells in the margins have different sizes: 2 and 4)
-#
-# returns bounds with the same interval size as databounds
+# Returns bounds with the same interval size as databounds
 # but in the same order and with the same middle interval
 # as gmbounds. The middle and the order are used for
 # plotting. wrapModule has YWrap, XWrap in degrees, 0 means no wrap
-def getBoundsForPlotting(gmbounds, databounds, wrapModulo):
+def getWrappedBounds(gmbounds, databounds, wrapModulo):
     """ Returns the same interval as databounds but it
     matches the order and also it keeps the same center interval as gmbounds
     So for instance if databounds is -40, 320 and gmbounds is -180, 180
