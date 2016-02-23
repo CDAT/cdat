@@ -150,13 +150,14 @@ class VectorPipeline(Pipeline):
         r, g, b, a = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
-        x1, x2, y1, y2 = vcs2vtk.getBoundsForPlotting(
+        plotting_dataset_bounds = vcs2vtk.getPlottingBounds(
             vcs.utils.getworldcoordinates(self._gm,
                                           data1.getAxis(-1),
                                           data1.getAxis(-2)),
-            [xm, xM, ym, yM], self._dataWrapModulo)
+            [xm, xM, ym, yM], geo)
+        x1, x2, y1, y2 = plotting_dataset_bounds
         if geo is None:
-            wc = [x1, x2, y1, y2]
+            wc = plotting_dataset_bounds
         else:
             xrange = list(act.GetXRange())
             yrange = list(act.GetYRange())
@@ -165,20 +166,21 @@ class VectorPipeline(Pipeline):
         vp = [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2]
         # look for previous dataset_bounds different than ours and
         # modify the viewport so that the datasets are alligned
-        if geo is None:
-            for dp in vcs.elements['display'].values():
-                if (hasattr(dp, 'backend')):
-                    prevWc = dp.backend.get('dataset_bounds', None)
-                    if (prevWc):
-                        middleX = float(vp[0] + vp[1]) / 2.0
-                        middleY = float(vp[2] + vp[3]) / 2.0
-                        sideX = float(vp[1] - vp[0]) / 2.0
-                        sideY = float(vp[3] - vp[2]) / 2.0
-                        ratioX = float(prevWc[1] - prevWc[0]) / float(wc[1] - wc[0])
-                        ratioY = float(prevWc[3] - prevWc[2]) / float(wc[3] - wc[2])
-                        sideX = sideX / ratioX
-                        sideY = sideY / ratioY
-                        vp = [middleX - sideX, middleX + sideX, middleY - sideY, middleY + sideY]
+        # Hack to fix the case when the user does not specify gm.datawc_...
+        # if geo is None:
+        #     for dp in vcs.elements['display'].values():
+        #         if (hasattr(dp, 'backend')):
+        #             prevWc = dp.backend.get('dataset_bounds', None)
+        #             if (prevWc):
+        #                 middleX = float(vp[0] + vp[1]) / 2.0
+        #                 middleY = float(vp[2] + vp[3]) / 2.0
+        #                 sideX = float(vp[1] - vp[0]) / 2.0
+        #                 sideY = float(vp[3] - vp[2]) / 2.0
+        #                 ratioX = float(prevWc[1] - prevWc[0]) / float(wc[1] - wc[0])
+        #                 ratioY = float(prevWc[3] - prevWc[2]) / float(wc[3] - wc[2])
+        #                 sideX = sideX / ratioX
+        #                 sideY = sideY / ratioY
+        #                 vp = [middleX - sideX, middleX + sideX, middleY - sideY, middleY + sideY]
 
         self._context().fitToViewportBounds(act, vp,
                                             wc=wc,
@@ -190,18 +192,18 @@ class VectorPipeline(Pipeline):
             self._gm, taxis, zaxis,
             vtk_backend_grid=grid,
             dataset_bounds=bounds,
-            plotting_dataset_bounds=[x1, x2, y1, y2],
+            plotting_dataset_bounds=plotting_dataset_bounds,
             dataset_viewport=vp))
 
         if self._context().canvas._continents is None:
             continents = False
         if continents:
-            self._context().plotContinents(x1, x2, y1, y2, projection,
+            self._context().plotContinents(plotting_dataset_bounds, projection,
                                            self._dataWrapModulo, vp, tmpl.data.priority,
                                            vtk_backend_grid=grid,
                                            dataset_bounds=bounds)
 
-        returned["vtk_backend_actors"] = [[act, [x1, x2, y1, y2]]]
+        returned["vtk_backend_actors"] = [[act, plotting_dataset_bounds]]
         returned["vtk_backend_glyphfilters"] = [glyphFilter]
         returned["vtk_backend_luts"] = [[None, None]]
 

@@ -3,7 +3,7 @@ import cdms2, cdutil, genutil
 import vcs,os
 import sys
 
-# This tests if extening the longitude to more than 360 decrees is handled correctly by
+# This tests if extending the longitude to more than 360 decrees is handled correctly by
 # proj4. See https://github.com/UV-CDAT/uvcdat/issues/1728 for more information.
 pth = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(pth)

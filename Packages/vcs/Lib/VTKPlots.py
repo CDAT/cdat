@@ -48,8 +48,8 @@ class VTKVCSBackend(object):
             'renderer',
             'vtk_backend_grid',
             'dataset_bounds',
-            # the same as dataset_bounds but centered on the same value and in the
-            # same order as gm bounds. See vcs2vtk.getBoundsForPlotting
+            # the same as vcs.utils.getworldcoordinates for now. getworldcoordinates uses
+            # gm.datawc_... or, if that is not set, it uses data axis margins (without bounds).
             'plotting_dataset_bounds',
             # this may be slightly smaller than the data viewport. It is used
             # for vectorpipeline when drawn on top of a boxfill for instance
@@ -690,14 +690,13 @@ class VTKVCSBackend(object):
             if hasattr(plot, 'onClosing'):
                 plot.onClosing(cell)
 
-    def plotContinents(self, x1, x2, y1, y2, projection, wrap, vp, priority, **kargs):
+    def plotContinents(self, wc, projection, wrap, vp, priority, **kargs):
         contData = vcs2vtk.prepContinents(self.canvas._continentspath())
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
         contActor.SetMapper(contMapper)
-        contActor = vcs2vtk.doWrap(
-            contActor, [x1, x2, y1, y2], fastClip=False)
+        contActor = vcs2vtk.doWrap(contActor, wc, fastClip=False)
         if vcs2vtk._DEBUG_VTK:
             writer = vtk.vtkXMLPolyDataWriter()
             writer.SetFileName("cont.vtp")
@@ -709,7 +708,7 @@ class VTKVCSBackend(object):
             cpts = contData.GetPoints()
             # we use plotting coordinates for doing the projection so
             # that parameters such that central meridian are set correctly.
-            geo, gcpts = vcs2vtk.project(cpts, projection, [x1, x2, y1, y2])
+            geo, gcpts = vcs2vtk.project(cpts, projection, wc)
             contData.SetPoints(gcpts)
 
             if vcs2vtk._DEBUG_VTK:
@@ -754,7 +753,7 @@ class VTKVCSBackend(object):
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
         self.fitToViewportBounds(contActor,
                                  vp,
-                                 wc=[x1, x2, y1, y2], geo=geo,
+                                 wc=wc, geo=geo,
                                  geoBounds=vtk_backend_grid.GetBounds(),
                                  priority=priority,
                                  create_renderer=True)
@@ -1281,7 +1280,6 @@ class VTKVCSBackend(object):
                     pass
                 if flipX:
                     cam.Azimuth(180.)
-
         T = vtk.vtkTransform()
         T.Scale(xScale, yScale, 1.)
 
