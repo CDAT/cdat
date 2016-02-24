@@ -346,6 +346,11 @@ cdat_add_test(vcs_test_png_to_base64
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_to_base64.py
   )
+cdat_add_test(vcs_test_missing_colorname
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
+  "${BASELINE_DIR}/test_vcs_missing_colorname.png"
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data
