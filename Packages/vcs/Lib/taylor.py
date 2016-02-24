@@ -1884,9 +1884,6 @@ class Gtd(object):
         d = self.drawSkill(canvas, values=self.skillValues, function=skill)
         if (d):
             self.displays.append(d)
-        if (len(self.displays) > 0):
-            datasetBounds = self.displays[-1].backend['dataset_bounds']
-            self.worldcoordinate = datasetBounds
         self.drawFrame(canvas, data, wc)
         self.draw(canvas, data)
         # Ok now draws the little comment/source, etc
