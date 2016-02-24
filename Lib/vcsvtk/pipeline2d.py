@@ -337,12 +337,19 @@ class Pipeline2D(IPipeline2D):
         self._resultDict["vtk_backend_missing_mapper"] = (
             self._maskedDataMapper, color, self._useCellScalars)
 
-    def getBoundsForPlotting(self):
-        """This is the same as lon/lat dataset bounds but it
-           matches the order of the bounds comming from gm
+    def getPlottingBounds(self):
+        """gm.datawc if it is set or dataset_bounds if there is not geographic projection
+           wrapped bounds otherwise
         """
-        return vcs2vtk.getBoundsForPlotting(
-            vcs.utils.getworldcoordinates(self._gm,
-                                          self._data1.getAxis(-1),
-                                          self._data1.getAxis(-2)),
-            self._vtkDataSetBounds, self._dataWrapModulo)
+        if (self._vtkGeoTransform):
+            return vcs2vtk.getWrappedBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._dataWrapModulo)
+        else:
+            return vcs2vtk.getPlottingBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._vtkGeoTransform)
