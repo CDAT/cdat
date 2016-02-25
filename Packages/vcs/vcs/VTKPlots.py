@@ -764,7 +764,7 @@ class VTKVCSBackend(object):
         contActor = vtk.vtkActor()
         contActor.SetMapper(contMapper)
         contActor = vcs2vtk.doWrap(contActor, wc, fastClip=False)
-
+        vcs2vtk.debugWriteGrid(contActor.GetMapper().GetInput(), "cont")
         if projection.type != "linear":
             contData = contActor.GetMapper().GetInput()
             cpts = contData.GetPoints()
@@ -772,7 +772,7 @@ class VTKVCSBackend(object):
             # that parameters such that central meridian are set correctly.
             geo, gcpts = vcs2vtk.project(cpts, projection, wc)
             contData.SetPoints(gcpts)
-
+            vcs2vtk.debugWriteGrid(contData, "contg")
             contMapper = vtk.vtkPolyDataMapper()
             contMapper.SetInputData(contData)
             contActor = vtk.vtkActor()

@@ -15,6 +15,27 @@ import numbers
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
 
+_DEBUG_VTK = True
+
+
+def debugWriteGrid(grid, name):
+    if (_DEBUG_VTK):
+        writer = vtk.vtkXMLDataSetWriter()
+        gridType = grid.GetDataObjectType()
+        if (gridType == vtk.VTK_STRUCTURED_GRID):
+            ext = ".vts"
+        elif (gridType == vtk.VTK_UNSTRUCTURED_GRID):
+            ext = ".vtu"
+        elif (gridType == vtk.VTK_POLY_DATA):
+            ext = ".vtp"
+        else:
+            print "Unknown grid type: %d" % gridType
+            ext = ".vtk"
+        writer.SetFileName(name + ext)
+        writer.SetInputData(grid)
+        writer.Write()
+
+
 projNames = [
     "linear",
     "utm",
@@ -432,6 +453,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
     projection = vcs.elements["projection"][gm.projection]
     if grid is None:
         vg.SetPoints(pts)
+        debugWriteGrid(vg, "lonlat")
         # We use the zooming feature for linear and polar projections
         # We use plotting coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
@@ -446,12 +468,15 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
             wc, [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
+        debugWriteGrid(vg, "geo")
     else:
         vg = grid
     # Add a GlobalIds array to keep track of cell ids throughout the pipeline
     globalIds = numpy_to_vtk_wrapper(numpy.arange(0, vg.GetNumberOfCells()), deep=True)
     globalIds.SetName('GlobalIds')
     vg.GetCellData().SetGlobalIds(globalIds)
+    debugWriteGrid(vg, "lonlat")
+
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -1598,7 +1623,11 @@ def stippleLine(prop, line_type):
         raise Exception("Unknown line type: '%s'" % line_type)
 
 
+prepLineCount = 0
+
+
 def prepLine(renWin, line, cmap=None):
+    global prepLineCount
     number_lines = prepPrimitive(line)
     if number_lines == 0:
         return []
@@ -1673,13 +1702,15 @@ def prepLine(renWin, line, cmap=None):
             l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
+    countj = 0
     for t, w in line_data:
         pts, _, linesPoly, colors = line_data[(t, w)]
 
         linesPoly.GetCellData().SetScalars(colors)
+        debugWriteGrid(linesPoly, "poly" + str(prepLineCount) + "-" + str(countj))
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
-
+        debugWriteGrid(linesPoly, "polyg" + str(prepLineCount) + "-" + str(countj))
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
         m.SetInputData(linesPoly)
@@ -1690,7 +1721,9 @@ def prepLine(renWin, line, cmap=None):
 
         stippleLine(p, t)
         actors.append((a, geo))
+        countj = countj + 1
 
+    prepLineCount = prepLineCount + 1
     return actors
 
 

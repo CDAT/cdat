@@ -261,6 +261,10 @@ class IsolinePipeline(Pipeline2D):
                 # sure why so sticking to many mappers
                 act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
+            m = act.GetMapper()
+            m.Update()
+            data = m.GetInput()
+            vcs2vtk.debugWriteGrid(data, "isoline")
             actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
