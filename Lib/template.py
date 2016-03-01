@@ -1179,8 +1179,8 @@ class P(object):
         if getattr(gm, axis + 'mtics' + number) != '':
             obj = getattr(self, axis + 'mintic' + number)
             if obj.priority > 0:
-                ynum = getattr(self._data, "_y%i" % number)
-                xnum = getattr(self._data, "_x%i" % number)
+                ynum = getattr(self._data, "_y%s" % number)
+                xnum = getattr(self._data, "_x%s" % number)
                 for l in getattr(gm, axis + 'mtics' + number).keys():
                     a = getattr(gm, axis + 'mtics' + number)[l]
                     if axis == 'x':
@@ -1191,14 +1191,12 @@ class P(object):
                                     [(l - wc[0]) / dx +
                                         vp[0], (l - wc[0]) / dx + vp[0]])
                                 ys.append([obj.y1, obj.y2])
-                                tstring.append(a)
                             else:
                                 xs.append([l, l])
                                 ys.append([wc[2],
                                            wc[2] + (wc[3] - wc[2]) *
                                            (obj._y - ynum) /
                                            (self._data._y2 - self._data._y1)])
-                                tstring.append(a)
                     elif axis == 'y':
                         if ymn <= l <= ymx:
                             if vcs.elements["projection"][
@@ -1207,14 +1205,12 @@ class P(object):
                                     [(l - wc[2]) / dy +
                                         vp[2], (l - wc[2]) / dy + vp[2]])
                                 xs.append([obj.x1, obj.x2])
-                                tstring.append(a)
                             else:
                                 ys.append([l, l])
                                 xs.append([wc[0],
                                            wc[0] +
                                            (wc[1] - wc[0]) * (obj._x - xnum) /
                                            (self._data._x2 - self._data._x1)])
-                                tstring.append(a)
 
         if txs != []:
             tt.string = tstring
