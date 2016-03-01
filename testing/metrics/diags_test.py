@@ -134,9 +134,9 @@ class DiagTest(object):
                         #print ">>>>>>>>>>>>>", var, ncfilename
                         close = self.closeness( var, ncfilename, rtol, atol )
                         if not close:
-                            print var, ' in ', ncfilename, ' is not close.'
+                          print var, ' in ', os.path.join(self.outpath,ncfilename), ' is not close from the one in:',os.path.join(self.baselinepath,ncfilename)
                     except:
-                        print 'comparison failed for ', var, ' in file: ', ncfilename
+                        print 'NetCDF comparison failed for ', var, ' in file: ', os.path.join(self.outpath,ncfilename),"vs",os.path.join(self.baselinepath,ncfilename)
                         close = False
                     NC_CLOSE = NC_CLOSE and close
             assert(NC_CLOSE), 'NetCDF files are not close'
