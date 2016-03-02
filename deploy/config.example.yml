@@ -5,6 +5,9 @@
   # Disable uvcmetrics and testdata
   uvcmetrics: false
 
+  # Disable cdatweb visualization server
+  cdatweb: false
+
   # Set the memory allocated to the VM
   memory: 4096
 
