@@ -1,6 +1,18 @@
 # Everything beyond this point will be determined relatively
 # from this path.
 install_prefix="@CMAKE_INSTALL_PREFIX@"
+# Reset previous uvcdat env messing up
+source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh
+
+# Saves what we will mess with
+for v in PATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH OPAL_PREFIX LIBOVERLAY_SCROLLBAR ; do
+   tmp="${v}"
+    if [ -n "${!tmp}" ] ; then
+        export UVCDAT_ORIGINAL_${v}=${!v}
+    else
+        export UVCDAT_ORIGINAL_${v}=" "
+    fi
+done
 
 function cleanup {
   unset cleanup install_prefix library_paths python_paths executable_paths
@@ -17,7 +29,7 @@ if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
     echo "ERROR: UVCDAT setup was previously sourced at: ${UVCDAT_SETUP_PATH}" 1>&2
     echo "ERROR: There is no need to run setup_runtime manually anymore." 1>&2
     echo "ERROR: Open a new shell in order to use a different install location." 1>&2
-    echo "ERROR: Or execute reset_runtime.sh." 1>&2
+    echo "ERROR: Or execute source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh." 1>&2
     cleanup
     return 1
   fi
@@ -37,9 +49,11 @@ executable_paths=( @SETUP_EXECUTABLE_PATHS@ )
 
 export UVCDAT_PROMPT_STRING=@UVCDAT_PROMPT_STRING@
 if [ "$UVCDAT_ENABLE_PROMPT_BEGINNING" ] ; then
+    export UVCDAT_ORIGINAL_PS1=${PS1}" "
     export PS1="[@UVCDAT_PROMPT_STRING@]$PS1"
-fi
-if [ "$UVCDAT_ENABLE_PROMPT_END" ] ; then
+
+elif [ "$UVCDAT_ENABLE_PROMPT_END" ] ; then
+    export UVCDAT_ORIGINAL_PS1=${PS1}" "
     export PS1="$PS1[@UVCDAT_PROMPT_STRING@]"
 fi
 
@@ -92,4 +106,5 @@ echo "Successfully updated your environment to use UVCDAT" 1>&2
 echo "(changes are valid for this session/terminal only)" 1>&2
 echo "Version: ${UVCDAT_PROMPT_STRING}" 1>&2
 echo "Location: ${UVCDAT_SETUP_PATH}" 1>&2
+echo "Reset these changes by running: source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh" 1>&2
 return 0
