@@ -82,6 +82,10 @@
       command: make -j{{ cpus|int + 1 }} chdir={{build_root}}/uvcdat-build
       sudo: yes
 
+    - name: Disable UV-CDAT anonymous log
+      lineinfile: dest=$HOME/.bashrc line="export UVCDAT_ANONYMOUS_LOG=no"
+      sudo: no
+
     - name: Create script for running climatology2.py example
       template: src=run_climatology_example.sh.j2 dest={{uvcdat_install_dir}}/run_climatology_example.sh mode=0775
       sudo: yes
