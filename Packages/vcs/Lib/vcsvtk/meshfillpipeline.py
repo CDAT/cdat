@@ -50,7 +50,8 @@ class MeshfillPipeline(Pipeline2D):
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
-        x1, x2, y1, y2 = self.getBoundsForPlotting()
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
         _colorMap = self.getColorMap()
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
@@ -182,20 +183,20 @@ class MeshfillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             else:
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             self._context().fitToViewportBounds(
                 act, vp,
-                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
@@ -206,11 +207,11 @@ class MeshfillPipeline(Pipeline2D):
                 # why so sticking to many mappers
                 self._context().fitToViewportBounds(
                     act, vp,
-                    wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                    wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                     geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
                     create_renderer=True)
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -224,7 +225,7 @@ class MeshfillPipeline(Pipeline2D):
                                            abs(y2 - y1) / 10.),
                             vtk_backend_grid=self._vtkDataSet,
                             dataset_bounds=self._vtkDataSetBounds,
-                            plotting_dataset_bounds=[x1, x2, y1, y2])
+                            plotting_dataset_bounds=plotting_dataset_bounds)
 
         legend = getattr(self._gm, "legend", None)
 
@@ -266,16 +267,20 @@ class MeshfillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
+            self._context().plotContinents(plotting_dataset_bounds, projection,
                                            self._dataWrapModulo,
                                            vp, self._template.data.priority,
                                            vtk_backend_grid=self._vtkDataSet,
                                            dataset_bounds=self._vtkDataSetBounds)
 
-    def getBoundsForPlotting(self):
-        """This is the same as lon/lat dataset bounds but it
-           matches the order of the bounds comming from gm
+    def getPlottingBounds(self):
+        """gm.datawc if it is set or dataset_bounds
         """
-        return vcs2vtk.getBoundsForPlotting(
-            [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
-            self._vtkDataSetBounds, self._dataWrapModulo)
+        if (self._vtkGeoTransform):
+            return vcs2vtk.getWrappedBounds(
+                [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
+                self._vtkDataSetBounds, self._dataWrapModulo)
+        else:
+            return vcs2vtk.getPlottingBounds(
+                [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
+                self._vtkDataSetBounds, self._vtkGeoTransform)

@@ -1165,7 +1165,8 @@ class CdmsFile(CdmsObj, cuDataset):
                   (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
-            del(self.attributes[name])
+            if( name in self.attributes.keys() ):
+                del(self.attributes[name])
 
     def sync(self):
         """
