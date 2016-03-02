@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
   # merge user config into defults
   uv = defaults.merge(uv || {})
 
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "box-cutter/ubuntu1504"
   if uv["gui"]
     config.vm.box = "box-cutter/ubuntu1404-desktop"
   end
