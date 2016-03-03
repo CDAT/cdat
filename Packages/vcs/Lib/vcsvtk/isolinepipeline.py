@@ -81,7 +81,8 @@ class IsolinePipeline(Pipeline2D):
             # fill up the line style values
             linestyle += ['solid'] * (len(self._contourLevels) - len(linestyle))
 
-        x1, x2, y1, y2 = self.getBoundsForPlotting()
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
 
         for i, l in enumerate(self._contourLevels):
             if i == 0:
@@ -282,15 +283,15 @@ class IsolinePipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
-            actors.append([act, [x1, x2, y1, y2]])
+            actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             self._context().fitToViewportBounds(
                 act, vp,
-                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
@@ -315,14 +316,14 @@ class IsolinePipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
-            actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+            actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
             self._context().fitToViewportBounds(
                 act, vp,
-                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
@@ -341,13 +342,13 @@ class IsolinePipeline(Pipeline2D):
             self._gm, t, z,
             vtk_backend_grid=self._vtkDataSet,
             dataset_bounds=self._vtkDataSetBounds,
-            plotting_dataset_bounds=[x1, x2, y1, y2]))
+            plotting_dataset_bounds=plotting_dataset_bounds))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
+            self._context().plotContinents(plotting_dataset_bounds, projection,
                                            self._dataWrapModulo,
                                            vp, self._template.data.priority,
                                            vtk_backend_grid=self._vtkDataSet,

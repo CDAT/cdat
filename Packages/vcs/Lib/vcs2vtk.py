@@ -15,8 +15,6 @@ import numbers
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
 wmo = json.load(f)
 
-_DEBUG_VTK = False
-
 projNames = [
     "linear",
     "utm",
@@ -253,9 +251,10 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
     if geo is None:
         bounds = pts.GetBounds()
         xm, xM, ym, yM = [bounds[0], bounds[1], bounds[2], bounds[3]]
-        # we use plotting coordinates for doing the projection
+        # We don't use the zooming feature (gm.datawc) for geographic
+        # projections. We use wrapped coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
-        geo, geopts = project(pts, projection, getBoundsForPlotting(
+        geo, geopts = project(pts, projection, getWrappedBounds(
             [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         pts = geopts
     # Sets the vertices into the grid
@@ -266,19 +265,7 @@ def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
         else:
             vg = vtk.vtkUnstructuredGrid()
         vg.SetPoints(oldpts)
-        if (_DEBUG_VTK):
-            writer = vtk.vtkXMLDataSetWriter()
-            writer.SetFileName("lonlat-p.vts")
-            writer.SetInputData(vg)
-            writer.Write()
-
         vg.SetPoints(pts)
-        if _DEBUG_VTK:
-            writerg = vtk.vtkXMLDataSetWriter()
-            writerg.SetFileName("geo-p.vts")
-            writerg.SetInputData(vg)
-            writerg.Write()
-
     else:
         vg = grid
     scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
@@ -510,31 +497,16 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     projection = vcs.elements["projection"][gm.projection]
     if grid is None:
         vg.SetPoints(pts)
-
-        writer = vtk.vtkXMLDataSetWriter()
-        ext = "vts" if (vg.GetDataObjectType() == vtk.VTK_STRUCTURED_GRID) else "vtu"
-        writer.SetFileName("lonlat." + ext)
-        writer.SetInputData(vg)
-        writer.Write()
+        # Even if we don't use the zooming feature (gm.datawc) for geographic
+        # projections
         # we use plotting coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
-        geo, geopts = project(pts, projection, getBoundsForPlotting(
+        geo, geopts = project(pts, projection, getWrappedBounds(
             [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
-
-        writerg = vtk.vtkXMLDataSetWriter()
-        writerg.SetFileName("geo." + ext)
-        writerg.SetInputData(vg)
-        writerg.Write()
-
     else:
         vg = grid
-        writer = vtk.vtkXMLDataSetWriter()
-        writer.SetFileName("lonlat.vts")
-        writer.SetInputData(vg)
-        writer.Write()
-
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -1676,11 +1648,7 @@ def stippleLine(prop, line_type):
         raise Exception("Unknown line type: '%s'" % line_type)
 
 
-counti = 0
-
-
 def prepLine(renWin, line, cmap=None):
-    global counti
     number_lines = prepPrimitive(line)
     if number_lines == 0:
         return []
@@ -1755,25 +1723,12 @@ def prepLine(renWin, line, cmap=None):
             l.GetPointIds().SetId(1, j + point_offset + 1)
             lines.InsertNextCell(l)
 
-    countj = 0
     for t, w in line_data:
         pts, _, linesPoly, colors = line_data[(t, w)]
 
         linesPoly.GetCellData().SetScalars(colors)
-        if _DEBUG_VTK:
-            writer = vtk.vtkXMLPolyDataWriter()
-            writer.SetFileName("poly" + str(counti) + "-" + str(countj) + ".vtp")
-            writer.SetInputData(linesPoly)
-            writer.Write()
-
         geo, pts = project(pts, line.projection, line.worldcoordinate)
         linesPoly.SetPoints(pts)
-
-        if _DEBUG_VTK:
-            writerg = vtk.vtkXMLPolyDataWriter()
-            writerg.SetFileName("polyg" + str(counti) + "-" + str(countj) + ".vtp")
-            writerg.SetInputData(linesPoly)
-            writerg.Write()
 
         a = vtk.vtkActor()
         m = vtk.vtkPolyDataMapper()
@@ -1785,9 +1740,7 @@ def prepLine(renWin, line, cmap=None):
 
         stippleLine(p, t)
         actors.append((a, geo))
-        countj = countj + 1
 
-    counti = counti + 1
     return actors
 
 
@@ -1911,6 +1864,20 @@ def vtkIterate(iterator):
         obj = iterator.GetNextItem()
 
 
+# Return gmbounds if gmbounds are different than 1.e20
+def getPlottingBounds(gmbounds, databounds, geo):
+    x1gm, x2gm, y1gm, y2gm = gmbounds[:4]
+    x1, x2, y1, y2 = databounds[:4]
+    if geo:
+        return [x1, x2, y1, y2]
+    assert (x1 < x2 and y1 < y2)
+    if not numpy.allclose([x1gm, x2gm], 1.e20):
+        x1, x2 = [x1gm, x2gm]
+    if (isinstance(y1gm, numbers.Number) and not numpy.allclose([y1gm, y2gm], 1.e20)):
+        y1, y2 = [y1gm, y2gm]
+    return [x1, x2, y1, y2]
+
+
 # transforms [v1,v2] and returns it
 # such that it is in the same order
 # and has the same middle interval as [gm1, gm2]
@@ -1929,15 +1896,11 @@ def switchAndTranslate(gm1, gm2, v1, v2, wrapModulo):
     return [v1, v2]
 
 
-# TODO: Get rid of this funtion and pass instead: flip and central meridian
-# This function can fail for gmbounds -89, -2 where databounds are 89, 0
-# (the cells in the margins have different sizes: 2 and 4)
-#
-# returns bounds with the same interval size as databounds
+# Returns bounds with the same interval size as databounds
 # but in the same order and with the same middle interval
 # as gmbounds. The middle and the order are used for
 # plotting. wrapModule has YWrap, XWrap in degrees, 0 means no wrap
-def getBoundsForPlotting(gmbounds, databounds, wrapModulo):
+def getWrappedBounds(gmbounds, databounds, wrapModulo):
     """ Returns the same interval as databounds but it
     matches the order and also it keeps the same center interval as gmbounds
     So for instance if databounds is -40, 320 and gmbounds is -180, 180

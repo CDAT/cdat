@@ -322,6 +322,23 @@ cdat_add_test(vcs_test_boxfill_robinson_wrap
   ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_boxfill_robinson_wrap.py
   "${BASELINE_DIR}/vcs_test_boxfill_robinson_wrap.png"
   )
+cdat_add_test(vcs_test_meshfill_zoom
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_meshfill_zoom.py
+  "${BASELINE_DIR}/vcs_test_meshfill_zoom.png"
+  )
+cdat_add_test(vcs_test_meshfill_zoom_flip
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_meshfill_zoom.py
+  "${BASELINE_DIR}/vcs_test_meshfill_zoom_flip.png"
+  flip
+  )
+cdat_add_test(vcs_test_meshfill_zoom_flip
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_meshfill_zoom.py
+  "${BASELINE_DIR}/vcs_test_meshfill_zoom_flip.png"
+  flip
+  )
 cdat_add_test(vcs_test_boxfill_10x10_numpy
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
@@ -345,6 +362,11 @@ cdat_add_test(vcs_test_1d_marker_not_shown_if_xaxis_flipped
 cdat_add_test(vcs_test_png_to_base64
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_to_base64.py
+  )
+cdat_add_test(vcs_test_missing_colorname
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
+  "${BASELINE_DIR}/test_vcs_missing_colorname.png"
   )
 ##############################################################################
 #
