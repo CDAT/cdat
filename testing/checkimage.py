@@ -51,7 +51,7 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname, threshold = defaultThreshold,
-                       baseline = False, cleanup=True):
+                       baseline = True, cleanup=True):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."

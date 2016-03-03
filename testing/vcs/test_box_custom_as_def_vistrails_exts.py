@@ -11,6 +11,7 @@ s=f("clt",slice(0,1),squeeze=1)
 
 x=vcs.init()
 x.drawlogooff()
+x.setantialiasing(0)
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
 gm=x.createboxfill()
@@ -26,3 +27,4 @@ x.png(fnm)
 print "fnm:",fnm
 print "src:",src
 ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+sys.exit(ret)

@@ -78,6 +78,7 @@ class Dp(object):
                  "continents",
                  "extradisplays",
                  "parent",
+                 "_parent",
                  "_off",
                  "_priority",
                  "_template",
@@ -86,16 +87,18 @@ class Dp(object):
                  "_g_name",
                  "_array",
                  "_continents",
+                 "_continents_line",
+                 "continents_line",
                  "_backend",
                  "ratio",
                  "newelements",
                  "_newelements",
                  ]
 
-    def _repr_png_(self):
+    def _repr_png(self):
         import tempfile
         tmp = tempfile.mktemp() + ".png"
-        self.parent.png(tmp)
+        self._parent.png(tmp)
         f = open(tmp)
         st = f.read()
         f.close()
@@ -124,13 +127,19 @@ class Dp(object):
         return self._continents
 
     def _setcontinents(self, value):
-        self._continents = VCS_validation_functions.checkInt(
+        VCS_validation_functions.checkContinents(
             self,
-            'continents',
-            value,
-            minvalue=-
-            1)
+            value)
+        self._continents = value
     continents = property(_getcontinents, _setcontinents)
+
+    def _getcontinents_line(self):
+        return self._continents_line
+
+    def _setcontinents_line(self, value):
+        self._continents_line = VCS_validation_functions.checkLine(
+            self, "continents_line", value)
+    continents_line = property(_getcontinents_line, _setcontinents_line)
 
     def _getpriority(self):
         return self._priority
@@ -228,7 +237,7 @@ class Dp(object):
     # Initialize the display plot attributes.                                   #
     #                                                                           #
     ##########################################################################
-    def __init__(self, Dp_name, Dp_name_src='default'):
+    def __init__(self, Dp_name, Dp_name_src='default', parent=None):
             #                                                                           #
             ###################################################################
             # Initialize the display plot's class and its members                       #
@@ -240,6 +249,7 @@ class Dp(object):
         self.extradisplays = []
         self._name = Dp_name
         self.s_name = 'Dp'
+        self._parent = parent
         if self._name == "default":
             self._off = 0
             self._priority = 0
@@ -248,7 +258,7 @@ class Dp(object):
             self._g_type = "boxfill"
             self._g_name = "default"
             self._array = []
-            self._continents = -1
+            self._continents = 1
             self.ratio = None
         else:
             src = vcs.elements["display"][Dp_name_src]
