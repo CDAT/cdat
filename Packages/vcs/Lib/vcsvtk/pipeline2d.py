@@ -33,10 +33,11 @@ class IPipeline2D(Pipeline):
         - _contourLevels: List of contour levels.
         - _contourColors: List of contour colors.
         - _vtkDataSet: The vtkDataSet object with _trimmedData[1|2] set as
-            point or cell scalars.
+            point or cell scalars. The datset is already transformed through
+            the geographic projection if there is one.
         - _vtkGeoTransform: The vtkGeoTransform object associated with this
             pipeline.
-        - _vtkDataSetBounds: The bounds of _vtkDataSet as
+        - _vtkDataSetBounds: The bounds of _vtkDataSet, in lon/lat space, as
             tuple(float xMin, float xMax, float yMin, float yMax)
         - _vtkPolyDataFilter: A vtkAlgorithm that produces a polydata
             representation of the data.
@@ -280,6 +281,7 @@ class Pipeline2D(IPipeline2D):
         self._resultDict["vtk_backend_grid"] = self._vtkDataSet
         self._resultDict["vtk_backend_geo"] = self._vtkGeoTransform
         self._resultDict["vtk_backend_wrap"] = self._dataWrapModulo
+        self._resultDict["dataset_bounds"] = self._vtkDataSetBounds
 
         # Determine and format the contouring information:
         self._updateContourLevelsAndColors()
@@ -327,10 +329,27 @@ class Pipeline2D(IPipeline2D):
         color = getattr(self._gm, "missing", None)
         _colorMap = self.getColorMap()
         if color is not None:
-            color = _colorMap.index[color]
+            color = self.getColorIndexOrRGBA(_colorMap, color)
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
             self._data1, self._vtkDataSet, color, self._useCellScalars,
             deep=False)
 
         self._resultDict["vtk_backend_missing_mapper"] = (
             self._maskedDataMapper, color, self._useCellScalars)
+
+    def getPlottingBounds(self):
+        """gm.datawc if it is set or dataset_bounds if there is not geographic projection
+           wrapped bounds otherwise
+        """
+        if (self._vtkGeoTransform):
+            return vcs2vtk.getWrappedBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._dataWrapModulo)
+        else:
+            return vcs2vtk.getPlottingBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._vtkGeoTransform)
