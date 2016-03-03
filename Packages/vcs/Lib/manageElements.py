@@ -2100,3 +2100,10 @@ x.remove(iso)       # Remove isoline object from VCS list
     else:
         msg = 'This is not a template, graphics method, or secondary method object.'
     return msg
+
+def remove_display_name(name):
+    if name in vcs.elements["display"]:
+        del(vcs.elements["display"][name])
+    else:
+        raise Exception("no such display %s" % name)
+
