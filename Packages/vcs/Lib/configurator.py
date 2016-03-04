@@ -312,8 +312,11 @@ class Configurator(object):
                 if back is None:
                     continue
                 if type(back) not in (list, tuple):
-                    if back.IsA("vtkProp"):
-                        actors.append(back)
+                    try:
+                        if back.IsA("vtkProp"):
+                            actors.append(back)
+                    except AttributeError:
+                        continue
                 else:
                     for back_obj in back:
                         if type(back_obj) in (list, tuple):
@@ -437,7 +440,6 @@ class Configurator(object):
             self.deactivate(self.target)
 
         self.toolbar.hide()
-
         if display.g_type == "marker":
             l = display.backend[key]
             # Actor is actually a group of VTK objects

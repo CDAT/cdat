@@ -307,6 +307,9 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 if hasattr(file1, libcf.CF_FILETYPE):
                     if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                         file = gsHost.open(path, mode)
+                    elif mode=='r' and hostObj is None:
+                        # helps performance on machines where file open (in CdmsFile) is costly
+                        file = file1
                     else:
                         file = CdmsFile(path, mode, hostObj = hostObj)
                     file1.close()
@@ -966,7 +969,10 @@ class CdmsFile(CdmsObj, cuDataset):
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
-        self.uri="file://"+path
+        if "://" in path:
+            self.uri = path
+        else:
+            self.uri = "file://" + path
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
@@ -1159,7 +1165,8 @@ class CdmsFile(CdmsObj, cuDataset):
                   (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
-            del(self.attributes[name])
+            if( name in self.attributes.keys() ):
+                del(self.attributes[name])
 
     def sync(self):
         """

@@ -25,11 +25,6 @@ class IsofillPipeline(Pipeline2D):
         self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
-        data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
-
-        self._vtkDataSet.GetPointData().SetScalars(data)
-
     def _updateContourLevelsAndColors(self):
         self._updateContourLevelsAndColorsGeneric()
 
@@ -63,9 +58,9 @@ class IsofillPipeline(Pipeline2D):
         mappers = []
         _colorMap = self.getColorMap()
 
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
+
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -139,6 +134,8 @@ class IsofillPipeline(Pipeline2D):
         actors = []
         patternActors = []
         ct = 0
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -146,15 +143,15 @@ class IsofillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
             patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             else:
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
                 # Since pattern creation requires a single color, assuming the first
                 c = self.getColorIndexOrRGBA(_colorMap, tmpColors[ct][0])
@@ -177,21 +174,21 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
 
         for act in patternActors:
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
-            actors.append([act, [x1, x2, y1, y2]])
+            actors.append([act, plotting_dataset_bounds])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -201,9 +198,13 @@ class IsofillPipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context().renderTemplate(self._template,
-                                                               self._data1,
-                                                               self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(
+            self._template,
+            self._data1,
+            self._gm, t, z,
+            vtk_backend_grid=self._vtkDataSet,
+            dataset_bounds=self._vtkDataSetBounds,
+            plotting_dataset_bounds=plotting_dataset_bounds))
 
         legend = getattr(self._gm, "legend", None)
 
@@ -240,6 +241,8 @@ class IsofillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
+            self._context().plotContinents(plotting_dataset_bounds, projection,
                                            self._dataWrapModulo,
-                                           self._template)
+                                           vp, self._template.data.priority,
+                                           vtk_backend_grid=self._vtkDataSet,
+                                           dataset_bounds=self._vtkDataSetBounds)

@@ -46,12 +46,6 @@ def test_canvas_size(c, size, via):
     info = c.canvasinfo()
     w, h = size
 
-    # Make sure size fits on screen bounds
-    screen_w, screen_h = c.backend.renWin.GetScreenSize()
-    if w > screen_w:
-        w = screen_w
-    if h > screen_h:
-        h = screen_h
     assert info["width"] == w, "Width via %s incorrect; expected %d, got %d" % (via, w, info["width"])
     assert info["height"] == h, "Height via %s incorrect; expected %d, got %d" % (via, h, info["height"])
 
