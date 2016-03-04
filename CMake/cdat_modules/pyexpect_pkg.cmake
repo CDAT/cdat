@@ -7,4 +7,4 @@ set(PYEXPECT_GZ pyexpect-${PYEXPECT_VERSION}.tar.gz)
 set(PYEXPECT_MD5 2bd260f7f2159f9bcab373721736d526)
 set(PYEXPECT_SOURCE ${PYEXPECT_URL}/${PYEXPECT_GZ})
 
-add_cdat_package(IPYTHON "" "" ON)
+add_cdat_package(PYEXPECT "" "" ON)
