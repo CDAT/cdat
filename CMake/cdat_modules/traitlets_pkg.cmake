@@ -7,4 +7,4 @@ set(TRAITLETS_GZ traitlets-${TRAITLETS_VERSION}.tar.gz)
 set(TRAITLETS_MD5 b5b95ea5941fd9619b4704dfd8201568)
 set(TRAITLETS_SOURCE ${TRAITLETS_URL}/${TRAITLETS_GZ})
 
-add_cdat_package(Traitlets "" "" ON)
+add_cdat_package(TRAITLETS "" "" ON)
