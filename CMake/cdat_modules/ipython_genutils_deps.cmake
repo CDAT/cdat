@@ -1,1 +1,1 @@
-set(Ipython_genutils_deps ${ipython_pkg} ${python_pkg} ${setuptools_pkg})
+set(Ipython_genutils_deps ${python_pkg} ${setuptools_pkg})
