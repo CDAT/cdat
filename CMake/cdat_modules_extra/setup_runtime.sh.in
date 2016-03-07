@@ -2,7 +2,7 @@
 # from this path.
 install_prefix="@CMAKE_INSTALL_PREFIX@"
 # Reset previous uvcdat env messing up
-source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh
+. @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh
 
 # Saves what we will mess with
 for v in PATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH OPAL_PREFIX LIBOVERLAY_SCROLLBAR ; do

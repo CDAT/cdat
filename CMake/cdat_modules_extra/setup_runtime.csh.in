@@ -2,7 +2,7 @@
 # UVCDAT_INSTALL_PREFIX
 
 # First reset any existing UVCDAT env
-source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.csh
+. @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.csh
 
 # Now store existing env var that we will be tweaking
 foreach v ( PATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH OPAL_PREFIX LIBOVERLAY_SCROLLBAR )
