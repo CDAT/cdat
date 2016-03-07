@@ -1176,13 +1176,16 @@ class P(object):
                         txs.append(wc[0])
                     tstring.append(loc[l])
         # now does the mini ticks
-        if getattr(gm, axis + 'mtics' + number) != '':
+        mintics = getattr(gm, axis + 'mtics' + number)
+        if mintics != '':
+            if isinstance(mintics, str):
+                mintics = vcs.elements["list"][mintics]
             obj = getattr(self, axis + 'mintic' + number)
             if obj.priority > 0:
                 ynum = getattr(self._data, "_y%s" % number)
                 xnum = getattr(self._data, "_x%s" % number)
-                for l in getattr(gm, axis + 'mtics' + number).keys():
-                    a = getattr(gm, axis + 'mtics' + number)[l]
+                for l in mintics.keys():
+                    a = mintics[l]
                     if axis == 'x':
                         if xmn <= l <= xmx:
                             if vcs.elements["projection"][
