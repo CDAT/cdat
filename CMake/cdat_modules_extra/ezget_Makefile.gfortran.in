@@ -16,7 +16,7 @@ CDMSINC = @cdat_EXTERNALS@/include
 DEBUG = -O 
 # DEBUG = -g -save-temps -O0
 # Requires Absoft FORTRAN
-FC = /usr/bin/gfortran
+FC = gfortran
 CC = gcc
 #ARCHOPT = -arch x86_64
 #ARCHOPT = -arch i386

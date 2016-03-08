@@ -1,13 +1,8 @@
 set(ezget_source "${CMAKE_CURRENT_BINARY_DIR}/build/ezget")
 set(ezget_install "${cdat_EXTERNALS}")
-if (APPLE)
-    set(ezget_make_file ezget_Makefile.Mac.gfortran.in)
-else ()
-    set(ezget_make_file ezget_Makefile.Linux.gfortran.in)
-endif ()
 
 configure_file(
-    ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/${ezget_make_file}
+    ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ezget_Makefile.gfortran.in
     ${CMAKE_CURRENT_BINARY_DIR}/CMake/ezget_Makefile
     )
 
