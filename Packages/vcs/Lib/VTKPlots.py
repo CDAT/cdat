@@ -269,7 +269,6 @@ class VTKVCSBackend(object):
         self.showGUI(render=False)
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-        self.renWin.Render()
         if restart_anim:
             self.canvas.configurator.start_animating()
 
@@ -1004,7 +1003,7 @@ class VTKVCSBackend(object):
 
         self.hideGUI()
 
-        gl = vtk.vtkGL2PSExporter()
+        gl = vtk.vtkOpenGLGL2PSExporter()
 
         # This is the size of the initial memory buffer that holds the transformed
         # vertices produced by OpenGL. If you start seeing a lot of warnings:

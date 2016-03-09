@@ -1185,7 +1185,6 @@ class P(object):
                 ynum = getattr(self._data, "_y%s" % number)
                 xnum = getattr(self._data, "_x%s" % number)
                 for l in mintics.keys():
-                    a = mintics[l]
                     if axis == 'x':
                         if xmn <= l <= xmx:
                             if vcs.elements["projection"][
