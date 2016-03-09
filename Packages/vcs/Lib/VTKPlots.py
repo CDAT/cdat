@@ -344,6 +344,7 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+            self.renWin.AddObserver("ModifiedEvent", self.configureEvent)
         if self.bg:
             self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
@@ -357,7 +358,7 @@ class VTKVCSBackend(object):
         return ren
 
     def update(self, *args, **kargs):
-        self._lastSize = -1
+        self._lastSize = None
         if self.renWin:
             if self.get3DPlot():
                 plots_args = []
@@ -1076,9 +1077,11 @@ class VTKVCSBackend(object):
         if width is not None and height is not None:
             if self.renWin.GetSize() != (width, height):
                 user_dims = (self.canvas.bgX, self.canvas.bgY, sz[0], sz[1])
-                self.renWin.SetSize(width, height)
+                # We need to set canvas.bgX and canvas.bgY before we do renWin.SetSize
+                # otherwise, canvas.bgX,canvas.bgY will win
                 self.canvas.bgX = width
                 self.canvas.bgY = height
+                self.renWin.SetSize(width, height)
                 self.configureEvent(None, None)
             else:
                 user_dims = None
