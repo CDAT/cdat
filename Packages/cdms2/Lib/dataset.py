@@ -283,9 +283,12 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
-        if uri[:7].lower() == "file://":
-            path = uri[7:]
+        if netloc:
+            # In case of relative path...
+            path = netloc + path
         path = os.path.expanduser(path)
+        path = os.path.normpath(os.path.join(os.getcwd(), path))
+
         root,ext = os.path.splitext(path)
         if ext in ['.xml','.cdml']:
             if mode!='r': raise ModeNotSupported(mode)
@@ -973,7 +976,7 @@ class CdmsFile(CdmsObj, cuDataset):
         if "://" in path:
             self.uri = path
         else:
-            self.uri = "file://" + path
+            self.uri = "file://" + os.path.abspath(os.path.expanduser(path))
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
