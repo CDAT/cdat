@@ -722,6 +722,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.sh
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
   ${cdat_BINARY_DIR}/preofflinebuild.sh
   @ONLY
@@ -729,6 +734,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+  @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.csh
   @ONLY
 )
 
