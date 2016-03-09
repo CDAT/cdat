@@ -5,6 +5,7 @@
               parameter (nlon=144,nlat=72,nmon=456)
               real adata(nlon,nlat,nmon)
               real w(nlon,nlat,nmon), alon(nlon), alat(nlat)
+              double precision dlon(nlon), dlat(nlat)
               integer lons,lats,mons,i,j
 
               integer latsconv,latscal,latsfreq,latsdelta
@@ -17,10 +18,14 @@
               integer latscreate,latsgrid,latsvar,latswrite,latsclose
               integer latsparmtab,id_parmtab
 c  Read in DRS data using EzGet
+              character*500 basedir,filename
+              CALL get_environment_variable("BASELINE_DIR", basedir)
+              filename = TRIM(basedir)//
+     &        'tf2_RSS_v08jan16.20c3m_run1_mm_xy_fw_r0000_0000.dic'
+              print*, "HOME DIR",filename
               call initget
               call defmisc('input missing value','real',1.e20)
-              call defvar(1,'tf2',
-     &      'tf2_RSS_v08jan16.20c3m_run1_mm_xy_fw_r0000_0000.dic')
+              call defvar(1,'tf2',filename)
               call defdim(1,1,'Longitude','width','nearest',
      &               -180.,180.,360.)
               call defdim(1,2,'Latitude','cosine','range',-90.,90.,0.)
@@ -35,15 +40,12 @@ c  Read in DRS data using EzGet
               call getcoord(1,2,alat)
               call closeget
 c Now writes out the data using LATS
-              id_parmtab=
-     $   latsparmtab(
-     $   "/lgm/uvcdat/2016-03-08/Externals/lib/lats/amip2.parms")
 
               latsconv=LATS_PCMDI
               latscal=LATS_STANDARD
               latsfreq=LATS_MONTHLY
               latsdelta=1
-              id_fil = latscreate('latsout',
+              id_fil = latscreate('test_all_pcmdi_libs.nc',
      $       latsconv,
      $       latscal,
      $       latsfreq,latsdelta,center,
@@ -56,16 +58,23 @@ c Now writes out the data using LATS
               print*, alat
               print*, alon
               print *,nlon,nlat
-             id_grd=latsgrid("t42", LATS_GENERIC, nlon, alon, nlat, 
-     $       alat)
+              do i=1,nlon
+              dlon(i)=alon(i)
+              enddo
+              do i=1,nlat
+              dlat(i)=alat(i)
+              enddo
+
+             id_grd=latsgrid("u42", LATS_LINEAR, nlon, dlon, nlat, 
+     $       dlat)
              id_var=latsvar(id_fil,var,LATS_FLOAT,LATS_AVERAGE,id_grd,
      $     0, 'sfc variable')
              icounter = 0
              iyr = iyr0
              do imo=1,nmon
-               ierr=latswrite(id_fil,id_var,0,iyr,imo,ida0,ihr0,
-     $                 adata(1,1,imo))
                icounter = icounter+1
+               ierr=latswrite(id_fil,id_var,0,iyr,icounter,ida0,ihr0,
+     $                 adata(1,1,imo))
                if (icounter.eq.12) then
                    icounter = 0
                    iyr = iyr+1
