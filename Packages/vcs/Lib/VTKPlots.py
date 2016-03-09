@@ -48,8 +48,8 @@ class VTKVCSBackend(object):
             'renderer',
             'vtk_backend_grid',
             'dataset_bounds',
-            # the same as dataset_bounds but centered on the same value and in the
-            # same order as gm bounds. See vcs2vtk.getBoundsForPlotting
+            # the same as vcs.utils.getworldcoordinates for now. getworldcoordinates uses
+            # gm.datawc_... or, if that is not set, it uses data axis margins (without bounds).
             'plotting_dataset_bounds',
             # this may be slightly smaller than the data viewport. It is used
             # for vectorpipeline when drawn on top of a boxfill for instance
@@ -269,7 +269,6 @@ class VTKVCSBackend(object):
         self.showGUI(render=False)
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-        self.renWin.Render()
         if restart_anim:
             self.canvas.configurator.start_animating()
 
@@ -344,6 +343,7 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+            self.renWin.AddObserver("ModifiedEvent", self.configureEvent)
         if self.bg:
             self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
@@ -357,7 +357,7 @@ class VTKVCSBackend(object):
         return ren
 
     def update(self, *args, **kargs):
-        self._lastSize = -1
+        self._lastSize = None
         if self.renWin:
             if self.get3DPlot():
                 plots_args = []
@@ -456,6 +456,12 @@ class VTKVCSBackend(object):
             # following works on some machines but not all
             # Creates the window to be 60% of user's screen's width
             bgX = int(screenSize[0] * .6)
+            bgY = int(bgX / self.canvas.size)
+            if bgY > screenSize[1]:
+                # If still too big use 60% of height
+                # typical case: @doutriaux1 screens
+                bgY = int(screenSize[1] * .6)
+                bgX = int(bgY * self.canvas.size)
         except:
             bgX = self.canvas.bgX
         # Respect user chosen aspect ratio
@@ -684,33 +690,21 @@ class VTKVCSBackend(object):
             if hasattr(plot, 'onClosing'):
                 plot.onClosing(cell)
 
-    def plotContinents(self, x1, x2, y1, y2, projection, wrap, vp, priority, **kargs):
+    def plotContinents(self, wc, projection, wrap, vp, priority, **kargs):
         contData = vcs2vtk.prepContinents(self.canvas._continentspath())
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
         contActor.SetMapper(contMapper)
-        contActor = vcs2vtk.doWrap(
-            contActor, [x1, x2, y1, y2], fastClip=False)
-        if vcs2vtk._DEBUG_VTK:
-            writer = vtk.vtkXMLPolyDataWriter()
-            writer.SetFileName("cont.vtp")
-            writer.SetInputData(contActor.GetMapper().GetInput())
-            writer.Write()
+        contActor = vcs2vtk.doWrap(contActor, wc, fastClip=False)
 
         if projection.type != "linear":
             contData = contActor.GetMapper().GetInput()
             cpts = contData.GetPoints()
             # we use plotting coordinates for doing the projection so
             # that parameters such that central meridian are set correctly.
-            geo, gcpts = vcs2vtk.project(cpts, projection, [x1, x2, y1, y2])
+            geo, gcpts = vcs2vtk.project(cpts, projection, wc)
             contData.SetPoints(gcpts)
-
-            if vcs2vtk._DEBUG_VTK:
-                writerg = vtk.vtkXMLPolyDataWriter()
-                writerg.SetFileName("contg.vtp")
-                writerg.SetInputData(contData)
-                writerg.Write()
 
             contMapper = vtk.vtkPolyDataMapper()
             contMapper.SetInputData(contData)
@@ -748,7 +742,7 @@ class VTKVCSBackend(object):
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
         self.fitToViewportBounds(contActor,
                                  vp,
-                                 wc=[x1, x2, y1, y2], geo=geo,
+                                 wc=wc, geo=geo,
                                  geoBounds=vtk_backend_grid.GetBounds(),
                                  priority=priority,
                                  create_renderer=True)
@@ -1009,7 +1003,7 @@ class VTKVCSBackend(object):
 
         self.hideGUI()
 
-        gl = vtk.vtkGL2PSExporter()
+        gl = vtk.vtkOpenGLGL2PSExporter()
 
         # This is the size of the initial memory buffer that holds the transformed
         # vertices produced by OpenGL. If you start seeing a lot of warnings:
@@ -1082,9 +1076,11 @@ class VTKVCSBackend(object):
         if width is not None and height is not None:
             if self.renWin.GetSize() != (width, height):
                 user_dims = (self.canvas.bgX, self.canvas.bgY, sz[0], sz[1])
-                self.renWin.SetSize(width, height)
+                # We need to set canvas.bgX and canvas.bgY before we do renWin.SetSize
+                # otherwise, canvas.bgX,canvas.bgY will win
                 self.canvas.bgX = width
                 self.canvas.bgY = height
+                self.renWin.SetSize(width, height)
                 self.configureEvent(None, None)
             else:
                 user_dims = None
@@ -1275,7 +1271,6 @@ class VTKVCSBackend(object):
                     pass
                 if flipX:
                     cam.Azimuth(180.)
-
         T = vtk.vtkTransform()
         T.Scale(xScale, yScale, 1.)
 

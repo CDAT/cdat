@@ -1754,6 +1754,37 @@ def getworldcoordinates(gm, X, Y):
     return wc
 
 
+def rgba_color(color, colormap):
+    """Try all of the various syntaxes of colors and return 0-100 RGBA values."""
+    try:
+        # Is it a colormap index?
+        return colormap.index[color]
+    except ValueError:
+        # Is it a color tuple?
+        if len(color) == 3 or len(color) == 4:
+            for c in color:
+                try:
+                    int(c)
+                except:
+                    break
+            else:
+                if any((c > 100 for c in color)):
+                    r, g, b = (c / 2.55 for c in color[0:3])
+                    if len(color) == 4:
+                        a = color[-1] / 2.55
+                    else:
+                        a = 100
+                else:
+                    r, g, b = color[:3]
+                    if len(color) == 4:
+                        a = color[-1]
+                    else:
+                        a = 100
+                return [r, g, b, a]
+    r, g, b = genutil.colors.str2rgb(color)
+    return [r / 2.55, g / 2.55, b / 2.55, 100]
+
+
 def png_read_metadata(path):
     reader = vtk.vtkPNGReader()
     reader.SetFileName(path)
