@@ -283,7 +283,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
-        if uri[:7].lower()=="file://":
+        if uri[:7].lower() == "file://":
             path = uri[7:]
         path = os.path.expanduser(path)
         root,ext = os.path.splitext(path)
