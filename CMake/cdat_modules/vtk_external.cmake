@@ -38,6 +38,7 @@ set(_vtk_modules
   vtkInteractionWidgets
   vtkIOCore
   vtkIOExport
+  vtkIOExportOpenGL
   vtkIOGeometry
   vtkIOImage
   vtkIOImport
@@ -64,6 +65,11 @@ list(APPEND vtk_build_args
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
   -DVTK_USE_SYSTEM_NETCDF:BOOL=ON
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
+  -DVTK_USE_SYSTEM_LIBPROJ4:BOOL=ON
+  -DVTK_RENDERING_BACKEND:STRING=OpenGL
+  -DLIBPROJ4_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/proj4/include
+  -DLIBPROJ4_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/proj4/lib/libproj${_LINK_LIBRARY_SUFFIX}
+#
 )
 if (APPLE)
   list(APPEND vtk_build_args
