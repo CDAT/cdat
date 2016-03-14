@@ -462,6 +462,7 @@ include(pep8_pkg)
 include(mccabe_pkg)
 include(flake8_pkg)
 include(g2clib_pkg)
+include(proj4_pkg)
 include(gdal_pkg)
 include(geos_pkg)
 include(gsw_pkg)
@@ -476,7 +477,11 @@ include(jasper_pkg)
 include(lapack_pkg)
 include(lepl_pkg)
 include(libcf_pkg)
+include(lats_pkg)
 include(libdrs_pkg)
+include(libdrsfortran_pkg)
+include(ezget_pkg)
+include(cd77_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
 include(openssl_pkg)
@@ -678,6 +683,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/proj4/lib "
   "Externals/lib64 "
   "lib "
 )

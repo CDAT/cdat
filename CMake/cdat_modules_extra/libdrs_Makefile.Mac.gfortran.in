@@ -1,0 +1,89 @@
+# DRS library Makefile
+#
+# Usage:
+#
+# To make DRS library (libdrs.a) for Linux, with Absoft FORTRAN:
+#	% make
+# This makefile is set up for a 64-bit Macintosh and gfortran/gcc 4.6.0
+# but see comments for how to use older Macs and older gfortran/gcc.
+#
+#--------------------------------------------------------------------
+
+# DEBUG = -O
+DEBUG = -g -O -save-temps
+FC = /usr/local/bin/gfortran
+CC = gcc
+#ARCHOPT = -arch x86_64
+#ARCHOPT = -arch i386
+ARCHOPT = -m64
+
+FOPTS = -fcray-pointer $(ARCHOPT) -W
+# FFLAGS = $(DEBUG) $(FOPTS) -Dsun -D__linux -D__linux_pgi -byteswapio
+# FFLAGS = $(DEBUG) $(FOPTS) -Dsun -D__linux -D__linux_pgi -Dgfortran -Dmac
+FFLAGS = $(DEBUG) $(FOPTS) -Dsun -Dgfortran -D__linux -D__linux_gfortran -Dmac -Dmac64
+CFLAGS = $(DEBUG) $(ARCHOPT)
+INSTALL_LIB = @cdat_EXTERNALS@/lib
+INSTALL_INC = @cdat_EXTERNALS@/include
+# Somehow CPPFLAGS ends out on the gcc lines...
+#CPPFLAGS = -Dmac -Dsun -D__linux -D__linux_pgi $(ARCHOPT)
+#CPPFLAGS = -Dmac $(ARCHOPT) -Dsun -byteswapio   note that byteswapio is never referenced
+#CPPFLAGS = -Dsun -D__linux -D__linux_gfortran -Dmac $(ARCHOPT)
+CPPFLAGS = -Dsun -D__linux -D__linux_gfortran -Dmac -Dmac64 $(ARCHOPT)
+CPP = cpp
+
+FOBJECTS = getdat.o idenc.o putdat.o clavdb.o getdim.o iflun.o setdim.o getnam.o mvnbc.o cluvdb.o getnd.o bnsrch.o drserr.o seterr.o getind.o compnm.o dictlk.o putvdm.o setnam.o setdat.o setvdm.o getrge.o savdb.o putdat1.o getdat1.o getvdim.o inqlun.o inqdict.o prdict.o rdtrans.o wrtrans.o setrep.o gettbuf.o getrge2.o getelemd.o setcdim.o getcdim.o getedim.o confnm.o putdic.o getpelem.o mimem.o redat.o wrdat.o cllun.o readhd.o writehd.o wrdic.o redic.o aslun.o drssync.o drsreadb.o drsautosync.o midate.o d_floor.o mac.o
+# formerly in FOBJECTS, needed for Fortran->cdms link:  cddrsfwrap.o
+# .. cddrsfwrap.o is a Fortran wrapper for libcdms; not really part of libdrs.
+FINCLUDES = drsdef.h drscom.h cycle.h
+FSOURCES = $(FOBJECTS:.o=.F)
+
+COBJECTS = ctoi.o getslab.o drsc.o drstrunc.o macintosh.o
+# formerly in COBJECTS, needed for Fortran->cdms link: cddrs_fc.o
+# ... cddrs_fc.o is C code to support the Fortran wrapper for libcdms; not really part of libdrs.
+CINCLUDES = drscdf.h
+CSOURCES = $(COBJECTS:.o=.c)
+
+OBJECTS = $(FOBJECTS) $(COBJECTS)
+SOURCES = $(FSOURCES) $(CSOURCES)
+INCLUDES = $(FINCLUDES) $(CINCLUDES)
+#--------------------------------------------------------------------
+
+all: drsdef.h libdrs.a libdrs.so
+
+shared: drsdef.h libdrs.so
+
+libdrs.a: $(OBJECTS)
+	ar rv libdrs.a $?
+
+# formerly in libdrs.so, needed for Fortran->cdms link: -lcdms
+libdrs.so: $(OBJECTS)
+	$(CC) $(ARCHOPT) -headerpad_max_install_names -L/usr/local/gfortran/lib -lgfortran  -L/usr/local/lib/ -L@cdat_EXTERNALS@/lib -lnetcdf -lgrib2c  -lquadmath -shared -o libdrs.so $(OBJECTS)
+
+drsdef.h: drsdef.HH
+	$(CPP) -P $(CPPFLAGS) drsdef.HH drsdef.h
+#--------------------------------------------------------------------
+
+install: libdrs.a
+	cp libdrs.a $(INSTALL_LIB); chmod 644 $(INSTALL_LIB)/libdrs.a
+	cp drsdef.h $(INSTALL_INC); chmod 644 $(INSTALL_INC)/drsdef.h
+	cp drscdf.h $(INSTALL_INC); chmod 644 $(INSTALL_INC)/drscdf.h
+#	install -f $(INSTALL_LIB) -m 644 libdrs.a
+#	install -f $(INSTALL_INC) -m 644 drsdef.h
+#	install -f $(INSTALL_INC) -m 644 drscdf.h
+
+#--------------------------------------------------------------------------
+
+# Miscellaneous junk
+
+tags:
+	etags $(SOURCES) $(INCLUDES)
+
+clean:
+	-rm -f *.o
+	-rm -f *~
+	-rm -f core
+
+.SUFFIXES: .F .o
+
+.F.o:
+	$(FC) $(FFLAGS) -c $<

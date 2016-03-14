@@ -46,6 +46,11 @@ if (CDAT_BUILD_MATPLOTLIB)
   add_subdirectory(matplotlib)
 endif()
 
+# PCMDI Tools
+if (CDAT_BUILD_PCMDI)
+    add_subdirectory(pcmdi)
+endif()
+
 # CMake module tests:
 # Test that out-of-source build detection is working:
 add_test(cmake_checkBuildOutOfSource
