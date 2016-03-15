@@ -183,7 +183,7 @@ def configure (configuration_files):
     if sys.platform == "sunos5":
         cdunif_include_directories.append('/usr/include')
 
-    drs_file = norm(options.get('drs_file', '/usr/local/lib/libdrs.a'))
+    drs_file = "@cdatEXTERNALS@/lib/libdrs.a"
 
     # Establish location of X11 include and library directories
     if options['x11include'] or options['x11libdir']:
@@ -243,12 +243,12 @@ def get_drs_dirs ():
     #c = Pyfort.get_compiler('default')
     drs_dir, junk = os.path.split(drs_file)
     #return c.dirlist + [drs_dir]
-    return [drs_dir,]
+    return [drs_dir,"/usr/local/gfortran/lib","/usr/local/lib"]
 
 def get_drs_libs ():
     #import Pyfort
     #c = Pyfort.get_compiler('default')
-    return ['drs',] + %s
+    return ['drs','gfortran'] + %s
 """ % repr(options.get("COMPILER_EXTRA_LIBS",[]))
     else:
         print >>f, """
@@ -423,7 +423,7 @@ drs_file = %s
 netcdf_directory = %s
 netcdf_include_directory = %s
 cdunif_include_directories = %s + %s + %s
-cdunif_library_directories = %s + get_drs_dirs() + %s +%s
+cdunif_library_directories = %s + %s + %s + get_drs_dirs()
 cdunif_libraries = %s + %s + get_drs_libs() + %s + %s
 x11include = %s
 x11libdir = %s
@@ -516,6 +516,7 @@ def main(arglist):
                         "disable-hdf4","disable-HDF4",
                         "disable-contrib",
                         "enable-pp",
+                        "enable-drs","enable-DRS",
                         "disable-externals-build",
                         "disable-pp",
                         ## Bellow are the arguments that could be passed to exsrc, nothing done with them
@@ -673,6 +674,9 @@ def main(arglist):
             zpath = optlist[i][1]
         elif letter in ["--prefix"]:
             target_prefix = optlist[i][1]
+        elif letter in ['--enable-drs','--enable-DRS']:
+            configuration_files.append(os.path.join('installation', 'pcmdi.py'))
+            do_configure=1  # Need libcdms built a certain way too.
         elif letter in ['--enable-pp','--enable-PP']:
             configuration_files.append(os.path.join('installation', 'pp.py'))
             do_configure=1  # Need libcdms built a certain way too.
