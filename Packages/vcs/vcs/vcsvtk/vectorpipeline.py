@@ -12,7 +12,7 @@ class VectorPipeline(Pipeline):
     def __init__(self, gm, context_):
         super(VectorPipeline, self).__init__(gm, context_)
 
-    def plot(self, data1, data2, tmpl, grid, transform):
+    def plot(self, data1, data2, tmpl, grid, transform, **kargs):
         """Overrides baseclass implementation."""
         # Preserve time and z axis for plotting these inof in rendertemplate
         geo = None  # to make flake8 happy
@@ -163,7 +163,11 @@ class VectorPipeline(Pipeline):
             yrange = list(act.GetYRange())
             wc = [xrange[0], xrange[1], yrange[0], yrange[1]]
 
-        vp = [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2]
+        if (transform and kargs.get('ratio', '0') == 'autot'):
+            returned['ratio_autot_viewport'] = self._processRatioAutot(tmpl, grid)
+
+        vp = returned.get('ratio_autot_viewport',
+                          [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2])
         # look for previous dataset_bounds different than ours and
         # modify the viewport so that the datasets are alligned
         # Hack to fix the case when the user does not specify gm.datawc_...
@@ -182,7 +186,7 @@ class VectorPipeline(Pipeline):
         #                 sideY = sideY / ratioY
         #                 vp = [middleX - sideX, middleX + sideX, middleY - sideY, middleY + sideY]
 
-        dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+        dataset_renderer, xScale, yScale = self._context().fitToViewport(
             act, vp,
             wc=wc,
             priority=tmpl.data.priority,
@@ -190,13 +194,14 @@ class VectorPipeline(Pipeline):
         returned['dataset_renderer'] = dataset_renderer
         returned['dataset_scale'] = (xScale, yScale)
         bounds = [min(xm, xM), max(xm, xM), min(ym, yM), max(ym, yM)]
+        kwargs = {'vtk_backend_grid': grid,
+                  'dataset_bounds': bounds,
+                  'plotting_dataset_bounds': plotting_dataset_bounds}
+        if ('ratio_autot_viewport' in returned):
+            kwargs["ratio_autot_viewport"] = vp
         returned.update(self._context().renderTemplate(
             tmpl, data1,
-            self._gm, taxis, zaxis,
-            vtk_backend_grid=grid,
-            dataset_bounds=bounds,
-            plotting_dataset_bounds=plotting_dataset_bounds,
-            dataset_viewport=vp))
+            self._gm, taxis, zaxis, **kwargs))
 
         if self._context().canvas._continents is None:
             continents = False
