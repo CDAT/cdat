@@ -114,7 +114,8 @@ class BoxfillPipeline(Pipeline2D):
         if self._maskedDataMapper is not None:
             self._mappers.insert(0, self._maskedDataMapper)
 
-        x1, x2, y1, y2 = self.getBoundsForPlotting()
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
 
         # And now we need actors to actually render this thing
         actors = []
@@ -132,7 +133,7 @@ class BoxfillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
             # TODO We shouldn't need this conditional branch, the 'else' body
@@ -140,9 +141,9 @@ class BoxfillPipeline(Pipeline2D):
             # If this is needed for other reasons, we need a comment explaining
             # why.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             else:
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
                 if self._gm.boxfill_type == "custom":
                     # Patterns/hatches creation for custom boxfill plots
@@ -171,7 +172,7 @@ class BoxfillPipeline(Pipeline2D):
             # (we need one for each mapper because of camera flips)
             self._context().fitToViewportBounds(
                 act, vp,
-                wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
@@ -182,11 +183,11 @@ class BoxfillPipeline(Pipeline2D):
                 # why so sticking to many mappers
                 self._context().fitToViewportBounds(
                     act, vp,
-                    wc=[x1, x2, y1, y2], geoBounds=self._vtkDataSet.GetBounds(),
+                    wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                     geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
                     create_renderer=True)
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -201,7 +202,7 @@ class BoxfillPipeline(Pipeline2D):
             self._gm, t, z,
             vtk_backend_grid=self._vtkDataSet,
             dataset_bounds=self._vtkDataSetBounds,
-            plotting_dataset_bounds=[x1, x2, y1, y2]))
+            plotting_dataset_bounds=plotting_dataset_bounds))
 
         if getattr(self._gm, "legend", None) is not None:
             self._contourLabels = self._gm.legend
@@ -246,7 +247,7 @@ class BoxfillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
+            self._context().plotContinents(plotting_dataset_bounds, projection,
                                            self._dataWrapModulo,
                                            vp, self._template.data.priority,
                                            vtk_backend_grid=self._vtkDataSet,

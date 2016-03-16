@@ -283,9 +283,10 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
+        if uri[:7].lower() == "file://":
+            path = uri[7:]
         path = os.path.expanduser(path)
         root,ext = os.path.splitext(path)
-
         if ext in ['.xml','.cdml']:
             if mode!='r': raise ModeNotSupported(mode)
             datanode = load(path)
@@ -307,6 +308,9 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 if hasattr(file1, libcf.CF_FILETYPE):
                     if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                         file = gsHost.open(path, mode)
+                    elif mode=='r' and hostObj is None:
+                        # helps performance on machines where file open (in CdmsFile) is costly
+                        file = file1
                     else:
                         file = CdmsFile(path, mode, hostObj = hostObj)
                     file1.close()
@@ -1162,7 +1166,8 @@ class CdmsFile(CdmsObj, cuDataset):
                   (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
-            del(self.attributes[name])
+            if( name in self.attributes.keys() ):
+                del(self.attributes[name])
 
     def sync(self):
         """
