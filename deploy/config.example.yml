@@ -1,0 +1,15 @@
+---
+  # Enable the uvcdat gui
+  gui: true
+
+  # Disable uvcmetrics and testdata
+  uvcmetrics: false
+
+  # Disable cdatweb visualization server
+  cdatweb: false
+
+  # Set the memory allocated to the VM
+  memory: 4096
+
+  # Set the number of cpus available to the VM
+  cpus: 4
