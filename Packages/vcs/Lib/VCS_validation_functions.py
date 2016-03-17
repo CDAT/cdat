@@ -122,12 +122,13 @@ def checkContinents(self, value):
                                 "data_continent_other%d" % value)
             if not os.path.exists(path):
                 raise ValueError("Couldn't find continents file at %s" % path)
+    elif isinstance(value, (str, unicode)):
+        if os.path.exists(os.path.expanduser(value)):
+            path = value
+        else:
+            raise ValueError("Could not find continent file at %s" % value)
     else:
-        try:
-            if os.path.exists(value):
-                path = value
-        except:
-            raise ValueError("Continents should be a path to a file or an index.")
+        raise ValueError("Continents should be a path to a file or an index.")
     return path
 
 
