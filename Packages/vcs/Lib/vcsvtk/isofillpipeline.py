@@ -25,49 +25,8 @@ class IsofillPipeline(Pipeline2D):
         self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
-        data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
-
-        self._vtkDataSet.GetPointData().SetScalars(data)
-
     def _updateContourLevelsAndColors(self):
-        """Overrides baseclass implementation."""
-        # Contour values:
-        self._contourLevels = self._gm.levels
-        if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-                numpy.allclose(self._contourLevels, 1.e20):
-            levs2 = vcs.mkscale(self._scalarRange[0],
-                                self._scalarRange[1])
-            if len(levs2) == 1:  # constant value ?
-                levs2 = [levs2[0], levs2[0] + .00001]
-            self._contourLevels = []
-            if self._gm.ext_1:
-                # user wants arrow at the end
-                levs2[0] = -1.e20
-            if self._gm.ext_2:
-                # user wants arrow at the end
-                levs2[-1] = 1.e20
-            for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i + 1]])
-        else:
-            if not isinstance(self._gm.levels[0], (list, tuple)):
-                self._contourLevels = []
-                levs2 = self._gm.levels
-                if numpy.allclose(levs2[0], 1.e20):
-                    levs2[0] = -1.e20
-                for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i + 1]])
-
-        if isinstance(self._contourLevels, numpy.ndarray):
-            self._contourLevels = self._contourLevels.tolist()
-
-        # Figure out colors
-        self._contourColors = self._gm.fillareacolors
-        if self._contourColors == [1]:
-            # TODO BUG It's possible that levs2 may not exist here...
-            self._contourColors = vcs.getcolors(levs2, split=0)
-            if isinstance(self._contourColors, (int, float)):
-                self._contourColors = [self._contourColors]
+        self._updateContourLevelsAndColorsGeneric()
 
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
@@ -99,10 +58,9 @@ class IsofillPipeline(Pipeline2D):
         mappers = []
         _colorMap = self.getColorMap()
 
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
-        assert(style != 'solid' or len(tmpLevels) == 1)
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
+
         for i, l in enumerate(tmpLevels):
             # Ok here we are trying to group together levels can be, a join
             # will happen if: next set of levels continues where one left off
@@ -176,6 +134,10 @@ class IsofillPipeline(Pipeline2D):
         actors = []
         patternActors = []
         ct = 0
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
+        dataset_renderer = None
+        xScale, yScale = (1, 1)
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -183,15 +145,15 @@ class IsofillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
             patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             else:
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
                 # Since pattern creation requires a single color, assuming the first
                 c = self.getColorIndexOrRGBA(_colorMap, tmpColors[ct][0])
@@ -214,21 +176,22 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
-                create_renderer=True)
-
+                create_renderer=(dataset_renderer is None))
+        self._resultDict['dataset_renderer'] = dataset_renderer
+        self._resultDict['dataset_scale'] = (xScale, yScale)
         for act in patternActors:
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
-            actors.append([act, [x1, x2, y1, y2]])
+            actors.append([act, plotting_dataset_bounds])
 
         self._resultDict["vtk_backend_actors"] = actors
 
@@ -238,9 +201,13 @@ class IsofillPipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context().renderTemplate(self._template,
-                                                               self._data1,
-                                                               self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(
+            self._template,
+            self._data1,
+            self._gm, t, z,
+            vtk_backend_grid=self._vtkDataSet,
+            dataset_bounds=self._vtkDataSetBounds,
+            plotting_dataset_bounds=plotting_dataset_bounds))
 
         legend = getattr(self._gm, "legend", None)
 
@@ -277,6 +244,10 @@ class IsofillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
-                                           self._dataWrapModulo,
-                                           self._template)
+            continents_renderer, xScale, yScale = self._context().plotContinents(
+                plotting_dataset_bounds, projection,
+                self._dataWrapModulo,
+                vp, self._template.data.priority,
+                vtk_backend_grid=self._vtkDataSet,
+                dataset_bounds=self._vtkDataSetBounds)
+            self._resultDict['continents_renderer'] = continents_renderer

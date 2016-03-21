@@ -3,7 +3,7 @@ MAINTAINER UV-CDAT Developers <uvcdat-support@llnl.gov>
 
 RUN mkdir -p /tmp/uvcdat-build
 ADD . /usr/src/uvcdat
-RUN cd /tmp/uvcdat-build && cmake -DCDAT_BUILD_WEB=ON -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_OSMESA=ON -DCDAT_BUILD_OFFSCREEN=ON -DCMAKE_INSTALL_PREFIX=/opt/uvcdat /usr/src/uvcdat && make && cd / && rm -fr /tmp/uvcdat-build
+RUN cd /tmp/uvcdat-build && cmake -DCDAT_DOWNLOAD_UVCMETRICS_TESTDATA=OFF -DCDAT_BUILD_WEB=ON -DCDAT_BUILD_GUI=OFF -DCDAT_BUILD_OSMESA=ON -DCDAT_BUILD_OFFSCREEN=ON -DCMAKE_INSTALL_PREFIX=/opt/uvcdat /usr/src/uvcdat && make && cd / && rm -fr /tmp/uvcdat-build
 
 RUN useradd -d /data -m -U uvcdat
 
