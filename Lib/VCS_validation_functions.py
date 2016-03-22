@@ -906,7 +906,7 @@ def checkLinesList(self, name, value):
     hvalue = []
     cvalues = []
     wvalues = []
-    for v in value:
+    for i,v in enumerate(value):
         if v not in ["solid", "dash", "dot", "dash-dot",
                      "long-dash"] and v in vcs.elements["line"]:
             l = vcs.elements["line"][v]
@@ -915,8 +915,17 @@ def checkLinesList(self, name, value):
             wvalues.append(l.width[0])
         else:
             hvalue.append(checkLineType(self, name, v))
-            cvalues.append(1)
-            wvalues.append(1.0)
+            if hasattr(self,"linewidths"):
+                if len(self.linewidths)>i:
+                    wvalues.append(self.linewidths[i])
+                else:
+                    wvalues.append(1.)
+            if hasattr(self,"linecolors"):
+                if len(self.linecolors)>i:
+                    cvalues.append(self.linecolors[i])
+                else:
+                    cvalues.append(1)
+            #wvalues.append(1.0)
     return hvalue, cvalues, wvalues
 
 
