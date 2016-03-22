@@ -748,7 +748,13 @@ def checkColorList(self, name, value):
     value = checkListTuple(self, name, value)
     returned_values = []
     for v in value:
-        returned_values.append(checkColor(self, name + '_list_value', v, NoneOk=True))
+        returned_values.append(
+            checkColor(
+                self,
+                name +
+                '_list_value',
+                v,
+                NoneOk=True))
     return returned_values
 
 
@@ -877,6 +883,10 @@ def checkLineType(self, name, value):
         hvalue = 'long-dash'
     elif (queries.isline(value) == 1):
         hvalue = value.name
+    elif value in vcs.elements["line"]:
+        self.linecolor = vcs.elements["line"][value].color[0]
+        self.linewidth = vcs.elements["line"][value].width[0]
+        hvalue = vcs.elements["line"][value].type[0]
     else:
         checkedRaise(
             self,
@@ -894,9 +904,28 @@ def checkLinesList(self, name, value):
         value = list(value)
     value = checkListTuple(self, name, value)
     hvalue = []
-    for v in value:
-        hvalue.append(checkLineType(self, name, v))
-    return hvalue
+    cvalues = []
+    wvalues = []
+    for i, v in enumerate(value):
+        if v not in ["solid", "dash", "dot", "dash-dot",
+                     "long-dash"] and v in vcs.elements["line"]:
+            l = vcs.elements["line"][v]
+            hvalue.append(l.type[0])
+            cvalues.append(l.color[0])
+            wvalues.append(l.width[0])
+        else:
+            hvalue.append(checkLineType(self, name, v))
+            if hasattr(self, "linewidths"):
+                if len(self.linewidths) > i:
+                    wvalues.append(self.linewidths[i])
+                else:
+                    wvalues.append(1.)
+            if hasattr(self, "linecolors"):
+                if len(self.linecolors) > i:
+                    cvalues.append(self.linecolors[i])
+                else:
+                    cvalues.append(1)
+    return hvalue, cvalues, wvalues
 
 
 def checkTextTable(self, name, value):
