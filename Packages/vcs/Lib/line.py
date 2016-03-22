@@ -33,10 +33,16 @@ def process_src(nm, code):
     except:
         f = vcs.elements["line"][nm]
     atts = {}
+    # ltyp: line type
+    # lwsf: line width
+    # lci: line color index
+    # vp: viewport
+    # wc: world coordinates
+    # x: x coordinates
+    # y: y coordinates
     for a in ["ltyp", "lwsf", "lci", "vp", "wc", "x", "y"]:
         i = code.find(a + "(")
         v = genutil.get_parenthesis_content(code[i:])
-        # print nm,a,v
         if v != "":
             vals = []
             for V in v.split(","):
@@ -45,17 +51,22 @@ def process_src(nm, code):
                 except:
                     vals.append(float(V))
             atts[a] = vals
-        f.color = atts.get("lci", f.color)
-        f.width = atts.get("lwsf", f.width)
-        f.type = atts.get("ltyp", f.type)
-        f.viewport = atts.get("vp", f.viewport)
-        f.worldcoordinate = atts.get("wc", f.worldcoordinate)
-        f.x = atts.get('x', f.x)
-        f.y = atts.get('y', f.y)
-        i = code.find("projection=")
-        if i > -1:
-            j = code[i:].find(",") + i
-            f.projection = code[i + 11:j]
+    if "lci" not in atts.keys():
+        sp = code.split(",")
+        atts["lci"] = int(sp[2])
+        atts["ltyp"] = abs(int(sp[0])-1)
+        atts["lwsf"] = float(sp[1])
+    f.type = atts.get("ltyp", f.type)
+    f.color = atts.get("lci", f.color)
+    f.width = atts.get("lwsf", f.width)
+    f.viewport = atts.get("vp", f.viewport)
+    f.worldcoordinate = atts.get("wc", f.worldcoordinate)
+    f.x = atts.get('x', f.x)
+    f.y = atts.get('y', f.y)
+    i = code.find("projection=")
+    if i > -1:
+        j = code[i:].find(",") + i
+        f.projection = code[i + 11:j]
 
 ###############################################################################
 #                                                                             #
@@ -165,10 +176,11 @@ class Tl(object):
     def _settype(self, value):
         if isinstance(value, (str, int)):
             value = [value, ]
-        self._type = VCS_validation_functions.checkLinesList(
+        self._type, colors, width = VCS_validation_functions.checkLinesList(
             self,
             'index',
             value)
+
     type = property(_gettype, _settype)
 
     def _getwidth(self):

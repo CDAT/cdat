@@ -2,23 +2,23 @@
 """
 # Fillarea (Tf) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       fillarea (Tf) module                                            #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's fill area secondary object.    #
-#                                                                               #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 #
 #
 #
@@ -37,49 +37,68 @@ def process_src(nm, code):
     except:
         f = vcs.elements["fillarea"][nm]
     atts = {}
-    for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
-        i = code.find(a + "(")
-        v = genutil.get_parenthesis_content(code[i:])
-        # print nm,a,v
-        if v != "":
-            vals = []
-            for V in v.split(","):
-                try:
-                    vals.append(int(V))
-                except:
-                    vals.append(float(V))
-            atts[a] = vals
-        f.style = atts.get("fais", f.style)
+    if code.find("(") > -1:  # ok with have the keywords spelled out
+        # faci: fillarea color index
+        # fasi: fillarea style index
+        # fais: fillarea index style (hatching/pattern/solid)
+        # faoi: ???
+        # vp: viewport
+        # wc: worldcoordinates
+        # x: x coordinates
+        # y: y coordinates
+        for a in ["faci", "fasi", "fais", "faoi", "vp", "wc", "x", "y"]:
+            i = code.find(a + "(")
+            v = genutil.get_parenthesis_content(code[i:])
+            if v != "":
+                vals = []
+                for V in v.split(","):
+                    try:
+                        vals.append(int(V))
+                    except:
+                        vals.append(float(V))
+                    if a in ["fais"]:
+                        vals[-1] = vals[-1]-1
+                atts[a] = vals
+    else:
+        sp = code.split(",")
+        atts["fais"] = int(sp[0]) - 1
+        atts["faci"] = int(sp[2])
+        atts["fasi"] = int(sp[1])
+        atts["vp"] = [10. * float(sp[-4]), 10. * float(sp[-3]), 10. * float(sp[-2]), 10. * float(sp[-1])]
+
+    f.style = atts.get("fais", f.style)
+    try:  # in case these are strings?
         I = atts.get("fasi", f.index)
         for i, v in enumerate(I):
             if v == 0:
                 I[i] = 1
-        f.index = I
-        f.color = atts.get("faci", f.color)
-        f.opacity = atts.get("faoi", f.opacity)
-        f.viewport = atts.get("vp", f.viewport)
-        f.worldcoordinate = atts.get("wc", f.worldcoordinate)
-        f.x = atts.get('x', f.x)
-        f.y = atts.get('y', f.y)
-        i = code.find("projection=")
-        if i > -1:
-            j = code[i:].find(",") + i
-            f.projection = code[i + 11:j]
-        for b in vcs.elements["boxfill"].values(
-        ) + vcs.elements["isofill"].values() + vcs.elements["meshfill"].values():
-            if b.fillareaindices is not None:
-                for i, v in enumerate(b.fillareaindices):
-                    if isinstance(v, str) and v == nm:
-                        b._fillareaindices[i] = f.index
-                        b._fillareacolor[i] = f.color
-                        b._fillareastyle = f.style
-                        b._fillareaopacity = f.opacity
+    except:
+        pass
+    f.index = I
+    f.color = atts.get("faci", f.color)
+    f.viewport = atts.get("vp", f.viewport)
+    f.worldcoordinate = atts.get("wc", f.worldcoordinate)
+    f.x = atts.get('x', f.x)
+    f.y = atts.get('y', f.y)
+    i = code.find("projection=")
+    if i > -1:
+        j = code[i:].find(",") + i
+        f.projection = code[i + 11:j]
+    for b in vcs.elements["boxfill"].values(
+    ) + vcs.elements["isofill"].values() + vcs.elements["meshfill"].values():
+        if b.fillareaindices is not None:
+            for i, v in enumerate(b.fillareaindices):
+                if isinstance(v, str) and v == nm:
+                    b._fillareaindices[i] = f.index
+                    b._fillareacolor[i] = f.color
+                    b._fillareastyle = f.style
+                    b._fillareaopacity = f.opacity
 
-#############################################################################
-#                                                                           #
+#
+#
 # Fillarea (Tm) Class.                                                      #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Tf(object):
@@ -322,20 +341,20 @@ class Tf(object):
         self._y = value
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the fillarea attributes.                                       #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Tf_name=None, Tf_name_src='default'):
-                    #                                                         #
-                    ###########################################################
+                    #
+                    #
                     # Initialize the fillarea class and its members           #
                     # The getTfmember function retrieves the values of the    #
                     # fillarea members in the C structure and passes back the #
                     # appropriate Python Object.                              #
-                    ###########################################################
-                    #                                                         #
+                    #
+                    #
         if isinstance(Tf_name_src, Tf):
             Tf_name_src = Tf_name_src.name
         if Tf_name_src != "default" and Tf_name_src not in vcs.elements[
@@ -379,11 +398,11 @@ class Tf(object):
 
         vcs.elements["fillarea"][Tf_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Fillarea out line members (attributes).                                   #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -402,11 +421,11 @@ class Tf(object):
         print "projection =", self.projection
         print "colormap =", self.colormap
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary fillarea method in VCS to a file.                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         """
  Function:     script                           # Calls _vcs.scriptTf
@@ -506,6 +525,6 @@ class Tf(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#
