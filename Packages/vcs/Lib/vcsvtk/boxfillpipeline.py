@@ -96,12 +96,7 @@ class BoxfillPipeline(Pipeline2D):
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
         self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
-        if self._useCellScalars:
-            p2c = vtk.vtkPointDataToCellData()
-            p2c.SetInputData(self._vtkDataSet)
-            self._vtkPolyDataFilter.SetInputConnection(p2c.GetOutputPort())
-        else:
-            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
+        self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
 
     def _plotInternal(self):
         """Overrides baseclass implementation."""
@@ -126,6 +121,8 @@ class BoxfillPipeline(Pipeline2D):
         _style = self._gm.fillareastyle
         vp = [self._template.data.x1, self._template.data.x2,
               self._template.data.y1, self._template.data.y2]
+        dataset_renderer = None
+        xScale, yScale = (1, 1)
         for mapper in self._mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -170,12 +167,14 @@ class BoxfillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of camera flips)
-            self._context().fitToViewportBounds(
+            dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
                 act, vp,
                 wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
-                create_renderer=True)
+                create_renderer=(dataset_renderer is None))
+        self._resultDict['dataset_renderer'] = dataset_renderer
+        self._resultDict['dataset_scale'] = (xScale, yScale)
 
         for act in patternActors:
             if self._vtkGeoTransform is None:
@@ -247,11 +246,13 @@ class BoxfillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(plotting_dataset_bounds, projection,
-                                           self._dataWrapModulo,
-                                           vp, self._template.data.priority,
-                                           vtk_backend_grid=self._vtkDataSet,
-                                           dataset_bounds=self._vtkDataSetBounds)
+            continents_renderer, xScale, yScale = self._context().plotContinents(
+                plotting_dataset_bounds, projection,
+                self._dataWrapModulo,
+                vp, self._template.data.priority,
+                vtk_backend_grid=self._vtkDataSet,
+                dataset_bounds=self._vtkDataSetBounds)
+            self._resultDict['continents_renderer'] = continents_renderer
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
