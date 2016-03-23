@@ -45,18 +45,27 @@ class VTKVCSBackend(object):
         self.renderer = None
         self._renderers = {}
         self._plot_keywords = [
-            'renderer',
-            'vtk_backend_grid',
+            'cdmsfile',
+            'cell_coordinates'
+            # used to render the continents
+            'continents_renderer',
+            # dataset bounds in lon/lat coordinates
             'dataset_bounds',
-            # the same as vcs.utils.getworldcoordinates for now. getworldcoordinates uses
-            # gm.datawc_... or, if that is not set, it uses data axis margins (without bounds).
-            'plotting_dataset_bounds',
             # this may be slightly smaller than the data viewport. It is used
             # for vectorpipeline when drawn on top of a boxfill for instance
             'dataset_viewport',
+            # used to render the dataset
+            'dataset_renderer',
+            # dataset scale: (xScale, yScale)
+            'dataset_scale',
+            # the same as vcs.utils.getworldcoordinates for now. getworldcoordinates uses
+            # gm.datawc_... or, if that is not set, it uses data axis margins (without bounds).
+            'plotting_dataset_bounds',
+            'renderer',
+            'vtk_backend_grid',
+            # vtkGeoTransform used for geographic transformation
             'vtk_backend_geo',
-            'cdmsfile',
-            'cell_coordinates']
+            ]
         self.numberOfPlotCalls = 0
         self.renderWindowSize = None
         self.clickRenderer = None
@@ -131,47 +140,97 @@ class VTKVCSBackend(object):
                 continue
             t = vcs.elements["template"][d.template]
             gm = vcs.elements[d.g_type][d.g_name]
-            if gm.projection != "linear":
-                return
-            if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
-                x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm,
-                                                               d.array[0].getAxis(-1),
-                                                               d.array[0].getAxis(-2))
+            # for non-linear projection or for meshfill. Meshfill is wrapped at
+            # VTK level, so vcs calculations do not work.
+            if gm.projection != "linear" or gm.g_name == 'Gfm':
+                selector = vtk.vtkHardwareSelector()
+                datasetRenderer = d.backend['dataset_renderer']
+                continentsRenderer = d.backend.get('continents_renderer')
+                dataset = d.backend['vtk_backend_grid']
+                if (datasetRenderer and dataset):
+                    selector.SetRenderer(datasetRenderer)
+                    selector.SetArea(xy[0], xy[1], xy[0], xy[1])
+                    selector.SetFieldAssociation(vtk.vtkDataObject.FIELD_ASSOCIATION_CELLS)
+                    # We want to be able see information behind continents
+                    if (continentsRenderer):
+                        continentsRenderer.SetDraw(False)
+                    selection = selector.Select()
+                    if (continentsRenderer):
+                        continentsRenderer.SetDraw(True)
+                    if (selection.GetNumberOfNodes() > 0):
+                        selectionNode = selection.GetNode(0)
+                        prop = selectionNode.GetProperties().Get(selectionNode.PROP())
+                        if (prop):
+                            cellIds = prop.GetMapper().GetInput().GetCellData().GetGlobalIds()
+                            if (cellIds):
+                                # scalar value
+                                a = selectionNode.GetSelectionData().GetArray(0)
+                                geometryId = a.GetValue(0)
+                                cellId = cellIds.GetValue(geometryId)
+                                scalars = dataset.GetCellData().GetScalars()
+                                value = scalars.GetValue(cellId)
+                                geoTransform = d.backend['vtk_backend_geo']
+                                if (geoTransform):
+                                    geoTransform.Inverse()
+                                # Use the world picker to get world coordinates
+                                # we deform the dataset, so we need to fix the
+                                # world picker using xScale, yScale
+                                xScale, yScale = d.backend['dataset_scale']
+                                worldPicker = vtk.vtkWorldPointPicker()
+                                worldPicker.Pick(xy[0], xy[1], 0, datasetRenderer)
+                                worldPosition = list(worldPicker.GetPickPosition())
+                                if (xScale > yScale):
+                                    worldPosition[0] /= (xScale/yScale)
+                                else:
+                                    worldPosition[1] /= (yScale/xScale)
+                                lonLat = worldPosition
+                                if (geoTransform):
+                                    geoTransform.InternalTransformPoint(worldPosition, lonLat)
+                                    geoTransform.Inverse()
+                                st += "Var: %s\n" % d.array[0].id
+                                if (float("inf") not in lonLat):
+                                    st += "X=%4.1f\nY=%4.1f\n" % (lonLat[0], lonLat[1])
+                                st += "Value: %g" % value
+            else:
+                if t.data.x1 <= x <= t.data.x2 and t.data.y1 <= y <= t.data.y2:
+                    x1, x2, y1, y2 = vcs.utils.getworldcoordinates(gm,
+                                                                   d.array[0].getAxis(-1),
+                                                                   d.array[0].getAxis(-2))
 
-                X = (x - t.data.x1) / (t.data.x2 - t.data.x1) * (x2 - x1) + x1
-                Y = (y - t.data.y1) / (t.data.y2 - t.data.y1) * (y2 - y1) + y1
+                    X = (x - t.data.x1) / (t.data.x2 - t.data.x1) * (x2 - x1) + x1
+                    Y = (y - t.data.y1) / (t.data.y2 - t.data.y1) * (y2 - y1) + y1
 
-                # Ok we now have the X/Y values we need to figure out the
-                # indices
-                try:
-                    I = d.array[0].getAxis(-1).mapInterval((X, X, 'cob'))[0]
+                    # Ok we now have the X/Y values we need to figure out the
+                    # indices
                     try:
-                        J = d.array[
-                            0].getAxis(-2).mapInterval((Y, Y, 'cob'))[0]
-                        # Values at that point
-                        V = d.array[0][..., J, I]
-                    except:
-                        V = d.array[0][..., I]
-                    if isinstance(V, numpy.ndarray):
-                        # Grab the appropriate time slice
-                        if self.canvas.animate.created():
-                            t = self.canvas.animate.frame_num
-                            try:
-                                taxis = V.getTime()
-                                V = V(time=taxis[t % len(taxis)]).flat[0]
-                            except:
+                        I = d.array[0].getAxis(-1).mapInterval((X, X, 'cob'))[0]
+                        try:
+                            J = d.array[
+                                0].getAxis(-2).mapInterval((Y, Y, 'cob'))[0]
+                            # Values at that point
+                            V = d.array[0][..., J, I]
+                        except:
+                            V = d.array[0][..., I]
+                        if isinstance(V, numpy.ndarray):
+                            # Grab the appropriate time slice
+                            if self.canvas.animate.created():
+                                t = self.canvas.animate.frame_num
+                                try:
+                                    taxis = V.getTime()
+                                    V = V(time=taxis[t % len(taxis)]).flat[0]
+                                except:
+                                    V = V.flat[0]
+                            else:
                                 V = V.flat[0]
-                        else:
-                            V = V.flat[0]
-                    try:
-                        st += "Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (
-                            d.array[0].id, I, X, J, Y, V)
+                        try:
+                            st += "Var: %s\nX[%i] = %4.1f\nY[%i] = %4.1f\nValue: %g" % (
+                                d.array[0].id, I, X, J, Y, V)
+                        except:
+                            st += "Var: %s\nX = %4.1f\nY[%i] = %4.1f\nValue: %g" % (
+                                d.array[0].id, X, I, Y, V)
                     except:
-                        st += "Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (
-                            d.array[0].id, X, I, Y, V)
-                except:
-                    st += "Var: %s\nX=%g\nY=%g\nValue = N/A" % (
-                        d.array[0].id, X, Y)
+                        st += "Var: %s\nX=%g\nY=%g\nValue = N/A" % (
+                            d.array[0].id, X, Y)
         if st == "":
             return
         ren = vtk.vtkRenderer()
@@ -269,7 +328,6 @@ class VTKVCSBackend(object):
         self.showGUI(render=False)
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-        self.renWin.Render()
         if restart_anim:
             self.canvas.configurator.start_animating()
 
@@ -344,6 +402,7 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+            self.renWin.AddObserver("ModifiedEvent", self.configureEvent)
         if self.bg:
             self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
@@ -357,7 +416,7 @@ class VTKVCSBackend(object):
         return ren
 
     def update(self, *args, **kargs):
-        self._lastSize = -1
+        self._lastSize = None
         if self.renWin:
             if self.get3DPlot():
                 plots_args = []
@@ -740,13 +799,12 @@ class VTKVCSBackend(object):
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
-        self.fitToViewportBounds(contActor,
-                                 vp,
-                                 wc=wc, geo=geo,
-                                 geoBounds=vtk_backend_grid.GetBounds(),
-                                 priority=priority,
-                                 create_renderer=True)
-        return {}
+        return self.fitToViewportBounds(contActor,
+                                        vp,
+                                        wc=wc, geo=geo,
+                                        geoBounds=vtk_backend_grid.GetBounds(),
+                                        priority=priority,
+                                        create_renderer=True)
 
     def renderTemplate(self, tmpl, data, gm, taxis, zaxis, **kargs):
         # ok first basic template stuff, let's store the displays
@@ -1003,7 +1061,7 @@ class VTKVCSBackend(object):
 
         self.hideGUI()
 
-        gl = vtk.vtkGL2PSExporter()
+        gl = vtk.vtkOpenGLGL2PSExporter()
 
         # This is the size of the initial memory buffer that holds the transformed
         # vertices produced by OpenGL. If you start seeing a lot of warnings:
@@ -1076,9 +1134,11 @@ class VTKVCSBackend(object):
         if width is not None and height is not None:
             if self.renWin.GetSize() != (width, height):
                 user_dims = (self.canvas.bgX, self.canvas.bgY, sz[0], sz[1])
-                self.renWin.SetSize(width, height)
+                # We need to set canvas.bgX and canvas.bgY before we do renWin.SetSize
+                # otherwise, canvas.bgX,canvas.bgY will win
                 self.canvas.bgX = width
                 self.canvas.bgY = height
+                self.renWin.SetSize(width, height)
                 self.configureEvent(None, None)
             else:
                 user_dims = None
@@ -1197,7 +1257,7 @@ class VTKVCSBackend(object):
 
         # Data range in World Coordinates
         if priority == 0:
-            return None
+            return (None, 1, 1)
         vp = tuple(vp)
         if wc is None:
             Xrg = list(Actor.GetXRange())
@@ -1313,7 +1373,7 @@ class VTKVCSBackend(object):
                 plane = planeCollection.GetNextItem()
 
         Renderer.AddActor(Actor)
-        return Renderer
+        return (Renderer, xScale, yScale)
 
     def update_input(self, vtkobjects, array1, array2=None, update=True):
         if "vtk_backend_grid" in vtkobjects:

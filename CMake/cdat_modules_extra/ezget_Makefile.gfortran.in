@@ -1,0 +1,78 @@
+# EZGet Makefile
+#
+# Usage:
+#
+# Change DEBUG as needed.
+# Check the paths specified here for whether they are right for you.
+# Provide a path to fcddrs.h, or copy it (it's in cdat/libcdms/include)
+# make
+#
+#--------------------------------------------------------------------
+LIBNAME = ezget
+#jfp was CDMSLIB = /usr/local/lib
+#jfp was CDMSINC = /usr/local/include
+CDMSLIB = @cdat_EXTERNALS@/lib
+CDMSINC = @cdat_EXTERNALS@/include
+DEBUG = -O 
+# DEBUG = -g -save-temps -O0
+# Requires Absoft FORTRAN
+FC = gfortran
+CC = gcc
+#ARCHOPT = -arch x86_64
+#ARCHOPT = -arch i386
+ARCHOPT = -m64 -mtune=native
+# FOPTS = -fcray-pointer $(ARCHOPT) -W
+FOPTS = -fcray-pointer $(ARCHOPT) -W -Dgfortran -Dsun -D__linux -D__linux_gfortran -fpic -fPIC -I ../../libdrs/lib -I ../include -I @cdat_EXTERNALS@/include
+FFLAGS = $(DEBUG) $(FOPTS)
+INSTALL_LIB = @cdat_EXTERNALS@/lib
+INSTALL_INC = @cdat_EXTERNALS@/include
+CPPFLAGS = $(ARCHOPT)
+CPP = cpp
+
+FOBJECTS = Src/$(LIBNAME).o
+FINCLUDES = drsdef.h drscom.h cycle.h
+# FINCLUDES = 
+FSOURCES = $(FOBJECTS:.o=.F)
+
+COBJECTS = 
+CINCLUDES = drscdf.h
+CSOURCES = $(COBJECTS:.o=.c)
+
+OBJECTS = $(FOBJECTS) $(COBJECTS)
+SOURCES = $(FSOURCES) $(CSOURCES)
+INCLUDES = $(FINCLUDES) $(CINCLUDES)
+#--------------------------------------------------------------------
+
+all: lib$(LIBNAME).a 
+#lib$(LIBNAME).so
+
+shared: drsdef.h lib$(LIBNAME).so
+
+lib$(LIBNAME).a: $(OBJECTS)
+	ar rv lib$(LIBNAME).a $?
+
+lib$(LIBNAME).so: $(OBJECTS)
+	$(CC) $(ARCHOPT) -lgfortran -L@cdat_EXTERNALS@/lib -L$(CDMSLIB) -I$(CDMSINC) -lcdms  -shared -o lib$(LIBNAME).so $(OBJECTS)
+
+#--------------------------------------------------------------------
+
+install: lib$(LIBNAME).a
+	cp lib$(LIBNAME).a $(INSTALL_LIB); chmod 644 $(INSTALL_LIB)/lib$(LIBNAME).a
+#	cp drsdef.h $(INSTALL_INC); chmod 644 $(INSTALL_INC)/drsdef.h
+
+#--------------------------------------------------------------------------
+
+# Miscellaneous junk
+
+tags:
+	etags $(SOURCES) $(INCLUDES)
+
+clean:
+	-rm -f Src/*.o
+	-rm -f *~
+	-rm -f core
+	
+.SUFFIXES: .F .o
+
+.F.o:
+	cd Src ; $(FC) $(FFLAGS) -c ../$<

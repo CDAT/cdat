@@ -182,10 +182,13 @@ class VectorPipeline(Pipeline):
         #                 sideY = sideY / ratioY
         #                 vp = [middleX - sideX, middleX + sideX, middleY - sideY, middleY + sideY]
 
-        self._context().fitToViewportBounds(act, vp,
-                                            wc=wc,
-                                            priority=tmpl.data.priority,
-                                            create_renderer=True)
+        dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+            act, vp,
+            wc=wc,
+            priority=tmpl.data.priority,
+            create_renderer=True)
+        returned['dataset_renderer'] = dataset_renderer
+        returned['dataset_scale'] = (xScale, yScale)
         bounds = [min(xm, xM), max(xm, xM), min(ym, yM), max(ym, yM)]
         returned.update(self._context().renderTemplate(
             tmpl, data1,
@@ -198,11 +201,12 @@ class VectorPipeline(Pipeline):
         if self._context().canvas._continents is None:
             continents = False
         if continents:
-            self._context().plotContinents(plotting_dataset_bounds, projection,
-                                           self._dataWrapModulo, vp, tmpl.data.priority,
-                                           vtk_backend_grid=grid,
-                                           dataset_bounds=bounds)
-
+            continents_renderer, xScale, yScale = self._context().plotContinents(
+                plotting_dataset_bounds, projection,
+                self._dataWrapModulo, vp, tmpl.data.priority,
+                vtk_backend_grid=grid,
+                dataset_bounds=bounds)
+            returned["continents_renderer"] = continents_renderer
         returned["vtk_backend_actors"] = [[act, plotting_dataset_bounds]]
         returned["vtk_backend_glyphfilters"] = [glyphFilter]
         returned["vtk_backend_luts"] = [[None, None]]

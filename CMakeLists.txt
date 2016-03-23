@@ -66,6 +66,19 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
+# Enable/Disable coverage
+#=============================================================================
+option(CDAT_MEASURE_COVERAGE "Measure test coverage while running tests" OFF)
+
+if(CDAT_MEASURE_COVERAGE)
+  message("Coverage measurement enabled; tests will run slower.")
+  set(COVERAGE_PKGS "cdms2,vcs,cdutil,genutil,DV3D,vcsaddons,vcs.vtk_ui,vcs.editors,vcs.vcsvtk,regrid2")
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/coverage_report.py.in
+    ${CMAKE_INSTALL_PREFIX}/bin/coverage_report
+    @ONLY
+  )
+endif()
+
 # Set up the test data. If UVCDAT_USE_SYSTEM_TESTDATA is ON and UVCDAT_TESTDATA
 # is not set then we won't use it for testing. Otherwise we'll test either
 # with the system test data or download it ourselves.
@@ -462,6 +475,7 @@ include(pep8_pkg)
 include(mccabe_pkg)
 include(flake8_pkg)
 include(g2clib_pkg)
+include(proj4_pkg)
 include(gdal_pkg)
 include(geos_pkg)
 include(gsw_pkg)
@@ -476,7 +490,11 @@ include(jasper_pkg)
 include(lapack_pkg)
 include(lepl_pkg)
 include(libcf_pkg)
+include(lats_pkg)
 include(libdrs_pkg)
+include(libdrsfortran_pkg)
+include(ezget_pkg)
+include(cd77_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
 include(openssl_pkg)
@@ -530,6 +548,7 @@ include(jinja2_pkg)
 include(docutils_pkg)
 include(sphinx_pkg)
 include(freetype_pkg)
+include(coverage_pkg)
 ## C. Doutriaux: We need to replace the following with a findPackage at some point
 if (APPLE)
 else()
@@ -678,6 +697,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/proj4/lib "
   "Externals/lib64 "
   "lib "
 )
@@ -718,6 +738,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.sh
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
   ${cdat_BINARY_DIR}/preofflinebuild.sh
   @ONLY
@@ -725,6 +750,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+  @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.csh
   @ONLY
 )
 

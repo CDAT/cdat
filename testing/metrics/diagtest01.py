@@ -13,7 +13,7 @@ from metrics.fileio.findfiles import *
 from metrics.computation.reductions import *
 from metrics.packages.amwg import *
 from metrics.packages.amwg.derivations.vertical import *
-from metrics.packages.amwg.plot_data import plotspec, derived_var
+#from metrics.packages.amwg.plot_data import plotspec, derived_var
 from metrics.packages.amwg.derivations import *
 from metrics.packages.diagnostic_groups import *
 from metrics.frontend.uvcdat import *
