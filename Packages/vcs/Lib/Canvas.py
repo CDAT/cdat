@@ -3287,6 +3287,7 @@ Options:::
             except:
                 pass
 
+        """
         def clean_val(value):
             if numpy.allclose(value, 0.):
                 return 0.
@@ -3378,6 +3379,7 @@ Options:::
                 copy_mthd = vcs.creategraphicsmethod(arglist[3], arglist[4])
                 check_mthd = copy_mthd
                 set_convert_labels(copy_mthd)
+                """
         if copy_mthd is None:
             copy_mthd = vcs.creategraphicsmethod(arglist[3], arglist[4])
             check_mthd = copy_mthd
@@ -3441,15 +3443,16 @@ Options:::
         except:
             pass
         try:
-            copy_mthd = vcs.setTicksandLabels(
-                check_mthd,
-                copy_mthd,
-                datawc_x1,
-                datawc_x2,
-                datawc_y1,
-                datawc_y2,
-                x=x,
-                y=y)
+            if copy_mthd.xaxisconvert == "linear" and copy_mthd.yaxisconvert == "linear":
+                copy_mthd = vcs.setTicksandLabels(
+                    check_mthd,
+                    copy_mthd,
+                    datawc_x1,
+                    datawc_x2,
+                    datawc_y1,
+                    datawc_y2,
+                    x=x,
+                    y=y)
         except:
             pass
 

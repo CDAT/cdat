@@ -43,8 +43,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
         yBounds *= size[1]
         xres, yres = int(xBounds), int(yBounds)
 
-    xres = int(4.0*xBounds)
-    yres = int(4.0*yBounds)
+    xres = int(4.0 * xBounds)
+    yres = int(4.0 * yBounds)
 
     # Handle the case when the bounds are less than 1 in physical dimensions
 

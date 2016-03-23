@@ -4,6 +4,18 @@ import numpy
 import vcs
 
 
+def power10(x):
+    return numpy.ma.power(10, x)
+
+
+def degsin(x):
+    return numpy.ma.sin(x / 180. * numpy.pi)
+
+
+def degarcsin(x):
+    return numpy.ma.arcsin(x) * 180. / numpy.pi
+
+
 def smooth(x, beta, window_len=11):
     """ kaiser window smoothing """
     # extending the data at beginning and at the end
@@ -20,6 +32,65 @@ class Pipeline1D(Pipeline):
 
     def __init__(self, gm, context_):
         super(Pipeline1D, self).__init__(gm, context_)
+
+    def convertAxis(self, axis, data, method, revert_method):
+        new = method(data[:])
+        # Now that the easy part is done, we need to convert the gm
+        # appropriately
+        gm = vcs.create1d(source=self._gm)
+        sc = vcs.mkscale(new[0], new[-1])
+        lbls = vcs.mklabels(sc)
+        new_lbls = {}
+        for k in lbls.keys():
+            v = revert_method(eval(lbls[k]))
+            new_lbls[k] = v
+
+        if axis == "x":
+            if gm.datawc_x1 != "*" and not numpy.allclose(gm.datawc_x1, 1.e20):
+                gm.datawc_x1 = method(gm.datawc_x1)
+            else:
+                autoscale = True
+            if gm.datawc_x2 != "*" and not numpy.allclose(gm.datawc_x2, 1.e20):
+                gm.datawc_x2 = method(gm.datawc_x2)
+            else:
+                autoscale = True
+            if autoscale:
+                gm.datawc_x1 = sc[0]
+                gm.datawc_x2 = sc[-1]
+        else:
+            if gm.datawc_y1 != "*" and not numpy.allclose(gm.datawc_y1, 1.e20):
+                gm.datawc_y1 = method(gm.datawc_y1)
+            else:
+                autoscale = True
+            if gm.datawc_y2 != "*" and not numpy.allclose(gm.datawc_y2, 1.e20):
+                gm.datawc_y2 = method(gm.datawc_y2)
+            else:
+                autoscale = True
+            if autoscale:
+                gm.datawc_y1 = sc[0]
+                gm.datawc_y2 = sc[-1]
+
+        x1 = gm.datawc_x1
+        x2 = gm.datawc_x2
+        y1 = gm.datawc_y1
+        y2 = gm.datawc_y2
+
+        vcs.setTicksandLabels(gm, None, x1, x2, y1, y2, "x", "y")
+
+        for att in ["ticlabels", "mtics"]:
+            for num in ["1", "2"]:
+                val = getattr(gm, axis + att + num)
+                print axis + att + num, val
+                new_dict = {}
+                if isinstance(val, dict):
+                    for v in val.keys():
+                        new_dict[method(v)] = val[v]
+                else:  # auto
+                    new_dict = new_lbls
+                setattr(gm, axis + att + num, new_dict)
+
+        self._gm = gm
+        return new
 
     def plot(self, data1, data2, tmpl, grid, transform):
         """Overrides baseclass implementation."""
@@ -38,6 +109,24 @@ class Pipeline1D(Pipeline):
 
         if self._gm.smooth is not None:
             Y = smooth(Y, self._gm.smooth)
+
+        # Here we try to apply the axis convert options
+        for ax, conv, vals in [['x', self._gm.xaxisconvert, X], ['y', self._gm.yaxisconvert, Y]]:
+            if conv == "log10":
+                new = self.convertAxis(ax, vals, numpy.ma.log10, power10)
+            elif conv == "ln":
+                new = self.convertAxis(ax, vals, numpy.ma.log, numpy.ma.exp)
+            elif conv == "exp":
+                new = self.convertAxis(ax, vals, numpy.ma.exp, numpy.ma.log)
+            elif conv == "area_wt":
+                new = self.convertAxis(ax, vals, degsin, degarcsin)
+            else:
+                new = vals
+
+            if vals is X:
+                X = new
+            else:
+                Y = new
 
         l = self._context().canvas.createline()
         Xs = X[:].tolist()
