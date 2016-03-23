@@ -3,5 +3,6 @@
 # and configure and build it
 set(nm ENUM34)
 
-set(OLD FALSE)
+set(OLD OFF)
 include(pipinstaller)
+unset(OLD)
