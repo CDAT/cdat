@@ -551,6 +551,7 @@ include(freetype_pkg)
 include(coverage_pkg)
 ## C. Doutriaux: We need to replace the following with a findPackage at some point
 if (APPLE)
+  include(png_pkg)
 else()
   include(pixman_pkg)
   include(fontconfig_pkg)
