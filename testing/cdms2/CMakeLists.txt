@@ -16,6 +16,9 @@ cdat_add_test("test_dim_unlimited"
     ${cdat_SOURCE_DIR}/testing/cdms2/test_dim_unlimited.py
     TestCDATLite)
 if (CDAT_DOWNLOAD_SAMPLE_DATA)
+  cdat_add_test("CDMS_test_cdms_file_in_uri"
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/cdms2/test_cdms_file_in_uri.py)
   cdat_add_test("CDMS_Test_Zonal_regrid_Switch_to_Regrid2"
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/cdms2/test_regrid_zonal_switch_to_regrid2.py)

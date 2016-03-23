@@ -7,6 +7,20 @@ add_test(flake8_vcs
   --max-line-length=120 # Reasonable line length
 )
 
+cdat_add_test(vcs_set_line_attribute_from_line
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_set_line_attribute_from_line.py
+)
+cdat_add_test(vcs_read_old_scr
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
+  ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old.scr
+)
+cdat_add_test(vcs_read_old_scr_2
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
+  ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old_2.scr
+)
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -925,7 +939,30 @@ cdat_add_test(vcs_test_click_info
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
   ${BASELINE_DIR}/test_vcs_click_info.png
+  a_boxfill
 )
+
+cdat_add_test(vcs_test_click_info_mollweide_boxfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_mollweide_boxfill.png
+  a_mollweide_boxfill
+)
+
+cdat_add_test(vcs_test_click_info_meshfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_meshfill.png
+  a_meshfill
+)
+
+cdat_add_test(vcs_test_click_info_meshfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_robinson_meshfill.png
+  a_robinson_meshfill
+)
+
 
 cdat_add_test(vcs_test_mercator_edge
   "${PYTHON_EXECUTABLE}"

@@ -65,8 +65,19 @@ class DiagTest(object):
         #print '>>>>>>>>>>>>>>>>>>> ', baselinefname
         f = cdms2.open( testfname )
         g = cdms2.open( baselinefname )
-        fvar = f(varname)
-        gvar = g(varname)
+        
+        try:
+            fvar = f(varname)
+        except:
+            print varname, ' is not in file ', testname
+            sys.exit(1)
+        
+        try:
+            gvar = g(varname)
+        except:
+            print varname, ' is not in file ', baselinefname
+            sys.exit(1)     
+                   
         #print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
         #print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
         close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
@@ -123,9 +134,9 @@ class DiagTest(object):
                         #print ">>>>>>>>>>>>>", var, ncfilename
                         close = self.closeness( var, ncfilename, rtol, atol )
                         if not close:
-                            print var, ' in ', ncfilename, ' is not close.'
+                          print var, ' in ', os.path.join(self.outpath,ncfilename), ' is not close from the one in:',os.path.join(self.baselinepath,ncfilename)
                     except:
-                        print 'comparison failed for ', var, ' in file: ', ncfilename
+                        print 'NetCDF comparison failed for ', var, ' in file: ', os.path.join(self.outpath,ncfilename),"vs",os.path.join(self.baselinepath,ncfilename)
                         close = False
                     NC_CLOSE = NC_CLOSE and close
             assert(NC_CLOSE), 'NetCDF files are not close'

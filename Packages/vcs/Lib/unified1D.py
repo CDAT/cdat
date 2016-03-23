@@ -501,6 +501,8 @@ class G1d(object):
 
     def _setline(self, value):
         if value is not None:
+            if vcs.queries.isline(value):
+                value = value.name
             value = VCS_validation_functions.checkLineType(self, 'line', value)
         self._line = value
     line = property(_getline, _setline)
