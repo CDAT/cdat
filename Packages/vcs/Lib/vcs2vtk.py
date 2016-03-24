@@ -507,6 +507,10 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         vg.SetPoints(geopts)
     else:
         vg = grid
+    # Add a GlobalIds array to keep track of cell ids throughout the pipeline
+    globalIds = numpy_to_vtk_wrapper(numpy.arange(0, vg.GetNumberOfCells()), deep=True)
+    globalIds.SetName('GlobalIds')
+    vg.GetCellData().SetGlobalIds(globalIds)
     out = {"vtk_backend_grid": vg,
            "xm": xm,
            "xM": xM,
@@ -867,6 +871,9 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
         return Act
     Mapper = Act.GetMapper()
     data = Mapper.GetInput()
+    # insure that GLOBALIDS are not removed by the append filter
+    attributes = data.GetCellData()
+    attributes.SetActiveAttribute(-1, attributes.GLOBALIDS)
     xmn = min(wc[0], wc[1])
     xmx = max(wc[0], wc[1])
     if numpy.allclose(xmn, 1.e20) or numpy.allclose(xmx, 1.e20):
@@ -878,7 +885,6 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
         ymx = abs(wrap[0])
         ymn = -wrap[0]
 
-    # Prepare MultiBlock and puts in oriinal data
     appendFilter = vtk.vtkAppendPolyData()
     appendFilter.AddInputData(data)
     appendFilter.Update()
@@ -954,6 +960,11 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
         clipper.SetClipFunction(clipBox)
     clipper.SetInputConnection(appendFilter.GetOutputPort())
     clipper.Update()
+    # set globalids attribute
+    attributes = clipper.GetOutput().GetCellData()
+    globalIdsIndex = vtk.mutable(-1)
+    attributes.GetArray("GlobalIds", globalIdsIndex)
+    attributes.SetActiveAttribute(globalIdsIndex, attributes.GLOBALIDS)
 
     Mapper.SetInputData(clipper.GetOutput())
     return Act
