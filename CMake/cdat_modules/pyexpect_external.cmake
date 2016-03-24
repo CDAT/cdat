@@ -9,6 +9,6 @@ ExternalProject_Add(PYEXPECT
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-  DEPENDS ${Pyexpect_deps}
+  DEPENDS ${PYEXPECT_deps}
   ${ep_log_options}
 )
