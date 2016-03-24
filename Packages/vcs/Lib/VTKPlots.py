@@ -269,7 +269,6 @@ class VTKVCSBackend(object):
         self.showGUI(render=False)
         if self.renWin.GetSize() != (0, 0):
             self.scaleLogo()
-        self.renWin.Render()
         if restart_anim:
             self.canvas.configurator.start_animating()
 
@@ -344,6 +343,7 @@ class VTKVCSBackend(object):
             if not self.bg:
                 self.createDefaultInteractor(self.renderer)
             self.renWin.AddRenderer(self.renderer)
+            self.renWin.AddObserver("ModifiedEvent", self.configureEvent)
         if self.bg:
             self.renWin.SetOffScreenRendering(True)
         if "open" in kargs and kargs["open"]:
@@ -357,7 +357,7 @@ class VTKVCSBackend(object):
         return ren
 
     def update(self, *args, **kargs):
-        self._lastSize = -1
+        self._lastSize = None
         if self.renWin:
             if self.get3DPlot():
                 plots_args = []
@@ -1003,7 +1003,7 @@ class VTKVCSBackend(object):
 
         self.hideGUI()
 
-        gl = vtk.vtkGL2PSExporter()
+        gl = vtk.vtkOpenGLGL2PSExporter()
 
         # This is the size of the initial memory buffer that holds the transformed
         # vertices produced by OpenGL. If you start seeing a lot of warnings:
@@ -1076,9 +1076,11 @@ class VTKVCSBackend(object):
         if width is not None and height is not None:
             if self.renWin.GetSize() != (width, height):
                 user_dims = (self.canvas.bgX, self.canvas.bgY, sz[0], sz[1])
-                self.renWin.SetSize(width, height)
+                # We need to set canvas.bgX and canvas.bgY before we do renWin.SetSize
+                # otherwise, canvas.bgX,canvas.bgY will win
                 self.canvas.bgX = width
                 self.canvas.bgY = height
+                self.renWin.SetSize(width, height)
                 self.configureEvent(None, None)
             else:
                 user_dims = None

@@ -1,15 +1,30 @@
 # Main install prefix set by user or post install script:
 # UVCDAT_INSTALL_PREFIX
 
+# First reset any existing UVCDAT env
+. @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.csh
+
+# Now store existing env var that we will be tweaking
+foreach v ( PATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH OPAL_PREFIX LIBOVERLAY_SCROLLBAR )
+    if ( `eval echo \$\?$v` ) then
+        set vv=`eval echo \$$v`
+        setenv UVCDAT_ORIGINAL_${v} ${vv}
+    else
+        setenv UVCDAT_ORIGINAL_${v} " "
+    endif
+end
+
 setenv UVCDAT_PROMPT_STRING @UVCDAT_PROMPT_STRING@
 if ( $?UVCDAT_PROMPT_BEGINNING ) then
+  setenv UVCDAT_ORIGINAL_prompt ${prompt}
   set prompt = "[@UVCDAT_PROMPT_STRING@]${prompt}"
-endif
-if ( $?UVCDAT_PROMPT_END ) then
+else if ( $?UVCDAT_PROMPT_END ) then
+  setenv UVCDAT_ORIGINAL_prompt ${prompt}
   set prompt = "${prompt}[@UVCDAT_PROMPT_STRING@]"
 endif
 
 # If unset, use the value configured by cmake by default.
+
 # Everything beyond this point will be determined relatively
 # from this path.
 if ( $?UVCDAT_INSTALL_PREFIX ) then
@@ -28,6 +43,7 @@ if ( $?UVCDAT_SETUP_PATH ) then
     echo 'ERROR: UVCDAT setup was previously sourced at '${UVCDAT_SETUP_PATH}
     echo 'ERROR: There is no need to run setup_runtime manually anymore.'
     echo 'ERROR: Open a new shell in order to use a different install location.'
+    echo 'ERROR: Or execute source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.sh.'
     exit 1
   endif
 endif
@@ -98,3 +114,4 @@ echo 'Successfully updated your environment to use UVCDAT'
 echo '(changes are valid for this session/terminal only)'
 echo 'Version: '${UVCDAT_PROMPT_STRING}
 echo 'Location: '${UVCDAT_SETUP_PATH}
+echo 'Reset these changes by running: source @CMAKE_INSTALL_PREFIX@/bin/reset_runtime.csh'
