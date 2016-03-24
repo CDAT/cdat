@@ -51,7 +51,7 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname, threshold = defaultThreshold,
-                       baseline = False, cleanup=True):
+                       baseline = True, cleanup=True):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."
@@ -71,7 +71,7 @@ def check_result_image(fname, baselinefname, threshold = defaultThreshold,
     bestDiff = None
     bestDiffImage = None
     for baselineFilename in baselinefnames:
-        sys.stdout.write("Comparing '%s' to '%s'..."%(fname, baselineFilename))
+        sys.stdout.write("Comparing %s  %s ..."%(fname, baselineFilename))
         baselineImage = image_from_file(baselineFilename)
         if baselineImage is None:
             continue

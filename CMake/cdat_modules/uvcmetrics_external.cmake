@@ -17,7 +17,7 @@ if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
     set(FILE_PATH "${UVCMETRICS_TEST_DATA_DIRECTORY}/${base_file_path}")
     list(APPEND UVCMETRICS_DOWNLOAD_FILES "${FILE_PATH}")
 
-    set(FILE_URL "${LLNL_URL}/../sample_data/uvcmetrics/${base_file_path}")
+    set(FILE_URL "${LLNL_URL}/../sample_data/uvcmetrics_2.4.1/${base_file_path}")
 
     add_custom_command(
       OUTPUT "${FILE_PATH}"
@@ -37,4 +37,6 @@ endif()
 set(GIT_CMD_STR GIT_REPOSITORY "${UVCMETRICS_SOURCE}")
 set(GIT_TAG GIT_TAG "${UVCMETRICS_BRANCH}")
 set(nm UVCMETRICS)
+set(OLD OFF)
 include(pipinstaller)
+unset(OLD)

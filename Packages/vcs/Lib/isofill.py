@@ -30,7 +30,6 @@ import vcs
 import VCS_validation_functions
 import cdtime
 import xmldocs
-import numpy
 
 
 def load(nm, json_dict={}):
@@ -121,38 +120,8 @@ def process_src(nm, code):
                 g.datawc_y2,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
-    irg = code.find("range")
-    if irg > -1:
-        lines = code[irg:].split("\n")
-        i = 0
-        levs = []
-        fac = []
-        fai = []
-        fas = []
-        badfa = True
-        for l in lines:
-            if l.find("(id=") > -1:
-                sp = lines[i].split(",")
-                levs.append([float(sp[1][7:]), float(sp[2][7:])])
-                fa = sp[-1][3:]
-                fa = fa[:fa.find(")")]
-                if fa not in vcs.elements["fillarea"].keys():
-                    badfa = True
-                    fai.append(fa)
-                else:
-                    fa = vcs.elements["fillarea"][fa]
-                    fac.append(fa.color[0])
-                    fai.append(fa.index[0])
-                    fas.append(fa.style[0])
-                i += 1
-        if not numpy.allclose(levs, 1.e20):
-            g.levels = levs
-            if badfa:
-                g._fillareaindices = fai
-            else:
-                g.fillareacolor = fac
-                g.fillareaindices = fai
-                g.fillareastyle = fas[0]
+
+    vcs.utils.process_range_from_old_scr(code, g)
 
 
 class Gfi(object):

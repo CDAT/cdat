@@ -16,6 +16,6 @@ the part of UCAR or Unidata, to assist in its use, correction,
 modification, or enhancement.
 
 """
-from udunits import udunits,addBaseUnit,addDimensionlessUnit,addScaledUnit,\
-        addOffsettedUnit,addMultipliedUnits,addInvertedUnit,addDividedUnits
-udunits_init=0
+from udunits import udunits, addBaseUnit, addDimensionlessUnit, addScaledUnit  # noqa
+from udunits import addOffsettedUnit, addMultipliedUnits, addInvertedUnit, addDividedUnits  # noqa
+udunits_init = 0  # noqa

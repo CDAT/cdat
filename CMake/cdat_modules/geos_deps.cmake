@@ -1,1 +1,1 @@
-set(GEOS_deps ${matplotlib_pkg})
+set(GEOS_deps ${pkgconfig_pkg})

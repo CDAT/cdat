@@ -21,6 +21,9 @@ import copy
 round_projections = ['polar (non gctp)', 'stereographic',
                      'orthographic', "ortho", ]
 
+no_over_proj4_parameter_projections = round_projections+["aeqd", "lambert conformal c"]
+elliptical_projections = ["robinson", "mollweide"]
+
 
 def process_src(nm, code):
     try:

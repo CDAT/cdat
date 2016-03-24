@@ -5,7 +5,6 @@ x.open()
 x.configure()
 
 x.backend.renWin.SetSize(814, 303)
-x.backend.renWin.Modified()
 
 fnm = "test_vcs_configurator_resize.png"
 

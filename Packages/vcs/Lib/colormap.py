@@ -33,7 +33,7 @@ def process_src(nm, code):
     for i in range(255):
         val = numbers[i * 3:i * 3 + 3]
         if val != ():
-            d[i] = list(val)+[100]
+            d[i] = list(val) + [100]
     cp = Cp(nm)
     cp.index.data.update(d)
 

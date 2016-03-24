@@ -31,6 +31,41 @@ indent = 1
 sort_keys = True
 
 
+def process_range_from_old_scr(code, g):
+    irg = code.find("range")
+    if irg > -1:
+        rg_code = code[irg:]
+        levs = []
+        fac = []
+        fai = []
+        fas = []
+        badfa = False
+        while rg_code.find("(id=") > -1:
+            iend = rg_code.find(")") + 1
+            line = rg_code[:iend]
+            rg_code = rg_code[iend:]
+            sp = line.split(",")
+            levs.append([float(sp[1][7:]), float(sp[2][7:])])
+            fa = sp[-1][3:]
+            fa = fa[:fa.find(")")]
+            if fa not in vcs.elements["fillarea"].keys():
+                badfa = True
+                fai.append(fa)
+            else:
+                fa = vcs.elements["fillarea"][fa]
+                fac.append(fa.color[0])
+                fai.append(fa.index[0])
+                fas.append(fa.style[0])
+        if not numpy.allclose(levs, 1.e20):
+            g.levels = levs
+        if badfa:
+            g._fillareaindices = fai
+        else:
+            g.fillareacolors = fac
+            g.fillareaindices = fai
+            g.fillareastyle = fas[0]
+
+
 def dumpToDict(obj, skipped=[], must=[]):
     dic = {}
     associated = {"texttable": set(),
@@ -106,7 +141,8 @@ def dumpToJson(obj, fileout, skipped=[
             f.close()
             for etype in associated.keys():
                 for asso in associated[etype]:
-                    if asso is not None and asso not in vcs._protected_elements[etype]:
+                    if asso is not None and asso not in vcs._protected_elements[
+                            etype]:
                         dumpToJson(
                             vcs.elements[etype][asso],
                             fileout,
@@ -285,7 +321,7 @@ def _scriptrun(script, canvas=None):
                     for e in g.line:
                         if e in vcs.elements["textorientation"]:
                             lst.append(vcs.elements["line"][e])
-                        elif e in vcs.elements["text"]:
+                        elif e in vcs.elements["textcombined"]:
                             lst.append(vcs.elements["line"][e])
                         else:
                             lst.append(e)
@@ -543,7 +579,8 @@ def saveinitialfile():
     for k in vcs.elements.keys():
         Skip[k] = []
         for e in vcs.elements[k].keys():
-            if e in vcs._protected_elements[k] or e[:2] == "__":  # temporary elt
+            if e in vcs._protected_elements[k] or e[
+                    :2] == "__":  # temporary elt
                 Skip[k].append(e)
     for k in vcs.elements.keys():
         if k in ["display", "font", "fontNumber"]:
@@ -610,7 +647,8 @@ def scriptrun(script):
             f = open(script)
             jsn = json.load(f)
             keys = []
-            for k in ["Tt", "To", "Tl", "Tm", "Proj"]:  # always read these first
+            for k in ["Tt", "To", "Tl",
+                      "Tm", "Proj"]:  # always read these first
                 if k in jsn.keys():
                     keys.append(k)
             for k in jsn.keys():
@@ -1497,7 +1535,7 @@ def getcolorcell(cell, obj=None):
     return cmap.index[cell]
 
 
-def setcolorcell(obj, num, r, g, b):
+def setcolorcell(obj, num, r, g, b, a=100):
     """
 Function: setcolorcell
 
@@ -1526,7 +1564,7 @@ vcs.setcolorcell("AMIP",61,70,70,70)
         cmap = getcolormap(obj)
     else:
         cmap = getcolormap(obj.colormap)
-    cmap.index[num] = (r, g, b)
+    cmap.index[num] = (r, g, b, a)
 
     return
 
@@ -1714,6 +1752,37 @@ def getworldcoordinates(gm, X, Y):
         wc[0] -= .0001
         wc[1] += .0001
     return wc
+
+
+def rgba_color(color, colormap):
+    """Try all of the various syntaxes of colors and return 0-100 RGBA values."""
+    try:
+        # Is it a colormap index?
+        return colormap.index[color]
+    except ValueError:
+        # Is it a color tuple?
+        if len(color) == 3 or len(color) == 4:
+            for c in color:
+                try:
+                    int(c)
+                except:
+                    break
+            else:
+                if any((c > 100 for c in color)):
+                    r, g, b = (c / 2.55 for c in color[0:3])
+                    if len(color) == 4:
+                        a = color[-1] / 2.55
+                    else:
+                        a = 100
+                else:
+                    r, g, b = color[:3]
+                    if len(color) == 4:
+                        a = color[-1]
+                    else:
+                        a = 100
+                return [r, g, b, a]
+    r, g, b = genutil.colors.str2rgb(color)
+    return [r / 2.55, g / 2.55, b / 2.55, 100]
 
 
 def png_read_metadata(path):

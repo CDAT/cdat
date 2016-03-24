@@ -23,52 +23,17 @@ class MeshfillPipeline(Pipeline2D):
         self._data2 = self._originalData2
 
     def _updateContourLevelsAndColors(self):
-        """Overrides baseclass implementation."""
-        # Contour values:
-        self._contourLevels = self._gm.levels
-        if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
-           numpy.allclose(self._contourLevels, 1.e20):
-            levs2 = vcs.mkscale(self._scalarRange[0], self._scalarRange[1])
-            if len(levs2) == 1:  # constant value ?
-                levs2 = [levs2[0], levs2[0] + .00001]
-            self._contourLevels = []
-            if self._gm.ext_1:
-                # user wants arrow at the end
-                levs2[0] = -1.e20
-            if self._gm.ext_2:
-                # user wants arrow at the end
-                levs2[-1] = 1.e20
-            for i in range(len(levs2) - 1):
-                self._contourLevels.append([levs2[i], levs2[i + 1]])
-        else:
-            if not isinstance(self._contourLevels[0], (list, tuple)):
-                self._contourLevels = []
-                levs2 = self._gm.levels
-                if numpy.allclose(levs2[0], 1.e20):
-                    levs2[0] = -1.e20
-                for i in range(len(levs2) - 1):
-                    self._contourLevels.append([levs2[i], levs2[i + 1]])
-
-        # Contour colors:
-        self._contourColors = self._gm.fillareacolors
-        if self._contourColors == [1]:
-            # TODO BUG levs2 may be uninitialized here
-            self._contourColors = vcs.getcolors(levs2, split=0)
-            if isinstance(self._contourColors, (int, float)):
-                self._contourColors = [self._contourColors]
-
-        if isinstance(self._contourLevels, numpy.ndarray):
-            self._contourLevels = self._contourLevels.tolist()
+        self._updateContourLevelsAndColorsGeneric()
 
     def _createPolyDataFilter(self):
         """Overrides baseclass implementation."""
         self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
         if self._useCellScalars:
+            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
+        else:
             p2c = vtk.vtkPointDataToCellData()
             p2c.SetInputData(self._vtkDataSet)
             self._vtkPolyDataFilter.SetInputConnection(p2c.GetOutputPort())
-        else:
-            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
 
     def _plotInternal(self):
 
@@ -85,13 +50,8 @@ class MeshfillPipeline(Pipeline2D):
         luts = []
         geos = []
         wholeDataMin, wholeDataMax = vcs.minmax(self._originalData1)
-        # This is also different for meshfill, others use
-        # vcs.utils.getworldcoordinates
-        x1, x2, y1, y2 = vcs2vtk.getRange(self._gm,
-                                          self._vtkDataSetBounds[0],
-                                          self._vtkDataSetBounds[1],
-                                          self._vtkDataSetBounds[2],
-                                          self._vtkDataSetBounds[3])
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
         _colorMap = self.getColorMap()
         self._patternActors = []
         for i, l in enumerate(tmpLevels):
@@ -115,11 +75,11 @@ class MeshfillPipeline(Pipeline2D):
                 lut.SetNumberOfTableValues(1)
                 r, g, b, a = self.getColorIndexOrRGBA(_colorMap, color)
                 if style == 'solid':
-                    tmpOpacity = tmpOpacities[i]
+                    tmpOpacity = tmpOpacities[j]
                     if tmpOpacity is None:
                         tmpOpacity = a / 100.
                     else:
-                        tmpOpacity = tmpOpacities[i] / 100.
+                        tmpOpacity = tmpOpacities[j] / 100.
                     lut.SetTableValue(
                         0, r / 100., g / 100., b / 100., tmpOpacity)
                 else:
@@ -210,6 +170,10 @@ class MeshfillPipeline(Pipeline2D):
 
         # And now we need actors to actually render this thing
         actors = []
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
+        dataset_renderer = None
+        xScale, yScale = (1, 1)
         for mapper in mappers:
             act = vtk.vtkActor()
             act.SetMapper(mapper)
@@ -221,50 +185,50 @@ class MeshfillPipeline(Pipeline2D):
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
             # TODO See comment in boxfill.
             if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
+                actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             else:
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
-                act, [self._template.data.x1,
-                      self._template.data.x2,
-                      self._template.data.y1,
-                      self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
-                create_renderer=True)
-
+                create_renderer=(dataset_renderer is None))
+        self._resultDict['dataset_renderer'] = dataset_renderer
+        self._resultDict['dataset_scale'] = (xScale, yScale)
         for act in self._patternActors:
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrapped not sure
                 # why so sticking to many mappers
-                self._context().fitToViewport(
-                    act, [self._template.data.x1, self._template.data.x2,
-                          self._template.data.y1, self._template.data.y2],
-                    wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+                self._context().fitToViewportBounds(
+                    act, vp,
+                    wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                    geo=self._vtkGeoTransform,
                     priority=self._template.data.priority,
                     create_renderer=True)
-                actors.append([act, [x1, x2, y1, y2]])
+                actors.append([act, plotting_dataset_bounds])
 
         self._resultDict["vtk_backend_actors"] = actors
 
         self._template.plot(self._context().canvas, self._data1, self._gm,
                             bg=self._context().bg,
-                            X=numpy.arange(self._vtkDataSetBounds[0],
-                                           self._vtkDataSetBounds[1] * 1.1,
-                                           (self._vtkDataSetBounds[1] -
-                                            self._vtkDataSetBounds[0]) / 10.),
-                            Y=numpy.arange(self._vtkDataSetBounds[2],
-                                           self._vtkDataSetBounds[3] * 1.1,
-                                           (self._vtkDataSetBounds[3] -
-                                            self._vtkDataSetBounds[2]) / 10.))
+                            X=numpy.arange(min(x1, x2),
+                                           max(x1, x2) * 1.1,
+                                           abs(x2 - x1) / 10.),
+                            Y=numpy.arange(min(y1, y2),
+                                           max(y1, y2) * 1.1,
+                                           abs(y2 - y1) / 10.),
+                            vtk_backend_grid=self._vtkDataSet,
+                            dataset_bounds=self._vtkDataSetBounds,
+                            plotting_dataset_bounds=plotting_dataset_bounds)
 
         legend = getattr(self._gm, "legend", None)
 
@@ -306,6 +270,22 @@ class MeshfillPipeline(Pipeline2D):
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
-                                           self._dataWrapModulo,
-                                           self._template)
+            continents_renderer, xScale, yScale = self._context().plotContinents(
+                plotting_dataset_bounds, projection,
+                self._dataWrapModulo,
+                vp, self._template.data.priority,
+                vtk_backend_grid=self._vtkDataSet,
+                dataset_bounds=self._vtkDataSetBounds)
+            self._resultDict['continents_renderer'] = continents_renderer
+
+    def getPlottingBounds(self):
+        """gm.datawc if it is set or dataset_bounds
+        """
+        if (self._vtkGeoTransform):
+            return vcs2vtk.getWrappedBounds(
+                [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
+                self._vtkDataSetBounds, self._dataWrapModulo)
+        else:
+            return vcs2vtk.getPlottingBounds(
+                [self._gm.datawc_x1, self._gm.datawc_x2, self._gm.datawc_y1, self._gm.datawc_y2],
+                self._vtkDataSetBounds, self._vtkGeoTransform)
