@@ -36,6 +36,9 @@ add_subdirectory(Thermo)
 add_subdirectory(unidata)
 add_subdirectory(cdms2)
 add_subdirectory(xmgrace)
+if (CDAT_BUILD_OCGIS)
+  add_subdirectory(ocgis)
+endif()
 if (CDAT_BUILD_UVCMETRICSPKG)
   add_subdirectory(metrics)
 endif()
@@ -54,6 +57,9 @@ endif()
 if (CDAT_BUILD_MATPLOTLIB)
   add_subdirectory(matplotlib)
 endif()
+
+# Test ipython
+add_test(run_ipython ${CMAKE_INSTALL_PREFIX}/bin/ipython -V)
 
 # PCMDI Tools
 if (CDAT_BUILD_PCMDI)

@@ -80,7 +80,7 @@ foreach d ( @SETUP_LIBRARY_PATHS@ )
 end
 
 if ( `uname` == 'Darwin' ) then
-  setenv LD_LIBRARY_PATH /usr/X11R6/lib:${LD_LIBRARY_PATH}
+  setenv LD_LIBRARY_PATH /usr/X11R6/lib:/usr/lib:${LD_LIBRARY_PATH}
   setenv DYLD_FALLBACK_LIBRARY_PATH ${LD_LIBRARY_PATH}
 endif
 
@@ -102,6 +102,7 @@ if ( -d ${install_prefix}/Externals/lib/R ) then
   setenv R_HOME ${install_prefix}/Externals/lib/R
 endif
 
+setenv GDAL_DATA ${install_prefix}/Externals/share/gdal
 setenv OPAL_PREFIX ${install_prefix}/Externals
 setenv LIBOVERLAY_SCROLLBAR 0
 

@@ -69,7 +69,7 @@ for d in "${library_paths[@]}" ; do
 done
 
 if [ `uname` = 'Darwin' ] ; then
-  LD_LIBRARY_PATH="/usr/X11R6/lib:${LD_LIBRARY_PATH}"
+  LD_LIBRARY_PATH="/usr/X11R6/lib:/usr/lib:${LD_LIBRARY_PATH}"
   export DYLD_FALLBACK_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 fi
 
@@ -93,6 +93,7 @@ if [ -d "${install_prefix}/Externals/lib/R" ] ; then
   export R_HOME="${install_prefix}/Externals/lib/R"
 fi
 
+export GDAL_DATA="${install_prefix}/Externals/share/gdal"
 export OPAL_PREFIX="${install_prefix}/Externals"
 export LIBOVERLAY_SCROLLBAR=0
 
