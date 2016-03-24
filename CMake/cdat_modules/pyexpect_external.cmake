@@ -1,6 +1,6 @@
 set(Pyexpect_source "${CMAKE_CURRENT_BINARY_DIR}/build/Pyexpect")
 
-ExternalProject_Add(Pyexpect
+ExternalProject_Add(PYEXPECT
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Pyexpect_source}
   URL ${PYEXPECT_URL}/${PYEXPECT_GZ}

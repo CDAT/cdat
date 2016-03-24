@@ -1,6 +1,6 @@
 set(Traitlets_source "${CMAKE_CURRENT_BINARY_DIR}/build/Traitlets")
 
-ExternalProject_Add(Traitlets
+ExternalProject_Add(TRAITLETS
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Traitlets_source}
   URL ${TRAITLETS_URL}/${TRAITLETS_GZ}
