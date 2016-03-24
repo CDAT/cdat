@@ -1,23 +1,23 @@
 """
 # Unification of all 1D gms
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       yxvsx (GYx) module                                            #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Authors:      PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's yxvsx graphics method.       #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -572,15 +572,15 @@ class G1d(object):
     g_type = property(_gtype, None, None, "the 1d graphics method type")
 
     def __init__(self, name, name_src='default'):
-            #                                                         #
-            ###########################################################
+            #
+            #
             # Initialize the Yxvsx class and its members              #
-            #                                                         #
+            #
             # The getGYxmember function retrieves the values of the   #
             # Yxvsx members in the C structure and passes back the    #
             # appropriate Python Object.                              #
-            ###########################################################
-            #                                                         #
+            #
+            #
         if name in vcs.elements["1d"]:
             raise ValueError("The 1D method '%s' already exists")
         self.g_name = 'G1d'
@@ -627,13 +627,13 @@ class G1d(object):
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
         vcs.elements["1d"][name] = self
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Find and set the Yxvsx structure in VCS C pointer       #
         # list. If the Yxvsx name does not exist, then use        #
         # default Yxvsx.                                          #
-        ###########################################################
-        #                                                         #
+        #
+        #
 
 #
 # Doesn't make sense to inherit. This would mean more coding in C.
@@ -698,11 +698,11 @@ class G1d(object):
         print "flip = ", self.flip
     list.__doc__ = xmldocs.listdoc
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Script out primary Yxvsx graphics method in VCS to a file.              #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def script(self, script_filename, mode='a'):
         """
  %s
@@ -850,6 +850,6 @@ class G1d(object):
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 
-###############################################################################
-#        END OF FILE							      #
-###############################################################################
+#
+# END OF FILE							      #
+#

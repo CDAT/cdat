@@ -1,31 +1,31 @@
 """
 # Test Template (P) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       testtemplate module                                           #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Used to test VCS's template object.                           #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
 #
 #
 #
-############################################################################
-#                                                                          #
+#
+#
+#
+#
 # Import: VCS  and cu modules.                                             #
-#                                                                          #
-############################################################################
+#
+#
 
 
 def test():
@@ -46,12 +46,12 @@ def test():
     g = x.createisofill('test')
 
     x.plot(g, s, t)			# make isofill plot
-#   x.isofill(g,s,t)			# make isofill plot
+# x.isofill(g,s,t)			# make isofill plot
 
-    ##########################################################################
+    #
     # Show the many different ways to show the template members (attributes)    #
     # and their values.                                                         #
-    ##########################################################################
+    #
     t.list()				# list the templates members
     t.list('text')			# list only text members, same as t.list('Pt')
     t.list('format')			# list only format members, same as t.list('Pf')
@@ -70,27 +70,27 @@ def test():
     t.list('mean')			# list only mean member and its values
     t.mean.list()			# list only mean member and its values
 
-    ##########################################################################
+    #
     # The screen x and y positions on the screen are normalized between 0 and 1 #
     # for both the x and y axis.                                                #
-    ##########################################################################
+    #
     t.mean.priority = 0			# remove the "Mean" text from the plot
     t.mean.priority = 1			# re-display the "Mean" text on the plot
     t.mean.x = 0.5				# move the "Mean" text to x-axis center
     t.mean.y = 0.5				# move the "Mean" text to y-axis center
 
-    ##########################################################################
+    #
     # Position the data in front of the "Mean" text, then move the "Mean" text  #
     # in front of the data.                                                     #
-    ##########################################################################
+    #
     t.data.priority = 2
     t.data.priority = 3
 #  The above does not work. I will fix this later when time permits.
 
-    ##########################################################################
+    #
     # Change the font representation for the "Mean" text.                       #
     # You can set the text by using text objects or text names.                 #
-    ##########################################################################
+    #
     tt = x.createtexttable('test')
     to = x.createtextorientation('test')
     t.mean.texttable = tt		# set texttable by using texttable object
@@ -101,9 +101,9 @@ def test():
     tt.font = 2				# change the font
     to.height = 40				# change the height
 
-    ##########################################################################
+    #
     # Change the legend space.                                                  #
-    ##########################################################################
+    #
     t.legend.list()		       	# list the legend members
     x.mode = 0				# turn the automatic update off
     t.legend.x1 = 0.85

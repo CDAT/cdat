@@ -2,32 +2,32 @@
 """
 # Template Y - Labels (Pyl) module
 """
-##########################################################################
-#                                                                               #
+#
+#
 # Module:       Template Y - Labels (Pyl) module                                #
-#                                                                               #
+#
 # Copyright:    2000, Regents of the University of California                   #
-#               This software may not be distributed to others without          #
-#               permission of the author.                                       #
-#                                                                               #
+# This software may not be distributed to others without          #
+# permission of the author.                                       #
+#
 # Author:       PCMDI Software Team                                             #
-#               Lawrence Livermore NationalLaboratory:                          #
-#               support@pcmdi.llnl.gov                                          #
-#                                                                               #
+# Lawrence Livermore NationalLaboratory:                          #
+# support@pcmdi.llnl.gov                                          #
+#
 # Description:  Python command wrapper for VCS's template Y - Labels object.    #
-#                                                                               #
+#
 # Version:      4.0                                                             #
-#                                                                               #
-##########################################################################
+#
+#
 #
 #
 #
 import VCS_validation_functions
-#############################################################################
-#                                                                           #
+#
+#
 # Template text (Pyl) Class.                                                #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Pyl(object):
@@ -70,11 +70,11 @@ class Pyl(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 """
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the line attributes.                                           #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     __slots__ = [
         "priority",
         "x",
@@ -88,14 +88,14 @@ class Pyl(object):
 
     def __init__(self, member):
         #    def __init__(self, template, member=None):
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Initialize the line class and its members               #
         # The getPylmember function retrieves the values of the    #
         # line members in the C structure and passes back the     #
         # appropriate Python Object.                              #
-        ###########################################################
-        #                                                         #
+        #
+        #
         self.member = member
         self.priority = 1
         self.texttable = "default"
@@ -107,21 +107,21 @@ class Pyl(object):
             self.priority = 0
             self.textorientation = "default"
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Set template text  attributes.                                            #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     priority = VCS_validation_functions.priority
     x = VCS_validation_functions.x
     texttable = VCS_validation_functions.texttable
     textorientation = VCS_validation_functions.textorientation
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out template text members (attributes).                              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         print "member = ", self.member
         print "     priority =", self.priority
@@ -130,6 +130,6 @@ class Pyl(object):
         print "     textorientation =", self.textorientation
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

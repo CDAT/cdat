@@ -2,23 +2,23 @@
 """
 # Template (P) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       template (P) module                                           #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's template primary object.     #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -117,11 +117,11 @@ def process_src(nm, code):
     t.orientation = int(code[i + 12])
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Template (P) graphics method Class.                                       #
-#                                                                           #
-#############################################################################
+#
+#
 class P(object):
 
     """
@@ -205,21 +205,21 @@ class P(object):
         _setOrientation,
         "The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).")
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Initialize the template attributes.                                     #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def __init__(self, Pic_name=None, Pic_name_src='default'):
-            #                                                         #
-            ###########################################################
+            #
+            #
             # Initialize the template class and its members           #
-            #                                                         #
+            #
             # The getPmember function retrieves the values of the     #
             # template members in the C structure and passes back the #
             # appropriate Python Object.                              #
-            ###########################################################
-            #                                                         #
+            #
+            #
         if (Pic_name is None):
             raise ValueError('Must provide a template name.')
         if Pic_name_src != "default" and Pic_name_src not in vcs.elements[
@@ -335,9 +335,9 @@ class P(object):
                                          lambda x, v: _setgen(x, "legend", Pls, v))
         self.__class__.data = property(lambda x: _getgen(x, "data"),
                                        lambda x, v: _setgen(x, "data", Pds, v))
-        #################################################
+        #
         # The following initializes the template's TEXT #
-        #################################################
+        #
         self._scaledFont = False
         if Pic_name == "default":
             self._orientation = 0
@@ -363,9 +363,9 @@ class P(object):
             self._yunits = Pt('yunits')
             self._zunits = Pt('zunits')
             self._tunits = Pt('tunits')
-            ####################################################
+            #
         # The following initializes the template's FORMATS #
-            ####################################################
+            #
             self._xvalue = Pf('xvalue')
             self._yvalue = Pf('yvalue')
             self._zvalue = Pf('zvalue')
@@ -373,33 +373,33 @@ class P(object):
             self._mean = Pf('mean')
             self._min = Pf('min')
             self._max = Pf('max')
-            #########################################################
+            #
         # The following initializes the template's X-TICK MARKS #
-            #########################################################
+            #
             self._xtic1 = Pxt('xtic1')
             self._xtic2 = Pxt('xtic2')
             self._xmintic1 = Pxt('xmintic1')
             self._xmintic2 = Pxt('xmintic2')
-            #########################################################
+            #
         # The following initializes the template's Y-TICK MARKS #
-            #########################################################
+            #
             self._ytic1 = Pyt('ytic1')
             self._ytic2 = Pyt('ytic2')
             self._ymintic1 = Pyt('ymintic1')
             self._ymintic2 = Pyt('ymintic2')
-            #####################################################
+            #
         # The following initializes the template's X-LABELS #
-            #####################################################
+            #
             self._xlabel1 = Pxl('xlabel1')
             self._xlabel2 = Pxl('xlabel2')
-            #####################################################
+            #
         # The following initializes the template's Y-LABELS #
-            #####################################################
+            #
             self._ylabel1 = Pyl('ylabel1')
             self._ylabel2 = Pyl('ylabel2')
-            ############################################################
+            #
         # The following initializes the template's BOXES and LINES #
-            ############################################################
+            #
             self._box1 = Pbl('box1')
             self._box2 = Pbl('box2')
             self._box3 = Pbl('box3')
@@ -408,13 +408,13 @@ class P(object):
             self._line2 = Pbl('line2')
             self._line3 = Pbl('line3')
             self._line4 = Pbl('line4')
-            #########################################################
+            #
         # The following initializes the template's LEGEND SPACE #
-            #########################################################
+            #
             self._legend = Pls('legend')
-            #######################################################
+            #
         # The following initializes the template's DATA SPACE #
-            #######################################################
+            #
             self._data = Pds('data')
         else:
             if isinstance(Pic_name_src, P):
@@ -447,9 +447,9 @@ class P(object):
             self.yunits = copy.copy(src.yunits)
             self.zunits = copy.copy(src.zunits)
             self.tunits = copy.copy(src.tunits)
-            ###################################################
+            #
         # The following initializes the template's FORMATS #
-            ####################################################
+            #
             self.xvalue = copy.copy(src.xvalue)
             self.yvalue = copy.copy(src.yvalue)
             self.zvalue = copy.copy(src.zvalue)
@@ -457,33 +457,33 @@ class P(object):
             self.mean = copy.copy(src.mean)
             self.min = copy.copy(src.min)
             self.max = copy.copy(src.max)
-            ########################################################
+            #
         # The folowing initializes the template's X-TICK MARKS #
-            ########################################################
+            #
             self.xtic1 = copy.copy(src.xtic1)
             self.xtic2 = copy.copy(src.xtic2)
             self.xmintic1 = copy.copy(src.xmintic1)
             self.xmintic2 = copy.copy(src.xmintic2)
-            ########################################################
+            #
         # The folowing initializes the template's Y-TICK MARKS #
-            ########################################################
+            #
             self.ytic1 = copy.copy(src.ytic1)
             self.ytic2 = copy.copy(src.ytic2)
             self.ymintic1 = copy.copy(src.ymintic1)
             self.ymintic2 = copy.copy(src.ymintic2)
-            ####################################################
+            #
         # The folowing initializes the template's X-LABELS #
-            ####################################################
+            #
             self.xlabel1 = copy.copy(src.xlabel1)
             self.xlabel2 = copy.copy(src.xlabel2)
-            ####################################################
+            #
         # The folowing initializes the template's Y-LABELS #
-            ####################################################
+            #
             self.ylabel1 = copy.copy(src.ylabel1)
             self.ylabel2 = copy.copy(src.ylabel2)
-            ###########################################################
+            #
         # The folowing initializes the template's BOXES and LINES #
-            ###########################################################
+            #
             self.box1 = copy.copy(src.box1)
             self.box2 = copy.copy(src.box2)
             self.box3 = copy.copy(src.box3)
@@ -492,22 +492,22 @@ class P(object):
             self.line2 = copy.copy(src.line2)
             self.line3 = copy.copy(src.line3)
             self.line4 = copy.copy(src.line4)
-            ########################################################
+            #
         # The folowing initializes the template's LEGEND SPACE #
-            ########################################################
+            #
             self.legend = copy.copy(src.legend)
-            ######################################################
+            #
         # The folowing initializes the template's DATA SPACE #
-            #######################################################
+            #
             self.data = copy.copy(src.data)
 
         vcs.elements["template"][Pic_name] = self
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # List out template text members (attributes).                            #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def list(self, single=None):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -732,11 +732,11 @@ class P(object):
         elif (single == 'data'):
             self.data.list()
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Script out template object in VCS to a file.                            #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptP
@@ -2132,8 +2132,8 @@ class P(object):
         return
 
 
-###############################################################################
-#                                                                             #
-#        END OF FILE                                                          #
-#                                                                             #
-###############################################################################
+#
+#
+# END OF FILE                                                          #
+#
+#

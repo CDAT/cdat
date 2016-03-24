@@ -1,17 +1,17 @@
 """
 # Meshfill (Gfm) module
 """
-###############################################################################
+#
 # Module:	meshfill (Gfm) module					      #
 # Copyright:    2000, Regents of the University of California		      #
-#               This software may not be distributed to others without	      #
-#               permission of the author.				      #
+# This software may not be distributed to others without	      #
+# permission of the author.				      #
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
 # Description:	Python command wrapper for VCS's meshfill graphics method.    #
 # Version:      4.0							      #
-###############################################################################
+#
 
 import VCS_validation_functions
 import xmldocs
@@ -140,11 +140,11 @@ def process_src(nm, code):
                 g.fillareastyle = fas[0]
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Meshfill (Gfm) graphics method Class.                                      #
-#                                                                           #
-#############################################################################
+#
+#
 # class Gfm(graphics_method_core):
 class Gfm(object):
 
@@ -251,11 +251,11 @@ Class:	Gfm                       	# Meshfill
     mesh.exts('n', 'y' )  		# Will set them both
     missing=241                         # Color index value range 0 to 255
 """ % (xmldocs.graphics_method_core, xmldocs.meshfill_doc)
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the meshfill attributes.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     colormap = VCS_validation_functions.colormap
     __slots__ = [
         '__doc__',
@@ -564,12 +564,12 @@ Class:	Gfm                       	# Meshfill
     wrap = property(_getwrap, _setwrap)
 
     def __init__(self, Gfm_name, Gfm_name_src='default'):
-                ###########################################################
+                #
                 # Initialize the meshfill class and its members            #
                 # The getGfmmember function retrieves the values of the   #
                 # meshfill members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
-                ###########################################################
+                #
 
         if not isinstance(Gfm_name, str):
             raise ValueError("meshfill name must be a string")
@@ -672,11 +672,11 @@ Class:	Gfm                       	# Meshfill
         self.yaxisconvert = yat
     xyscale.__doc__ = xmldocs.xyscaledoc
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out meshfill graphics method members (attributes).                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -714,11 +714,11 @@ Class:	Gfm                       	# Meshfill
         return
     list.__doc__ = xmldocs.listdoc
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out primary meshfill graphics method in VCS to a file.              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename, mode='a'):
         """
         %s
@@ -880,6 +880,6 @@ Class:	Gfm                       	# Meshfill
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

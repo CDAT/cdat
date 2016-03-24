@@ -1,25 +1,25 @@
 """
 # Boxfill (Gfb) module
 """
-###############################################################################
+#
 # Module:	boxfill (Gfb) module					      #
 # Copyright:    2000, Regents of the University of California		      #
-#               This software may not be distributed to others without	      #
-#               permission of the author.				      #
+# This software may not be distributed to others without	      #
+# permission of the author.				      #
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
 # Description:	Python command wrapper for VCS's boxfill graphics method.     #
 # Version:      5.0							      #
-###############################################################################
 #
 #
 #
-###############################################################################
-#                                                                             #
+#
+#
+#
 # Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
+#
+#
 import vcs
 import cdtime
 import VCS_validation_functions
@@ -120,8 +120,8 @@ def process_src(nm, code):
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
-#                                                                           #
-#############################################################################
+#
+#
 # class Gfb(graphics_method_core):
 
 
@@ -357,13 +357,13 @@ class Gfb(object):
 # Removed from doc string
 # box.levels(10, 90)  		# Will set them both
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Initialize the boxfill attributes.                                      #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def __init__(self, Gfb_name=None, Gfb_name_src='default'):
-            #                                                         #
+            #
         if isinstance(Gfb_name_src, Gfb):
             Gfb_name_src = Gfb_name_src.name
         if Gfb_name == "default" and Gfb_name_src != "default":
@@ -446,11 +446,11 @@ class Gfb(object):
             self._colormap = src.colormap
         vcs.elements["boxfill"][Gfb_name] = self
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Set boxfill attributes.                                                 #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
 
     def _getcalendar(self):
         return self._datawc_calendar
@@ -734,11 +734,11 @@ class Gfb(object):
         self.yaxisconvert = yat
     xyscale.__doc__ = xmldocs.xyscaledoc
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # List out boxfill graphics method members (attributes).                  #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def list(self):
         """ Lists object values """
         if (self.name == '__removed_from_VCS__'):
@@ -778,11 +778,11 @@ class Gfb(object):
         print "ext_2 = ", self.ext_2
         print "missing = ", self.missing
     list.__doc__ = xmldocs.listdoc
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Script out primary boxfill graphics method in VCS to a file.            #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
 
     def script(self, script_filename, mode='a'):
         """
@@ -948,6 +948,6 @@ class Gfb(object):
             vcs.utils.dumpToJson(self, f)
             f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
-###############################################################################
-#        END OF FILE							      #
-###############################################################################
+#
+# END OF FILE							      #
+#

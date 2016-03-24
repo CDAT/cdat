@@ -1,23 +1,23 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 # Marker (Tm) module
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       marker (Tm) module                                            #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command/1d
 # wrapper for VCS's marker secondary object.     #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -98,11 +98,11 @@ def process_src(nm, code):
                 setattr(gm, att, eval(v))
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Marker (Tm) Class.                                                        #
-#                                                                           #
-#############################################################################
+#
+#
 class Tm(object):
 
     """
@@ -346,20 +346,20 @@ class Tm(object):
         self._y = value
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the marker attributes.                                         #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Tm_name, Tm_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the marker class and its members             #
                 # The getTmmember function retrieves the values of the    #
                 # marker members in the C structure and passes back the   #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if (Tm_name is None):
             raise ValueError('Must provide a marker name.')
         self._name = Tm_name
@@ -389,11 +389,11 @@ class Tm(object):
         # Ok now we need to stick in the elements
         vcs.elements["marker"][Tm_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out marker members (attributes).                                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -411,11 +411,11 @@ class Tm(object):
         print "projection =", self.projection
         print "colormap =", self.colormap
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary marker method in VCS to a file.                      #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         """
  Function:     script                           # Calls _vcs.scriptTm
@@ -512,6 +512,6 @@ class Tm(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

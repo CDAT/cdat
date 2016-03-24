@@ -1,31 +1,31 @@
 """
 # VCS help module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       VCS help (Vh) module                                          #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command for VCS's help.       			              #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
 #
 #
 #
-###############################################################################
-#                                                                             #
+#
+#
+#
+#
 # Import: VCS Python module.                                                  #
-#                                                                             #
-###############################################################################
+#
+#
 
 
 def objecthelp(*arg):
@@ -42,11 +42,11 @@ def objecthelp(*arg):
     for x in arg:
         print getattr(x, "__doc__", "")
 
-###############################################################################
-#                                                                             #
+#
+#
 # Import: VCS and query module.                                               #
-#                                                                             #
-###############################################################################
+#
+#
 import vcs
 import queries
 
@@ -522,6 +522,6 @@ def help__doc__():
     print ""
 
 
-###############################################################################
-#        END OF FILE                                                          #
-###############################################################################
+#
+# END OF FILE                                                          #
+#

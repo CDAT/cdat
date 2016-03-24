@@ -1,10 +1,10 @@
-#############################################################################
-#                                                                           #
+#
+#
 # Create the $HOME/.uvcdat directory if it is does not exist.        #
 # Copy the appropriate files from the $PYTHONHOME/bin directory to the      #
 # user's $HOME/.uvcdat directory.                                    #
-#                                                                           #
-#############################################################################
+#
+#
 import vcs
 
 
@@ -154,11 +154,11 @@ def _files():
         if (os.access(fnm_cp, os.F_OK) == 1) and (os.path.isfile(fnm) == 0):
             shutil.copyfile(fnm_cp, fnm)
 
-#############################################################################
-#                                                                           #
+#
+#
 # Set the user's XGKSFontDir environment variable               #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def _XGKSFontDir():
@@ -174,13 +174,13 @@ def _XGKSFontDir():
         'xgksfonts')
     os.environ['XGKSFontDir'] = xgks_env
 
-#############################################################################
-#                                                                           #
+#
+#
 # Return the list of available printers from the HARD_COPY file. The        #
 # printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def list_printers():
@@ -208,13 +208,13 @@ def list_printers():
     f.close()
     return plist
 
-#############################################################################
-#                                                                           #
+#
+#
 # Add to the list of available printers in  the HARD_COPY file.  The        #
 # printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def add_printer(printer_name):
@@ -234,13 +234,13 @@ def add_printer(printer_name):
     f.write("\n")
     f.close()
 
-#############################################################################
-#                                                                           #
+#
+#
 # Remove name from the list of available printers in the HARD_COPY file. The#
 # printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def remove_printer(printer_name):
@@ -266,12 +266,12 @@ def remove_printer(printer_name):
     f.write(' ' * len(ln))
     f.close()
 
-#############################################################################
-#                                                                           #
+#
+#
 # Add the gplot command to the HARD_COPY file. This command is necessary    #
 # for converting cgm files to postscript, eps, and gif files.               #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def add_gplot_commands():

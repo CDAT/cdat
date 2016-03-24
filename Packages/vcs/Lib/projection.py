@@ -1,17 +1,17 @@
 """
 # Projection (Proj) module
 """
-###############################################################################
+#
 # Module:	projection (Proj) module				      #
 # Copyright:    2000, Regents of the University of California		      #
-#               This software may not be distributed to others without	      #
-#               permission of the author.				      #
+# This software may not be distributed to others without	      #
+# permission of the author.				      #
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
 # Description:	Python command wrapper for VCS's projection secondary method. #
 # Version:      4.0							      #
-###############################################################################
+#
 import VCS_validation_functions
 import vcs
 import copy
@@ -39,11 +39,11 @@ def process_src(nm, code):
     gm.type = int(code[i + 1:].split()[0])
     gm.parameters = params
 
-#############################################################################
-#                                                                           #
+#
+#
 # Projection (Proj) secondary method Class.                                      #
-#                                                                           #
-#############################################################################
+#
+#
 # class Proj(graphics_secondary method_core):
 
 
@@ -255,11 +255,11 @@ class Proj(object):
     iso.projection='lambert'
 
 """
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the projection attributes.                                        #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
 
     def __init__(self, Proj_name=None, Proj_name_src='default'):
 
@@ -282,11 +282,11 @@ class Proj(object):
                     Proj_name)
         self._name = Proj_name
         self.s_name = 'Proj'
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Inherits core secondary method attributes.		  #
-        ###########################################################
-        #                                                         #
+        #
+        #
         # graphics_secondary method_core.__init__(self, parent)
         # Doesn't make sense to inherit. This would mean writing more code
         self._type = 0
@@ -312,11 +312,11 @@ class Proj(object):
             self.parameters = copy.copy(src.parameters)
         vcs.elements["projection"][Proj_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out projection secondary method members (attributes).                    #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -456,11 +456,11 @@ class Proj(object):
         for att in p:
             print att, '=', getattr(self, att)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out primary projection secondary method in VCS to a file.              #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         """
         Function:     script				# Calls _vcs.scriptProj
@@ -890,6 +890,6 @@ class Proj(object):
         self._parameters = value
     parameters = property(_getparameters, _setparameters)
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

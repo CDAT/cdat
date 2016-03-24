@@ -1862,11 +1862,11 @@ plot=a.create3d_vector()
     name, source = check_name_source(name, source, '3d_vector')
     return dv3d.Gf3Dvector(name, source)
 
-#############################################################################
-#                                                                           #
+#
+#
 # Colormap functions for VCS.                                               #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def createcolormap(Cp_name=None, Cp_name_src='default'):

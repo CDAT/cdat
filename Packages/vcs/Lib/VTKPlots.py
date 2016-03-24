@@ -825,8 +825,14 @@ class VTKVCSBackend(object):
                     returned[
                         "vtk_backend_%s_text_actor" %
                         d.backend["vtk_backend_template_attribute"]] = t
-            self.canvas.display_names.remove(d.name)
-            del(vcs.elements["display"][d.name])
+            try:
+                self.canvas.display_names.remove(d.name)
+            except:  # Apparently somewhere a display is added to vcs.eleements but not list.
+                pass
+            try:
+                del(vcs.elements["display"][d.name])
+            except:
+                pass
         # Sometimes user passes "date" as an attribute to replace date
         if hasattr(data, "user_date"):
             taxis = cdms2.createAxis(

@@ -2,23 +2,23 @@
 """
 # Text Table (Tt) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       texttable (Tt) module                                         #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's text table secondary object. #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -67,11 +67,11 @@ def process_src(nm, code):
             tt.fillincolor = int(sp[5])
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Text Table (Tt) Class.                                                    #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 class Tt(object):
@@ -362,21 +362,21 @@ class Tt(object):
         self._y = value
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Initialize the text table attributes.                                     #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def __init__(self, Tt_name=None, Tt_name_src='default'):
-                #                                                           #
-                #############################################################
+                #
+                #
                 # Initialize the text table class and its members           #
-                #                                                           #
+                #
                 # The getTtmember function retrieves the values of the      #
                 # text table members in the C structure and passes back the #
                 # appropriate Python Object.                                #
-                #############################################################
-                #                                                           #
+                #
+                #
         if (Tt_name is None):
             raise ValueError('Must provide a text table name.')
         if Tt_name in vcs.elements["texttable"].keys():
@@ -424,11 +424,11 @@ class Tt(object):
             self.colormap = src.colormap
         vcs.elements["texttable"][Tt_name] = self
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # List out text table members (attributes).                                 #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -450,11 +450,11 @@ class Tt(object):
         print "y =", self.y
         print 'colormap =', self.colormap
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script out secondary text table method in VCS to a file.                  #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptTt
@@ -559,6 +559,6 @@ class Tt(object):
             f.close()
 
 
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+#
+# END OF FILE								#
+#

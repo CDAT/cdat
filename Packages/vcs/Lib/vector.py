@@ -1,23 +1,23 @@
 """
 # Vector (Gv) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       vector (Gv) module                                            #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Authors:      PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's vector graphics method.      #
-#                                                                             #
+#
 # Version:      4.0                                                           #
-#                                                                             #
-###############################################################################
+#
+#
 #
 #
 #
@@ -529,15 +529,15 @@ class Gv(object):
     alignment = property(_getalignment, _setalignment)
 
     def __init__(self, Gv_name, Gv_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the vector class and its members             #
-                #                                                         #
+                #
                 # The getGvmember function retrieves the values of the    #
                 # vector members in the C structure and passes back the   #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if Gv_name in vcs.elements["vector"]:
             raise ValueError("The vector method '%s' already exists" % Gv_name)
         self.g_name = 'Gv'
@@ -661,11 +661,11 @@ class Gv(object):
         print "type = ", self.type
         print "reference = ", self.reference
 
-    ##########################################################################
-    #                                                                           #
+    #
+    #
     # Script vector (Gv) object to a file.                                      #
-    #                                                                           #
-    ##########################################################################
+    #
+    #
     def script(self, script_filename=None, mode=None):
         '''
  Function:     script                           # Calls _vcs.scriptGv
@@ -813,6 +813,6 @@ class Gv(object):
             f.close()
 
 
-###############################################################################
-#        END OF FILE							      #
-###############################################################################
+#
+# END OF FILE							      #
+#
