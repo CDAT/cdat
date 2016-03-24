@@ -4,8 +4,17 @@
 # Helper macro that sets the environment correctly
 macro (cdat_add_test name)
   #string (REPLACE ";" " " TEST_ARGS "${ARGN}")
+  set(ARGS ${ARGN})
+  if(CDAT_MEASURE_COVERAGE)
+    if(${ARGV1} STREQUAL ${PYTHON_EXECUTABLE})
+      list(REMOVE_AT ARGS 0)
+      list(INSERT ARGS 0 "coverage run --parallel-mode --source=${COVERAGE_PKGS}")
+    endif()
+  endif()
+
   add_test(${name} "${CMAKE_INSTALL_PREFIX}/bin/runtest"
-           ${ARGN})
+           ${ARGS})
+
   if(DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
     set_tests_properties (${name}
       PROPERTIES ENVIRONMENT "UVCDAT_ANONYMOUS_LOG=$ENV{UVCDAT_ANONYMOUS_LOG}"
@@ -48,6 +57,11 @@ endif()
 
 # Test ipython
 add_test(run_ipython ${CMAKE_INSTALL_PREFIX}/bin/ipython -V)
+
+# PCMDI Tools
+if (CDAT_BUILD_PCMDI)
+    add_subdirectory(pcmdi)
+endif()
 
 # CMake module tests:
 # Test that out-of-source build detection is working:

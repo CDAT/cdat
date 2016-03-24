@@ -806,7 +806,7 @@ class Canvas(object):
                 contout = 0
 
         if (isinstance(arglist[GRAPHICS_METHOD], str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or (
-                (xdim >= 0 and ydim >= 0 and (contout >= 1) and (contout < 12))):
+                (xdim >= 0 and ydim >= 0 and (contout >= 1))):
             self.setcontinentstype(contout)
             self.savecontinentstype(contout)
         else:
