@@ -3,6 +3,8 @@ import WK
 import MV2
 import sys
 import os
+import vcs
+
 test_data_dir = sys.argv[1]
 src1 = os.path.join(test_data_dir, "baselines", "WK", "test_wk_01_a.png")
 src2 = os.path.join(test_data_dir, "baselines", "WK", "test_wk_01_b.png")
@@ -57,7 +59,12 @@ ok = f('background')
 if not MV2.allclose(background, ok):
     raise Exception('Error computing background, wrong values returned')
 
-WP.x.clear()
+del(WP.x)
+WP.x = vcs.init()
+WP.x.setantialiasing(0)
+WP.x.setbgoutputdimensions(814,606,units="pixels")
+WP.x.setcolormap("cmap")
+
 print 'Plotting 2'
 WP.plot_figure2(background, min=-1, max=2, bg=bg)
 fnm = "test_wk_01_b.png"
@@ -75,6 +82,11 @@ S.id = sid
 A.id = aid
 
 WP.x.clear()
+del(WP.x)
+WP.x = vcs.init()
+WP.x.setantialiasing(0)
+WP.x.setbgoutputdimensions(814,606,units="pixels")
+WP.x.setcolormap("cmap")
 print 'Plotting 3'
 WP.plot_figure3(S, A, delta_isofill=.2, delta_isoline=.1, bg=bg)
 fnm = "test_wk_01_c.png"
