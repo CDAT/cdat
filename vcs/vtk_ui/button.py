@@ -40,7 +40,7 @@ class Button(Widget):
 
     def __init__(self, interactor, action=None, corner_radius=5, width=None, font="Arial",
                  height=None, left=0, top=0, image=None, label="", bgcolor=(.5, .5, .5),
-                 fgcolor=(1, 1, 1), opacity=1, size=14, states = None, halign=LEFT_ALIGN,
+                 fgcolor=(1, 1, 1), opacity=1, size=14, states=None, halign=LEFT_ALIGN,
                  valign=CENTER_ALIGN, tooltip=None, tooltip_property=None):
         """
         @kwargs:

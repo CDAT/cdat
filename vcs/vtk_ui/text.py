@@ -1,5 +1,7 @@
 from vtk import vtkTextActor, vtkTextRenderer, vtkTextProperty, vtkPropPicker
 import math
+from widget import Widget, WidgetReprShim
+from behaviors import DraggableMixin, ClickableMixin
 
 
 def __set_font(font, text_props):
@@ -180,10 +182,6 @@ def text_dimensions(text, text_prop, dpi, at_angle=0):
     p.SetOrientation(at_angle)
     ren.GetBoundingBox(p, text, bounds, dpi)
     return bounds[1] - bounds[0] + 1, bounds[3] - bounds[2] + 1
-
-
-from widget import Widget, WidgetReprShim
-from behaviors import DraggableMixin, ClickableMixin
 
 
 class Label(Widget, DraggableMixin, ClickableMixin):
