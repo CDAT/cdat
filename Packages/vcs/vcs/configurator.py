@@ -6,6 +6,7 @@ import os
 import sys
 import vtk
 from vcs2vtk import vtkIterate
+import copy
 
 CREATING_FILL = "fill"
 CREATING_LINE = "line"
@@ -18,8 +19,6 @@ CLICKS_TO_CREATE = {
     CREATING_MARKER: 1,
     CREATING_TEXT: 1,
 }
-
-import copy
 
 
 def sync_template(src, target):

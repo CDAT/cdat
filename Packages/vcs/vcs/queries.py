@@ -431,8 +431,7 @@ if queries.is3d_scalar(plot):
    ...
 
 """
-    if (isinstance(obj, dv3d.Gf3Dscalar)
-            or isinstance(obj, dv3d.Gf3DDualScalar)):
+    if (isinstance(obj, dv3d.Gf3Dscalar) or isinstance(obj, dv3d.Gf3DDualScalar)):
         return 1
     else:
         return 0

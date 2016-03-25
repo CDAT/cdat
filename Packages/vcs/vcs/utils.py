@@ -930,8 +930,7 @@ def __split2contiguous(levels):
         if il != 0:
             lv2 = levels[il - 1]
             if lv2[1] != lv[0]:
-                raise VCSUtilsError("Error intervals are NOT contiguous from "
-                                    + str(lv2[1]) + " to " + str(lv[0]))
+                raise VCSUtilsError("Error intervals are NOT contiguous from " + str(lv2[1]) + " to " + str(lv[0]))
         tmplevs.append(lv[0])
     tmplevs.append(levels[-1][1])
     return tmplevs
