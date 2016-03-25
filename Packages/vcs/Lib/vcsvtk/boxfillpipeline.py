@@ -52,7 +52,7 @@ class BoxfillPipeline(Pipeline2D):
         if numpy.allclose(self._gm.level_1, 1.e20) or \
            numpy.allclose(self._gm.level_2, 1.e20):
             self._contourLevels = vcs.mkscale(self._scalarRange[0],
-                                              self._scalarRange[1])
+                                              self._scalarRange[1], nc=min(nlev, 12))
             if len(self._contourLevels) == 1:  # constant value ?
                 self._contourLevels = [self._contourLevels[0],
                                        self._contourLevels[0] + .00001]
@@ -282,7 +282,7 @@ class BoxfillPipeline(Pipeline2D):
 
         # Colortable bit
         # make sure length match
-        numLevels = len(self._contourLevels)
+        numLevels = len(self._contourLevels) - 1
         while len(self._contourColors) < numLevels:
             self._contourColors.append(self._contourColors[-1])
 
