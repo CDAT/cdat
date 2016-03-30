@@ -75,9 +75,11 @@ class Slider(Widget):
 
         # Make sure value is between min and max
         if f < minimum:
-            raise ValueError("Value for slider should be >= %f; received %f" % (minimum, f))
+            raise ValueError(
+                "Value for slider should be >= %f; received %f" % (minimum, f))
         if f > maximum:
-            raise ValueError("Value for slider should be <= %f; received %f" % (maximum, f))
+            raise ValueError(
+                "Value for slider should be <= %f; received %f" % (maximum, f))
 
         self.repr.SetValue(f)
 

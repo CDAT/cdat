@@ -34,14 +34,6 @@ def load(nm, json_dict={}):
 def process_src(nm, code, typ):
     """Takes VCS script code (string) as input and generates oneD gm from it"""
     onm = nm + ""
-    if typ == "GYx":
-        nm += "_yxvsx"
-    elif typ == "GXY":
-        nm += "_xvsy"
-    elif typ == "GXy":
-        nm += "_xyvsy"
-    elif typ == "GSp":
-        nm += "_scatter"
     try:
         gm = G1d(nm)
     except:
@@ -509,6 +501,8 @@ class G1d(object):
 
     def _setline(self, value):
         if value is not None:
+            if vcs.queries.isline(value):
+                value = value.name
             value = VCS_validation_functions.checkLineType(self, 'line', value)
         self._line = value
     line = property(_getline, _setline)
@@ -527,7 +521,7 @@ class G1d(object):
 
     def _setmarkersize(self, value):
         if value is not None:
-            value = VCS_validation_functions.checkInt(
+            value = VCS_validation_functions.checkNumber(
                 self,
                 'markersize',
                 value,
@@ -568,6 +562,14 @@ class G1d(object):
         _setsmooth,
         None,
         "beta parameter for kaiser smoothing")
+
+    def _gtype(self):
+        if self.flip:
+            return "xyvsy"
+        if self.linewidth == 0:
+            return "scatter"
+        return "yxvsx"
+    g_type = property(_gtype, None, None, "the 1d graphics method type")
 
     def __init__(self, name, name_src='default'):
             #                                                         #
@@ -613,7 +615,7 @@ class G1d(object):
         else:
             if isinstance(name_src, G1d):
                 name_src = name_src.name
-            if name_src not in vcs.elements['1d']:
+            if name_src not in vcs.elements["1d"]:
                 raise ValueError(
                     "The oneD method '%s' does not exists" %
                     name_src)

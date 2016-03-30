@@ -1,36 +1,35 @@
 """
 # Isofill (Gfi) module
 """
-###############################################################################
-#                                                                             #
+#
+#
 # Module:       isofill (Gfi) module                                          #
-#                                                                             #
+#
 # Copyright:    2000, Regents of the University of California                 #
-#               This software may not be distributed to others without        #
-#               permission of the author.                                     #
-#                                                                             #
+# This software may not be distributed to others without        #
+# permission of the author.                                     #
+#
 # Author:       PCMDI Software Team                                           #
-#               Lawrence Livermore NationalLaboratory:                        #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
+# Lawrence Livermore NationalLaboratory:                        #
+# support@pcmdi.llnl.gov                                        #
+#
 # Description:  Python command wrapper for VCS's isofill graphics method.     #
-#                                                                             #
+#
 # Version:      5.0                                                           #
-#                                                                             #
-###############################################################################
 #
 #
 #
-###############################################################################
-#                                                                             #
+#
+#
+#
+#
 # Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
+#
+#
 import vcs
 import VCS_validation_functions
 import cdtime
 import xmldocs
-import numpy
 
 
 def load(nm, json_dict={}):
@@ -121,41 +120,8 @@ def process_src(nm, code):
                 g.datawc_y2,
                 g.datawc_timeunits).tocomp(
                 g.datawc_calendar)
-    irg = code.find("range")
-    if irg > -1:
-        lines = code[irg:].split("\n")
-        i = 0
-        levs = []
-        fac = []
-        fai = []
-        fas = []
-        fao = []
-        badfa = True
-        for l in lines:
-            if l.find("(id=") > -1:
-                sp = lines[i].split(",")
-                levs.append([float(sp[1][7:]), float(sp[2][7:])])
-                fa = sp[-1][3:]
-                fa = fa[:fa.find(")")]
-                if fa not in vcs.elements["fillarea"].keys():
-                    badfa = True
-                    fai.append(fa)
-                else:
-                    fa = vcs.elements["fillarea"][fa]
-                    fac.append(fa.color[0])
-                    fai.append(fa.index[0])
-                    fas.append(fa.style[0])
-                    fao.append(fa.opacity[0])
-                i += 1
-        if not numpy.allclose(levs, 1.e20):
-            g.levels = levs
-            if badfa:
-                g._fillareaindices = fai
-            else:
-                g.fillareacolor = fac
-                g.fillareaindices = fai
-                g.fillareastyle = fas[0]
-                g.fillareaopacity = fao[0]
+
+    vcs.utils.process_range_from_old_scr(code, g)
 
 
 class Gfi(object):
@@ -400,7 +366,7 @@ Class: Gfi				# Isofill
                 'fillareacolors',
                 value)
             self._fillareacolors = value
-    fillareacolors = property(_getfillareacolors, _setfillareacolors)
+    fillareacolors = VCS_validation_functions.fillareacolors
 
     def _getfillareaindices(self):
         return self._fillareaindices
@@ -425,17 +391,7 @@ Class: Gfi				# Isofill
         self._fillareastyle = value
     fillareastyle = property(_getfillareastyle, _setfillareastyle)
 
-    def _getfillareaopacity(self):
-        return self._fillareaopacity
-
-    def _setfillareaopacity(self, value):
-        if value is not None:
-            value = VCS_validation_functions.checkOpacitiesList(
-                self,
-                'fillareaopacity',
-                value)
-            self._fillareaopacity = value
-    fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
+    fillareaopacity = VCS_validation_functions.fillareaopacity
 
     ext_1 = VCS_validation_functions.ext_1
     ext_2 = VCS_validation_functions.ext_2
@@ -575,14 +531,14 @@ Class: Gfi				# Isofill
     levels = VCS_validation_functions.levels
 
     def __init__(self, Gfi_name, Gfi_name_src='default'):
-                #                                                         #
-                ###########################################################
+                #
+                #
                 # Initialize the isofill class and its members            #
                 # The getGfimember function retrieves the values of the   #
                 # isofill members in the C structure and passes back the  #
                 # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
+                #
+                #
         if not isinstance(Gfi_name, str):
             raise ValueError("Isofill name must be a string")
         if Gfi_name in vcs.elements["isofill"].keys():
@@ -638,13 +594,13 @@ Class: Gfi				# Isofill
                 setattr(self, "_" + att, getattr(src, "_" + att))
 
         vcs.elements["isofill"][self.name] = self
-        #                                                         #
-        ###########################################################
+        #
+        #
         # Find and set the isofill structure in VCS C pointer     #
         # list. If the isofill name does not exist, then use      #
         # default isofill.                                        #
-        ###########################################################
-        #                                                         #
+        #
+        #
 
     def colors(self, color1=16, color2=239):
         self.fillareacolors = range(color1, color2)
@@ -723,11 +679,11 @@ Class: Gfi				# Isofill
         print "legend = ", self.legend
     list.__doc__ = xmldocs.listdoc
 
-    ###########################################################################
-    #                                                                         #
+    #
+    #
     # Script out primary isofill graphics method in VCS to a file.            #
-    #                                                                         #
-    ###########################################################################
+    #
+    #
     def script(self, script_filename, mode='a'):
         """
 %s
@@ -887,6 +843,6 @@ Function:     script                           # Calls _vcs.scriptGfi
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 
-###############################################################################
-#        END OF FILE						              #
-###############################################################################
+#
+# END OF FILE						              #
+#

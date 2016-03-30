@@ -99,93 +99,97 @@ def process_src(nm, code):
                     setattr(g, nm, sp[1])
                 except:
                     pass  # oh well we stick to default value
-        # Datawc
-        idwc = code.find(" datawc(")
-        if idwc > -1:
-            jdwc = code[idwc:].find(")") + idwc
-            cd = code[idwc + 8:jdwc]
-            vals = cd.split(",")
-            g.datawc_x1 = float(vals[0])
-            g.datawc_y1 = float(vals[1])
-            g.datawc_x2 = float(vals[2])
-            g.datawc_y2 = float(vals[3])
-        # idatawc
-        idwc = code.find("idatawc(")
-        if idwc > -1:
-            jdwc = code[idwc:].find(")") + idwc
-            cd = code[idwc + 8:jdwc]
-            vals = cd.split(",")
-            if int(vals[0]) == 1:
-                g.datawc_x1 = cdtime.reltime(
-                    g.datawc_x1,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[1]) == 1:
-                g.datawc_y1 = cdtime.reltime(
-                    g.datawc_x2,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[2]) == 1:
-                g.datawc_x2 = cdtime.reltime(
-                    g.datawc_y1,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-            if int(vals[3]) == 1:
-                g.datawc_y2 = cdtime.reltime(
-                    g.datawc_y2,
-                    g.datawc_timeunits).tocomp(
-                    g.datawc_calendar)
-        irg = code.find("lines")
-        if irg > -1:
-            scode = code[irg:]
-            tl = []
-            tt = []
-            to = []
-            clock = []
-            scales = []
-            angles = []
-            spacing = []
-            levs = []
-            while scode.find("id=") > -1:
-                sub = genutil.get_parenthesis_content(code[irg:])
-                if get_att_from_sub(sub, "label") not in ["*", None]:
-                    g.label = 'y'
-                levs.append(get_att_from_sub(sub, "level"))
-                tl.append(get_att_from_sub(sub, "Tl"))
-                to.append(get_att_from_sub(sub, "To"))
-                tt.append(get_att_from_sub(sub, "Tt"))
-                clock.append(get_att_from_sub(sub, "clockwise"))
-                scales.append(get_att_from_sub(sub, "length"))
-                angles.append(get_att_from_sub(sub, "angle"))
-                spacing.append(get_att_from_sub(sub, "spacing"))
-                scode = scode[scode.find(sub) + len(sub):]
-            g.level = levs
-            try:
-                g.line = tl
-            except:
-                g._line = tl
-            try:
-                g.text = to
-            except:
-                g._text = to
-            try:
-                g.textcolor = tt
-            except:
-                g._textcolor = tt
+    # Datawc
+    idwc = code.find(" datawc(")
+    if idwc > -1:
+        jdwc = code[idwc:].find(")") + idwc
+        cd = code[idwc + 8:jdwc]
+        vals = cd.split(",")
+        g.datawc_x1 = float(vals[0])
+        g.datawc_y1 = float(vals[1])
+        g.datawc_x2 = float(vals[2])
+        g.datawc_y2 = float(vals[3])
+    # idatawc
+    idwc = code.find("idatawc(")
+    if idwc > -1:
+        jdwc = code[idwc:].find(")") + idwc
+        cd = code[idwc + 8:jdwc]
+        vals = cd.split(",")
+        if int(vals[0]) == 1:
+            g.datawc_x1 = cdtime.reltime(
+                g.datawc_x1,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[1]) == 1:
+            g.datawc_y1 = cdtime.reltime(
+                g.datawc_x2,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[2]) == 1:
+            g.datawc_x2 = cdtime.reltime(
+                g.datawc_y1,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+        if int(vals[3]) == 1:
+            g.datawc_y2 = cdtime.reltime(
+                g.datawc_y2,
+                g.datawc_timeunits).tocomp(
+                g.datawc_calendar)
+    irg = code.find("lines")
+    if irg > -1:
+        scode = code[irg:]
+        tl = []
+        tt = []
+        to = []
+        clock = []
+        scales = []
+        angles = []
+        spacing = []
+        levs = []
+        # print code[irg:]
+        iid = scode.find("(id=")
+        while iid > -1:
+            sub = genutil.get_parenthesis_content(scode[iid:])
+            if get_att_from_sub(sub, "label") not in ["*", None]:
+                g.label = 'y'
+            levs.append(get_att_from_sub(sub, "level"))
+            tl.append(get_att_from_sub(sub, "Tl"))
+            to.append(get_att_from_sub(sub, "To"))
+            tt.append(get_att_from_sub(sub, "Tt"))
+            clock.append(get_att_from_sub(sub, "clockwise"))
+            scales.append(get_att_from_sub(sub, "length"))
+            angles.append(get_att_from_sub(sub, "angle"))
+            spacing.append(get_att_from_sub(sub, "spacing"))
+            iend = scode[iid:].find(")") + 1
+            scode = scode[iid + iend:]
+            iid = scode.find("(id=")
+    g.level = levs
+    try:
+        g.line = tl
+    except:
+        g._line = tl
+    try:
+        g.text = to
+    except:
+        g._text = to
+    try:
+        g.textcolors = tt
+    except:
+        g._textcolors = tt
 
-            gd = vcs.elements["isoline"]["default"]
-            try:
-                g.scale = scales
-            except:
-                g.scale = gd.scale
-            try:
-                g.angle = angles
-            except:
-                g.angle = gd.angle
-            try:
-                g.clockwise = clock
-            except:
-                g.clockwise = gd.clockwise
+    gd = vcs.elements["isoline"]["default"]
+    try:
+        g.scale = scales
+    except:
+        g.scale = gd.scale
+    try:
+        g.angle = angles
+    except:
+        g.angle = gd.angle
+    try:
+        g.clockwise = clock
+    except:
+        g.clockwise = gd.clockwise
 
 
 class Gi(object):
@@ -195,6 +199,8 @@ class Gi(object):
 %s
     label :: (str) ('n') turn on/off labels on isolines
     labelskipdistance :: (float) (0.0) minimum distance between isoline labels
+    labelbackgroundcolors :: ([float]) (None) background color for isoline labels
+    labelbackgroundopacities :: ([float]) (None) background opacity for isoline labels
 %s
 %s
     level :: ([float,...]) ([[0.0, 1.0000000200408773e+20]]) isocountours to display
@@ -329,6 +335,8 @@ class Gi(object):
         'level',
         'label',
         'labelskipdistance',
+        'labelbackgroundcolors',
+        'labelbackgroundopacities',
         'linecolors',
         'line',
         'linewidths',
@@ -359,6 +367,8 @@ class Gi(object):
         '_level',
         '_label',
         '_labelskipdistance',
+        '_labelbackgroundcolors',
+        '_labelbackgroundopacities',
         '_linecolors',
         '_line',
         '_linewidths',
@@ -612,11 +622,22 @@ class Gi(object):
 
     def _setline(self, value):
         if value is not None:
-            value = VCS_validation_functions.checkLinesList(
+            value, cvalue, wvalue = VCS_validation_functions.checkLinesList(
                 self,
                 'line',
                 value)
         self._line = value
+        try:
+            if self.linecolors is None or len(self.linecolors) < len(cvalue):
+                self.linecolors = cvalue
+        except:
+            pass
+        try:
+            if self.linewidths is None or len(self.linewidths) < len(wvalue):
+                self.linewidths = wvalue
+        except:
+            pass
+
     line = property(_getline, _setline)
 
     def _gettext(self):
@@ -627,7 +648,8 @@ class Gi(object):
             value = VCS_validation_functions.checkTextsList(
                 self,
                 'text',
-                value)
+                value,
+                storeName=True)
         self._text = value
     text = property(_gettext, _settext)
 
@@ -664,6 +686,34 @@ class Gi(object):
             value)
         self._labelskipdistance = value
     labelskipdistance = property(_getlabelskipdistance, _setlabelskipdistance)
+
+    def _getlabelbackgroundcolors(self):
+        return self._labelbackgroundcolors
+
+    def _setlabelbackgroundcolors(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkColorList(
+                self,
+                'labelbackgroundcolors',
+                value)
+        self._labelbackgroundcolors = value
+    labelbackgroundcolors = property(
+        _getlabelbackgroundcolors,
+        _setlabelbackgroundcolors)
+
+    def _getlabelbackgroundopacities(self):
+        return self._labelbackgroundopacities
+
+    def _setlabelbackgroundopacities(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkOpacitiesList(
+                self,
+                'labelbackgroundopacities',
+                value)
+        self._labelbackgroundopacities = value
+    labelbackgroundopacities = property(
+        _getlabelbackgroundopacities,
+        _setlabelbackgroundopacities)
 
     def _getspacing(self):
         return self._spacing
@@ -762,6 +812,8 @@ class Gi(object):
             self._spacing = [1.]
             self._label = 'n'
             self._labelskipdistance = 0.0
+            self._labelbackgroundcolors = None
+            self._labelbackgroundopacities = None
             self._colormap = None
         else:
             if isinstance(Gi_name_src, Gi):
@@ -775,7 +827,8 @@ class Gi(object):
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits',
                         'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors",
-                        "clockwise", "scale", "angle", "spacing", "labelskipdistance"]:
+                        "clockwise", "scale", "angle", "spacing", "labelskipdistance", "labelbackgroundcolors",
+                        "labelbackgroundopacities"]:
                 setattr(self, att, getattr(src, att))
         vcs.elements["isoline"][Gi_name] = self
 
@@ -841,6 +894,8 @@ class Gi(object):
         print "yaxisconvert = ", self.yaxisconvert
         print "label = ", self.label
         print "labelskipdistance = ", self.labelskipdistance
+        print "labelbackgroundcolors = ", self.labelbackgroundcolors
+        print "labelbackgroundopacities = ", self.labelbackgroundopacities
         print "line = ", self.line
         print "linecolors = ", self.linecolors
         print "linewidths = ", self.linewidths
@@ -988,7 +1043,12 @@ class Gi(object):
                 (unique_name, self.yaxisconvert))
             # Unique attribute for isoline
             fp.write("%s.label = '%s'\n" % (unique_name, self.label))
-            fp.write("%s.labelskipdistance = '%s'\n" % (unique_name, self.labelskipdistance))
+            fp.write("%s.labelskipdistance = '%s'\n" %
+                     (unique_name, self.labelskipdistance))
+            fp.write("%s.labelbackgroundcolors = '%s'\n" %
+                     (unique_name, self.labelbackgroundcolors))
+            fp.write("%s.labelbackgroundopacities = '%s'\n" %
+                     (unique_name, self.labelbackgroundopacities))
             fp.write("%s.line = %s\n" % (unique_name, self.line))
             fp.write("%s.linecolors = %s\n" % (unique_name, self.linecolors))
             fp.write("%s.linewidths = %s\n" % (unique_name, self.linewidths))

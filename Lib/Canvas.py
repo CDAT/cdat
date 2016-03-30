@@ -18,7 +18,7 @@
 #               landscape (width exceeding height), portrait (height exceeding#
 #               width), or full-screen mode.                                  #
 #                                                                             #
-# Version:      4.0                                                           #
+# Version: 2.4                                                          #
 #                                                                             #
 ###############################################################################
 
@@ -55,17 +55,17 @@ import copy
 import cdtime
 import vcs
 import os
+import re
 import sys
 import random
 from cdms2.grid import AbstractRectGrid
 import shutil
+import subprocess
 import inspect
 import VCS_validation_functions
 from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisconvert, \
     plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, \
     plot_2_1D_options
-# Flag to set if the initial attributes file has aready been read in
-called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
 import vcsaddons
@@ -118,7 +118,7 @@ def dictionarytovcslist(dictionary, name):
     for k in dictionary.keys():
         if not isinstance(k, (float, int, long)):
             raise Exception('Error, vcs list must have numbers only as keys')
-    _vcs.dictionarytovcslist(dictionary, name)
+    dictionarytovcslist(dictionary, name)
     return None
 
 
@@ -371,6 +371,7 @@ class Canvas(object):
         '__last_plot_actual_args',
         '__last_plot_keyargs',
         '_continents',
+        '_continents_line',
         '_savedcontinentstype',
         '__weakref__',
     ]
@@ -798,16 +799,14 @@ class Canvas(object):
         # Draw continental outlines if specified.
         contout = keyargs.get('continents', None)
         if contout is None:
-            #            if xdim>=0 and ydim>=0 and isgridded:
-            # Charles put back the self.isplottinggridded in addition for
-            # meshfill,
             if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
                     and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
-                contout = 1
+                contout = self.getcontinentstype()
             else:
                 contout = 0
+
         if (isinstance(arglist[GRAPHICS_METHOD], str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or (
-                (xdim >= 0 and ydim >= 0 and (contout >= 1) and (contout < 12))):
+                (xdim >= 0 and ydim >= 0 and (contout >= 1))):
             self.setcontinentstype(contout)
             self.savecontinentstype(contout)
         else:
@@ -861,15 +860,13 @@ class Canvas(object):
     #                                                                           #
     ##########################################################################
     def __init__(self, gui=0, mode=1, pause_time=0,
-                 call_from_gui=0, size=None, backend="vtk"):
+                 call_from_gui=0, size=None, backend="vtk", geometry=None, bg=None):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
         vcs.next_canvas_id += 1
-        self.colormap = "default"
+        self.colormap = None
         self.backgroundcolor = 255, 255, 255
-        # default size for bg
-        self.bgX = 814
-        self.bgY = 606
+
         # displays plotted
         self.display_names = []
         ospath = os.environ["PATH"]
@@ -881,7 +878,6 @@ class Canvas(object):
         if found is False:
             os.environ["PATH"] = os.environ["PATH"] + \
                 ":" + os.path.join(sys.prefix, "bin")
-        global called_initial_attributes_flg
         global gui_canvas_closed
         global canvas_closed
 
@@ -936,10 +932,40 @@ class Canvas(object):
             gui_canvas_closed = 1
         self.drawLogo = False
         self.enableLogo = True
+
+        if geometry is not None:
+            # Extract width and height, create dict
+            if type(geometry) == dict:
+                for key in geometry:
+                    if key not in ("width", "height"):
+                        raise ValueError("Unexpected key %s in geometry" % key)
+
+                width = geometry.get("width", None)
+                height = geometry.get("height", None)
+
+                check_vals = [v for v in (width, height) if v is not None]
+                VCS_validation_functions.checkListOfNumbers(self, 'geometry', check_vals,
+                                                            minvalue=1, minelements=1, maxelements=2, ints=True)
+            elif type(geometry) in (list, tuple):
+                width, height = VCS_validation_functions.checkListOfNumbers(self, 'geometry', geometry,
+                                                                            minvalue=1, minelements=2,
+                                                                            maxelements=2, ints=True)
+            else:
+                raise ValueError("geometry should be list, tuple, or dict")
+            geometry = {"width": width, "height": height}
+
+        if geometry is not None and bg:
+            self.bgX = geometry["width"]
+            self.bgY = geometry["height"]
+        else:
+            # default size for bg
+            self.bgX = 814
+            self.bgY = 606
+
         if backend == "vtk":
-            self.backend = VTKVCSBackend(self)
+            self.backend = VTKVCSBackend(self, geometry=geometry, bg=bg)
         elif isinstance(backend, vtk.vtkRenderWindow):
-            self.backend = VTKVCSBackend(self, renWin=backend)
+            self.backend = VTKVCSBackend(self, renWin=backend, bg=bg)
         else:
             warnings.warn(
                 "Unknown backend type: '%s'\nAssiging 'as is' to "
@@ -950,6 +976,8 @@ class Canvas(object):
         self._animate = self.backend.Animate(self)
 
         self.configurator = None
+        self.setcontinentsline("default")
+        self.setcontinentstype(1)
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
@@ -959,25 +987,7 @@ class Canvas(object):
 #  to make sure that the initial attributes file is called only once for normalization    #
 #  purposes....                                                                           #
 ##########################################################################
-        if called_initial_attributes_flg == 0:
-            pth = vcs.__path__[0].split(os.path.sep)
-            pth = pth[:-4]  # Maybe need to make sure on none framework config
-            pth = ['/'] + pth + ['share', 'vcs', 'initial.attributes']
-            try:
-                vcs.scriptrun(os.path.join(*pth))
-            except:
-                pass
-            self._dotdir, self._dotdirenv = vcs.getdotdirectory()
-            user_init = os.path.join(
-                os.environ['HOME'],
-                self._dotdir,
-                'initial.attributes')
-            if os.path.exists(user_init):
-                vcs.scriptrun(user_init)
-            else:
-                shutil.copy2(os.path.join(*pth), user_init)
 
-        called_initial_attributes_flg = 1
         self.canvas_template_editor = None
         self.ratio = 0
         self._user_actions_names = [
@@ -1151,128 +1161,13 @@ class Canvas(object):
     # Remove VCS primary and secondary methods wrapper functions for VCS.       #
     #                                                                           #
     ##########################################################################
+
     def removeobject(self, obj):
-        """
- Function: remove
-
- Description of Function:
-    The user has the ability to create primary and secondary class
-    objects. The function allows the user to remove these objects
-    from the appropriate class list.
-
-    Note, To remove the object completely from Python, remember to
-    use the "del" function.
-
-    Also note, The user is not allowed to remove a "default" class
-    object.
-
- Example of Use:
-    a=vcs.init()
-    line=a.getline('red')       # To Modify an existing line object
-    iso=x.createisoline('dean') # Create an instance of an isoline object
-    ...
-    x.remove(line)      # Removes line object from VCS list
-    del line            # Destroy instance "line", garbage collection
-    x.remove(iso)       # Remove isoline object from VCS list
-    del iso             # Destroy instance "iso", garbage collection
-"""
-        if istemplate(obj):
-            msg = _vcs.removeP(obj.name)
-            obj.__dict__['name'] = obj.__dict__[
-                'p_name'] = '__removed_from_VCS__'
-        elif isgraphicsmethod(obj):
-            if (obj.g_name == 'Gfb'):
-                msg = _vcs.removeGfb(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfi'):
-                msg = _vcs.removeGfi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gi'):
-                msg = _vcs.removeGi(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Go'):
-                msg = _vcs.removeGo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfo'):
-                msg = _vcs.removeGfo(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXy'):
-                msg = _vcs.removeGXy(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GYx'):
-                msg = _vcs.removeGYx(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GXY'):
-                msg = _vcs.removeGXY(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gv'):
-                msg = _vcs.removeGv(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'GSp'):
-                msg = _vcs.removeGSp(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gcon'):
-                msg = _vcs.removeGcon(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gfm'):
-                msg = _vcs.removeGfm(obj.name)
-                obj.name = obj.g_name = '__removed_from_VCS__'
-            elif (obj.g_name == 'Gtd'):
-                n = len(vcs.taylordiagrams)
-                ndel = 0
-                for i in range(n):
-                    t = vcs.taylordiagrams[i - ndel]
-                    if t.name == obj.name:
-                        msg = 'Removed Taylordiagram graphics method: ' + \
-                            t.name
-                        a = vcs.taylordiagrams.pop(i - ndel)
-                        ndel = ndel + 1
-                        del(a)
-            else:
-                msg = 'Could not find the correct graphics class object.'
-        elif issecondaryobject(obj):
-            if (obj.s_name == 'Tl'):
-                msg = _vcs.removeTl(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tm'):
-                msg = _vcs.removeTm(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tf'):
-                msg = _vcs.removeTf(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tt'):
-                msg = _vcs.removeTt(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'To'):
-                msg = _vcs.removeTo(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Tc'):
-                msg = _vcs.removeTt(obj.Tt_name)
-                msg += _vcs.removeTo(obj.To_name)
-                obj.Tt_name = obj.s_name = '__removed_from_VCS__'
-                obj.To_name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Proj'):
-                msg = _vcs.removeProj(obj.name)
-                obj.name = obj.s_name = '__removed_from_VCS__'
-            elif (obj.s_name == 'Cp'):
-                msg = _vcs.removeCp(obj.name)
-                obj.s_name = obj.__dict__['name'] = '__removed_from_VCS__'
-            else:
-                msg = 'Could not find the correct secondary class object.'
-        else:
-            msg = 'This is not a template, graphics method, or secondary method object.'
-        return msg
-
-# Removed by C. Doutriaux, too many prints. We need to think
-# if we want to raise an exception here?
-# if msg[:7]!='Removed':
-# print msg
-
-    def syncP(self, *args):
-        return self.canvas.syncP(*args)
+        __doc__ = vcs.removeobject.__doc__  # noqa
+        return vcs.removeobject(obj)
 
     def removeP(self, *args):
-        return self.canvas.removeP(*args)
+        return vcs.removeP(*args)
 
     def clean_auto_generated_objects(self, type=None):
         """ cleans all self/auto genrated objects in vcs, only if they're not in use
@@ -2374,7 +2269,7 @@ Options:::
                        'xbounds', 'ybounds', 'xname', 'yname', 'xunits', 'yunits', 'xweights', 'yweights',
                        'comment1', 'comment2', 'comment3', 'comment4', 'hms', 'long_name', 'zaxis',
                        'zarray', 'zname', 'zunits', 'taxis', 'tarray', 'tname', 'tunits', 'waxis', 'warray',
-                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render', "display_name"]
+                       'wname', 'wunits', 'bg', 'ratio', 'donotstoredisplay', 'render', 'continents_line', "display_name"]
 
     # def replot(self):
     #    """ Clears and plots with last used plot arguments
@@ -2520,8 +2415,17 @@ Options:::
         except:
             pass
 
+        if "continents_line" in keyargs:
+            # Stash the current line type
+            old_line = self.getcontinentsline()
+            self.setcontinentsline(keyargs["continents_line"])
+
         # Plot the data
         a = self.__plot(arglist, keyargs)
+
+        if "continents_line" in keyargs:
+            # Restore the canvas line type
+            self.setcontinentsline(old_line)
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options,
                                    plot_keywords_doc,
@@ -3591,6 +3495,8 @@ Options:::
             else:
                 nm, src = self.check_name_source(None, "default", "display")
                 dn = displayplot.Dp(nm)
+            dn.continents = self.getcontinentstype()
+            dn.continents_line = self.getcontinentsline()
             dn.template = arglist[2]
             dn.g_type = arglist[3]
             dn.g_name = arglist[4]
@@ -3614,6 +3520,8 @@ Options:::
                     tp = "textcombined"
                 elif tp == "default":
                     tp = "boxfill"
+                elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
+                    tp = "1d"
                 gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
@@ -3804,7 +3712,7 @@ Options:::
             if hasattr(self, '_isplottinggridded'):
                 del(self._isplottinggridded)
             # Get the continents for animation generation
-            self.animate.continents_value = self.getcontinentstype()
+            self.animate.continents_value = self._continentspath()
 
             # Get the option for doing graphics in the background.
             if bg:
@@ -3848,7 +3756,7 @@ Options:::
                     else:
                         nm, src = self.check_name_source(
                             None, "default", "display")
-                        dn = displayplot.Dp(nm)
+                        dn = displayplot.Dp(nm, parent=self)
                     dn.template = arglist[2]
                     dn.g_type = arglist[3]
                     dn.g_name = arglist[4]
@@ -3860,6 +3768,8 @@ Options:::
             if dn is not None:
                 dn._template_origin = template_origin
                 dn.ratio = Doratio
+                dn.continents = self.getcontinentstype()
+                dn.continents_line = self.getcontinentsline()
                 dn.newelements = self.__new_elts(original_elts, new_elts)
 
             if self.mode != 0:
@@ -4356,8 +4266,8 @@ Options:::
  Function: getcontinentstype
 
  Description of Function:
-    Retrieve continents type from VCS. Remember the value can only be between
-    0 and 11.
+    Retrieve continents type from VCS; either an integer between 0 and 11 or the
+    path to a custom continentstype.
 
  Example of Use:
      a=vcs.init()
@@ -4475,13 +4385,13 @@ Options:::
         if (self.orientation() == 'landscape'):
             return
 
-        if (((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
-                ((not isinstance(x, IntType))) or ((not isinstance(y, IntType))) or
+        if (((not isinstance(width, int))) or ((not isinstance(height, int))) or
+                ((not isinstance(x, int))) or ((not isinstance(y, int))) or
                 ((width != -99) and (width < 0)) or ((height != -99) and (height < 0)) or
                 ((x != -99) and (x < 0)) or ((y != -99) and (y < 0))):
             raise ValueError(
                 'If specified, width, height, x, and y must be integer values greater than or equal to 0.')
-        if (((not isinstance(clear, IntType))) and (clear not in [0, 1])):
+        if (((not isinstance(clear, int))) and (clear not in [0, 1])):
             raise ValueError(
                 "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'.")
 
@@ -4489,7 +4399,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
@@ -4499,7 +4409,7 @@ Options:::
         self.flush()  # update the canvas by processing all the X events
 
         args = (width, height, x, y, clear)
-        l = self.canvas.landscape(*args)
+        l = self.backend.landscape(*args)
 
         return l
 
@@ -4550,7 +4460,7 @@ Options:::
     # Open VCS Canvas wrapper for VCS.                                          #
     #                                                                           #
     ##########################################################################
-    def open(self, *args, **kargs):
+    def open(self, width=None, height=None, **kargs):
         """
  Function: open
 
@@ -4561,9 +4471,10 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.open()
+    a.open(800,600)
 """
 
-        a = self.backend.open(*args, **kargs)
+        a = self.backend.open(width, height, **kargs)
 
         return a
 
@@ -4670,7 +4581,7 @@ Options:::
                 and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
-                dict = self.canvas.canvasinfo(*cargs)
+                dict = self.canvasinfo(*cargs)
             except:
                 dict = {}
             height = dict.get('width', -99)
@@ -4689,7 +4600,7 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def ffmpeg(self, movie, files, bitrate=1024, rate=None, options=''):
+    def ffmpeg(self, movie, files, bitrate=1024, rate=None, options=None):
         """
  Function: ffmpeg
 
@@ -4716,11 +4627,14 @@ Options:::
     returns the output string generated by ffmpeg program
     ALWAYS overwrite output file
 """
-        cmd = 'ffmpeg -y '
+        args = ["ffmpeg", "-y"]
 
         if rate is not None:
-            cmd += ' -r %s ' % rate
+            args.extend(("-framerate", str(rate)))
+
         if isinstance(files, (list, tuple)):
+            test_file = files[0]
+
             rnd = "%s/.uvcdat/__uvcdat_%i" % (
                 os.environ["HOME"], numpy.random.randint(600000000))
             Files = []
@@ -4728,20 +4642,68 @@ Options:::
                 fnm = "%s_%i.png" % (rnd, i)
                 shutil.copy(f, fnm)
                 Files.append(fnm)
-            cmd += '-i %s_%%d.png' % (rnd)
+            args.extend(("-i", "%s_%%d.png" % rnd))
         elif isinstance(files, str):
-            cmd += '-i ' + files
-        if rate is not None:
-            cmd += ' -r %s ' % rate
-        if bitrate is not None:
-            cmd += ' -b:v %sk' % bitrate
-        cmd += ' ' + options
-        cmd += ' ' + movie
-        o = os.popen(cmd).read()
+            # Extract formatter
+            percent_re = re.compile(r"(%0*d)")
+            str_format = percent_re.search(files)
+            if str_format is not None:
+                prefix, group, suffix = percent_re.split(files, maxsplit=1)
+                numeric_length = len(str_format.group(0).split("0")) - 1
+                path, pre = os.path.split(prefix)
+                if path == '':
+                    path = "."
+                file_names = os.listdir(path)
+                for f in file_names:
+                    # Make sure it starts with the "before number" part
+                    if not f.startswith(pre):
+                        continue
+
+                    # Make sure the length is correct
+                    if len(f) != len(pre) + numeric_length + len(suffix):
+                        continue
+
+                    # Iterate the numeric section
+                    for i in range(len(pre), len(pre) + numeric_length):
+                        try:
+                            int(f[i])
+                        except ValueError:
+                            # Invalid character found, exit the loop
+                            break
+                    else:
+                        # Make sure the ending is correct
+                        if f.endswith(suffix):
+                            test_file = os.path.join(path, f)
+                            # We found a test file, we can stop now
+                            break
+                else:
+                    test_file = False
+
+            args.extend(('-i', files))
+
+        args.extend(("-pix_fmt", "yuv420p"))
+
+        if test_file is not False:
+            # H264 requires even numbered heights and widths
+            width, height = self.backend.png_dimensions(test_file)
+            if width % 2 == 1:
+                width = width + 1
+            if height % 2 == 1:
+                height = height + 1
+            args.extend(("-vf", "scale=%d:%d" % (width, height)))
+
+        if options is not None:
+            args.append(options)
+
+        args.append(movie)
+
+        result = subprocess.call(args)
+
         if isinstance(files, (list, tuple)):
             for f in Files:
                 os.remove(f)
-        return o
+
+        return result == 0
 
     def getantialiasing(self):
         return self.backend.getantialiasing()
@@ -4772,25 +4734,9 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
         # in pixels?
         self.bgX = W
         self.bgY = H
@@ -4825,8 +4771,19 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
+        base = os.path.dirname(file)
+        if base != "" and not os.path.exists(base):
+            raise vcsError("Output path: %s does not exist" % base)
+        if units not in [
+                'inches', 'in', 'cm', 'mm',
+                None, 'pixel', 'pixels', 'dot', 'dots']:
+            raise Exception(
+                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
+
+        W, H = self._compute_width_height(
+            width, height, units)
         return self.backend.png(
-            file, width, height, units, draw_white_background, **args)
+            file, W, H, units, draw_white_background, **args)
 
     ##########################################################################
     #                                                                           #
@@ -4843,28 +4800,17 @@ Options:::
  Example of Use:
     a=vcs.init()
     a.plot(array)
-    a.png('example')       # Overwrite a postscript file
-    a.png('example', width=11.5, height= 8.5)  # US Legal
-    a.png('example', width=21, height=29.7, units='cm')  # A4
+    a.pdf('example')       # Overwrite a postscript file
+    a.pdf('example', width=11.5, height= 8.5)  # US Legal
+    a.pdf('example', width=21, height=29.7, units='cm')  # A4
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
@@ -4894,25 +4840,8 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-
-        # if portrait then switch
-        if self.isportrait() and W > H:
-            tmp = W
-            W = H
-            H = tmp
+        W, H = self._compute_width_height(
+            width, height, units)
 
         if not file.split('.')[-1].lower() in ['svg']:
             file += '.svg'
@@ -5015,46 +4944,63 @@ Options:::
 
         return top_margin, bottom_margin, right_margin, left_margin
 
-    def _compute_width_height(self, width, height, factor, ps=True):
+    def isopened(self):
+        """Is the Canvas opened?"""
+        return self.backend.isopened()
+
+    def _compute_width_height(self, width, height, units, ps=False):
+        dpi = 72.  # dot per inches
+        if units in ["in", "inches"]:
+            factor = 1.
+        elif units == 'cm':
+            factor = 0.393700787
+        elif units == 'mm':
+            factor = 0.0393700787
+        else:
+            factor = 1. / 72
         sfactor = factor
         if width is None and height is None:
-            try:
-                ci = self.canvasinfo()
-                height = ci['height']
-                width = ci['width']
-                sfactor = 1. / 72.
-                if ps is True:
-                    ratio = width / float(height)
-                    if self.size == 1.4142857142857141:
-                        # A4 output
+            if self.isopened():
+                try:
+                    ci = self.canvasinfo()
+                    height = ci['height']
+                    width = ci['width']
+                    sfactor = 1. / 72.
+                    if ps is True:
+                        ratio = width / float(height)
+                        if self.size == 1.4142857142857141:
+                            # A4 output
+                            width = 29.7
+                            sfactor = 0.393700787
+                            height = 21.
+                        elif self.size == 1. / 1.4142857142857141:
+                            width = 21.
+                            sfactor = 0.393700787
+                            height = 29.7
+                        else:
+                            sfactor = 1.
+                            if ratio > 1:
+                                width = 11.
+                                height = width / ratio
+                            else:
+                                height = 11.
+                                width = height * ratio
+                except:  # canvas never opened
+                    if self.size is None:
+                        sfactor = 1.
+                        height = 8.5
+                        width = 11.
+                    elif self.size == 1.4142857142857141:
+                        sfactor = 0.393700787
                         width = 29.7
-                        sfactor = 0.393700787
                         height = 21.
-                    elif self.size == 1. / 1.4142857142857141:
-                        width = 21.
-                        sfactor = 0.393700787
-                        height = 29.7
                     else:
                         sfactor = 1.
-                        if ratio > 1:
-                            width = 11.
-                            height = width / ratio
-                        else:
-                            height = 11.
-                            width = height * ratio
-            except:  # canvas never opened
-                if self.size is None:
-                    sfactor = 1.
-                    height = 8.5
-                    width = 11.
-                elif self.size == 1.4142857142857141:
-                    sfactor = 0.393700787
-                    width = 29.7
-                    height = 21.
-                else:
-                    sfactor = 1.
-                    height = 8.5
-                    width = self.size * height
+                        height = 8.5
+                        width = self.size * height
+            else:
+                width = self.bgX
+                height = self.bgY
         elif width is None:
             if self.size is None:
                 width = 1.2941176470588236 * height
@@ -5065,11 +5011,17 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-        return width, height, sfactor
+        W = int(width * dpi * sfactor)
+        H = int(height * dpi * sfactor)
+        if (self.isportrait() and W > H) \
+                or (self.islandscape() and H > W):
+            tmp = W
+            W = H
+            H = tmp
+        return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', left_margin=None, right_margin=None,
-                   top_margin=None, bottom_margin=None):
+                   units='inches'):
         """
  Function: postscript
 
@@ -5100,46 +5052,19 @@ Options:::
             raise Exception(
                 "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
 
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-
         # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
+        W, H = self._compute_width_height(
+            width, height, units, ps=True)
 
-# print "will usE:",W,H,float(W)/H
-        # figures out margins
-
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
         # orientation keyword is useless left for backward compatibility
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
             file += '.ps'
         if mode == 'r':
-            return self.backend.postscript(file, W, H, R, L, T, B)
+            return self.backend.postscript(file, W, H, units="pixels")
         else:
             n = random.randint(0, 10000000000000)
             psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-            self.backend.postscript(psnm, W, H, R, L, T, B)
+            self.backend.postscript(psnm, W, H, units="pixels")
             if os.path.exists(file):
                 f = open(file, 'r+')
                 f.seek(0, 2)  # goes to end of file
@@ -5150,167 +5075,6 @@ Options:::
                 os.remove(psnm)
             else:
                 shutil.move(psnm, file)
-
-    ##########################################################################
-    #                                                                           #
-    # Postscript wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
-    def postscript_old(self, file, mode='r', orientation=None):
-        """
- Function: postscript
-
- Description of Function:
-    Postscript output is another form of vector graphics. It is larger than its CGM output
-    counter part, because it is stored out in ASCII format. To save out a postscript file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen.
-
-    There are two modes for saving a postscript file: `Append' (a) mode appends postscript
-    output to an existing postscript file; and `Replace' (r) mode overwrites an existing
-    postscript file with new postscript output. The default mode is to overwrite an existing
-    postscript file (i.e. mode (r)).
-
-    The POSTSCRIPT command is used to create a postscript file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is the current orientation of your canvas.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.postscript('example')       # Overwrite a postscript file
-    a.postscript('example', 'a')  # Append postscript to an existing file
-    a.postscript('example', 'r')  # Overwrite an existing file
-    a.postscript('example', 'r', 'p')  # Overwrite postscript file with a portrait postscript file
-    a.postscript('example', mode='a')  # Append postscript to an existing file
-    a.postscript('example', orientation='r')  # Overwrite an existing file
-    a.postscript('example', mode='r', orientation='p')  # Overwrite postscript file with a portrait postscript file
-""" % self._dotdir
-        if orientation is None:
-            orientation = self.orientation()[0]
-        return self.canvas.postscript_old(*(file, mode, orientation))
-
-    ##########################################################################
-    #                                                                           #
-    # Old PDF wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def pdf_old(self, file, orientation=None, options='', width=None, height=None,
-                units='inches', left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: pdf
-
- Description of Function:
-    To save out a PDF file,
-    VCS will first create a cgm file in the user's %s directory. Then it will
-    use gplot to convert the cgm file to a postscript file in the location the user has
-    chosen. And then convert it pdf using ps2pdf
-
-    The pdf command is used to create a pdf file. Orientation is 'l' = landscape,
-    or 'p' = portrait. The default is landscape.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.pdf('example')      # Creates a landscape pdf file
-    a.pdf('example','p')  # Creates a portrait pdf file
-    a.pdf(file='example',orientation='p')  # Creates a portrait pdf file
-    a.pdf(file='example',options='-dCompressPages=false')
-    # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
-""" % (self._dotdir)
-
-        n = random.randint(0, 100000000000)
-        if file[-3:].lower() != 'pdf':
-            file += '.pdf'
-        psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
-        a = self.postscript(
-            psnm,
-            orientation=orientation,
-            width=width,
-            height=height,
-            units=units,
-            left_margin=left_margin,
-            right_margin=right_margin,
-            top_margin=top_margin,
-            bottom_margin=bottom_margin)
-        os.popen('ps2pdf14 ' + options + ' ' + psnm + ' ' + file).readlines()
-        os.remove(psnm)
-        return a
-
-    ##########################################################################
-    #                                                                           #
-    # Printer wrapper for VCS.                                                  #
-    #                                                                           #
-    ##########################################################################
-    def printer(self, printer=None, orientation=None, width=None, height=None, units='inches',
-                left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
-        """
- Function: printer
-
- Description of Function:
-    This function creates a temporary cgm file and then sends it to the specified
-    printer. Once the printer received the information, then the temporary cgm file
-    is deleted. The temporary cgm file is created in the user's %s directory.
-
-    The PRINTER command is used to send the VCS Canvas plot(s) directly to the printer.
-    Orientation can be either: 'l' = landscape, or 'p' = portrait.
-
-    Note: VCS graphical displays can be printed only if the user customizes a HARD_COPY
-    file (included with the VCS software) for the home system. The path to the HARD_COPY
-    file must be:
-
-              /$HOME/%s/HARD_COPY
-
-    where /$HOME denotes the user's home directory.
-
-
-    For more information on the HARD_COPY file, see URL:
-
-    http://www-pcmdi.llnl.gov/software/vcs/vcs_guidetoc.html#1.Setup
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.printer('printer_name') # Send plot(s) to postscript printer
-    a.printer('printer_name',top_margin=1,units='cm')
-    # Send plot(s) to postscript printer with 1cm margin on top of plot
-""" % (self._dotdir, self._dotdir)
-        if printer is None:
-            printer = (os.environ.get('PRINTER'),)
-
-        if units not in [
-                'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
-            raise Exception(
-                "units must be on of inches, in, cm, mm, pixel(s) or dot(s)")
-
-        dpi = 72.  # dot per inches
-        if units in ["in", "inches"]:
-            factor = 1.
-        elif units == 'cm':
-            factor = 0.393700787
-        elif units == 'mm':
-            factor = 0.0393700787
-        else:
-            factor = 1. / 72
-        # figures out width/height
-        width, height, sfactor = self._compute_width_height(
-            width, height, factor)
-        W = int(width * dpi * sfactor)
-        H = int(height * dpi * sfactor)
-        top_margin, bottom_margin, right_margin, left_margin = self._compute_margins(
-            W, H, top_margin, bottom_margin, right_margin, left_margin, dpi)
-
-        R = int(right_margin * dpi)
-        L = int(left_margin * dpi)
-        T = int(top_margin * dpi)
-        B = int(bottom_margin * dpi)
-
-        if W > H:
-            tmp = H
-            H = W
-            W = tmp
-
-        return self.canvas.printer(*(printer, W, H, R, L, T, B))
 
     ##########################################################################
     #                                                                           #
@@ -5522,9 +5286,41 @@ Options:::
         return a
 
     ##########################################################################
-    #                                                                           #
-    # Set continents type wrapper for VCS.                           		#
-    #                                                                           #
+    #                                                                        #
+    # Set continents line wrapper for VCS.                                   #
+    #                                                                        #
+    ##########################################################################
+    def setcontinentsline(self, line="default"):
+        """
+    Function: setcontinentsline
+
+    Description of Function:
+        One has the option of configuring the appearance of the lines used to
+        draw continents by providing a VCS Line object.
+
+    Example of Use:
+        a = vcs.init()
+        line = vcs.createline()
+        line.width = 5
+        # Use custom continents line
+        a.setcontinentsline(line)
+        # Use default line
+        a.setcontinentsline("default")
+        """
+        linename = VCS_validation_functions.checkLine(self, "continentsline", line)
+        line = vcs.getline(linename)
+        self._continents_line = line
+
+    def getcontinentsline(self):
+        if self._continents_line is None:
+            return vcs.getline("default")
+        else:
+            return self._continents_line
+
+    ##########################################################################
+    #                                                                        #
+    # Set continents type wrapper for VCS.                           		 #
+    #                                                                        #
     ##########################################################################
     def setcontinentstype(self, value):
         """
@@ -5544,10 +5340,9 @@ Options:::
           4 signifies "Political Borders" (with "Fine Continents")
           5 signifies "Rivers" (with "Fine Continents")
 
-      Values 6 through 11 signify the line type defined by the files
-      data_continent_other7 through data_continent_other12.
+          6 uses a custom continent set
 
-      You can also pass a file
+      You can also pass a file by path.
 
    Example of Use:
       a=vcs.init()
@@ -5555,67 +5350,25 @@ Options:::
       #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
       a.plot(array,'default','isofill','quick')
   """
-        nms = [
-            "fine",
-            "coarse",
-            "states",
-            "political",
-            "river",
-            "other6",
-            "other7",
-            "other8",
-            "other9",
-            "other10",
-            "other11",
-            "other12"]
-        if isinstance(value, int):
-            if value == 0:
-                self._continents = None
-            elif 0 < value < 12:
-                self._continents = os.path.join(
-                    os.environ.get(
-                        "HOME",
-                        ""),
-                    os.environ.get(
-                        vcs.getdotdirectory()[1],
-                        vcs.getdotdirectory()[0]),
-                    "data_continent_%s" % nms[
-                        value - 1])
-                if not os.path.exists(self._continents):
-                    # fallback on installed with system one
-                    self._continents = os.path.join(
-                        vcs.prefix,
-                        "share",
-                        "vcs",
-                        "data_continent_%s" % nms[
-                            value - 1])
-            else:
-                raise Exception(
-                    "Error continents value must be file or int < 12")
-        elif isinstance(value, str):
-            self._continents = value
-        else:
-            self._continents = None
-        if self._continents is not None and not os.path.exists(
-                self._continents):
+        continent_path = VCS_validation_functions.checkContinents(self, value)
+        self._continents = value
+        if continent_path is not None and not os.path.exists(
+                continent_path):
             warnings.warn(
-                "Continents file not found: %s, substituing with coarse continents" %
-                self._continents)
-            self._continents = os.path.join(
-                os.environ.get(
-                    "HOME",
-                    ""),
-                os.environ.get(
-                    vcs.getdotdirectory()[1],
-                    vcs.getdotdirectory()[0]),
-                "data_continent_coarse")
-            if not os.path.exists(self._continent):
-                self._continents = os.path.join(
-                    vcs.prefix,
-                    "share",
-                    "vcs",
-                    "data_continent_coarse")
+                "Continents file not found: %s, substituing with fine continents" %
+                continent_path)
+            self._continents = 1
             return
+
+    def _continentspath(self):
+        try:
+            path = VCS_validation_functions.checkContinents(self, self._continents)
+            if path is None and self._continents != 0:
+                return VCS_validation_functions.checkContinents(self, 1)
+            else:
+                return path
+        except:
+            return VCS_validation_functions.checkContinents(self, 1)
 
     ##########################################################################
     #                                                                           #
@@ -5842,33 +5595,6 @@ Options:::
 
     ##########################################################################
     #                                                                           #
-    # Script to a file the current state of VCS wrapper for VCS.                #
-    #                                                                           #
-    ##########################################################################
-    def scriptstate(self, script_name):
-        """
- Function: scriptstate       # Save state of VCS
-
- Description of Function:
-    The VCS scripting capability serves many purposes. It allows one to save the
-    system state for replay in a later session; to save primary and secondary
-    element attributes for use in later visual presentations; to save a sequence
-    of interactive operations for replay; or to recover from a system failure.
-
- Example of Use:
-    a=vcs.init()
-    ...
-
-    a.scriptstate(script_filename)
-"""
-        msg = _vcs.scriptstate(script_name)
-        # Now adds the taylordiagram stuff
-        for td in vcs.taylordiagrams:
-            td.script(script_name)
-        return msg
-
-    ##########################################################################
-    #                                                                           #
     # Raise VCS Canvas to the top of all its siblings.                          #
     #                                                                           #
     ##########################################################################
@@ -5887,7 +5613,7 @@ Options:::
     a.canvasraised()
 """
 
-        return self.canvas.canvasraised(*args)
+        return self.backend.canvasraised(*args)
 
     ##########################################################################
     #                                                                           #
@@ -6192,6 +5918,8 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
+        if self.colormap is None:
+            return vcs._colorMap
         return self.colormap
 
     def dummy_user_action(self, *args, **kargs):
