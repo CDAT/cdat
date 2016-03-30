@@ -46,7 +46,7 @@ class Widget(object):
             del self.subscriptions[event]
 
     def showing(self):
-        return self.widget.GetEnabled() == 1
+        return self.widget.GetEnabled() == 1 and self.manager.showing
 
     def show(self):
         if not self.showing():

@@ -1,5 +1,6 @@
 #=============================================================================
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+CMAKE_POLICY(SET CMP0012 NEW)
 
 if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
   message(WARNING "Your CMake version is ${CMAKE_VERSION} which is depreciated for UV-CDAT. The recommended minimum CMake version is 2.8.12. Using older versions can result in build errors particularly with Xcode 5")
@@ -65,6 +66,19 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
+# Enable/Disable coverage
+#=============================================================================
+option(CDAT_MEASURE_COVERAGE "Measure test coverage while running tests" OFF)
+
+if(CDAT_MEASURE_COVERAGE)
+  message("Coverage measurement enabled; tests will run slower.")
+  set(COVERAGE_PKGS "cdms2,vcs,cdutil,genutil,DV3D,vcsaddons,vcs.vtk_ui,vcs.editors,vcs.vcsvtk,regrid2")
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/coverage_report.py.in
+    ${CMAKE_INSTALL_PREFIX}/bin/coverage_report
+    @ONLY
+  )
+endif()
+
 # Set up the test data. If UVCDAT_USE_SYSTEM_TESTDATA is ON and UVCDAT_TESTDATA
 # is not set then we won't use it for testing. Otherwise we'll test either
 # with the system test data or download it ourselves.
@@ -97,47 +111,7 @@ endif()
 # calls so that it's set properly to detect 64-bit-ness...
 #-----------------------------------------------------------------------------
 if(APPLE)
-
-  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" OSX_VER_MAJOR "${CURRENT_OSX_VERSION}")
-  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\2" OSX_VER_MINOR "${CURRENT_OSX_VERSION}")
-
-  if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
-    set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
-  endif()
-
-  # Support only 10.8 or higher for now
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk")
-    set(HAVE_10_8_SDK TRUE)
-  endif()
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk")
-    set(HAVE_10_9_SDK TRUE)
-  endif()
-  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk")
-    set(HAVE_10_10_SDK TRUE)
-  endif()
-  # Try for the lowest version SDK we can
-  if ((${OSX_VER_MINOR} VERSION_EQUAL 8) AND (HAVE_10_8_SDK))
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk" CACHE PATH "" FORCE)
-  elseif((${OSX_VER_MINOR} VERSION_EQUAL 9) AND (HAVE_10_9_SDK))
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk" CACHE PATH "" FORCE)
-  elseif((${OSX_VER_MINOR} VERSION_EQUAL 10) AND (HAVE_10_10_SDK))
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -headerpad_max_install_names")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.10 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk" CACHE PATH "" FORCE)
-  else()
-    message(FATAL_ERROR "[ERROR] Could not match your OS VERSION (${OSX_VER_MAJOR}.${OSX_VER_MINOR}) with any of your SDKs, or OS not supported yet")
-  endif()
-
+ include (AppleSDKUtils)
 endif()
 
 # Setup git and related options
@@ -216,6 +190,8 @@ endif()
 # Checkout the baseline repository.
 #=============================================================================
 if(BUILD_TESTING)
+  # bots will turn this off
+  option(CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH "Do magic to find matching baseline branch" ON)
   set(UVCDAT_GIT_TESTDATA_DIR "${CMAKE_BINARY_DIR}/uvcdat-testdata/"
     CACHE PATH "Directory to store supplemental testing data (Baselines, etc).")
   set(REPO_URL "")
@@ -231,6 +207,7 @@ if(BUILD_TESTING)
       "-DTESTDATA_URL=${REPO_URL}"
       "-DTESTDATA_DIR=${UVCDAT_GIT_TESTDATA_DIR}"
       "-DSOURCE_DIR=${cdat_SOURCE_DIR}"
+      "-DCDAT_CHECKOUT_BASELINE_MATCHING_BRANCH=${CDAT_CHECKOUT_BASELINE_MATCHING_BRANCH}"
       -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checkout_testdata.cmake"
     COMMENT "Updating uvcdat-testdata repo."
   )
@@ -265,6 +242,9 @@ cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering.
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
 
+# Option to enable CMOR
+option(CDAT_BUILD_CMOR "Build CMOR" ON)
+
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
@@ -283,7 +263,7 @@ option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistra
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
 option(CDAT_BUILD_PARAVIEW "Build ParaView rather than just VTK" OFF)
-option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " OFF)
+option(CDAT_DOWNLOAD_UVCMETRICS_TESTDATA "Download test data uvcmetrics package " ON)
 
 # If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
@@ -291,10 +271,11 @@ if (CDAT_BUILD_ESGF)
     message(WARNING "[INFO] CDAT_BUILD_ESGF enabled, forcing CDAT_BUILD_MODE to LEAN")
   endif()
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
+  set(CDAT_DOWNLOAD_SAMPLE_DATA OFF)
 endif()
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
 set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
-message([INFO] BUILD MODE} ${CDAT_BUILD_MODE})
+message([INFO] BUILD MODE: ${CDAT_BUILD_MODE})
 
 # Set the state of LEAN all based on the MODE
 if (CDAT_BUILD_MODE STREQUAL "LEAN")
@@ -314,6 +295,7 @@ endif()
 if (CDAT_BUILD_LEAN)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE OFF)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE OFF)
   set(CDMS_ONLY --enable-cdms-only)
 else()
   set(CDMS_ONLY "")
@@ -325,6 +307,7 @@ if (CDAT_BUILD_ALL)
   set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE ON)
   set_property(CACHE CDAT_BUILD_ESGF PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_UVCMETRICSPKG PROPERTY VALUE ON)
   set(CDMS_ONLY "")
 endif()
 
@@ -403,7 +386,11 @@ if(APPLE)
   set(cdat_osx_arch_flag_fortran "-m${CMAKE_OSX_ARCHITECTURES_M}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
-  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+if(APPLE)
+  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include -I/usr/X11R6/include ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+else()
+  set(cdat_osx_cppflags "-I${CMAKE_OSX_SYSROOT}/usr/include  ${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe ")
+endif()
   set(cdat_osx_flags_fortran "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_arch_flag_fortran} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
   set(cdat_osx_ld_flags "-L${CMAKE_OSX_SYSROT}/usr/X11R6/lib -L/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources -bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_cxxflags "-I${CMAKE_OSX_SYSROOT}/usr/include ${cdat_osx_cppflag} ${cdat_osx_ld_flags}")
@@ -477,15 +464,23 @@ include(cdat_pkg)
 include(clapack_pkg)
 #include(curl_pkg)
 include(configobj_pkg)
+include(cycler_pkg)
 include(cython_pkg)
 include(data_pkg)
 include(esmf_pkg)
+include(x264_pkg)
 include(ffmpeg_pkg)
 include(pyflakes_pkg)
 include(pep8_pkg)
 include(mccabe_pkg)
 include(flake8_pkg)
 include(g2clib_pkg)
+include(proj4_pkg)
+include(ocgis_pkg)
+include(cligj_pkg)
+include(click_pkg)
+include(fiona_pkg)
+include(pynetcdf4_pkg)
 include(gdal_pkg)
 include(geos_pkg)
 include(gsw_pkg)
@@ -500,10 +495,19 @@ include(jasper_pkg)
 include(lapack_pkg)
 include(lepl_pkg)
 include(libcf_pkg)
+include(lats_pkg)
 include(libdrs_pkg)
+include(libdrsfortran_pkg)
+include(ezget_pkg)
+include(cd77_pkg)
 include(matplotlib_pkg)
 include(six_pkg)
+include(openssl_pkg)
 include(cryptography_pkg)
+include(enum34_pkg)
+include(idna_pkg)
+include(pyasn1_pkg)
+include(ipaddress_pkg)
 include(cffi_pkg)
 include(ffi_pkg)
 include(dateutils_pkg)
@@ -549,15 +553,18 @@ include(jinja2_pkg)
 include(docutils_pkg)
 include(sphinx_pkg)
 include(freetype_pkg)
+include(coverage_pkg)
 ## C. Doutriaux: We need to replace the following with a findPackage at some point
 if (APPLE)
 else()
+  include(jpeg_pkg)
   include(pixman_pkg)
   include(fontconfig_pkg)
   include(curses_pkg)
-  include(tiff_pkg)
+  #include(tiff_pkg)
   include(netcdfplus_pkg)
 endif()
+#include(geotiff_pkg)
 include(cmor_pkg)
 include(udunits2_pkg)
 include(uuid_pkg)
@@ -697,6 +704,7 @@ set(SETUP_LIBRARY_PATHS
   "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
   "Externals/lib/R/lib "
   "Externals/lib "
+  "Externals/proj4/lib "
   "Externals/lib64 "
   "lib "
 )
@@ -737,6 +745,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.sh
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
   ${cdat_BINARY_DIR}/preofflinebuild.sh
   @ONLY
@@ -744,6 +757,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
+  @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/reset_runtime.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/reset_runtime.csh
   @ONLY
 )
 
@@ -806,29 +824,30 @@ add_custom_target(wrappers ALL DEPENDS
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
 
-
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
 set(CPACK_PACKAGE_NAME "UVCDAT")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_MAJOR "2")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
-set(CPACK_DESTINATION_PREFIX "UVCDAT")
-set(CPACK_DESTINATION_LIB_PREFIX "UVCDAT/lib")
-set(CPACK_DESTINATION_BIN_PREFIX "UVCDAT/bin")
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_RPM_PACKAGE_PROVIDES /usr/local/uvcdat/bin/python /usr/local/uvcdat/bin/python2.7)
+set(CPACK_DESTINATION_BIN_PREFIX "bin")
 
 if (APPLE)
-  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
+  set(SB_EXTERNALS_DIR "Externals")
+  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
   set(CPACK_GENERATOR DragNDrop)
-  set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
+  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
   set(CPACK_DESTINATION_BIN_PREFIX "${CPACK_DESTINATION_PREFIX}/MacOS")
 endif()
 
 include(CPack)
+
 
 install(CODE "
   set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
@@ -838,6 +857,9 @@ install(CODE "
   set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
   set(VISIT_VERSION ${VISIT_VERSION})
   set(CDAT_BUILD_PARAVIEW ${CDAT_BUILD_PARAVIEW})
+  set(SETUP_EXECUTABLE_PATHS \"${SETUP_EXECUTABLE_PATHS}\")
+  set(SETUP_PYTHON_PATHS \"${SETUP_PYTHON_PATHS}\")
+  set(SETUP_LIBRARY_PATHS \"${SETUP_LIBRARY_PATHS}\")
 
   file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
@@ -850,69 +872,129 @@ install(CODE "
   set (resolved_programs \"\")
   foreach (program \${programs})
     get_filename_component(res_program \"\${program}\" REALPATH)
-    list (APPEND resolved_programs \"\${res_program}\")
+    set (regex_match \"\")
+    # Do not install uuid as its dependencies are not resolved when using
+    # RPMBuild
+    file (STRINGS \"\${res_program}\" regex_match REGEX \"uuid\")
+    if (\"\${regex_match}\" STREQUAL \"\")
+      file (STRINGS \"\${res_program}\" regex_match REGEX \"#!${CMAKE_INSTALL_PREFIX}\")
+      if (\"\${regex_match}\" STREQUAL \"\")
+        list (APPEND resolved_programs \"\${res_program}\")
+      endif ()
+    endif ()
   endforeach()
+  
 
-  file(INSTALL FILES \${resolved_programs} DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+  file(INSTALL FILES \${resolved_programs} DESTINATION
+    \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
        PERMISSIONS USE_SOURCE_PERMISSIONS
   )
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/images\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/images\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Externals\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Externals\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX}
-         PERMISSIONS USE_SOURCE_PERMISSIONS
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+      PERMISSIONS USE_SOURCE_PERMISSIONS
+      REGEX \"uuid\" EXCLUDE
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/include\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/include\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/lib\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/lib\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_LIB_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  # Patch cgi.py to look for installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\")
+    file (READ \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\" CGI_FILE)
+    SET (SEARCH_REGEX \"\\\#! /usr/local/bin/python\")
+    SET (REPLACEMENT_TEXT \"#! /usr/bin/env python\")
+    STRING (REGEX REPLACE \"\${SEARCH_REGEX}\" \"\${REPLACEMENT_TEXT}\"
+      MODIFIED_FILE \"\${CGI_FILE}\")
+    file (WRITE \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/lib/python2.7/cgi.py\"
+      \"\${MODIFIED_FILE}\")
+  endif ()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/share\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/share\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/share DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/wrappers\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/wrappers\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/wrappers DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/man\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/man\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Library\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Library\")
-    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION ${CPACK_DESTINATION_PREFIX}
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION
+      \"\${CMAKE_INSTALL_PREFIX}\"
          PERMISSIONS USE_SOURCE_PERMISSIONS
     )
   endif()
+  
+  file(INSTALL FILES ${cdat_BINARY_DIR}/build_info.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/info)
 
   # Unset QT_LIB_DIR as we need to use the one in user's environment
   # We need to keep in ming that we might need to build Qt on some systems
   # (e.g. RH6) in which case this might break something
   set(QT_LIB_DIR)
+
+  # Configure the environment setup script to point to the installation
+  # Creating a temporary file that will be installed.
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
+    \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh\"
     @ONLY
   )
+
+  # Finally, create a symlink for python to point to point to installed python
+  if (EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      AND
+      NOT EXISTS \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\")
+    execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python2.7\"
+      \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${CPACK_DESTINATION_BIN_PREFIX}/python\"
+      )
+  endif ()
 
   if (APPLE)
     configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
@@ -952,3 +1034,4 @@ install(CODE "
 
   COMPONENT superbuild
 )
+

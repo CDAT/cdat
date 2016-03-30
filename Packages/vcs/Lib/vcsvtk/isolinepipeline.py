@@ -10,8 +10,8 @@ class IsolinePipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS isoline plots."""
 
-    def __init__(self, context_):
-        super(IsolinePipeline, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IsolinePipeline, self).__init__(gm, context_)
 
     def _updateVTKDataSet(self):
         """Overrides baseclass implementation."""
@@ -21,6 +21,7 @@ class IsolinePipeline(Pipeline2D):
                                               grid=self._vtkDataSet,
                                               geo=self._vtkGeoTransform)
         genGridDict["cellData"] = False
+        self._data1 = genGridDict["data"]
         self._updateFromGenGridDict(genGridDict)
 
         data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
@@ -64,153 +65,269 @@ class IsolinePipeline(Pipeline2D):
 
     def _plotInternal(self):
         """Overrides baseclass implementation."""
-        numLevels = len(self._contourLevels)
+        tmpLevels = []
+        tmpColors = []
+        tmpLineWidths = []
+        tmpLineStyles = []
 
-        cot = vtk.vtkContourFilter()
-        if self._useCellScalars:
-            cot.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
-        else:
-            cot.SetInputData(self._vtkDataSet)
-        cot.SetNumberOfContours(numLevels)
+        linewidth = self._gm.linewidths
+        linestyle = self._gm.line
 
-        if self._contourLevels[0] == 1.e20:
-            self._contourLevels[0] = -1.e20
-        for i in range(numLevels):
-            cot.SetValue(i, self._contourLevels[i])
-        cot.SetValue(numLevels, self._contourLevels[-1])
-        # TODO remove update
-        cot.Update()
+        if len(linewidth) < len(self._contourLevels):
+            # fill up the line width values
+            linewidth += [1.0] * (len(self._contourLevels) - len(linewidth))
 
+        if len(linestyle) < len(self._contourLevels):
+            # fill up the line style values
+            linestyle += ['solid'] * (len(self._contourLevels) - len(linestyle))
+
+        plotting_dataset_bounds = self.getPlottingBounds()
+        x1, x2, y1, y2 = plotting_dataset_bounds
+
+        for i, l in enumerate(self._contourLevels):
+            if i == 0:
+                W = linewidth[i]
+                S = linestyle[i]
+                C = [self._contourColors[i]]
+                if l == 1.e20:
+                    L = [-1.e20]
+                else:
+                    L = [l]
+            else:
+                if W == linewidth[i] and S == linestyle[i]:
+                    # Ok same style and width, lets keep going
+                    L.append(l)
+                    if i >= len(self._contourColors):
+                        C.append(self._contourColors[-1])
+                    else:
+                        C.append(self._contourColors[i])
+                else:
+                    tmpLevels.append(L)
+                    tmpColors.append(C)
+                    tmpLineWidths.append(W)
+                    tmpLineStyles.append(S)
+                    L = [l]
+                    if i >= len(self._contourColors):
+                        C = [self._contourColors[-1]]
+                    else:
+                        C = [self._contourColors[i]]
+                    W = linewidth[i]
+                    S = linestyle[i]
+
+        tmpLevels.append(L)
+        tmpColors.append(C)
+        tmpLineWidths.append(W)
+        tmpLineStyles.append(S)
+
+        cots = []
+        textprops = []
+        luts = []
+
+        actors = []
         mappers = []
 
-        lut = vtk.vtkLookupTable()
-        lut.SetNumberOfTableValues(len(self._contourColors))
-        cmap = self._context().canvas.getcolormapname()
-        cmap = vcs.elements["colormap"][cmap]
-        for i, col in enumerate(self._contourColors):
-            r, g, b = cmap.index[col]
-            lut.SetTableValue(i, r / 100., g / 100., b / 100.)
+        if self._gm.label and (self._gm.text or self._gm.textcolors):
+            # Text objects:
+            if self._gm.text:
+                texts = self._gm.text
+                while len(texts) < len(self._contourLevels):
+                    texts.append(texts[-1])
+            else:
+                texts = [None] * len(self._contourLevels)
 
-        # Setup isoline labels
-        if self._gm.label:
-            # Setup label mapping array:
-            tpropMap = vtk.vtkDoubleArray()
-            tpropMap.SetNumberOfComponents(1)
-            tpropMap.SetNumberOfTuples(numLevels)
-            for i, val in enumerate(self._contourLevels):
-                tpropMap.SetTuple(i, [val])
+            # Custom colors:
+            if self._gm.textcolors:
+                colorOverrides = self._gm.textcolors
+                while len(colorOverrides) < len(self._contourLevels):
+                    colorOverrides.append(colorOverrides[-1])
+            else:
+                colorOverrides = [None] * len(self._gm.text)
 
-            # Prep text properties:
-            tprops = vtk.vtkTextPropertyCollection()
-            if self._gm.text or self._gm.textcolors:
-                # Text objects:
-                if self._gm.text:
-                    texts = self._gm.text
-                    while len(texts) < numLevels:
-                        texts.append(texts[-1])
-                else:
-                    texts = [None] * len(self._gm.textcolors)
+            # Custom background colors and opacities:
+            backgroundColors = self._gm.labelbackgroundcolors
+            if backgroundColors:
+                while len(backgroundColors) < len(self._contourLevels):
+                    backgroundColors.append(backgroundColors[-1])
+            backgroundOpacities = self._gm.labelbackgroundopacities
+            if backgroundOpacities:
+                while len(backgroundOpacities) < len(self._contourLevels):
+                    backgroundOpacities.append(backgroundOpacities[-1])
 
-                # Custom colors:
-                if self._gm.textcolors:
-                    colorOverrides = self._gm.textcolors
-                    while len(colorOverrides) < numLevels:
-                        colorOverrides.append(colorOverrides[-1])
-                else:
-                    colorOverrides = [None] * len(self._gm.text)
+        countLevels = 0
+        vp = [self._template.data.x1, self._template.data.x2,
+              self._template.data.y1, self._template.data.y2]
+        dataset_renderer = None
+        xScale, yScale = (1, 1)
+        for i, l in enumerate(tmpLevels):
+            numLevels = len(l)
 
-                for tc, colorOverride in zip(texts, colorOverrides):
-                    if vcs.queries.istextcombined(tc):
-                        tt, to = tuple(tc.name.split(":::"))
-                    elif tc is None:
-                        tt = "default"
-                        to = "default"
-                    elif vcs.queries.istexttable(tc):
-                        tt = tc.name
-                        to = "default"
-                    elif vcs.queries.istextorientation(tc):
-                        to = tc.name
-                        tt = "default"
-                    if colorOverride is not None:
-                        tt = vcs.createtexttable(None, tt)
-                        tt.color = colorOverride
-                        tt = tt.name
+            cot = vtk.vtkContourFilter()
+            if self._useCellScalars:
+                cot.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
+            else:
+                cot.SetInputData(self._vtkDataSet)
+            cot.SetNumberOfContours(numLevels)
+
+            for n in range(numLevels):
+                cot.SetValue(n, l[n])
+            cot.SetValue(numLevels, l[-1])
+            # TODO remove update
+            cot.Update()
+
+            lut = vtk.vtkLookupTable()
+            lut.SetNumberOfTableValues(len(tmpColors[i]))
+            cmap = self.getColorMap()
+            for n, col in enumerate(tmpColors[i]):
+                r, g, b, a = self.getColorIndexOrRGBA(cmap, col)
+                lut.SetTableValue(n, r / 100., g / 100., b / 100., a / 100.)
+
+            # Setup isoline labels
+            if self._gm.label:
+                # Setup label mapping array:
+                tpropMap = vtk.vtkDoubleArray()
+                tpropMap.SetNumberOfComponents(1)
+                tpropMap.SetNumberOfTuples(numLevels)
+                for n, val in enumerate(l):
+                    tpropMap.SetTuple(n, [val])
+
+                # Prep text properties:
+                tprops = vtk.vtkTextPropertyCollection()
+                if self._gm.text or self._gm.textcolors:
+                    ttexts = texts[countLevels:(countLevels + len(l))]
+
+                    for idx, tc in enumerate(ttexts):
+                        if vcs.queries.istextcombined(tc):
+                            tt, to = tuple(tc.name.split(":::"))
+                        elif tc is None:
+                            tt = "default"
+                            to = "default"
+                        elif vcs.queries.istexttable(tc):
+                            tt = tc.name
+                            to = "default"
+                        elif vcs.queries.istextorientation(tc):
+                            to = tc.name
+                            tt = "default"
+                        elif isinstance(tc, (str, unicode)):
+                            sp = tc.split(":::")
+                            if len(sp) == 2:
+                                tt = sp[0]
+                                to = sp[1]
+                            else:  # Hum don't know what do do with this
+                                if sp[0] in vcs.listelements("textcombined"):
+                                    tc = vcs.gettextcombined(tc)
+                                    tt, to = tuple(tc.name.split(":::"))
+                                elif sp[0] in vcs.listelements("textorientation"):
+                                    to = sp[0]
+                                    tt = "default"
+                                elif sp[0] in vcs.listelements("texttable"):
+                                    tt = sp[0]
+                                    to = "default"
+
+                        colorOverride = colorOverrides[countLevels + idx]
+                        if colorOverride is not None:
+                            tt = vcs.createtexttable(None, tt)
+                            tt.color = colorOverride
+                            tt = tt.name
+                        if backgroundColors is not None:
+                            texttbl = vcs.gettexttable(tt)
+                            texttbl.backgroundcolor = backgroundColors[countLevels + idx]
+                        if backgroundOpacities is not None:
+                            texttbl = vcs.gettexttable(tt)
+                            texttbl.backgroundopacity = backgroundOpacities[countLevels + idx]
+                        tprop = vtk.vtkTextProperty()
+                        vcs2vtk.prepTextProperty(tprop,
+                                                 self._context().renWin.GetSize(),
+                                                 to, tt, cmap=cmap)
+                        tprops.AddItem(tprop)
+                        if colorOverride is not None:
+                            del(vcs.elements["texttable"][tt])
+                else:  # No text properties specified. Use the default:
                     tprop = vtk.vtkTextProperty()
                     vcs2vtk.prepTextProperty(tprop,
                                              self._context().renWin.GetSize(),
-                                             to, tt)
+                                             cmap=cmap)
                     tprops.AddItem(tprop)
-                    if colorOverride is not None:
-                        del(vcs.elements["texttable"][tt])
-            else:  # No text properties specified. Use the default:
-                tprop = vtk.vtkTextProperty()
-                vcs2vtk.prepTextProperty(tprop,
-                                         self._context().renWin.GetSize())
-                tprops.AddItem(tprop)
-            self._resultDict["vtk_backend_contours_labels_text_properties"] = \
-                tprops
+                textprops.append(tprops)
 
-            mapper = vtk.vtkLabeledContourMapper()
-            mapper.SetTextProperties(tprops)
-            mapper.SetTextPropertyMapping(tpropMap)
-            mapper.SetLabelVisibility(1)
-            mapper.SetSkipDistance(self._gm.labelskipdistance)
+                mapper = vtk.vtkLabeledContourMapper()
+                mapper.SetTextProperties(tprops)
+                mapper.SetTextPropertyMapping(tpropMap)
+                mapper.SetLabelVisibility(1)
+                mapper.SetSkipDistance(self._gm.labelskipdistance)
 
-            pdMapper = mapper.GetPolyDataMapper()
+                pdMapper = mapper.GetPolyDataMapper()
 
-            self._resultDict["vtk_backend_labeled_luts"] = [
-                [lut,
-                 [self._contourLevels[0], self._contourLevels[-1], False]]]
-        else:  # No isoline labels:
-            mapper = vtk.vtkPolyDataMapper()
-            pdMapper = mapper
-            self._resultDict["vtk_backend_luts"] = \
-                [[lut, [self._contourLevels[0],
-                        self._contourLevels[-1], False]]]
-        pdMapper.SetLookupTable(lut)
-        pdMapper.SetScalarRange(self._contourLevels[0],
-                                self._contourLevels[-1])
-        pdMapper.SetScalarModeToUsePointData()
+                luts.append([lut, [l[0], l[-1], False]])
+            else:  # No isoline labels:
+                mapper = vtk.vtkPolyDataMapper()
+                pdMapper = mapper
+                luts.append([lut, [l[0], l[-1], False]])
+            pdMapper.SetLookupTable(lut)
+            pdMapper.SetScalarRange(l[0], l[-1])
+            pdMapper.SetScalarModeToUsePointData()
 
-        stripper = vtk.vtkStripper()
-        stripper.SetInputConnection(cot.GetOutputPort())
-        mapper.SetInputConnection(stripper.GetOutputPort())
-        # TODO remove update, make pipeline
-        stripper.Update()
-        mappers.append(mapper)
-        self._resultDict["vtk_backend_contours"] = [cot]
+            stripper = vtk.vtkStripper()
+            stripper.SetInputConnection(cot.GetOutputPort())
+            mapper.SetInputConnection(stripper.GetOutputPort())
+            # TODO remove update, make pipeline
+            stripper.Update()
+            mappers.append(mapper)
+            cots.append(cot)
 
-        if self._maskedDataMapper is not None:
-            mappers.insert(0, self._maskedDataMapper)
-
-        x1, x2, y1, y2 = vcs.utils.getworldcoordinates(self._gm,
-                                                       self._data1.getAxis(-1),
-                                                       self._data1.getAxis(-2))
-
-        # And now we need actors to actually render this thing
-        actors = []
-        for mapper in mappers:
+            # Create actor to add to scene
             act = vtk.vtkActor()
             act.SetMapper(mapper)
+            # Set line properties here
+            p = act.GetProperty()
+            p.SetLineWidth(tmpLineWidths[i])
+            vcs2vtk.stippleLine(p, tmpLineStyles[i])
 
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not
                 # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, [x1, x2, y1, y2],
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
-
-            # TODO See comment in boxfill.
-            if mapper is self._maskedDataMapper:
-                actors.append([act, self._maskedDataMapper, [x1, x2, y1, y2]])
-            else:
-                actors.append([act, [x1, x2, y1, y2]])
+            actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            self._context().fitToViewport(
-                act, [self._template.data.x1, self._template.data.x2,
-                      self._template.data.y1, self._template.data.y2],
-                wc=[x1, x2, y1, y2], geo=self._vtkGeoTransform,
+            dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=(dataset_renderer is None))
+
+            countLevels += len(l)
+        self._resultDict['dataset_renderer'] = dataset_renderer
+        self._resultDict['dataset_scale'] = (xScale, yScale)
+        if len(textprops) > 0:
+            self._resultDict["vtk_backend_contours_labels_text_properties"] = \
+                textprops
+        if len(luts) > 0:
+            if self._gm.label:
+                self._resultDict["vtk_backend_labeled_luts"] = luts
+            else:
+                self._resultDict["vtk_backend_luts"] = luts
+        if len(cots) > 0:
+            self._resultDict["vtk_backend_contours"] = cots
+
+        if self._maskedDataMapper is not None:
+            mappers.insert(0, self._maskedDataMapper)
+            act = vtk.vtkActor()
+            act.SetMapper(self._maskedDataMapper)
+            if self._vtkGeoTransform is None:
+                # If using geofilter on wireframed does not get wrppaed not
+                # sure why so sticking to many mappers
+                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
+                                     self._dataWrapModulo)
+            actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
+            # create a new renderer for this mapper
+            # (we need one for each mapper because of cmaera flips)
+            self._context().fitToViewportBounds(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=True)
 
@@ -222,14 +339,22 @@ class IsolinePipeline(Pipeline2D):
         else:
             z = None
 
-        self._resultDict.update(self._context().renderTemplate(self._template,
-                                                               self._data1,
-                                                               self._gm, t, z))
+        self._resultDict.update(self._context().renderTemplate(
+            self._template,
+            self._data1,
+            self._gm, t, z,
+            vtk_backend_grid=self._vtkDataSet,
+            dataset_bounds=self._vtkDataSetBounds,
+            plotting_dataset_bounds=plotting_dataset_bounds))
 
         if self._context().canvas._continents is None:
             self._useContinents = False
         if self._useContinents:
             projection = vcs.elements["projection"][self._gm.projection]
-            self._context().plotContinents(x1, x2, y1, y2, projection,
-                                           self._dataWrapModulo,
-                                           self._template)
+            continents_renderer, xScale, yScale = self._context().plotContinents(
+                plotting_dataset_bounds, projection,
+                self._dataWrapModulo,
+                vp, self._template.data.priority,
+                vtk_backend_grid=self._vtkDataSet,
+                dataset_bounds=self._vtkDataSetBounds)
+            self._resultDict['continents_renderer'] = continents_renderer

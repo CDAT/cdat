@@ -44,7 +44,7 @@ def matchVcsColor(r, g, b, colormap="default"):
     color = None
     cmap = vcs.elements["colormap"][colormap]
     for i in range(256):
-        r2, g2, b2 = cmap.index[i]
+        r2, g2, b2 = cmap.index[i][:3]
         rms = numpy.sqrt((r2 - r) ** 2 + (g2 - g) ** 2 + (b2 - b) ** 2)
         if rms < rmsmin:
             rmsmin = rms
@@ -85,6 +85,51 @@ def checkElements(self, name, value, function):
                      value[i]),
                     err))
     return value
+
+
+def checkContinents(self, value):
+    import os
+    nms = [
+        "fine",
+        "coarse",
+        "states",
+        "political",
+        "river",
+        "other7"]
+    path = None
+    if isinstance(value, int):
+        if value == 0:
+            path = None
+        elif 0 < value < 7:
+            path = os.path.join(
+                os.environ.get("HOME", ""),
+                os.environ.get(vcs.getdotdirectory()[1],
+                               vcs.getdotdirectory()[0]),
+                "data_continent_%s" % nms[value - 1])
+
+            if not os.path.exists(path):
+                    # fallback on installed with system one
+                path = os.path.join(
+                    vcs.prefix,
+                    "share",
+                    "vcs",
+                    "data_continent_%s" % nms[
+                        value - 1])
+        else:
+            path = os.path.join(os.environ.get("HOME", ""),
+                                os.environ.get(vcs.getdotdirectory()[1],
+                                               vcs.getdotdirectory()[0]),
+                                "data_continent_other%d" % value)
+            if not os.path.exists(path):
+                raise ValueError("Couldn't find continents file at %s" % path)
+    elif isinstance(value, (str, unicode)):
+        if os.path.exists(os.path.expanduser(value)):
+            path = value
+        else:
+            raise ValueError("Could not find continent file at %s" % value)
+    else:
+        raise ValueError("Continents should be a path to a file or an index.")
+    return path
 
 
 def checkContType(self, name, value):
@@ -676,10 +721,23 @@ def checkColor(self, name, value, NoneOk=False):
     if isinstance(value, unicode):
         value = str(value)
     if isinstance(value, str):
-        value = color2vcs(value)
+        # Ok it is a string let's see if that is a valid color name
+        r, g, b = vcs.str2rgb(value)
+        if r is None:  # ok not a valid color
+            checkedRaise(self, value, ValueError,
+                         'Invalid color name: %s' % value)
+        return r / 2.55, g / 2.55, b / 2.55, 100.
     if value is None and NoneOk:
         return value
     if isinstance(value, int) and value in range(0, 256):
+        return value
+    elif isinstance(value, (list, tuple)):  # for r,g,b,a tuples
+        value = checkListOfNumbers(self, name, value,
+                                   minvalue=0, maxvalue=100.,
+                                   minelements=3,
+                                   maxelements=4)
+        if len(value) == 3:
+            value.append(100.)
         return value
     else:
         checkedRaise(
@@ -688,15 +746,23 @@ def checkColor(self, name, value, NoneOk=False):
             ValueError,
             'The ' +
             name +
-            ' attribute must be an integer value within the range 0 to 255.')
+            ' attribute must be an integer value within the range 0 to 255.' +
+            'a color name or an (r,g,b,[a]) tuple/list)')
 
 
 def checkColorList(self, name, value):
     checkName(self, name, value)
     value = checkListTuple(self, name, value)
+    returned_values = []
     for v in value:
-        checkColor(self, name + '_list_value', v, NoneOk=True)
-    return value
+        returned_values.append(
+            checkColor(
+                self,
+                name +
+                '_list_value',
+                v,
+                NoneOk=True))
+    return returned_values
 
 
 def checkIsolineLevels(self, name, value):
@@ -746,7 +812,9 @@ def checkIndicesList(self, name, value):
 
 def checkOpacity(self, name, value):
     checkName(self, name, value)
-    if isinstance(value, int) and value in range(0, 101):
+    if value is None:  # not overwritten by user
+        return value
+    if 0. <= value <= 100.:
         return value
     else:
         checkedRaise(
@@ -822,6 +890,10 @@ def checkLineType(self, name, value):
         hvalue = 'long-dash'
     elif (queries.isline(value) == 1):
         hvalue = value.name
+    elif value in vcs.elements["line"]:
+        self.linecolor = vcs.elements["line"][value].color[0]
+        self.linewidth = vcs.elements["line"][value].width[0]
+        hvalue = vcs.elements["line"][value].type[0]
     else:
         checkedRaise(
             self,
@@ -839,9 +911,28 @@ def checkLinesList(self, name, value):
         value = list(value)
     value = checkListTuple(self, name, value)
     hvalue = []
-    for v in value:
-        hvalue.append(checkLineType(self, name, v))
-    return hvalue
+    cvalues = []
+    wvalues = []
+    for i, v in enumerate(value):
+        if v not in ["solid", "dash", "dot", "dash-dot",
+                     "long-dash"] and v in vcs.elements["line"]:
+            l = vcs.elements["line"][v]
+            hvalue.append(l.type[0])
+            cvalues.append(l.color[0])
+            wvalues.append(l.width[0])
+        else:
+            hvalue.append(checkLineType(self, name, v))
+            if hasattr(self, "linewidths"):
+                if len(self.linewidths) > i:
+                    wvalues.append(self.linewidths[i])
+                else:
+                    wvalues.append(1.)
+            if hasattr(self, "linecolors"):
+                if len(self.linecolors) > i:
+                    cvalues.append(self.linecolors[i])
+                else:
+                    cvalues.append(1)
+    return hvalue, cvalues, wvalues
 
 
 def checkTextTable(self, name, value):
@@ -889,7 +980,7 @@ def checkTextOrientation(self, name, value):
     return value
 
 
-def checkTextsList(self, name, value):
+def checkTextsList(self, name, value, storeName=False):
     import queries
     checkName(self, name, value)
     if isinstance(value, int):
@@ -907,11 +998,20 @@ def checkTextsList(self, name, value):
             hvalue.append(v)
         elif isinstance(v, str):
             if v in vcs.listelements("textcombined"):
-                hvalue.append(vcs.gettextcombined(v))
+                if storeName:
+                    hvalue.append(vcs.gettextcombined(v).name)
+                else:
+                    hvalue.append(vcs.gettextcombined(v))
             elif v in vcs.listelements("texttable"):
-                hvalue.append(vcs.gettexttable(v))
+                if storeName:
+                    hvalue.append(vcs.gettexttable(v).name)
+                else:
+                    hvalue.append(vcs.gettexttable(v))
             elif v in vcs.listelements("textorientation"):
-                hvalue.append(vcs.gettextorientation(v))
+                if storeName:
+                    hvalue.append(vcs.gettextorientation(v).name)
+                else:
+                    hvalue.append(vcs.gettextorientation(v))
             else:
                 checkedRaise(
                     self,
@@ -1814,22 +1914,22 @@ def _setprojection(self, value):
     self._projection = value
 projection = property(_getprojection, _setprojection)
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_1                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the left of the    #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the left of the    #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_1(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                     legend or 'y' to show the triangle on the triangle        #
-#                                                                               #
-##########################################################################
+# add_level_ext_1(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle        #
+#
+#
 
 
 def add_level_ext_1(self, ext_value):
@@ -1870,22 +1970,22 @@ def add_level_ext_1(self, ext_value):
             self.levels = ret_tup
             return self.levels
 
-##########################################################################
-#                                                                               #
+#
+#
 # Function:     add_level_ext_2                                                 #
-#                                                                               #
+#
 # Description of Function:                                                      #
-#       Private function that adds the extension triangle to the right of the   #
-#       legend on the plot                                                      #
-#                                                                               #
-#                                                                               #
+# Private function that adds the extension triangle to the right of the   #
+# legend on the plot                                                      #
+#
+#
 # Example of Use:                                                               #
-#      add_level_ext_2(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfm)                             #
-#                     ext_value is either 'n' to remove the triangle on the     #
-#                       legend or 'y' to show the triangle on the triangle      #
-#                                                                               #
-##########################################################################
+# add_level_ext_2(self, ext_value)                                         #
+# where: self is the class (e.g., Gfm)                             #
+# ext_value is either 'n' to remove the triangle on the     #
+# legend or 'y' to show the triangle on the triangle      #
+#
+#
 
 
 def add_level_ext_2(self, ext_value):
@@ -1972,3 +2072,31 @@ def _setvp(self, value):
         maxvalue=1.)
     self._viewport = value
 viewport = property(_getvp, _setvp)
+
+
+def _getfillareaopacity(self):
+    return self._fillareaopacity
+
+
+def _setfillareaopacity(self, value):
+    if value is not None:
+        value = checkOpacitiesList(
+            self,
+            'fillareaopacity',
+            value)
+        self._fillareaopacity = value
+fillareaopacity = property(_getfillareaopacity, _setfillareaopacity)
+
+
+def _getfillareacolors(self):
+    return self._fillareacolors
+
+
+def _setfillareacolors(self, value):
+    if value is not None:
+        value = checkColorList(
+            self,
+            'fillareacolors',
+            value)
+    self._fillareacolors = value
+fillareacolors = property(_getfillareacolors, _setfillareacolors)

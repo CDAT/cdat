@@ -246,6 +246,7 @@ calendarMap = tagToCalendar
 reverseCalendarMap = calendarToTag
 
 attrPattern = re.compile(r'\s*(\w*)\.(\w+)\s*=\s*(.*)$')
+cdms2.setNetcdfUseParallelFlag(0)
 def timestamp():
     "Generate a timestamp."
     import time
@@ -1678,3 +1679,10 @@ def main(argv):
 #--------------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     main(sys.argv)
+    try:
+        from mpi4py import MPI
+        comm = MPI.Comm.Get_parent()
+        comm.send('done', dest=0)
+    except:
+        pass
+        

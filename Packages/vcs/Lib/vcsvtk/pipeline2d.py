@@ -2,6 +2,9 @@ from .pipeline import Pipeline
 from .. import vcs2vtk
 
 import vcs
+import numpy
+import fillareautils
+import warnings
 
 
 class IPipeline2D(Pipeline):
@@ -30,10 +33,11 @@ class IPipeline2D(Pipeline):
         - _contourLevels: List of contour levels.
         - _contourColors: List of contour colors.
         - _vtkDataSet: The vtkDataSet object with _trimmedData[1|2] set as
-            point or cell scalars.
+            point or cell scalars. The datset is already transformed through
+            the geographic projection if there is one.
         - _vtkGeoTransform: The vtkGeoTransform object associated with this
             pipeline.
-        - _vtkDataSetBounds: The bounds of _vtkDataSet as
+        - _vtkDataSetBounds: The bounds of _vtkDataSet, in lon/lat space, as
             tuple(float xMin, float xMax, float yMin, float yMax)
         - _vtkPolyDataFilter: A vtkAlgorithm that produces a polydata
             representation of the data.
@@ -47,8 +51,8 @@ class IPipeline2D(Pipeline):
         - _maskedDataMapper: The mapper used to render masked data.
     """
 
-    def __init__(self, context_):
-        super(IPipeline2D, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(IPipeline2D, self).__init__(gm, context_)
 
         # TODO This should be replaced by getters that retrieve the info
         # needed, or document the members of the map somewhere. Much of this
@@ -57,7 +61,6 @@ class IPipeline2D(Pipeline):
         # reexecute visualization operations.
         self._resultDict = None
 
-        self._gm = None
         self._template = None
         self._originalData1 = None
         self._originalData2 = None
@@ -90,6 +93,46 @@ class IPipeline2D(Pipeline):
         """
         raise NotImplementedError("Missing override.")
 
+    def _updateContourLevelsAndColorsGeneric(self):
+        # Contour values:
+        self._contourLevels = self._gm.levels
+        if numpy.allclose(self._contourLevels[0], [0., 1.e20]) or \
+                numpy.allclose(self._contourLevels, 1.e20):
+            levs2 = vcs.mkscale(self._scalarRange[0],
+                                self._scalarRange[1])
+            if len(levs2) == 1:  # constant value ?
+                levs2 = [levs2[0], levs2[0] + .00001]
+            self._contourLevels = []
+            if self._gm.ext_1:
+                # user wants arrow at the end
+                levs2[0] = -1.e20
+            if self._gm.ext_2:
+                # user wants arrow at the end
+                levs2[-1] = 1.e20
+            for i in range(len(levs2) - 1):
+                self._contourLevels.append([levs2[i], levs2[i + 1]])
+        else:
+            if not isinstance(self._gm.levels[0], (list, tuple)):
+                self._contourLevels = []
+                levs2 = self._gm.levels
+                if numpy.allclose(levs2[0], 1.e20):
+                    levs2[0] = -1.e20
+                for i in range(len(levs2) - 1):
+                    self._contourLevels.append([levs2[i], levs2[i + 1]])
+            else:
+                levs2 = self._gm.levels
+
+        if isinstance(self._contourLevels, numpy.ndarray):
+            self._contourLevels = self._contourLevels.tolist()
+
+        # Figure out colors
+        self._contourColors = self._gm.fillareacolors
+        if self._contourColors == [1] or self._contourColors is None:
+            # TODO BUG It's possible that levs2 may not exist here...
+            self._contourColors = vcs.getcolors(levs2, split=0)
+            if isinstance(self._contourColors, (int, float)):
+                self._contourColors = [self._contourColors]
+
     def _updateContourLevelsAndColors(self):
         """This method prepares the _contourLevels and _contourColors variables.
         """
@@ -115,22 +158,117 @@ class Pipeline2D(IPipeline2D):
 
     """Common VTK pipeline functionality for 2D VCS plot."""
 
-    def __init__(self, context_):
-        super(Pipeline2D, self).__init__(context_)
+    def __init__(self, gm, context_):
+        super(Pipeline2D, self).__init__(gm, context_)
 
-    def plot(self, data1, data2, tmpl, gm, grid, transform):
+    def _patternCreation(self, vtkFilter, color, style, index, opacity):
+        """ Creates pattern things """
+        c = [val * 255 / 100.0 for val in color]
+        if opacity is None:
+            opacity = c[-1]
+        else:
+            opacity = opacity * 255 / 100.
+        act = fillareautils.make_patterned_polydata(vtkFilter.GetOutput(),
+                                                    fillareastyle=style,
+                                                    fillareaindex=index,
+                                                    fillareacolors=c,
+                                                    fillareaopacity=opacity)
+        if act is not None:
+            self._patternActors.append(act)
+        return
+
+    def _prepContours(self):
+        """ Prep contours bands"""
+        tmpLevels = []
+        tmpColors = []
+        tmpIndices = []
+        tmpOpacities = []
+
+        indices = self._gm.fillareaindices
+        opacities = self._gm.fillareaopacity
+        style = self._gm.fillareastyle
+
+        if indices is None:
+            indices = [1]
+        while len(indices) < len(self._contourColors):
+            indices.append(indices[-1])
+        if len(self._contourLevels) > len(self._contourColors):
+            raise RuntimeError(
+                "You asked for %i levels but provided only %i colors\n"
+                "Graphic Method: %s of type %s\nLevels: %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name,
+                   repr(self._contourLevels)))
+        elif len(self._contourLevels) < len(self._contourColors) - 1:
+            warnings.warn(
+                "You asked for %i lgridevels but provided %i colors, "
+                "extra ones will be ignored\nGraphic Method: %s of type %s"
+                % (len(self._contourLevels), len(self._contourColors),
+                   self._gm.name, self._gm.g_name))
+        if len(opacities) < len(self._contourColors):
+            # fill up the opacity values
+            opacities += [None] * (len(self._contourColors) - len(opacities))
+
+        # The following loop attempts to group isosurfaces based on their
+        # attributes. Isosurfaces grouped if and only if all properties match.
+        for i, l in enumerate(self._contourLevels):
+            if i == 0:
+                C = [self._contourColors[i]]
+                if style == "pattern":
+                    C = [241]
+                if numpy.allclose(self._contourLevels[0][0], -1.e20):
+                    # ok it's an extension arrow
+                    L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]
+                else:
+                    L = list(self._contourLevels[i])
+                I = indices[i]
+                O = opacities[i]
+            else:
+                if l[0] == L[-1] and\
+                        ((style == 'solid') or
+                            (I == indices[i] and C[-1] == self._contourColors[i] and
+                             O == opacities[i])):
+                    # Ok same type lets keep going
+                    if numpy.allclose(l[1], 1.e20):
+                        L.append(self._scalarRange[1] + 1.)
+                    else:
+                        L.append(l[1])
+                    C.append(self._contourColors[i])
+                    tmpOpacities.append(O)
+                    O = opacities[i]
+                else:  # ok we need new contouring
+                    tmpLevels.append(L)
+                    tmpColors.append(C)
+                    tmpIndices.append(I)
+                    tmpOpacities.append(O)
+                    C = [self._contourColors[i]]
+                    L = self._contourLevels[i]
+                    I = indices[i]
+                    O = opacities[i]
+        tmpLevels.append(L)
+        tmpColors.append(C)
+        tmpIndices.append(I)
+        tmpOpacities.append(O)
+
+        result = {
+            "tmpLevels": tmpLevels,
+            "tmpColors": tmpColors,
+            "tmpIndices": tmpIndices,
+            "tmpOpacities": tmpOpacities,
+        }
+
+        return result
+
+    def plot(self, data1, data2, tmpl, grid, transform):
         """Overrides baseclass implementation."""
         # Clear old results:
         self._resultDict = {}
 
-        self._gm = gm
         self._template = tmpl
         self._originalData1 = data1
         self._originalData2 = data2
         self._vtkDataSet = grid
         self._vtkGeoTransform = transform
-        self._colorMap = \
-            vcs.elements["colormap"][self._context().canvas.getcolormapname()]
 
         # Preprocess the input scalar data:
         self._updateScalarData()
@@ -143,6 +281,7 @@ class Pipeline2D(IPipeline2D):
         self._resultDict["vtk_backend_grid"] = self._vtkDataSet
         self._resultDict["vtk_backend_geo"] = self._vtkGeoTransform
         self._resultDict["vtk_backend_wrap"] = self._dataWrapModulo
+        self._resultDict["dataset_bounds"] = self._vtkDataSetBounds
 
         # Determine and format the contouring information:
         self._updateContourLevelsAndColors()
@@ -171,14 +310,9 @@ class Pipeline2D(IPipeline2D):
                                       deep=False,
                                       grid=self._vtkDataSet,
                                       geo=self._vtkGeoTransform)
-        self._updateFromGenGridDict(genGridDict)
 
-        data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
-        if self._useCellScalars:
-            self._vtkDataSet.GetCellData().SetScalars(data)
-        else:
-            self._vtkDataSet.GetPointData().SetScalars(data)
+        self._data1 = genGridDict["data"]
+        self._updateFromGenGridDict(genGridDict)
 
     def _updateFromGenGridDict(self, genGridDict):
         """Overrides baseclass implementation."""
@@ -193,11 +327,29 @@ class Pipeline2D(IPipeline2D):
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
         color = getattr(self._gm, "missing", None)
+        _colorMap = self.getColorMap()
         if color is not None:
-            color = self._colorMap.index[color]
+            color = self.getColorIndexOrRGBA(_colorMap, color)
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
             self._data1, self._vtkDataSet, color, self._useCellScalars,
             deep=False)
 
         self._resultDict["vtk_backend_missing_mapper"] = (
             self._maskedDataMapper, color, self._useCellScalars)
+
+    def getPlottingBounds(self):
+        """gm.datawc if it is set or dataset_bounds if there is not geographic projection
+           wrapped bounds otherwise
+        """
+        if (self._vtkGeoTransform):
+            return vcs2vtk.getWrappedBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._dataWrapModulo)
+        else:
+            return vcs2vtk.getPlottingBounds(
+                vcs.utils.getworldcoordinates(self._gm,
+                                              self._data1.getAxis(-1),
+                                              self._data1.getAxis(-2)),
+                self._vtkDataSetBounds, self._vtkGeoTransform)

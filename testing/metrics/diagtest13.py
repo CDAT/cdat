@@ -14,17 +14,17 @@ filterid = 'f_startswith'
 obsid = 'ISCCPCOSP'
 varid = 'CLISCCP'
 seasonid = 'ANN'
-modeldir = 'cam35_data'
-obsdir = 'obs_data_20140804'
+modeldir = 'cam35_data_smaller'
+obsdir = 'obs_data_13'
 dt = diags_test.DiagTest( modeldir, obsdir, plotset, filterid, obsid, varid, seasonid )
 
 # Test of graphics (png) file match:
 # This just looks at combined plot, aka summary plot, which is a compound of three plots.
-imagefilename = 'set13_Global_ANN_CLISCCP-combined.png'
-imagethreshold = 1.0e6
+imagefilename = 'figure-set13_Global_ANN_CLISCCP_plot-combined.png'
+imagethreshold = None
 ncfiles = {}
-ncfiles['CLISCCP_ANN_Global_(1)_None.nc'] = ['dv_CLISCCP_JFMAMJJASOND_ft0_None_None']
-ncfiles['CLISCCP_ANN_Global_(2)_None.nc'] = ['rv_CLISCCP_ANN_Global_ft1_None']
+ncfiles['CLISCCP_ANN_Global_(1)_cam35_data_smaller.nc'] = ['dv_CLISCCP_ANN_ft1_cam35_data_smaller']
+ncfiles['CLISCCP_ANN_Global_(2)_obs_data_13_ISCCPCOSP.nc'] = ['rv_CLISCCP_ANN_Global_ft2_obs_data_13_ISCCPCOSP']
 
 # Test of NetCDF data (nc) file match:
 rtol = 1.0e-3

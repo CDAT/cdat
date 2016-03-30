@@ -28,13 +28,14 @@ TAGS
 *.class
 *.pyc
 *.project
+*.cproject
 *.pydevproject
 *.egg
 *#*
 *.md5
 semantic.cache*
 generated/
-/build
+build/
 /dist
 /test-results
 Packages/cdms2/Test/test*fc*

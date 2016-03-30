@@ -44,6 +44,8 @@ def process_src(nm, code):
                 "boxfill_type",
                 "level_1", "level_2",
                 "color_1", "color_2",
+                "fillareastyle", "fillareaindices",
+                "fillareacolors", "fillareaopacity",
                 "legend",
                 "ext_1", "ext_2",
                 "missing",
@@ -114,37 +116,7 @@ def process_src(nm, code):
                 gm.datawc_y2,
                 gm.datawc_timeunits).tocomp(
                 gm.datawc_calendar)
-    irg = code.find("range")
-    if irg > -1:
-        lines = code[irg:].split("\n")
-        i = 0
-        levs = []
-        fac = []
-        fai = []
-        fas = []
-        badfa = True
-        for l in lines:
-            if l.find("(id=") > -1:
-                sp = lines[i].split(",")
-                levs.append([float(sp[1][7:]), float(sp[2][7:])])
-                fa = sp[-1][3:]
-                fa = fa[:fa.find(")")]
-                if fa not in vcs.elements["fillarea"].keys():
-                    badfa = True
-                    fai.append(fa)
-                else:
-                    fa = vcs.elements["fillarea"][fa]
-                    fac.append(fa.color[0])
-                    fai.append(fa.index[0])
-                    fas.append(fa.style[0])
-                i += 1
-        gm.levels = levs
-        if badfa:
-            gm._fillareaindices = fai
-        else:
-            gm.fillareacolor = fac
-            gm.fillareaindices = fai
-            gm.fillareastyle = fas[0]
+    vcs.utils.process_range_from_old_scr(code, gm)
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
@@ -158,16 +130,30 @@ class Gfb(object):
     """
     Options:::
     %s
-    boxfill_type :: (str) ('linear') type of boxfill legend linear/log10 (i.e using color_1/2 and level_1/2 as limits) or custom (similar to isofill method, using levels and colors to set intervals)
-    level_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10, sets the value of the legend's first level
-    level_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
-    color_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
-    color_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
-    levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) used in conjunction for boxfill_type custom, sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
-    fillareacolors :: (list) (None) used in conjunction for boxfill_type custom, colors to use for each level
-    legend :: ({float:str}) (None) used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with their associated string
-    ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
-    ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
+    boxfill_type :: (str) ('linear') type of boxfill legend linear/log10
+      (i.e using color_1/2 and level_1/2 as limits) or
+      custom (similar to isofill method, using levels and colors to set intervals)
+    level_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
+      sets the value of the legend's first level
+    level_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
+      sets the value of the legend's end level
+    color_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
+      sets the legend's color range first value
+    color_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
+      sets the legend's color range lasst value
+    levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) used in
+      conjunction for boxfill_type custom, sets the levels range to use, can be
+      either a list of contiguous levels, or list of tuples indicating, first
+      and last value of the range
+    fillareacolors :: (list) (None) used in conjunction for boxfill_type custom,
+      colors to use for each level
+    legend :: ({float:str}) (None) used in conjunction with boxfill_type
+      linear/log10, replaces the legend values in the dictionary keys with
+      their associated string
+    ext_1 :: (str) ('n') draws an extension arrow on right side
+      (values less than first range value)
+    ext_2 :: (str) ('n') draws an extension arrow on left side
+      (values greater than last range value)
     missing :: (int) (241) color to use for missing value or values not in defined ranges
    :::
  Class:	Gfb                       	# Boxfill
@@ -307,6 +293,7 @@ class Gfb(object):
         'fillareacolors',
         'fillareastyle',
         'fillareaindices',
+        'fillareaopacity',
         'ext_1',
         'ext_2',
         'missing',
@@ -339,6 +326,7 @@ class Gfb(object):
         '_fillareacolors',
         '_fillareastyle',
         '_fillareaindices',
+        '_fillareaopacity',
         '_ext_1',
         '_ext_2',
         '_missing',
@@ -408,7 +396,8 @@ class Gfb(object):
             self._ext_2 = False
             self._missing = 1
             self._fillareastyle = 'solid'
-            self._fillareaindices = None
+            self._fillareaindices = [1, ]
+            self._fillareaopacity = []
             self._fillareacolors = None
             self._levels = ([1.e20, 1.e20])
             self._level_1 = 1.e20
@@ -444,6 +433,7 @@ class Gfb(object):
             self._fillareastyle = src.fillareastyle
             self._fillareaindices = src.fillareaindices
             self._fillareacolors = src.fillareacolors
+            self._fillareaopacity = src.fillareaopacity
             self._levels = src.levels
             self._level_1 = src.level_1
             self._level_2 = src.level_2
@@ -529,17 +519,7 @@ class Gfb(object):
 
     levels = VCS_validation_functions.levels
 
-    def _getfillareacolors(self):
-        return self._fillareacolors
-
-    def _setfillareacolors(self, value):
-        if value is not None:
-            value = VCS_validation_functions.checkColorList(
-                self,
-                'fillareacolors',
-                value)
-        self._fillareacolors = value
-    fillareacolors = property(_getfillareacolors, _setfillareacolors)
+    fillareacolors = VCS_validation_functions.fillareacolors
 
     def _getfillareaindices(self):
         return self._fillareaindices
@@ -550,7 +530,7 @@ class Gfb(object):
                 self,
                 'fillareaindices',
                 value)
-        self._fillareaindices = value
+            self._fillareaindices = value
     fillareaindices = property(_getfillareaindices, _setfillareaindices)
 
     def _getfillareastyle(self):
@@ -563,6 +543,8 @@ class Gfb(object):
             value)
         self._fillareastyle = value
     fillareastyle = property(_getfillareastyle, _setfillareastyle)
+
+    fillareaopacity = VCS_validation_functions.fillareaopacity
 
     ext_1 = VCS_validation_functions.ext_1
     ext_2 = VCS_validation_functions.ext_2
@@ -632,7 +614,7 @@ class Gfb(object):
     def _setyticlabels1(self, value):
         value = VCS_validation_functions.checkTicks(self, 'yticlabels1', value)
         self._yticlabels1 = value
-    yticlabels1 = property(_getyticlabels1, _setyticlabels1, None, "haha")
+    yticlabels1 = property(_getyticlabels1, _setyticlabels1)
 
     def _getyticlabels2(self):
         return self._yticlabels2
@@ -788,12 +770,13 @@ class Gfb(object):
         print "color_1 = ", self.color_1
         print "color_2 = ", self.color_2
         print "fillareacolors = ", self.fillareacolors
+        print "fillareastyle = ", self.fillareastyle
+        print "fillareaindices = ", self.fillareaindices
+        print "fillareaopacity = ", self.fillareaopacity
         print "legend = ", self.legend
         print "ext_1 = ", self.ext_1
         print "ext_2 = ", self.ext_2
         print "missing = ", self.missing
-#        print "fillareastyle = ", self.fillareastyle
-#        print "fillareaindices = ", self.fillareaindices
     list.__doc__ = xmldocs.listdoc
     ###########################################################################
     #                                                                         #
@@ -941,6 +924,9 @@ class Gfb(object):
             fp.write(
                 "%s.fillareaindices = %s\n" %
                 (unique_name, self.fillareaindices))
+            fp.write(
+                "%s.fillareaopacity = %s\n" %
+                (unique_name, self.fillareaopacity))
             fp.write("%s.legend = %s\n" % (unique_name, self.legend))
             fp.write("%s.ext_1 = '%s'\n" % (unique_name, self.ext_1))
             fp.write("%s.ext_2 = '%s'\n" % (unique_name, self.ext_2))

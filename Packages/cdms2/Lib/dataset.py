@@ -29,6 +29,19 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 
+# Default is serial mode until setNetcdfUseParallelFlag(1) is called
+rk = 0
+sz = 1
+Cdunif.CdunifSetNCFLAGS("use_parallel",0)
+CdMpi = False
+
+try:
+    from mpi4py import rc
+    rc.initialize = False
+    from mpi4py import MPI
+except:
+    rk = 0
+
 try:
     import gsHost
     from pycf import libCFConfig as libcf
@@ -89,18 +102,20 @@ def setCompressionWarnings(value=None):
         else:
             value = 0
     if not isinstance(value, (int,bool)):
-        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
+        raise CDMSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
 
     if value in [1,True]:
         _showCompressWarnings = True
     elif value in [0,False]:
         _showCompressWarnings = False
     else:
-        raise CMDSError("setCompressionWarnings flags must be yes/no or 1/0, or None to invert it")
+        raise CDMSError("setCompressionWarnings flags must be yes\/no or 1\/0, or None to invert it")
+
     return _showCompressWarnings
 
 def setNetcdfUseNCSwitchModeFlag(value):
     """ Tells cdms2 to switch constantly between netcdf define/write modes"""
+
     if value not in [True,False,0,1]:
         raise CDMSError("Error UseNCSwitchMode flag must be 1(can use)/0(do not use) or true/False")
     if value in [0,False]:
@@ -110,12 +125,32 @@ def setNetcdfUseNCSwitchModeFlag(value):
 
 def setNetcdfUseParallelFlag(value):
     """ Sets NetCDF classic flag value"""
+    global CdMpi
     if value not in [True,False,0,1]:
         raise CDMSError("Error UseParallel flag must be 1(can use)/0(do not use) or true/False")
     if value in [0,False]:
         Cdunif.CdunifSetNCFLAGS("use_parallel",0)
     else:
         Cdunif.CdunifSetNCFLAGS("use_parallel",1)
+        CdMpi = True
+        if not MPI.Is_initialized():
+            MPI.Init()
+        rk = MPI.COMM_WORLD.Get_rank()
+
+def getMpiRank():
+    ''' Return number of processor available '''
+    if CdMpi:
+        rk = MPI.COMM_WORLD.Get_rank()
+        return rk
+    else:
+        return 0
+
+def getMpiSize():
+    if CdMpi:
+        sz = MPI.COMM_WORLD.Get_size()
+        return sz
+    else:
+        return 1
 
 def setNetcdf4Flag(value):
     """ Sets NetCDF classic flag value"""
@@ -248,28 +283,27 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
+        if netloc:
+            # In case of relative path...
+            path = netloc + path
         path = os.path.expanduser(path)
-        root,ext = os.path.splitext(path)
+        path = os.path.normpath(os.path.join(os.getcwd(), path))
 
+        root,ext = os.path.splitext(path)
         if ext in ['.xml','.cdml']:
             if mode!='r': raise ModeNotSupported(mode)
             datanode = load(path)
         else:
             # If the doesn't exist allow it to be created
             ##Ok mpi has issues with bellow we need to test this only with 1 rank
-            try:
-              import mpi4py
-              rk = mpi4py.MPI.COMM_WORLD.Get_rank()
-            except:
-              #no mpi
-              rk = 0
-
             if not os.path.exists(path):
-              return CdmsFile(path,mode)
+                return CdmsFile(path,mode,mpiBarrier=CdMpi)
             elif mode=="w":
-              if rk == 0 :
-                os.remove(path)
-              return CdmsFile(path,mode)
+                try:
+                    os.remove(path)
+                except:
+                    pass
+                return CdmsFile(path,mode,mpiBarrier=CdMpi)
             
             # The file exists
             file1 = CdmsFile(path,"r")
@@ -277,6 +311,9 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 if hasattr(file1, libcf.CF_FILETYPE):
                     if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                         file = gsHost.open(path, mode)
+                    elif mode=='r' and hostObj is None:
+                        # helps performance on machines where file open (in CdmsFile) is costly
+                        file = file1
                     else:
                         file = CdmsFile(path, mode, hostObj = hostObj)
                     file1.close()
@@ -295,8 +332,11 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             try:
                 file = CdmsFile(uri,mode)
                 return file
-            except:
-                raise CDMSError("Error in DODS open of: "+uri)
+            except Exception,err:
+                msg = "Error in DODS open of: "+uri
+                if os.path.exists(os.path.join(os.environ["HOME"],".dodsrc")):
+                  msg+="\nYou have a .dodsrc in your HOME directory, try to remove it"
+                raise CDMSError(msg)
         else:
             try:
                 datanode = loadURI(uri)
@@ -682,12 +722,12 @@ class Dataset(CdmsObj, cuDataset):
 
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
     # order and type are strings
-    def createRectGrid(id, lat, lon, order, type="generic", mask=None):
+    def createRectGrid(self,id, lat, lon, order, type="generic", mask=None):
         node = cdmsNode.RectGridNode(id, lat.id, lon.id, type, order, mask.id)
         grid = RectGrid(self,node)
         grid.initDomain(self.axes, self.variables)
         self.grids[grid.id] = grid
-        self._gridmap_[gridkey] = grid
+#        self._gridmap_[gridkey] = grid
 
     # Create a variable
     # 'name' is the string name of the Variable
@@ -913,7 +953,11 @@ class Dataset(CdmsObj, cuDataset):
 ##                                             'mode')
 
 class CdmsFile(CdmsObj, cuDataset):
-    def __init__(self, path, mode, hostObj = None):
+    def __init__(self, path, mode, hostObj = None, mpiBarrier=False):
+
+        if mpiBarrier:
+            MPI.COMM_WORLD.Barrier()
+
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)
         value = self.__cdms_internals__+['datapath',
@@ -929,7 +973,10 @@ class CdmsFile(CdmsObj, cuDataset):
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
-        self.uri="file://"+path
+        if "://" in path:
+            self.uri = path
+        else:
+            self.uri = "file://" + os.path.abspath(os.path.expanduser(path))
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
@@ -1122,7 +1169,8 @@ class CdmsFile(CdmsObj, cuDataset):
                   (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
-            del(self.attributes[name])
+            if( name in self.attributes.keys() ):
+                del(self.attributes[name])
 
     def sync(self):
         """
@@ -1302,7 +1350,6 @@ class CdmsFile(CdmsObj, cuDataset):
             for attname,attval in axis.attributes.items():
                 if attname not in ["datatype", "id","length","isvar","name_in_file","partition"]:
                     setattr(newaxis, attname, attval)
-
         return newaxis
 
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
@@ -1695,7 +1742,16 @@ class CdmsFile(CdmsObj, cuDataset):
                 print err
                 pass
             try:
-                attributes['_FillValue']=var._FillValue
+                if fill_value is None:
+                    if( '_FillValue' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var._FillValue).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var._FillValue).astype(var.dtype)
+                    if( 'missing_value' in attributes.keys() ):
+                       attributes['_FillValue']=numpy.array(var.missing_value).astype(var.dtype)
+                       attributes['missing_value']=numpy.array(var.missing_value).astype(var.dtype)
+                else:
+                    attributes['_FillValue']=fill_value
+                    attributes['missing_value']=fill_value
             except:
                 pass
             if attributes.has_key("name"):
@@ -1717,10 +1773,13 @@ class CdmsFile(CdmsObj, cuDataset):
         # Create the new variable
         datatype = cdmsNode.NumericToCdType.get(var.typecode())
         newvar = self.createVariable(newname, datatype, axislist)
-
         for attname,attval in attributes.items():
             if attname not in ["id", "datatype", "parent"]:
                 setattr(newvar, attname, attval)
+                if (attname == "_FillValue") or (attname == "missing_value"):
+                   setattr(newvar, "_FillValue", attval)
+                   setattr(newvar, "missing_value", attval)
+
         if fill_value is not None:
             newvar.setMissing(fill_value)
 

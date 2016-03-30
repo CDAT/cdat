@@ -305,7 +305,44 @@ class Configurator(object):
         obj = None
         layer_obj = 0
 
+        actors = []
+        for display in self.displays:
+            for key in display.backend:
+                back = display.backend[key]
+                if back is None:
+                    continue
+                if type(back) not in (list, tuple):
+                    try:
+                        if back.IsA("vtkProp"):
+                            actors.append(back)
+                    except AttributeError:
+                        continue
+                else:
+                    for back_obj in back:
+                        if type(back_obj) in (list, tuple):
+                            for o in back_obj:
+                                if o is not None:
+                                    try:
+                                        if o.IsA("vtkProp"):
+                                            actors.append(o)
+                                    except AttributeError:
+                                        continue
+                        else:
+                            try:
+                                if back_obj.IsA("vtkProp"):
+                                    actors.append(back_obj)
+                            except AttributeError:
+                                continue
+
         for ren in vtkIterate(self.render_window.GetRenderers()):
+            keep_checking = False
+            for actor in actors:
+                if ren.HasViewProp(actor):
+                    keep_checking = True
+                    break
+            if keep_checking is False:
+                continue
+
             layer = ren.GetLayer()
 
             if self.interactor is not None:
@@ -319,7 +356,6 @@ class Configurator(object):
             if self.picker.PickProp(x, y, ren):
                 obj = self.picker.GetViewProp()
                 layer_obj = layer
-
         return obj
 
     def hover(self, object, event):
@@ -404,7 +440,6 @@ class Configurator(object):
             self.deactivate(self.target)
 
         self.toolbar.hide()
-
         if display.g_type == "marker":
             l = display.backend[key]
             # Actor is actually a group of VTK objects
@@ -674,6 +709,7 @@ class Configurator(object):
         if self.animation_timer is None:
             self.animation_timer = self.interactor.CreateRepeatingTimer(
                 self.animation_speed)
+            self.anim_button.set_state(1)
 
     def stop_animating(self):
         if self.animation_timer is not None:

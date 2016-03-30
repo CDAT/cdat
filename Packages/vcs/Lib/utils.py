@@ -23,9 +23,47 @@ import tempfile
 import vcsaddons
 import cdms2
 import genutil
+import vtk
+
+from colors import rgb2str, str2rgb, matplotlib2vcs  # noqa
 
 indent = 1
 sort_keys = True
+
+
+def process_range_from_old_scr(code, g):
+    irg = code.find("range")
+    if irg > -1:
+        rg_code = code[irg:]
+        levs = []
+        fac = []
+        fai = []
+        fas = []
+        badfa = False
+        while rg_code.find("(id=") > -1:
+            iend = rg_code.find(")") + 1
+            line = rg_code[:iend]
+            rg_code = rg_code[iend:]
+            sp = line.split(",")
+            levs.append([float(sp[1][7:]), float(sp[2][7:])])
+            fa = sp[-1][3:]
+            fa = fa[:fa.find(")")]
+            if fa not in vcs.elements["fillarea"].keys():
+                badfa = True
+                fai.append(fa)
+            else:
+                fa = vcs.elements["fillarea"][fa]
+                fac.append(fa.color[0])
+                fai.append(fa.index[0])
+                fas.append(fa.style[0])
+        if not numpy.allclose(levs, 1.e20):
+            g.levels = levs
+        if badfa:
+            g._fillareaindices = fai
+        else:
+            g.fillareacolors = fac
+            g.fillareaindices = fai
+            g.fillareastyle = fas[0]
 
 
 def dumpToDict(obj, skipped=[], must=[]):
@@ -103,7 +141,8 @@ def dumpToJson(obj, fileout, skipped=[
             f.close()
             for etype in associated.keys():
                 for asso in associated[etype]:
-                    if asso is not None:
+                    if asso is not None and asso not in vcs._protected_elements[
+                            etype]:
                         dumpToJson(
                             vcs.elements[etype][asso],
                             fileout,
@@ -177,6 +216,15 @@ def process_src_element(code):
 def listelements(typ=None):
     if typ is None:
         return sorted(vcs.elements.keys())
+    if typ in ("xvsy", "yxvsx", "scatter", "xyvsy"):
+        names = []
+        aliased = ("xvsy", "yxvsx")
+        for name, gm in vcs.elements["1d"].iteritems():
+            if gm.g_type in aliased and typ in aliased:
+                names.append(name)
+            elif gm.g_type == typ:
+                names.append(name)
+        return sorted(names)
     if typ not in vcs.elements.keys():
         raise Exception(
             "Error: '%s' is not a valid vcs element\n"
@@ -185,11 +233,11 @@ def listelements(typ=None):
     return sorted(vcs.elements[typ].keys())
 
 
-#############################################################################
-#                                                                           #
+#
+#
 # Show VCS primary and secondary elements wrapper for VCS.                  #
-#                                                                           #
-#############################################################################
+#
+#
 def show(*args):
     """
 Function: show
@@ -273,7 +321,7 @@ def _scriptrun(script, canvas=None):
                     for e in g.line:
                         if e in vcs.elements["textorientation"]:
                             lst.append(vcs.elements["line"][e])
-                        elif e in vcs.elements["text"]:
+                        elif e in vcs.elements["textcombined"]:
                             lst.append(vcs.elements["line"][e])
                         else:
                             lst.append(e)
@@ -281,7 +329,7 @@ def _scriptrun(script, canvas=None):
                     for e in g.line:
                         if e in vcs.elements["texttable"]:
                             lst.append(vcs.elements["line"][e])
-                        elif e in vcs.elements["text"]:
+                        elif e in vcs.elements["textcombined"]:
                             lst.append(vcs.elements["line"][e])
                         else:
                             lst.append(e)
@@ -290,11 +338,11 @@ def _scriptrun(script, canvas=None):
                 except:
                     setattr(g, att, getattr(gd, att))
 
-#############################################################################
-#                                                                           #
+#
+#
 # Import old VCS file script commands into CDAT.                            #
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def scriptrun_scr(*args):
@@ -315,7 +363,7 @@ def scriptrun_scr(*args):
             (l[3][0:31] == "#                             #") and
             (l[4][0:29] == "#############################")):
         fin.close()
-        execfile(args[0], __main__.__dict__)
+        exec(compile(open(args[0]).read(), args[0], 'exec'), __main__.__dict__)
         return
 
     while i < line_ct:
@@ -527,48 +575,51 @@ def saveinitialfile():
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
         os.remove(fnm)
-    items = vcs.elements.keys()
-    for k in ["projection", "marker", "texttable",
-              "textorientation", "line", "list"]:
-        items.remove(k)
-        items.insert(0, k)
-    for k in items:
-        if k in ["font", "fontNumber"]:
+    Skip = {}
+    for k in vcs.elements.keys():
+        Skip[k] = []
+        for e in vcs.elements[k].keys():
+            if e in vcs._protected_elements[k] or e[
+                    :2] == "__":  # temporary elt
+                Skip[k].append(e)
+    for k in vcs.elements.keys():
+        if k in ["display", "font", "fontNumber"]:
             continue
         elif k == "list":
-            D = {}
-            D["L"] = vcs.elements["list"]
-            f = open(fnm + ".json", "w")
-            json.dump(D, f)
-            f.close()
+            D2 = {}
+            D2["L"] = {}
+            for l in vcs.elements["list"].keys():
+                if l not in Skip["list"]:
+                    D2["L"][l] = vcs.elements["list"][l]
+            if len(D2["L"].keys()) != 0:
+                f = open(fnm + ".json", "w")
+                json.dump(D2, f)
+                f.close()
             continue
         e = vcs.elements[k]
         for nm, g in e.iteritems():
-            if nm != "default" and not nm[:2] == "__" \
-                    and nm not in ["default_scatter_",
-                                   "default_xvsy_", "default_xyvsy_",
-                                   "default_yxvsx_"]:  # skip defaults and temp ones
+            if nm not in Skip[k]:
                 try:
                     g.script(fnm)
                 except Exception as err:
                     warnings.warn(
-                        "Could not save graphic method %s named %si: %s" %
+                        "Could not save graphic method %s named %s: %s" %
                         (k, nm, err))
     # extension .json has been auto-added, removing it in this specific case
     os.rename(fnm + ".json", fnm)
 
-#############################################################################
-#                                                                           #
+#
+#
 # Import old VCS file script commands into CDAT.
-#                                                                           #
-#############################################################################
+#
+#
 
 
 def scriptrun(script):
     if script.split(".")[-1] == "scr":
         scriptrun_scr(script)
     elif script.split(".")[-1] == "py":
-        execfile(script)
+        exec(compile(open(script).read(), script, 'exec'))
     else:
         if os.path.split(script)[-1] == "initial.attributes":
             vcs._doValidation = False
@@ -595,7 +646,15 @@ def scriptrun(script):
         try:
             f = open(script)
             jsn = json.load(f)
-            for typ in jsn.keys():
+            keys = []
+            for k in ["Tt", "To", "Tl",
+                      "Tm", "Proj"]:  # always read these first
+                if k in jsn.keys():
+                    keys.append(k)
+            for k in jsn.keys():
+                if k not in keys:
+                    keys.append(k)
+            for typ in keys:
                 for nm, v in jsn[typ].iteritems():
                     if typ == "P":
                         try:
@@ -612,7 +671,7 @@ def scriptrun(script):
             if os.path.split(script)[-1] == "initial.attributes":
                 _scriptrun(script)
             else:
-                warnings.warn("unable to source file: %si %s" % (script, err))
+                warnings.warn("unable to source file: %s %s" % (script, err))
     vcs._doValidation = True
     return
 
@@ -1469,12 +1528,14 @@ cp2=a.getcolormap('quick')              # cp2 instance of existing
 def getcolorcell(cell, obj=None):
     if obj is None:
         cmap = vcs.getcolormap()
+    elif obj.colormap is None:
+        cmap = vcs.getcolormap()
     else:
         cmap = vcs.getcolormap(obj.colormap)
     return cmap.index[cell]
 
 
-def setcolorcell(obj, num, r, g, b):
+def setcolorcell(obj, num, r, g, b, a=100):
     """
 Function: setcolorcell
 
@@ -1503,7 +1564,7 @@ vcs.setcolorcell("AMIP",61,70,70,70)
         cmap = getcolormap(obj)
     else:
         cmap = getcolormap(obj.colormap)
-    cmap.index[num] = (r, g, b)
+    cmap.index[num] = (r, g, b, a)
 
     return
 
@@ -1691,3 +1752,45 @@ def getworldcoordinates(gm, X, Y):
         wc[0] -= .0001
         wc[1] += .0001
     return wc
+
+
+def rgba_color(color, colormap):
+    """Try all of the various syntaxes of colors and return 0-100 RGBA values."""
+    try:
+        # Is it a colormap index?
+        return colormap.index[color]
+    except ValueError:
+        # Is it a color tuple?
+        if len(color) == 3 or len(color) == 4:
+            for c in color:
+                try:
+                    int(c)
+                except:
+                    break
+            else:
+                if any((c > 100 for c in color)):
+                    r, g, b = (c / 2.55 for c in color[0:3])
+                    if len(color) == 4:
+                        a = color[-1] / 2.55
+                    else:
+                        a = 100
+                else:
+                    r, g, b = color[:3]
+                    if len(color) == 4:
+                        a = color[-1]
+                    else:
+                        a = 100
+                return [r, g, b, a]
+    r, g, b = genutil.colors.str2rgb(color)
+    return [r / 2.55, g / 2.55, b / 2.55, 100]
+
+
+def png_read_metadata(path):
+    reader = vtk.vtkPNGReader()
+    reader.SetFileName(path)
+    reader.Update()
+    numberOfTextChunks = reader.GetNumberOfTextChunks()
+    m = {}
+    for i in range(0, numberOfTextChunks):
+        m[reader.GetTextKey(i)] = reader.GetTextValue(i)
+    return m
