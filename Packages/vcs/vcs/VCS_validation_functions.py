@@ -1223,8 +1223,8 @@ def checkProjParameters(self, name, value):
     for i in range(2, 6):
         if abs(value[i]) < 10000:
             if (not(i == 3 and (self.type in [9, 15, 20, 22, 30])) and
-                (not(i == 4 and (self.type == 20 or (self.type == 22 and value[12] == 1)
-                                 or self.type == 30)))):
+                (not(i == 4 and (self.type == 20 or (self.type == 22 and value[12] == 1) or
+                                 self.type == 30)))):
                 # print i,value[i]
                 value[i] = deg2DMS(value[i])
     for i in range(8, 12):
