@@ -572,7 +572,7 @@ def scriptrun_scr(*args):
 
 def saveinitialfile():
     _dotdir, _dotdirenv = vcs.getdotdirectory()
-    fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
+    fnm = os.path.join(os.path.expanduser("~"), _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
         os.remove(fnm)
     Skip = {}
