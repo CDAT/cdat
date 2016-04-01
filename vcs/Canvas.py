@@ -859,7 +859,7 @@ class Canvas(object):
     # using the "update" function.                                              #
     #                                                                           #
     ##########################################################################
-    def __init__(self, gui=0, mode=1, pause_time=0,
+    def __init__(self, mode=1, pause_time=0,
                  call_from_gui=0, size=None, backend="vtk", geometry=None, bg=None):
         self._canvas_id = vcs.next_canvas_id
         self.ParameterChanged = SIGNAL('ParameterChanged')
@@ -888,22 +888,6 @@ class Canvas(object):
         self.canvas_gui = None
         self.isplottinggridded = False
         self.canvas_guianimate_info = None
-# DEAN or CHARLES -- remove the one line below for VCS Canvas GUI to work
-        if is_canvas == 0:
-            if ((gui == 1) and (gui_canvas_closed == 0)):
-                no_root = 0
-                if (gui_support.root_exists()):
-                    no_root = 1
-                if (no_root == 0):
-                    parent = gui_support.root()
-                else:
-                    parent = gui_support._root
-                self.canvas_gui = _canvasgui.CanvasGUI(
-                    canvas=self,
-                    top_parent=parent)
-                # Must wait for the window ID to return before moving on...
-                while self.winfo_id == -99:
-                    self.winfo_id = self.canvas_gui.frame.winfo_id()
 
         if size is None:
             psize = 1.2941176470588236
@@ -928,8 +912,6 @@ class Canvas(object):
         self.viewport = [0, 1, 0, 1]
         self.worldcoordinate = [0, 1, 0, 1]
         self._dotdir, self._dotdirenv = vcs.getdotdirectory()
-        if ((is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0)):
-            gui_canvas_closed = 1
         self.drawLogo = False
         self.enableLogo = True
 
@@ -3990,82 +3972,8 @@ Options:::
         """
  Function: get_selected_display
 
- Description of Function:
-    In GMEDITOR mode returns selected display.
-    If nothing selected returns None
     """
         return self.canvas.get_selected_display(*())
-    ##########################################################################
-    #                                                                           #
-    # Graphics Method Graphical User Interface wrapper for VCS.                 #
-    #                                                                           #
-    ##########################################################################
-
-    def graphicsmethodgui(self, gm_type='boxfill', gm_name='default',
-                          gui_parent=None):
-        '''
- Function: graphicsmethodgui
-
- Description of Function:
-    Run the VCS graphicsmethod interface.
-
-    The graphicsmethodgui command is used to bring up the VCS graphics method interface.
-    The interface is used to alter existing graphics method attributes.
-
- Example of Use:
-    a=vcs.init()
-    a.graphicsmethodgui('boxfill', 'quick')
-'''
-        # removing warning shouln't be used for software usage.
-        return
-    # _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
-    # gui_parent=gui_parent)
-
-    ##########################################################################
-    #                                                                           #
-    # Template Editor Graphical User Interface wrapper for VCS.                 #
-    #                                                                           #
-    ##########################################################################
-    def templateeditor(self, template_name='default', template_orig_name='default',
-                       plot=None, gui_parent=None, canvas=None, called_from=0):
-        '''
- Function: templateeditor
-
- Description of Function:
-    Run the VCS templateeditor GUI.
-
-    The templateeditor command is used to bring up the VCS template editor interface.
-    The interface is used to alter templates.
-
- Example of Use:
-    a=vcs.init()
-    a.templateeditor('AMIP2')
-'''
-        send_canvas = canvas
-        if (canvas is None):
-            send_canvas = self
-
-        if (template_name == 'default'):
-            showerror(
-                'Error Message to User',
-                'Cannot edit the "default" template. Please copy the "default"' +
-                'template to new name and then edit the newly created template.')
-        else:
-            if (self.canvas.SCREEN_MODE() == "DATA"):
-                self.canvas.SCREEN_TEMPLATE_FLAG()
-                t = _gui_template_editor.create(
-                    gui_parent=gui_parent,
-                    canvas=send_canvas,
-                    plot=plot,
-                    template_name=template_name,
-                    template_orig_name=template_orig_name,
-                    called_from=called_from)
-                return t
-            else:
-                showerror(
-                    'Error Message to User',
-                    'VCS will only allow one Template Editor at a time.' +
-                    'Please the close previous template editor and try again.')
 
     ##########################################################################
     #                                                                           #
@@ -4156,22 +4064,6 @@ Options:::
     def plot_annotation(self, *args):
         self.canvas.plot_annotation(*args)
 
-    def pageeditor(self, gui_parent=None, continents=None):
-        '''
- Function: pageeditor
-
- Description of Function:
-    Run the VCS page editor GUI.
-
-    The pageeditor command is used to bring up the VCS page editor interface.
-    The interface is used to design canvases.
-
- Example of Use:
-    a=vcs.init()
-    a.pageieditor()
-'''
-        return _pagegui.PageDescriptionEditor(canvas=self, gui_parent=gui_parent,
-                                              continents=continents)
 
     ##########################################################################
     #                                                                           #
@@ -4618,7 +4510,7 @@ Options:::
             test_file = files[0]
 
             rnd = "%s/.uvcdat/__uvcdat_%i" % (
-                os.environ["HOME"], numpy.random.randint(600000000))
+                os.path.expanduser("~"), numpy.random.randint(600000000))
             Files = []
             for i, f in enumerate(files):
                 fnm = "%s_%i.png" % (rnd, i)
@@ -5329,7 +5221,6 @@ Options:::
    Example of Use:
       a=vcs.init()
       a.setcontinentstype(3)
-      #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
       a.plot(array,'default','isofill','quick')
   """
         continent_path = VCS_validation_functions.checkContinents(self, value)
@@ -5527,7 +5418,7 @@ Options:::
         key = gm + '_' + nm + '('
         if file is None:
             file = os.path.join(
-                os.environ['HOME'],
+                os.path.expanduser("~"),
                 self._dotdir,
                 'initial.attributes')
         f = open(file, 'r')
