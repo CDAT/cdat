@@ -43,8 +43,8 @@ def _files():
     for file_name in files:
         file_cp = os.path.join(
             vcs.prefix,
-            'vcs',
             'share',
+            'vcs',
             file_name)
         ofile = os.path.join(fn, file_name)
         print "Copy",file_cp,"to",ofile
