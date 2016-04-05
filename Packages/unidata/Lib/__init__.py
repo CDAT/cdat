@@ -16,6 +16,10 @@ the part of UCAR or Unidata, to assist in its use, correction,
 modification, or enhancement.
 
 """
+import os
+import sys
 from udunits import udunits, addBaseUnit, addDimensionlessUnit, addScaledUnit  # noqa
 from udunits import addOffsettedUnit, addMultipliedUnits, addInvertedUnit, addDividedUnits  # noqa
 udunits_init = 0  # noqa
+
+os.environ["UDUNITS2_XML_PATH"] = os.path.join(sys.prefix,"share","udunits","udunits2.xml")
