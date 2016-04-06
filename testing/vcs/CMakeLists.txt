@@ -1,12 +1,26 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
 add_test(flake8_vcs
-  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/vcs/Lib/"
+  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"
   --show-source # Show context for detected errors
   --statistics  # Show summary of errors at end of output
   --max-line-length=120 # Reasonable line length
 )
 
+cdat_add_test(vcs_set_line_attribute_from_line
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_set_line_attribute_from_line.py
+)
+cdat_add_test(vcs_read_old_scr
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
+  ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old.scr
+)
+cdat_add_test(vcs_read_old_scr_2
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_read_old_scr.py
+  ${UVCDAT_GIT_TESTDATA_DIR}/data/vcs/old_2.scr
+)
 cdat_add_test(vcs_verify_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -904,6 +918,11 @@ cdat_add_test(vcs_test_configurator_click_marker
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_click_marker.py
 )
+cdat_add_test(vcs_test_mintics
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_mintics.py
+  ${BASELINE_DIR}/test_vcs_mintics.png
+)
 cdat_add_test(vcs_test_configurator_resize
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_configurator_resize.py
@@ -920,7 +939,30 @@ cdat_add_test(vcs_test_click_info
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
   ${BASELINE_DIR}/test_vcs_click_info.png
+  a_boxfill
 )
+
+cdat_add_test(vcs_test_click_info_mollweide_boxfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_mollweide_boxfill.png
+  a_mollweide_boxfill
+)
+
+cdat_add_test(vcs_test_click_info_meshfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_meshfill.png
+  a_meshfill
+)
+
+cdat_add_test(vcs_test_click_info_meshfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+  ${BASELINE_DIR}/test_vcs_click_info_robinson_meshfill.png
+  a_robinson_meshfill
+)
+
 
 cdat_add_test(vcs_test_mercator_edge
   "${PYTHON_EXECUTABLE}"
@@ -957,6 +999,14 @@ cdat_add_test(vcs_test_autot_axis_titles
   ${BASELINE_DIR}/test_autot_axis_titles_yname.png
   ${BASELINE_DIR}/test_autot_axis_titles_xname.png
 )
+cdat_add_test(vcs_test_boxfill_lambert_crash
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/vcs_test_boxfill_lambert_crash.py
+  "${BASELINE_DIR}/vcs_test_boxfill_lambert_crash.png"
+  "${UVCDAT_GIT_TESTDATA_DIR}/data/NCEP_09_climo.nc"
+  )
+
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
+

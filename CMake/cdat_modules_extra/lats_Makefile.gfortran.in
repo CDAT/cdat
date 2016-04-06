@@ -1,0 +1,208 @@
+# Generated automatically from Makefile.in by configure.
+# -*-Mode: indented-text;-*-
+# Makefile:    LATS makefile
+#
+# Copyright:   1996, Regents of the University of California
+#	       This software may not be distributed to others without
+#	       permission of the author.
+#
+# Author:      Bob Drach, Lawrence Livermore National Laboratory
+#              drach@llnl.gov
+#
+# Version:     $Id: Makefile.in,v 1.12 1996/10/29 00:20:44 drach Exp $
+#
+# Revision History:
+#
+# $Log: Makefile.in,v $
+# Revision 1.12  1996/10/29  00:20:44  drach
+# - Removed name conflicts with CDMS
+#
+# Revision 1.11  1996/10/22 19:04:57  fiorino
+# latsgrib bug in .ctl creator
+#
+# Revision 1.10  1996/10/16 22:09:51  drach
+# - Added automatic gribmap generation
+# - Restricted LATS_GRADS_GRIB convention to one grid per file
+#
+# Revision 1.9  1996/09/30 18:54:46  drach
+# - permit installation without the sources being present
+# - separate FORTRAN debug flag, since -O doesn't work on the Cray
+#
+# Revision 1.8  1996/09/17 16:52:31  drach
+# - Misc. cleanup
+#
+# Revision 1.7  1996/08/29 19:27:17  drach
+# - Cleaned up configuration macros, Makefile.in for portability
+#
+# Revision 1.6  1996/08/27 19:39:03  drach
+# - Added FORTRAN test
+# - Ported to other UNIX platforms
+#
+# Revision 1.5  1996/07/12 00:36:21  drach
+# - (GRIB) use undefined flag only when set via lats_miss_XX
+# - (GRIB) use delta when checking for missing data
+# - (GRIB) define maximum and default precision
+# - fixed lats_vartab to work correctly.
+# - Added report of routine names, vertical dimension types
+#
+# Revision 1.4  1996/06/27 19:19:34  drach
+# - Misc. cleanup
+#
+# Revision 1.3  1996/06/27 01:32:49  drach
+# - Fixed up file permissions on install
+#
+# Revision 1.2  1996/06/27 01:02:38  drach
+# - Added installation directives
+#
+# Revision 1.1  1996/06/12 18:09:23  drach
+# - Initial versions
+#
+#
+#
+# Note: to generate Makefile from Makefile.in:
+#    ./configure --cache-file=/dev/null \
+#        [--with-ncinc=<netCDF include directory>] \
+#        [--with-nclib=<netCDF library directory>] \
+#	 [--prefix=<installation directory]
+
+# Install prefix for architecture-independent files
+prefix=@cdat_EXTERNALS@
+
+# Install prefix for architecture-dependent files
+exec_prefix=    $(prefix)
+
+# Expanded directories
+BINDIR=$(exec_prefix)/bin
+INCLUDEDIR=$(prefix)/include
+LIBDIR=$(exec_prefix)/lib
+MANDIR=$(prefix)/man
+PARMDIR=$(prefix)/lib/lats
+
+CC = cc
+CFLAGS = -I.  -I@cdat_EXTERNALS@/include $(DEBUG) -I/usr/include/malloc
+CPPFLAGS =  -DHAVE_NETCDF -DLATS_CHANGE_GRADS_NAMES -DSTNDALN=1 -DBYTEORDER=1 -DGRADS_CRAY=0
+DEBUG = -O
+DEFS =  -DOS_NAME=Linux -DOS_MAJOR=2 
+FC = gfortran
+FDEBUG =
+FFLAGS = -I.  $(FDEBUG)A -Wno-all
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = /usr/bin/install -c
+LDFLAGS = -L. -llats -L@cdat_EXTERNALS@/lib -lnetcdf  -lm
+OS = linux
+RANLIB = :
+
+# Shell to run make subcommands
+SHELL = /bin/sh
+
+#
+#	mf configuration
+#
+LATSLSVER="1.0"
+
+# Do not change values below this line
+#
+LIBRARY		= liblats.a 
+
+OBJS		= lats.o latsint.o latsnc.o latsgrib.o latstime.o latsstat.o latsfort.o fgbds.o \
+		  fgutil.o latsgribmap.o gaddes.o gagmap.o gamach.o gautil.o
+
+all:		$(LIBRARY) latsls
+
+latsls:	        latsls.o latsint.o
+		$(CC) latsls.o latsint.o $(CPPFLAGS) $(CFLAGS)  -o latsls
+
+$(LIBRARY):	$(OBJS)
+		ar rv $(LIBRARY) $?
+		$(RANLIB) $(LIBRARY)
+
+install:	libinstall
+
+libinstall:
+		-if test ! -d $(PARMDIR); \
+		then mkdir $(PARMDIR); \
+		fi
+		echo "LIBDIR"$(LIBDIR)
+		$(INSTALL_PROGRAM) -m 644 $(LIBRARY) $(LIBDIR)/$(LIBRARY)
+		(cd $(LIBDIR); $(RANLIB) $(LIBRARY))
+		$(INSTALL_PROGRAM) -m 644 lats.h $(INCLUDEDIR)/lats.h
+		$(INSTALL_PROGRAM) -m 644 lats.inc $(INCLUDEDIR)/lats.inc
+		$(INSTALL_PROGRAM) -m 644 amip2.parms $(PARMDIR)/amip2.parms
+
+test:		$(LIBRARY) testnc wgrib testgrib testf
+		@echo "test netCDF"
+		@if test -f testnc.nc; \
+		then rm -f testnc.nc; \
+		fi
+		@testnc
+		@rm -f testnc.nc
+		@echo "test GRIB"
+		@if test -f testgrib.grb; \
+		then rm -f testgrib.grb; \
+		fi
+		@if test -f testgrib.ctl; \
+		then rm -f testgrib.ctl; \
+		fi
+		@if test -f testgrib.bin; \
+		then rm -f testgrib.bin; \
+		fi
+		@testgrib
+		@rm -f testgrib.grb
+		@rm -f testgrib.ctl
+		@rm -f testgrib.bin
+		@echo "test FORTRAN"
+		@if test -f testf.nc; \
+		then rm -f testf.ne; \
+		fi
+		@testf
+		@rm -f testf.nc
+
+lats.o:		lats.c latsint.h lats.h
+latsint.o:	latsint.c latsint.h lats.h latsparm.h
+latsnc.o:	latsnc.c latsint.h lats.h
+latsgrib.o:	latsgrib.c fgrib.h fgrib_init.h latsint.h lats.h
+latstime.o:	latstime.c latsint.h lats.h latstime.h
+latsstat.o:	latsstat.c latsint.h lats.h
+latsfort.o:	latsfort.c lats.h cfortran.h
+fgbds.o:	grads.h fgbds.c fgrib.h
+fgutil.o:	fgutil.c fgrib.h
+latsgribmap.o:	grads.h gagmap.h
+gaddes.o:	grads.h
+gagmap.o:	grads.h gagmap.h
+gamach.o:	grads.h
+gautil.o:	grads.h
+latsls.o:	latsint.h latsls.c latsint.o
+		$(CC) -c latsls.c $(CPPFLAGS) $(DEFS) $(CFLAGS) -DLATSLS_VERSION=\"$(LATSLSVER)\"
+
+.SUFFIXES: .F
+
+.c.o:
+	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $<
+
+.c:
+	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+.F:
+	case $(OS) in \
+	     'aix') \
+		    /usr/ccs/lib/cpp -P $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(DEFS) $< $@.f; \
+		    $(FC) $(FFLAGS) $(LDFLAGS) $(LIBS) $@.f -o $@; \
+		    rm $@.f; \
+		    ;; \
+	     *) \
+		    $(FC) $(CPPFLAGS) $(INCLUDES) $(DEFS) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \
+		    ;; \
+	esac
+	
+clean:
+	-rm -f *.o core *.~*~ testnc testgrib testf testf.f
+
+distclean: clean
+	-rm -f $(LIBRARY) testnc testnc.nc testgrib testgrib.grb \
+	testgrib.ctl testgrib.bin testgrib.gmp testf.nc latsls wgrib
+
+settest:
+	cp liblats.a lib/
+	cp wgrib bin/
+	cp latsls bin/
+
