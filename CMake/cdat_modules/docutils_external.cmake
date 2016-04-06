@@ -2,5 +2,5 @@
 # and configure and build it
 
 set(nm docutils)
-set(OLD "")
+set(OLD "OFF")
 include(pipinstaller)
