@@ -937,7 +937,24 @@ def __split2contiguous(levels):
     return tmplevs
 
 
-def mklabels(vals, output='dict'):
+def guess_precision(num):
+    """
+    Rough guesstimate of the precision of a number. Don't use this for actual science.
+    """
+    if num == 0:
+        return 1
+    idigleft = int(float(numpy.ma.floor(numpy.ma.log10(num)))) + 1
+    aa = numpy.ma.power(10., -idigleft)
+
+    while abs(round(aa * num) - aa * num) > .000001:
+        aa = aa * 10.
+
+    total_digits = numpy.ma.floor(numpy.ma.log10(aa * numpy.ma.power(10., idigleft)))
+
+    return max(total_digits, idigleft)
+
+
+def mklabels(vals, output='dict', precision=None):
     '''
     Function : mklabels
 
@@ -957,6 +974,11 @@ def mklabels(vals, output='dict'):
     {2.0000000000000002e-05: '2E-5', 5.0000000000000002e-05: '5E-5'}
     >>> vcs.mklabels ( [.00002,.00005],output='list')
     ['2E-5', '5E-5']
+    >>> a = vcs.mkevenlevels(0, 100, nlev=9)
+    >>> vcs.mklabels(a)
+    {0.0: '  0.000000000000000', 11.11111111111111: ' 11.111111111111111', 22.22222222222222: ' 22.222222222222221', 33.33333333333333: ' 33.333333333333329', 44.44444444444444: ' 44.444444444444443', 55.55555555555556: ' 55.555555555555557', 66.66666666666666: ' 66.666666666666657', 77.77777777777777: ' 77.777777777777771', 88.88888888888889: ' 88.888888888888886', 100.0: '100.000000000000000'}
+    >>> vcs.mklabels(a, precision=4)
+    {0.0: '  0.0', 11.11111111111111: ' 11.1', 22.22222222222222: ' 22.2', 33.33333333333333: ' 33.3', 44.44444444444444: ' 44.4', 55.55555555555556: ' 55.6', 66.66666666666666: ' 66.7', 77.77777777777777: ' 77.8', 88.88888888888889: ' 88.9', 100.0: '100.0'}
     '''
     import string
     import numpy.ma
@@ -995,21 +1017,18 @@ def mklabels(vals, output='dict'):
         amax = float(numpy.ma.maximum(vals))
     #  Number of digit on the left of decimal point
     idigleft = int(numpy.ma.floor(numpy.ma.log10(amax))) + 1
-    # Now determine the number of significant figures
-    idig = 0
-    for i in range(nvals):
-        aa = numpy.ma.power(10., -idigleft)
-        while abs(round(aa * vals[i]) - aa * vals[i]) > .000001:
-            aa = aa * 10.
-        idig = numpy.ma.maximum(
-            idig,
-            numpy.ma.floor(
-                numpy.ma.log10(
-                    aa *
-                    numpy.ma.power(
-                        10.,
-                        idigleft))))
-    idig = int(idig)
+
+    if precision is None:
+        # Now determine the number of significant figures
+        idig = 0
+        for i in range(nvals):
+            aa = numpy.ma.power(10., -idigleft)
+            while abs(round(aa * vals[i]) - aa * vals[i]) > .000001:
+                aa = aa * 10.
+            idig = numpy.ma.maximum(idig, numpy.ma.floor(numpy.ma.log10(aa * numpy.ma.power(10., idigleft))))
+        idig = int(idig)
+    else:
+        idig = int(precision)
     # Now does the writing part
     lbls = []
     # First if we need an E format
