@@ -1161,6 +1161,10 @@ set_attribute(int fileid, int varid, PyObject *attributes,
     if (array != NULL) {
       int len = (array->nd == 0) ? 1 : array->dimensions[0];
       int type = cdunif_type_from_code(array->descr->type);
+      if (type == 0) {
+        /* 0 means probably going to freak out netcdf */
+        fprintf(stderr,"Attribute %s has a bad type for NetCDF. We will not attempt to write it\n");
+      }
       if (data_types[type] != array->descr->type_num) {
 	PyArrayObject *array2 = (PyArrayObject *)
 	  PyArray_Cast(array, data_types[type]);
