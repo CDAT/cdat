@@ -312,7 +312,7 @@ cdat_add_test(test_vcs_star_triangle_markers
 cdat_add_test(test_vcs_canvas_background
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_background.py
-  "${BASELINE_DIR}/vcs_test_canvas_background.png"
+  "${BASELINE_DIR}/test_vcs_canvas_background.png"
   )
 cdat_add_test(test_vcs_canvas_background_update
   "${PYTHON_EXECUTABLE}"
