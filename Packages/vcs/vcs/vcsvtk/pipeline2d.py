@@ -259,7 +259,7 @@ class Pipeline2D(IPipeline2D):
 
         return result
 
-    def plot(self, data1, data2, tmpl, grid, transform):
+    def plot(self, data1, data2, tmpl, grid, transform, **kargs):
         """Overrides baseclass implementation."""
         # Clear old results:
         self._resultDict = {}
@@ -291,6 +291,13 @@ class Pipeline2D(IPipeline2D):
 
         # Create the polydata filter:
         self._createPolyDataFilter()
+
+        if (kargs.get('ratio', '0') == 'autot' and
+                # atot is implemented for linear plots at vcs level
+                # for geographic projections we implement it here.
+                self._vtkGeoTransform):
+            self._resultDict['ratio_autot_viewport'] = self._processRatioAutot(
+                self._template, self._vtkDataSet)
 
         # Plot specific rendering:
         self._plotInternal()
