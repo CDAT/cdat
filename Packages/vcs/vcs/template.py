@@ -1595,7 +1595,7 @@ class P(object):
             Y = slab.getAxis(-2)
 
         wc2 = vcs.utils.getworldcoordinates(gm, X, Y)
-        wc2 = kargs.get("dataset_bounds", wc2)
+        wc2 = kargs.get("plotting_dataset_bounds", wc2)
 
         # Do the boxes and lines
         for tp in ["box", "line"]:

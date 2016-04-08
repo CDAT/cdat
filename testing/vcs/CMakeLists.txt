@@ -11,6 +11,11 @@ cdat_add_test(test_vcs_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_png_path.py
 )
+cdat_add_test(test_vcs_boxfill_polar
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_polar.py
+  "${BASELINE_DIR}/test_vcs_boxfill_polar.png"
+  )
 cdat_add_test(test_vcs_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_create_get.py
