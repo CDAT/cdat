@@ -5,9 +5,9 @@ sys.path.append(pth)
 import checkimage
 
 x = vcs.init()
-
+x.setantialiasing(0)
 x.drawlogooff()
-x.setbgoutputdimensions(500,500, units="pixels")
+x.setbgoutputdimensions(500,500,units="pixels")
 
 x.backgroundcolor = (255, 255, 255)
 x.open()
@@ -16,5 +16,4 @@ x.png(fnm)
 
 src=sys.argv[1]
 ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
-
 sys.exit(ret)

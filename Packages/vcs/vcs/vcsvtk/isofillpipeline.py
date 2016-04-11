@@ -134,8 +134,9 @@ class IsofillPipeline(Pipeline2D):
         actors = []
         patternActors = []
         ct = 0
-        vp = [self._template.data.x1, self._template.data.x2,
-              self._template.data.y1, self._template.data.y2]
+        vp = self._resultDict.get('ratio_autot_viewport',
+                                  [self._template.data.x1, self._template.data.x2,
+                                   self._template.data.y1, self._template.data.y2])
         dataset_renderer = None
         xScale, yScale = (1, 1)
         for mapper in mappers:
@@ -176,7 +177,7 @@ class IsofillPipeline(Pipeline2D):
 
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
-            dataset_renderer, xScale, yScale = self._context().fitToViewportBounds(
+            dataset_renderer, xScale, yScale = self._context().fitToViewport(
                 act, vp,
                 wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
@@ -185,7 +186,7 @@ class IsofillPipeline(Pipeline2D):
         self._resultDict['dataset_renderer'] = dataset_renderer
         self._resultDict['dataset_scale'] = (xScale, yScale)
         for act in patternActors:
-            self._context().fitToViewportBounds(
+            self._context().fitToViewport(
                 act, vp,
                 wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
                 geo=self._vtkGeoTransform,
@@ -200,15 +201,15 @@ class IsofillPipeline(Pipeline2D):
             z = self._originalData1.getAxis(-3)
         else:
             z = None
-
+        kwargs = {"vtk_backend_grid": self._vtkDataSet,
+                  "dataset_bounds": self._vtkDataSetBounds,
+                  "plotting_dataset_bounds": plotting_dataset_bounds}
+        if ("ratio_autot_viewport" in self._resultDict):
+            kwargs["ratio_autot_viewport"] = vp
         self._resultDict.update(self._context().renderTemplate(
             self._template,
             self._data1,
-            self._gm, t, z,
-            vtk_backend_grid=self._vtkDataSet,
-            dataset_bounds=self._vtkDataSetBounds,
-            plotting_dataset_bounds=plotting_dataset_bounds))
-
+            self._gm, t, z, **kwargs))
         legend = getattr(self._gm, "legend", None)
 
         if self._gm.ext_1:

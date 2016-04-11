@@ -24,19 +24,19 @@
 """
 _doValidation = True
 next_canvas_id = 1
-import cdat_info
+import cdat_info  # noqa
 prefix = cdat_info.get_prefix()
 sample_data = cdat_info.get_sampledata_path()
 cdat_info.pingPCMDIdb("cdat", "vcs")
 from utils import *  # noqa
 import colors  # noqa
-import Canvas
+import Canvas  # noqa
 from vcshelp import *  # noqa
 from queries import *  # noqa
-import install_vcs
-import os
+import install_vcs  # noqa
+import os  # noqa
 from manageElements import *  # noqa
-import collections
+import collections  # noqa
 
 _colorMap = "default"
 
@@ -205,9 +205,7 @@ template.P("default")
 t = taylor.Gtd("default")
 
 
-pth = vcs.__path__[0].split(os.path.sep)
-pth = pth[:-4]  # Maybe need to make sure on none framework config
-pth = ['/'] + pth + ['share', 'vcs', 'initial.attributes']
+pth = [vcs.prefix, 'share', 'vcs', 'initial.attributes']
 try:
     vcs.scriptrun(os.path.join(*pth))
 except:

@@ -68,10 +68,10 @@ from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisc
     plot_2_1D_options
 gui_canvas_closed = 0
 canvas_closed = 0
-import vcsaddons
-import vcs.manageElements
-import configurator
-from projection import round_projections
+import vcsaddons  # noqa
+import vcs.manageElements  # noqa
+import configurator  # noqa
+from projection import round_projections  # noqa
 
 
 class SIGNAL(object):
@@ -799,8 +799,8 @@ class Canvas(object):
         # Draw continental outlines if specified.
         contout = keyargs.get('continents', None)
         if contout is None:
-            if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude()
-                    and tv.getAxis(ydim).isLatitude()) or (self.isplottinggridded):
+            if (xdim >= 0 and ydim >= 0 and tv.getAxis(xdim).isLongitude() and tv.getAxis(ydim).isLatitude()) or\
+                    (self.isplottinggridded):
                 contout = self.getcontinentstype()
             else:
                 contout = 0
@@ -989,7 +989,7 @@ class Canvas(object):
 ##########################################################################
 
         self.canvas_template_editor = None
-        self.ratio = 0
+        self.ratio = '0'
         self._user_actions_names = [
             'Clear Canvas',
             'Close Canvas',
@@ -2528,7 +2528,6 @@ Options:::
         check_tmpl = vcs.gettemplate(arglist[2])
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
-        Doratio = keyargs.get("ratio", None)
         doratio = str(keyargs.get('ratio', self.ratio)).strip().lower()
         if doratio[-1] == 't' and doratio[0] == '0':
             if float(doratio[:-1]) == 0.:
@@ -2604,19 +2603,18 @@ Options:::
                 # tmp.list()
             except:
                 arglist[4] = 'default'
-        elif inGrid is not None \
-                and (arglist[0] is not None
-                     and isinstance(arglist[0], cdms2.avariable.AbstractVariable)
-                     and not isinstance(inGrid, cdms2.grid.AbstractRectGrid)) \
-                and arglist[3] in ["boxfill", "default"] and arglist[4] == "default":
+        elif inGrid is not None and arglist[0] is not None and\
+                isinstance(arglist[0], cdms2.avariable.AbstractVariable) and\
+                not isinstance(inGrid, cdms2.grid.AbstractRectGrid) and\
+                arglist[3] in ["boxfill", "default"] and arglist[4] == "default":
             arglist[3] = "meshfill"
 
 # arglist[4]=copy_mthd.name
         # Ok let's check for meshfill needed
-        if inGrid is not None and (arglist[0] is not None
-                                   and isinstance(arglist[0], cdms2.avariable.AbstractVariable) and
-                                   not isinstance(arglist[0].getGrid(), cdms2.grid.AbstractRectGrid))\
-                and arglist[3] not in ["meshfill", ]:
+        if inGrid is not None and arglist[0] is not None and\
+                isinstance(arglist[0], cdms2.avariable.AbstractVariable) and\
+                not isinstance(arglist[0].getGrid(), cdms2.grid.AbstractRectGrid) and\
+                arglist[3] not in ["meshfill", ]:
             raise RuntimeError("You are attempting to plot unstructured grid" +
                                "with a method that is not meshfill")
         # preprocessing for extra keyword (at-plotting-time options)
@@ -3040,9 +3038,9 @@ Options:::
                 and check_mthd.xticlabels2 == '*' \
                 and check_mthd.xmtics1 in ['*', ''] \
                 and check_mthd.xmtics2 in ['*', ''] \
-                and not (check_mthd.g_name in ['G1d']
-                         and (check_mthd.flip is True or arglist[1] is not None)
-                         and arglist[0].ndim == 1):  # used to be GXy GX
+                and not (check_mthd.g_name in ['G1d'] and
+                         (check_mthd.flip is True or arglist[1] is not None) and
+                         arglist[0].ndim == 1):  # used to be GXy GX
             ax = arglist[0].getAxis(-1).clone()
             ids = arglist[0].getAxisIds()
             for i in range(len(ids)):
@@ -3128,15 +3126,13 @@ Options:::
                         copy_mthd.datawc_x2,
                         copy_mthd.datawc_timeunits,
                         copy_mthd.datawc_calendar)
-        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm'
-                  and isinstance(arglist[0].getGrid(),
-                                 (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
+        elif not (getattr(check_mthd, 'g_name', '') == 'Gfm' and
+                  isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):
             try:
                 if arglist[0].getAxis(-1).isTime():  # used to GXy
-                    if (check_mthd.xticlabels1 == '*'
-                        and check_mthd.xticlabels2 == '*'
-                        and not (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
-                       and check_mthd.g_name not in ['G1d']:  # used to be GSp
+                    if check_mthd.xticlabels1 == '*' and check_mthd.xticlabels2 == '*' and\
+                            not (check_mthd.g_name == 'G1d' and check_mthd.flip) and\
+                            check_mthd.g_name not in ['G1d']:  # used to be GSp
                         if copy_mthd is None:
                             copy_mthd = vcs.creategraphicsmethod(
                                 arglist[3],
@@ -3162,9 +3158,9 @@ Options:::
                 and check_mthd.ymtics2 in ['*', ''] \
                 and arglist[0].getAxis(-2).isTime() \
                 and (arglist[0].ndim > 1 or (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
-                and not (check_mthd.g_name == 'Gfm'
-                         and isinstance(arglist[0].getGrid(),
-                                        (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):  # GXy
+                and not (check_mthd.g_name == 'Gfm' and
+                         isinstance(arglist[0].getGrid(),
+                                    (cdms2.gengrid.AbstractGenericGrid, cdms2.hgrid.AbstractCurveGrid))):  # GXy
             ax = arglist[0].getAxis(-2).clone()
             # used to be  Sp
             if check_mthd.g_name == "G1d" and check_mthd.linewidth == 0:
@@ -3585,7 +3581,7 @@ Options:::
                     doratio = "1t"
 
                 if proj.type == 'linear' and doratio[:4] == 'auto':
-                    lon1, lon2, lat2, lat2 = p.worldcoordinate
+                    lon1, lon2, lat1, lat2 = p.worldcoordinate
                     t.ratio_linear_projection(
                         lon1,
                         lon2,
@@ -3641,6 +3637,9 @@ Options:::
                 if p.type == 'linear':
                     if gm.g_name == 'Gfm':
                         if self.isplottinggridded:
+                            # TODO: This computation is wrong as a meshfill can be wrapped.
+                            # this means that we have to create the VTK dataset before
+                            # we know the actual lon1, lon2.
                             lon1, lon2 = vcs.minmax(arglist[1][..., :, 1, :])
                             lat1, lat2 = vcs.minmax(arglist[1][..., :, 0, :])
                             if lon2 - lon1 > 360:
@@ -3767,7 +3766,7 @@ Options:::
 
             if dn is not None:
                 dn._template_origin = template_origin
-                dn.ratio = Doratio
+                dn.ratio = keyargs.get("ratio", None)
                 dn.continents = self.getcontinentstype()
                 dn.continents_line = self.getcontinentsline()
                 dn.newelements = self.__new_elts(original_elts, new_elts)
@@ -4395,8 +4394,7 @@ Options:::
             raise ValueError(
                 "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'.")
 
-        if ((width == -99) and (height == -99)
-                and (x == -99) and (y == -99) and (clear == 0)):
+        if ((width == -99) and (height == -99) and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
                 dict = self.canvasinfo(*cargs)
@@ -4577,8 +4575,7 @@ Options:::
             raise ValueError(
                 "clear must be: 0 - 'the default value for not clearing the canvas' or 1 - 'for clearing the canvas'.")
 
-        if ((width == -99) and (height == -99)
-                and (x == -99) and (y == -99) and (clear == 0)):
+        if ((width == -99) and (height == -99) and (x == -99) and (y == -99) and (clear == 0)):
             cargs = ()
             try:
                 dict = self.canvasinfo(*cargs)
