@@ -4,7 +4,7 @@
 #    python setup.py install
 #
 #
-from distutils.core import setup
+from setuptools import setup, find_packages
 import os
 
 import cdat_info
@@ -24,9 +24,8 @@ setup(name="vcs",
       version=cdat_info.Version,
       description="Visualization and Control System",
       url="http://uvcdat.llnl.gov",
-      packages=['vcs', 'vcs.vtk_ui', 'vcs.vtk_ui.behaviors', "vcs.editors",
-                'vcs.vcsvtk'],
-      package_dir={'vcs': 'Lib',
+      packages=find_packages(),
+      package_dir={'vcs': 'vcs',
                    },
       data_files=[('share/vcs', ('Share/wmo_symbols.json',
                                  'Share/data_continent_coarse',

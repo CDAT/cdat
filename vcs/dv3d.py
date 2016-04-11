@@ -156,8 +156,13 @@ class Gfdv3d(object):
         return self.cfgManager.getConfigurationState(pname, **args)
 
     def add_property(self, name):
-        fget = lambda self: self.getParameter(name)
-        fset = lambda self, value: self.setParameter(name, value)
+
+        def fget(self):
+            return self.getParameter(name)
+
+        def fset(self, value):
+            self.setParameter(name, value)
+
         setattr(self.__class__, name, property(fget, fset))
         if name not in Gfdv3d.__slots__:
             Gfdv3d.__slots__.append(name)

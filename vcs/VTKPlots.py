@@ -51,9 +51,9 @@ class VTKVCSBackend(object):
             'continents_renderer',
             # dataset bounds in lon/lat coordinates
             'dataset_bounds',
-            # this may be slightly smaller than the data viewport. It is used
-            # for vectorpipeline when drawn on top of a boxfill for instance
-            'dataset_viewport',
+            # This may be smaller than the data viewport. It is used
+            # if autot is passed
+            'ratio_autot_viewport',
             # used to render the dataset
             'dataset_renderer',
             # dataset scale: (xScale, yScale)
@@ -441,8 +441,15 @@ class VTKVCSBackend(object):
     def canvasinfo(self):
         if self.renWin is None:
             mapstate = False
-            height = self.canvas.bgY
-            width = self.canvas.bgX
+            if (self.bg):
+                height = self.canvas.bgY
+                width = self.canvas.bgX
+            elif (self._initialGeometry):
+                height = self._initialGeometry['height']
+                width = self._initialGeometry['width']
+            else:
+                height = self.canvas.bgY
+                width = self.canvas.bgX
             depth = None
             x = 0
             y = 0
@@ -593,7 +600,7 @@ class VTKVCSBackend(object):
         pipeline = vcsvtk.createPipeline(gm, self)
         if pipeline is not None:
             returned.update(pipeline.plot(data1, data2, tpl,
-                                          vtk_backend_grid, vtk_backend_geo))
+                                          vtk_backend_grid, vtk_backend_geo, **kargs))
         elif gtype in ["3d_scalar", "3d_dual_scalar", "3d_vector"]:
             cdms_file = kargs.get('cdmsfile', None)
             cdms_var = kargs.get('cdmsvar', None)
@@ -629,7 +636,7 @@ class VTKVCSBackend(object):
                 create_renderer = True
                 bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
                 for act, geo in actors:
-                    ren = self.fitToViewportBounds(
+                    ren = self.fitToViewport(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
@@ -645,7 +652,7 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_marker_actors"] = actors
                 create_renderer = True
                 for g, gs, pd, act, geo in actors:
-                    ren = self.fitToViewportBounds(
+                    ren = self.fitToViewport(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
@@ -664,7 +671,7 @@ class VTKVCSBackend(object):
                 returned["vtk_backend_fillarea_actors"] = actors
                 create_renderer = True
                 for act, geo in actors:
-                    ren = self.fitToViewportBounds(
+                    ren = self.fitToViewport(
                         act,
                         gm.viewport,
                         wc=gm.worldcoordinate,
@@ -797,12 +804,12 @@ class VTKVCSBackend(object):
         # Stippling
         vcs2vtk.stippleLine(line_prop, contLine.type[0])
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
-        return self.fitToViewportBounds(contActor,
-                                        vp,
-                                        wc=wc, geo=geo,
-                                        geoBounds=vtk_backend_grid.GetBounds(),
-                                        priority=priority,
-                                        create_renderer=True)
+        return self.fitToViewport(contActor,
+                                  vp,
+                                  wc=wc, geo=geo,
+                                  geoBounds=vtk_backend_grid.GetBounds(),
+                                  priority=priority,
+                                  create_renderer=True)
 
     def renderTemplate(self, tmpl, data, gm, taxis, zaxis, **kargs):
         # ok first basic template stuff, let's store the displays
@@ -1250,8 +1257,8 @@ class VTKVCSBackend(object):
                 self.setLayer(self.logoRenderer, 1)
                 self.renWin.AddRenderer(self.logoRenderer)
 
-    def fitToViewportBounds(self, Actor, vp, wc=None, geoBounds=None, geo=None, priority=None,
-                            create_renderer=False):
+    def fitToViewport(self, Actor, vp, wc=None, geoBounds=None, geo=None, priority=None,
+                      create_renderer=False):
 
         # Data range in World Coordinates
         if priority == 0:

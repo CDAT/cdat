@@ -21,7 +21,7 @@ class Pipeline1D(Pipeline):
     def __init__(self, gm, context_):
         super(Pipeline1D, self).__init__(gm, context_)
 
-    def plot(self, data1, data2, tmpl, grid, transform):
+    def plot(self, data1, data2, tmpl, grid, transform, **kargs):
         """Overrides baseclass implementation."""
         Y = self._context().trimData1D(data1)
         if data2 is None:
