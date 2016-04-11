@@ -32,7 +32,7 @@ elif (plot.find('meshfill') != -1):
     gm = x.getmeshfill(plot)
 else:
     print "Invalid plot"
-    exit(13)
+    sys.exit(13)
 
 # Has to plot in foreground to simulate a click
 x.plot(s, gm)

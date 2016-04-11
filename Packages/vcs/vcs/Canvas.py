@@ -989,7 +989,7 @@ class Canvas(object):
 ##########################################################################
 
         self.canvas_template_editor = None
-        self.ratio = 0
+        self.ratio = '0'
         self._user_actions_names = [
             'Clear Canvas',
             'Close Canvas',
@@ -2528,7 +2528,6 @@ Options:::
         check_tmpl = vcs.gettemplate(arglist[2])
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
-        Doratio = keyargs.get("ratio", None)
         doratio = str(keyargs.get('ratio', self.ratio)).strip().lower()
         if doratio[-1] == 't' and doratio[0] == '0':
             if float(doratio[:-1]) == 0.:
@@ -3578,7 +3577,7 @@ Options:::
                     doratio = "1t"
 
                 if proj.type == 'linear' and doratio[:4] == 'auto':
-                    lon1, lon2, lat2, lat2 = p.worldcoordinate
+                    lon1, lon2, lat1, lat2 = p.worldcoordinate
                     t.ratio_linear_projection(
                         lon1,
                         lon2,
@@ -3634,6 +3633,9 @@ Options:::
                 if p.type == 'linear':
                     if gm.g_name == 'Gfm':
                         if self.isplottinggridded:
+                            # TODO: This computation is wrong as a meshfill can be wrapped.
+                            # this means that we have to create the VTK dataset before
+                            # we know the actual lon1, lon2.
                             lon1, lon2 = vcs.minmax(arglist[1][..., :, 1, :])
                             lat1, lat2 = vcs.minmax(arglist[1][..., :, 0, :])
                             if lon2 - lon1 > 360:
@@ -3756,7 +3758,7 @@ Options:::
 
             if dn is not None:
                 dn._template_origin = template_origin
-                dn.ratio = Doratio
+                dn.ratio = keyargs.get("ratio", None)
                 dn.continents = self.getcontinentstype()
                 dn.continents_line = self.getcontinentsline()
                 dn.newelements = self.__new_elts(original_elts, new_elts)
