@@ -5,7 +5,6 @@
 # user's $HOME/.uvcdat directory.                                    #
 #                                                                           #
 #############################################################################
-import vcs
 
 
 def _files():
@@ -35,11 +34,11 @@ def _files():
     #
     # Copy the initial.attributes file to the user's $HOME/.uvcdat directory
     files = ["initial.attributes",
-            "data_continent_states",
-            "data_continent_political",
-            "data_continent_river",
-            "data_continent_other7",
-            ]
+             "data_continent_states",
+             "data_continent_political",
+             "data_continent_river",
+             "data_continent_other7",
+             ]
     for file_name in files:
         file_cp = os.path.join(
             vcs.prefix,
@@ -47,7 +46,6 @@ def _files():
             'vcs',
             file_name)
         ofile = os.path.join(fn, file_name)
-        print "Copy",file_cp,"to",ofile
         if (os.access(file_cp, os.F_OK) == 1) and (
                 os.path.isfile(ofile) == 0):
             shutil.copyfile(file_cp, ofile)
