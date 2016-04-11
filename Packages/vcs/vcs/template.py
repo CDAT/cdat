@@ -1012,7 +1012,6 @@ class P(object):
 
     # Adding the drawing functionnality to plot all these attributes on the
     # Canvas
-
     def drawTicks(self, slab, gm, x, axis, number,
                   vp, wc, bg=0, X=None, Y=None, **kargs):
         """Draws the ticks for the axis x number number
@@ -1082,11 +1081,11 @@ class P(object):
             ticks.worldcoordinate = wc
             tt.worldcoordinate = wc
             if axis == "y":
-                tt.viewport = [
-                    objlabl.x,
-                    self.data.x2,
-                    self.data.y1,
-                    self.data.y2]
+                tt.viewport = vp
+                # TODO: Transform axes names through geographic projections
+                # In that case the if goes and only the statement stays
+                if ("ratio_autot_viewport" not in kargs):
+                    tt.viewport[0] = objlabl.x
                 if vcs.elements["projection"][
                         tt.projection].type in round_projections:
                     tt.priority = 0
@@ -1106,11 +1105,11 @@ class P(object):
                     tt.viewport = vp
                     pass
                 else:
-                    tt.viewport = [
-                        self.data.x1,
-                        self.data.x2,
-                        objlabl.y,
-                        self.data.y2]
+                    tt.viewport = vp
+                    # TODO: Transform axes names through geographic projections
+                    # In that case the if goes and only the statement stays
+                    if ("ratio_autot_viewport" not in kargs):
+                        tt.viewport[2] = objlabl.y
 
         # initialize the list of values
         tstring = []
@@ -1483,6 +1482,8 @@ class P(object):
                 tt.x = [sub.x]
                 tt.y = [sub.y]
                 tt.priority = sub.priority
+                # this is text such as variable name, min/max
+                # that does not have to follow ratio=atot
                 dp = x.text(tt, bg=bg, **kargs)
                 if dp is not None:
                     if s != "id":
@@ -1527,6 +1528,8 @@ class P(object):
                 tt.x = [sub.x, ]
                 tt.y = [sub.y, ]
                 tt.priority = sub._priority
+                # This is the name of the axis. It should be transformed
+                # through geographic projection but it is not at the moment
                 displays.append(x.text(tt, bg=bg, **kargs))
                 sp = tt.name.split(":::")
                 del(vcs.elements["texttable"][sp[0]])
@@ -1540,7 +1543,7 @@ class P(object):
         wc2 = vcs.utils.getworldcoordinates(gm, X, Y)
         wc2 = kargs.get("plotting_dataset_bounds", wc2)
         vp2 = [self.data._x1, self.data._x2, self.data._y1, self.data._y2]
-        vp2 = kargs.get("dataset_viewport", vp2)
+        vp2 = kargs.get("ratio_autot_viewport", vp2)
 
         # Do the tickmarks/labels
         if not isinstance(gm, vcs.taylor.Gtd):
@@ -1595,7 +1598,7 @@ class P(object):
             Y = slab.getAxis(-2)
 
         wc2 = vcs.utils.getworldcoordinates(gm, X, Y)
-        wc2 = kargs.get("dataset_bounds", wc2)
+        wc2 = kargs.get("plotting_dataset_bounds", wc2)
 
         # Do the boxes and lines
         for tp in ["box", "line"]:
@@ -1608,7 +1611,8 @@ class P(object):
                     if vcs.elements["projection"][
                             l.projection].type != "linear":
                         l.worldcoordinate = wc2[:4]
-                        l.viewport = [e._x1, e._x2, e._y1, e._y2]
+                        l.viewport = kargs.get("ratio_autot_viewport",
+                                               [e._x1, e._x2, e._y1, e._y2])
                         dx = (e._x2 - e._x1) / \
                             (self.data.x2 - self.data.x1) * (wc2[1] - wc2[0])
                         dy = (e._y2 - e._y1) / \
