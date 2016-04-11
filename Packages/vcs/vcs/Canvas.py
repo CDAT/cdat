@@ -881,8 +881,6 @@ class Canvas(object):
         global gui_canvas_closed
         global canvas_closed
 
-        is_canvas = len(vcs.return_display_names()[0])
-
         self.winfo_id = -99
         self.varglist = []
         self.canvas_gui = None
@@ -4065,7 +4063,6 @@ Options:::
     ##########################################################################
     def plot_annotation(self, *args):
         self.canvas.plot_annotation(*args)
-
 
     ##########################################################################
     #                                                                           #
