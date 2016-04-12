@@ -3891,6 +3891,9 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.clear()
 
+  Internally, update() calls clear() to assist in removing plots. The preserve_display argument is used to
+  make sure that the display plots that are associated with the current canvas are not eliminated, and
+  are still able to be used to regenerate the plots.
 """
         if self.animate.created():
             self.animate.close()
