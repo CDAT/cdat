@@ -306,7 +306,7 @@ class VTKVCSBackend(object):
             key["continents_line"] = d.continents_line
             key_args.append(key)
 
-        # Have to pull out the UI layer so it doesn't get borked by the clear
+        # Have to pull out the UI layer so it doesn't get borked by the z
         self.hideGUI()
 
         if self.canvas.configurator is not None:
