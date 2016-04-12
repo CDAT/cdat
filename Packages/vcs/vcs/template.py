@@ -1178,7 +1178,10 @@ class P(object):
         mintics = getattr(gm, axis + 'mtics' + number)
         if mintics != '':
             if isinstance(mintics, str):
-                mintics = vcs.elements["list"][mintics]
+                if mintics == "*":
+                    mintics = {}
+                else:
+                    mintics = vcs.elements["list"][mintics]
             obj = getattr(self, axis + 'mintic' + number)
             if obj.priority > 0:
                 ynum = getattr(self._data, "_y%s" % number)

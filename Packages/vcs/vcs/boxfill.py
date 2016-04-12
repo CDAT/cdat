@@ -24,6 +24,7 @@ import vcs
 import cdtime
 import VCS_validation_functions
 import xmldocs
+import numpy
 import warnings
 
 
@@ -687,6 +688,56 @@ class Gfb(object):
         VCS_validation_functions.checkDatawc(self, 'datawc_y2', value)
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
+
+    def autolevels(self, variable):
+        if self.boxfill_type == "custom":
+            return self.levels
+        # Calculate levels
+        level_count = self.color_2 - self.color_1 + 1
+        minval, maxval = vcs.minmax(variable)
+        if numpy.isclose(self.level_1, 1.e20) or numpy.isclose(self.level_2, 1.e20):
+            levels = vcs.mkscale(minval, maxval)
+            if len(levels) == 1:
+                levels = [minval, maxval + .00001]
+            dx = (levels[-1] - levels[0]) / float(level_count)
+            levels = numpy.arange(levels[0], levels[-1] + dx, dx)
+        else:
+            if self.boxfill_type == "log10":
+                levels = vcs.mkevenlevels(numpy.ma.log10(self.level_1), numpy.ma.log10(self.level_2), nlev=level_count)
+            else:
+                levels = vcs.mkevenlevels(self.level_1, self.level_2, nlev=level_count)
+        return levels
+
+    def autolabels(self, variable):
+        if numpy.allclose(self.level_1, 1.e20) or numpy.allclose(self.level_2, 1.e20):
+            lower, upper = vcs.minmax(variable)
+            scale = vcs.mkscale(lower, upper)
+            if len(scale) == 1:
+                scale = [lower, upper + .00001]
+            labels = vcs.mklabels(scale)
+        else:
+            levels = self.autolevels(variable)
+            if self.boxfill_type == "log10":
+                levslbls = vcs.mkscale(numpy.ma.log10(self.level_1), numpy.ma.log10(self.level_2))
+            else:
+                levslbls = vcs.mkscale(self.level_1, self.level_2)
+
+            if len(levels) > 25:
+                labels = vcs.mklabels(levslbls)
+                # Make sure first and last levels are labeled
+                legend = vcs.mklabels([levels[0], levels[-1]])
+                labels.update(legend)
+            else:
+                labels = vcs.mklabels(levels)
+
+        if self.boxfill_type == "log10":
+            logLabels = {}
+            for key, value in labels.iteritems():
+                newKey = float(numpy.ma.log10(value))
+                logLabels[newKey] = value
+            labels = logLabels
+
+        return labels
 
     def colors(self, color1=16, color2=239):
         self.color_1 = color1
