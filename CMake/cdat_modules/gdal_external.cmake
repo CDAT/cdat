@@ -17,7 +17,9 @@ ExternalProject_Add(gdal
   URL_MD5 ${GDAL_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND sh configure --prefix=${cdat_EXTERNALS} --with-hdf5=${cdat_EXTERNALS} --with-netcdf=${cdat_EXTERNALS} --with-curl=${cdat_EXTERNALS} --with-geos=${cdat_EXTERNALS}/bin/geos-config --with-python=${PYTHON_EXECUTABLE} --with-jpeg=no --with-libtiff=internal --without-jpeg12 --with-geotiff=internal
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${gdal_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/${configure_file}
+  BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   DEPENDS "${gdal_deps}"
   ${ep_log_options}
 )

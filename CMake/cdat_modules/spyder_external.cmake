@@ -2,6 +2,6 @@
 # and configure and build it
 
 set (nm spyder)
-
+set(OLD "OFF")
 include(pipinstaller)
 
