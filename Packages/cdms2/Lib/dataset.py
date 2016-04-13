@@ -334,7 +334,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 return file
             except Exception,err:
                 msg = "Error in DODS open of: "+uri
-                if os.path.exists(os.path.join(os.environ["HOME"],".dodsrc")):
+                if os.path.exists(os.path.join(os.path.expanduser("~"),".dodsrc")):
                   msg+="\nYou have a .dodsrc in your HOME directory, try to remove it"
                 raise CDMSError(msg)
         else:
