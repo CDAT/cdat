@@ -479,7 +479,6 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
 					     /* Check the filetype */
 	int saveopts;
 
-	Py_DebugTrap();
 	saveopts = cuErrOpts;
 	cuseterropts(0);
 	*filetype=CuGetFileType(controlpath);
