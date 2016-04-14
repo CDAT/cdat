@@ -1,31 +1,38 @@
 from core import VCSaddon
-import cdms2,MV2,vcs,vcsaddons
+import cdms2
+import MV2
+import numpy
+import vcs
+import vcsaddons
+
 
 class Ghg(VCSaddon):
-    def __init__(self,name=None,source='default',x=None,template = None):
-        self.g_name='Ghg'
-        self.g_type='histogram'
-        VCSaddon.__init__(self,name,source,x,template)
+
+    def __init__(self, name=None, source='default', x=None, template=None):
+        self.g_name = 'Ghg'
+        self.g_type = 'histogram'
+        VCSaddon.__init__(self, name, source, x, template)
         if source == 'default':
-            self.fillareastyles = ['solid',]
-            self.fillareaindices = [1,]
-            self.fillareacolors = [252,]
-            self.line = ['solid',]
-            self.linewidth=[1.0,]
-            self.linecolors=[241,]
+            self.line = []
+            self.linewidth = []
+            self.linecolors = []
+            self.fillareastyles = []
+            self.fillareaindices = []
+            self.fillareacolors = []
+            self.bins = []
         else:
             gm = vcsaddons.gms[self.g_name][source]
-            self.fillareastyle= gm.fillareastyles
-            self.fillareaindices = gm.fillareaindices
-            self.fillareacolors = gm.fillareacolors
             self.line = gm.line
             self.linewidth = gm.linewidth
             self.linecolors = gm.linecolors
-            
+            self.fillareastyles = gm.fillareastyles
+            self.fillareaindices = gm.fillareaindices
+            self.fillareacolors = gm.fillareacolors
+            self.bins = gm.bins
 
     def list(self):
         print '---------- Histogram (Ghg) member (attribute) listings ----------'
-        print 'Canvas Mode = ',self.x.mode
+        print 'Canvas Mode = ', self.x.mode
         VCSaddon.list(self)
         print 'fillareastyles = ', self.fillareastyles
         print 'fillareaindices = ', self.fillareaindices
@@ -33,84 +40,142 @@ class Ghg(VCSaddon):
         print 'line = ', self.line
         print 'linewidth = ', self.linewidth
         print 'linecolors = ', self.linecolors
-        
-    
-    def plot(self,data,template = None, bg=0, x=None):
+        print 'bins = ', self.bins
+
+    def plot(self, data, template=None, bg=0, x=None, **kwargs):
         if x is None:
             x = self.x
         if template is None:
             template = self.template
-        elif isinstance(template,str):
+        elif isinstance(template, str):
             template = x.gettemplate(template)
         elif not vcs.istemplate(template):
-            raise "Error did not know what to do with template: %s" % template
-        
-        if not isinstance(data,cdms2.tvariable.TransientVariable):
-            mode= cdms2.getAutoBounds()
-            cdms2.setAutoBounds("on")
-            data = MV2.array(data)
-            data.getAxis(-1).getBounds()
-            cdms2.setAutoBounds(mode)
+            raise ValueError("Error did not know what to do with template: %s" % template)
+        try:
+            data_name = data.title
+        except AttributeError:
+            try:
+                data_name = data.long_name
+            except AttributeError:
+                try:
+                    data_name = data.id + data.units
+                except AttributeError:
+                    data_name = data.id
 
-        while data.rank()>1:
-            data = data[0]
+        # We'll just flatten the data... if they want to be more precise, should pass in more precise data
+        data = data.flatten().asma()
 
         # ok now we have a good x and a good data
-        nbars = len(data)
+        if not self.bins:
+            self.bins = vcs.utils.mkscale(*vcs.minmax(data))
+
+        data_bins = numpy.digitize(data, self.bins) - 1
+        binned = [data[data_bins==i] for i in range(len(self.bins))]
+
+        means = []
+        stds = []
+
+        max_possible_deviance = 0
+
+        for ind, databin in enumerate(binned):
+            means.append(databin.mean())
+            stds.append(databin.std())
+            if len(self.bins) > ind + 1:
+                max_possible_deviance = max(means[ind] - self.bins[ind], self.bins[ind + 1] - means[ind], max_possible_deviance)
+            else:
+                max_possible_deviance = max(means[ind] - self.bins[ind], max_possible_deviance)
+
+        color_values = [std / max_possible_deviance for std in stds]
+        y_values = [len(databin) for databin in binned]
+        nbars = len(self.bins) - 1
 
         # create the primitive
         fill = x.createfillarea()
         line = x.createline()
-        fill.viewport = [template.data.x1,template.data.x2,template.data.y1,template.data.y2]
-        line.viewport = [template.data.x1,template.data.x2,template.data.y1,template.data.y2]
-        axb = data.getAxis(0).getBounds()
-        xmn,xmx = vcs.minmax(axb)
-        ymn,ymx = vcs.minmax(data)
-        
-        xmn,xmx,ymn,ymx = self.prep_plot(xmn,xmx,ymn,ymx)
-        
-        fill.worldcoordinate=[xmn,xmx,ymn,ymx]
-        line.worldcoordinate=[xmn,xmx,ymn,ymx]
-        
-        styles =[]
+        fill.viewport = [
+            template.data.x1, template.data.x2, template.data.y1, template.data.y2]
+        line.viewport = [
+            template.data.x1, template.data.x2, template.data.y1, template.data.y2]
+
+        xmn, xmx = vcs.minmax(self.bins)
+        # Make the y scale be slightly larger than the largest bar
+        ymn, ymx = 0, max(y_values) * 1.25
+
+        #xmn, xmx, ymn, ymx = self.prep_plot(xmn, xmx, ymn, ymx)
+
+        fill.worldcoordinate = [xmn, xmx, ymn, ymx]
+        line.worldcoordinate = [xmn, xmx, ymn, ymx]
+
+        styles = []
         cols = []
         indices = []
         lt = []
-        lw =[]
+        lw = []
         lc = []
         xs = []
         ys = []
-        
+
+        levels = [.1 * i for i in range(11)]
+
+        # Extend fillarea and line attrs to levels
+        if self.fillareastyles:
+            while len(self.fillareastyles) < (len(levels) - 1):
+                self.fillareastyles.append(self.fillareastyles[-1])
+        else:
+            self.fillareastyles = ["solid"] * (len(levels) - 1)
+
+        if self.fillareacolors:
+            while len(self.fillareacolors) < (len(levels) - 1):
+                self.fillareacolors.append(self.fillareacolors[-1])
+        else:
+            for lev in levels[:-1]:
+                self.fillareacolors.append(int((self.color_2 - self.color_1) * lev) + self.color_1)
+
+        if self.fillareaindices:
+            while len(self.fillareaindices) < (len(levels) - 1):
+                self.fillareaindices.append(self.fillareaindices[-1])
+        else:
+            self.fillareaindices = [1] * (len(levels) - 1)
+
+        if self.line:
+            while len(self.line) < (len(levels) - 1):
+                self.line.append(self.line[-1])
+        else:
+            self.line = ["solid"] * (len(levels) - 1)
+
+        if self.linewidth:
+            while len(self.linewidth) < (len(levels) - 1):
+                self.linewidth.append(self.linewidth[-1])
+        else:
+            self.linewidth = [1] * (len(levels) - 1)
+
+        if self.linecolors:
+            while len(self.linecolors) < (len(levels) - 1):
+                self.linecolors.append(self.linecolors[-1])
+        else:
+            self.linecolors = ["black"] * (len(levels) - 1)
 
         for i in range(nbars):
-            if i < len(self.fillareastyles):
-                styles.append(self.fillareastyles[i])
-            else:
-                styles.append(self.fillareastyles[-1])
-            if i < len(self.fillareacolors):
-                cols.append(self.fillareacolors[i])
-            else:
-                cols.append(self.fillareacolors[-1])
-            if i < len(self.fillareaindices):
-                indices.append(self.fillareaindices[i])
-            else:
-                indices.append(self.fillareaindices[-1])
-            if i < len(self.line):
-                lt.append( self.line[i])
-            else:
-                lt.append(self.line[-1])
-            if i < len(self.linewidth):
-                lw.append( self.linewidth[i])
-            else:
-                lw.append(self.linewidth[-1])
-            if i < len(self.line):
-                lc.append( self.linecolors[i])
-            else:
-                lc.append(self.linecolors[-1])
-            
-            xs.append( [axb[i][0],axb[i][1],axb[i][1],axb[i][0],axb[i][0]])
-            ys.append( [0,0,data[i],data[i],0])
+            # Calculate level for bar
+            value = color_values[i]
+            for lev_ind in range(len(levels)):
+                if levels[lev_ind] > value:
+                    if lev_ind > 0:
+                        lev_ind -= 1
+                        break
+                    else:
+                        # Shouldn't ever get here since level 0 is 0
+                        assert False
 
+            styles.append(self.fillareastyles[lev_ind])
+            cols.append(self.fillareacolors[lev_ind])
+            indices.append(self.fillareaindices[lev_ind])
+            lt.append(self.line[lev_ind])
+            lw.append(self.linewidth[lev_ind])
+            lc.append(self.linecolors[lev_ind])
+
+            xs.append([self.bins[i], self.bins[i], self.bins[i + 1], self.bins[i + 1]])
+            ys.append([0, y_values[i], y_values[i], 0])
 
         fill.style = styles
         fill.x = xs
@@ -118,20 +183,33 @@ class Ghg(VCSaddon):
         fill.style
         fill.index = indices
         fill.color = cols
+        fill.colormap = self.colormap
         line.x = xs
         line.y = ys
         line.type = lt
         line.width = lw
         line.color = lc
-
         displays = []
-        displays.append(x.plot(fill,bg=bg))
-        displays.append(x.plot(line,bg=bg))
 
-        x.worldcoordinate = fill.worldcoordinate 
-        dsp = template.plot(data,self,bg=bg)
+        x_axis = cdms2.createAxis(self.bins, id=data_name)
+        y_axis = cdms2.createAxis(vcs.mkscale(0, ymx), id="bin_size")
+
+        displays.append(x.plot(fill, bg=bg, render=False))
+        arr = MV2.masked_array(y_values)
+        arr.setAxis(0, x_axis)
+        dsp = template.plot(x, arr, self, bg=bg, X=x_axis, Y=y_axis)
         for d in dsp:
-            displays.append(d)
+            if d is not None:
+                displays.append(d)
+
+        dsp = template.drawColorBar(self.fillareacolors, levels, legend={0: "No Variance", .1:"", .2: "", .3:"", .4:"", .5:"", .6:"", .7:"", .8:"", .9:"", 1: "High Variance"}, x=x)
+        for d in dsp:
+            if d is not None:
+                displays.append(d)
+
+        displays.append(x.plot(line, bg=bg))
+
+        x.worldcoordinate = fill.worldcoordinate
 
         self.restore()
         return displays
