@@ -1272,10 +1272,11 @@ int cdms2_nccreate(char *filename, int ncmode) {
     ncmode = ncmode | NC_CLASSIC_MODEL;
   }
 #ifdef PARALLEL
-    nc_set_log_level(3);
-    int ierrnc;
+    nc_set_log_level(0);
+    int ierrnc, old;
     if (nc_flag_on(ncmode,NC_MPIIO)) {
       ierrnc = nc_create_par(filename, ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&selfncid);
+      ierrnc = nc_set_fill(selfncid, NC_NOFILL, &old);
     }
     else {
       selfncid = nccreate(filename, ncmode);
