@@ -1844,7 +1844,7 @@ class P(object):
                    startlong])
         # Now make sure we have a legend
         if isinstance(levels[0], list):
-            # Ok these are nono contiguous levels, we will use legend only if
+            # Ok these are non-contiguous levels, we will use legend only if
             # it's a perfect match
             for i, l in enumerate(levels):
                 lt = l[0]
@@ -1869,29 +1869,30 @@ class P(object):
         else:
             if legend is None:
                 legend = vcs.mklabels(levels)
+            float_epsilon = numpy.finfo(float).eps
             if levels[0] < levels[1]:
-                ecompfunc = numpy.less_equal
-                compfunc = numpy.less
+                ecompfunc = lambda x, y: float_epsilon > x - y
+                compfunc = lambda x, y: -float_epsilon > x - y
             else:
-                ecompfunc = numpy.greater_equal
-                compfunc = numpy.greater
+                ecompfunc = lambda x, y: -float_epsilon < x - y
+                compfunc = lambda x, y: float_epsilon < x - y
             dlong = dD / (len(levels) - 1)
+
             for l in legend.keys():
+                # if legend key is between levels[0] and levels[-1]
                 if not compfunc(l, levels[0]) and not compfunc(levels[-1], l):
                     for i in range(len(levels) - 1):
-                        if ecompfunc(levels[i], l) and ecompfunc(
-                                l, levels[i + 1]):
-                            # Ok we're between 2 levels, let's add the legend
-                            # first let's figure out where to put it
-                            loc = i * dlong  # position at beginnig of level
-                            # Adds the distance from beginnig of level box
-                            loc += (l - levels[i]) / \
-                                (levels[i + 1] - levels[i]) * dlong
-                            loc += startlong  # Figures out the begining
-    # loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
-                            Ll.append([loc, loc])
+                        # if legend key is (inclusive) between levels[i] and levels[i+1]
+                        if ecompfunc(levels[i], l) and ecompfunc(l, levels[i + 1]):
+                            # first let's figure out where to put the legend label
+                            location = i * dlong  # position at beginning of level
+                            # Adds the distance from beginning of level box
+                            location += (l - levels[i]) / (levels[i + 1] - levels[i]) * dlong
+                            location += startlong  # Figures out the beginning
+
+                            Ll.append([location, location])
                             Sl.append([startshrt, startshrt + dshrt])
-                            Lt.append(loc)
+                            Lt.append(location)
                             St.append(startshrt + dshrt * 1.4)
                             Tt.append(legend[l])
                             break
