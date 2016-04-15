@@ -47,50 +47,8 @@ class BoxfillPipeline(Pipeline2D):
 
     def _updateContourLevelsAndColorsForBoxfill(self):
         """Set contour information for a standard boxfill."""
-        # Compute levels
-        nlev = (self._gm.color_2 - self._gm.color_1) + 1
-        if numpy.allclose(self._gm.level_1, 1.e20) or \
-           numpy.allclose(self._gm.level_2, 1.e20):
-            self._contourLevels = vcs.mkevenlevels(self._scalarRange[0],
-                                              self._scalarRange[1], nlev=min(nlev, 12))
-            if len(self._contourLevels) == 1:  # constant value ?
-                self._contourLevels = [self._contourLevels[0], self._contourLevels[0] + .00001]
-
-            max_precision = max(vcs.guess_precision(self._contourLevels[0]), vcs.guess_precision(self._contourLevels[-1]))
-            self._contourLabels = vcs.mklabels(self._contourLevels, precision=max_precision)
-            dx = (self._contourLevels[-1] - self._contourLevels[0]) / nlev
-            self._contourLevels = numpy.arange(self._contourLevels[0],
-                                               self._contourLevels[-1] + dx,
-                                               dx)
-        else:
-            if self._gm.boxfill_type == "log10":
-                levslbls = vcs.mkscale(numpy.ma.log10(self._gm.level_1),
-                                       numpy.ma.log10(self._gm.level_2))
-                self._contourLevels = vcs.mkevenlevels(
-                    numpy.ma.log10(self._gm.level_1),
-                    numpy.ma.log10(self._gm.level_2), nlev=nlev)
-            else:
-                levslbls = vcs.mkscale(self._gm.level_1, self._gm.level_2)
-                self._contourLevels = vcs.mkevenlevels(self._gm.level_1,
-                                                       self._gm.level_2,
-                                                       nlev=nlev)
-            if len(self._contourLevels) > 25:
-                # Too many colors/levels need to prettyfy this for legend
-                self._contourLabels = vcs.mklabels(levslbls)
-                # Make sure extremes are in
-                legd2 = vcs.mklabels([self._contourLevels[0],
-                                      self._contourLevels[-1]])
-                self._contourLabels.update(legd2)
-            else:
-                self._contourLabels = vcs.mklabels(self._contourLevels)
-            if self._gm.boxfill_type == "log10":
-                logLabels = {}
-                for key in self._contourLabels.keys():
-                    value = self._contourLabels[key]
-                    newKey = float(numpy.ma.log10(value))
-                    logLabels[newKey] = value
-                self._contourLabels = logLabels
-
+        self._contourLevels = self._gm.getlevels(self._scalarRange[0], self._scalarRange[1])
+        self._contourLabels = self._gm.getlegendlabels(self._contourLevels)
         # Use consecutive colors:
         self._contourColors = range(self._gm.color_1, self._gm.color_2 + 1)
 
@@ -283,7 +241,6 @@ class BoxfillPipeline(Pipeline2D):
 
         # Colortable bit
         # make sure length match
-        print self._contourLevels
         numLevels = len(self._contourLevels) - 1
         while len(self._contourColors) < numLevels:
             self._contourColors.append(self._contourColors[-1])
