@@ -32,6 +32,7 @@ f = cdms2.open(vcs.sample_data + "/" + testConfig[plot][0])
 s = f(testConfig[plot][1])
 
 x = vcs.init(bg=bg, geometry=(xSize, ySize))
+x.setbgoutputdimensions(xSize,ySize)
 
 # graphics method
 if (plot.find('boxfill') != -1):
