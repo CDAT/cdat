@@ -36,41 +36,62 @@ def _readUnits():
 
 def addBaseUnit(name):
     """let you add to udunits2 system a new base unit with a specific name"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addBaseUnit(name)
 
 
 def addDimensionlessUnit(name):
     """let you add to udunits2 system a new dimensionless unit with a specific name"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addDimensionlessUnit(name)
 
 
 def addScaledUnit(name, scale, original):
     """let you add to udunits2 system a new scaled unit with a specific name
     from an original unit"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addScaledUnit(name, scale, original)
 
 
 def addOffsettedUnit(name, offset, original):
     """let you add to udunits2 system a new offsetted unit with a specific name
     from an original unit"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addOffsettedUnit(name, offset, original)
 
 
 def addMultipliedUnits(name, unit1, unit2):
     """let you add to udunits2 system a new unit with a specific name
     which is the multiplication of two other units specified by name"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addMultipliedUnits(name, unit1, unit2)
 
 
 def addDividedUnits(name, unit1, unit2):
     """let you add to udunits2 system a new unit with a specific name
     which is the division of two other units specified by name"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addDividedUnits(name, unit1, unit2)
 
 
 def addInvertedUnit(name, original):
     """let you add to udunits2 system a new inverted unit with a specific name
     from an original unit"""
+    if unidata.udunits_init == 0:
+        udunits_wrap.init()  # udunits_name)
+        unidata.udunits_init = 1
     return udunits_wrap.addInvertedUnit(name, original)
 
 

@@ -4,6 +4,7 @@ set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 set(ENV{CC} mpicc)
+set(ENV{CXX} mpicxx)
 
 message("CONFIGURE_ARGS IS ${CONFIGURE_ARGS}")
 message("LD_ARGS IS $ENV{@LIBRARY_PATH@}")
