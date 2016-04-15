@@ -24,6 +24,7 @@ import vcs
 import cdtime
 import VCS_validation_functions
 import xmldocs
+import numpy
 import warnings
 
 
@@ -733,6 +734,49 @@ class Gfb(object):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
     xyscale.__doc__ = xmldocs.xyscaledoc
+
+    def getlevels(self, varmin, varmax):
+        if self.boxfill_type == "custom":
+            return self.levels
+
+        if numpy.allclose(self.level_1, 1.e20) or \
+           numpy.allclose(self.level_2, 1.e20):
+            low_end = varmin
+            high_end = varmax
+        else:
+            low_end = self.level_1
+            high_end = self.level_2
+
+        if self.boxfill_type == "log10":
+            low_end = numpy.ma.log10(low_end)
+            high_end = numpy.ma.log10(high_end)
+
+        nlev = float(self.color_2 - self.color_1 + 1)
+        scale = vcs.mkscale(low_end, high_end)
+
+        low_end = scale[0]
+        high_end = scale[-1]
+
+        dx = (high_end - low_end) / nlev
+
+        contourLevels = numpy.arange(low_end, high_end + dx / 2., dx)
+        return contourLevels
+
+    def getlegendlabels(self, levels):
+        if self.legend:
+            return self.legend
+        nlev = self.color_2 - self.color_1 + 1
+        if nlev >= 12:
+            label_scale = vcs.mkscale(levels[0], levels[-1])
+            return vcs.mklabels(label_scale)
+        else:
+            # Need to line up the levels and the labels, so we'll massage the label positions
+            dx = levels[1] - levels[0]
+            # Determine what decimal place we should round the label to to "see a difference"
+            round_pos = -1 * int(numpy.ma.log10(dx))
+            round_values = [numpy.round(l, round_pos) for l in levels]
+            round_labels = vcs.mklabels(round_values, "list")
+            return {lev: label for lev, label in zip(levels, round_labels)}
 
     ###########################################################################
     #                                                                         #
