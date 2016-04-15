@@ -4,7 +4,7 @@
 #    python setup.py install
 #
 #
-from distutils.core import setup
+from setuptools import setup, find_packages
 import os
 
 import cdat_info
@@ -24,9 +24,8 @@ setup(name="vcs",
       version=cdat_info.Version,
       description="Visualization and Control System",
       url="http://uvcdat.llnl.gov",
-      packages=['vcs', 'vcs.vtk_ui', 'vcs.vtk_ui.behaviors', "vcs.editors",
-                'vcs.vcsvtk'],
-      package_dir={'vcs': 'Lib',
+      packages=find_packages(),
+      package_dir={'vcs': 'vcs',
                    },
       data_files=[('share/vcs', ('Share/wmo_symbols.json',
                                  'Share/data_continent_coarse',
@@ -40,6 +39,21 @@ setup(name="vcs",
                                  'Share/marker_icon.png',
                                  'Share/text_icon.png',
                                  'Share/fill_icon.png',
-                                 'Share/line_icon.png'
+                                 'Share/line_icon.png',
+                                 'Fonts/Adelon_Regular.ttf',
+                                 'Fonts/Arabic.ttf',
+                                 'Fonts/Athens_Greek.ttf',
+                                 'Fonts/AvantGarde-Book_Bold.ttf',
+                                 'Fonts/Chinese_Generic1.ttf',
+                                 'Fonts/Clarendon.ttf',
+                                 'Fonts/Courier.ttf',
+                                 'Fonts/HelvMono.ttf',
+                                 'Fonts/Russian.ttf',
+                                 'Fonts/Times_CG_ATT.ttf',
+                                 'Fonts/blex.ttf',
+                                 'Fonts/blsy.ttf',
+                                 'Fonts/hebrew.ttf',
+                                 'Fonts/jsMath-msam10.ttf',
+                                 'Fonts/jsMath-wasy10.ttf',
                                  )), ],
       )
