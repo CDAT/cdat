@@ -32,7 +32,7 @@ f = cdms2.open(vcs.sample_data + "/" + testConfig[plot][0])
 s = f(testConfig[plot][1])
 
 x = vcs.init(bg=bg, geometry=(xSize, ySize))
-x.setbgoutputdimensions(xSize,ySize)
+x.setantialiasing(0)
 
 # graphics method
 if (plot.find('boxfill') != -1):
@@ -47,9 +47,9 @@ else:
     print "Invalid plot"
     sys.exit(13)
 
-x.setantialiasing(0)
+x.setbgoutputdimensions(xSize,ySize)
 x.drawlogooff()
-x.plot(s, gm, ratio="autot")
+x.plot(s, gm, ratio="autot", bg=bg)
 name = "test_autot_axis_titles_" + plot[2:] + "_" + x_over_y + "_" + str(bg) + ".png"
 x.png(name)
 
