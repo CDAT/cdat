@@ -96,7 +96,6 @@ class DiagTest(object):
         print test_str
         if imagethreshold is None:  # user didn't specify a value
      	    imagethreshold = checkimage.defaultThreshold
-            #imagethreshold = 95
         # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
         cdms2.setNetcdfShuffleFlag(0)
         cdms2.setNetcdfDeflateFlag(0)
