@@ -1873,21 +1873,23 @@ class P(object):
         else:
             if legend is None:
                 legend = vcs.mklabels(levels)
-            float_epsilon = numpy.finfo(float).eps
+            # We'll use the less precise float epsilon since this is just for labels
+            float_epsilon = numpy.finfo(numpy.float32).eps
             if levels[0] < levels[1]:
-                ecompfunc = lambda x, y: float_epsilon > x - y
-                compfunc = lambda x, y: -float_epsilon > x - y
+                # <=
+                comparison = lambda a, b: float_epsilon > a - b
             else:
-                ecompfunc = lambda x, y: -float_epsilon < x - y
-                compfunc = lambda x, y: float_epsilon < x - y
+                # >=
+                comparison = lambda a, b: -float_epsilon < a - b
+
+            in_bounds = lambda x: comparison(levels[0], x) and comparison(x, levels[-1])
             dlong = dD / (len(levels) - 1)
 
             for l in legend.keys():
-                # if legend key is between levels[0] and levels[-1]
-                if not compfunc(l, levels[0]) and not compfunc(levels[-1], l):
+                if in_bounds(l):
                     for i in range(len(levels) - 1):
                         # if legend key is (inclusive) between levels[i] and levels[i+1]
-                        if ecompfunc(levels[i], l) and ecompfunc(l, levels[i + 1]):
+                        if comparison(levels[i], l) and comparison(l, levels[i + 1]):
                             # first let's figure out where to put the legend label
                             location = i * dlong  # position at beginning of level
                             # Adds the distance from beginning of level box
