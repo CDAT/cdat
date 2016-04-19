@@ -32,7 +32,7 @@ for i in range(len(sys.argv)):
     sp = a.split("--prefix=")
     if len(sp)==2:
         target_prefix=sp[1]
-        
+
 try:
     os.makedirs(os.path.join(target_prefix,'bin'))
 except Exception,err:
@@ -64,16 +64,16 @@ def norm(path):
 
 def testlib (dir, name):
     "Test if there is a library in a certain directory with basic name."
-    if os.path.isfile(os.path.join(dir, 'lib' + name + '.a')): 
+    if os.path.isfile(os.path.join(dir, 'lib' + name + '.a')):
         return 1
-    if os.path.isfile(os.path.join(dir, 'lib' + name + '.so')): 
+    if os.path.isfile(os.path.join(dir, 'lib' + name + '.so')):
         return 1
-    if os.path.isfile(os.path.join(dir, 'lib' + name + '.sl')): 
+    if os.path.isfile(os.path.join(dir, 'lib' + name + '.sl')):
         return 1
     return 0
 
 def configure (configuration_files):
-    global action, target_prefix 
+    global action, target_prefix
     options={}
     execfile(os.path.join(installation_script_dir, 'standard.py'), globals(), options)
     for file in configuration_files:
@@ -84,9 +84,9 @@ def configure (configuration_files):
     action = options['action']
     # Establish libraries and directories for CDUNIF/CDMS
     netcdf_directory = norm(options.get('netcdf_directory',os.environ['EXTERNALS']))
-    netcdf_include_directory = norm(options.get('netcdf_include_directory', 
+    netcdf_include_directory = norm(options.get('netcdf_include_directory',
                                            os.path.join(os.environ['EXTERNALS'],'include')))
-    
+
     #hdf5_library_directory = norm(os.path.join(os.environ.get('HDF5LOC',os.path.join(os.environ["EXTERNALS"])), 'lib'))
     if (sys.platform in ['mac',]):
         cdunif_library_directories = [cdms_library_directory,"/usr/X11R6/lib"]
@@ -173,23 +173,23 @@ def configure (configuration_files):
         PNG_VERSION="15"
 
     grib2_libraries = ["grib2c","png"+PNG_VERSION,"jasper"]
-    ## if netcdf_library_directory not in cdunif_library_directories: 
+    ## if netcdf_library_directory not in cdunif_library_directories:
     ##     cdunif_library_directories.append(netcdf_library_directory)
     cdunif_include_directories = [cdms_include_directory]
-    ## if netcdf_include_directory not in cdunif_include_directories: 
+    ## if netcdf_include_directory not in cdunif_include_directories:
     ##     cdunif_include_directories.append(netcdf_include_directory)
-                         
-        
+
+
     if sys.platform == "sunos5":
         cdunif_include_directories.append('/usr/include')
 
-    drs_file = norm(options.get('drs_file', '/usr/local/lib/libdrs.a'))
+    drs_file = "@cdatEXTERNALS@/lib/libdrs.a"
 
     # Establish location of X11 include and library directories
     if options['x11include'] or options['x11libdir']:
-        if options['x11include']: 
+        if options['x11include']:
             options['x11include'] = norm(options['x11include'])
-        if options['x11libdir']: 
+        if options['x11libdir']:
             options['x11libdir'] = norm(options['x11libdir'])
     else:
         for x in x11search:
@@ -200,23 +200,23 @@ def configure (configuration_files):
                 else:
                     options['x11include']=[norm(os.path.join(x, 'include'))]
                     options['x11libdir']=[norm(os.path.join(x, 'lib'))]
-        else: 
+        else:
             for w in x11OSF1lib:
-                if testlib(w, 'X11'): 
+                if testlib(w, 'X11'):
                     if not options['x11libdir']:
                         options['x11libdir'] = [norm(w),]
                     else:
                         options['x11libdir'].append(norm(w))
             for w in x11OSF1include:
-                if os.path.isdir(w): 
+                if os.path.isdir(w):
                     if not options['x11include']:
                         options['x11include'] = [norm(w),]
                     else:
                         options['x11include'].append(norm(w))
     # Check that we have both set correctly.
     if not (options['x11include'] and \
-            options['x11libdir'] 
-            ): 
+            options['x11libdir']
+            ):
         print >>sys.stderr, """
 Failed to find X11 directories. Please see README.txt for instructions.
 """
@@ -230,7 +230,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
     sys.path.append(build_dir)
     print >> f,"""
 Version = '%s'
-ping_checked = False 
+ping_checked = False
 check_in_progress = False
 def version():
     return %s
@@ -243,12 +243,12 @@ def get_drs_dirs ():
     #c = Pyfort.get_compiler('default')
     drs_dir, junk = os.path.split(drs_file)
     #return c.dirlist + [drs_dir]
-    return [drs_dir,]
+    return [drs_dir,"/usr/local/gfortran/lib","/usr/local/lib"]
 
 def get_drs_libs ():
     #import Pyfort
     #c = Pyfort.get_compiler('default')
-    return ['drs',] + %s
+    return ['drs','gfortran'] + %s
 """ % repr(options.get("COMPILER_EXTRA_LIBS",[]))
     else:
         print >>f, """
@@ -423,14 +423,14 @@ drs_file = %s
 netcdf_directory = %s
 netcdf_include_directory = %s
 cdunif_include_directories = %s + %s + %s
-cdunif_library_directories = %s + get_drs_dirs() + %s +%s
+cdunif_library_directories = %s + %s + %s + get_drs_dirs()
 cdunif_libraries = %s + %s + get_drs_libs() + %s + %s
 x11include = %s
 x11libdir = %s
 mathlibs = %s
 action = %s
 externals = %s
-""" % ( 
+""" % (
         repr(options.get('CDMS_INCLUDE_DAP','no')),
         repr(options.get('CDMS_DAP_DIR','.')),
         repr(options.get('CDMS_HDF_DIR','.')),
@@ -458,7 +458,7 @@ externals = %s
         print >>f, 'enable_aqua = False'
     f.close()
     cdat_info_path = os.path.join(os.environ['BUILD_DIR'], 'cdat_info')
-    if not norun: 
+    if not norun:
       # Install the configuration
       #would be best to add 'clean' but it gives stupid warning error
       sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
@@ -467,15 +467,15 @@ externals = %s
        package_dir = { 'cdat_info' : os.path.dirname(cdat_info_path)},
       )
       os.system('/bin/rm -fr build')
-    
+
     py_prefix = os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages')
     cdat_info_src_path = os.path.join(build_dir, 'cdat_info.py')
     cdat_info_dst_path = os.path.join(py_prefix, 'cdat_info.py')
     if os.path.isfile(cdat_info_src_path):
         shutil.copyfile(cdat_info_src_path, cdat_info_dst_path)
     else:
-       print>>sys.stderr, 'Failed to copy %s to %s' % (cdat_info_src_path, cdat_info_dst_path)        
-    
+       print>>sys.stderr, 'Failed to copy %s to %s' % (cdat_info_src_path, cdat_info_dst_path)
+
     os.chdir(here)
     print >>sys.stderr, 'Configuration installed.'
 
@@ -497,14 +497,14 @@ def main(arglist):
     enable_aqua = False
     enable_cdms1 = False
     enable_netcdf3=False
-    optlist, control_names = getopt.getopt(arglist, 
-                       "c:defhnPl", 
+    optlist, control_names = getopt.getopt(arglist,
+                       "c:defhnPl",
                        ["enable-cdms-only",
-                        "configuration=", 
+                        "configuration=",
                         "debug",
                         "prefix=",
                         "echo",
-                        "force", 
+                        "force",
                         "help",
                         "with-externals=",
                         "norun",
@@ -516,6 +516,7 @@ def main(arglist):
                         "disable-hdf4","disable-HDF4",
                         "disable-contrib",
                         "enable-pp",
+                        "enable-drs","enable-DRS",
                         "disable-externals-build",
                         "disable-pp",
                         ## Bellow are the arguments that could be passed to exsrc, nothing done with them
@@ -591,7 +592,7 @@ def main(arglist):
     externals = os.environ.get("EXTERNALS",os.path.join(sys.prefix,"Externals"))
     hdf5path = None
     zpath = None
-    
+
     for i in range(len(optlist)):
         letter=optlist[i][0]
         if letter == "--enable-vcs-legacy":
@@ -635,7 +636,7 @@ def main(arglist):
             do_configure = 1
         elif letter in ["-d", "--debug"]:
             debug_file = os.path.join('installation','debug.py')
-            configuration_files.append(debug_file)   
+            configuration_files.append(debug_file)
             force = 1
             do_configure = 1
         elif letter in ["-e", "--echo"]:
@@ -673,6 +674,9 @@ def main(arglist):
             zpath = optlist[i][1]
         elif letter in ["--prefix"]:
             target_prefix = optlist[i][1]
+        elif letter in ['--enable-drs','--enable-DRS']:
+            configuration_files.append(os.path.join('installation', 'pcmdi.py'))
+            do_configure=1  # Need libcdms built a certain way too.
         elif letter in ['--enable-pp','--enable-PP']:
             configuration_files.append(os.path.join('installation', 'pp.py'))
             do_configure=1  # Need libcdms built a certain way too.
@@ -787,6 +791,7 @@ def main(arglist):
         action['setup.py'] = action['setup.py'].strip()[:-1]+" build -b "+ os.environ['BUILD_DIR']+"/"+p
         try:
             if p == "Packages/vcs":
+                action["setup.py"]=oldcmd.strip()[:-1]+" --old-and-unmanageable; "
                 if qtfw:
                     action["setup.py"]=oldcmd.strip()[:-1]+" --enable-qt-framework ; "
                 if qt:
@@ -877,7 +882,7 @@ def _install(file, action):
         raise SystemExit, 1
     elif not log and not norun:
         os.unlink(logfile)
-    
+
     f = open(os.path.join(build_dir, 'rebuild.py'), 'w')
     print >>f, """
 import os
@@ -896,8 +901,8 @@ def install (arg, action):
     if os.path.isdir(arg):
         for x in (glob.glob(os.path.join(arg, '*.pfp')) + \
                  ['autogen.sh',
-                  'install.py', 
-                  'setup.py', 
+                  'install.py',
+                  'setup.py',
                   'install_script',
                   'Makefile',
                   'makefile'] ):
@@ -937,4 +942,4 @@ if __name__ == "__main__":
                 os.symlink(os.path.join(externals_path,file),fnm)
             except:
                 pass
- 
+

@@ -16,6 +16,20 @@ the part of UCAR or Unidata, to assist in its use, correction,
 modification, or enhancement.
 
 """
-from udunits import udunits,addBaseUnit,addDimensionlessUnit,addScaledUnit,\
-        addOffsettedUnit,addMultipliedUnits,addInvertedUnit,addDividedUnits
-udunits_init=0
+import os
+import sys
+from udunits import udunits, addBaseUnit, addDimensionlessUnit, addScaledUnit  # noqa
+from udunits import addOffsettedUnit, addMultipliedUnits, addInvertedUnit, addDividedUnits  # noqa
+udunits_init = 0  # noqa
+
+xml_pth = os.path.join(sys.prefix,"share","udunits","udunits2.xml")
+if os.path.exists(xml_pth):
+    os.environ["UDUNITS2_XML_PATH"] = xml_pth
+else:
+    try:
+        import cdat_info
+        xml_pth = os.path.join(cdat_info.externals,"share","udunits","udunits2.xml")
+        if os.path.exists(xml_pth):
+            os.environ["UDUNITS2_XML_PATH"] = xml_pth
+    except:
+        pass

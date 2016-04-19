@@ -12,7 +12,6 @@ void check_ut_read(char *xmlFile) {
   ut_set_error_message_handler(ut_ignore);
   ut_read = ut_read_xml(xmlFile);
   if (ut_read == NULL) {
-    printf("FAILED INIT\n");
     status = ut_get_status() == UT_PARSE
       ? UT_ESYNTAX
       : UT_EIO;
