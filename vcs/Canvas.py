@@ -2333,7 +2333,11 @@ Options:::
                                                     # bunch of plots in a row)
         display_name = "__display_123"                # VCS Display plot name (used to prevent duplicate display plots)
         ratio = 1.5|"autot"|"auto"                   # Ratio of height/width for the plot; autot and auto will choose a
-                                                    # "good" ratio for you.
+                                                     # "good" ratio for you.
+        plot_based_dual_grid = True | False          # Plot the actual grid or the dual grid based on what is
+                                                     # needed by the plot: isofill, isoline, vector need
+                                                     # point attributes, boxfill and meshfill need cell attributes
+                                                     # The default is True (if the parameter is not specified).
     Graphics Output in Background Mode:
        bg                 = 0|1   # if ==1, create images in the background
                                                              (Don't display the VCS Canvas)
