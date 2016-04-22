@@ -24,6 +24,7 @@ class BoxfillPipeline(Pipeline2D):
         self._contourLabels = None
         self._mappers = None
         self._customBoxfillArgs = {}
+        self._needsCellData = True
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -92,11 +93,6 @@ class BoxfillPipeline(Pipeline2D):
 
         # Use consecutive colors:
         self._contourColors = range(self._gm.color_1, self._gm.color_2 + 1)
-
-    def _createPolyDataFilter(self):
-        """Overrides baseclass implementation."""
-        self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
-        self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
 
     def _plotInternal(self):
         """Overrides baseclass implementation."""

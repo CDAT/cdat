@@ -33,14 +33,21 @@ class VectorPipeline(Pipeline):
         lon = None
 
         latAccessor = data1.getLatitude()
-        lonAccesrsor = data1.getLongitude()
+        lonAccessor = data1.getLongitude()
         if latAccessor:
             lat = latAccessor[:]
-        if lonAccesrsor:
-            lon = lonAccesrsor[:]
+        if lonAccessor:
+            lon = lonAccessor[:]
 
-        gridGenDict = vcs2vtk.genGridOnPoints(data1, self._gm, deep=False, grid=grid,
-                                              geo=transform, data2=data2)
+        plotBasedDualGrid = kargs.get('plot_based_dual_grid', True)
+        if (plotBasedDualGrid):
+            hasCellData = data1.hasCellData()
+            dualGrid = hasCellData
+        else:
+            dualGrid = False
+        gridGenDict = vcs2vtk.genGrid(data1, data2, self._gm, deep=False, grid=grid,
+                                      geo=transform, genVectors=True,
+                                      dualGrid=dualGrid)
 
         data1 = gridGenDict["data"]
         data2 = gridGenDict["data2"]
@@ -54,6 +61,7 @@ class VectorPipeline(Pipeline):
         continents = gridGenDict['continents']
         self._dataWrapModulo = gridGenDict['wrap']
         geo = gridGenDict['geo']
+        cellData = gridGenDict['cellData']
 
         if geo is not None:
             newv = vtk.vtkDoubleArray()
@@ -83,16 +91,19 @@ class VectorPipeline(Pipeline):
 
         returned["vtk_backend_grid"] = grid
         returned["vtk_backend_geo"] = geo
-        missingMapper = vcs2vtk.putMaskOnVTKGrid(data1, grid, None, False,
-                                                 deep=False)
+        missingMapper = vcs2vtk.putMaskOnVTKGrid(data1, grid, actorColor=None,
+                                                 cellData=cellData, deep=False)
 
         # None/False are for color and cellData
         # (sent to vcs2vtk.putMaskOnVTKGrid)
         returned["vtk_backend_missing_mapper"] = (missingMapper, None, False)
 
-        w = vcs2vtk.generateVectorArray(data1, data2, grid)
-
-        grid.GetPointData().AddArray(w)
+        # convert to point data
+        if cellData:
+            c2p = vtk.vtkCellDataToPointData()
+            c2p.SetInputData(grid)
+            c2p.Update()
+            grid = c2p.GetOutput()
 
         # Vector attempt
         l = self._gm.line
@@ -119,7 +130,7 @@ class VectorPipeline(Pipeline):
 
         glyphFilter = vtk.vtkGlyph2D()
         glyphFilter.SetInputData(grid)
-        glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vectors")
+        glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vector")
         glyphFilter.SetSourceConnection(arrow.GetOutputPort())
         glyphFilter.SetVectorModeToUseVector()
 
