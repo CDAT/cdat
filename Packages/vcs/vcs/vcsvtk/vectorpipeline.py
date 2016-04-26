@@ -1,75 +1,47 @@
-from .pipeline import Pipeline
+from .pipeline2d import Pipeline2D
 
 import vcs
 from vcs import vcs2vtk
 import vtk
 
 
-class VectorPipeline(Pipeline):
+class VectorPipeline(Pipeline2D):
 
     """Implementation of the Pipeline interface for VCS vector plots."""
 
     def __init__(self, gm, context_):
         super(VectorPipeline, self).__init__(gm, context_)
+        self._needsCellData = False
+        self._needsVectors = True
 
-    def plot(self, data1, data2, tmpl, grid, transform, **kargs):
+    def _plotInternal(self):
         """Overrides baseclass implementation."""
         # Preserve time and z axis for plotting these inof in rendertemplate
-        geo = None  # to make flake8 happy
         projection = vcs.elements["projection"][self._gm.projection]
-        returned = {}
-        taxis = data1.getTime()
-        if data1.ndim > 2:
-            zaxis = data1.getAxis(-3)
+        taxis = self._originalData1.getTime()
+        if self._originalData1.ndim > 2:
+            zaxis = self._originalData1.getAxis(-3)
         else:
             zaxis = None
-
-        # Ok get3 only the last 2 dims
-        data1 = self._context().trimData2D(data1)
-        data2 = self._context().trimData2D(data2)
 
         scale = 1.0
         lat = None
         lon = None
 
-        latAccessor = data1.getLatitude()
-        lonAccessor = data1.getLongitude()
+        latAccessor = self._data1.getLatitude()
+        lonAccessor = self._data1.getLongitude()
         if latAccessor:
             lat = latAccessor[:]
         if lonAccessor:
             lon = lonAccessor[:]
 
-        plotBasedDualGrid = kargs.get('plot_based_dual_grid', True)
-        if (plotBasedDualGrid):
-            hasCellData = data1.hasCellData()
-            dualGrid = hasCellData
-        else:
-            dualGrid = False
-        gridGenDict = vcs2vtk.genGrid(data1, data2, self._gm, deep=False, grid=grid,
-                                      geo=transform, genVectors=True,
-                                      dualGrid=dualGrid)
-
-        data1 = gridGenDict["data"]
-        data2 = gridGenDict["data2"]
-        geo = gridGenDict["geo"]
-
-        grid = gridGenDict['vtk_backend_grid']
-        xm = gridGenDict['xm']
-        xM = gridGenDict['xM']
-        ym = gridGenDict['ym']
-        yM = gridGenDict['yM']
-        continents = gridGenDict['continents']
-        self._dataWrapModulo = gridGenDict['wrap']
-        geo = gridGenDict['geo']
-        cellData = gridGenDict['cellData']
-
-        if geo is not None:
+        if self._vtkGeoTransform is not None:
             newv = vtk.vtkDoubleArray()
             newv.SetNumberOfComponents(3)
             newv.InsertTupleValue(0, [lon.min(), lat.min(), 0])
             newv.InsertTupleValue(1, [lon.max(), lat.max(), 0])
 
-            vcs2vtk.projectArray(newv, projection, [xm, xM, ym, yM])
+            vcs2vtk.projectArray(newv, projection, self._vtkDataSetBounds)
             dimMin = [0, 0, 0]
             dimMax = [0, 0, 0]
 
@@ -88,22 +60,6 @@ class VectorPipeline(Pipeline):
                     scale = temp
         else:
             scale = 1.0
-
-        returned["vtk_backend_grid"] = grid
-        returned["vtk_backend_geo"] = geo
-        missingMapper = vcs2vtk.putMaskOnVTKGrid(data1, grid, actorColor=None,
-                                                 cellData=cellData, deep=False)
-
-        # None/False are for color and cellData
-        # (sent to vcs2vtk.putMaskOnVTKGrid)
-        returned["vtk_backend_missing_mapper"] = (missingMapper, None, False)
-
-        # convert to point data
-        if cellData:
-            c2p = vtk.vtkCellDataToPointData()
-            c2p.SetInputData(grid)
-            c2p.Update()
-            grid = c2p.GetOutput()
 
         # Vector attempt
         l = self._gm.line
@@ -129,7 +85,7 @@ class VectorPipeline(Pipeline):
         arrow.FilledOff()
 
         glyphFilter = vtk.vtkGlyph2D()
-        glyphFilter.SetInputData(grid)
+        glyphFilter.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
         glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vector")
         glyphFilter.SetSourceConnection(arrow.GetOutputPort())
         glyphFilter.SetVectorModeToUseVector()
@@ -163,22 +119,20 @@ class VectorPipeline(Pipeline):
 
         plotting_dataset_bounds = vcs2vtk.getPlottingBounds(
             vcs.utils.getworldcoordinates(self._gm,
-                                          data1.getAxis(-1),
-                                          data1.getAxis(-2)),
-            [xm, xM, ym, yM], geo)
+                                          self._data1.getAxis(-1),
+                                          self._data1.getAxis(-2)),
+            self._vtkDataSetBounds, self._vtkGeoTransform)
         x1, x2, y1, y2 = plotting_dataset_bounds
-        if geo is None:
+        if self._vtkGeoTransform is None:
             wc = plotting_dataset_bounds
         else:
             xrange = list(act.GetXRange())
             yrange = list(act.GetYRange())
             wc = [xrange[0], xrange[1], yrange[0], yrange[1]]
 
-        if (transform and kargs.get('ratio', '0') == 'autot'):
-            returned['ratio_autot_viewport'] = self._processRatioAutot(tmpl, grid)
-
-        vp = returned.get('ratio_autot_viewport',
-                          [tmpl.data.x1, tmpl.data.x2, tmpl.data.y1, tmpl.data.y2])
+        vp = self._resultDict.get('ratio_autot_viewport',
+                                  [self._template.data.x1, self._template.data.x2,
+                                   self._template.data.y1, self._template.data.y2])
         # look for previous dataset_bounds different than ours and
         # modify the viewport so that the datasets are alligned
         # Hack to fix the case when the user does not specify gm.datawc_...
@@ -200,31 +154,29 @@ class VectorPipeline(Pipeline):
         dataset_renderer, xScale, yScale = self._context().fitToViewport(
             act, vp,
             wc=wc,
-            priority=tmpl.data.priority,
+            priority=self._template.data.priority,
             create_renderer=True)
-        returned['dataset_renderer'] = dataset_renderer
-        returned['dataset_scale'] = (xScale, yScale)
-        bounds = [min(xm, xM), max(xm, xM), min(ym, yM), max(ym, yM)]
-        kwargs = {'vtk_backend_grid': grid,
-                  'dataset_bounds': bounds,
+        kwargs = {'vtk_backend_grid': self._vtkDataSet,
+                  'dataset_bounds': self._vtkDataSetBounds,
                   'plotting_dataset_bounds': plotting_dataset_bounds}
-        if ('ratio_autot_viewport' in returned):
+        if ('ratio_autot_viewport' in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
-        returned.update(self._context().renderTemplate(
-            tmpl, data1,
+        self._resultDict.update(self._context().renderTemplate(
+            self._template, self._data1,
             self._gm, taxis, zaxis, **kwargs))
 
         if self._context().canvas._continents is None:
-            continents = False
-        if continents:
+            self._useContinents = False
+        if self._useContinents:
             continents_renderer, xScale, yScale = self._context().plotContinents(
                 plotting_dataset_bounds, projection,
-                self._dataWrapModulo, vp, tmpl.data.priority,
-                vtk_backend_grid=grid,
-                dataset_bounds=bounds)
-            returned["continents_renderer"] = continents_renderer
-        returned["vtk_backend_actors"] = [[act, plotting_dataset_bounds]]
-        returned["vtk_backend_glyphfilters"] = [glyphFilter]
-        returned["vtk_backend_luts"] = [[None, None]]
+                self._dataWrapModulo, vp, self._template.data.priority,
+                vtk_backend_grid=self._vtkDataSet,
+                dataset_bounds=self._vtkDataSetBounds)
+        self._resultDict["vtk_backend_actors"] = [[act, plotting_dataset_bounds]]
+        self._resultDict["vtk_backend_glyphfilters"] = [glyphFilter]
+        self._resultDict["vtk_backend_luts"] = [[None, None]]
 
-        return returned
+    def _updateContourLevelsAndColors(self):
+        """Overrides baseclass implementation."""
+        pass
