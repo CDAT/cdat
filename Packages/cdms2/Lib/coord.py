@@ -10,8 +10,6 @@ import cdtime
 import copy
 import numpy
 #import internattr
-import types
-import string
 from cdmsobj import CdmsObj
 from axis import createAxis, TransientVirtualAxis
 from error import CDMSError
@@ -118,7 +116,7 @@ class AbstractCoordinateAxis(CdmsObj):
     # calendar.
     def getCalendar(self):
         if hasattr(self,'calendar'):
-            calendar = string.lower(self.calendar)
+            calendar = self.calendar.lower()
         else:
             calendar = None
 
@@ -147,7 +145,7 @@ class AbstractCoordinateAxis(CdmsObj):
 
     # Return true iff the axis is a level axis
     def isLevel(self):
-        id = string.lower(self.id)
+        id = self.id.lower()
         if (hasattr(self,'axis') and self.axis=='Z'): return 1
         return ((id[0:3] == 'lev') or (id[0:5] == 'depth') or (id in level_aliases))
 
@@ -158,13 +156,13 @@ class AbstractCoordinateAxis(CdmsObj):
 
     # Return true iff the axis is a time axis
     def isTime(self):
-        id = string.lower(self.id)
+        id = self.id.lower()
         if (hasattr(self,'axis') and self.axis=='T'): return 1
         return (id[0:4] == 'time') or (id in time_aliases)
 
     # Return true iff the axis is a forecast axis
     def isForecast(self):
-        id = string.lower(self.id)
+        id = self.id.lower()
         if (hasattr(self,'axis') and self.axis=='F'): return 1
         return (id[0:6] == 'fctau0') or (id in forecast_aliases)
 
