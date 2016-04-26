@@ -7,10 +7,7 @@ import cdtime
 import glob
 import os
 import re
-import string
 import sys
-import types
-#import internattr
 
 # Data types
 
@@ -204,7 +201,7 @@ def generateTime(matchobj,timespecs):
     if yrspec:
         pat,name,dimtype,pos = _specifierMap[yrspec]
         yrstr = matchobj.group(name)
-        iyr = string.atoi(yrstr)
+        iyr = int(yrstr)
 
         # Map 2-digit year to [1950,2049)
         if yrspec in ('%y','%ey'):
@@ -220,23 +217,23 @@ def generateTime(matchobj,timespecs):
         elif mospec in ('%g','%eg'):
             imo = _monthMapLower[mostr]
         elif mospec in ('%m','%em','%n','%en'):
-            imo = string.atoi(mostr)
+            imo = int(mostr)
     if dyspec:
         pat,name,dimtype,pos = _specifierMap[dyspec]
         dystr = matchobj.group(name)
-        idy = string.atoi(dystr)
+        idy = int(dystr)
     if hrspec:
         pat,name,dimtype,pos = _specifierMap[hrspec]
         hrstr = matchobj.group(name)
-        ihr = string.atoi(hrstr)
+        ihr = int(hrstr)
     if mispec:
         pat,name,dimtype,pos = _specifierMap[mispec]
         mistr = matchobj.group(name)
-        imi = string.atoi(mistr)
+        imi = int(mistr)
     if sespec:
         pat,name,dimtype,pos = _specifierMap[sespec]
         sestr = matchobj.group(name)
-        ise = string.atoi(sestr)
+        ise = int(sestr)
     return cdtime.comptime(iyr,imo,idy,ihr,imi,ise)   
 
 # Find all files in 'direc' which match 'template'.
@@ -280,9 +277,9 @@ def matchingFiles(direc,template):
         if dimtypes['etime'] != [None,None,None,None,None,None]:
             matchnames[_etime] = generateTime(matchobj,dimtypes['etime'])
         if dimtypes['level'] is not None:
-            matchnames[_level] = string.atoi(matchobj.group('level'))
+            matchnames[_level] = int(matchobj.group('level'))
         if dimtypes['elevel'] is not None:
-            matchnames[_elevel] = string.atoi(matchobj.group('elevel'))
+            matchnames[_elevel] = int(matchobj.group('elevel'))
         matchfiles.append((candfile,matchnames))
 
     return matchfiles
@@ -300,22 +297,22 @@ def getTimeAsString(spec,time):
     elif spec in ('%S','%eS'):
         specstr = str(int(time.second))
     elif spec in ('%Y','%eY'):
-        specstr = string.zfill(str(time.year),4)
+        specstr = str(time.year).zfill(4)
     elif spec in ('%d','%ed'):
         specstr = str(time.day)
     elif spec in ('%f','%ef'):
-        specstr = string.zfill(str(time.day),2)
+        specstr = str(time.day).zfill(2)
     elif spec in ('%g','%eg'):
         imo = time.month
         specstr = _monthListLower[imo-1]
     elif spec in ('%h','%eh'):
-        specstr = string.zfill(str(time.hour),2)
+        specstr = str(time.hour).zfill(2)
     elif spec in ('%m','%em'):
         specstr = str(time.month)
     elif spec in ('%n','%en'):
-        specstr = string.zfill(str(time.month),2)
+        specstr = str(time.month).zfill(2)
     elif spec in ('%y','%ey'):
-        specstr = string.zfill(str(time.year%100),2)
+        specstr = str(time.year%100).zfill(2)
     elif spec in ('%z','%ez'):
         specstr = getTimeAsString('%H',time)+'Z'+getTimeAsString('%Y',time)+getTimeAsString('%n',time)+getTimeAsString('%d',time)
     return specstr
@@ -374,9 +371,9 @@ def getPathFromTemplate(template,matchnames):
 
 def searchPattern(objlist, pattern, attribute=None, tag=None):
     if tag is not None:
-        tag = string.lower(tag)
+        tag = tag.lower()
     regexp = re.compile(pattern)
-    if type(objlist) is not types.ListType:
+    if not isinstance(objlist, list):
         objlist = [objlist]
 
     returnlist = []
@@ -395,9 +392,9 @@ def searchPattern(objlist, pattern, attribute=None, tag=None):
 
 def matchPattern(objlist, pattern, attribute=None, tag=None):
     if tag is not None:
-        tag = string.lower(tag)
+        tag = tag.lower()
     regexp = re.compile(pattern)
-    if type(objlist) is not types.ListType:
+    if not isinstance(objlist, list):
         objlist = [objlist]
 
     returnlist = []
@@ -425,8 +422,8 @@ def matchPattern(objlist, pattern, attribute=None, tag=None):
 
 def searchPredicate(objlist, predicate, tag=None):
     if tag is not None:
-        tag = string.lower(tag)
-    if type(objlist) is not types.ListType:
+        tag = tag.lower()
+    if not isinstance(objlist, list):
         objlist = [objlist]
 
     returnlist = []
@@ -490,12 +487,12 @@ class CdmsObj (object):
                     if reqtype!=datatype and datatype==CdString and scaletype==CdScalar:
                         if reqtype in (CdFloat,CdDouble):
                             try:
-                                attval = string.atof(attval)
+                                attval = float(attval)
                             except:
                                 raise RuntimeError,"%s=%s must be a float"%(attname,attval)
                         elif reqtype in (CdShort,CdInt,CdLong,CdInt64):
                             try:
-                                attval = string.atoi(attval)
+                                attval = int(attval)
                             except:
                                 raise RuntimeError,"%s=%s must be an integer"%(attname,attval)
                 adict[attname] = attval
@@ -519,12 +516,12 @@ class CdmsObj (object):
         """
         if attname is None:
             for attval in self.attributes.values():
-                if type(attval) is types.StringType and pattern.search(attval) is not None:
+                if isinstance(attval,basestring) and pattern.search(attval) is not None:
                     return 1
             return 0
         elif self.attributes.has_key(attname):
             attval = self.attributes[attname]
-            return (type(attval) is types.StringType and pattern.search(attval) is not None)
+            return isinstance(attval,basestring) and pattern.search(attval) is not None
         else:
             return 0
 
@@ -549,12 +546,12 @@ class CdmsObj (object):
         """
         if attname is None:
             for attval in self.attributes.values():
-                if type(attval) is types.StringType and pattern.match(attval) is not None:
+                if isinstance(attval,basestring) and pattern.search(attval) is not None:
                     return 1
             return 0
         elif self.attributes.has_key(attname):
             attval = self.attributes[attname]
-            return (type(attval) is types.StringType and pattern.match(attval) is not None)
+            return isinstance(attval,basestring) and pattern.search(attval) is not None
         else:
             return 0
 
@@ -573,7 +570,7 @@ class CdmsObj (object):
         result :: (list) (0) 
         :::
         """
-        if tag is None or string.lower(tag)==self._node_.tag:
+        if tag is None or tag.lower()==self._node_.tag:
             if self.searchone(pattern,attribute):
                 return [self]
             else:
@@ -596,7 +593,7 @@ class CdmsObj (object):
         result :: (list) (0) 
         :::
         """
-        if tag is None or string.lower(tag)==self._node_.tag:
+        if tag is None or tag.lower()==self._node_.tag:
             if self.matchone(pattern,attribute):
                 return [self]
             else:
@@ -619,7 +616,7 @@ class CdmsObj (object):
         result :: (list) (0) 
         :::
         """
-        if tag is None or string.lower(tag)==self._node_.tag:
+        if tag is None or tag.lower()==self._node_.tag:
             try:
                 if apply(predicate,(self,))==1:
                     result = [self]
