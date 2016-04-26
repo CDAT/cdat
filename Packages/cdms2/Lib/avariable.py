@@ -3,8 +3,6 @@
 
 "CDMS Variable objects, abstract interface"
 import numpy
-import types
-import string
 import re
 import warnings
 import cdmsNode
@@ -404,7 +402,7 @@ class AbstractVariable(CdmsObj, Slab):
             
         if asarray==0 and isinstance(mv, numpy.ndarray):
             mv = mv[0]
-        if type(mv) is types.StringType and self.dtype.char not in ['?','c','O','S']:
+        if isinstance(mv, basestring) and self.dtype.char not in ['?','c','O','S']:
             mv = float(mv)
         return mv
 
@@ -423,17 +421,16 @@ class AbstractVariable(CdmsObj, Slab):
             return
             
         selftype = self.typecode()
-        valuetype = type(value)
-        if valuetype is numpy.ndarray:
+        if isnstance(value, numpy.ndarray):
             value = value.astype(selftype).item()
-        elif isinstance(value, numpy.floating) or isinstance(value, numpy.integer):
+        elif isinstance(value, (numpy.floating, numpy.integer)):
             value = numpy.array([value], selftype)
-        elif valuetype in [types.FloatType, types.IntType, types.LongType, types.ComplexType]:
+        elif isinstance(value, (float, int, long, complex)):
             try:
                 value = numpy.array([value], selftype)
             except:                     # Set fill value when ar[i:j] returns a masked value
                 value = numpy.array([numpy.ma.default_fill_value(self)], selftype)
-        elif isinstance(value,(str,numpy.string_,numpy.str,numpy.string0,numpy.str_)) and selftype in ['?','c','O','S']: # '?' for Boolean and object
+        elif isinstance(value,(basestring,numpy.string_,numpy.str,numpy.string0,numpy.str_)) and selftype in ['?','c','O','S']: # '?' for Boolean and object
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
@@ -1089,7 +1086,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
 
             if re.search('^regrid', regridTool, re.I):
                 if keywords.has_key('diag') and \
-                        type(keywords['diag']) == types.DictType:
+                        isinstance(keywords['diag'], dict):
                     keywords['diag']['regridTool'] = 'regrid'
 
                 # the original cdms2 regridder
@@ -1206,7 +1203,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
             if specs[i] is Ellipsis:
                 j = myrank  - (nsupplied - (i+1)) 
             else:
-                if isinstance(specs[i], types.IntType):
+                if isinstance(specs[i], int):
                     singles.append(j)
                 j = j + 1
             i = i + 1
@@ -1227,15 +1224,15 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
         slicelist = []
         for i in range(self.rank()):
             key = speclist[i]
-            if isinstance(key, types.IntType):  # x[i]
+            if isinstance(key, int):  # x[i]
                 slicelist.append (slice(key,key+1))
-            elif type(key) is types.SliceType: # x[i:j:k]
+            elif isinstance(key, slice): # x[i:j:k]
                 slicelist.append(key)
             elif key is unspecified or key is None or key == ':':
                 slicelist.append (slice(0, len(self.getAxis(i))))
             elif key is Ellipsis:
                 raise CDMSError, "Misuse of ellipsis in specification."
-            elif type(key) is types.TupleType:
+            elif sinstance(key, tuple):
                 slicelist.append(slice(*key))
             else:
                 raise CDMSError, 'invalid index: %s'% str(key)
@@ -1287,13 +1284,13 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
 
         for i in range(self.rank()):
             item = speclist[i]
-            if isinstance(item, types.SliceType):
+            if isinstance(item, slice):
                 newitem = item
             elif item==':' or item is None or item is unspecified:
                 axis = self.getAxis(i)
                 newitem = slice(0,len(axis))
-            elif isinstance(item, types.ListType) or \
-                 isinstance(item, types.TupleType):
+            elif isinstance(item, list) or \
+                 isinstance(item, tuple):
                 axis = self.getAxis(i)
                 if len(item)==2:        # (start,end)
                     indexInterval = axis.mapIntervalExt(item)
@@ -1314,13 +1311,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
                 if indexInterval is None:
                     raise CDMSError, OutOfRange + str(item)
                 newitem = slice(indexInterval[0],indexInterval[1],indexInterval[2])
-            elif isinstance(item, numpy.floating) or \
-                 isinstance(item, types.FloatType) or \
-                 isinstance(item, numpy.integer) or \
-                 isinstance(item, types.IntType) or \
-                 isinstance(item, types.LongType) or \
-                 isinstance(item, types.StringType) or \
-                 type(item) in CdtimeTypes:
+            elif isinstance(item, (numpy.floating, float, numpy.integer, int, long, basestring)) or type(item) in CdtimeTypes:
                 axis = self.getAxis(i)
                 #
                 # default is 'ccn' in axis.mapIntervalExt
@@ -1397,10 +1388,10 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
     # numpy.ma overrides
 
     def __getitem__(self, key):
-        if type(key) is types.TupleType:
+        if isinstance(key, tuple):
             speclist = self._process_specs(key, {})
         else:
-            if isinstance(key, types.IntType) and key>=len(self):
+            if isinstance(key, int) and key>=len(self):
                 raise IndexError, "Index too large: %d"%key
             speclist = self._process_specs([key], {})
 
@@ -1509,7 +1500,7 @@ def orderparse (order):
             remaining axes.
           (name) meaning an axis whose id is name
     """
-    if not isinstance(order, types.StringType):
+    if not isinstance(order, basestring):
         raise CDMSError, 'order arguments must be strings.'
     pos = 0
     result=[]
@@ -1523,8 +1514,8 @@ def orderparse (order):
         elif r == '...':
             r = Ellipsis
         elif len(r) == 1:
-            if r in string.digits:
-                r = string.atoi(r)
+            if r in '0123456789':
+                r = int(r)
         result.append(r)
         pos = m.end(0)
 
@@ -1544,9 +1535,9 @@ def order2index (axes, order):
             remaining axes.
           (name) meaning an axis whose id is name
     """
-    if isinstance(order, types.StringType):
+    if isinstance(order, basestring):
         result = orderparse(order)
-    elif isinstance(order, types.ListType):
+    elif isinstance(order, list):
         result = order
     else:
         raise CDMSError, 'order2index, order specified of bad type:' + str(type(order))
@@ -1557,7 +1548,7 @@ def order2index (axes, order):
     pos = 0
     while j < len(result):
         item = result[j]
-        if isinstance(item, types.StringType):
+        if isinstance(item, basestring):
             if item == 't': 
                 spec = 'time'
             elif item == 'x': 
@@ -1581,7 +1572,7 @@ def order2index (axes, order):
                     break
             else:
                 raise CDMSError, 'No axis matching order spec %s' %str(item)
-        elif isinstance(item, types.IntType):
+        elif isinstance(item, int):
             if item in permutation:
                 raise CDMSError, 'Duplicate item in order %s' % order
             if item >= n:
