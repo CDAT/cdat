@@ -9,7 +9,6 @@ import cdmsNode
 import cdtime
 import copy
 import os
-import string
 import sys
 import cdmsobj
 from cdmsobj import CdmsObj, getPathFromTemplate, Max32int
@@ -139,7 +138,7 @@ class DatasetVariable(AbstractVariable):
                     raise CDMSError, InvalidGridElement + dename
             partlenstr = denode.getExternalAttr('partition_length')
             if partlenstr is not None:
-                truelen = string.atoi(partlenstr)
+                truelen = int(partlenstr)
             else:
                 truelen = denode.length
             self.domain.append((domelem, denode.start, denode.length, truelen))
@@ -224,7 +223,7 @@ class DatasetVariable(AbstractVariable):
             else:                       # Use template method
                 time0 = axis[interval[0]]
                 time1 = axis[interval[1]-1]
-                isabs = (string.find(axis.units," as ")!=-1)
+                isabs = (axis.units.find(" as ")!=-1)
                 if isabs:
                     start = cdtime.abstime(time0,axis.units)
                     end = cdtime.abstime(time1,axis.units)
