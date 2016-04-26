@@ -130,8 +130,6 @@ class BoxfillPipeline(Pipeline2D):
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=(dataset_renderer is None))
-        self._resultDict['dataset_renderer'] = dataset_renderer
-        self._resultDict['dataset_scale'] = (xScale, yScale)
 
         for act in patternActors:
             if self._vtkGeoTransform is None:
@@ -211,7 +209,6 @@ class BoxfillPipeline(Pipeline2D):
                 vp, self._template.data.priority,
                 vtk_backend_grid=self._vtkDataSet,
                 dataset_bounds=self._vtkDataSetBounds)
-            self._resultDict['continents_renderer'] = continents_renderer
 
     def _plotInternalBoxfill(self):
         """Implements the logic to render a non-custom boxfill."""
