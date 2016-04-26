@@ -9,7 +9,6 @@ No guarantee is provided whatsoever. Use at your own risk.
 
 import operator
 import cdms2
-import types
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid, FileCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis

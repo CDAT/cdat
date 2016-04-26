@@ -8,7 +8,6 @@ Contains also the write part of the old cu interface.
 """
 import json
 import re
-import types
 import typeconv
 import numpy
 from numpy import sctype2char
@@ -166,7 +165,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if dtype is None and typecode is not None:
             dtype = typeconv.convtypecode2(typecode)
         typecode = sctype2char(dtype)
-        if type(data) is types.TupleType:
+        if isinstance(data, tuple):
             data = list(data)
         
         AbstractVariable.__init__ (self)
@@ -252,7 +251,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if dtype is None and typecode is not None:
             dtype = typeconv.convtypecode2(typecode)
         typecode = sctype2char(dtype)
-        if type(data) is types.TupleType:
+        if isinstance(data, tuple):
             data = list(data)
         if isinstance(data, AbstractVariable):
             if not isinstance(data, TransientVariable):
@@ -479,7 +478,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             raise CDMSError, "setdimattribute, dim out of bounds."
         d = self.getAxis(dim)
         if field == "name":
-            if not type(value) == types.StringType:
+            if not isinstance(value, basestring):
                raise CDMSError, "setdimattribute: name not a string"
             d.id = value
             
@@ -492,7 +491,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             self.setAxis(dim, a)
 
         elif field == "units":
-            if not type(value) == types.StringType:
+            if not isinstance(value, basestring):
                raise CDMSError, "setdimattribute: units not a string"
             d.units = value
 

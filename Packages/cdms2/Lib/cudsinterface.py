@@ -2,7 +2,7 @@
 ## Further modified to be pure new numpy June 24th 2008
 
 "Emulation of old cu package"
-import string, types, sys
+import sys
 from error import CDMSError
 from dataset import openDataset, createDataset
 from tvariable import createVariable
@@ -215,7 +215,7 @@ class cuDataset():
         if device is None: device=sys.stdout
         if vname is None: vname = self.default_variable_name
         alist = self.listall(vname, all=all)
-        device.write(string.join(alist, "\n"))
+        device.write("\n".join(alist))
         device.write("\n")
 
     def dimensionobject (self, dname, vname=None):
@@ -357,7 +357,7 @@ class cuDataset():
                 idim = ndims - (nargs - i - 1)
                 i = i + 1
                 ne = 1
-            elif type(x) == types.TupleType:
+            elif isinstance(x,tuple):
                 cdms_args[idim] = x
                 idim = idim + 1
                 i = i + 1

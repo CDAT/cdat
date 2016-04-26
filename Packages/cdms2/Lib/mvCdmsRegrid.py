@@ -5,7 +5,6 @@ David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
-import types
 import operator
 import re
 import numpy
@@ -450,7 +449,7 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
         attrs = {}
         for a in srcVar.attributes:
             v = srcVar.attributes[a]
-            if type(v) is types.StringType:
+            if isinstance(v, basestring):
                 attrs[a] = v
 
         # if the missing value is present in the destination data, set

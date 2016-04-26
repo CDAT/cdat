@@ -11,7 +11,6 @@ import copy
 import os
 import string
 import sys
-import types
 import cdmsobj
 from cdmsobj import CdmsObj, getPathFromTemplate, Max32int
 from avariable import AbstractVariable

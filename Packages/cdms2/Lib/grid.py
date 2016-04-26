@@ -2,7 +2,6 @@
 ## Further modified to be pure new numpy June 24th 2008
 
 """CDMS Grid objects"""
-import types
 import re
 from error import CDMSError
 import numpy #, PropertiedClasses, internattr
@@ -129,14 +128,14 @@ def setRegionSpecs(grid, coordSpec, coordType, resultSpec):
     
     if (coordSpec is None) or (coordSpec==':'):
         canonSpec = None
-    elif type(coordSpec) is types.TupleType:
+    elif isinstance(coordSpec, tuple):
         if len(coordSpec)==2:
             canonSpec = (coordSpec[0],coordSpec[1],'cc',None)
         elif len(coordSpec)==3:
             canonSpec = (coordSpec[0],coordSpec[1],coordSpec[2],None)
         elif len(coordSpec)!=4:
             raise CDMSError, 'Invalid coordinate specification: %s'%`coordSpec`
-    elif type(coordSpec) in [types.IntType, types.FloatType]:
+    elif isinstance(coordSpec, (int, float)):
         canonSpec = (coordSpec, coordSpec, 'cc', None)
     else:
         raise CDMSError, 'Invalid coordinate specification: %s'%`coordSpec`

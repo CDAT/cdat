@@ -1,6 +1,6 @@
 
 """Classes to support easy selection of climate data"""
-import string, types, cdtime
+import cdtime
 from axis import axisMatches
 from error import CDMSError
 from grid import AbstractRectGrid, defaultRegion, setRegionSpecs, LongitudeType, LatitudeType, TimeType, VerticalType
@@ -393,7 +393,7 @@ def required(values):
     """Creates a selector that requires a certain axis to be present."""
     if values is None:
         return all
-    if isinstance(values, types.StringType):
+    if isinstance(values, basestring):
         values = (values,)
     return Selector(requiredComponent(values))
 

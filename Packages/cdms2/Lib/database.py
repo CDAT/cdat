@@ -7,9 +7,7 @@ import cdurlparse
 import copy
 import os
 import re
-import string
 import sys
-import types
 from CDMLParser import CDMLParser
 from cdmsobj import CdmsObj
 from dataset import Dataset
@@ -205,7 +203,7 @@ class LDAPDatabase(AbstractDatabase):
     
     def normalizedn(self, dn):
         explodeddn = ldap.explode_dn(dn)
-        return string.join(explodeddn,',')
+        return ','.join(explodeddn)
 
     def cachecdml(self, name, cdml, datapath):
         normaldn = self.normalizedn(name)
@@ -239,7 +237,7 @@ class LDAPDatabase(AbstractDatabase):
 
         # Get the parent dataset
         explodeddn = ldap.explode_dn(dn)
-        dsetdn = string.join(explodeddn[1:],',') # Dataset node is parent of variable
+        dsetdn = ','.join(explodeddn[1:]) # Dataset node is parent of variable
         dset = self.getDataset(dsetdn)
         rdn = explodeddn[0]
         matchobj = _Att.match(rdn)
@@ -468,7 +466,7 @@ class LDAPSearchResult(AbstractSearchResult):
 
         """
         if tag is not None:
-            tag = string.lower(tag)
+            tag = tag.lower()
 
         resultlist = []
         for entry in self:

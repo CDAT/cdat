@@ -8,7 +8,6 @@ No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import numpy
-from types import NoneType
 
 class SphereMesh:
     
@@ -34,7 +33,7 @@ class SphereMesh:
 
         # compute the min/max of elevation, needed
         # for normalization
-        if type(elvs) != NoneType:
+        if elvs is not None:
             self.minElv = min(elvs[:])
             self.maxElv = max(elvs[:])
             if hasattr(elvs, 'positive'):
@@ -44,7 +43,7 @@ class SphereMesh:
         # determine the dimensionality and 
         # whether the grid is rectilinear
         for axis in lons, lats, elvs:
-            if type(axis) != NoneType:
+            if axis is not None:
                 self.ndims += 1
                 if len(axis.shape) != 1:
                     self.isRectilinear = False
@@ -53,7 +52,7 @@ class SphereMesh:
         if self.isRectilinear:
             self.shape = []
             for axis in lons, lats, elvs:
-                if type(axis) != NoneType:
+                if axis is not None:
                     self.shape.append( len(axis) )
             self.shape.reverse()
 
@@ -63,7 +62,7 @@ class SphereMesh:
         # store lon, lat, elv as a curvilinear grid
         if self.isRectilinear:
             # apply tensore product of axes to generat curvilinear coordinates
-            if type(elvs) != NoneType:
+            if elvs is not None:
                 self.elvs = numpy.outer(numpy.outer( numpy.ones(self.shape[:0], numpy.float32), elvs),
                                         numpy.ones(self.shape[0+1:], numpy.float32)).reshape(self.shape)
             else:
@@ -77,7 +76,7 @@ class SphereMesh:
             # already in curvilinear form
             self.lons = lons[:]
             self.lats = lats[:]
-            if type(elvs) != NoneType:
+            if elvs is not None:
                 self.elvs = elvs[:]
             else:
                 self.elvs = numpy.zeros( self.shape, numpy.float32 )

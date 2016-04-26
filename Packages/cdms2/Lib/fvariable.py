@@ -4,7 +4,6 @@
 "CDMS File-based variables."
 import numpy
 import typeconv
-import types
 import re
 
 from cdmsobj import Max32int
