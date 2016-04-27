@@ -1232,7 +1232,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
                 slicelist.append (slice(0, len(self.getAxis(i))))
             elif key is Ellipsis:
                 raise CDMSError, "Misuse of ellipsis in specification."
-            elif sinstance(key, tuple):
+            elif isinstance(key, tuple):
                 slicelist.append(slice(*key))
             else:
                 raise CDMSError, 'invalid index: %s'% str(key)
@@ -1514,7 +1514,7 @@ def orderparse (order):
         elif r == '...':
             r = Ellipsis
         elif len(r) == 1:
-            if r in '0123456789':
+            if r.isdigit():
                 r = int(r)
         result.append(r)
         pos = m.end(0)

@@ -546,12 +546,12 @@ class CdmsObj (object):
         """
         if attname is None:
             for attval in self.attributes.values():
-                if isinstance(attval,basestring) and pattern.search(attval) is not None:
+                if isinstance(attval,basestring) and pattern.match(attval) is not None:
                     return 1
             return 0
         elif self.attributes.has_key(attname):
             attval = self.attributes[attname]
-            return isinstance(attval,basestring) and pattern.search(attval) is not None
+            return isinstance(attval,basestring) and pattern.match(attval) is not None
         else:
             return 0
 
