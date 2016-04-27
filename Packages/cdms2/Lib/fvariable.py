@@ -1,32 +1,35 @@
-## Automatically adapted for numpy.oldnumeric Aug 01, 2007 by 
-## Further modified to be pure new numpy June 24th 2008
+# Automatically adapted for numpy.oldnumeric Aug 01, 2007 by
+# Further modified to be pure new numpy June 24th 2008
 
 "CDMS File-based variables."
 import numpy
-import typeconv
+from . import typeconv
 import re
 
-from cdmsobj import Max32int
-from variable import DatasetVariable
-from error import CDMSError
-from sliceut import reverseSlice
-from avariable import AbstractVariable
+from .cdmsobj import Max32int
+from .variable import DatasetVariable
+from .error import CDMSError
+from .sliceut import reverseSlice
+from .avariable import AbstractVariable
 from cdms2 import Cdunif
 from Cdunif import CdunifError
 
 FileClosed = "Cannot read from closed file, variable: "
 FileClosedWrite = "Cannot write to a closed file, variable: "
 
+
 class FileVariable(DatasetVariable):
+
     "A variable in a single file."
-    def __init__(self,parent,varname,cdunifobj=None):
+
+    def __init__(self, parent, varname, cdunifobj=None):
         DatasetVariable.__init__(self, parent, varname)
         self._obj_ = cdunifobj
         if cdunifobj is not None:
             for attname, attval in cdunifobj.__dict__.items():
                 self.__dict__[attname] = attval
-                self.attributes[attname]=attval
-        val = self.__cdms_internals__+['name_in_file',]
+                self.attributes[attname] = attval
+        val = self.__cdms_internals__ + ['name_in_file', ]
         self.___cdms_internals__ = val
 
     # Initialize the domain
@@ -38,7 +41,7 @@ class FileVariable(DatasetVariable):
             start = 0
             length = len(axis)
             truelen = length
-            self.domain.append((axis,start,length,truelen))
+            self.domain.append((axis, start, length, truelen))
 
     def typecode(self):
         # Compatibility: convert to new typecode
@@ -46,43 +49,44 @@ class FileVariable(DatasetVariable):
         tc = typeconv.convtypecode2(tc).char
         return tc
 
-    def assignValue(self,data):
+    def assignValue(self, data):
         if self.parent is None:
-            raise CDMSError, FileClosedWrite+self.id
+            raise CDMSError(FileClosedWrite + self.id)
         if numpy.ma.isMaskedArray(data):
-          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
-            saveFill = data.fill_value
-            if self.getMissing() is None:
-                self.setMissing(saveFill)
-            else:
-                data.set_fill_value(self.getMissing())
+            if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask, 0):
+                saveFill = data.fill_value
+                if self.getMissing() is None:
+                    self.setMissing(saveFill)
+                else:
+                    data.set_fill_value(self.getMissing())
         self._obj_.assignValue(numpy.ma.filled(data))
         if numpy.ma.isMaskedArray(data):
-          if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask,0):
-            data.set_fill_value(saveFill)
+            if data.mask is not numpy.ma.nomask and not numpy.ma.allclose(data.mask, 0):
+                data.set_fill_value(saveFill)
 
-    def expertSlice (self, initslicelist):
+    def expertSlice(self, initslicelist):
         # Handle negative slices
-        revlist = []                    # Slices to apply to result if reversals needed
+        revlist = []
+            # Slices to apply to result if reversals needed
         slist = []                      # Slices with positive strides
         haveReversals = 0               # True iff result array needs reversing
-        i=0
+        i = 0
         for s in initslicelist:
-            if s.step<0:
+            if s.step < 0:
                 axislen = self.shape[i]
-                slist.append(reverseSlice(s,axislen))
-                revlist.append(slice(None,None,-1))
+                slist.append(reverseSlice(s, axislen))
+                revlist.append(slice(None, None, -1))
                 haveReversals = 1
             else:
                 slist.append(s)
-                revlist.append(slice(None,None,1))
+                revlist.append(slice(None, None, 1))
             i += 1
 
         if self.parent is None:
-            raise CDMSError, FileClosed+self.id
+            raise CDMSError(FileClosed + self.id)
         if self.rank() == 0:
             return self._obj_.getValue()
-        result = apply(self._obj_.getitem,slist)
+        result = self._obj_.getitem(*slist)
 
         # If slices with negative strides were input, apply the appropriate
         # reversals.
@@ -93,43 +97,43 @@ class FileVariable(DatasetVariable):
 
     def __setitem__(self, index, value):
         if self.parent is None:
-            raise CDMSError, FileClosedWrite+self.id
+            raise CDMSError(FileClosedWrite + self.id)
         if numpy.ma.isMaskedArray(value):
-          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
-            saveFill = value.fill_value
-            if self.getMissing() is None:
-                self.setMissing(saveFill)
-            else:
-                value.set_fill_value(self.getMissing())
-        apply(self._obj_.setitem,(index,numpy.ma.filled(value)))
+            if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask, 0):
+                saveFill = value.fill_value
+                if self.getMissing() is None:
+                    self.setMissing(saveFill)
+                else:
+                    value.set_fill_value(self.getMissing())
+        self._obj_.setitem(*(index, numpy.ma.filled(value)))
         if numpy.ma.isMaskedArray(value):
-          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
-            value.set_fill_value(saveFill)
+            if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask, 0):
+                value.set_fill_value(saveFill)
 
     def __setslice__(self, low, high, value):
         if self.parent is None:
-            raise CDMSError, FileClosedWrite+self.id
+            raise CDMSError(FileClosedWrite + self.id)
 
         # Hack to prevent netCDF overflow error on 64-bit architectures
         high = min(Max32int, high)
-        if high == Max32int and self.rank()==0:
-          high=1
-        
-        if numpy.ma.isMaskedArray(value):
-          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
-            saveFill = value.fill_value
-            if self.getMissing() is None:
-                self.setMissing(saveFill)
-            else:
-                value.set_fill_value(self.getMissing())
-        apply(self._obj_.setslice,(low,high,numpy.ma.filled(value)))
-        if numpy.ma.isMaskedArray(value):
-          if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
-            value.set_fill_value(saveFill)
+        if high == Max32int and self.rank() == 0:
+            high = 1
 
-    def _getShape (self):
+        if numpy.ma.isMaskedArray(value):
+            if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask, 0):
+                saveFill = value.fill_value
+                if self.getMissing() is None:
+                    self.setMissing(saveFill)
+                else:
+                    value.set_fill_value(self.getMissing())
+        self._obj_.setslice(*(low, high, numpy.ma.filled(value)))
+        if numpy.ma.isMaskedArray(value):
+            if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask, 0):
+                value.set_fill_value(saveFill)
+
+    def _getShape(self):
         if self.parent is None:
-            raise CDMSError, FileClosed+self.id
+            raise CDMSError(FileClosed + self.id)
         return self._obj_.shape
 
     # Write external attributes to the file.
@@ -138,13 +142,15 @@ class FileVariable(DatasetVariable):
     # that the value is propagated to the external file.
     def __setattr__(self, name, value):
         if hasattr(self, "parent") and self.parent is None:
-            raise CDMSError, FileClosedWrite+self.id
+            raise CDMSError(FileClosedWrite + self.id)
         if (not name in self.__cdms_internals__) and (value is not None):
             try:
                 setattr(self._obj_, name, value)
             except CdunifError:
-                raise CDMSError, "Setting %s.%s=%s"%(self.id,name,`value`)
-            self.attributes[name]=value
+                raise CDMSError(
+                    "Setting %s.%s=%s" %
+                    (self.id, name, repr(value)))
+            self.attributes[name] = value
         self.__dict__[name] = value
 
     # Delete external file attributes.
@@ -156,23 +162,23 @@ class FileVariable(DatasetVariable):
             try:
                 delattr(self._obj_, name)
             except CdunifError:
-                raise CDMSError, "Deleting %s.%s"%(self.id,name)
+                raise CDMSError("Deleting %s.%s" % (self.id, name))
             del(self.attributes[name])
         del self.__dict__[name]
 
     def getValue(self, squeeze=1):
         """Return the entire set of values."""
         if self.parent is None:
-            raise CDMSError, FileClosed+self.id
-        if self.rank()>0:
+            raise CDMSError(FileClosed + self.id)
+        if self.rank() > 0:
             return self.getSlice(Ellipsis, squeeze=squeeze)
         else:
             return self._obj_.getValue()
-    
+
     def __len__(self):
         " Length of first dimension. "
         if self.parent is None:
-            raise CDMSError, FileClosed+self.id
+            raise CDMSError(FileClosed + self.id)
         return len(self._obj_)
 
 #    def __repr__(self):
@@ -181,5 +187,4 @@ class FileVariable(DatasetVariable):
 #        else:
 #            return "<Variable: %s, file: **CLOSED**>"%self.id
 
-
-    shape = property(_getShape,None)
+    shape = property(_getShape, None)
