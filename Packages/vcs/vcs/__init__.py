@@ -55,8 +55,6 @@ install_vcs._files()
 # Set the user's XGKSFontDir environment variable.                              #
 #
 #
-install_vcs._XGKSFontDir()
-
 
 elements = collections.OrderedDict()
 elements["list"] = {}
@@ -135,7 +133,7 @@ for nm, fnt in [
     ("AvantGarde", "AvantGarde-Book_Bold.ttf"),
 ]:
     i += 1
-    pth = os.path.join(os.environ["HOME"], d, fnt)
+    pth = os.path.join(os.path.expanduser("~"), d, fnt)
     pthe = os.path.join(os.environ.get(e, ""), fnt)
     if os.path.exists(pth):
         vcs.elements["font"][nm] = pth
@@ -218,7 +216,7 @@ for typ in elements.keys():
 
 _dotdir, _dotdirenv = vcs.getdotdirectory()
 user_init = os.path.join(
-    os.environ['HOME'],
+    os.path.expanduser("~"),
     _dotdir,
     'initial.attributes')
 if os.path.exists(user_init):
@@ -232,23 +230,18 @@ canvaslist = []
 #
 
 
-def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
+def init(mode=1, pause_time=0, call_from_gui=0, size=None,
          backend="vtk", geometry=None, bg=None):
     '''
- Function: init                 # Initialize, Construct a VCS Canvas Object
+ Function: init   # Initialize, Construct a VCS Canvas Object
 
  Description of Function:
-    Construct the VCS Canas object. There can only be at most 8 VCS
-    Canvases open at any given time.
-
-    Graphics User Interface Mode:
-            gui = 0|1    if ==1, create the canvas with GUI controls
-                         (Default setting is *not* to display GUI controls)
+    Construct the VCS Canas object.
 
  Example of Use:
-    import vcs,cu
+    import vcs,cdms2
 
-    file=cu.open('filename.nc')
+    file=cdms2.open('filename.nc')
     slab=file.getslab('variable')
     a=vcs.init()                        # This examples constructs 4 VCS Canvas
     a.plot(slab)                        # Plot slab using default settings
@@ -263,7 +256,6 @@ def init(gui=0, mode=1, pause_time=0, call_from_gui=0, size=None,
     c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
 '''
     canvas = Canvas.Canvas(
-        gui=gui,
         mode=mode,
         pause_time=pause_time,
         call_from_gui=call_from_gui,

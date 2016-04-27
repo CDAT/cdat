@@ -574,7 +574,7 @@ class animate_obj_old(object):
         if hasattr(self, "_unique_prefix"):
             png_names = glob.glob(
                 os.path.join(
-                    os.environ["HOME"],
+                    os.path.expanduser("~"),
                     ".uvcdat",
                     self._unique_prefix,
                     "anim_*.png")
@@ -1008,7 +1008,7 @@ class AnimationController(animate_obj_old):
     def render_frame(self, frame_args, frame_num, frame_kargs=[]):
         if self.animation_seed is None:
             self.animation_seed = numpy.random.randint(10000000000)
-        fn = os.path.join(os.environ["HOME"], ".uvcdat",
+        fn = os.path.join(os.path.expanduser("~"), ".uvcdat",
                           "__uvcdat_%i_%i.png" % (self.animation_seed, frame_num))
         self.animation_files.append(fn)
 

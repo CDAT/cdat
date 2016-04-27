@@ -102,7 +102,7 @@ def checkContinents(self, value):
             path = None
         elif 0 < value < 7:
             path = os.path.join(
-                os.environ.get("HOME", ""),
+                os.path.expanduser("~"),
                 os.environ.get(vcs.getdotdirectory()[1],
                                vcs.getdotdirectory()[0]),
                 "data_continent_%s" % nms[value - 1])
@@ -116,7 +116,7 @@ def checkContinents(self, value):
                     "data_continent_%s" % nms[
                         value - 1])
         else:
-            path = os.path.join(os.environ.get("HOME", ""),
+            path = os.path.join(os.path.expanduser("~"),
                                 os.environ.get(vcs.getdotdirectory()[1],
                                                vcs.getdotdirectory()[0]),
                                 "data_continent_other%d" % value)

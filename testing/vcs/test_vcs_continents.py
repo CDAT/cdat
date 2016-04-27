@@ -41,6 +41,7 @@ for i in range(12):
     cont_line = vcs.createline()
     cont_line.width = i % 3 + 1
     cont_line.type = line_styles[i % 5]
+    print "Cont_line_rtype:",line_styles[i % 5]
     cont_line.color = i + 200
     template = multitemplate.get(i)
     if cont_index != 3 and i != 4 and i != 11:

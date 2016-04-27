@@ -68,7 +68,7 @@ class VTKAnimationCreate(animate_helper.StoppableThread):
 
     def get_frame_name(self, frame_num):
         png_name = os.path.join(
-            os.environ["HOME"],
+            os.path.expanduser("~"),
             ".uvcdat",
             self.controller._unique_prefix,
             "anim_%i.png" %
