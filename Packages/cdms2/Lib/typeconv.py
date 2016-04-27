@@ -1,6 +1,6 @@
+import numpy as np
 __all__ = ['oldtype2dtype', 'convtypecode', 'convtypecode2', 'oldtypecodes']
 
-import numpy as np
 
 oldtype2dtype = {'1': np.dtype(np.byte),
                  's': np.dtype(np.short),

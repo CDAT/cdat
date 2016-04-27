@@ -1,4 +1,3 @@
-import cdms2
 import urllib2
 import xml.etree.ElementTree
 try:
@@ -173,7 +172,7 @@ class esgfConnection(object):
         return val
 
     def __setitem__(self, key, value):
-        if not key in self.params.keys():
+        if key not in self.params.keys():
             raise self.EsgfObjectException(
                 "Invalid key: %s, valid keys are: %s" %
                 (repr(key), repr(self.params.keys())))
@@ -183,7 +182,7 @@ class esgfConnection(object):
     def _search(self, search="", searchType=None, stringType=False):
         if searchType is None:
             searchType = self.defaultSearchType
-        if not searchType in self.validSearchTypes:
+        if searchType not in self.validSearchTypes:
             raise self.EsgfObjectException(
                 "Valid Search types are: %s" %
                 repr(self.validSearchTypes))
@@ -226,14 +225,8 @@ class esgfConnection(object):
         # params[k]=self[k]
 
         for k in keys.keys():
-            if k == "stringType":
-                stringType = keys[k]
+            if k in ["stringType", "type"]:
                 continue
-            elif k == "type":
-                continue
-            # elif not k in self.searchableKeys:
-            # raise self.EsgfObjectException("Invalid key: %s, valid keys are:
-            # %s" % (repr(k),repr(self.params.keys())))
             if keys[k] is not None:
                 params[k] = keys[k]
 
@@ -309,23 +302,18 @@ class esgfConnection(object):
         resps = self.request(**keys)
         stringType = keys.get("stringType", False)
         if stringType:
-            return resp
+            return resps
         datasets = []
         for resp in resps:
             for r in resp[:]:
                 if r.tag == "result":
                     # Ok let's go thru these datasets
                     for d in r[:]:
-                        # print
-                        # "************************************************"
                         tmpkeys = {}
                         for f in d[:]:
                             k = f.get("name")
                             tmpkeys[k] = self.extractTag(f)
                         if tmpkeys["type"] == "Dataset":
-                            datasetid = tmpkeys["id"]
-                            # print datasetid,self.restPath
-                            # print "KEYS FOR DATASET",keys.keys()
                             datasets.append(
                                 esgfDataset(host=self.host,
                                             port=self.port,
@@ -364,7 +352,7 @@ class esgfDataset(esgfConnection):
                     tmp.replace(")s", ")"))
             elif "project" in keys and keys["project"] == "cmip5":
                 self.datasetids = genutil.StringConstructor(
-                    "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)")
+                    "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)")  # noqa
             else:
                 self.datasetids = None
         if isinstance(datasetids, genutil.StringConstructor):
@@ -393,38 +381,16 @@ class esgfDataset(esgfConnection):
         self.keys = self.params.keys
         self.items = self.params.items
         self.values = self.params.values
-        # self.id=self["id"]
         self.params["limit"] = limit
         self.params["offset"] = offset
         self.mapping = mapping
-        # print "SEARCHING DS:",originalKeys
         self.resp = None
         self.cacheTime = None
-#        self.search()
-#        self.remap()
 
-        # Ok now we need to "map" this according to the user wishes
-
-    # def mappedItems():
-    # mapped=[]
-    # mapppoint=self.mapped
-    # for k in self.mapping.keys():
-    # keys=[]
-    # level=[k,mappoint.keys()]
-    # mappoint
     def _extractFiles(self, resp, **inKeys):
         # We need to stick in there the bit from Luca to fill in the matching
         # key from facet for now it's empty
         files = []
-        skipped = [
-            "type",
-            "title",
-            "timestamp",
-            "service",
-            "id",
-            "score",
-            "file_url",
-            "service_type"]
         for r in resp[:]:
             if r.tag == "result":
                 for d in r[:][:]:
@@ -433,66 +399,6 @@ class esgfDataset(esgfConnection):
                         k = f.get("name")
                         keys[k] = self.extractTag(f)
                     if keys["type"] == "File":
-                        # if self["id"]=="obs4MIPs.NASA-JPL.AIRS.mon":
-                        # verbose=True
-                        # else:
-                        # verbose=False
-                        # verbose=True
-                        # if verbose: print "OK",keys["variable"],keys["file_id"],self["id"]
-                        # if verbose: print "FILEIDS:",self.fileids
-                        # if verbose: print "Fileids:",self.fileids.template
-                        # if verbose: print "keys:",keys
-                        # if self.fileids is not None:
-                        # try:
-                        # if verbose: print "file:",keys["file_id"],self.fileids.template
-                        # k2 = self.fileids.reverse(keys["file_id"])
-                        # if verbose: print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",k2
-                        # for k in k2.keys():
-                        # keys[k]=k2[k]
-                        # except:
-                        # if verbose: print "Failed:",ids[i].text,self.fileids.template
-                        # pass
-                        # if verbose: print "KEYS FOR FILE:",keys.keys()
-                        # if verbose: print "INKEYS:",inKeys.keys()
-                        # matched = True
-                        # matchWithKeys = {}
-                        # for k in self.keys():
-                        # if k in self.originalKeys.keys():
-                        # matchWithKeys[k]=self.originalKeys[k]
-                        # else:
-                        # matchWithKeys[k]=self[k]
-                        # for s in skipped:
-                        # try:
-                        # matchWithKeys.pop(s)
-                        # except:
-                        # pass
-                        # for k in inKeys.keys():
-                        # matchWithKeys[k]=inKeys[k]
-                        # if verbose: print "matching:",matchWithKeys.keys()
-                        # for k in keys.keys():
-                        # if k in matchWithKeys.keys():
-                        # if verbose: print "Testing:",k,keys[k]
-                        # v = matchWithKeys[k]
-                        # if isinstance(v,(str,int,float)):
-                        # if verbose: print "\tComparing with:",v
-                        # if v != keys[k]:
-                        # matched = False
-                        # if verbose: print "\t\tNOPE"
-                        # break
-                        # elif isinstance(v,list):
-                        # if verbose: print "\tComparing with (and %i more):%s"%(len(v),v[0]),v
-                        # if not keys[k] in v:
-                        # matched = False
-                        # if verbose: print "\t\tNOPE"
-                        # break
-                        # else:
-                        # print "\twould compare %s with type: %s if I knew how to" % (str(v),type(v))
-                        # if verbose: print keys["file_id"],matched
-                        # if matched :
-                        # for k in self.keys():
-                        # if not k in keys.keys():
-                        # keys[k]=self[k]
-                        # print "KEYS:",keys
                         files.append(esgfFile(**keys))
         return files
 
@@ -514,7 +420,7 @@ class esgfDataset(esgfConnection):
         if os.path.isdir(target):
             target = os.path.join(target, "esgfDatasetsCache.pckl")
         if os.path.exists(target):
-            f = open(source)
+            f = open(target)
             # dict=eval(bz2.decompress(f.read()))
             dict = eval(f.read())
             f.close()
@@ -560,9 +466,9 @@ class esgfDataset(esgfConnection):
         stringType = keys.get("stringType", False)
         keys.update(self.originalKeys)
         st = ""
-        if not "limit" in keys:
+        if "limit" not in keys:
             keys["limit"] = [self["limit"]]
-        if not "offset" in keys:
+        if "offset" not in keys:
             keys["offset"] = [self["offset"]]
         for k in keys:
             if k in ["searchString", "stringType", ]:
@@ -615,7 +521,8 @@ class esgfFiles(object):
         self.setMapping(mapping)
         self.remap()
         self.projects_dict = {
-            "CMIP5": "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)"}
+            "CMIP5": "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)"  # noqa
+            }
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -654,7 +561,7 @@ class esgfFiles(object):
                 self.mapping = self.datasetids
             else:
                 for k in self.parent.keys():
-                    if not k in ["limit", "offset", "text"]:
+                    if k not in ["limit", "offset", "text"]:
                         self.mapping += "%%(%s)" % k
         else:
             self.mapping = mapping
@@ -731,24 +638,21 @@ class esgfFiles(object):
                     cont = f[k]
                     if not isinstance(cont, (str, int, float)):
                         break
-                    if not cont in mappoint.keys():
+                    if cont not in mappoint.keys():
                         mappoint[cont] = {}
                 elif k in self.parent.keys():
                     # if verbose: print tabs,k,f[k]
                     nok += 1
                     cont = self[k]
-                    if not cont in mappoint.keys():
+                    if cont not in mappoint.keys():
                         mappoint[cont] = {}
                 elif isinstance(self.fileids, genutil.StringConstructor):
                     try:
                         mapid = self.fileids.reverse(self.parent.id)
-                        # if verbose:
-                        # print "MAPID:",k,mapid
                         if k in mapid.keys():
-                        # if verbose: print tabs,k,mapid[k]
                             nok += 1
                             cont = mapid[k]
-                            if not cont in mappoint.keys():
+                            if cont not in mappoint.keys():
                                 mappoint[cont] = {}
                     except:
                         break

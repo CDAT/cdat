@@ -43,14 +43,14 @@ def fromJSON(jsn):
                         dtype=a["_dtype"]),
             id=a["id"])
         for k, v in a.iteritems():
-            if not k in ["_values", "id", "_dtype"]:
+            if k not in ["_values", "id", "_dtype"]:
                 setattr(ax, k, v)
         axes.append(ax)
     # Now prep the variable
     V = createVariable(D["_values"], id=D["id"], typecode=D["_dtype"])
     V.setAxisList(axes)
     for k, v in D.iteritems():
-        if not k in ["id", "_values", "_axes", "_grid", "_fill_value", "_dtype", ]:
+        if k not in ["id", "_values", "_axes", "_grid", "_fill_value", "_dtype", ]:
             setattr(V, k, v)
     V.set_fill_value(D["_fill_value"])
     return V
@@ -103,12 +103,10 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         try:
             for nm, val in obj.__dict__.items():
                 if nm[0] == '_':
-# print nm
                     pass
-# self.__dict__[nm]=val
                 else:
                     setattr(self, nm, val)
-        except Exception as err:
+        except Exception:
             pass
         id = getattr(self, 'id', None)
         if id is None:
@@ -193,14 +191,12 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
                     grid = grid.reconcile(
                         axes)  # Make sure grid and axes are consistent
 
-        ncopy = (copy != 0)
-
         # Initialize the geometry
         if grid is not None:
             copyaxes = 0                  # Otherwise grid axes won't match domain.
         if axes is not None:
             self.initDomain(axes, copyaxes=copyaxes)
-                            # Note: clobbers the grid, so set the grid after.
+        # Note: clobbers the grid, so set the grid after.
         if grid is not None:
             self.setGrid(grid)
 
@@ -277,7 +273,7 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         if mask is None:
             try:
                 mask = data.mask
-            except Exception as err:
+            except Exception:
                 mask = numpy.ma.nomask
 
         # Handle the case where ar[i:j] returns a single masked value
@@ -359,7 +355,7 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
     def getDomain(self):
         for i in range(self.rank()):
             if self.__domain[i] is None:
-                junk = self.getAxis(i)  # will force a fill in
+                self.getAxis(i)  # will force a fill in
         return self.__domain
 
     def getAxis(self, n):
@@ -442,7 +438,7 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         maresult = numpy.ma.MaskedArray.astype(self, tc)
         return TransientVariable(
             maresult, copy=0, axes=self.getAxisList(), fill_value=self.fill_value,
-                                 attributes=self.attributes, id=self.id, grid=self.getGrid())
+            attributes=self.attributes, id=self.id, grid=self.getGrid())
 
     def setMaskFromGridMask(self, mask, gridindices):
         """Set the mask for self, given a grid mask and the variable domain
@@ -626,12 +622,11 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         sphereRadius: radius of the earth
         maxElev: maximum elevation for representation on the sphere
         """
-        from . import mvSphereMesh
         from . import mvVTKSGWriter
         from . import mvVsWriter
         try:
             # required by mvVsWriter
-            import tables
+            import tables  # noqa
         except:
             # fall back
             format = 'VTK'
@@ -739,8 +734,7 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
                     # given direction, a 1 represents a layer of
                     # thickness ghostWidth on the high index side,
                     # -1 on the low index side.
-                    winId = tuple([0 for i in range(dim)]
-                                  + [drect] +
+                    winId = tuple([0 for i in range(dim)] + [drect] +
                                   [0 for i in range(dim + 1, ndims)])
 
                     slce = slice(0, ghostWidth)
@@ -832,7 +826,7 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         """
         ndims = len(self.shape)
 
-        slab = [ slice(0, None) for i in range(dim) ] \
+        slab = [slice(0, None) for i in range(dim)] \
             + [slce] + \
             [slice(0, None) for i in range(dim + 1, ndims)]
         return tuple(slab)

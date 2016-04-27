@@ -1,6 +1,5 @@
 
 """Classes to support easy selection of climate data"""
-import cdtime
 from .axis import axisMatches
 from .error import CDMSError
 from .grid import AbstractRectGrid, defaultRegion, setRegionSpecs, LongitudeType, LatitudeType, TimeType, VerticalType
@@ -203,7 +202,7 @@ class Selector:
            grid is not None or \
            raw != 0 or \
            result is variable:
-     # result is variable when there are no components, for example.
+            # result is variable when there are no components, for example.
             return result.subRegion(squeeze=squeeze, order=order, grid=grid,
                                     raw=raw)
         else:
@@ -371,7 +370,6 @@ class positionalComponent (SelectorComponent):
 
     def specify(self, slab, axes, specifications, confined_by, aux):
         "Find the next unconfined axis and confine it."
-        n = 0
         for i in range(len(axes)):
             if confined_by[i] is None:
                 specifications[i] = self.v

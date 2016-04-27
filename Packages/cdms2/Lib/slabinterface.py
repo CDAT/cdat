@@ -95,7 +95,7 @@ class Slab:
         a = self.getAxis(dim)
         result = []
         for x in std_axis_attributes + a.attributes.keys():
-            if not x in result:
+            if x not in result:
                 result.append(x)
         return result
 
@@ -192,7 +192,6 @@ class Slab:
 def cdms_bounds2cu_bounds(b):
     "Bounds are  len(v) by 2 in cdms but len(v)+1 in cu"
     cub = numpy.ma.zeros(len(b) + 1, numpy.float32)
-    b1 = b.astype(numpy.float32)
     if len(b) > 1:
         if (b[0, 0] < b[0, 1]) == (b[0, 0] < b[-1, 0]):
             cub[0] = b[0, 0]

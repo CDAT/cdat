@@ -3,17 +3,13 @@
 """
 DatasetVariable: Dataset-based variables
 """
-from cdms2 import Cdunif
 import numpy
 from . import cdmsNode
 import cdtime
 import copy
-import os
-import sys
-from . import cdmsobj
-from .cdmsobj import CdmsObj, getPathFromTemplate, Max32int
+from .cdmsobj import getPathFromTemplate, Max32int
 from .avariable import AbstractVariable
-from .sliceut import *
+from .sliceut import *  # noqa
 from .error import CDMSError
 
 InvalidGridElement = "Grid domain elements are not yet implemented: "
@@ -335,10 +331,8 @@ class DatasetVariable(AbstractVariable):
             if hasattr(axis, 'partition'):
                 npart = npart + 1
                 if npart == 1:
-                    part1 = axis
                     npart1 = ndim
                 elif npart == 2:
-                    part2 = axis
                     npart2 = ndim
                 else:
                     raise CDMSError(TooManyPartitions + variable.id)
@@ -476,7 +470,7 @@ class DatasetVariable(AbstractVariable):
 
         # Handle negative slices
         revlist = []
-            # Slices to apply to result if reversals needed
+        # Slices to apply to result if reversals needed
         slist = []                      # Slices with positive strides
         haveReversals = 0               # True iff result array needs reversing
         i = 0
@@ -500,7 +494,6 @@ class DatasetVariable(AbstractVariable):
         for i in range(len(self.domain)):
             if self.domain[i][0].isForecast():
                 fci = i
-                fcv = initslist[i].start
                 break
 
         # If no intersection, return an 'empty' array.
@@ -536,7 +529,7 @@ class DatasetVariable(AbstractVariable):
                     result = self._returnArray(
                         var.getitem(
                             *tuple(slicelist[0:fci] + slicelist[fci + 1:])),
-                                                0)
+                        0)
                     # But the result still needs an index in the forecast direction,
                     # which is simple to do because there is only one forecast
                     # per file:
