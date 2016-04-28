@@ -755,7 +755,10 @@ class VTKVCSBackend(object):
                 plot.onClosing(cell)
 
     def plotContinents(self, wc, projection, wrap, vp, priority, **kargs):
-        contData = vcs2vtk.prepContinents(self.canvas._continentspath())
+        continents_path = self.canvas._continentspath()
+        if continents_path is None:
+            return (None, 1, 1)
+        contData = vcs2vtk.prepContinents(continents_path)
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
