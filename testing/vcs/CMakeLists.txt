@@ -1016,11 +1016,17 @@ cdat_add_test(test_vcs_init_open_sizing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py
 )
-# Rename baseline
+## Rename baseline
 cdat_add_test(test_vcs_matplotlib_colormap
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_matplotlib_colormap.py
   ${BASELINE_DIR}/test_vcs_matplotlib_colormap.png
+)
+
+cdat_add_test(test_vcs_no_continents
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_no_continents.py
+  ${BASELINE_DIR}/test_vcs_no_continents.png
 )
 
 
