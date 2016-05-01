@@ -1,7 +1,4 @@
-import cdms2
-import sys
-import vcs
-import os
+import os, sys, cdms2, vcs, testing.regression as regression
 
 testConfig = {'a_boxfill': ('clt.nc', 'clt', (200, 200)),
               'a_mollweide_boxfill': ('clt.nc', 'clt', (222, 322)),
@@ -11,15 +8,7 @@ testConfig = {'a_boxfill': ('clt.nc', 'clt', (200, 200)),
 # Tests if the info produced when clicking on a map is correct.
 src = sys.argv[1]
 plot = sys.argv[2]
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-# Needs to set the size of window so it is consistent accross
-# test platforms
-x.open(814, 606)
+x = regression.init()
 
 # data
 f = cdms2.open(vcs.sample_data + "/" + testConfig[plot][0])
@@ -47,7 +36,4 @@ fileName = os.path.basename(src)
 fileName = os.path.splitext(fileName)[0]
 fileName += '.png'
 
-x.png(fileName, width=814, height= 606)
-
-ret = checkimage.check_result_image(fileName, src, checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, fileName)

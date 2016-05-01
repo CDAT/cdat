@@ -12,8 +12,27 @@ import os.path
 import re
 import sys
 import logging
+import vcs
 
 defaultThreshold=10.0
+
+def init():
+    testingDir = os.path.join(os.path.dirname(__file__), "..")
+    sys.path.append(testingDir)
+
+    vcsinst = vcs.init()
+    vcsinst.setantialiasing(0)
+    vcsinst.drawlogooff()
+    vcsinst.setbgoutputdimensions(1200,1091,units="pixels")
+    return vcsinst
+
+def run(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
+    vcsinst.png(fname)
+    sys.exit(check_result_image(fname, baseline, threshold))
+
+def run_wo_terminate(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
+    vcsinst.png(fname)
+    return check_result_image(fname, baseline, threshold)
 
 def image_compare(testImage, baselineImage):
     imageDiff = vtk.vtkImageDifference()
@@ -53,8 +72,8 @@ def find_alternates(fname):
             results.append(os.path.join(dirname, i))
     return results
 
-def check_result_image(fname, baselinefname, threshold = defaultThreshold,
-                       baseline = True, cleanup=True):
+def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThreshold,
+                       baseline=True, cleanup=True):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."

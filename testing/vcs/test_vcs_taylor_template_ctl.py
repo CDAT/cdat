@@ -1,20 +1,8 @@
 
-import sys,os
-src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
-import vcs,MV2
+import sys, os, vcs, MV2
+import testing.regression as regression
 
-bg=True
-
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-if bg:
-  x.setbgoutputdimensions(1200,1091,units="pixels")
-if not bg:
-    x.open()
+x = regression.init()
 
 ## Create a template from the default taylor diagram
 t=x.createtemplate('mytaylor','deftaylor')
@@ -61,12 +49,5 @@ t.xmintic2.priority=1
 # Create some dummy data for display purposes
 data=MV2.array([[1.52,.52,],[.83,.84]])
 
-x.plot(data,t,td,bg=bg)
-fnm="test_vcs_taylor_template_ctl.png"
-x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-if not bg:
-    raw_input("Press Enter")
-sys.exit(ret)
+x.plot(data, t, td, bg=1)
+regression.run(x, "test_vcs_taylor_template_ctl.png")

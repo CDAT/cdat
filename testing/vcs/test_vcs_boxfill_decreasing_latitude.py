@@ -1,23 +1,10 @@
 #!/usr/bin/env python
-import cdms2
-import cdutil
-import os
-import sys
-import vcs
-
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
+import cdms2, cdutil, os, sys, vcs, testing.regression as regression
 
 f = cdms2.open(sys.argv[2])
 ice = f("variable_6")
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200, 900, units="pixels")
+x = regression.init()
 
-#gm = x.createisofill()
-#gm.label = "y"
 gm = x.createboxfill()
 gm.boxfill_type = "custom"
 
@@ -44,12 +31,8 @@ tmpl.legend.y1 = .03
 tmpl.legend.y2 = .055
 tmpl.max.priority = 1
 
-#tmpl.crdate.priority=1
-#tmpl.crdate.x=.8
-#tmpl.crdate.y=.95
 txt = x.createtext()
 txt.height = 20
-#txt.color=242
 txt.valign = "half"
 txt.halign = "center"
 
@@ -69,8 +52,4 @@ gm.datawc_y2 = 30
 gm.datawc_y1 = 90
 
 x.plot(ice, gm, tmpl, bg = 1)
-fnm = "test_boxfill_decreasing_latitude.png"
-x.png(fnm)
-ret = checkimage.check_result_image(fnm, sys.argv[1], checkimage.defaultThreshold)
-sys.exit(ret)
-
+regression.run(x, "test_boxfill_decreasing_latitude.png")

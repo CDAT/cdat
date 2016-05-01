@@ -20,9 +20,7 @@ png_writer.Write()
 
 import sys, os
 if len(sys.argv) > 1:
-    pth = os.path.join(os.path.dirname(__file__), "..")
-    sys.path.append(pth)
-    import checkimage
+    import testing.regression as regression
     src = sys.argv[1]
-    ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+    ret = regression.check_result_image(fnm, src)
     sys.exit(ret)
