@@ -2250,7 +2250,7 @@ def axisMatches(axis, specification):
 
        3. an axis object; will match if it is the same object as axis.
     """   
-    if isinstance(specification, types.StringType):
+    if isinstance(specification, basestring):
         s = string.lower(specification)
         s = s.strip()
         while s[0] == '(':

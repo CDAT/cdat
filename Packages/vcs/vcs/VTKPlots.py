@@ -299,23 +299,21 @@ class VTKVCSBackend(object):
             parg.append(d.g_type)
             parg.append(d.g_name)
             plots_args.append(parg)
-            kwarg = {}
+            key = {"display_name": dnm}
             if d.ratio is not None:
-                kwarg["ratio"] = d.ratio
+                key["ratio"] = d.ratio
+            key["continents"] = d.continents
+            key["continents_line"] = d.continents_line
+            key_args.append(key)
 
-            kwarg["continents"] = d.continents
-            kwarg["continents_line"] = d.continents_line
-
-            key_args.append(kwarg)
-
-        # Have to pull out the UI layer so it doesn't get borked by the clear
+        # Have to pull out the UI layer so it doesn't get borked by the z
         self.hideGUI()
 
         if self.canvas.configurator is not None:
             restart_anim = self.canvas.configurator.animation_timer is not None
         else:
             restart_anim = False
-        self.canvas.clear(render=False)
+        self.canvas.clear(render=False, preserve_display=True)
 
         for i, pargs in enumerate(plots_args):
             self.canvas.plot(*pargs, render=False, **key_args[i])
@@ -757,7 +755,10 @@ class VTKVCSBackend(object):
                 plot.onClosing(cell)
 
     def plotContinents(self, wc, projection, wrap, vp, priority, **kargs):
-        contData = vcs2vtk.prepContinents(self.canvas._continentspath())
+        continents_path = self.canvas._continentspath()
+        if continents_path is None:
+            return (None, 1, 1)
+        contData = vcs2vtk.prepContinents(continents_path)
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
