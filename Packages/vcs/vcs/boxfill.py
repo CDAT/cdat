@@ -767,8 +767,8 @@ class Gfb(object):
         if dx == 0:
             high_end += .00001
             return [low_end, high_end]
-
-        contourLevels = numpy.arange(low_end, high_end + dx, dx)
+        float_epsilon = numpy.finfo(numpy.float32).eps
+        contourLevels = numpy.arange(low_end, high_end + float_epsilon, dx)
 
         return contourLevels
 
@@ -788,9 +788,10 @@ class Gfb(object):
                 return vcs.mklabels(scale)
             else:
                 # Create our own scale
-                dx = (self.level_2 - self.level_1) / float(len(scale))
+                dx = (self.level_2 - self.level_1) / float(len(scale) - 1)
                 real_values = [self.level_1, self.level_2]
-                levels = numpy.arange(levels[0], levels[-1] + dx, dx)
+                float_epsilon = numpy.finfo(numpy.float32).eps
+                levels = numpy.arange(levels[0], levels[-1] + float_epsilon, dx)
         else:
             real_values = levels
 
