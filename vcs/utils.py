@@ -1620,7 +1620,7 @@ def getgraphicsmethod(type, name):
         type = "boxfill"
     if isinstance(type, vcsaddons.core.VCSaddon):
         func = type.getgm
-        copy_mthd = func(source=name)
+        copy_mthd = func(name)
     else:
         try:
             copy_mthd = vcs.elements[type][name]
