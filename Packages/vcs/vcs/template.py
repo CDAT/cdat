@@ -56,6 +56,18 @@ def _setgen(self, name, cls, value):
     setattr(self, "_%s" % name, value)
 
 
+def epsilon_gte(a, b):
+    """a >= b, using floating point epsilon value."""
+    float_epsilon = numpy.finfo(numpy.float32).eps
+    return -float_epsilon < a - b
+
+
+def epsilon_lte(a, b):
+    """a <= b, using floating point epsilon value."""
+    float_epsilon = numpy.finfo(numpy.float32).eps
+    return float_epsilon > a - b
+
+
 # read .scr file
 def process_src(nm, code):
     """Takes VCS script code (string) as input and generates boxfill gm from it"""
@@ -1874,15 +1886,14 @@ class P(object):
             if legend is None:
                 legend = vcs.mklabels(levels)
             # We'll use the less precise float epsilon since this is just for labels
-            float_epsilon = numpy.finfo(numpy.float32).eps
             if levels[0] < levels[1]:
-                # <=
-                comparison = lambda a, b: float_epsilon > a - b
+                comparison = epsilon_lte
             else:
-                # >=
-                comparison = lambda a, b: -float_epsilon < a - b
+                comparison = epsilon_gte
 
-            in_bounds = lambda x: comparison(levels[0], x) and comparison(x, levels[-1])
+            def in_bounds(x):
+                return comparison(levels[0], x) and comparison(x, levels[-1])
+
             dlong = dD / (len(levels) - 1)
 
             for l in legend.keys():

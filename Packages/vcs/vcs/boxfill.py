@@ -742,8 +742,7 @@ class Gfb(object):
         nlev = float(self.color_2 - self.color_1 + 1)
         autolevels = False
 
-        if numpy.allclose(self.level_1, 1.e20) or \
-           numpy.allclose(self.level_2, 1.e20):
+        if numpy.allclose(self.level_1, 1.e20) or numpy.allclose(self.level_2, 1.e20):
             autolevels = True
             low_end = varmin
             high_end = varmax
@@ -754,7 +753,6 @@ class Gfb(object):
         if self.boxfill_type == "log10":
             low_end = numpy.ma.log10(low_end)
             high_end = numpy.ma.log10(high_end)
-
 
         if autolevels:
             # Use nice values for the scale
@@ -776,8 +774,7 @@ class Gfb(object):
         if self.legend:
             return self.legend
 
-        if numpy.allclose(self.level_1, 1.e20) or \
-           numpy.allclose(self.level_2, 1.e20):
+        if numpy.allclose(self.level_1, 1.e20) or numpy.allclose(self.level_2, 1.e20):
             autolevels = True
         else:
             autolevels = False
