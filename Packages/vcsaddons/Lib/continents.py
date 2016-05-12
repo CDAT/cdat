@@ -22,7 +22,7 @@ class Guc(VCSaddon):
         self.g_type='userconts'
         VCSaddon.__init__(self,name,source,x,template)
         if source == 'default':
-            self.datadir=os.path.join(os.environ['HOME'],"PCMDI_GRAPHICS")
+            self.datadir=os.path.join(os.expanduser("~"),".uvcdat")
             self.types = [1,]
             self.colors = [242,]
             self.lines=['solid',]

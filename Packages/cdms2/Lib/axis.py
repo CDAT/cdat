@@ -735,10 +735,22 @@ class AbstractAxis(CdmsObj):
             if calendar is not None:
                 self.setCalendar(calendar, persistent)
 
+    # For isTime(), keep track of whether each id is for a time axis or not, for better performance.
+    # This dictionary is a class variable (not a member of any particular instance).
+    idtaxis = {}  # id:type where type is 'T' for time, 'O' for other
+
     # Return true iff the axis is a time axis
     def isTime(self):
         id = self.id.strip().lower()
-        if (hasattr(self,'axis') and self.axis=='T'): return 1
+        if hasattr(self,'axis'):
+            if self.axis=='T': return 1
+            elif self.axis is not None: return 0
+        # Have we saved the id-to-axis type information already?
+        if id in self.idtaxis:
+            if self.idtaxis[id]=='T':
+                return 1
+            else:
+                return 0
         ## Try to figure it out from units
         try:
           import genutil
@@ -747,15 +759,23 @@ class AbstractAxis(CdmsObj):
           if len(sp)>1:
             t=genutil.udunits(1,"day")
             s = sp[0].strip()
-            if s in t.available_units() and t.know_units()[s]=="TIME":
+            if s in t.available_units() and t.known_units()[s]=="TIME":
+              self.idtaxis[id] = 'T'
               return 1
             #try the plural version since udunits only as singular (day noy days)
             s=s+"s"
-            if s in t.available_units() and t.know_units()[s]=="TIME":
+            if s in t.available_units() and t.known_units()[s]=="TIME":
+              self.idtaxis[id] = 'T'
               return 1
         except:
           pass
-        return (id[0:4] == 'time') or (id in time_aliases)
+        #return (id[0:4] == 'time') or (id in time_aliases)
+        if (id[0:4] == 'time') or (id in time_aliases):
+            self.idtaxis[id]='T'
+            return 1
+        else:
+            self.idtaxis[id] = 'O'
+            return 0
 
     # Return true iff the axis is a forecast axis
     def isForecast(self):
@@ -896,6 +916,9 @@ class AbstractAxis(CdmsObj):
     # (2) self.topology is undefined, and the axis is a longitude
     def isCircular(self):
 
+        if hasattr(self,'realtopology'):
+            if self.realtopology=='circular': return 1
+            elif self.realtopology=='linear': return 0
         if(len(self) < 2):
             return 0
         
@@ -918,6 +941,9 @@ class AbstractAxis(CdmsObj):
         else:
             iscircle = 0
 
+        # save realtopology attribute in __dict__, don't write it to the file
+        if iscircle==1:  self.__dict__['realtopology'] = 'circular'
+        elif iscircle==0: self.__dict__['realtopology'] = 'linear'
         return iscircle
 
     def designateCircular(self, modulo, persistent=0):
@@ -1947,6 +1973,7 @@ class FileAxis(AbstractAxis):
                 try:
                     boundsVar = self.parent[boundsName]
                     boundsArray = numpy.ma.filled(boundsVar)
+                    self._boundsArray_ = boundsArray  # for climatology performance
                 except KeyError,err:
                     print err
                     boundsArray = None
@@ -2223,7 +2250,7 @@ def axisMatches(axis, specification):
 
        3. an axis object; will match if it is the same object as axis.
     """   
-    if isinstance(specification, types.StringType):
+    if isinstance(specification, basestring):
         s = string.lower(specification)
         s = s.strip()
         while s[0] == '(':

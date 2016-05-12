@@ -283,9 +283,13 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
+        if netloc:
+            # In case of relative path...
+            path = netloc + path
         path = os.path.expanduser(path)
-        root,ext = os.path.splitext(path)
+        path = os.path.normpath(os.path.join(os.getcwd(), path))
 
+        root,ext = os.path.splitext(path)
         if ext in ['.xml','.cdml']:
             if mode!='r': raise ModeNotSupported(mode)
             datanode = load(path)
@@ -307,6 +311,9 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 if hasattr(file1, libcf.CF_FILETYPE):
                     if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                         file = gsHost.open(path, mode)
+                    elif mode=='r' and hostObj is None:
+                        # helps performance on machines where file open (in CdmsFile) is costly
+                        file = file1
                     else:
                         file = CdmsFile(path, mode, hostObj = hostObj)
                     file1.close()
@@ -327,7 +334,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 return file
             except Exception,err:
                 msg = "Error in DODS open of: "+uri
-                if os.path.exists(os.path.join(os.environ["HOME"],".dodsrc")):
+                if os.path.exists(os.path.join(os.path.expanduser("~"),".dodsrc")):
                   msg+="\nYou have a .dodsrc in your HOME directory, try to remove it"
                 raise CDMSError(msg)
         else:
@@ -969,7 +976,7 @@ class CdmsFile(CdmsObj, cuDataset):
         if "://" in path:
             self.uri = path
         else:
-            self.uri = "file://" + path
+            self.uri = "file://" + os.path.abspath(os.path.expanduser(path))
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
@@ -1162,7 +1169,8 @@ class CdmsFile(CdmsObj, cuDataset):
                   (self.__class__.__name__, name))
         if not name in self.__cdms_internals__:
             delattr(self._file_, name)
-            del(self.attributes[name])
+            if( name in self.attributes.keys() ):
+                del(self.attributes[name])
 
     def sync(self):
         """

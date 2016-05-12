@@ -9,6 +9,7 @@ import numpy
 import vtk
 import os
 import os.path
+import re
 import sys
 import logging
 
@@ -40,13 +41,15 @@ def image_from_file(fname):
         print "Problem opening file '%s': %s"%(fname,err)
         return None
 
+# find alternate baselines for fname of the form basename_d.ext
+# where fname = basename.ext and d is a digit between 1 and 9
 def find_alternates(fname):
     dirname = os.path.dirname(fname)
     prefix, ext = os.path.splitext(os.path.split(fname)[1])
     files = os.listdir(dirname)
     results = [fname]
     for i in files:
-        if i.startswith(prefix) and i.endswith(ext) and i != prefix+ext:
+        if (re.match(prefix + '_[1-9]' + ext, i)):
             results.append(os.path.join(dirname, i))
     return results
 
@@ -71,7 +74,7 @@ def check_result_image(fname, baselinefname, threshold = defaultThreshold,
     bestDiff = None
     bestDiffImage = None
     for baselineFilename in baselinefnames:
-        sys.stdout.write("Comparing '%s' to '%s'..."%(fname, baselineFilename))
+        sys.stdout.write("Comparing %s  %s ..."%(fname, baselineFilename))
         baselineImage = image_from_file(baselineFilename)
         if baselineImage is None:
             continue
