@@ -20,7 +20,7 @@ class VCSaddon(object):
             self.x=vcs.init()
         else:
             self.x=x
-            
+
         if template is None:
             self.template = self.x.gettemplate()
         elif isinstance(template,str):
@@ -39,10 +39,10 @@ class VCSaddon(object):
             self.datawc_y1=1.e20
             self.datawc_y2=1.e20
             self.colormap="default"
-            self.xmtics1='*'
-            self.xmtics2='*'
-            self.ymtics1='*'
-            self.ymtics2='*'
+            self.xmtics1=''
+            self.xmtics2=''
+            self.ymtics1=''
+            self.ymtics2=''
             self.xticlabels1='*'
             self.xticlabels2='*'
             self.yticlabels1='*'
@@ -60,7 +60,7 @@ class VCSaddon(object):
             self.datawc_x1=gm.datawc_x1
             self.datawc_x2=gm.datawc_x2
             self.datawc_y1=gm.datawc_y1
-            self.datawc_y2=gm.datawc_x2
+            self.datawc_y2=gm.datawc_y2
             self.colormap=gm.colormap
             self.xmtics1=gm.xmtics1
             self.xmtics2=gm.xmtics2
@@ -78,7 +78,7 @@ class VCSaddon(object):
             self.projection=gm.projection
         self.name = name
         vcsaddons.gms[self.g_type][name]=self
-        
+
 
     def list(self):
         print 'graphics method = ',self.g_name
@@ -103,9 +103,9 @@ class VCSaddon(object):
         raise "Plot function not implemented for graphic method type: %s" % self.g_name
 
     def prep_plot(self,xmn,xmx,ymn,ymx):
-        
+
         self.save()
-        
+
         if self.datawc_x1!=1.e20:
             xmn = self.datawc_x1
         if self.datawc_x2!=1.e20:
@@ -180,4 +180,4 @@ class VCSaddon(object):
 
     def creategm(self,name,source='default'):
         return self.__init__(name,source=source,x=self.x,template=self.template)
-        
+

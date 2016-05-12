@@ -60,31 +60,48 @@ class Ghg(VCSaddon):
                 try:
                     data_name = data.id + data.units
                 except AttributeError:
-                    data_name = data.id
+                    try:
+                        data_name = data.id
+                    except AttributeError:
+                        data_name = "array"
 
         # We'll just flatten the data... if they want to be more precise, should pass in more precise data
-        data = data.flatten().asma()
+        if isinstance(data, cdms2.avariable.AbstractVariable):
+            data = data.asma()
+        data = data.flatten()
 
         # ok now we have a good x and a good data
         if not self.bins:
             self.bins = vcs.utils.mkscale(*vcs.minmax(data))
 
+        # Sort the bins
+        self.bins.sort()
+
+        # Prune duplicates
+        pruned_bins = []
+        for bin in self.bins:
+            if pruned_bins and numpy.allclose(bin, pruned_bins[-1]):
+                continue
+            pruned_bins.append(bin)
+        self.bins = pruned_bins
         data_bins = numpy.digitize(data, self.bins) - 1
         binned = [data[data_bins==i] for i in range(len(self.bins))]
-
         means = []
         stds = []
 
         max_possible_deviance = 0
 
         for ind, databin in enumerate(binned):
-            means.append(databin.mean())
-            stds.append(databin.std())
+            if len(databin) > 0:
+                means.append(databin.mean())
+                stds.append(databin.std())
+            else:
+                means.append(0)
+                stds.append(0)
             if len(self.bins) > ind + 1:
                 max_possible_deviance = max(means[ind] - self.bins[ind], self.bins[ind + 1] - means[ind], max_possible_deviance)
             else:
                 max_possible_deviance = max(means[ind] - self.bins[ind], max_possible_deviance)
-
         color_values = [std / max_possible_deviance for std in stds]
         y_values = [len(databin) for databin in binned]
         nbars = len(self.bins) - 1
@@ -97,11 +114,27 @@ class Ghg(VCSaddon):
         line.viewport = [
             template.data.x1, template.data.x2, template.data.y1, template.data.y2]
 
-        xmn, xmx = vcs.minmax(self.bins)
-        # Make the y scale be slightly larger than the largest bar
-        ymn, ymx = 0, max(y_values) * 1.25
+        vcs_min_max = vcs.minmax(self.bins)
+        if numpy.allclose(self.datawc_x1, 1e20):
+            xmn = vcs_min_max[0]
+        else:
+            xmn = self.datawc_x1
 
-        #xmn, xmx, ymn, ymx = self.prep_plot(xmn, xmx, ymn, ymx)
+        if numpy.allclose(self.datawc_x2, 1e20):
+            xmx = vcs_min_max[1]
+        else:
+            xmx = self.datawc_x2
+
+        if numpy.allclose(self.datawc_y2, 1e20):
+            # Make the y scale be slightly larger than the largest bar
+            ymx = max(y_values) * 1.25
+        else:
+            ymx = self.datawc_y2
+
+        if numpy.allclose(self.datawc_y1, 1e20):
+            ymn = 0
+        else:
+            ymn = self.datawc_y1
 
         fill.worldcoordinate = [xmn, xmx, ymn, ymx]
         line.worldcoordinate = [xmn, xmx, ymn, ymx]
@@ -166,7 +199,8 @@ class Ghg(VCSaddon):
                     else:
                         # Shouldn't ever get here since level 0 is 0
                         assert False
-
+            else:
+                assert False
             styles.append(self.fillareastyles[lev_ind])
             cols.append(self.fillareacolors[lev_ind])
             indices.append(self.fillareaindices[lev_ind])
@@ -192,7 +226,7 @@ class Ghg(VCSaddon):
         displays = []
 
         x_axis = cdms2.createAxis(self.bins, id=data_name)
-        y_axis = cdms2.createAxis(vcs.mkscale(0, ymx), id="bin_size")
+        y_axis = cdms2.createAxis(vcs.mkscale(ymn, ymx), id="bin_size")
 
         displays.append(x.plot(fill, bg=bg, render=False))
         arr = MV2.masked_array(y_values)
