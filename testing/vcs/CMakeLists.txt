@@ -983,23 +983,24 @@ cdat_add_test(test_vcs_large_pattern_hatch
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
   ${BASELINE_DIR}/test_vcs_large_pattern_hatch.png
 )
-# crashes on mac commenting out for release`
-#foreach(x_over_y 0.5 2)
-#  # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
-#  foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
-#    foreach(mode foreground background)
-#      string(SUBSTRING ${plot} 2 -1 plot_name)
-#      cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
-#        "${PYTHON_EXECUTABLE}"
-#        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
-#        "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
-#        ${mode}
-#        ${plot}
-#        ${x_over_y}
-#        )
-#    endforeach()
-#  endforeach()
-#endforeach()
+
+foreach(x_over_y 0.5 2)
+ # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
+ foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
+   foreach(mode foreground background)
+     string(SUBSTRING ${plot} 2 -1 plot_name)
+     cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
+       "${PYTHON_EXECUTABLE}"
+       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
+       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
+       ${mode}
+       ${plot}
+       ${x_over_y}
+       )
+   endforeach()
+ endforeach()
+endforeach()
+
 cdat_add_test(test_vcs_boxfill_lambert_crash
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lambert_crash.py
