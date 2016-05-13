@@ -56,6 +56,18 @@ def _setgen(self, name, cls, value):
     setattr(self, "_%s" % name, value)
 
 
+def epsilon_gte(a, b):
+    """a >= b, using floating point epsilon value."""
+    float_epsilon = numpy.finfo(numpy.float32).eps
+    return -float_epsilon < a - b
+
+
+def epsilon_lte(a, b):
+    """a <= b, using floating point epsilon value."""
+    float_epsilon = numpy.finfo(numpy.float32).eps
+    return float_epsilon > a - b
+
+
 # read .scr file
 def process_src(nm, code):
     """Takes VCS script code (string) as input and generates boxfill gm from it"""
@@ -1848,7 +1860,7 @@ class P(object):
                    startlong])
         # Now make sure we have a legend
         if isinstance(levels[0], list):
-            # Ok these are nono contiguous levels, we will use legend only if
+            # Ok these are non-contiguous levels, we will use legend only if
             # it's a perfect match
             for i, l in enumerate(levels):
                 lt = l[0]
@@ -1873,29 +1885,31 @@ class P(object):
         else:
             if legend is None:
                 legend = vcs.mklabels(levels)
+            # We'll use the less precise float epsilon since this is just for labels
             if levels[0] < levels[1]:
-                ecompfunc = numpy.less_equal
-                compfunc = numpy.less
+                comparison = epsilon_lte
             else:
-                ecompfunc = numpy.greater_equal
-                compfunc = numpy.greater
+                comparison = epsilon_gte
+
+            def in_bounds(x):
+                return comparison(levels[0], x) and comparison(x, levels[-1])
+
             dlong = dD / (len(levels) - 1)
+
             for l in legend.keys():
-                if not compfunc(l, levels[0]) and not compfunc(levels[-1], l):
+                if in_bounds(l):
                     for i in range(len(levels) - 1):
-                        if ecompfunc(levels[i], l) and ecompfunc(
-                                l, levels[i + 1]):
-                            # Ok we're between 2 levels, let's add the legend
-                            # first let's figure out where to put it
-                            loc = i * dlong  # position at beginnig of level
-                            # Adds the distance from beginnig of level box
-                            loc += (l - levels[i]) / \
-                                (levels[i + 1] - levels[i]) * dlong
-                            loc += startlong  # Figures out the begining
-    # loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
-                            Ll.append([loc, loc])
+                        # if legend key is (inclusive) between levels[i] and levels[i+1]
+                        if comparison(levels[i], l) and comparison(l, levels[i + 1]):
+                            # first let's figure out where to put the legend label
+                            location = i * dlong  # position at beginning of level
+                            # Adds the distance from beginning of level box
+                            location += (l - levels[i]) / (levels[i + 1] - levels[i]) * dlong
+                            location += startlong  # Figures out the beginning
+
+                            Ll.append([location, location])
                             Sl.append([startshrt, startshrt + dshrt])
-                            Lt.append(loc)
+                            Lt.append(location)
                             St.append(startshrt + dshrt * 1.4)
                             Tt.append(legend[l])
                             break
