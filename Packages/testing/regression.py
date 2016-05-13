@@ -138,6 +138,7 @@ def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThresh
     printDart("ValidImage", "image/png", os.path.abspath(bestFilename), "File")
     return -1
 
+
 def main():
     if len(sys.argv) != 4:
         print "Error:"
