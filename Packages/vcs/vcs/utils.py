@@ -994,21 +994,16 @@ def mklabels(vals, output='dict'):
         amax = float(numpy.ma.maximum(vals))
     #  Number of digit on the left of decimal point
     idigleft = int(numpy.ma.floor(numpy.ma.log10(amax))) + 1
+
     # Now determine the number of significant figures
     idig = 0
     for i in range(nvals):
         aa = numpy.ma.power(10., -idigleft)
         while abs(round(aa * vals[i]) - aa * vals[i]) > .000001:
             aa = aa * 10.
-        idig = numpy.ma.maximum(
-            idig,
-            numpy.ma.floor(
-                numpy.ma.log10(
-                    aa *
-                    numpy.ma.power(
-                        10.,
-                        idigleft))))
+        idig = numpy.ma.maximum(idig, numpy.ma.floor(numpy.ma.log10(aa * numpy.ma.power(10., idigleft))))
     idig = int(idig)
+
     # Now does the writing part
     lbls = []
     # First if we need an E format
