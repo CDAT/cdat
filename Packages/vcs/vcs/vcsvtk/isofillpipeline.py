@@ -46,11 +46,11 @@ class IsofillPipeline(Pipeline2D):
     def _plotInternal(self):
         """Overrides baseclass implementation."""
 
-        prepedContours = self._prepContours()
-        tmpLevels = prepedContours["tmpLevels"]
-        tmpIndices = prepedContours["tmpIndices"]
-        tmpColors = prepedContours["tmpColors"]
-        tmpOpacities = prepedContours["tmpOpacities"]
+        preppedCountours = self._prepContours()
+        tmpLevels = preppedCountours["tmpLevels"]
+        tmpIndices = preppedCountours["tmpIndices"]
+        tmpColors = preppedCountours["tmpColors"]
+        tmpOpacities = preppedCountours["tmpOpacities"]
         style = self._gm.fillareastyle
 
         luts = []
