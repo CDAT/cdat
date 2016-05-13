@@ -9,6 +9,5 @@ setup(name="testing",
       description="Testing infrastructure for cdat",
       url="http://uvcdat.llnl.gov",
       packages=['testing'],
-      package_dir={'testing': 'testing',},
-      install_requires=['numpy','vcs', 'vtk'],
+      package_dir = {'testing': '', }
 )

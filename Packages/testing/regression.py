@@ -27,10 +27,12 @@ def init():
     return vcsinst
 
 def run(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
+    """Export plot to a png and exit after comparsion."""
     vcsinst.png(fname)
     sys.exit(check_result_image(fname, baseline, threshold))
 
 def run_wo_terminate(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
+    """Export plot to a png and return comparison with baseline."""
     vcsinst.png(fname)
     return check_result_image(fname, baseline, threshold)
 
