@@ -232,4 +232,193 @@ It should be noted that plot can take multiple arguments. For example, plot can 
     canvas.close()
 
 
-.. note:: When using the plot() function, keep in mind that all keyword arguments must be last. Note that the order of the objects is not restrictive, just as long as they are before any keyword argument.
+.. note:: When using the plot() function, keep in mind that all keyword arguments must be last. The order of the arguments is not restrictive, just as long as they are before any keyword argument.
+
+
+Other Plotting functions in VCS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There are other ways to plot data in VCS. These additional plotting
+routines utilizes the same parameter format as the plot() function. What
+makes these plotting functions unique are their direct association with
+the graphics methods. That is, each graphics method has its own plot
+function. For example, if the user wishes to plot data using the isofill
+graphics method, then the function isofill() can be used instead of the
+plot() function. If the isofill object is not specified then the default
+isofill graphics method will be used. The user can also pass down the
+name of the graphics method to be used. In some ways, the graphics
+method plot functions can be thought of as short cuts to plotting data.
+
+Note, if a different graphics method object is specified and passed down
+to one of these alternate plot functions, then the alternate plot
+function will behave as the plot() function and plot the data in the
+specified graphics method format.
+
+See table below for additional plot functions.
+
++--------------------+--------------------------------------------------+
+| Plot Function      | Description                                      |
++====================+==================================================+
+| ``boxfill()``      | plot data using the boxfill graphics method      |
++--------------------+--------------------------------------------------+
+| ``continents()``   | plot to the screen continental graphics method   |
++--------------------+--------------------------------------------------+
+| ``isofill()``      | plot data using the isofill graphics method      |
++--------------------+--------------------------------------------------+
+| ``isoline()``      | plot data using the isoline graphics method      |
++--------------------+--------------------------------------------------+
+| ``outfill()``      | plot data using the outfill graphics method      |
++--------------------+--------------------------------------------------+
+| ``outline()``      | plot data using the outline graphics method      |
++--------------------+--------------------------------------------------+
+| ``scatter()``      | plot data using the scatter graphics method      |
++--------------------+--------------------------------------------------+
+| ``vector()``       | plot data using the vector graphics method       |
++--------------------+--------------------------------------------------+
+| ``xvsy()``         | plot data using the xvsy graphics method         |
++--------------------+--------------------------------------------------+
+| ``xyvsy()``        | plot data using the xyvsy graphics method        |
++--------------------+--------------------------------------------------+
+| ``yxvsy()``        | plot data using the yxvsy graphics method        |
++--------------------+--------------------------------------------------+
+| ``scalar3D()``     | plot data using the 3d\_scalar graphics method   |
++--------------------+--------------------------------------------------+
+| ``vector3D()``     | plot data using the 3d\_vector graphics method   |
++--------------------+--------------------------------------------------+
+
+
+Creating VCS Objects
+^^^^^^^^^^^^^^^^^^^^
+
+The create functions enables the user to create VCS objects which can be
+modified directly to produce the desired results. Since the VCS
+"default" objects do allow modifications, it is best to either create a
+new VCS object or get an existing one. When a VCS object is created, it
+is stored in an internal table for later use and/or recall.
+
+Create the following VCS objects:
+
++-------------------------------+---------------------------------------------------+
+| Create Function               | Description                                       |
++===============================+===================================================+
+| ``createboxfill()``           | creates a new boxfill graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createcontinents()``        | creates a new continents graphics method object   |
++-------------------------------+---------------------------------------------------+
+| ``createfillarea()``          | creates a new fillarea secondary object           |
++-------------------------------+---------------------------------------------------+
+| ``createisofill()``           | creates a new isofill graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createisoline()``           | creates a new isoline graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createline()``              | creates a new line secondary object               |
++-------------------------------+---------------------------------------------------+
+| ``createmarker()``            | creates a new marker secondary object             |
++-------------------------------+---------------------------------------------------+
+| ``createoutfill()``           | creates a new outfill graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createoutline()``           | creates a new outline graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createscatter()``           | creates a new scatter graphics method object      |
++-------------------------------+---------------------------------------------------+
+| ``createtextcombined()``      | creates a new text-combined secondary object      |
++-------------------------------+---------------------------------------------------+
+| ``createtextorientation()``   | creates a new text-orientation secondary object   |
++-------------------------------+---------------------------------------------------+
+| ``createtexttable()``         | creates a new text-table secondary object         |
++-------------------------------+---------------------------------------------------+
+| ``createvector()``            | creates a new vector graphics method object       |
++-------------------------------+---------------------------------------------------+
+| ``createxvsy()``              | creates a new xvsy graphics method object         |
++-------------------------------+---------------------------------------------------+
+| ``createxyvsy()``             | creates a new xyvsy graphics method object        |
++-------------------------------+---------------------------------------------------+
+| ``createyxvsx()``             | creates a new xyvsy graphics method object        |
++-------------------------------+---------------------------------------------------+
+| ``create3d_scalar()``         | creates a new 3d\_scalar graphics method object   |
++-------------------------------+---------------------------------------------------+
+| ``create3d_vector()``         | creates a new 3d\_vector graphics method object   |
++-------------------------------+---------------------------------------------------+
+
+
+Get Existing VCS Objects
+''''''''''''''''''''''''
+
+The get functions are used to obtain VCS objects that exist in the
+object memory tables. The get function directly manipulates the object's
+attributes in memory. If the object is used to display data on a plot
+and is manipulated by the user, then the plot will be automatically
+updated.
+
+Get the following VCS objects:
+
++----------------------------+--------------------------------------------------------------------------------------+
+| Get Function               | Description                                                                          |
++============================+======================================================================================+
+| ``getboxfill()``           | get specified boxfill graphics method and create boxfill object                      |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getcontinents()``        | get specified continents graphics method and create continents object                |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getfillarea()``          | get specified fillarea secondary object and create fillarea object                   |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getisofill()``           | get specified isofill graphics method and create fillarea object                     |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getisoline()``           | get specified isoline graphics method and create isoline object                      |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getline()``              | get specified line secondary object and create line object                           |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getmarker()``            | get specified marker secondary object and create marker object                       |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getoutfill()``           | get specified outfill graphics method and create outfill object                      |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getoutline()``           | get specifed outline graphics method and create outline object                       |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getscatter()``           | get specified scatter graphics method and create scatter object                      |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``gettextcombined()``      | get specified text-combined secondary object and create text-combined object         |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``gettextorientation()``   | get specified text-orientation secondary object and create text-orientation object   |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``gettexttable()``         | get specified text-table secondary object and create text-table object               |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getvector()``            | get specified vector graphics method and create vector object                        |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getxvsy()``              | get specified xvsy graphics method and create xvsy object                            |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getxyvsy()``             | get specified xyvsy graphics method and create xyvsy object                          |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``getyxvsx()``             | get specified yxvsx graphics method and create yxvsx                                 |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``get3d_scalar()``         | get specified 3d\_scalar graphics method and create 3d\_scalar                       |
++----------------------------+--------------------------------------------------------------------------------------+
+| ``get3d_vector()``         | get specified 3d\_vector graphics method and create 3d\_vector                       |
++----------------------------+--------------------------------------------------------------------------------------+
+
+
+Removing VCS Objects
+^^^^^^^^^^^^^^^^^^^^
+
+Unwanted VCS objects can be removed from internal memory with the use of
+the remove function. The remove function will identify the VCS object
+type and remove it from the appropriate object table.
+
+Remove VCS objects:
+
++----------------------+----------------------------------------------------------------------+
+| Remove               | Description                                                          |
++======================+======================================================================+
+| ``removeobject()``   | allows the user to remove objects from the appropriate object list   |
++----------------------+----------------------------------------------------------------------+
+
+Show VCS Object List
+^^^^^^^^^^^^^^^^^^^^
+
+The show function is handy to list VCS objects tables.
+
+The show function is used to list the VCS objects in memory:
+
++-----------------+----------------------------------------------------------+
+| Show Function   | Description                                              |
++=================+==========================================================+
+| ``show()``      | list VCS primary and secondary class objects in memory   |
++-----------------+----------------------------------------------------------+
