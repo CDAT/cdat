@@ -6,8 +6,8 @@ Document Conventions
 
 This User Guide is written for end-users of vcs, rather than developers. If you
 have suggestions or questions about this documentation, feel free to contact us
-`on UV-CDAT <https://github.com/UV-CDAT/uvcdat>`_,
-`the mailing list <>`_.
+on `UV-CDAT <https://github.com/UV-CDAT/uvcdat>`_,
+`mailing list <uvcdat-users@lists.llnl.gov>`_.
 
 vcs specific entities will be ``formatted like this``.
 
@@ -33,7 +33,8 @@ VCS Primary Objects (or Primary Elements)
 
 A description of each primary object is warranted before showing their use and usefulness in VCS. See descriptions below.
 
-**Graphics Method Objects**
+Graphics Method Objects
+^^^^^^^^^^^^^^^^^^^^^^^
 
 A graphics method simply defines how data is to be displayed on the screen. Currently, there are eleven different graphics methods with more on the way. Each graphics method has its own unique set of attributes (or members) and functions. They also have a set of core attributes that are common in all graphics methods. The descriptions of the current set of graphics methods are as follows:
 
@@ -147,7 +148,9 @@ There are several different ways to display data on the VCS Canvas. The
 most basic way is to use the plot() function. The simple plot() function
 command: plot(array1,[array2], [template object], [graphics\_method
 object]). The examples below are showing how to plot a simple array
-using default values for everything else.::
+using default values for everything else.
+
+.. code-block:: python
 
     # Import vcs and io (cdms) modules
     import vcs
