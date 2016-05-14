@@ -65,21 +65,24 @@ VCS Secondary Objects (or Secondary Elements)
 ---------------------------------------------
 A description of each secondary object is warranted before showing their use and usefulness in VCS. It is these secondary objects that defines the detailed specification of the primary objects’ attributes. Currently, there are five secondary objects with more to follow.
 
-**Colormap Object**
+Colormap Object
+^^^^^^^^^^^^^^^
 
 The colormap object is used to specify, create, and modify colormaps. There are 256 colors and color indices, but only the first 240 color indices can be modified (indices 240 through 255 are reserved for VCS internal use). The description of the colormap object is as follows:
 
 *colormapobject* - A colormap contains 240 user-definable colors that are used for graphical displays. The color mixtures are defined in terms of percentages of red, green, and blue colors (0 to 100% for each). The resulting color depends on the specified mixtures of red, green, and blue. Its class symbol or alias is “Cp”.
 Note: VCS colormaps are objects, but they are not referenced like other secondary objects.
 
-**Fillarea Object**
+Fillarea Object
+^^^^^^^^^^^^^^^
 
 The fillarea objects allows the user to edit fillarea attributes, including fillarea interior style, style index, and color index. The description of the fillarea object is as follows:
 
 *fillareaobject* - The fill area attributes are used to display regions defined by closed polygons, which can be filled with a uniform color, a pattern, or a hatch style. Attributes specify the style, color, position, and dimensions of the fill area. Its class symbol or alias is “Tf”.
 Line Object
 
-**Line Object**
+Line Object
+^^^^^^^^^^^
 
 The line object allows the editing of line type, width, and color index. The description of the line object is as follows:
 
@@ -88,11 +91,13 @@ Marker Object
 
 The marker object allows the editing of the marker type, width, and color index. The description of the marker object is as follows:
 
-**Marker Object**
+Marker Object
+^^^^^^^^^^^^^
 
 *markerobject* - The marker attribute specifies graphical symbols, symbol sizes, and colors used in appropriate graphics methods. Its class symbol or alias is “Tm”.
 
-**Text Objects**
+Text Objects
+^^^^^^^^^^^^
 
 Graphical displays often contain textual inscriptions, which provide further information. The text-table object attributes allow the generation of character strings on the VCS Canvas by defining the character font, precision, expansion, spacing, and color. The text-orientation object attributes allow the appearance of text character strings to be changed by defining the character height, up-angle, path, and horizontal and vertical alignment. The text-combined object is a combination of both text-table and text-orientation objects. The description of the text objects are as follows:
 
@@ -101,3 +106,60 @@ Graphical displays often contain textual inscriptions, which provide further inf
 *textorientationobject* - The text-orientation attributes set names that define the height, angel, path, horizontal alignment and vertical alignment. Its class symbol or alias is “To”.
 
 *texttableobject* - The text-table attributes set names that define the font, spacing, expansion, and color index. Its class symbol or alias is “Tt”.
+
+
+Getting Started with VCS
+------------------------
+
+Import VCS
+^^^^^^^^^^
+
+In Python, before one can start using a module they must first load it.
+To load the VCS module, like all other Python modules, either type:
+
+``from vcs import``
+
+or
+
+``import vcs``
+
+If you use ``import vcs``, then you must prepend "vcs" to certain calls
+(e.g., ``vcs.help()``). If you use ``from vcs import *``, then you must
+be aware of possible name clashes. That is, if two packages are imported
+using the form ``from name import *`` and both have a "help" function,
+then Python doesn't know which ``help`` function to call. For such
+cases, and indeed as an unspoken rule, it is best to use "import name"
+to avoid name clashing between packages.
+
+Create Canvas Object
+^^^^^^^^^^^^^^^^^^^^
+
+To construct a VCS Canvas object type the following:
+
+``a = vcs.init()``
+
+There can only be at most 8 VCS Canvas objects initialized at any given
+time.
+
+Plotting in VCS
+^^^^^^^^^^^^^^^
+There are several different ways to display data on the VCS Canvas. The
+most basic way is to use the plot() function. The simple plot() function
+command: plot(array1,[array2], [template object], [graphics\_method
+object]). The examples below are showing how to plot a simple array
+using default values for everything else.::
+
+    # Import vcs and io (cdms) modules
+    import vcs
+    import cdms2
+
+    # Open sample NetCDF data file
+    data = cdms2.open('clt.nc')
+
+    # Initialize vcs and then plot the variable
+    canvas = vcs.init()
+    clt = data['clt']
+    canvas.plot(clt)
+
+    # Close the canvas context
+    canvas.close()
