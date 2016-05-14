@@ -220,12 +220,12 @@ It should be noted that plot can take multiple arguments. For example, plot can 
     # Create default template
     template = canvas.createtemplate()
 
-    # Scale visualization by factor of 2
-    template.scale(2)
+    # Scale down visualization space
+    template.scale(0.8)
 
     clt = data['clt']
 
-    # Plot isofill with continents outline and default template
+    # Plot isofill with continents outline and custom template
     canvas.plot(template, iso, clt, continents=1)
 
     # Close the canvas context
