@@ -13,6 +13,17 @@ vcs specific entities will be ``formatted like this``.
 
 .. _concepts:
 
+Installation
+============
+While there are many ways a user can install vcs, installation using conda is
+preferred for the end user. Currently, to install vcs, you need to install entire uvcdat
+pacakge. ::
+
+    conda install -c uvcdat
+
+It is assumed that conda is installed on user's system and is available on the shell.
+
+
 Concepts
 ========
 
@@ -166,3 +177,59 @@ using default values for everything else.
 
     # Close the canvas context
     canvas.close()
+
+As mentioned earlier, vcs can use numpy array directly. The example below shows how to plot numpy array data.
+
+.. code-block:: python
+
+    # Import necessary modules
+    import vcs
+    import cdms2
+    import numpy
+
+    # Manually create data
+    data = numpy.sin(numpy.arrange(100))
+
+    # Reshape to make it useful for vcs
+    data = numpy.reshape(data, (10, 10))
+
+    # Initialize vcs and then plot the data
+    canvas = vcs.init()
+    canvas.plot(data)
+
+    # Close the canvas context
+    canvas.close()
+
+It should be noted that plot can take multiple arguments. For example, plot can take ``bg=1`` option to draw visualization in the background. Below is the plotting climate data example with few new options to plot method.
+
+.. code-block:: python
+
+    # Import vcs and io (cdms) modules
+    import vcs
+    import cdms2
+
+    # Open sample NetCDF data file
+    data = cdms2.open('clt.nc')
+
+    # Initialize vcs and then plot the variable
+    canvas = vcs.init()
+
+    # Create isofill graphics method
+    iso = canvas.createisofill()
+
+    # Create default template
+    template = canvas.createtemplate()
+
+    # Scale visualization by factor of 2
+    template.scale(2)
+
+    clt = data['clt']
+
+    # Plot isofill with continents outline and default template
+    canvas.plot(template, iso, clt, continents=1)
+
+    # Close the canvas context
+    canvas.close()
+
+
+.. note:: When using the plot() function, keep in mind that all keyword arguments must be last. Note that the order of the objects is not restrictive, just as long as they are before any keyword argument.
