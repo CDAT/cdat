@@ -16,7 +16,7 @@ vcs specific entities will be ``formatted like this``.
 Concepts
 ========
 
-The VCS module can accept data from the CDMS module, the CU module, or the Numeric module. For use on
+The VCS module can accept data from the CDMS module or can use the numpy array. For use on
 how to use either of the mentioned modules, see their respective documentation. For examples on the
 direct use of these modules, see the VCS API Examples chapter and the examples located throughout this texts.
 
@@ -24,7 +24,7 @@ VCS Model
 ---------
 
 The VCS model is defined by a trio of named attribute sets, designated the “Primary Objects” (also known as “Primary Elements”).
-These include: the data, which specifies what is to be displayed and are obtained from the cdms2 or Numeric modules;
+These include: the data, which specifies what is to be displayed and are obtained from the cdms2 or numpy array;
 the graphics method, which specifies the display technique; and the picture template, which determines the appearance of
 each segment of the display.
 
@@ -60,7 +60,7 @@ A picture template determines the location of each picture segment, the space to
 
 **Data Object**
 
-Array data attribute sets and their associated dimensions are to be modified outside of VCS. See the CDMS2 and Numeric module documentation for data extraction, creation and manipulation.
+Array data attribute sets and their associated dimensions are to be modified outside of VCS. See the CDMS2 module documentation for data extraction, creation and manipulation.
 
 VCS Secondary Objects (or Secondary Elements)
 ---------------------------------------------
