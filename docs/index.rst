@@ -48,10 +48,8 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
-   admin-docs
-   user-docs
+   user-guide
    developer-docs
-   plugins
 
 API index
 ---------
