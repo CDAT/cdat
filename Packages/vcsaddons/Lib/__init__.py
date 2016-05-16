@@ -1,5 +1,6 @@
 gms = {}
 import histograms
+import polar
 import EzTemplate
 import yxvsxfill
 import continents
@@ -10,3 +11,5 @@ def createhistogram(name=None,source='default',x=None,template=None):
     return histograms.Ghg(name,source=source,x=x,template=template)
 def createusercontinents(name=None,source="default",x=None,template=None):
     return continents.Guc(name,source=source,x=x,template=template)
+def createpolar(name=None, source="default", x=None, template=None):
+    return polar.Gpo(name, source=source, x=x, template=template)

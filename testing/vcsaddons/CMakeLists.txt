@@ -35,6 +35,30 @@ cdat_add_test(vcs_addons_test_EzTemplate_12_plots_spacing
   ${cdat_SOURCE_DIR}/testing/vcsaddons/test_EzTemplate_12_plots_spacing.py
   ${BASELINE_DIR}/test_EzTemplate_12_plots_spacing.png
 )
+cdat_add_test(vcs_addons_test_histogram_defaults
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_histogram_defaults.py
+  ${BASELINE_DIR}/vcs_addons_test_histogram_defaults.png
+)
+cdat_add_test(vcs_addons_test_histogram_inherit
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_histogram_inherit.py
+  ${BASELINE_DIR}/vcs_addons_test_histogram_inherit.png
+)
+cdat_add_test(vcs_addons_test_polar
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar.py
+  ${BASELINE_DIR}/vcs_addons_test_polar.png
+)
+cdat_add_test(vcs_addons_test_polar_inherit
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_inherit.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_inherit.png
+)
+cdat_add_test(vcs_addons_test_convert_arrays
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_convert_arrays.py
+)
 
 if (CDAT_DOWNLOAD_SAMPLE_DATA)
   cdat_add_test(vcs_addons_EzTemplate_2x2

@@ -21,7 +21,10 @@ class Ghg(VCSaddon):
             self.fillareacolors = []
             self.bins = []
         else:
-            gm = vcsaddons.gms[self.g_name][source]
+            if isinstance(source, (str, unicode)):
+                gm = vcsaddons.gms[self.g_type][source]
+            else:
+                gm = source
             self.line = gm.line
             self.linewidth = gm.linewidth
             self.linecolors = gm.linecolors
@@ -31,16 +34,16 @@ class Ghg(VCSaddon):
             self.bins = gm.bins
 
     def list(self):
-        print '---------- Histogram (Ghg) member (attribute) listings ----------'
-        print 'Canvas Mode = ', self.x.mode
-        VCSaddon.list(self)
-        print 'fillareastyles = ', self.fillareastyles
-        print 'fillareaindices = ', self.fillareaindices
-        print 'fillareacolors = ', self.fillareacolors
-        print 'line = ', self.line
-        print 'linewidth = ', self.linewidth
-        print 'linecolors = ', self.linecolors
-        print 'bins = ', self.bins
+        print '---------- Histogram (Ghg) member (attribute) listings ----------'  # pragma: no cover
+        print 'Canvas Mode = ', self.x.mode  # pragma: no cover
+        VCSaddon.list(self)  # pragma: no cover
+        print 'fillareastyles = ', self.fillareastyles  # pragma: no cover
+        print 'fillareaindices = ', self.fillareaindices  # pragma: no cover
+        print 'fillareacolors = ', self.fillareacolors  # pragma: no cover
+        print 'line = ', self.line  # pragma: no cover
+        print 'linewidth = ', self.linewidth  # pragma: no cover
+        print 'linecolors = ', self.linecolors  # pragma: no cover
+        print 'bins = ', self.bins  # pragma: no cover
 
     def plot(self, data, template=None, bg=0, x=None, **kwargs):
         if x is None:
@@ -49,8 +52,8 @@ class Ghg(VCSaddon):
             template = self.template
         elif isinstance(template, str):
             template = x.gettemplate(template)
-        elif not vcs.istemplate(template):
-            raise ValueError("Error did not know what to do with template: %s" % template)
+        elif not vcs.istemplate(template):  # pragma: no cover
+            raise ValueError("Error did not know what to do with template: %s" % template)  # pragma: no cover
         try:
             data_name = data.title
         except AttributeError:
@@ -198,9 +201,9 @@ class Ghg(VCSaddon):
                         break
                     else:
                         # Shouldn't ever get here since level 0 is 0
-                        assert False
+                        assert False  # pragma: no cover
             else:
-                assert False
+                assert False  # pragma: no cover
             styles.append(self.fillareastyles[lev_ind])
             cols.append(self.fillareacolors[lev_ind])
             indices.append(self.fillareaindices[lev_ind])
@@ -235,11 +238,21 @@ class Ghg(VCSaddon):
         for d in dsp:
             if d is not None:
                 displays.append(d)
-
-        dsp = template.drawColorBar(self.fillareacolors, levels, legend={0: "No Variance", .1:"", .2: "", .3:"", .4:"", .5:"", .6:"", .7:"", .8:"", .9:"", 1: "High Variance"}, x=x)
-        for d in dsp:
-            if d is not None:
-                displays.append(d)
+        legend_labels = {0: "No Variance",
+                         .1: "",
+                         .2: "",
+                         .3: "",
+                         .4: "",
+                         .5: "",
+                         .6: "",
+                         .7: "",
+                         .8: "",
+                         .9: "",
+                         1: "High Variance"}
+        template.drawColorBar(self.fillareacolors, levels,
+                              legend=legend_labels, x=x,
+                              style=self.fillareastyles,
+                              index=self.fillareaindices)
 
         displays.append(x.plot(line, bg=bg))
 

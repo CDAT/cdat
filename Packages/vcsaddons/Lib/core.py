@@ -54,9 +54,12 @@ class VCSaddon(object):
             self.legend = None
             self.projection='linear'
         else:
-            gm =  vcsaddons.gms[self.g_type].get(source,None)
-            if gm is None:
-                raise "error could not find graphic method %s (of type %s)" % (source, self.g_type)
+            if isinstance(source, (str, unicode)):
+                gm = vcsaddons.gms[self.g_type].get(source,None)
+                if gm is None:
+                    raise "error could not find graphic method %s (of type %s)" % (source, self.g_type)
+            else:
+                gm = source
             self.datawc_x1=gm.datawc_x1
             self.datawc_x2=gm.datawc_x2
             self.datawc_y1=gm.datawc_y1
