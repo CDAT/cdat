@@ -27,6 +27,7 @@ Normally, created by vcs.init()
 Contains the method plot.
 """
 import warnings
+warnings.filterwarnings("default","",DeprecationWarning,"",0)
 from pauser import pause
 import numpy.ma
 import MV2
@@ -5308,43 +5309,8 @@ Options:::
     ##########################################################################
     def gs(self, filename='noname.gs', device='png256',
            orientation=None, resolution='792x612'):
-        """
-        Function: gs
 
-        Description of Function:
-        This routine allows the user to save the VCS canvas in one of the many
-        GhostScript (gs) file types (also known as devices). To view other
-        GhostScript devices, issue the command "gs --help" at the terminal
-        prompt. Device names include: bmp256, epswrite, jpeg, jpeggray,
-        pdfwrite, png256, png16m, sgirgb, tiffpack, and tifflzw. By default
-        the device = 'png256'.
-
-        If no path/file name is given and no previously created gs file has been
-        designated, then file
-
-        /$HOME/%s/default.gs
-
-        will be used for storing gs images. However, if a previously created gs
-        file exist, then this output file will be used for storage.
-
-        By default, the page orientation is the canvas' orientation.
-        To translate the page orientation to portrait mode (p), set the parameter orientation = 'p'.
-        To translate the page orientation to landscape mode (l), set the parameter orientation = 'l'.
-
-        The gs command is used to create a single gs file at this point. The user
-        can use other tools to append separate image files.
-
-        Example of Use:
-        a=vcs.init()
-        a.plot(array)
-        a.gs('example') #defaults: device='png256', orientation='l' and resolution='792x612'
-        a.gs(filename='example.tif', device='tiffpack', orientation='l', resolution='800x600')
-        a.gs(filename='example.pdf', device='pdfwrite', orientation='l', resolution='200x200')
-        a.gs(filename='example.jpg', device='jpeg', orientation='p', resolution='1000x1000')
-
-        NOTE: This method is marked as deprecated
-        """ % (self._dotdir)
-        warnings.warn("Export to GhostScript is no longer supported", Warning)
+        warnings.warn("Export to GhostScript is no longer supported", DeprecationWarning)
 
     ##########################################################################
     #                                                                           #
