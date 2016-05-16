@@ -74,7 +74,7 @@ import configurator  # noqa
 from projection import round_projections  # noqa
 
 # Python < 3 DeprecationWarning ignored by default
-warnings.filterwarnings("default", "", DeprecationWarning, "", 0)
+warnings.simplefilter('default')
 
 class SIGNAL(object):
 
