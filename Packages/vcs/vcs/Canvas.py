@@ -27,7 +27,6 @@ Normally, created by vcs.init()
 Contains the method plot.
 """
 import warnings
-warnings.filterwarnings("default","",DeprecationWarning,"",0)
 from pauser import pause
 import numpy.ma
 import MV2
@@ -74,6 +73,8 @@ import vcs.manageElements  # noqa
 import configurator  # noqa
 from projection import round_projections  # noqa
 
+# Python < 3 DeprecationWarning ignored by default
+warnings.filterwarnings("default", "", DeprecationWarning, "", 0)
 
 class SIGNAL(object):
 
