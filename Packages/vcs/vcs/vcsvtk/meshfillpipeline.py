@@ -15,6 +15,7 @@ class MeshfillPipeline(Pipeline2D):
         super(MeshfillPipeline, self).__init__(gm, context_)
 
         self._patternActors = []
+        self._needsCellData = True
 
     def _updateScalarData(self):
         """Overrides baseclass implementation."""
@@ -24,16 +25,6 @@ class MeshfillPipeline(Pipeline2D):
 
     def _updateContourLevelsAndColors(self):
         self._updateContourLevelsAndColorsGeneric()
-
-    def _createPolyDataFilter(self):
-        """Overrides baseclass implementation."""
-        self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
-        if self._useCellScalars:
-            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
-        else:
-            p2c = vtk.vtkPointDataToCellData()
-            p2c.SetInputData(self._vtkDataSet)
-            self._vtkPolyDataFilter.SetInputConnection(p2c.GetOutputPort())
 
     def _plotInternal(self):
 

@@ -180,142 +180,48 @@ def handleProjectionEdgeCases(projection, data):
     return data
 
 
-def genGridOnPoints(data1, gm, deep=True, grid=None, geo=None,
-                    data2=None):
-    continents = False
-    projection = vcs.elements["projection"][gm.projection]
-    xm, xM, ym, yM = None, None, None, None
-    useStructuredGrid = True
-
-    data1 = handleProjectionEdgeCases(projection, data1)
-    if data2 is not None:
-        data2 = handleProjectionEdgeCases(projection, data2)
-
-    try:
-        g = data1.getGrid()
-        if grid is None:
-            x = g.getLongitude()[:]
-            y = g.getLatitude()[:]
-            xm = x[0]
-            xM = x[-1]
-            ym = y[0]
-            yM = y[-1]
-        continents = True
-        wrap = [0, 360]
-        # Ok need unstrctured grid
-        if isinstance(g, cdms2.gengrid.AbstractGenericGrid):
-            useStructuredGrid = False
-    except:
-        # hum no grid that's much easier
-        wrap = None
-        if grid is None:
-            x = data1.getAxis(-1)[:]
-            y = data1.getAxis(-2)[:]
-            xm = x[0]
-            xM = x[-1]
-            ym = y[0]
-            yM = y[-1]
-
-    if grid is None:
-        if x.ndim == 1:
-            y = y[:, numpy.newaxis] * numpy.ones(x.shape)[numpy.newaxis, :]
-            x = x[numpy.newaxis, :] * numpy.ones(y.shape)
-        x = x.flatten()
-        y = y.flatten()
-        sh = list(x.shape)
-        sh.append(1)
-        x = numpy.reshape(x, sh)
-        y = numpy.reshape(y, sh)
-        # Ok we have our points in 2D let's create unstructured points grid
-        if xm is None:
-            xm = x.min()
-        if xM is None:
-            xM = x.max()
-        if ym is None:
-            ym = y.min()
-        if yM is None:
-            yM = y.max()
-        z = numpy.zeros(x.shape)
-        m3 = numpy.concatenate((x, y), axis=1)
-        m3 = numpy.concatenate((m3, z), axis=1)
-        deep = True
-        pts = vtk.vtkPoints()
-        # Convert nupmy array to vtk ones
-        ppV = numpy_to_vtk_wrapper(m3, deep=deep)
-        pts.SetData(ppV)
-        xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
-    else:
-        xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
-        vg = grid
-    oldpts = pts
-    if geo is None:
-        bounds = pts.GetBounds()
-        xm, xM, ym, yM = [bounds[0], bounds[1], bounds[2], bounds[3]]
-        # We use zooming feature (gm.datawc) for linear and polar projections.
-        # We use wrapped coordinates for doing the projection
-        # such that parameters like the central meridian are set correctly.
-        if (gm.g_name == 'Gfm'):
-            # axes are not lon/lat for meshfill
-            wc = [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2]
-        else:
-            wc = vcs.utils.getworldcoordinates(gm,
-                                               data1.getAxis(-1),
-                                               data1.getAxis(-2))
-        geo, geopts = project(pts, projection, getWrappedBounds(
-            wc, [xm, xM, ym, yM], wrap))
-        pts = geopts
-    # Sets the vertices into the grid
-    if grid is None:
-        if useStructuredGrid:
-            vg = vtk.vtkStructuredGrid()
-            vg.SetDimensions(data1.shape[1], data1.shape[0], 1)
-        else:
-            vg = vtk.vtkUnstructuredGrid()
-        vg.SetPoints(oldpts)
-        vg.SetPoints(pts)
-    else:
-        vg = grid
-    scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
-                                  deep=False)
-    scalar.SetName("scalar")
-    vg.GetPointData().SetScalars(scalar)
-    out = {"vtk_backend_grid": vg,
-           "xm": xm,
-           "xM": xM,
-           "ym": ym,
-           "yM": yM,
-           "continents": continents,
-           "wrap": wrap,
-           "geo": geo,
-           "data": data1,
-           "data2": data2
-           }
-    return out
-
-
-# Returns the bounds list for 'axis'. If axis has n elements the
-# bounds list will have n+1 elements
-def getBoundsList(axis):
-    bounds = numpy.zeros(len(axis) + 1)
-    try:
-        axisBounds = axis.getBounds()
+def getBoundsList(axis, hasCellData, dualGrid):
+    '''
+    Returns the bounds list for 'axis'. If axis has n elements the
+    bounds list will have n+1 elements
+    If there are not explicit bounds in the file we return None
+    '''
+    needsCellData = (hasCellData != dualGrid)
+    axisBounds = axis.getBoundsForDualGrid(dualGrid)
+    # we still have to generate bounds for non lon-lat axes, because
+    # the default in axis.py is 2 (generate bounds only for lat/lon axis)
+    # this is used for non lon-lat plots - by default numpy arrays are POINT data
+    if (not axis.isLatitude() and not axis.isLongitude() and needsCellData):
+        axisBounds = axis.genGenericBounds()
+    if (axisBounds is not None):
+        bounds = numpy.zeros(len(axis) + 1)
         if (axis[0] < axis[-1]):
             # axis is increasing
-            bounds[:len(axis)] = axisBounds[:, 0]
-            bounds[len(axis)] = axisBounds[-1, 1]
+            if (axisBounds[0][0] < axisBounds[0][1]):
+                # interval is increasing
+                bounds[:len(axis)] = axisBounds[:, 0]
+                bounds[len(axis)] = axisBounds[-1, 1]
+            else:
+                # interval is decreasing
+                bounds[:len(axis)] = axisBounds[:, 1]
+                bounds[len(axis)] = axisBounds[-1, 0]
         else:
             # axis is decreasing
-            bounds[:len(axis)] = axisBounds[:, 1]
-            bounds[len(axis)] = axisBounds[-1, 0]
-    except Exception:
-        # No luck we have to generate bounds ourselves
-        bounds[1:-1] = (axis[:-1] + axis[1:]) / 2.
-        bounds[0] = axis[0] - (axis[1] - axis[0]) / 2.
-        bounds[-1] = axis[-1] + (axis[-1] - axis[-2]) / 2.
-    return bounds
+            if (axisBounds[0][0] < axisBounds[0][1]):
+                # interval is increasing
+                bounds[:len(axis)] = axisBounds[:, 1]
+                bounds[len(axis)] = axisBounds[-1, 0]
+            else:
+                # interval is decreasing
+                bounds[:len(axis)] = axisBounds[:, 0]
+                bounds[len(axis)] = axisBounds[-1, 1]
+        return bounds
+    else:
+        return None
 
 
-def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
+def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
+            dualGrid=False):
     continents = False
     wrap = None
     m3 = None
@@ -325,6 +231,8 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     projection = vcs.elements["projection"][gm.projection]
 
     data1 = handleProjectionEdgeCases(projection, data1)
+    if data2 is not None:
+        data2 = handleProjectionEdgeCases(projection, data2)
 
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
@@ -388,6 +296,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
         # Ok a simple structured grid is enough
         if grid is None:
             vg = vtk.vtkStructuredGrid()
+        hasCellData = data1.hasCellData()
         if g is not None:
             # Ok we have grid
             continents = True
@@ -406,38 +315,49 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                 lon = data1.getAxis(-1)
                 lat = data1.getAxis(-2)
                 # Ok let's try to get the bounds
-                lon2 = getBoundsList(lon)
-                lat2 = getBoundsList(lat)
+                lon2 = getBoundsList(lon, hasCellData, dualGrid)
+                lat2 = getBoundsList(lat, hasCellData, dualGrid)
+                if (lon2 is not None and lat2 is not None):
+                    lon3 = lon2
+                    lat3 = lat2
+                else:
+                    lon3 = lon
+                    lat3 = lat
+                    cellData = False
                 # Note that m,M is min,max for an increasing list
                 # and max,min for a decreasing list
-                xm = lon2[0]
-                xM = lon2[-1]
-                ym = lat2[0]
-                yM = lat2[-1]
+                xm = lon3[0]
+                xM = lon3[-1]
+                ym = lat3[0]
+                yM = lat3[-1]
 
-                lat = lat2[:, numpy.newaxis] * \
-                    numpy.ones(lon2.shape)[numpy.newaxis, :]
-                lon = lon2[numpy.newaxis,
-                           :] * numpy.ones(lat2.shape)[:,
-                                                       numpy.newaxis]
+                lat = lat3[:, numpy.newaxis] * numpy.ones(lon3.shape)[numpy.newaxis, :]
+                lon = lon3[numpy.newaxis, :] * numpy.ones(lat3.shape)[:, numpy.newaxis]
         elif grid is None:
             # No grid info from data, making one up
             data1 = cdms2.asVariable(data1)
             lon = data1.getAxis(-1)
             lat = data1.getAxis(-2)
             # Ok let's try to get the bounds
-            lon2 = getBoundsList(lon)
-            lat2 = getBoundsList(lat)
+            lon2 = getBoundsList(lon, hasCellData, dualGrid)
+            lat2 = getBoundsList(lat, hasCellData, dualGrid)
+            if (lon2 is not None and lat2 is not None):
+                lon3 = lon2
+                lat3 = lat2
+            else:
+                lon3 = lon
+                lat3 = lat
+                cellData = False
             # Note that m,M is min,max for an increasing list
             # and max,min for a decreasing list
-            xm = lon2[0]
-            xM = lon2[-1]
-            ym = lat2[0]
-            yM = lat2[-1]
-            lat = lat2[:, numpy.newaxis] * \
-                numpy.ones(lon2.shape)[numpy.newaxis, :]
-            lon = lon2[numpy.newaxis, :] * \
-                numpy.ones(lat2.shape)[:, numpy.newaxis]
+            xm = lon3[0]
+            xM = lon3[-1]
+            ym = lat3[0]
+            yM = lat3[-1]
+            lat = lat3[:, numpy.newaxis] * \
+                numpy.ones(lon3.shape)[numpy.newaxis, :]
+            lon = lon3[numpy.newaxis, :] * \
+                numpy.ones(lat3.shape)[:, numpy.newaxis]
         if grid is None:
             vg.SetDimensions(lat.shape[1], lat.shape[0], 1)
             lon = numpy.ma.ravel(lon)
@@ -461,15 +381,23 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
                     ym = lat.min()
                     yM = lat.max()
 
-    # scalar data
-    scalar = numpy_to_vtk_wrapper(data1.filled(0.).flat,
-                                  deep=False)
-    scalar.SetName("scalar")
-    gridForScalar = grid if grid else vg
-    if cellData:
-        gridForScalar.GetCellData().SetScalars(scalar)
+    # attribute data
+    gridForAttribute = grid if grid else vg
+    if genVectors:
+        attribute = generateVectorArray(data1, data2, gridForAttribute)
     else:
-        gridForScalar.GetPointData().SetScalars(scalar)
+        attribute = numpy_to_vtk_wrapper(data1.filled(0.).flat,
+                                         deep=False)
+        attribute.SetName("scalar")
+    if cellData:
+        attributes = gridForAttribute.GetCellData()
+    else:
+        attributes = gridForAttribute.GetPointData()
+    if genVectors:
+        attributes.SetVectors(attribute)
+    else:
+        attributes.SetScalars(attribute)
+
     if grid is None:
         # First create the points/vertices (in vcs terms)
         pts = vtk.vtkPoints()
@@ -489,8 +417,8 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
             # wrapping
             pedigreeId = vtk.vtkIntArray()
             pedigreeId.SetName("PedigreeIds")
-            pedigreeId.SetNumberOfTuples(scalar.GetNumberOfTuples())
-            for i in range(0, scalar.GetNumberOfTuples()):
+            pedigreeId.SetNumberOfTuples(attribute.GetNumberOfTuples())
+            for i in range(0, attribute.GetNumberOfTuples()):
                 pedigreeId.SetValue(i, i)
             if cellData:
                 vg.GetCellData().SetPedigreeIds(pedigreeId)
@@ -533,7 +461,8 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
            "wrap": wrap,
            "geo": geo,
            "cellData": cellData,
-           "data": data1
+           "data": data1,
+           "data2": data2
            }
     return out
 
@@ -1853,27 +1782,8 @@ def generateVectorArray(data1, data2, vtk_grid):
     w = numpy.concatenate((u, v), axis=1)
     w = numpy.concatenate((w, z), axis=1)
 
-    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
-    # data array. I'm not sure where the issue is...for now let's just zero-pad
-    # data array so that we can at least test rendering until Charles gets
-    # back from vacation:
-    wLen = len(w)
-    numPts = vtk_grid.GetNumberOfPoints()
-    if wLen != numPts:
-        warnings.warn("!!! Warning during vector plotting: "
-                      "Number of points does not "
-                      "match the number of vectors to be "
-                      "glyphed (%s points vs %s "
-                      "vectors). The vectors will be "
-                      "padded/truncated to match for "
-                      "rendering purposes, but the resulting "
-                      "image should not be "
-                      "trusted." % (numPts, wLen))
-        newShape = (numPts,) + w.shape[1:]
-        w = numpy.ma.resize(w, newShape)
-
     w = numpy_to_vtk_wrapper(w, deep=False)
-    w.SetName("vectors")
+    w.SetName("vector")
     return w
 
 
