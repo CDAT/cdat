@@ -39,9 +39,6 @@ add_subdirectory(xmgrace)
 if (CDAT_BUILD_OCGIS)
   add_subdirectory(ocgis)
 endif()
-if (CDAT_BUILD_UVCMETRICSPKG)
-  add_subdirectory(metrics)
-endif()
 
 # Disabling ParaView tests
 #if (CDAT_BUILD_PARAVIEW)

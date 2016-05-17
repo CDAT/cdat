@@ -1,42 +1,28 @@
-
-if (CDAT_DOWNLOAD_UVCMETRICS_TESTDATA)
-  set(UVCMETRICS_DOWNLOAD_FILES "")
-
-  file(READ "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcmetrics_test_data_md5s.txt" UVCMETRICS_FILES)
-  string(REGEX REPLACE ";" "\\\\;" UVCMETRICS_FILES "${UVCMETRICS_FILES}")
-  string(REGEX REPLACE "\n" ";" UVCMETRICS_FILES "${UVCMETRICS_FILES}")
-
-  foreach(line ${UVCMETRICS_FILES})
-    string(REGEX REPLACE " +" ";" line "${line}")
-    list(GET line 1 base_file_path)
-    list(GET line 0 FILE_MD5)
-
-    string(STRIP "${base_file_path}" base_file_path)
-    string(STRIP "${FILE_MD5}" FILE_MD5)
-
-    set(FILE_PATH "${UVCMETRICS_TEST_DATA_DIRECTORY}/${base_file_path}")
-    list(APPEND UVCMETRICS_DOWNLOAD_FILES "${FILE_PATH}")
-
-    set(FILE_URL "${LLNL_URL}/../sample_data/uvcmetrics_2.4.1/${base_file_path}")
-
-    add_custom_command(
-      OUTPUT "${FILE_PATH}"
-      COMMAND "${CMAKE_COMMAND}"
-        -D FILE_URL="${FILE_URL}"
-        -D FILE_MD5="${FILE_MD5}"
-        -D FILE_PATH="${FILE_PATH}"
-        -P "${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/fetch_uvcmetrics_testdata.cmake"
-      DEPENDS "${uvcmetrics_data_keyfile}"
-      COMMENT "Downloading ${base_file_path}"
-    )
-  endforeach()
-
-  add_custom_target(uvcmetrics_test_data ALL DEPENDS ${UVCMETRICS_DOWNLOAD_FILES})
-endif()
+set(uvcmetrics_source "${CMAKE_CURRENT_BINARY_DIR}/build/uvcmetrics")
+set(uvcmetrics_binary "${CMAKE_CURRENT_BINARY_DIR}/build/uvcmetrics")
+set(uvcmetrics_install "${cdat_EXTERNALS}")
 
 set(GIT_CMD_STR GIT_REPOSITORY "${UVCMETRICS_SOURCE}")
-set(GIT_TAG GIT_TAG "${UVCMETRICS_BRANCH}")
-set(nm UVCMETRICS)
-set(OLD OFF)
-include(pipinstaller)
-unset(OLD)
+
+ExternalProject_Add(UVCMETRICS
+  LIST_SEPARATOR ^^
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
+  SOURCE_DIR ${uvcmetrics_source}
+  INSTALL_DIR ${uvcmetrics_install}
+  ${GIT_CMD_STR}
+  GIT_TAG ${UVCMETRICS_BRANCH}
+  BUILD_IN_SOURCE 1
+  PATCH_COMMAND ""
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DUVCMETRICS_TEST_DATA_DIRECTORY=${UVCMETRICS_TEST_DATA_DIRECTORY}
+  BUILD_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH} ${PYTHON_EXECUTABLE} setup.py build 
+  INSTALL_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH} ${PYTHON_EXECUTABLE} setup.py install 
+  DEPENDS ${UVCMETRICS_deps}
+  ${ep_log_options}
+  )
+
+#add_subdirectory(${uvcmetrics_source}/test)
+#ExternalProject_Add_Step(UVCMETRICS ctest
+#  COMMAND ${CMAKE_COMMAND} -E create_symlink ${cdat_EXTERNALS}/include/freetype2/freetype ${cdat_EXTERNALS}/include/freetype
+#  COMMENT "Symlink include/freetype2/freetype include directory as include/freetype"
+#  DEPENDEES install
+#)
