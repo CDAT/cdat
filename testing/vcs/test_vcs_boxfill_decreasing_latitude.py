@@ -51,5 +51,5 @@ gm.fillareacolors = cols
 gm.datawc_y2 = 30
 gm.datawc_y1 = 90
 
-x.plot(ice, gm, tmpl, bg = 1)
+x.plot(ice, gm, tmpl, bg=1)
 regression.run(x, "test_boxfill_decreasing_latitude.png")
