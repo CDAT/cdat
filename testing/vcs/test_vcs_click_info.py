@@ -8,7 +8,7 @@ testConfig = {'a_boxfill': ('clt.nc', 'clt', (200, 200)),
 # Tests if the info produced when clicking on a map is correct.
 src = sys.argv[1]
 plot = sys.argv[2]
-x = regression.init()
+x = regression.init(bg=False, geometry=(800, 600))
 
 # data
 f = cdms2.open(vcs.sample_data + "/" + testConfig[plot][0])

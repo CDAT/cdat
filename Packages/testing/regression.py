@@ -16,14 +16,16 @@ import vcs
 
 defaultThreshold=10.0
 
-def init():
+def init(*args, **kwargs):
     testingDir = os.path.join(os.path.dirname(__file__), "..")
     sys.path.append(testingDir)
 
-    vcsinst = vcs.init()
+    vcsinst = vcs.init(*args, **kwargs)
     vcsinst.setantialiasing(0)
     vcsinst.drawlogooff()
-    vcsinst.setbgoutputdimensions(1200,1091,units="pixels")
+
+    if ('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs):
+        vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
     return vcsinst
 
 def run(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
