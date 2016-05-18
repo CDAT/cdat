@@ -12,7 +12,7 @@ import sys, os, shutil, tempfile, subprocess
 import cdms2, numpy
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 import argparse, pdb
 
 class DiagTest(object):
@@ -95,7 +95,7 @@ class DiagTest(object):
     def execute(self, test_str, imagefilename, imagethreshold, ncfiles, rtol, atol):
         print test_str
         if imagethreshold is None:  # user didn't specify a value
-     	    imagethreshold = checkimage.defaultThreshold
+	    imagethreshold = regression.defaultThreshold
         # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
         cdms2.setNetcdfShuffleFlag(0)
         cdms2.setNetcdfDeflateFlag(0)
@@ -118,7 +118,7 @@ class DiagTest(object):
             imagebaselinefname = os.path.join( self.baselinepath, imagefilename )
             #pdb.set_trace()
             print "OK THRESHOLD IS:",imagethreshold
-            graphics_result = checkimage.check_result_image( imagefname, imagebaselinefname, imagethreshold )
+            graphics_result = regression.check_result_image( imagefname, imagebaselinefname, imagethreshold )
             print "Graphics file", imagefname, "match difference:", graphics_result
             
             #initialize to successful graphics check
