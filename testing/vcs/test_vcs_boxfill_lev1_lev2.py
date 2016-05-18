@@ -7,4 +7,4 @@ b = x.createboxfill()
 b.level_1 = .5
 b.level_2 = 14.5
 x.plot(s, b, bg=1)
-regression.run(x, "test_boxfill_lev1_lev2.png")
+regression.run(x, "test_vcs_boxfill_lev1_lev2.png")
