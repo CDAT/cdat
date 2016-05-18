@@ -10,7 +10,7 @@ import vcs, os, sys, shutil, collections, subprocess
 TestingDir=os.path.dirname(__file__)
 pth = os.path.join(TestingDir,"..")
 sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
@@ -128,8 +128,8 @@ class vcsTest:
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
         self.canvas.png( test_image, width = 900, height = 600 )
 
-        ret = checkimage.check_result_image( test_image, self.image_name,\
-                checkimage.defaultThreshold+3. )
+        ret = regression.check_result_image( test_image, self.image_name,\
+                regression.defaultThreshold+3. )
 
         if  interactive:
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )."
