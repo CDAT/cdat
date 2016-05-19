@@ -4,14 +4,15 @@ x = vcs.init()
 x.open()
 x.configure()
 
-x.backend.renWin.SetSize(814, 303)
-
 fnm = "test_vcs_configurator_resize.png"
 
 win = x.backend.renWin
-win.Render()
+win.SetSize(814, 303)
+
 out_filter = vtk.vtkWindowToImageFilter()
 out_filter.SetInput(win)
+
+win.Render()
 
 png_writer = vtk.vtkPNGWriter()
 png_writer.SetFileName(fnm)
