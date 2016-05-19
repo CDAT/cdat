@@ -118,14 +118,29 @@ def convert_arrays(var, theta):
         magnitudes = []
         if isinstance(var, (list, tuple)):
             if isinstance(var[0], (list, tuple, numpy.ndarray)):
-                magnitudes = [list(v) for v in var]
+                for v in var:
+                    magnitudes.append(list(v))
+                    try:
+                        names.append(v.id)
+                    except AttributeError:
+                        names.append(None)
             else:
                 magnitudes = [var]
+                names.appned(None)
         elif isinstance(var, numpy.ndarray):
             if len(var.shape) == 1:
                 magnitudes = [list(var)]
+                try:
+                    names.append(var.id)
+                except AttributeError:
+                    names.append(None)
             elif len(var.shape) == 2:
-                magnitudes = [list(var[i]) for i in range(var.shape[0])]
+                for i in range(var.shape[0]):
+                    magnitudes.append(list(var[i]))
+                    try:
+                        names.append(var[i].id)
+                    except AttributeError:
+                        names.append(None)
             else:
                 raise ValueError("Array is wrong shape; expected 1d array or 2d array, got %dd array." % len(var.shape))
 
@@ -142,7 +157,8 @@ def convert_arrays(var, theta):
                 thetas = [list(theta[i]) for i in range(theta.shape[0])]
             else:
                 raise ValueError("Array is wrong shape; expected 1d array or 2d array, got %dd array." % len(var.shape))
-        names = [None] * len(var)
+        if not names:
+            names = [None] * len(var)
     return magnitudes, thetas, names
 
 
@@ -219,7 +235,6 @@ class Gpo(vcsaddons.core.VCSaddon):
             template = self.template
 
         magnitudes, thetas, names = convert_arrays(var, theta)
-
         if self.group_names:
             names = self.group_names
             while len(names) < len(magnitudes):
@@ -233,7 +248,6 @@ class Gpo(vcsaddons.core.VCSaddon):
             flat_theta.extend(i)
 
         canvas = x
-
         # Determine aspect ratio for plotting the circle
         canvas_info = canvas.canvasinfo()
         # Calculate aspect ratio of window
@@ -254,14 +268,15 @@ class Gpo(vcsaddons.core.VCSaddon):
         center = x0 + xdiff / 2., y0 + ydiff / 2.
         diameter = min(xdiff, ydiff)
         radius = diameter / 2.
-
+        plot_kwargs = {"render": False, "bg": bg, "donotstoredisplay": True}
         # Outer line
         if template.box1.priority > 0:
             outer = vcs.createline(source=template.box1.line)
             x, y = circle_points(center, radius, ratio=window_aspect)
             outer.x = x
             outer.y = y
-            canvas.plot(outer, render=False, bg=bg)
+            canvas.plot(outer, **plot_kwargs)
+            del vcs.elements["line"][outer.name]
 
         if numpy.allclose((self.datawc_y1, self.datawc_y2), 1e20):
             if self.magnitude_ticks == "*":
@@ -294,7 +309,7 @@ class Gpo(vcsaddons.core.VCSaddon):
                 m_labels = None
 
             for lev in m_scale:
-                lev_radius = radius * float(lev) / m_scale[-1]
+                lev_radius = radius * float(lev - m_scale[0]) / (m_scale[-1] - m_scale[0])
                 x, y = circle_points(center, lev_radius, ratio=window_aspect)
                 if m_labels is not None:
                     if lev in mag_labels:
@@ -303,10 +318,11 @@ class Gpo(vcsaddons.core.VCSaddon):
                         m_labels.y.append(ymul * lev_radius * numpy.sin(self.magnitude_tick_angle) + center[1])
                 m_ticks.x.append(x)
                 m_ticks.y.append(y)
-
-            canvas.plot(m_ticks, render=False, bg=bg)
+            canvas.plot(m_ticks, **plot_kwargs)
+            del vcs.elements["line"][m_ticks.name]
             if m_labels is not None:
-                canvas.plot(m_labels, render=False, bg=bg)
+                canvas.plot(m_labels, **plot_kwargs)
+                del vcs.elements["textcombined"][m_labels.name]
 
         if template.xtic1.priority > 0:
             t_ticks = vcs.createline(source=template.xtic1.line)
@@ -327,10 +343,7 @@ class Gpo(vcsaddons.core.VCSaddon):
 
             if template.xlabel1.priority > 0:
                 t_labels = []
-                if self.xticlabels1 == "*":
-                    theta_labels = vcs.mklabels(tick_thetas)
-                else:
-                    theta_labels = self.xticlabels1
+                theta_labels = tick_labels
             else:
                 t_labels = None
 
@@ -349,15 +362,18 @@ class Gpo(vcsaddons.core.VCSaddon):
                     t_labels.append(label)
                 t_ticks.x.append([x0, x1])
                 t_ticks.y.append([y0, y1])
-            canvas.plot(t_ticks, render=False, bg=bg)
+            canvas.plot(t_ticks, **plot_kwargs)
+            del vcs.elements["line"][t_ticks.name]
             if t_labels is not None:
                 for l in t_labels:
-                    canvas.plot(l, render=False, bg=bg)
+                    canvas.plot(l, **plot_kwargs)
+                    del vcs.elements["textcombined"][l.name]
 
         values = vcs.createmarker()
         values.type = self.markers
         values.size = self.markersizes
         values.color = self.markercolors
+        values.colormap = self.colormap
         values.x = []
         values.y = []
 
@@ -389,7 +405,8 @@ class Gpo(vcsaddons.core.VCSaddon):
             values.y.append(y)
 
         if template.legend.priority > 0:
-            canvas.plot(labels, bg=bg, render=False)
-        canvas.plot(values, bg=bg)
-
+            canvas.plot(labels, **plot_kwargs)
+            del vcs.elements["textcombined"][labels.name]
+        canvas.plot(values, bg=bg, donotstoredisplay=True)
+        del vcs.elements["marker"][values.name]
         return canvas
