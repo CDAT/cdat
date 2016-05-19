@@ -553,7 +553,15 @@ class VTKVCSBackend(object):
         else:
             return True
 
-    def geometry(self, x, y, *args):
+    def geometry(self, *args):
+        if len(args) == 0:
+            return self._geometry;
+        if len(args) < 2:
+            raise TypeError("Function takes zero or two <width, height> " \
+                            "or more than two arguments. Got " + len(*args))
+        x = args[0]
+        y = args[1]
+
         if self.renWin is not None:
             self.renWin.SetSize(x, y)
         self._geometry = {'width': x, 'height': y}
