@@ -1,13 +1,6 @@
-import vcs
-import sys,os
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import vcs, sys, os, testing.regression as regression
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1090,units="pixels")
+x = regression.init()
 
 fa1 = x.createfillarea()
 
@@ -29,8 +22,4 @@ x.plot(fa1,bg=True)
 x.plot(fa2,bg=True)
 
 fnm = os.path.split(__file__[:-2]+"png")[-1]
-x.png(fnm)
-src = sys.argv[1]
-
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, fnm)

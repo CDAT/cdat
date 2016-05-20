@@ -1,15 +1,5 @@
-import cdms2
-import os
-import sys
-import vcs
+import os, sys, cdms2, vcs, testing.regression as regression
 import random
-
-# ('/path/to/filename', '.extension')
-baseline = os.path.splitext(sys.argv[1])
-
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
 
 (latmin, latmax, lonmin, lonmax) = (-90, 90, -180, 180)
 dataset = cdms2.open(os.path.join(vcs.sample_data, "tas_cru_1979.nc"))
@@ -17,10 +7,7 @@ data = dataset("tas", time=slice(0, 1), latitude=(latmin, latmax),
                longitude=(lonmin, lonmax, 'co'), squeeze=1)
 dataset.close()
 
-canvas = vcs.init()
-canvas.setantialiasing(0)
-canvas.setbgoutputdimensions(1200, 1091, units="pixels")
-canvas.drawlogooff()
+canvas = regression.init()
 canvas.backgroundcolor = [100, 105, 105]
 
 isoline = canvas.createisoline()
@@ -50,11 +37,6 @@ isoline.labelskipdistance = 15.0
 
 # First test using isoline.text[...].color
 canvas.plot(data, isoline, bg=1)
-
+baseline = os.path.splitext(sys.argv[1])
 baselineImage = "%s%s" % baseline
-testImage = os.path.abspath("test_isoline_labels_background.png")
-canvas.png(testImage)
-
-ret = checkimage.check_result_image(testImage, baselineImage,
-                                    checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(canvas, baselineImage)

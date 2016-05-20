@@ -1,6 +1,4 @@
-
-import sys,os
-import argparse
+import argparse, os, sys, cdms2, MV2, testing.regression as regression, vcs, vtk
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
@@ -25,20 +23,9 @@ args = p.parse_args(sys.argv[1:])
 
 gm_type= args.gm
 src = args.src
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
-
-import vcs
-import sys
-import cdms2
-import vtk
-import os
-import MV2
-
 bg = not args.show
 
-x=vcs.init()
+x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
 if bg:
@@ -143,7 +130,7 @@ print "fnm:",fnm
 print "src:",src
 if args.show:
     raw_input("Press Enter")
-ret = checkimage.check_result_image(fnm+'.png',src,20., cleanup=not args.keep)
+ret = regression.check_result_image(fnm+'.png',src,20., cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)
