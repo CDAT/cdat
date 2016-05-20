@@ -56,7 +56,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'vcs'
+project = 'VCS'
 copyright = '2016, LLNL'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -197,7 +197,7 @@ todo_include_todos = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'RomanescoDoc'
+htmlhelp_basename = 'VCSDoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -216,8 +216,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Romanesco.tex', 'Romanesco Documentation',
-   'Kitware, Inc.', 'manual'),
+  ('index', 'vcs.tex', 'VCS Documentation',
+   'LLNL', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
