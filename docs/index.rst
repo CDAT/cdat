@@ -49,7 +49,8 @@ Table of contents
    :maxdepth: 2
 
    user-guide
-   developer-docs
+   developer-guide
+   reference
 
 API index
 ---------
