@@ -24,7 +24,8 @@ def init(*args, **kwargs):
     vcsinst.setantialiasing(0)
     vcsinst.drawlogooff()
 
-    if ('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs):
+    if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs)) and
+        ('geometry' not in kwargs)):
         vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
     return vcsinst
 
