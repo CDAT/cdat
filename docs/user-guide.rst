@@ -167,16 +167,22 @@ using default values for everything else.
     import vcs
     import cdms2
 
-    # Open sample NetCDF data file
+    # Open sample NetCDF data file. Depending on the location of clt.nc
+    # a relative or absolute path might be needed.
     data = cdms2.open('clt.nc')
 
-    # Initialize vcs and then plot the variable
-    canvas = vcs.init()
+    # Initialize vcs with specific width and height
+    # and then plot the variable
+    canvas = vcs.init(geometry=(400, 400))
     clt = data['clt']
     canvas.plot(clt)
 
     # Close the canvas context
     canvas.close()
+
+The script should produce a plot as shown below:
+.. |clt| image:: static/clt.png
+   :width: 100%
 
 As mentioned earlier, vcs can use numpy array directly. The example below shows how to plot numpy array data.
 
