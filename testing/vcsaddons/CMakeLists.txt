@@ -59,6 +59,31 @@ cdat_add_test(vcs_addons_test_convert_arrays
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_convert_arrays.py
 )
+cdat_add_test(vcs_addons_test_polar_degrees
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_degrees.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_degrees.png
+)
+cdat_add_test(vcs_addons_test_polar_annual
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_annual.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_annual.png
+)
+cdat_add_test(vcs_addons_test_polar_diurnal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_diurnal.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_diurnal.png
+)
+cdat_add_test(vcs_addons_test_polar_seasonal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_seasonal.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_seasonal.png
+)
+cdat_add_test(vcs_addons_test_polar_semidiurnal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/vcs_addons_test_polar_semidiurnal.py
+  ${BASELINE_DIR}/vcs_addons_test_polar_semidiurnal.png
+)
 
 if (CDAT_DOWNLOAD_SAMPLE_DATA)
   cdat_add_test(vcs_addons_EzTemplate_2x2
