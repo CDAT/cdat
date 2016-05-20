@@ -49,19 +49,19 @@ Graphics Method Objects
 
 A graphics method simply defines how data is to be displayed on the screen. Currently, there are eleven different graphics methods with more on the way. Each graphics method has its own unique set of attributes (or members) and functions. They also have a set of core attributes that are common in all graphics methods. The descriptions of the current set of graphics methods are as follows:
 
-* **boxfillobject** - The boxfill graphics method draws color grid cells to represent the data on the VCS - Canvas. Its class symbol or alias is “Gfb”.
-* **continentsobject** - The continents graphics method draws a predefined, generic set of continental -outlines in a longitude by latitude space. To draw continental outlines, no external data set is required. Its class symbol or alias is “Gcon”.
-* **isofillobject** - The isofill graphics method fills the area between selected isolevels (levels of constant value) of a two-dimensional array with a user-specified color. Its class symbol or alias is “Gfi”.
-* **isolineobject** - The isoline graphics method draws lines of constant value at specified levels in order to graphically represent a two-dimensional array. It also labels the values of these isolines on the VCS Canvas. Its class symbol or alias is “Gi”.
-* **outfillobject** - The outfill graphics method fills a set of integer values in any data array. Its primary purpose is to display continents by filling their area as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Gfo”.
-* **outlineobject** - The Outline graphics method outlines a set of integer values in any data array. Its primary purpose is to display continental outlines as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Go”.
-* **scatterobject** - The scatter graphics method displays a scatter plot of two 4-dimensional data arrays, e.g. A(x,y,z,t) and B(x,y,z,t). Its class symbol or alias is “GSp”.
-* **vectorobject** - The Vector graphics method displays a vector plot of a 2D vector field. Vectors are located at the coordinate locations and point in the direction of the data vector field. Vector magnitudes are the product of data vector field lengths and a scaling factor. Its class symbol or alias is “Gv”.
-* **xvsyobject** - The XvsY graphics method displays a line plot from two 1D data arrays, that is X(t) and Y(t), where ‘t’ represents the 1D coordinate values. Its class symbol or alias is “GXY”.
-* **xyvsyobject** - The Xyvsy graphics method displays a line plot from a 1D data array, i.e. a plot of X(y) where ‘y’ represents the 1D coordinate values. Its class symbol or alias is “GXy”.
-* **Yxvsxobject** - The Yxvsx graphics method displays a line plot from a 1D data array, i.e. a plot of Y(x) where ‘x’ represents the 1D coordinate values. Its class symbol or alias is “GYx”.
-* **3dscalarobject** - The 3dscalar graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) data array. Its class symbol or alias is “3d_scalar”.
-* **3dvectorobject** - The 3dvector graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) vector field. Its class symbol or alias is “3d_vector”.
+* ``boxfillobject`` - The boxfill graphics method draws color grid cells to represent the data on the VCS - Canvas. Its class symbol or alias is “Gfb”.
+* ``continentsobject`` - The continents graphics method draws a predefined, generic set of continental -outlines in a longitude by latitude space. To draw continental outlines, no external data set is required. Its class symbol or alias is “Gcon”.
+* ``isofillobject`` - The isofill graphics method fills the area between selected isolevels (levels of constant value) of a two-dimensional array with a user-specified color. Its class symbol or alias is “Gfi”.
+* ``isolineobject`` - The isoline graphics method draws lines of constant value at specified levels in order to graphically represent a two-dimensional array. It also labels the values of these isolines on the VCS Canvas. Its class symbol or alias is “Gi”.
+* ``outfillobject`` - The outfill graphics method fills a set of integer values in any data array. Its primary purpose is to display continents by filling their area as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Gfo”.
+* ``outlineobject`` - The Outline graphics method outlines a set of integer values in any data array. Its primary purpose is to display continental outlines as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Go”.
+* ``scatterobject`` - The scatter graphics method displays a scatter plot of two 4-dimensional data arrays, e.g. A(x,y,z,t) and B(x,y,z,t). Its class symbol or alias is “GSp”.
+* ``vectorobject`` - The Vector graphics method displays a vector plot of a 2D vector field. Vectors are located at the coordinate locations and point in the direction of the data vector field. Vector magnitudes are the product of data vector field lengths and a scaling factor. Its class symbol or alias is “Gv”.
+* ``xvsyobject`` - The XvsY graphics method displays a line plot from two 1D data arrays, that is X(t) and Y(t), where ‘t’ represents the 1D coordinate values. Its class symbol or alias is “GXY”.
+* ``xyvsyobject`` - The Xyvsy graphics method displays a line plot from a 1D data array, i.e. a plot of X(y) where ‘y’ represents the 1D coordinate values. Its class symbol or alias is “GXy”.
+* ``Yxvsxobject`` - The Yxvsx graphics method displays a line plot from a 1D data array, i.e. a plot of Y(x) where ‘x’ represents the 1D coordinate values. Its class symbol or alias is “GYx”.
+* ``3dscalarobject`` - The 3dscalar graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) data array. Its class symbol or alias is “3d_scalar”.
+* ``3dvectorobject`` - The 3dvector graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) vector field. Its class symbol or alias is “3d_vector”.
 
 Picture Template Object
 ^^^^^^^^^^^^^^^^^^^^^^^
