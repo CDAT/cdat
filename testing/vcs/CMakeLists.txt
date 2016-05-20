@@ -951,33 +951,22 @@ cdat_add_test(test_vcs_colorpicker_appearance
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
 )
 
-cdat_add_test(test_vcs_click_info
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info.png
-  a_boxfill
-)
 
-cdat_add_test(test_vcs_click_info_mollweide_boxfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_mollweide_boxfill.png
-  a_mollweide_boxfill
-)
-
-cdat_add_test(test_vcs_click_info_meshfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_meshfill.png
-  a_meshfill
-)
-
-cdat_add_test(test_vcs_click_info_robinson_meshfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_robinson_meshfill.png
-  a_robinson_meshfill
-)
+foreach(plot a_boxfill a_mollweide_boxfill a_meshfill a_robinson_meshfill
+        a_isofill a_isoline vector_default)
+  string(SUBSTRING ${plot} 0 2 plot_prefix)
+  if (${plot_prefix} STREQUAL "a_")
+    string(SUBSTRING ${plot} 2 -1 plot_name)
+  else ()
+    string(REGEX MATCH "[^_]+" plot_name ${plot})
+  endif ()
+  cdat_add_test(test_vcs_click_info_${plot_name}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+    "${BASELINE_DIR}/test_vcs_click_info_${plot_name}.png"
+    ${plot}
+    )
+endforeach()
 
 
 cdat_add_test(test_vcs_mercator_edge
