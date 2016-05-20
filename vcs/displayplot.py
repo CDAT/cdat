@@ -25,7 +25,6 @@
 #
 import VCS_validation_functions
 import vcs
-import vcsaddons
 
 
 class Dp(object):
@@ -210,6 +209,7 @@ class Dp(object):
         return self._g_type
 
     def _setg_type(self, value):
+        import vcsaddons
         value = VCS_validation_functions.checkString(self, 'g_type', value)
         value = value.lower()
         if value not in vcs.elements and value != "text" and value not in vcsaddons.gms:

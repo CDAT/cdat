@@ -68,7 +68,6 @@ from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisc
     plot_2_1D_options
 gui_canvas_closed = 0
 canvas_closed = 0
-import vcsaddons  # noqa
 import vcs.manageElements  # noqa
 import configurator  # noqa
 from projection import round_projections  # noqa
@@ -124,7 +123,7 @@ def dictionarytovcslist(dictionary, name):
 
 def _determine_arg_list(g_name, actual_args):
     "Determine what is in the argument list for plotting graphics methods"
-
+    import vcsaddons
     itemplate_name = 2
     igraphics_method = 3
     igraphics_option = 4
@@ -2442,6 +2441,7 @@ Options:::
         return new
 
     def __plot(self, arglist, keyargs):
+        import vcsaddons
 
             # This routine has five arguments in arglist from _determine_arg_list
             # It adds one for bg and passes those on to Canvas.plot as its sixth
