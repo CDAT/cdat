@@ -126,7 +126,7 @@ def convert_arrays(var, theta):
                         names.append(None)
             else:
                 magnitudes = [var]
-                names.appned(None)
+                names.append(None)
         elif isinstance(var, numpy.ndarray):
             if len(var.shape) == 1:
                 magnitudes = [list(var)]
@@ -167,6 +167,7 @@ class Gpo(vcsaddons.core.VCSaddon):
         self.g_name = "Gpo"
         self.g_type = "polar_oned"
         super(Gpo, self).__init__(name, source, x, template)
+        self.x = None
         if source == "default":
             self.markersizes = [3]
             self.markercolors = ["black"]
@@ -203,21 +204,28 @@ class Gpo(vcsaddons.core.VCSaddon):
             self.theta_tick_count = gm.theta_tick_count
             self.group_names = gm.group_names
 
+    def magnitude_from_value(self, value, minmax):
+        if numpy.allclose((self.datawc_y1, self.datawc_y2), 1e20):
+            min, max = minmax
+        else:
+            min, max = self.datawc_y1, self.datawc_y2
+
+        return (value - min) / float(max - min)
+
     def theta_from_value(self, value):
         if numpy.allclose((self.datawc_x1, self.datawc_x2), 1e20):
             # No scale specified, just use the value as theta
-            return value
+            return value + self.theta_offset
 
         minval = self.datawc_x1
         maxval = self.datawc_x2
+        offset = self.theta_offset / float(maxval - minval)
 
-        pct_val = (value - minval) / float(maxval - minval)
+        pct_val = (value - minval) / float(maxval - minval) + offset
         rad_val = numpy.pi * 2 * pct_val
         if self.clockwise:
             # Reflect the value
             rad_val *= -1
-        # Adjust by theta_offset
-        rad_val += self.theta_offset
         return rad_val
 
     def plot(self, var, theta=None, template=None, bg=0, x=None):
@@ -230,6 +238,8 @@ class Gpo(vcsaddons.core.VCSaddon):
         Otherwise, if theta is provided, it uses var as magnitude and the theta given.
         """
         if x is None:
+            if self.x is None:
+                self.x = vcs.init()
             x = self.x
         if template is None:
             template = self.template
@@ -309,7 +319,7 @@ class Gpo(vcsaddons.core.VCSaddon):
                 m_labels = None
 
             for lev in m_scale:
-                lev_radius = radius * float(lev - m_scale[0]) / (m_scale[-1] - m_scale[0])
+                lev_radius = radius * self.magnitude_from_value(lev, (m_scale[0], m_scale[-1]))
                 x, y = circle_points(center, lev_radius, ratio=window_aspect)
                 if m_labels is not None:
                     if lev in mag_labels:
@@ -390,7 +400,7 @@ class Gpo(vcsaddons.core.VCSaddon):
             y = []
             for m, t in zip(mag, theta):
                 t = self.theta_from_value(t)
-                r = (m - m_scale[0]) / float(m_scale[-1] - m_scale[0]) * radius
+                r = self.magnitude_from_value(m, (m_scale[0], m_scale[-1])) * radius
                 x.append(xmul * numpy.cos(t) * r + center[0])
                 y.append(ymul * numpy.sin(t) * r + center[1])
 
