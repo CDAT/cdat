@@ -479,7 +479,6 @@ static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
 					     /* Check the filetype */
 	int saveopts;
 
-	Py_DebugTrap();
 	saveopts = cuErrOpts;
 	cuseterropts(0);
 	*filetype=CuGetFileType(controlpath);
@@ -1034,6 +1033,9 @@ cdunif_type_from_type(char array_type)
   case NPY_DOUBLE:
     type = NC_DOUBLE;
     break;
+  case NPY_STRING:
+  case NPY_STRINGLTR:
+    type = NC_STRING;
   default:
     type = 0;
   }
@@ -1061,7 +1063,7 @@ collect_attributes(PyCdunifFileObject *file, int varid, PyObject *attributes, in
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     py_type = data_types[type];
-    if (py_type == NPY_CHAR) {
+    if ((py_type == NPY_CHAR) || (py_type == NPY_STRING)){
       char *s = (char *)malloc((length+1)*sizeof(char));
       if (s != NULL) {
 	PyObject *string;

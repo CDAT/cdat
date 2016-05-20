@@ -750,7 +750,8 @@ class AbstractAxis(CdmsObj):
             if s in t.available_units() and t.know_units()[s]=="TIME":
               return 1
             #try the plural version since udunits only as singular (day noy days)
-            s=s+"s"
+            #delete the last character of [months, days, hours, seconds]
+            s=s[:-1]
             if s in t.available_units() and t.know_units()[s]=="TIME":
               return 1
         except:
