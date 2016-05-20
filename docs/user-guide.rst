@@ -16,7 +16,7 @@ vcs specific entities will be ``formatted like this``.
 Installation
 ------------
 While there are many ways a user can install vcs, installation using conda is
-preferred for the end user. Currently, to install vcs, you need to install entire uvcdat
+preferred for the end user. Currently, to install vcs, you need to install the entire uvcdat
 pacakge. ::
 
     conda install -c uvcdat
