@@ -71,7 +71,7 @@ class VTKVCSBackend(object):
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
         self._rasterPropsInVectorFormats = False
-        self._initialGeometry = geometry
+        self._geometry = geometry
 
         if renWin is not None:
             self.renWin = renWin
@@ -374,9 +374,9 @@ class VTKVCSBackend(object):
             # turning off antialiasing by default
             # mostly so that pngs are same accross platforms
             self.renWin.SetMultiSamples(self.antialiasing)
-            if self._initialGeometry is not None:
-                width = self._initialGeometry["width"]
-                height = self._initialGeometry["height"]
+            if self._geometry is not None:
+                width = self._geometry["width"]
+                height = self._geometry["height"]
             else:
                 width = None
                 height = None
@@ -435,9 +435,9 @@ class VTKVCSBackend(object):
             if (self.bg):
                 height = self.canvas.bgY
                 width = self.canvas.bgX
-            elif (self._initialGeometry):
-                height = self._initialGeometry['height']
-                width = self._initialGeometry['width']
+            elif (self._geometry):
+                height = self._geometry['height']
+                width = self._geometry['width']
             else:
                 height = self.canvas.bgY
                 width = self.canvas.bgX
@@ -544,8 +544,18 @@ class VTKVCSBackend(object):
         else:
             return True
 
-    def geometry(self, x, y, *args):
-        self.renWin.SetSize(x, y)
+    def geometry(self, *args):
+        if len(args) == 0:
+            return self._geometry;
+        if len(args) < 2:
+            raise TypeError("Function takes zero or two <width, height> " \
+                            "or more than two arguments. Got " + len(*args))
+        x = args[0]
+        y = args[1]
+
+        if self.renWin is not None:
+            self.renWin.SetSize(x, y)
+        self._geometry = {'width': x, 'height': y}
         self._lastSize = (x, y)
 
     def flush(self):

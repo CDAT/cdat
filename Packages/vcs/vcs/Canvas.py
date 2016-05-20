@@ -4116,6 +4116,9 @@ Options:::
     a.geometry(450,337)
 
 """
+        if len(args) == 0:
+            return self.backend.geometry()
+
         if (args[0] <= 0) or (args[1] <= 0):
             raise ValueError(
                 'Error -  The width and height values must be an integer greater than 0.')

@@ -381,6 +381,10 @@ cdat_add_test(test_vcs_missing_colorname
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
   "${BASELINE_DIR}/test_vcs_missing_colorname.png"
   )
+cdat_add_test(test_vcs_geometry
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data
