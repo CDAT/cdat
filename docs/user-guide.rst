@@ -74,7 +74,7 @@ Data Object
 Array data attribute sets and their associated dimensions are to be modified outside of VCS. See the CDMS2 module documentation for data extraction, creation and manipulation.
 
 VCS Secondary Objects (or Secondary Elements)
----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 A description of each secondary object is warranted before showing their use and usefulness in VCS. It is these secondary objects that defines the detailed specification of the primary objects’ attributes. Currently, there are five secondary objects with more to follow.
 
 Colormap Object
@@ -181,8 +181,11 @@ using default values for everything else.
     canvas.close()
 
 The script should produce a plot as shown below:
-.. |clt| image:: static/clt.png
-   :width: 100%
+
+.. image:: static/clt.png
+   :width: 400px
+   :height: 400px
+   :align: center
 
 As mentioned earlier, vcs can use numpy array directly. The example below shows how to plot numpy array data.
 
