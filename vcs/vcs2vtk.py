@@ -809,6 +809,7 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
     if wrap is None:
         return Act
     Mapper = Act.GetMapper()
+    Mapper.Update()
     data = Mapper.GetInput()
     # insure that GLOBALIDS are not removed by the append filter
     attributes = data.GetCellData()

@@ -273,8 +273,6 @@ class IsolinePipeline(Pipeline2D):
                 create_renderer=(dataset_renderer is None))
 
             countLevels += len(l)
-        self._resultDict['dataset_renderer'] = dataset_renderer
-        self._resultDict['dataset_scale'] = (xScale, yScale)
         if len(textprops) > 0:
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 textprops
@@ -332,4 +330,3 @@ class IsolinePipeline(Pipeline2D):
                 vp, self._template.data.priority,
                 vtk_backend_grid=self._vtkDataSet,
                 dataset_bounds=self._vtkDataSetBounds)
-            self._resultDict['continents_renderer'] = continents_renderer

@@ -195,8 +195,6 @@ class MeshfillPipeline(Pipeline2D):
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=(dataset_renderer is None))
-        self._resultDict['dataset_renderer'] = dataset_renderer
-        self._resultDict['dataset_scale'] = (xScale, yScale)
         for act in self._patternActors:
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrapped not sure
@@ -270,7 +268,6 @@ class MeshfillPipeline(Pipeline2D):
                 vp, self._template.data.priority,
                 vtk_backend_grid=self._vtkDataSet,
                 dataset_bounds=self._vtkDataSetBounds)
-            self._resultDict['continents_renderer'] = continents_renderer
 
     def getPlottingBounds(self):
         """gm.datawc if it is set or dataset_bounds
