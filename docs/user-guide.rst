@@ -1,8 +1,8 @@
 User Guide
-**********
+==========
 
 Document Conventions
-====================
+--------------------
 
 This User Guide is written for end-users of vcs, rather than developers. If you
 have suggestions or questions about this documentation, feel free to contact us
@@ -14,7 +14,7 @@ vcs specific entities will be ``formatted like this``.
 .. _concepts:
 
 Installation
-============
+------------
 While there are many ways a user can install vcs, installation using conda is
 preferred for the end user. Currently, to install vcs, you need to install entire uvcdat
 pacakge. ::
@@ -25,14 +25,14 @@ It is assumed that conda is installed on user's system and is available on the s
 
 
 Concepts
-========
+--------
 
 The VCS module can accept data from the CDMS module or can use the numpy array. For use on
 how to use either of the mentioned modules, see their respective documentation. For examples on the
 direct use of these modules, see the VCS API Examples chapter and the examples located throughout this texts.
 
 VCS Model
----------
+^^^^^^^^^
 
 The VCS model is defined by a trio of named attribute sets, designated the “Primary Objects” (also known as “Primary Elements”).
 These include: the data, which specifies what is to be displayed and are obtained from the cdms2 or numpy array;
@@ -40,7 +40,7 @@ the graphics method, which specifies the display technique; and the picture temp
 each segment of the display.
 
 VCS Primary Objects (or Primary Elements)
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A description of each primary object is warranted before showing their use and usefulness in VCS. See descriptions below.
 
@@ -63,14 +63,14 @@ A graphics method simply defines how data is to be displayed on the screen. Curr
 * **3dscalarobject** - The 3dscalar graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) data array. Its class symbol or alias is “3d_scalar”.
 * **3dvectorobject** - The 3dvector graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) vector field. Its class symbol or alias is “3d_vector”.
 
-**Picture Template Object**
-
+Picture Template Object
+^^^^^^^^^^^^^^^^^^^^^^^
 A picture template determines the location of each picture segment, the space to be allocated to it, and related properties relevant to its display. The description of the picture template is as follows:
 
 * **templateobject** - Picture Template attributes describe where and how segments of a picture will be displayed. The segments are graphical representations of: textual identification of the data formatted values of single-valued dimensions and mean, maximum, and minimum data values axes, tick marks, labels, boxes, lines, and a legend that is graphics-method specific the data. Picture templates describe where to display all segments including the data. Its class symbol or alias is “P”.
 
-**Data Object**
-
+Data Object
+^^^^^^^^^^^
 Array data attribute sets and their associated dimensions are to be modified outside of VCS. See the CDMS2 module documentation for data extraction, creation and manipulation.
 
 VCS Secondary Objects (or Secondary Elements)
@@ -348,7 +348,7 @@ Create the following VCS objects:
 
 
 Get Existing VCS Objects
-''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The get functions are used to obtain VCS objects that exist in the
 object memory tables. The get function directly manipulates the object's
@@ -431,7 +431,7 @@ The show function is used to list the VCS objects in memory:
 
 
 VCS Reference Guide
--------------------
+--------------------
 
 ``init``
 ^^^^^^^^
