@@ -99,6 +99,7 @@ class VectorPipeline(Pipeline2D):
         scalarArray.SetNumberOfValues(vectors.GetNumberOfTuples())
 
         oldRange = vectorsRange[1] - vectorsRange[0]
+        oldRange = 1.0 if oldRange == 0.0 else oldRange
         newRange = 1.0 - 0.1
 
         for i in range (0, vectors.GetNumberOfTuples()):
