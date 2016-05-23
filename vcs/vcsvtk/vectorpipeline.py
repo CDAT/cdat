@@ -100,11 +100,15 @@ class VectorPipeline(Pipeline2D):
 
         oldRange = vectorsRange[1] - vectorsRange[0]
         oldRange = 1.0 if oldRange == 0.0 else oldRange
-        newRange = 1.0 - 0.1
+
+        # New range min, max.
+        newRangeValues = [0.0, 1.0]
+
+        newRange = newRangeValues[1] - newRangeValues[0]
 
         for i in range (0, vectors.GetNumberOfTuples()):
             norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
-            newValue = (((norm - vectorsRange[0]) * newRange) / oldRange) + 0.1
+            newValue = (((norm - vectorsRange[0]) * newRange) / oldRange) + newRangeValues[0]
             scalarArray.SetValue(i, newValue)
 
         polydata.GetPointData().SetScalars(scalarArray)
