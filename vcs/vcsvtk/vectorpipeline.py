@@ -84,24 +84,47 @@ class VectorPipeline(Pipeline2D):
         arrow.SetOutputPointsPrecision(vtk.vtkAlgorithm.DOUBLE_PRECISION)
         arrow.FilledOff()
 
+        polydata = self._vtkPolyDataFilter.GetOutput()
+        vectors = polydata.GetPointData().GetVectors()
+        vectorsRangeX = vectors.GetRange(0)
+        vectorsRangeY = vectors.GetRange(1)
+        vectorsRange = []
+        vectorsRange.insert(0, vectorsRangeY[0] if
+            (vectorsRangeX[0] > vectorsRangeY[0])  else vectorsRangeX[0])
+        vectorsRange.insert(1, vectorsRangeY[1]
+            if (vectorsRangeX[1] > vectorsRangeY[1])  else vectorsRangeX[1])
+
+        scalarArray = vtk.vtkDoubleArray()
+        scalarArray.SetNumberOfComponents(1)
+        scalarArray.SetNumberOfValues(vectors.GetNumberOfTuples())
+
+        oldRange = vectorsRange[1] - vectorsRange[0]
+        newRange = 1.0 - 0.1
+
+        for i in range (0, vectors.GetNumberOfTuples()):
+            norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
+            newValue = (((norm - vectorsRange[0]) * newRange) / oldRange) + 0.1
+            scalarArray.SetValue(i, newValue)
+
+        polydata.GetPointData().SetScalars(scalarArray)
+
         glyphFilter = vtk.vtkGlyph2D()
-        glyphFilter.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
+        # glyphFilter.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
+        glyphFilter.SetInputData(polydata)
         glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vector")
         glyphFilter.SetSourceConnection(arrow.GetOutputPort())
         glyphFilter.SetVectorModeToUseVector()
 
         # Rotate arrows to match vector data:
         glyphFilter.OrientOn()
+        glyphFilter.ScalingOn()
 
         # Scale to vector magnitude:
-        glyphFilter.SetScaleModeToScaleByVector()
+        # NOTE: Currently we compute our own scaling factor since VTK does
+        # it by clamping the values > max to max  and values < min to min
+        # and not remap the range.
+        glyphFilter.SetScaleModeToScaleByScalar()
         glyphFilter.SetScaleFactor(scale * 2.0 * self._gm.scale)
-
-        # These are some unfortunately named methods. It does *not* clamp the
-        # scale range to [min, max], but rather remaps the range
-        # [min, max] --> [0, 1].
-        glyphFilter.ClampingOn()
-        glyphFilter.SetRange(0.01, 1.0)
 
         mapper = vtk.vtkPolyDataMapper()
 
