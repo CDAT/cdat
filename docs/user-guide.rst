@@ -46,29 +46,28 @@ A description of each primary object is warranted before showing their use and u
 
 **Graphics Method Objects**
 
-
 A graphics method simply defines how data is to be displayed on the screen. Currently, there are eleven different graphics methods with more on the way. Each graphics method has its own unique set of attributes (or members) and functions. They also have a set of core attributes that are common in all graphics methods. The descriptions of the current set of graphics methods are as follows:
 
-* ``boxfillobject`` - The boxfill graphics method draws color grid cells to represent the data on the VCS - Canvas. Its class symbol or alias is “Gfb”.
-* ``continentsobject`` - The continents graphics method draws a predefined, generic set of continental -outlines in a longitude by latitude space. To draw continental outlines, no external data set is required. Its class symbol or alias is “Gcon”.
-* ``isofillobject`` - The isofill graphics method fills the area between selected isolevels (levels of constant value) of a two-dimensional array with a user-specified color. Its class symbol or alias is “Gfi”.
+* ``boxfill`` - The boxfill graphics method draws color grid cells to represent the data on the VCS - Canvas. Its class symbol or alias is “Gfb”.
+* ``continents`` - The continents graphics method draws a predefined, generic set of continental -outlines in a longitude by latitude space. To draw continental outlines, no external data set is required. Its class symbol or alias is “Gcon”.
+* ``isofill`` - The isofill graphics method fills the area between selected isolevels (levels of constant value) of a two-dimensional array with a user-specified color. Its class symbol or alias is “Gfi”.
 * ``isolineobject`` - The isoline graphics method draws lines of constant value at specified levels in order to graphically represent a two-dimensional array. It also labels the values of these isolines on the VCS Canvas. Its class symbol or alias is “Gi”.
-* ``outfillobject`` - The outfill graphics method fills a set of integer values in any data array. Its primary purpose is to display continents by filling their area as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Gfo”.
-* ``outlineobject`` - The Outline graphics method outlines a set of integer values in any data array. Its primary purpose is to display continental outlines as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Go”.
-* ``scatterobject`` - The scatter graphics method displays a scatter plot of two 4-dimensional data arrays, e.g. A(x,y,z,t) and B(x,y,z,t). Its class symbol or alias is “GSp”.
-* ``vectorobject`` - The Vector graphics method displays a vector plot of a 2D vector field. Vectors are located at the coordinate locations and point in the direction of the data vector field. Vector magnitudes are the product of data vector field lengths and a scaling factor. Its class symbol or alias is “Gv”.
-* ``xvsyobject`` - The XvsY graphics method displays a line plot from two 1D data arrays, that is X(t) and Y(t), where ‘t’ represents the 1D coordinate values. Its class symbol or alias is “GXY”.
-* ``xyvsyobject`` - The Xyvsy graphics method displays a line plot from a 1D data array, i.e. a plot of X(y) where ‘y’ represents the 1D coordinate values. Its class symbol or alias is “GXy”.
-* ``Yxvsxobject`` - The Yxvsx graphics method displays a line plot from a 1D data array, i.e. a plot of Y(x) where ‘x’ represents the 1D coordinate values. Its class symbol or alias is “GYx”.
-* ``3dscalarobject`` - The 3dscalar graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) data array. Its class symbol or alias is “3d_scalar”.
-* ``3dvectorobject`` - The 3dvector graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) vector field. Its class symbol or alias is “3d_vector”.
+* ``outfill`` - The outfill graphics method fills a set of integer values in any data array. Its primary purpose is to display continents by filling their area as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Gfo”.
+* ``outline`` - The Outline graphics method outlines a set of integer values in any data array. Its primary purpose is to display continental outlines as defined by a surface type array that indicates land, ocean, and sea-ice points. Its class symbol or alias is “Go”.
+* ``scatter`` - The scatter graphics method displays a scatter plot of two 4-dimensional data arrays, e.g. A(x,y,z,t) and B(x,y,z,t). Its class symbol or alias is “GSp”.
+* ``vector`` - The Vector graphics method displays a vector plot of a 2D vector field. Vectors are located at the coordinate locations and point in the direction of the data vector field. Vector magnitudes are the product of data vector field lengths and a scaling factor. Its class symbol or alias is “Gv”.
+* ``xvsy`` - The XvsY graphics method displays a line plot from two 1D data arrays, that is X(t) and Y(t), where ‘t’ represents the 1D coordinate values. Its class symbol or alias is “GXY”.
+* ``xyvsy`` - The Xyvsy graphics method displays a line plot from a 1D data array, i.e. a plot of X(y) where ‘y’ represents the 1D coordinate values. Its class symbol or alias is “GXy”.
+* ``Yxvsx`` - The Yxvsx graphics method displays a line plot from a 1D data array, i.e. a plot of Y(x) where ‘x’ represents the 1D coordinate values. Its class symbol or alias is “GYx”.
+* ``3dscalar`` - The 3dscalar graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) data array. Its class symbol or alias is “3d_scalar”.
+* ``3dvector`` - The 3dvector graphics method displays an interactive 3D plot of a 4-dimensional (x,y,z,t) vector field. Its class symbol or alias is “3d_vector”.
 
 
 **Picture Template Object**
 
 A picture template determines the location of each picture segment, the space to be allocated to it, and related properties relevant to its display. The description of the picture template is as follows:
 
-* ``templateobject`` - Picture Template attributes describe where and how segments of a picture will be displayed. The segments are graphical representations of: textual identification of the data formatted values of single-valued dimensions and mean, maximum, and minimum data values axes, tick marks, labels, boxes, lines, and a legend that is graphics-method specific the data. Picture templates describe where to display all segments including the data. Its class symbol or alias is “P”.
+* ``template`` - Picture Template attributes describe where and how segments of a picture will be displayed. The segments are graphical representations of: textual identification of the data formatted values of single-valued dimensions and mean, maximum, and minimum data values axes, tick marks, labels, boxes, lines, and a legend that is graphics-method specific the data. Picture templates describe where to display all segments including the data. Its class symbol or alias is “P”.
 
 **Data Object**
 
@@ -83,7 +82,7 @@ A description of each secondary object is warranted before showing their use and
 
 The colormap object is used to specify, create, and modify colormaps. There are 256 colors and color indices, but only the first 240 color indices can be modified (indices 240 through 255 are reserved for VCS internal use). The description of the colormap object is as follows:
 
-* ``colormapobject`` - A colormap contains 240 user-definable colors that are used for graphical displays. The color mixtures are defined in terms of percentages of red, green, and blue colors (0 to 100% for each). The resulting color depends on the specified mixtures of red, green, and blue. Its class symbol or alias is “Cp”.
+* ``colormap`` - A colormap contains 240 user-definable colors that are used for graphical displays. The color mixtures are defined in terms of percentages of red, green, and blue colors (0 to 100% for each). The resulting color depends on the specified mixtures of red, green, and blue. Its class symbol or alias is “Cp”.
 Note: VCS colormaps are objects, but they are not referenced like other secondary objects.
 
 
@@ -91,32 +90,32 @@ Note: VCS colormaps are objects, but they are not referenced like other secondar
 
 The fillarea objects allows the user to edit fillarea attributes, including fillarea interior style, style index, and color index. The description of the fillarea object is as follows:
 
-* ``fillareaobject`` - The fill area attributes are used to display regions defined by closed polygons, which can be filled with a uniform color, a pattern, or a hatch style. Attributes specify the style, color, position, and dimensions of the fill area. Its class symbol or alias is “Tf”.
+* ``fillarea`` - The fill area attributes are used to display regions defined by closed polygons, which can be filled with a uniform color, a pattern, or a hatch style. Attributes specify the style, color, position, and dimensions of the fill area. Its class symbol or alias is “Tf”.
 
 
 **Line Object**
 
 The line object allows the editing of line type, width, and color index. The description of the line object is as follows:
 
-* ``lineobject`` - The line attributes specify the type, width, and color of the line to be drawn for a graphical display. Its class symbol or alias is “Tl”.
+* ``line`` - The line attributes specify the type, width, and color of the line to be drawn for a graphical display. Its class symbol or alias is “Tl”.
 
 
 **Marker Object**
 
 The marker object allows the editing of the marker type, width, and color index. The description of the marker object is as follows:
 
-* ``markerobject`` - The marker attribute specifies graphical symbols, symbol sizes, and colors used in appropriate graphics methods. Its class symbol or alias is “Tm”.
+* ``marker`` - The marker attribute specifies graphical symbols, symbol sizes, and colors used in appropriate graphics methods. Its class symbol or alias is “Tm”.
 
 
 **Text Objects**
 
 Graphical displays often contain textual inscriptions, which provide further information. The text-table object attributes allow the generation of character strings on the VCS Canvas by defining the character font, precision, expansion, spacing, and color. The text-orientation object attributes allow the appearance of text character strings to be changed by defining the character height, up-angle, path, and horizontal and vertical alignment. The text-combined object is a combination of both text-table and text-orientation objects. The description of the text objects are as follows:
 
-* ``textcombinedobject`` - The text-combined attributes combine the text-table attributes and a text-orientation attributes together. From combining the two classes, the user is able to set attributes for both classes at once (i.e., define the font, spacing, expansion, color index, height, angle, path, vertical alignment, and horizontal alignment). Its class symbol or alias is “Tc”.
+* ``textcombined`` - The text-combined attributes combine the text-table attributes and a text-orientation attributes together. From combining the two classes, the user is able to set attributes for both classes at once (i.e., define the font, spacing, expansion, color index, height, angle, path, vertical alignment, and horizontal alignment). Its class symbol or alias is “Tc”.
 
-* ``textorientationobject`` - The text-orientation attributes set names that define the height, angel, path, horizontal alignment and vertical alignment. Its class symbol or alias is “To”.
+* ``textorientation`` - The text-orientation attributes set names that define the height, angel, path, horizontal alignment and vertical alignment. Its class symbol or alias is “To”.
 
-* ``texttableobject`` - The text-table attributes set names that define the font, spacing, expansion, and color index. Its class symbol or alias is “Tt”.
+* ``texttable`` - The text-table attributes set names that define the font, spacing, expansion, and color index. Its class symbol or alias is “Tt”.
 
 
 Getting Started with VCS
