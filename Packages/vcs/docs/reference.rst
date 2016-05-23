@@ -1,8 +1,8 @@
 VCS Reference Guide
 --------------------
 
-``init``
-^^^^^^^^
+init
+^^^^
 * Initialize, Construct a VCS Canvas Object
 
 .. code-block:: python
@@ -45,8 +45,8 @@ VCS Reference Guide
 
     # Plot slab using isoline and template objects
 
-``help``
-^^^^^^^^
+help
+^^^^
 * Print out the object's doc string
 
 .. code-block:: python
@@ -59,8 +59,8 @@ VCS Reference Guide
     # This will print out information on how to use ln
     a.objecthelp(ln)
 
-``open``
-^^^^^^^^
+open
+^^^^
 * Open VCS Canvas object.
 * This routine really just manages the VCS canvas. It will popup the VCS Canvas for viewing. It can be used to display the VCS Canvas.
 
@@ -70,8 +70,8 @@ VCS Reference Guide
     a = vcs.init()
     a.open()
 
-``close``
-^^^^^^^^^
+close
+^^^^^
 * Close the VCS Canvas. It will remove the VCS Canvas object from the screen, but not deallocate it.
 
 .. code-block:: python
@@ -81,8 +81,8 @@ VCS Reference Guide
     a.plot(array, 'default', 'isofill', 'quick')
     a.close()
 
-``mode``
-^^^^^^^^
+mode
+^^^^
 * ``Options <0 = manual, 1 = automatic>``
 * Update the VCS Canvas.
 * Updating of the graphical displays on the VCS Canvas can be deferred until a later time. This is helpful when generating templates or displaying numerous plots. If a series of commands are given to VCS and the Canvas Mode is set to manual (i.e., 0), then no updating of the VCS Canvas occurs until the 'update' function is executed.
@@ -106,8 +106,8 @@ VCS Reference Guide
     # Update the changes manually
     a.update()
 
-``update``
-^^^^^^^^^^
+update
+^^^^^^
 * Update the VCS Canvas manually when the ``mode`` is set to ``0`` (manual).
 
 .. code-block:: python
