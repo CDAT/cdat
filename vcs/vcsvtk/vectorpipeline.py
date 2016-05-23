@@ -89,10 +89,10 @@ class VectorPipeline(Pipeline2D):
         vectorsRangeX = vectors.GetRange(0)
         vectorsRangeY = vectors.GetRange(1)
         vectorsRange = []
-        vectorsRange.insert(0, vectorsRangeY[0] if
-            (vectorsRangeX[0] > vectorsRangeY[0])  else vectorsRangeX[0])
-        vectorsRange.insert(1, vectorsRangeY[1]
-            if (vectorsRangeX[1] > vectorsRangeY[1])  else vectorsRangeX[1])
+        vectorsRange.insert(0, vectorsRangeY[0] if (vectorsRangeX[0] > vectorsRangeY[0])
+                            else vectorsRangeX[0])
+        vectorsRange.insert(1, vectorsRangeY[1] if (vectorsRangeX[1] > vectorsRangeY[1])
+                            else vectorsRangeX[1])
 
         scalarArray = vtk.vtkDoubleArray()
         scalarArray.SetNumberOfComponents(1)
@@ -106,7 +106,7 @@ class VectorPipeline(Pipeline2D):
 
         newRange = newRangeValues[1] - newRangeValues[0]
 
-        for i in range (0, vectors.GetNumberOfTuples()):
+        for i in range(0, vectors.GetNumberOfTuples()):
             norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
             newValue = (((norm - vectorsRange[0]) * newRange) / oldRange) + newRangeValues[0]
             scalarArray.SetValue(i, newValue)
