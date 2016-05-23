@@ -4,12 +4,14 @@ import vtk
 import numpy
 import json
 import os
+import math
 import meshfill
 from vtk.util import numpy_support as VN
 import cdms2
 import warnings
 from projection import round_projections, no_over_proj4_parameter_projections
 from vcsvtk import fillareautils
+import sys
 import numbers
 
 f = open(os.path.join(vcs.prefix, "share", "vcs", "wmo_symbols.json"))
@@ -218,6 +220,34 @@ def getBoundsList(axis, hasCellData, dualGrid):
         return bounds
     else:
         return None
+
+
+def setInfToValid(geoPoints, ghost):
+    '''
+    Set infinity points to a point that already exists in the list.
+    If a ghost array is passed, we also hide infinity points.
+    We return true if any points are infinity
+    '''
+    anyInfinity = False
+    validPoint = [0, 0, 0]
+    for i in range(geoPoints.GetNumberOfPoints()):
+        point = geoPoints.GetPoint(i)
+        if (not math.isinf(point[0]) and not math.isinf(point[1])):
+            validPoint[0] = point[0]
+            validPoint[1] = point[1]
+            break
+    for i in range(geoPoints.GetNumberOfPoints()):
+        point = geoPoints.GetPoint(i)
+        if (math.isinf(point[0]) or math.isinf(point[1])):
+            anyInfinity = True
+            newPoint = list(point)
+            if (math.isinf(point[0])):
+                newPoint[0] = validPoint[0]
+            if (math.isinf(point[1])):
+                newPoint[1] = validPoint[1]
+            geoPoints.SetPoint(i, newPoint)
+            ghost.SetValue(i, vtk.vtkDataSetAttributes.HIDDENPOINT)
+    return anyInfinity
 
 
 def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
@@ -444,6 +474,25 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
                                                data1.getAxis(-2))
         geo, geopts = project(pts, projection, getWrappedBounds(
             wc, [xm, xM, ym, yM], wrap))
+        # proj4 returns inf for points that are not visible. Set those to a valid point
+        # and hide them.
+        ghost = vg.AllocatePointGhostArray()
+        if (setInfToValid(geopts, ghost)):
+            # if there are hidden points, we recompute the bounds
+            xm = ym = sys.float_info.max
+            xM = yM = - sys.float_info.max
+            for i in range(pts.GetNumberOfPoints()):
+                if (ghost.GetValue(i) & vtk.vtkDataSetAttributes.HIDDENPOINT == 0):
+                    # point not hidden
+                    p = pts.GetPoint(i)
+                    if (p[0] < xm):
+                        xm = p[0]
+                    if (p[0] > xM):
+                        xM = p[0]
+                    if (p[1] < ym):
+                        ym = p[1]
+                    if (p[1] > yM):
+                        yM = p[1]
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
     else:
@@ -557,24 +606,42 @@ def apply_proj_parameters(pd, projection, x1, x2, y1, y2):
         else:
             pd.SetOptionalParameter("over", "false")
             setProjectionParameters(pd, projection)
-        if (hasattr(projection, 'centralmeridian') and
-                numpy.allclose(projection.centralmeridian, 1e+20)):
-            pd.SetCentralMeridian(float(x1 + x2) / 2.0)
-        if (hasattr(projection, 'centerlongitude') and
-                numpy.allclose(projection.centerlongitude, 1e+20)):
-            pd.SetOptionalParameter("lon_0", str(float(x1 + x2) / 2.0))
-        if (hasattr(projection, 'originlatitude') and
-                numpy.allclose(projection.originlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
-        if (hasattr(projection, 'centerlatitude') and
-                numpy.allclose(projection.centerlatitude, 1e+20)):
-            pd.SetOptionalParameter("lat_0", str(float(y1 + y2) / 2.0))
-        if (hasattr(projection, 'standardparallel1') and
-                numpy.allclose(projection.standardparallel1, 1.e20)):
-            pd.SetOptionalParameter('lat_1', str(min(y1, y2)))
-        if (hasattr(projection, 'standardparallel2') and
-                numpy.allclose(projection.standardparallel2, 1.e20)):
-            pd.SetOptionalParameter('lat_2', str(max(y1, y2)))
+        if (hasattr(projection, 'centralmeridian')):
+            if (numpy.allclose(projection.centralmeridian, 1e+20)):
+                centralmeridian = float(x1 + x2) / 2.0
+            else:
+                centralmeridian = projection.centralmeridian
+            pd.SetCentralMeridian(centralmeridian)
+        if (hasattr(projection, 'centerlongitude')):
+            if (numpy.allclose(projection.centerlongitude, 1e+20)):
+                centerlongitude = float(x1 + x2) / 2.0
+            else:
+                centerlongitude = projection.centerlongitude
+            pd.SetOptionalParameter("lon_0", str(centerlongitude))
+        if (hasattr(projection, 'originlatitude')):
+            if (numpy.allclose(projection.originlatitude, 1e+20)):
+                originlatitude = float(y1 + y2) / 2.0
+            else:
+                originlatitude = projection.originlatitude
+            pd.SetOptionalParameter("lat_0", str(originlatitude))
+        if (hasattr(projection, 'centerlatitude')):
+            if (numpy.allclose(projection.centerlatitude, 1e+20)):
+                centerlatitude = float(y1 + y2) / 2.0
+            else:
+                centerlatitude = projection.centerlatitude
+            pd.SetOptionalParameter("lat_0", str(centerlatitude))
+        if (hasattr(projection, 'standardparallel1')):
+            if (numpy.allclose(projection.standardparallel1, 1.e20)):
+                standardparallel1 = min(y1, y2)
+            else:
+                standardparallel1 = projection.standardparallel1
+            pd.SetOptionalParameter('lat_1', str(standardparallel1))
+        if (hasattr(projection, 'standardparallel2')):
+            if (numpy.allclose(projection.standardparallel2, 1.e20)):
+                standardparallel2 = max(y1, y2)
+            else:
+                standardparallel2 = projection.standardparallel2
+            pd.SetOptionalParameter('lat_2', str(standardparallel2))
 
 
 def projectArray(w, projection, wc, geo=None):
@@ -1072,7 +1139,7 @@ def prepTextProperty(p, winSize, to="default", tt="default", cmap=None,
 
 
 def genTextActor(renderer, string=None, x=None, y=None,
-                 to='default', tt='default', cmap=None):
+                 to='default', tt='default', cmap=None, geoBounds=None, geo=None):
     if isinstance(to, str):
         to = vcs.elements["textorientation"][to]
     if isinstance(tt, str):
@@ -1096,21 +1163,8 @@ def genTextActor(renderer, string=None, x=None, y=None,
     sz = renderer.GetRenderWindow().GetSize()
     actors = []
     pts = vtk.vtkPoints()
-    geo = None
     if vcs.elements["projection"][tt.projection].type != "linear":
-            # Need to figure out new WC
-        Npts = 20
-        for i in range(Npts + 1):
-            X = tt.worldcoordinate[
-                0] + float(i) / Npts * (tt.worldcoordinate[1] -
-                                        tt.worldcoordinate[0])
-            for j in range(Npts + 1):
-                Y = tt.worldcoordinate[
-                    2] + float(j) / Npts * (tt.worldcoordinate[3] -
-                                            tt.worldcoordinate[2])
-                pts.InsertNextPoint(X, Y, 0.)
-        geo, pts = project(pts, tt.projection, tt.worldcoordinate, geo=None)
-        wc = pts.GetBounds()[:4]
+        wc = geoBounds[:4]
         # renderer.SetViewport(tt.viewport[0],tt.viewport[2],tt.viewport[1],tt.viewport[3])
         renderer.SetWorldPoint(wc)
 
@@ -1120,8 +1174,8 @@ def genTextActor(renderer, string=None, x=None, y=None,
         prepTextProperty(p, sz, to, tt, cmap)
         pts = vtk.vtkPoints()
         pts.InsertNextPoint(x[i], y[i], 0.)
-        if geo is not None:
-            geo, pts = project(pts, tt.projection, tt.worldcoordinate, geo=geo)
+        if vcs.elements["projection"][tt.projection].type != "linear":
+            _, pts = project(pts, tt.projection, tt.worldcoordinate, geo=geo)
             X, Y, tz = pts.GetPoint(0)
             X, Y = world2Renderer(renderer, X, Y, tt.viewport, wc)
         else:

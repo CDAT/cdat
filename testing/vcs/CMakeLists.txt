@@ -11,11 +11,26 @@ cdat_add_test(test_vcs_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_png_path.py
 )
-cdat_add_test(test_vcs_boxfill_polar
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_polar.py
-  "${BASELINE_DIR}/test_vcs_boxfill_polar.png"
-  )
+
+foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
+  cdat_add_test(test_vcs_boxfill_${projection}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+    ${projection}
+    )
+endforeach()
+
+foreach(lat_0 45 90)
+  cdat_add_test(test_vcs_boxfill_orthographic_${lat_0}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_orthographic.py
+    "${BASELINE_DIR}/test_vcs_boxfill_orthographic_${lat_0}.png"
+    ${lat_0}
+    )
+endforeach()
+
+
 cdat_add_test(test_vcs_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_create_get.py
