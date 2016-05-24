@@ -19,6 +19,8 @@ class VectorPipeline(Pipeline2D):
         # Preserve time and z axis for plotting these inof in rendertemplate
         projection = vcs.elements["projection"][self._gm.projection]
         taxis = self._originalData1.getTime()
+        scaleFactor = 1.0
+
         if self._originalData1.ndim > 2:
             zaxis = self._originalData1.getAxis(-3)
         else:
@@ -84,37 +86,20 @@ class VectorPipeline(Pipeline2D):
         arrow.SetOutputPointsPrecision(vtk.vtkAlgorithm.DOUBLE_PRECISION)
         arrow.FilledOff()
 
+
         polydata = self._vtkPolyDataFilter.GetOutput()
         vectors = polydata.GetPointData().GetVectors()
         vectorsRangeX = vectors.GetRange(0)
         vectorsRangeY = vectors.GetRange(1)
-        vectorsRange = []
-        vectorsRange.insert(0, vectorsRangeY[0] if (vectorsRangeX[0] > vectorsRangeY[0])
-                            else vectorsRangeX[0])
-        vectorsRange.insert(1, vectorsRangeY[1] if (vectorsRangeX[1] > vectorsRangeY[1])
-                            else vectorsRangeX[1])
 
-        scalarArray = vtk.vtkDoubleArray()
-        scalarArray.SetNumberOfComponents(1)
-        scalarArray.SetNumberOfValues(vectors.GetNumberOfTuples())
-
-        oldRange = vectorsRange[1] - vectorsRange[0]
-        oldRange = 1.0 if oldRange == 0.0 else oldRange
-
-        # New range min, max.
-        newRangeValues = [0.0, 1.0]
-
-        newRange = newRangeValues[1] - newRangeValues[0]
-
-        for i in range(0, vectors.GetNumberOfTuples()):
-            norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
-            newValue = (((norm - vectorsRange[0]) * newRange) / oldRange) + newRangeValues[0]
-            scalarArray.SetValue(i, newValue)
-
-        polydata.GetPointData().SetScalars(scalarArray)
+        if self._gm.scaletype == 'constant' or\
+           self._gm.scaletype == 'constantNNormalize' or\
+           self._gm.scaletype == 'constantNLinear':
+            scaleFactor = scale * 2.0 * self._gm.scale
+        else:
+            scaleFactor = 1.0
 
         glyphFilter = vtk.vtkGlyph2D()
-        # glyphFilter.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
         glyphFilter.SetInputData(polydata)
         glyphFilter.SetInputArrayToProcess(1, 0, 0, 0, "vector")
         glyphFilter.SetSourceConnection(arrow.GetOutputPort())
@@ -124,12 +109,54 @@ class VectorPipeline(Pipeline2D):
         glyphFilter.OrientOn()
         glyphFilter.ScalingOn()
 
-        # Scale to vector magnitude:
-        # NOTE: Currently we compute our own scaling factor since VTK does
-        # it by clamping the values > max to max  and values < min to min
-        # and not remap the range.
-        glyphFilter.SetScaleModeToScaleByScalar()
-        glyphFilter.SetScaleFactor(scale * 2.0 * self._gm.scale)
+        glyphFilter.SetScaleModeToScaleByVector()
+
+        if self._gm.scaletype == 'normalize' or self._gm.scaletype == 'linear' or\
+           self._gm.scaletype == 'constantNNormalize' or self._gm.scaletype == 'constantNLinear':
+
+            # Find the min and max vector magnitudes
+            minNorm = None
+            maxNorm = None
+
+            for i in range(0, vectors.GetNumberOfTuples()):
+                norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
+
+                if (minNorm is None or norm < minNorm):
+                    minNorm = norm
+                if (maxNorm is None or norm > maxNorm):
+                    maxNorm = norm
+
+            if maxNorm == 0:
+                maxNorm = 1.0
+
+            if self._gm.scaletype == 'normalize' or self._gm.scaletype == 'constantNNormalize':
+                scaleFactor /= maxNorm
+
+            if self._gm.scaletype == 'linear' or self._gm.scaletype == 'constantNLinear':
+                scalarArray = vtk.vtkDoubleArray()
+                scalarArray.SetNumberOfComponents(1)
+                scalarArray.SetNumberOfValues(vectors.GetNumberOfTuples())
+
+                oldRange = maxNorm - minNorm
+                oldRange = 1.0 if oldRange == 0.0 else oldRange
+
+                # New range min, max.
+                newRangeValues = self._gm.scalerange
+                newRange = newRangeValues[1] - newRangeValues[0]
+
+                for i in range(0, vectors.GetNumberOfTuples()):
+                    norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
+                    newValue = (((norm - minNorm) * newRange) / oldRange) + newRangeValues[0]
+                    scalarArray.SetValue(i, newValue)
+                    polydata.GetPointData().SetScalars(scalarArray)
+
+                # Scale to vector magnitude:
+                # NOTE: Currently we compute our own scaling factor since VTK does
+                # it by clamping the values > max to max  and values < min to min
+                # and not remap the range.
+                glyphFilter.SetScaleModeToScaleByScalar()
+
+        glyphFilter.SetScaleFactor(scaleFactor)
 
         mapper = vtk.vtkPolyDataMapper()
 
