@@ -1011,6 +1011,13 @@ cdat_add_test(test_vcs_boxfill_lambert_crash
   "${BASELINE_DIR}/test_vcs_boxfill_lambert_crash.png"
   "${UVCDAT_GIT_TESTDATA_DIR}/data/NCEP_09_climo.nc"
 )
+
+cdat_add_test(test_vcs_line_patterns
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_line_patterns.py
+  "${BASELINE_DIR}/test_vcs_line_patterns.png"
+)
+
 cdat_add_test(test_vcs_init_open_sizing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py

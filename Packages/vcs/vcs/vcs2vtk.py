@@ -1581,16 +1581,16 @@ def __build_ld__():
 
 def stippleLine(prop, line_type):
     if line_type == 'long-dash':
-        prop.SetLineStipplePattern(int('1111111100000000', 2))
+        prop.SetLineStipplePattern(int('0000111111111111', 2))
         prop.SetLineStippleRepeatFactor(1)
     elif line_type == 'dot':
-        prop.SetLineStipplePattern(int('1010101010101010', 2))
+        prop.SetLineStipplePattern(int('0101010101010101', 2))
         prop.SetLineStippleRepeatFactor(1)
     elif line_type == 'dash':
-        prop.SetLineStipplePattern(int('1111000011110000', 2))
+        prop.SetLineStipplePattern(int('0001111100011111', 2))
         prop.SetLineStippleRepeatFactor(1)
     elif line_type == 'dash-dot':
-        prop.SetLineStipplePattern(int('0011110000110011', 2))
+        prop.SetLineStipplePattern(int('0101111101011111', 2))
         prop.SetLineStippleRepeatFactor(1)
     elif line_type == 'solid':
         prop.SetLineStipplePattern(int('1111111111111111', 2))
