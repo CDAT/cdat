@@ -131,7 +131,7 @@ def process_src(nm, code):
 class Gv(object):
 
     """
- Class:	Gv				# Vector
+ Class: Gv              # Vector
 
  Description of Gv Class:
     The vector graphics method displays a vector plot of a 2D vector field. Vectors
@@ -145,76 +145,76 @@ class Gv(object):
     entry.
 
  Other Useful Functions:
-         a=vcs.init()			# Constructor
-         a.show('vector')		# Show predefined vector graphics methods
-         a.show('line')			# Show predefined VCS line objects
-         a.setcolormap("AMIP")		# Change the VCS color Map
-         a.vector(s1, s2, v,'default')	# Plot data 's1', and 's2' with vector 'v'
+         a=vcs.init()           # Constructor
+         a.show('vector')       # Show predefined vector graphics methods
+         a.show('line')         # Show predefined VCS line objects
+         a.setcolormap("AMIP")      # Change the VCS color Map
+         a.vector(s1, s2, v,'default')  # Plot data 's1', and 's2' with vector 'v'
                                          and 'default' template
-         a.update()		 	# Updates the VCS Canvas at user's request
-         a.mode=1, or 0 	 	# If 1, then automatic update, else if
+         a.update()         # Updates the VCS Canvas at user's request
+         a.mode=1, or 0         # If 1, then automatic update, else if
                                           0, then use update function to
                                           update the VCS Canvas.
 
  Example of Use:
     a=vcs.init()
     To Create a new instance of vector use:
-     vc=a.createvector('new','quick')	# Copies content of 'quick' to 'new'
-     vc=a.createvector('new') 		# Copies content of 'default' to 'new'
+     vc=a.createvector('new','quick')   # Copies content of 'quick' to 'new'
+     vc=a.createvector('new')       # Copies content of 'default' to 'new'
 
     To Modify an existing vector use:
      vc=a.getvector('AMIP_psl')
 
-    vc.list()  				# Will list all the vector attribute values
-    vc.projection='linear'   		# Can only be 'linear'
+    vc.list()               # Will list all the vector attribute values
+    vc.projection='linear'          # Can only be 'linear'
     lon30={-180:'180W',-150:'150W',0:'Eq'}
     vc.xticlabels1=lon30
     vc.xticlabels2=lon30
-    vc.xticlabels(lon30, lon30)  	# Will set them both
+    vc.xticlabels(lon30, lon30)     # Will set them both
     vc.xmtics1=''
     vc.xmtics2=''
-    vc.xmtics(lon30, lon30)  		# Will set them both
+    vc.xmtics(lon30, lon30)         # Will set them both
     vc.yticlabels1=lat10
     vc.yticlabels2=lat10
-    vc.yticlabels(lat10, lat10)  	# Will set them both
+    vc.yticlabels(lat10, lat10)     # Will set them both
     vc.ymtics1=''
     vc.ymtics2=''
-    vc.ymtics(lat10, lat10)  		# Will set them both
+    vc.ymtics(lat10, lat10)         # Will set them both
     vc.datawc_y1=-90.0
     vc.datawc_y2=90.0
     vc.datawc_x1=-180.0
     vc.datawc_x2=180.0
-    vc.datawc(-90, 90, -180, 180)  	# Will set them all
+    vc.datawc(-90, 90, -180, 180)   # Will set them all
     xaxisconvert='linear'
     yaxisconvert='linear'
-    vc.xyscale('linear', 'area_wt')  	# Will set them both
+    vc.xyscale('linear', 'area_wt')     # Will set them both
 
     Specify the line style:
-     vc.line=0 				# Same as vc.line='solid'
-     vc.line=1 				# Same as vc.line='dash'
-     vc.line=2 				# Same as vc.line='dot'
-     vc.line=3 				# Same as vc.line='dash-dot'
-     vc.line=4 				# Same as vc.line='long-dot'
+     vc.line=0              # Same as vc.line='solid'
+     vc.line=1              # Same as vc.line='dash'
+     vc.line=2              # Same as vc.line='dot'
+     vc.line=3              # Same as vc.line='dash-dot'
+     vc.line=4              # Same as vc.line='long-dot'
 
     Specify the line color of the vectors:
-     vc.linecolor=16   			# Color range: 16 to 230, default line color is black
-     vc.linewidth=1   			# Width range: 1 to 100, default size is 1
+     vc.linecolor=16            # Color range: 16 to 230, default line color is black
+     vc.linewidth=1             # Width range: 1 to 100, default size is 1
 
     Specify the vector scale factor:
-     vc.scale=2.0   			# Can be an integer or float
+     vc.scale=2.0               # Can be an integer or float
 
     Specify the vector alignment:
-     vc.alignment=0			# Same as vc.alignment='head'
-     vc.alignment=1			# Same as vc.alignment='center'
-     vc.alignment=2			# Same as vc.alignment='tail'
+     vc.alignment=0         # Same as vc.alignment='head'
+     vc.alignment=1         # Same as vc.alignment='center'
+     vc.alignment=2         # Same as vc.alignment='tail'
 
     Specify the vector type:
-      vc.type=0   			# Same as vc.type='arrow head'
-      vc.type=1   			# Same as vc.type='wind barbs'
-      vc.type=2   			# Same as vc.type='solid arrow head'
+      vc.type=0             # Same as vc.type='arrow head'
+      vc.type=1             # Same as vc.type='wind barbs'
+      vc.type=2             # Same as vc.type='solid arrow head'
 
     Specify the vector reference:
-      vc.reference=4    		# Can be an integer or float
+      vc.reference=4            # Can be an integer or float
 """
     __slots__ = [
         'name',
@@ -244,6 +244,9 @@ class Gv(object):
         'type',
         'reference',
         'colormap',
+        'scaleoptions',
+        'scaletype',
+        'scalerange',
         '_name',
         '_xaxisconvert',
         '_yaxisconvert',
@@ -270,9 +273,13 @@ class Gv(object):
         '_type',
         '_reference',
         '_colormap',
+        '_scaleoptions',
+        '_scaletype',
+        '_scalerange',
     ]
 
     colormap = VCS_validation_functions.colormap
+    scaleoptions = ('off', 'constant', 'normalize', 'linear', 'constantNNormalize', 'constantNLinear')
 
     def _getname(self):
         return self._name
@@ -528,6 +535,25 @@ class Gv(object):
         self._alignment = value
     alignment = property(_getalignment, _setalignment)
 
+
+    def _getscaletype(self):
+        return self._scaletype
+
+    def _setscaletype(self, value):
+        if value in self.scaleoptions:
+            self._scaletype = value
+        else:
+            raise ValueError('Invalid value '+ value + ' expected ' + self.scaleoptions)
+    scaletype = property(_getscaletype, _setscaletype)
+
+    def _getscalerange(self):
+        return self._scalerange
+
+    def _setscalerange(self, value):
+        self._scalerange = value
+    scalerange = property(_getscalerange, _setscalerange)
+
+
     def __init__(self, Gv_name, Gv_name_src='default'):
                 #                                                         #
                 ###########################################################
@@ -568,6 +594,8 @@ class Gv(object):
             self._datawc_timeunits = "days since 2000"
             self._datawc_calendar = 135441
             self._colormap = None
+            self._scaletype = self.scaleoptions[5]
+            self._scalerange = [0.1, 1.0]
         else:
             if isinstance(Gv_name_src, Gv):
                 Gv_name_src = Gv_name_src.name
@@ -583,7 +611,9 @@ class Gv(object):
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert',
                         'line', 'linecolor', 'linewidth',
                         'datawc_timeunits', 'datawc_calendar', 'colormap',
-                        'scale', 'alignment', 'type', 'reference']:
+                        'scale', 'alignment', 'type', 'reference', 'scaletype',
+                        'scalerange']:
+
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
         vcs.elements["vector"][Gv_name] = self
@@ -660,6 +690,8 @@ class Gv(object):
         print "alignment = ", self.alignment
         print "type = ", self.type
         print "reference = ", self.reference
+        print "scaletype = ", self.scaletype
+        print "scalerange = ", self.scalerange
 
     ##########################################################################
     #                                                                           #
@@ -798,6 +830,9 @@ class Gv(object):
             fp.write("%s.linecolor = %s\n" % (unique_name, self.linecolor))
             fp.write("%s.linewidth = %s\n" % (unique_name, self.linewidth))
             fp.write("%s.scale = %s\n" % (unique_name, self.scale))
+            fp.write("%s.scaletype = %s\n" % (unique_name, self.scaletype))
+            fp.write("%s.scalerange = %s\n" % (unique_name, self.scalerange))
+            fp.write("%s.scaleoptions = %s\n" % (unique_name, self.scaleoptions))
             fp.write("%s.alignment = '%s'\n" % (unique_name, self.alignment))
             fp.write("%s.type = '%s'\n" % (unique_name, self.type))
             fp.write("%s.reference = %s\n\n" % (unique_name, self.reference))
@@ -814,5 +849,5 @@ class Gv(object):
 
 
 ###############################################################################
-#        END OF FILE							      #
+#        END OF FILE                                  #
 ###############################################################################
