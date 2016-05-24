@@ -165,23 +165,6 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
     return mapper
 
 
-def handleProjectionEdgeCases(projection, data):
-    # For mercator projection, latitude values of -90 or 90
-    # transformation result in infinity values. We chose -85, 85
-    # as that's the typical limit used by the community.
-    ptype = projDict.get(projection._type, projection.type)
-    if (ptype.lower() == "merc"):
-        lat = data.getLatitude()
-        if isinstance(lat, cdms2.axis.TransientAxis):
-            lat = lat[:]
-            # Reverse the latitudes incase the starting latitude is greater
-            # than the ending one
-            if lat[-1] < lat[0]:
-                lat = lat[::-1]
-        data = data(latitude=(max(-85, lat.min()), min(85, lat.max())))
-    return data
-
-
 def getBoundsList(axis, hasCellData, dualGrid):
     '''
     Returns the bounds list for 'axis'. If axis has n elements the
@@ -259,10 +242,6 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
     cellData = True
     xm, xM, ym, yM = None, None, None, None
     projection = vcs.elements["projection"][gm.projection]
-
-    data1 = handleProjectionEdgeCases(projection, data1)
-    if data2 is not None:
-        data2 = handleProjectionEdgeCases(projection, data2)
 
     try:  # First try to see if we can get a mesh out of this
         g = data1.getGrid()
