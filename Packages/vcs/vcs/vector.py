@@ -550,6 +550,8 @@ class Gv(object):
         return self._scalerange
 
     def _setscalerange(self, value):
+        value = VCS_validation_functions.checkListOfNumbers(self, 'scalerange',
+                    value, minvalue=0.0, minelements=2, maxelements=2)
         self._scalerange = value
     scalerange = property(_getscalerange, _setscalerange)
 
@@ -594,7 +596,7 @@ class Gv(object):
             self._datawc_timeunits = "days since 2000"
             self._datawc_calendar = 135441
             self._colormap = None
-            self._scaletype = self.scaleoptions[5]
+            self._scaletype = self.scaleoptions[4]
             self._scalerange = [0.1, 1.0]
         else:
             if isinstance(Gv_name_src, Gv):
