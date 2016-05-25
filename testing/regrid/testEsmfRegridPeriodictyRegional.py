@@ -1,9 +1,4 @@
-import vcs,cdms2
-import os,sys
-import EzTemplate
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import os, sys, vcs, cdms2, EzTemplate, testing.regression as regression
 
 data = sys.argv[1]
 png = sys.argv[2]
@@ -38,11 +33,7 @@ s_esmf_lin.id = "ESMF Linear"
 s_esmf_con = s.regrid(grid_dest,regridTool="esmf",regridMethod="conservative")
 s_esmf_lin.id = "ESMF Conservative"
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
-
+x=regression.init()
 t=x.createtemplate()
 t.blank()
 t.data.priority=1
@@ -60,7 +51,5 @@ x.plot(s,M.get(),gm,bg=1)
 x.plot(s_regrid2,M.get(),gm,bg=1)
 x.plot(s_esmf_lin,M.get(),gm,bg=1)
 x.plot(s_esmf_con,M.get(),gm,bg=1)
-x.png("esmf_issue_1125")
 
-ret = checkimage.check_result_image("esmf_issue_1125.png",png,checkimage.defaultThreshold)
-sys.exit(ret)
+ret = regression.run(x, "esmf_issue_1125.png", png)

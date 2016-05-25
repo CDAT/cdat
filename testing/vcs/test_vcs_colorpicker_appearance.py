@@ -1,7 +1,6 @@
 import vcs, vtk
 
 picker = vcs.colorpicker.ColorPicker(500, 250, None, 0)
-
 win = picker.render_window
 
 win.Render()
@@ -16,8 +15,6 @@ png_writer.Write()
 
 import sys, os
 if len(sys.argv) > 1:
-    src = sys.argv[1]
-    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-    import checkimage
-    ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+    import testing.regression as regression
+    ret = regression.check_result_image(fnm, sys.argv[1])
     sys.exit(ret)

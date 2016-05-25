@@ -1,19 +1,11 @@
 
-import vcs,numpy,cdms2,MV2,os,sys
-src=sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import vcs, numpy, cdms2, MV2, os, sys, testing.regression as regression
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
-
-yx =x.createyxvsx()
+x = regression.init()
+yx = x.createyxvsx()
 
 data = """
--999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. 
+-999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999. -999.
 0.059503571833625334
 0.059503571833625334 0.05664014775641405 0.05193557222118004
 0.04777129850801233 0.0407139313814465 0.029382624830271705
@@ -42,16 +34,5 @@ data = """
 """.split()
 data = numpy.array(data,dtype=numpy.float)
 data = MV2.masked_less(data,-900)
-#yx.datawc_x1 = 0
-#yx.datawc_x2 = 80
-##yx.datawc_y1 =-12 
-#yx.datawc_y2 = 12 
-
-
 x.plot(data,yx,bg=1)
-fnm = "test_vcs_1D_datawc_missing.png"
-x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, "test_vcs_1D_datawc_missing.png")

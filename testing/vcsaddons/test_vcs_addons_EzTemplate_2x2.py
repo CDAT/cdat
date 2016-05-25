@@ -1,21 +1,11 @@
+import os, sys, cdms2, testing.regression as regression, vcs, vcsaddons
 
-import sys,os
-src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
-
-import vcs
-import vcsaddons
-import cdms2
-
-f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
-s=f("clt",time=slice(0,1),squeeze=1)
+f = cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
+s = f("clt",time=slice(0,1),squeeze=1)
 
 bg = True
-
-M=vcsaddons.EzTemplate.Multi(rows=2,columns=2)
-x=vcs.init()
+M = vcsaddons.EzTemplate.Multi(rows=2,columns=2)
+x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
 if bg:
@@ -25,9 +15,7 @@ for i in range(4):
 
 fnm = "test_vcs_addons_EzTemplate_2x2.png"
 x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
+ret = regression.check_result_image(fnm, sys.argv[1])
 if not bg:
     raw_input("Press Enter")
 sys.exit(ret)

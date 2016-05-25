@@ -1,24 +1,10 @@
-import vcs,cdms2,sys,os
-
-baselineImage = sys.argv[1]
-
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import os, sys, cdms2, vcs, testing.regression as regression
 
 dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")
-
-canvas = vcs.init()
-canvas.setantialiasing(0)
-canvas.setbgoutputdimensions(1200, 1091, units="pixels")
-canvas.drawlogooff()
-
+canvas = regression.init()
 isofill = canvas.createisofill()
-
-# First plot the isofill
 canvas.plot(data, isofill, bg=1)
-
 isoline = canvas.createisoline()
 isoline.label="y"
 texts=[]
@@ -35,13 +21,6 @@ for i in range(10):
 isoline.text = texts
 isoline.linecolors = colors
 
-# Next plot the isolines with labels
+# Plot the isolines with labels
 canvas.plot(data, isoline, bg=1)
-
-testImage = os.path.abspath("test_isofill_isoline_labels.png")
-canvas.png(testImage)
-
-ret = checkimage.check_result_image(testImage, baselineImage,
-                                    checkimage.defaultThreshold)
-
-sys.exit(ret)
+regression.run(canvas, "test_isofill_isoline_labels.png")

@@ -1,22 +1,14 @@
-import cdms2
-import os
-import sys
-import vcs
-import EzTemplate
+import os, sys, EzTemplate, cdms2, vcs, testing.regression as regression
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt = dataFile("clt", time="1979-1-1", squeeze=1)
 
-
 # Zero out the array so we can see the continents clearly
 clt[:] = 0
 
 # Initialize canvas:
-canvas = vcs.init()
-canvas.setantialiasing(0)
-canvas.setbgoutputdimensions(1200, 1091, units="pixels")
-canvas.drawlogooff()
+canvas = regression.init()
 
 # Create and plot quick boxfill with default settings:
 boxfill = canvas.createboxfill()
@@ -64,15 +56,4 @@ for i in range(12):
         canvas.plot(clt, template, boxfill, continents=7, continents_line=cont_line, bg=1)
         os.environ["UVCDAT_DIR"] = current_dotdir
 
-# Load the image testing module:
-testingDir = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(testingDir)
-import checkimage
-
-# Create the test image and compare:
-baseline = sys.argv[1]
-testFile = "test_continents.png"
-canvas.png(testFile)
-ret = checkimage.check_result_image(testFile, baseline,
-                                    25)
-sys.exit(ret)
+regression.run(canvas, "test_continents.png")
