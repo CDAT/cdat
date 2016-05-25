@@ -118,8 +118,10 @@ class VectorPipeline(Pipeline2D):
             minNorm = None
             maxNorm = None
 
+            noOfComponents = vectors.GetNumberOfComponents()
+
             for i in range(0, vectors.GetNumberOfTuples()):
-                norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
+                norm = vtk.vtkMath.Norm(vectors.GetTuple(i), noOfComponents)
 
                 if (minNorm is None or norm < minNorm):
                     minNorm = norm
@@ -145,7 +147,7 @@ class VectorPipeline(Pipeline2D):
                 newRange = newRangeValues[1] - newRangeValues[0]
 
                 for i in range(0, vectors.GetNumberOfTuples()):
-                    norm = vtk.vtkMath.Norm(vectors.GetTuple(i))
+                    norm = vtk.vtkMath.Norm(vectors.GetTuple(i), noOfComponents)
                     newValue = (((norm - minNorm) * newRange) / oldRange) + newRangeValues[0]
                     scalarArray.SetValue(i, newValue)
                     polydata.GetPointData().SetScalars(scalarArray)
