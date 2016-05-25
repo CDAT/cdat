@@ -3,8 +3,8 @@ set(CDAT_source "${cdat_SOURCE_DIR}")
 set(RUNTIME_FLAGS ${cdat_EXTERNALS}/lib)
 set(LDFLAGS -L${cdat_EXTERNALS}/lib)
 
-if (CDAT_BUILD_WITH_LIBDRS)
- set(cdat_xtra_flags "${cdat_xtra_flags} -c pcmdi.py")
+if (CDAT_BUILD_LIBDRS)
+ set(cdat_xtra_flags "${cdat_xtra_flags} --enable-drs")
 endif()
 
 set(cdat_build_dir ${CMAKE_CURRENT_BINARY_DIR}/cdat-build)

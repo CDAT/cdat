@@ -1,3 +1,4 @@
+CMAKE_POLICY(SET CMP0012 NEW)
 
 set(ENV${CC} "@CMAKE_C_COMPILER@")
 set(ENV${CXX} "@CMAKE_CXX_COMPILER@")
@@ -26,13 +27,13 @@ if(APPLE)
   set(ENV{AQUA_CDAT} "no")
   set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
   unset(ENV{MAKEFLAGS})
-endif()
-
-if(APPLE)
-  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
+  if(@_CURRENT_OSX_SDK_VERSION@ VERSION_LESS "10.11")
+    set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --with-system-expat --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
+  else()
+    set(library_param --prefix=@CMAKE_INSTALL_PREFIX@  --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
+  endif()
 elseif(UNIX)
   set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-ipv6 --enable-unicode=ucs4 --with-dbmliborder=bdb:gdbm --with-system-expat --with-system-ffi --with-fpectl --with-pydebug --enable-shared )
-
 endif()
 
 EXECUTE_PROCESS(

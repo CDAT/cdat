@@ -1,6 +1,6 @@
 
-import sys,os
-import argparse
+import sys, os, argparse
+import vcs, cdms2, vtk, MV2, numpy, testing.regression as regression
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
@@ -14,28 +14,17 @@ if not args.show:
   src = args.src
   pth = os.path.join(os.path.dirname(__file__),"..")
   sys.path.append(pth)
-  import checkimage
-
-import vcs
-import sys
-import cdms2
-import vtk
-import os
-import MV2
-import numpy
-
 
 bg = not args.show
-
-x=vcs.init()
+x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
-gm=vcs.createvector()
+gm = vcs.createvector()
 gm.scale = args.scale
-nm_xtra=""
+nm_xtra = ""
 xtra = {}
 import cdms2
 import os
@@ -52,14 +41,12 @@ if args.show:
   pass
   #x.interact()
 else:
-  fnm = "test_vcs_vectors_missing" 
+  fnm = "test_vcs_vectors_missing"
   if args.scale!=1.:
     fnm+="_%.1g" % args.scale
   fnm+=nm_xtra
   x.png(fnm)
-  print "fnm:",fnm
-  print "src:",src
-  ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
+  ret = regression.check_result_image(fnm+'.png', src, regression.defaultThreshold, cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)

@@ -105,8 +105,8 @@ def getAutoBounds():
     return _autobounds
 
 # Create a transient axis
-def createAxis(data, bounds=None, id=None, copy=0):
-    return TransientAxis(data, bounds, id, copy=copy)
+def createAxis(data, bounds=None, id=None, copy=0, genericBounds=False):
+    return TransientAxis(data, bounds=bounds, id=id, copy=copy, genericBounds=genericBounds)
 
 # Generate a Gaussian latitude axis, north-to-south
 def createGaussianAxis(nlat):
@@ -735,10 +735,22 @@ class AbstractAxis(CdmsObj):
             if calendar is not None:
                 self.setCalendar(calendar, persistent)
 
+    # For isTime(), keep track of whether each id is for a time axis or not, for better performance.
+    # This dictionary is a class variable (not a member of any particular instance).
+    idtaxis = {}  # id:type where type is 'T' for time, 'O' for other
+
     # Return true iff the axis is a time axis
     def isTime(self):
         id = self.id.strip().lower()
-        if (hasattr(self,'axis') and self.axis=='T'): return 1
+        if hasattr(self,'axis'):
+            if self.axis=='T': return 1
+            elif self.axis is not None: return 0
+        # Have we saved the id-to-axis type information already?
+        if id in self.idtaxis:
+            if self.idtaxis[id]=='T':
+                return 1
+            else:
+                return 0
         ## Try to figure it out from units
         try:
           import genutil
@@ -747,16 +759,24 @@ class AbstractAxis(CdmsObj):
           if len(sp)>1:
             t=genutil.udunits(1,"day")
             s = sp[0].strip()
-            if s in t.available_units() and t.know_units()[s]=="TIME":
+            if s in t.available_units() and t.known_units()[s]=="TIME":
+              self.idtaxis[id] = 'T'
               return 1
             #try the plural version since udunits only as singular (day noy days)
             #delete the last character of [months, days, hours, seconds]
             s=s[:-1]
             if s in t.available_units() and t.know_units()[s]=="TIME":
+              self.idtaxis[id] = 'T'
               return 1
         except:
           pass
-        return (id[0:4] == 'time') or (id in time_aliases)
+        #return (id[0:4] == 'time') or (id in time_aliases)
+        if (id[0:4] == 'time') or (id in time_aliases):
+            self.idtaxis[id]='T'
+            return 1
+        else:
+            self.idtaxis[id] = 'O'
+            return 0
 
     # Return true iff the axis is a forecast axis
     def isForecast(self):
@@ -897,6 +917,9 @@ class AbstractAxis(CdmsObj):
     # (2) self.topology is undefined, and the axis is a longitude
     def isCircular(self):
 
+        if hasattr(self,'realtopology'):
+            if self.realtopology=='circular': return 1
+            elif self.realtopology=='linear': return 0
         if(len(self) < 2):
             return 0
         
@@ -919,6 +942,9 @@ class AbstractAxis(CdmsObj):
         else:
             iscircle = 0
 
+        # save realtopology attribute in __dict__, don't write it to the file
+        if iscircle==1:  self.__dict__['realtopology'] = 'circular'
+        elif iscircle==0: self.__dict__['realtopology'] = 'linear'
         return iscircle
 
     def designateCircular(self, modulo, persistent=0):
@@ -934,12 +960,40 @@ class AbstractAxis(CdmsObj):
     def isLinear(self):
         raise CDMSError, MethodNotImplemented
 
-    def getBounds(self):
+    def getBounds(self, isGeneric=None):
+        '''
+        isGeneric is a list with one boolean which says if the bounds
+        are read from file (False) or generated (True)
+        '''
         raise CDMSError, MethodNotImplemented
 
-    # Return None if not explicitly defined
     def getExplicitBounds(self):
+        '''
+        Return None if not explicitly defined
+        This is a way to determine if attributes are defined at cell
+        or at point level. If this function returns None attributes are
+        defined at points, otherwise they are defined at cells
+        '''
         raise CDMSError, MethodNotImplemented
+
+    def getBoundsForDualGrid(self, dualGrid):
+        '''
+        dualGrid changes the type of dataset from the current type to the dual.
+        So, if we have a point dataset we switch to a cell dataset and viceversa.
+        '''
+        explicitBounds = self.getExplicitBounds()
+        if (explicitBounds is None):
+            # point data
+            if (dualGrid):
+                return self.getBounds()
+            else:
+                return None
+        else:
+            # cell data
+            if (dualGrid):
+                return None
+            else:
+                return explicitBounds
 
     def setBounds(self, bounds):
         raise CDMSError, MethodNotImplemented
@@ -1254,7 +1308,8 @@ class AbstractAxis(CdmsObj):
         The stride k can be positive or negative. Wraparound is
         supported for longitude dimensions or those with a modulus attribute.
         """
-        fullBounds = self.getBounds()
+        isGeneric = [False]
+        fullBounds = self.getBounds(isGeneric)
         _debug=0
         _debugprefix="SS__XX subaxis "
         
@@ -1334,7 +1389,7 @@ class AbstractAxis(CdmsObj):
             else:
                 bounds = None
         
-        newaxis = TransientAxis(data, bounds, id=self.id, copy=1)
+        newaxis = TransientAxis(data, bounds, id=self.id, copy=1, genericBounds=isGeneric[0])
 
         if self.isLatitude(): newaxis.designateLatitude()
         if self.isLongitude(): newaxis.designateLongitude()
@@ -1415,17 +1470,18 @@ class AbstractAxis(CdmsObj):
         """clone (self, copyData=1)
         Return a copy of self as a transient axis.
         If copyData is 1, make a separate copy of the data."""
-        b = self.getBounds()
+        isGeneric = [False]
+        b = self.getBounds(isGeneric)
         if copyData==1:
             mycopy = createAxis(copy.copy(self[:]))
         else:
             mycopy = createAxis(self[:])
         mycopy.id = self.id
         try:
-            mycopy.setBounds(b)
+            mycopy.setBounds(b, isGeneric=isGeneric[0])
         except CDMSError:
             b = mycopy.genGenericBounds()
-            mycopy.setBounds(b)
+            mycopy.setBounds(b, isGeneric=False)
         for k, v in self.attributes.items():
            setattr(mycopy, k, v)
         return mycopy
@@ -1545,7 +1601,13 @@ class Axis(AbstractAxis):
         return self._node_.dataRepresent==cdmsNode.CdLinear
 
     # Return the bounds array, or generate a default if autoBounds mode is on
-    def getBounds(self):
+    def getBounds(self, isGeneric=None):
+        '''
+        If isGeneric is a list with one element, we set its element to True if the
+        bounds were generated and False if bounds were read from the file.
+        '''
+        if (isGeneric):
+            isGeneric[0] = False
         boundsArray = self.getExplicitBounds()
         try:
             self.validateBounds(boundsArray)
@@ -1553,6 +1615,8 @@ class Axis(AbstractAxis):
             boundsArray = None
         abopt = getAutoBounds()
         if boundsArray is None and (abopt==1 or (abopt==2 and (self.isLatitude() or self.isLongitude()))) :
+            if (isGeneric):
+                isGeneric[0] = True
             boundsArray = self.genGenericBounds()
             
         return boundsArray
@@ -1584,7 +1648,10 @@ class Axis(AbstractAxis):
 # In-memory coordinate axis
 class TransientAxis(AbstractAxis):
     axis_count = 0
-    def __init__(self, data, bounds=None, id=None, attributes=None, copy=0):
+    def __init__(self, data, bounds=None, id=None, attributes=None, copy=0, genericBounds=False):
+        '''
+        genericBounds specify if bounds were generated (True) or read from a file (False)
+        '''
         AbstractAxis.__init__(self, None, None)
         if id is None:
             TransientAxis.axis_count = TransientAxis.axis_count + 1
@@ -1621,7 +1688,8 @@ class TransientAxis(AbstractAxis):
             self._data_ = numpy.array(data)
 
         self._doubledata_ = None
-        self.setBounds(bounds)
+        self._genericBounds_ = genericBounds
+        self.setBounds(bounds, isGeneric=genericBounds)
 
     def __getitem__(self, key):
         return self._data_[key]
@@ -1638,10 +1706,15 @@ class TransientAxis(AbstractAxis):
     def __len__(self):
         return len(self._data_)
 
-    def getBounds(self):
+    def getBounds(self, isGeneric=None):
+        if (isGeneric):
+            isGeneric[0] = self._genericBounds_
         if self._bounds_ is not None:
             return copy.copy(self._bounds_)
         elif (getAutoBounds()==1 or (getAutoBounds()==2 and (self.isLatitude() or self.isLongitude()))):
+            if (isGeneric):
+                isGeneric[0] = True
+            self._genericBounds_ = True
             return self.genGenericBounds()
         else:
             return None
@@ -1650,14 +1723,17 @@ class TransientAxis(AbstractAxis):
         return self._data_
 
     def getExplicitBounds(self):
-        return copy.copy(self._bounds_)
+        if (self._genericBounds_):
+            return None
+        else:
+            return copy.copy(self._bounds_)
 
     # Set bounds. The persistent argument is for compatibility with
     # persistent versions, is ignored. Same for boundsid and index.
     #
     # mf 20010308 - add validate key word, by default do not validate
-    #
-    def setBounds(self, bounds, persistent=0, validate=0, index=None, boundsid=None):
+    # isGeneric is False if bounds were generated, True if they were read from a file
+    def setBounds(self, bounds, persistent=0, validate=0, index=None, boundsid=None, isGeneric=False):
         if bounds is not None:
             if isinstance(bounds, numpy.ma.MaskedArray):
                 bounds = numpy.ma.filled(bounds)
@@ -1675,9 +1751,11 @@ class TransientAxis(AbstractAxis):
                     bounds2[:,1]=bounds[1::]
                     bounds=bounds2
             self._bounds_ = copy.copy(bounds)
+            self._genericBounds_ = isGeneric
         else:
             if (getAutoBounds()==1 or (getAutoBounds()==2 and (self.isLatitude() or self.isLongitude()))):
                 self._bounds_ = self.genGenericBounds()
+                self._genericBounds_ = True
             else:
                 self._bounds_ = None
 
@@ -1720,7 +1798,7 @@ class TransientVirtualAxis(TransientAxis):
         "Return true iff coordinate values are implicitly defined."
         return 1
 
-    def setBounds(self, bounds):
+    def setBounds(self, bounds, isGeneric=False):
         "No boundaries on virtual axes"
         self._bounds_ = None
 
@@ -1928,13 +2006,19 @@ class FileAxis(AbstractAxis):
         return 0                        # All file axes are vector representation
 
     # Return the bounds array, or generate a default if autobounds mode is set
-    def getBounds(self):
+    # If isGeneric is a list with one element, we set its element to True if the
+    # bounds were generated and False if bounds were read from the file.
+    def getBounds(self, isGeneric=None):
+        if (isGeneric):
+            isGeneric[0] = False
         boundsArray = self.getExplicitBounds()
         try:
             boundsArray = self.validateBounds(boundsArray)
         except Exception,err:
             boundsArray = None
         if boundsArray is None and (getAutoBounds()==1 or (getAutoBounds()==2 and (self.isLatitude() or self.isLongitude()))):
+            if (isGeneric):
+                isGeneric[0] = True
             boundsArray = self.genGenericBounds()
             
         return boundsArray
@@ -1948,6 +2032,7 @@ class FileAxis(AbstractAxis):
                 try:
                     boundsVar = self.parent[boundsName]
                     boundsArray = numpy.ma.filled(boundsVar)
+                    self._boundsArray_ = boundsArray  # for climatology performance
                 except KeyError,err:
                     print err
                     boundsArray = None
@@ -1963,7 +2048,8 @@ class FileAxis(AbstractAxis):
     # index in the extended dimension (default is index=0).
     # If the bounds variable is new, use the name boundsid, or 'bounds_<varid>'
     # if unspecified.
-    def setBounds(self, bounds, persistent=0, validate=0, index=None, boundsid=None):
+    # isGeneric is only used for TransientAxis
+    def setBounds(self, bounds, persistent=0, validate=0, index=None, boundsid=None, isGeneric=False):
         if persistent:
             if index is None:
                 if validate:
@@ -2224,7 +2310,7 @@ def axisMatches(axis, specification):
 
        3. an axis object; will match if it is the same object as axis.
     """   
-    if isinstance(specification, types.StringType):
+    if isinstance(specification, basestring):
         s = string.lower(specification)
         s = s.strip()
         while s[0] == '(':

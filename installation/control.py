@@ -1,7 +1,7 @@
 # This file is used to control the behavior of install.py.
 
 # The search path is used if the X11 directories aren't configured.
-x11search = ['/usr/X11R6', '/usr/X11R6.5.1', 
+x11search = ['/usr/X11R6', '/usr/X11R6.5.1',
              '/usr/X11R6.4','/usr','/usr/openwin','/opt']
 # Here is where they are on OSF1 and perhaps similar systems
 x11OSF1lib = ['/usr/lib/X11', '/usr/lib']
@@ -48,14 +48,14 @@ else:
     make_code = 'make'
 
 # List of packages to be built
-packages = [ 
+packages = [
     "Packages/pydebug",
     "Packages/cdtime",
     "Packages/demo",
     "Packages/help",
     "Packages/regrid2",
-    "Packages/cdms2", 
-    "Packages/esg", 
+    "Packages/cdms2",
+    "Packages/esg",
     "Packages/ncml",
     "Packages/DV3D",
     "Packages/vcs",
@@ -63,9 +63,10 @@ packages = [
     "Packages/cdutil",
     "Packages/unidata",
     "Packages/xmgrace",
-    "Packages/genutil", 
+    "Packages/genutil",
     "Packages/Thermo",
     "Packages/WK",
     "Packages/gui_support",
     "Packages/distarray",
+    "Packages/testing",
     ]

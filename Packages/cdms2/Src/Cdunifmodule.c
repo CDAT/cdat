@@ -475,40 +475,55 @@ static int cdinquire(PyCdunifFileObject *file, int* ngdims, int* nvars, int* nat
 	else
 		return cuinquire(file->id,ngdims,nvars,natts,recdim);
 }
-static int cdopen(const char* controlpath, int mode, CuFileType *filetype){
+static int cdopen(const char* controlpath, int ncmode, CuFileType *filetype){
 					     /* Check the filetype */
 	int saveopts;
 
 	saveopts = cuErrOpts;
 	cuseterropts(0);
-	*filetype=CuGetFileType(controlpath);
 	cuseterropts(saveopts);
-	if (*filetype==CuUnknown)
-		return -1;
-	if (*filetype==CuNetcdf) {
-#ifdef PARALLEL
-      int ierr;
-      int ncid;
 
-      if(cdms_use_parallel == 1) {
-          ierr = nc_open_par(controlpath,mode|NC_MPIIO,MPI_COMM_WORLD,MPI_INFO_NULL,&ncid);
-      }
-      if((cdms_use_parallel == 0) || (ierr != NC_NOERR )) {
-        ierr = nc_open(controlpath,mode,&ncid);
-      }
-      return ncid;
+	 *filetype=CuGetFileType(controlpath);
+	 if (*filetype==CuUnknown)
+		 return -1;
+	 if (*filetype==CuNetcdf) {
+			/* Take care for mode flag */
+		 if ((cdms_classic == 0) || (cdms_shuffle !=0 ) || (cdms_deflate !=0 ) || (cdms_netcdf4 == 1)) {
+			 ncmode = ncmode|NC_NETCDF4;
+		 }
+#ifdef PARALLEL
+			 /* ok we can only use MPIIO if not using shuffle or deflate for reason
+			  * why
+			  * see http://www.hdfgroup.org/hdf5-quest.html#p5comp
+			  * also classic and 64bit offset cannot be used for parallel
+			  * see: https://www.unidata.ucar.edu/software/netcdf/docs/parallel_io.html */
+		 int ierr=NC_NOERR;
+		 int ncid;
+		 if ((cdms_classic==0) && (cdms_shuffle==0) &&
+				 (cdms_deflate == 0 ) && (cdms_use_parallel == 1) ) {
+				 	 ncmode = ncmode | NC_MPIIO;
+		 }
+
+		 if( cdms_use_parallel == 1 ) {
+
+			 ierr = nc_open_par(controlpath,ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&ncid);
+		 }
+		 if( (cdms_use_parallel == 0) || (ierr != NC_NOERR ) ) {
+			 ierr = nc_open(controlpath,ncmode,&ncid);
+		 }
+		 return ncid;/* ok it failed opening in regular netcdf*/
 #else
-      return ncopen(controlpath,mode);
+		 return ncopen(controlpath, ncmode);
 #endif
-    }
-	else{
-		if (mode==NC_WRITE){
-			ncerr = 5;	     /* Write to read-only file */
-			Cdunif_seterror();
-			return -1;
-		}
-		return cuopenread(controlpath,NULL);
-	}
+	 }
+	 else{
+		 if (ncmode==NC_WRITE){
+			 ncerr = 5;	     /* Write to read-only file */
+			 Cdunif_seterror();
+			 return -1;
+		 }
+		 return cuopenread(controlpath,NULL);
+	 }
 }
 static int cdredef(PyCdunifFileObject *file){
 	if (file->filetype==CuNetcdf) {
@@ -1104,12 +1119,26 @@ int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *stri
     ret = nc_put_att_text(fileid, varid, name, len, string);
   return ret;
 }
-
 static int
 set_attribute(int fileid, int varid, PyObject *attributes,
 	      char *name, PyObject *value)
 {
   if (value==Py_None) {
+    return 0;
+  }
+  /* Delete attribute */
+  if (value==NULL) {
+    int ret;
+    Py_BEGIN_ALLOW_THREADS;
+    acquire_Cdunif_lock();
+    ret = nc_del_att(fileid, varid, name);
+    release_Cdunif_lock();
+    Py_END_ALLOW_THREADS;
+    if (ret != NC_NOERR) {
+      cdunif_signalerror(ret);
+      return -1;
+    }
+    PyDict_DelItemString(attributes, name);
     return 0;
   }
   if (PyString_Check(value)) {
@@ -1135,6 +1164,10 @@ set_attribute(int fileid, int varid, PyObject *attributes,
     if (array != NULL) {
       int len = (array->nd == 0) ? 1 : array->dimensions[0];
       int type = cdunif_type_from_code(array->descr->type);
+      if (type == 0) {
+        /* 0 means probably going to freak out netcdf */
+        fprintf(stderr,"Attribute %s has a bad type for NetCDF. We will not attempt to write it\n");
+      }
       if (data_types[type] != array->descr->type_num) {
 	PyArrayObject *array2 = (PyArrayObject *)
 	  PyArray_Cast(array, data_types[type]);
@@ -1242,10 +1275,11 @@ int cdms2_nccreate(char *filename, int ncmode) {
     ncmode = ncmode | NC_CLASSIC_MODEL;
   }
 #ifdef PARALLEL
-    nc_set_log_level(3);
-    int ierrnc;
+    nc_set_log_level(0);
+    int ierrnc, old;
     if (nc_flag_on(ncmode,NC_MPIIO)) {
       ierrnc = nc_create_par(filename, ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&selfncid);
+      ierrnc = nc_set_fill(selfncid, NC_NOFILL, &old);
     }
     else {
       selfncid = nccreate(filename, ncmode);

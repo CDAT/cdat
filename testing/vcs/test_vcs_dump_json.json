@@ -43,7 +43,10 @@
    "ext_1": false, 
    "ext_2": false, 
    "fillareacolors": null, 
-   "fillareaindices": null, 
+   "fillareaindices": [
+    1
+   ], 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "level_1": 1e+20, 
@@ -121,6 +124,7 @@
     1
    ], 
    "fillareaindices": null, 
+   "fillareaopacity": [], 
    "fillareastyle": "solid", 
    "legend": null, 
    "levels": [
@@ -576,26 +580,6 @@
  }, 
  "Proj": {
   "Charles.Doutriaux": {
-   "parameters": [
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20, 
-    1e+20
-   ], 
-   "type": "linear"
-  }, 
-  "linear": {
    "parameters": [
     1e+20, 
     1e+20, 

@@ -4,15 +4,13 @@ import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
-import checkimage
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
 
-x.setbgoutputdimensions(1200,1091,units="pixels")
+import testing.regression as regression
+
+x = regression.init()
 yx =x.createyxvsx()
 
-data = """-11.14902417  -9.17390922  -7.29515002  
+data = """-11.14902417  -9.17390922  -7.29515002
 -7.51774549  -8.63608171
   -10.4827395   -9.93859485  -7.3394366   -5.39241468  -5.74825567
      -6.74967902  -7.09622319  -5.93836983  -4.04592997  -2.65591499
@@ -30,14 +28,9 @@ data = numpy.array(data,dtype=numpy.float)
 data = MV2.array(data)
 yx.datawc_x1 = 0
 yx.datawc_x2 = 80
-yx.datawc_y1 =-12 
-yx.datawc_y2 = 12 
+yx.datawc_y1 =-12
+yx.datawc_y2 = 12
 
 
 x.plot(data,yx,bg=1)
-fnm = "test_vcs_1D_datawc.png"
-x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, "test_vcs_1D_datawc.png", src)

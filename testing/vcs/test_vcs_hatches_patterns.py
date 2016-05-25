@@ -1,17 +1,6 @@
-import os
-import sys
-import vcs
+import os, sys, vcs, testing.regression as regression
 
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
-
-baselineImage = sys.argv[1]
-
-# Initialize the graphics canvas
-x = vcs.init()
-x.setantialiasing(0)
-x.setbgoutputdimensions(1200, 1091, units="pixels")
+x = regression.init()
 
 # Create a test plot for listing all the hatches and patterns
 style_list = []
@@ -77,11 +66,4 @@ plot_title.y = [.9]
 x.plot(plot_title, bg=1)
 x.plot(fill_test, bg=1)
 x.plot(fill_info, bg=1)
-
-testImage = os.path.abspath("test_vcs_hatches_patterns.png")
-x.png(testImage)
-
-ret = checkimage.check_result_image(testImage, baselineImage,
-                                    checkimage.defaultThreshold)
-
-sys.exit(ret)
+regression.run(x, "test_vcs_hatches_patterns.png")

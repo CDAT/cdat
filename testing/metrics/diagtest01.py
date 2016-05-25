@@ -13,7 +13,7 @@ from metrics.fileio.findfiles import *
 from metrics.computation.reductions import *
 from metrics.packages.amwg import *
 from metrics.packages.amwg.derivations.vertical import *
-from metrics.packages.amwg.plot_data import plotspec, derived_var
+#from metrics.packages.amwg.plot_data import plotspec, derived_var
 from metrics.packages.amwg.derivations import *
 from metrics.packages.diagnostic_groups import *
 from metrics.frontend.uvcdat import *
@@ -58,7 +58,7 @@ varid = 'T'
 vard = package.all_variables( filetable1, filetable2, sname )
 var = vard[varid]
 
-plot = sclass( [filetable1], [filetable2], varid, seasonid )
+plot = sclass( [filetable1], [filetable2], varid, seasonid, plotparms = { 'model':{}, 'obs':{}, 'diff':{} } )
 res = plot.compute()
 if res is not None:
     if res.__class__.__name__ is 'uvc_composite_plotspec':

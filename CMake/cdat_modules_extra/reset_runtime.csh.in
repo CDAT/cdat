@@ -1,0 +1,24 @@
+# First of all reset variables
+foreach v ( PATH LD_LIBRARY_PATH DYLD_LIBRARY_PATH PYTHONPATH prompt )
+    set tmp="UVCDAT_ORIGINAL_"${v}
+    if ( `eval echo \$\?$tmp` ) then
+        echo ${v}" env variable reset"
+        set vv=`eval echo \$$tmp`
+        setenv ${v} ${vv}
+        unsetenv ${tmp}
+    endif
+end
+
+# Now variables for which we may have changed value or created
+foreach v ( OPAL_PREFIX LIBOVERLAY_SCROLLBAR )
+    set tmp="UVCDAT_ORIGINAL_"${v}
+    if ( `eval echo \$\?$tmp` ) then
+        echo ${v}" env variable reset"
+        set vv=`eval echo \$$tmp`
+        setenv ${v} ${vv}
+    else
+        unsetenv ${tmp}
+    endif
+end
+unsetenv UVCDAT_PROMPT_STRING
+unsetenv UVCDAT_SETUP_PATH

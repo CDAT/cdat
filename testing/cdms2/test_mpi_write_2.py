@@ -1,9 +1,9 @@
 import cdms2
 import numpy
-import mpi4py
+import time
 
-sz = mpi4py.MPI.COMM_WORLD.Get_size()
-rk = mpi4py.MPI.COMM_WORLD.Get_rank()
+# All flags are set to OFF for parallel writing
+# ----------------------------------------------
 
 # All flags are set to OFF for parallel writing
 # ----------------------------------------------
@@ -12,6 +12,9 @@ cdms2.setNetcdfClassicFlag(0)
 cdms2.setNetcdfShuffleFlag(0)
 cdms2.setNetcdfDeflateFlag(0)
 cdms2.setNetcdfDeflateLevelFlag(0)
+cdms2.setNetcdfUseParallelFlag(1)
+sz = cdms2.getMpiSize()
+rk = cdms2.getMpiRank()
 
 # Create a 2D array
 # -----------------
