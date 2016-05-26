@@ -543,7 +543,8 @@ class Gv(object):
         if value in self.scaleoptions:
             self._scaletype = value
         else:
-            raise ValueError('Invalid value '+ value + ' expected ' + self.scaleoptions)
+            VCS_validation_functions.checkedRaise(self, value, ValueError,
+                'Invalid value '+ value + '. Valid options are: ' + ','.join(self.scaleoptions))
     scaletype = property(_getscaletype, _setscaletype)
 
     def _getscalerange(self):
