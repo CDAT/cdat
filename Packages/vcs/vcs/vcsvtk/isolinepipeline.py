@@ -144,7 +144,6 @@ class IsolinePipeline(Pipeline2D):
 
             for n in range(numLevels):
                 cot.SetValue(n, l[n])
-            cot.SetValue(numLevels, l[-1])
             # TODO remove update
             cot.Update()
 
