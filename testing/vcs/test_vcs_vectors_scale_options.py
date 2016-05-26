@@ -56,4 +56,4 @@ canvas.png(outFilename)
 ret += regression.check_result_image(outFilename, sys.argv[5])
 canvas.clear()
 
-sys.ecanvasit(ret)
+sys.exit(ret)
