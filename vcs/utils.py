@@ -1629,7 +1629,7 @@ def getgraphicsmethod(type, name):
     return copy_mthd
 
 
-def creategraphicsmethod(gtype, name):
+def creategraphicsmethod(gtype, gname='default', name=None):
     if gtype in ['isoline', 'Gi']:
         func = vcs.createisoline
     elif gtype in ['isofill', 'Gfi']:
@@ -1652,11 +1652,17 @@ def creategraphicsmethod(gtype, name):
         func = vcs.createvector
     elif gtype in ['taylordiagram', 'Gtd']:
         func = vcs.createtaylordiagram
-    elif isinstance(type, vcsaddons.core.VCSaddon):
-        func = type.creategm
+    elif gtype == '3d_scalar':
+        func = vcs.create3d_scalar
+    elif gtype == '3d_dual_scalar':
+        func = vcs.create3d_dual_scalar
+    elif gtype == '3d_vector':
+        func = vcs.create3d_vector
+    elif isinstance(gtype, vcsaddons.core.VCSaddon):
+        func = gtype.creategm
     else:
         return None
-    copy_mthd = func(source=name)
+    copy_mthd = func(name=name, source=gname)
     return copy_mthd
 
 
