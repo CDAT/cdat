@@ -243,6 +243,18 @@ def checkListOfNumbers(self, name, value, minvalue=None,
     return list(value)
 
 
+def checkValidOption(self, name, value, options):
+    checkName(self, name, value)
+    if value not in options:
+        VCS_validation_functions.checkedRaise(
+            self,
+            value,
+            ValueError,
+            'Invalid value '+ value + '. Valid options are: ' +
+            ','.join(self.scaleoptions))
+    return value
+
+
 def checkFont(self, name, value):
     if (value is None):
         pass
