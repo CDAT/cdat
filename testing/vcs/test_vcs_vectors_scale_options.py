@@ -28,13 +28,6 @@ v = data['v']
 u = data['u']
 gv.scale = 1.0
 
-gv.scaletype = 'normalize'
-canvas.plot(u, v, gv)
-outFilename = 'test_vcs_vector_scale_options_normalize.png'
-canvas.png(outFilename)
-ret += regression.check_result_image(outFilename, sys.argv[2])
-canvas.clear()
-
 gv.scaletype = 'linear'
 canvas.plot(u, v, gv)
 outFilename = 'test_vcs_vector_scale_options_linear.png'
@@ -42,9 +35,9 @@ canvas.png(outFilename)
 ret += regression.check_result_image(outFilename, sys.argv[3])
 canvas.clear()
 
-gv.scaletype = 'constantNNormalize'
+gv.scaletype = 'normalize'
 canvas.plot(u, v, gv)
-outFilename = 'test_vcs_vector_scale_options_constantNNormalize.png'
+outFilename = 'test_vcs_vector_scale_options_normalize.png'
 canvas.png(outFilename)
 ret += regression.check_result_image(outFilename, sys.argv[4])
 canvas.clear()
@@ -54,6 +47,13 @@ canvas.plot(u, v, gv)
 outFilename = 'test_vcs_vector_scale_options_constantNLinear.png'
 canvas.png(outFilename)
 ret += regression.check_result_image(outFilename, sys.argv[5])
+canvas.clear()
+
+gv.scaletype = 'constantNNormalize'
+canvas.plot(u, v, gv)
+outFilename = 'test_vcs_vector_scale_options_constantNNormalize.png'
+canvas.png(outFilename)
+ret += regression.check_result_image(outFilename, sys.argv[6])
 canvas.clear()
 
 sys.exit(ret)
