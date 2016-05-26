@@ -115,18 +115,7 @@ class VectorPipeline(Pipeline2D):
            self._gm.scaletype == 'constantNNormalize' or self._gm.scaletype == 'constantNLinear':
 
             # Find the min and max vector magnitudes
-            minNorm = None
-            maxNorm = None
-
-            noOfComponents = vectors.GetNumberOfComponents()
-
-            for i in range(0, vectors.GetNumberOfTuples()):
-                norm = vtk.vtkMath.Norm(vectors.GetTuple(i), noOfComponents)
-
-                if (minNorm is None or norm < minNorm):
-                    minNorm = norm
-                if (maxNorm is None or norm > maxNorm):
-                    maxNorm = norm
+            maxNorm = vectors.GetMaxNorm()
 
             if maxNorm == 0:
                 maxNorm = 1.0
@@ -135,6 +124,21 @@ class VectorPipeline(Pipeline2D):
                 scaleFactor /= maxNorm
 
             if self._gm.scaletype == 'linear' or self._gm.scaletype == 'constantNLinear':
+                minNorm = None
+                maxNorm = None
+
+                noOfComponents = vectors.GetNumberOfComponents()
+                for i in range(0, vectors.GetNumberOfTuples()):
+                    norm = vtk.vtkMath.Norm(vectors.GetTuple(i), noOfComponents)
+
+                    if (minNorm is None or norm < minNorm):
+                        minNorm = norm
+                    if (maxNorm is None or norm > maxNorm):
+                        maxNorm = norm
+
+                if maxNorm == 0:
+                    maxNorm = 1.0
+
                 scalarArray = vtk.vtkDoubleArray()
                 scalarArray.SetNumberOfComponents(1)
                 scalarArray.SetNumberOfValues(vectors.GetNumberOfTuples())
