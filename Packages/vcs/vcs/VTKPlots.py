@@ -1064,7 +1064,7 @@ class VTKVCSBackend(object):
         return plot
 
     def vectorGraphics(
-            self, output_type, file, width=None, height=None, units=None):
+            self, output_type, file, width=None, height=None, units=None, textAsObject=True):
         if self.renWin is None:
             raise Exception("Nothing on Canvas to dump to file")
 
@@ -1095,7 +1095,11 @@ class VTKVCSBackend(object):
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
-        gl.TextAsPathOn()
+
+        if textAsObject:
+            gl.TextAsPathOff()
+        else:
+            gl.TextAsPathOn()
         if output_type == "svg":
             gl.SetFileFormatToSVG()
         elif output_type == "ps":
@@ -1112,14 +1116,17 @@ class VTKVCSBackend(object):
         self.showGUI()
 
     def postscript(self, file, width=None, height=None,
-                   units=None):
-        return self.vectorGraphics("ps", file, width, height, units)
+                   units=None, textAsObject=True):
+        return self.vectorGraphics("ps", file, width, height,
+                                    units, textAsObject)
 
-    def pdf(self, file, width=None, height=None, units=None):
-        return self.vectorGraphics("pdf", file, width, height, units)
+    def pdf(self, file, width=None, height=None, units=None, textAsObject=True):
+        return self.vectorGraphics("pdf", file, width, height,
+                                    units, textAsObject)
 
-    def svg(self, file, width=None, height=None, units=None):
-        return self.vectorGraphics("svg", file, width, height, units)
+    def svg(self, file, width=None, height=None, units=None, textAsObject=True):
+        return self.vectorGraphics("svg", file, width,
+                                    height, units, textAsObject)
 
     def gif(self, filename='noname.gif', merge='r', orientation=None,
             geometry='1600x1200'):
