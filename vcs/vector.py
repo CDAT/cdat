@@ -535,13 +535,14 @@ class Gv(object):
         self._alignment = value
     alignment = property(_getalignment, _setalignment)
 
-
     def _getscaletype(self):
         return self._scaletype
 
     def _setscaletype(self, value):
-        value = VCS_validation_functions.checkValidOption(self, 'scaletype',
-                    value, self.scaleoptions)
+        value = VCS_validation_functions.checkValidOption(self,
+                                                          'scaletype',
+                                                          value,
+                                                          self.scaleoptions)
         self._scaletype = value
     scaletype = property(_getscaletype, _setscaletype)
 
@@ -549,11 +550,14 @@ class Gv(object):
         return self._scalerange
 
     def _setscalerange(self, value):
-        value = VCS_validation_functions.checkListOfNumbers(self, 'scalerange',
-                    value, minvalue=0.0, minelements=2, maxelements=2)
+        value = VCS_validation_functions.checkListOfNumbers(self,
+                                                            'scalerange',
+                                                            value,
+                                                            minvalue=0.0,
+                                                            minelements=2,
+                                                            maxelements=2)
         self._scalerange = value
     scalerange = property(_getscalerange, _setscalerange)
-
 
     def __init__(self, Gv_name, Gv_name_src='default'):
                 #                                                         #

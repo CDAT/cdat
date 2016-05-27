@@ -86,11 +86,8 @@ class VectorPipeline(Pipeline2D):
         arrow.SetOutputPointsPrecision(vtk.vtkAlgorithm.DOUBLE_PRECISION)
         arrow.FilledOff()
 
-
         polydata = self._vtkPolyDataFilter.GetOutput()
         vectors = polydata.GetPointData().GetVectors()
-        vectorsRangeX = vectors.GetRange(0)
-        vectorsRangeY = vectors.GetRange(1)
 
         if self._gm.scaletype == 'constant' or\
            self._gm.scaletype == 'constantNNormalize' or\
