@@ -993,21 +993,16 @@ def mklabels(vals, output='dict'):
         amax = float(numpy.ma.maximum(vals))
     #  Number of digit on the left of decimal point
     idigleft = int(numpy.ma.floor(numpy.ma.log10(amax))) + 1
+
     # Now determine the number of significant figures
     idig = 0
     for i in range(nvals):
         aa = numpy.ma.power(10., -idigleft)
         while abs(round(aa * vals[i]) - aa * vals[i]) > .000001:
             aa = aa * 10.
-        idig = numpy.ma.maximum(
-            idig,
-            numpy.ma.floor(
-                numpy.ma.log10(
-                    aa *
-                    numpy.ma.power(
-                        10.,
-                        idigleft))))
+        idig = numpy.ma.maximum(idig, numpy.ma.floor(numpy.ma.log10(aa * numpy.ma.power(10., idigleft))))
     idig = int(idig)
+
     # Now does the writing part
     lbls = []
     # First if we need an E format
@@ -1634,7 +1629,7 @@ def getgraphicsmethod(type, name):
     return copy_mthd
 
 
-def creategraphicsmethod(gtype, name):
+def creategraphicsmethod(gtype, gname='default', name=None):
     import vcsaddons
     if gtype in ['isoline', 'Gi']:
         func = vcs.createisoline
@@ -1658,11 +1653,17 @@ def creategraphicsmethod(gtype, name):
         func = vcs.createvector
     elif gtype in ['taylordiagram', 'Gtd']:
         func = vcs.createtaylordiagram
-    elif isinstance(type, vcsaddons.core.VCSaddon):
-        func = type.creategm
+    elif gtype == '3d_scalar':
+        func = vcs.create3d_scalar
+    elif gtype == '3d_dual_scalar':
+        func = vcs.create3d_dual_scalar
+    elif gtype == '3d_vector':
+        func = vcs.create3d_vector
+    elif isinstance(gtype, vcsaddons.core.VCSaddon):
+        func = gtype.creategm
     else:
         return None
-    copy_mthd = func(source=name)
+    copy_mthd = func(name=name, source=gname)
     return copy_mthd
 
 

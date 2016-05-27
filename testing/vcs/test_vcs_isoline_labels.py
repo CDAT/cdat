@@ -1,20 +1,8 @@
-import vcs,cdms2,sys,os
-
-# ('/path/to/filename', '.extension')
-baseline = os.path.splitext(sys.argv[1])
-
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import os, sys, cdms2, vcs, testing.regression as regression
 
 dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")
-
-canvas = vcs.init()
-canvas.setantialiasing(0)
-canvas.setbgoutputdimensions(1200, 1091, units="pixels")
-canvas.drawlogooff()
-
+canvas = regression.init()
 isoline = canvas.createisoline()
 isoline.label="y"
 texts=[]
@@ -33,24 +21,17 @@ isoline.text = texts
 # First test using isoline.text[...].color
 canvas.plot(data, isoline, bg=1)
 
+baseline = os.path.splitext(sys.argv[1])
 baselineImage = "%s%s"%baseline
-testImage = os.path.abspath("test_isoline_labels.png")
-canvas.png(testImage)
-
-ret = checkimage.check_result_image(testImage, baselineImage,
-                                    checkimage.defaultThreshold)
+ret = regression.run_wo_terminate(canvas, "test_isoline_labels.png", baselineImage)
 
 # Now set isoline.linecolors and test again.
 canvas.clear()
 isoline.linecolors = colors
 canvas.plot(data, isoline, bg=1)
-
 baselineImage = "%s%d%s"%(baseline[0], 2, baseline[1])
 testImage = os.path.abspath("test_isoline_labels2.png")
-canvas.png(testImage)
-
-ret += checkimage.check_result_image(testImage, baselineImage,
-                                     checkimage.defaultThreshold)
+ret += regression.run_wo_terminate(canvas, testImage, baselineImage)
 
 # Now set isoline.textcolors and test again.
 canvas.clear()
@@ -59,9 +40,6 @@ canvas.plot(data, isoline, bg=1)
 
 baselineImage = "%s%d%s"%(baseline[0], 3, baseline[1])
 testImage = os.path.abspath("test_isoline_labels3.png")
-canvas.png(testImage)
-
-ret += checkimage.check_result_image(testImage, baselineImage,
-                                     checkimage.defaultThreshold)
+ret += regression.run_wo_terminate(canvas, testImage, baselineImage)
 
 sys.exit(ret)

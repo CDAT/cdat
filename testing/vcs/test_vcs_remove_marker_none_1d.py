@@ -3,31 +3,13 @@
 #
 # J-Y Peterschmitt - LSCE - 03/2015
 
-import vcs,numpy,cdms2,MV2,os,sys
-src=sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import vcs, numpy, cdms2, MV2, os, sys, testing.regression as regression
 
 dummy_data = numpy.arange(50, dtype=numpy.float32)
-
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
-
+x = regression.init()
 gm = x.createyxvsx('test_yxvsx')
 
-
-# Remove the marker
 gm.marker = None
-
 x.plot(gm, dummy_data,bg=1)
-
 fnm = "test_remove_marker_none_1d.png"
-x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
-sys.exit(ret)
-# The end
+regression.run(x, fnm)

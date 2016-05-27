@@ -496,14 +496,6 @@ class AbstractRectGrid(AbstractGrid):
         else:
             latbnds = lat.genGenericBounds()
 
-        # Stretch latitude bounds to +/- 90.0
-        if ascending:
-            latbnds[0,0] = min(latbnds[0,0],-90.0)
-            latbnds[-1,1] = max(latbnds[-1,1],90.0)
-        else:
-            latbnds[0,0] = max(latbnds[0,0],+90.0)
-            latbnds[-1,1] = min(latbnds[-1,1],-90.0)
-
         # Get longitude bounds
         lon = self.getLongitude()
         if len(lon)>1:

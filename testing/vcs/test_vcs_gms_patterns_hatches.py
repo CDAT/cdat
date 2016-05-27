@@ -1,14 +1,4 @@
-# Test the use of patterns/hatches for plots
-
-import argparse
-import cdms2
-import os
-import sys
-import vcs
-
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage  # noqa
+import argparse, os, sys, cdms2, vcs, testing.regression as regression
 
 p = argparse.ArgumentParser(description="Patterns/hatches testing code for vcs gms")
 p.add_argument("--source", dest="src", help="source image file")
@@ -22,7 +12,7 @@ p.add_argument("--lat2", dest="lat2", default=90, type=float, help="Last latitud
 p.add_argument("--lon1", dest="lon1", default=-180, type=float, help="First Longitude")
 p.add_argument("--lon2", dest="lon2", default=180, type=float, help="Last Longitude")
 p.add_argument("--keep", dest="keep", action="store_true", help="Save image, even if baseline matches.")
-p.add_argument("--threshold", dest="threshold", type=int, default=checkimage.defaultThreshold,
+p.add_argument("--threshold", dest="threshold", type=int, default=regression.defaultThreshold,
         help="Default threshold")
 p.add_argument("--non-contiguous", dest="contig", default=True, action="store_false", help="use non contiguous levels")
 
@@ -98,7 +88,7 @@ fnm += nm_xtra
 x.png(fnm)
 print "fnm:", fnm
 print "src:", src
-ret = checkimage.check_result_image(fnm+'.png', src,
+ret = regression.check_result_image(fnm+'.png', src,
                                     args.threshold,
                                     cleanup=not args.keep)
 if args.show:
