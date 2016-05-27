@@ -13,44 +13,19 @@ class IsofillPipeline(Pipeline2D):
 
     def __init__(self, gm, context_):
         super(IsofillPipeline, self).__init__(gm, context_)
-
-    def _updateVTKDataSet(self):
-        """Overrides baseclass implementation."""
-        # Force point data for isoline/isofill
-        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm,
-                                              deep=False,
-                                              grid=self._vtkDataSet,
-                                              geo=self._vtkGeoTransform)
-        genGridDict["cellData"] = False
-        self._data1 = genGridDict["data"]
-        self._updateFromGenGridDict(genGridDict)
+        self._needsCellData = False
 
     def _updateContourLevelsAndColors(self):
         self._updateContourLevelsAndColorsGeneric()
 
-    def _createPolyDataFilter(self):
-        """Overrides baseclass implementation."""
-        self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
-        if self._useCellScalars:
-            # Sets data to point instead of just cells
-            c2p = vtk.vtkCellDataToPointData()
-            c2p.SetInputData(self._vtkDataSet)
-            c2p.Update()
-            # For contouring duplicate points seem to confuse it
-            self._vtkPolyDataFilter.SetInputConnection(c2p.GetOutputPort())
-        else:
-            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
-        self._vtkPolyDataFilter.Update()
-        self._resultDict["vtk_backend_filter"] = self._vtkPolyDataFilter
-
     def _plotInternal(self):
         """Overrides baseclass implementation."""
 
-        prepedContours = self._prepContours()
-        tmpLevels = prepedContours["tmpLevels"]
-        tmpIndices = prepedContours["tmpIndices"]
-        tmpColors = prepedContours["tmpColors"]
-        tmpOpacities = prepedContours["tmpOpacities"]
+        preppedCountours = self._prepContours()
+        tmpLevels = preppedCountours["tmpLevels"]
+        tmpIndices = preppedCountours["tmpIndices"]
+        tmpColors = preppedCountours["tmpColors"]
+        tmpOpacities = preppedCountours["tmpOpacities"]
         style = self._gm.fillareastyle
 
         luts = []
@@ -183,8 +158,6 @@ class IsofillPipeline(Pipeline2D):
                 geo=self._vtkGeoTransform,
                 priority=self._template.data.priority,
                 create_renderer=(dataset_renderer is None))
-        self._resultDict['dataset_renderer'] = dataset_renderer
-        self._resultDict['dataset_scale'] = (xScale, yScale)
         for act in patternActors:
             self._context().fitToViewport(
                 act, vp,
@@ -251,4 +224,3 @@ class IsofillPipeline(Pipeline2D):
                 vp, self._template.data.priority,
                 vtk_backend_grid=self._vtkDataSet,
                 dataset_bounds=self._vtkDataSetBounds)
-            self._resultDict['continents_renderer'] = continents_renderer

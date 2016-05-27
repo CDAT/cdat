@@ -24,6 +24,7 @@ import vcs
 import cdtime
 import VCS_validation_functions
 import xmldocs
+import numpy
 import warnings
 
 
@@ -733,6 +734,76 @@ class Gfb(object):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
     xyscale.__doc__ = xmldocs.xyscaledoc
+
+    def getlevels(self, varmin, varmax):
+        if self.boxfill_type == "custom":
+            return self.levels
+
+        nlev = float(self.color_2 - self.color_1 + 1)
+        autolevels = False
+
+        if numpy.allclose(self.level_1, 1.e20) or numpy.allclose(self.level_2, 1.e20):
+            autolevels = True
+            low_end = varmin
+            high_end = varmax
+        else:
+            low_end = self.level_1
+            high_end = self.level_2
+
+        if self.boxfill_type == "log10":
+            low_end = numpy.ma.log10(low_end)
+            high_end = numpy.ma.log10(high_end)
+
+        if autolevels:
+            # Use nice values for the scale
+            scale = vcs.mkscale(low_end, high_end)
+            low_end = scale[0]
+            high_end = scale[-1]
+
+        dx = (high_end - low_end) / nlev
+
+        if dx == 0:
+            high_end += .00001
+            return [low_end, high_end]
+        float_epsilon = numpy.finfo(numpy.float32).eps
+        contourLevels = numpy.arange(low_end, high_end + float_epsilon, dx)
+
+        return contourLevels
+
+    def getlegendlabels(self, levels):
+        if self.legend:
+            return self.legend
+
+        if numpy.allclose(self.level_1, 1.e20) or numpy.allclose(self.level_2, 1.e20):
+            autolevels = True
+        else:
+            autolevels = False
+
+        if len(levels) > 12:
+            scale = vcs.mkscale(levels[0], levels[-1])
+            if autolevels:
+                return vcs.mklabels(scale)
+            else:
+                # Create our own scale
+                dx = (self.level_2 - self.level_1) / float(len(scale) - 1)
+                real_values = [self.level_1, self.level_2]
+                float_epsilon = numpy.finfo(numpy.float32).eps
+                levels = numpy.arange(levels[0], levels[-1] + float_epsilon, dx)
+        else:
+            real_values = levels
+
+        # Need to line up the levels and the labels, so we'll massage the label positions
+        max_round = 0
+        for l in real_values:
+            round_pos = 0
+            while numpy.round(l, round_pos) != l:
+                round_pos += 1
+            max_round = max(max_round, round_pos)
+
+        round_values = [numpy.round(l, round_pos) for l in levels]
+        round_labels = vcs.mklabels(round_values, "list")
+
+        return {lev: label for lev, label in zip(levels, round_labels)}
 
     ###########################################################################
     #                                                                         #
