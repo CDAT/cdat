@@ -243,7 +243,7 @@ def checkListOfNumbers(self, name, value, minvalue=None,
     return list(value)
 
 
-def checkValidOption(self, name, value, options):
+def checkInStringList(self, name, value, options):
     checkName(self, name, value)
     if value not in options:
         self.checkedRaise(
