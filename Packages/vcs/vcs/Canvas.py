@@ -4913,6 +4913,7 @@ Options:::
             H = tmp
         return W, H
 
+
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches', textAsPaths=True):
         """
@@ -5330,8 +5331,7 @@ Options:::
     #                                                                        #
     ##########################################################################
     def eps(self, file, mode='r', orientation=None, width=None, height=None,
-            units='inches', left_margin=None, right_margin=None, top_margin=None,
-            bottom_margin=None, textAsPaths=True):
+            units='inches', textAsPaths=True):
         """
         Function: Encapsulated PostScript
 
@@ -5369,11 +5369,8 @@ Options:::
             width,
             height,
             units,
-            left_margin,
-            right_margin,
-            top_margin,
-            bottom_margin,
             textAsPaths)
+
         os.popen("ps2epsi %s %s" % (tmpfile, file)).readlines()
         os.remove(tmpfile)
 
