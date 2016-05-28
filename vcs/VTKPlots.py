@@ -1138,15 +1138,15 @@ class VTKVCSBackend(object):
     def postscript(self, file, width=None, height=None,
                    units=None, textAsPaths=True):
         return self.vectorGraphics("ps", file, width, height,
-                                    units, textAsPaths)
+                                   units, textAsPaths)
 
     def pdf(self, file, width=None, height=None, units=None, textAsPaths=True):
         return self.vectorGraphics("pdf", file, width, height,
-                                    units, textAsPaths)
+                                   units, textAsPaths)
 
     def svg(self, file, width=None, height=None, units=None, textAsPaths=True):
         return self.vectorGraphics("svg", file, width,
-                                    height, units, textAsPaths)
+                                   height, units, textAsPaths)
 
     def gif(self, filename='noname.gif', merge='r', orientation=None,
             geometry='1600x1200'):
