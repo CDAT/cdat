@@ -11,31 +11,31 @@ txt.height = 10
 x.plot(txt)
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.ps', \
-              prefix='tmpTextAsObjectFalse', delete=True)
-x.postscript(tmpfile.name, textAsObject=False)
+              prefix='textAsPathsFalse', delete=True)
+x.postscript(tmpfile.name, textAsPaths=False)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.ps', \
-              prefix='tmpTextAsObjectTrue', delete=True)
-x.postscript(tmpfile.name, textAsObject=True)
+              prefix='textAsPathsTrue', delete=True)
+x.postscript(tmpfile.name, textAsPaths=True)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.pdf', \
-              prefix='tmpTextAsObjectFalse', delete=True)
-x.pdf(tmpfile.name, textAsObject=False)
+              prefix='textAsPathsFalse', delete=True)
+x.pdf(tmpfile.name, textAsPaths=False)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.pdf', \
-              prefix='tmpTextAsObjectTrue', delete=True )
-x.pdf(tmpfile.name, textAsObject=True)
+              prefix='textAsPathsTrue', delete=True )
+x.pdf(tmpfile.name, textAsPaths=True)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.svg', \
-              prefix='tmpTextAsObjectFalse', delete=True)
-x.pdf(tmpfile.name, textAsObject=False)
+              prefix='textAsPathsFalse', delete=True)
+x.pdf(tmpfile.name, textAsPaths=False)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.svg', \
-              prefix='tmpTextAsObjectTrue', delete=True)
-x.pdf(tmpfile.name, textAsObject=True)
+              prefix='textAsPathsTrue', delete=True)
+x.pdf(tmpfile.name, textAsPaths=True)
 tmpfile.close()

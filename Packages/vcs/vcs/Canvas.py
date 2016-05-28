@@ -4681,7 +4681,8 @@ Options:::
     # pdf wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def pdf(self, file, width=None, height=None, units='inches', textAsObject=True):
+    def pdf(self, file, width=None, height=None, units='inches',
+            textAsPaths=True):
         """
  Function: postscript
 
@@ -4705,14 +4706,15 @@ Options:::
 
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
-        return self.backend.pdf(file, W, H, textAsObject)
+        return self.backend.pdf(file, W, H, textAsPaths)
     ##########################################################################
     #                                                                        #
     # SVG wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
 
-    def svg(self, file, width=None, height=None, units='inches', textAsObject=True):
+    def svg(self, file, width=None, height=None, units='inches',
+            textAsPaths=True):
         """
  Function: postscript
 
@@ -4736,7 +4738,7 @@ Options:::
 
         if not file.split('.')[-1].lower() in ['svg']:
             file += '.svg'
-        return self.backend.svg(file, W, H, textAsObject)
+        return self.backend.svg(file, W, H, textAsPaths)
 
     def _compute_margins(
             self, W, H, top_margin, bottom_margin, right_margin, left_margin, dpi):
@@ -4912,7 +4914,7 @@ Options:::
         return W, H
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', textAsObject=True):
+                   units='inches', textAsPaths=True):
         """
  Function: postscript
 
@@ -4951,7 +4953,7 @@ Options:::
         if not file.split('.')[-1].lower() in ['ps', 'eps']:
             file += '.ps'
         if mode == 'r':
-            return self.backend.postscript(file, W, H, units="pixels", textAsObject=textAsObject)
+            return self.backend.postscript(file, W, H, units="pixels", textAsPaths=textAsPaths)
         else:
             n = random.randint(0, 10000000000000)
             psnm = '/tmp/' + '__VCS__tmp__' + str(n) + '.ps'
@@ -5327,8 +5329,9 @@ Options:::
     # Screen Encapsulated PostScript wrapper for VCS.                        #
     #                                                                        #
     ##########################################################################
-    def eps(self, file, mode='r', orientation=None, width=None, height=None, units='inches',
-            left_margin=None, right_margin=None, top_margin=None, bottom_margin=None):
+    def eps(self, file, mode='r', orientation=None, width=None, height=None,
+            units='inches', left_margin=None, right_margin=None, top_margin=None,
+            bottom_margin=None, textAsPaths=True):
         """
         Function: Encapsulated PostScript
 
@@ -5369,7 +5372,8 @@ Options:::
             left_margin,
             right_margin,
             top_margin,
-            bottom_margin)
+            bottom_margin,
+            textAsPaths)
         os.popen("ps2epsi %s %s" % (tmpfile, file)).readlines()
         os.remove(tmpfile)
 
