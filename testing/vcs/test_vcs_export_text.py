@@ -23,7 +23,7 @@ tmpfile.close()
 tmpfile = tempfile.NamedTemporaryFile(suffix='.pdf', \
               prefix='textAsPathsFalse', delete=True)
 x.pdf(tmpfile.name, textAsPaths=False)
-tmpfile.close()
+# tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.pdf', \
               prefix='textAsPathsTrue', delete=True )
@@ -32,10 +32,20 @@ tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.svg', \
               prefix='textAsPathsFalse', delete=True)
-x.pdf(tmpfile.name, textAsPaths=False)
+x.svg(tmpfile.name, textAsPaths=False)
 tmpfile.close()
 
 tmpfile = tempfile.NamedTemporaryFile(suffix='.svg', \
               prefix='textAsPathsTrue', delete=True)
-x.pdf(tmpfile.name, textAsPaths=True)
+x.svg(tmpfile.name, textAsPaths=True)
+tmpfile.close()
+
+tmpfile = tempfile.NamedTemporaryFile(suffix='.eps', \
+              prefix='textAsPathsFalse', delete=True)
+x.eps(tmpfile.name, textAsPaths=False)
+tmpfile.close()
+
+tmpfile = tempfile.NamedTemporaryFile(suffix='.eps', \
+              prefix='textAsPathsTrue', delete=True)
+x.eps(tmpfile.name, textAsPaths=True)
 tmpfile.close()
