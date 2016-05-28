@@ -1,6 +1,6 @@
 {
  "G1d": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "colormap": null, 
    "datawc_calendar": 135441, 
    "datawc_timeunits": "days since 2000", 
@@ -29,7 +29,7 @@
   }
  }, 
  "Gfb": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "boxfill_type": "linear", 
    "color_1": 16, 
    "color_2": 239, 
@@ -70,7 +70,7 @@
   }
  }, 
  "Gfi": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "colormap": null, 
    "datawc_calendar": 135441, 
    "datawc_timeunits": "days since 2000", 
@@ -110,7 +110,7 @@
   }
  }, 
  "Gfm": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "colormap": null, 
    "datawc_calendar": 135441, 
    "datawc_timeunits": "days since 2000", 
@@ -153,7 +153,7 @@
   }
  }, 
  "Gi": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "angle": [
     35.0
    ], 
@@ -211,7 +211,7 @@
   }
  }, 
  "P": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "box1": {
     "line": "default", 
     "priority": 1, 
@@ -579,7 +579,7 @@
   }
  }, 
  "Proj": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "parameters": [
     1e+20, 
     1e+20, 
@@ -601,7 +601,7 @@
   }
  }, 
  "Tf": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "color": [
     1
    ], 
@@ -632,7 +632,7 @@
   }
  }, 
  "Tl": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "color": [
     1
    ], 
@@ -662,7 +662,7 @@
   }
  }, 
  "Tm": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "color": [
     1
    ], 
@@ -691,7 +691,7 @@
   }
  }, 
  "To": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "angle": 0, 
    "halign": 0, 
    "height": 14, 
@@ -700,7 +700,7 @@
   }
  }, 
  "Tt": {
-  "Charles.Doutriaux": {
+  "vcs_instance": {
    "backgroundcolor": 0, 
    "backgroundopacity": 0, 
    "color": 1, 

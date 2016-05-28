@@ -1,33 +1,33 @@
 
 import filecmp
 import vcs,numpy,os,sys
-src=sys.argv[1]
+src = sys.argv[1]
 if os.path.exists("test_vcs_dump_json.json"):
     os.remove("test_vcs_dump_json.json")
 
-b = vcs.createboxfill("Charles.Doutriaux")
+b = vcs.createboxfill("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createisofill("Charles.Doutriaux")
+b = vcs.createisofill("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createisoline("Charles.Doutriaux")
+b = vcs.createisoline("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createmeshfill("Charles.Doutriaux")
+b = vcs.createmeshfill("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.create1d("Charles.Doutriaux")
+b = vcs.create1d("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createfillarea("Charles.Doutriaux")
+b = vcs.createfillarea("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createtext("Charles.Doutriaux")
+b = vcs.createtext("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createline("Charles.Doutriaux")
+b = vcs.createline("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createmarker("Charles.Doutriaux")
+b = vcs.createmarker("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createtemplate("Charles.Doutriaux")
+b = vcs.createtemplate("vcs_instance")
 b.script("test_vcs_dump_json","a")
-b = vcs.createprojection("Charles.Doutriaux")
+b = vcs.createprojection("vcs_instance")
 b.script("test_vcs_dump_json","a")
 
-assert(filecmp.cmp("test_vcs_dump_json.json",src))
+assert(filecmp.cmp("test_vcs_dump_json.json", src))
 
 
