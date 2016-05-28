@@ -540,9 +540,9 @@ class Gv(object):
 
     def _setscaletype(self, value):
         value = VCS_validation_functions.checkInStringList(self,
-                                                          'scaletype',
-                                                          value,
-                                                          self.scaleoptions)
+                                                           'scaletype',
+                                                           value,
+                                                           self.scaleoptions)
         self._scaletype = value
     scaletype = property(_getscaletype, _setscaletype)
 
