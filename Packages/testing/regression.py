@@ -20,13 +20,15 @@ def init(*args, **kwargs):
     testingDir = os.path.join(os.path.dirname(__file__), "..")
     sys.path.append(testingDir)
 
-    vcsinst = vcs.init(*args, **kwargs)
-    vcsinst.setantialiasing(0)
-    vcsinst.drawlogooff()
-
     if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs)) and
         ('geometry' not in kwargs)):
+        vcsinst = vcs.init(*args, **dict(kwargs, bg=1))
         vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
+    else:
+        vcsinst = vcs.init(*args, **dict(kwargs, bg=0))
+
+    vcsinst.setantialiasing(0)
+    vcsinst.drawlogooff()
     return vcsinst
 
 def run(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
