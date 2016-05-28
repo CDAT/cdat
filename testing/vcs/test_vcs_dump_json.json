@@ -210,6 +210,48 @@
    "yticlabels2": "*"
   }
  }, 
+ "Gv": {
+  "vcs_instance": {
+   "alignment": "center", 
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "line": null, 
+   "linecolor": null, 
+   "linewidth": null, 
+   "projection": "linear", 
+   "reference": 1e+20, 
+   "scale": 1.0, 
+   "scaleoptions": [
+    "off", 
+    "constant", 
+    "normalize", 
+    "linear", 
+    "constantNNormalize", 
+    "constantNLinear"
+   ], 
+   "scalerange": [
+    0.1, 
+    1.0
+   ], 
+   "scaletype": "constantNNormalize", 
+   "type": "arrows", 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
  "P": {
   "vcs_instance": {
    "box1": {
