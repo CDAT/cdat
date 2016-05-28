@@ -385,9 +385,9 @@ cdat_add_test(test_vcs_geometry
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
   )
-cdat_add_test(test_vcs_text_object
+cdat_add_test(test_vcs_export_text
   "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_text_object.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_export_text.py
   )
 ##############################################################################
 #
