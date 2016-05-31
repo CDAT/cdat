@@ -2,6 +2,7 @@ import vcs
 import numpy
 import vcsaddons
 
+
 def circle_points(center, radius, points=75, ratio=1):
     """
     Generates the coordinates of a circle in x list and y list.
@@ -20,37 +21,6 @@ def circle_points(center, radius, points=75, ratio=1):
     x.append(x[0])
     y.append(y[0])
     return x, y
-
-
-def text_orientation_for_angle(theta, source="default"):
-    """
-    Generates a text orientation that will align text to look good depending on quadrant.
-    """
-    # Normalize to [0, 2*pi)
-    while 0 > theta:
-        theta += 2 * numpy.pi
-    while 2 * numpy.pi <= theta:
-        theta -= 2 * numpy.pi
-
-    if 0 < theta < numpy.pi:
-        valign = "bottom"
-    elif 0 == theta or numpy.pi == theta:
-        valign = "half"
-    else:
-        valign = "top"
-
-    if numpy.pi / 2 > theta or numpy.pi * 3 / 2 < theta:
-        halign = "left"
-    elif numpy.allclose(numpy.pi / 2, theta) or numpy.allclose(numpy.pi * 3 / 2, theta):
-        halign = "center"
-    else:
-        halign = "right"
-
-    # Build new text table
-    to = vcs.createtextorientation(source=source)
-    to.valign = valign
-    to.halign = halign
-    return to
 
 
 def convert_arrays(var, theta):
@@ -172,12 +142,21 @@ class Gpo(vcsaddons.core.VCSaddon):
             self.markersizes = [3]
             self.markercolors = ["black"]
             self.markers = ["dot"]
+            self.markercolorsource = "group"
             self.clockwise = False
             self.theta_offset = 0
             self.magnitude_ticks = "*"
+            self.magnitude_mintics = None
             self.magnitude_tick_angle = 0
             self.theta_tick_count = 6
             self.group_names = []
+            self.draw_lines = False
+            self.connect_groups = False
+            self.linecolors = ["black"]
+            self.lines = ["solid"]
+            self.linewidths = [1]
+            self.markerpriority = 2
+            self.linepriority = 1
             # Nice default labels
             self.xticlabels1 = {
                 0: "0 (2pi)",
@@ -197,12 +176,59 @@ class Gpo(vcsaddons.core.VCSaddon):
             self.markersizes = gm.markersizes
             self.markercolors = gm.markercolors
             self.markers = gm.markers
+            self.markercolorsource = gm.markercolorsource
+            self.markerpriority = gm.markerpriority
             self.clockwise = gm.clockwise
+            self.draw_lines = gm.draw_lines
+            self.linecolors = gm.linecolors
+            self.linewidths = gm.linewidths
+            self.linepriority = gm.linepriority
+            self.lines = gm.lines
+            self.connect_groups = gm.connect_groups
             self.theta_offset = gm.theta_offset
             self.magnitude_ticks = gm.magnitude_ticks
+            self.magnitude_mintics = gm.magnitude_mintics
             self.magnitude_tick_angle = gm.magnitude_tick_angle
             self.theta_tick_count = gm.theta_tick_count
             self.group_names = gm.group_names
+        self.to_cleanup = []
+
+    def create_text(self, tt, to):
+        tc = vcs.createtext(Tt_source=tt, To_source=to)
+        self.to_cleanup.append(tc.Tt)
+        self.to_cleanup.append(tc.To)
+        return tc
+
+    def text_orientation_for_angle(self, theta, source="default"):
+        """
+        Generates a text orientation that will align text to look good depending on quadrant.
+        """
+        # Normalize to [0, 2*pi)
+        while 0 > theta:
+            theta += 2 * numpy.pi
+        while 2 * numpy.pi <= theta:
+            theta -= 2 * numpy.pi
+
+        if 0 < theta < numpy.pi:
+            valign = "bottom"
+        elif 0 == theta or numpy.pi == theta:
+            valign = "half"
+        else:
+            valign = "top"
+
+        if numpy.pi / 2 > theta or numpy.pi * 3 / 2 < theta:
+            halign = "left"
+        elif numpy.allclose(numpy.pi / 2, theta) or numpy.allclose(numpy.pi * 3 / 2, theta):
+            halign = "center"
+        else:
+            halign = "right"
+
+        # Build new text table
+        to = vcs.createtextorientation(source=source)
+        to.valign = valign
+        to.halign = halign
+        self.to_cleanup.append(to)
+        return to
 
     def magnitude_from_value(self, value, minmax):
         if numpy.allclose((self.datawc_y1, self.datawc_y2), 1e20):
@@ -243,6 +269,9 @@ class Gpo(vcsaddons.core.VCSaddon):
             x = self.x
         if template is None:
             template = self.template
+
+        if self.markercolorsource.lower() not in ("group", "magnitude", "theta"):
+            raise ValueError("polar.markercolorsource must be one of: 'group', 'magnitude', 'theta'")
 
         magnitudes, thetas, names = convert_arrays(var, theta)
         if self.group_names:
@@ -306,8 +335,8 @@ class Gpo(vcsaddons.core.VCSaddon):
             m_ticks.y = []
 
             if template.ylabel1.priority > 0:
-                to = text_orientation_for_angle(self.magnitude_tick_angle, source=template.ylabel1.textorientation)
-                m_labels = vcs.createtext(Tt_source=template.ylabel1.texttable, To_source=to)
+                to = self.text_orientation_for_angle(self.magnitude_tick_angle, source=template.ylabel1.textorientation)
+                m_labels = self.create_text(template.ylabel1.texttable, to)
                 m_labels.x = []
                 m_labels.y = []
                 m_labels.string = []
@@ -334,22 +363,39 @@ class Gpo(vcsaddons.core.VCSaddon):
                 canvas.plot(m_labels, **plot_kwargs)
                 del vcs.elements["textcombined"][m_labels.name]
 
+        if template.ymintic1.priority > 0 and self.magnitude_mintics is not None:
+            mag_mintics = vcs.createline(source=template.ymintic1.line)
+            mag_mintics.x = []
+            mag_mintics.y = []
+
+            mintics = self.magnitude_mintics
+            if isinstance(mintics, (str, unicode)):
+                mintics = vcs.elements["list"][mintics]
+
+            for mag in mintics:
+                mintic_radius = radius * self.magnitude_from_value(mag, (m_scale[0], m_scale[-1]))
+                x, y = circle_points(center, mintic_radius, ratio=window_aspect)
+                mag_mintics.x.append(x)
+                mag_mintics.y.append(y)
+            canvas.plot(mag_mintics, **plot_kwargs)
+            del vcs.elements["line"][mag_mintics.name]
+
+        if self.xticlabels1 == "*":
+            if numpy.allclose((self.datawc_x1, self.datawc_x2), 1e20):
+                tick_thetas = list(numpy.arange(0, numpy.pi * 2, numpy.pi / 4))
+                tick_labels = {t: str(t) for t in tick_thetas}
+            else:
+                d_theta = (self.datawc_x2 - self.datawc_x1) / float(self.theta_tick_count)
+                tick_thetas = numpy.arange(self.datawc_x1, self.datawc_x2 + .0001, d_theta)
+                tick_labels = vcs.mklabels(tick_thetas)
+        else:
+            tick_thetas = self.xticlabels1.keys()
+            tick_labels = self.xticlabels1
+
         if template.xtic1.priority > 0:
             t_ticks = vcs.createline(source=template.xtic1.line)
             t_ticks.x = []
             t_ticks.y = []
-
-            if self.xticlabels1 == "*":
-                if numpy.allclose((self.datawc_x1, self.datawc_x2), 1e20):
-                    tick_thetas = list(numpy.arange(0, numpy.pi * 2, numpy.pi / 4))
-                    tick_labels = {t: str(t) for t in tick_thetas}
-                else:
-                    d_theta = (self.datawc_x2 - self.datawc_x1) / float(self.theta_tick_count)
-                    tick_thetas = numpy.arange(self.datawc_x1, self.datawc_x2 + .0001, d_theta)
-                    tick_labels = vcs.mklabels(tick_thetas)
-            else:
-                tick_thetas = self.xticlabels1.keys()
-                tick_labels = self.xticlabels1
 
             if template.xlabel1.priority > 0:
                 t_labels = []
@@ -364,8 +410,7 @@ class Gpo(vcsaddons.core.VCSaddon):
                 y0 = center[1] + (ymul * radius * numpy.sin(angle))
                 y1 = center[1]
                 if t_labels is not None:
-                    label = vcs.createtext(Tt_source=template.xlabel1.texttable,
-                                           To_source=text_orientation_for_angle(angle, source=template.xlabel1.textorientation))
+                    label = self.create_text(template.xlabel1.texttable, self.text_orientation_for_angle(angle, source=template.xlabel1.textorientation))
                     label.string = [theta_labels[t]]
                     label.x = [x0]
                     label.y = [y0]
@@ -384,16 +429,64 @@ class Gpo(vcsaddons.core.VCSaddon):
         values.size = self.markersizes
         values.color = self.markercolors
         values.colormap = self.colormap
+        values.priority = self.markerpriority
         values.x = []
         values.y = []
 
         if template.legend.priority > 0:
             # Only labels that are set will show up in the legend
             label_count = len(names) - len([i for i in names if i is None])
-            labels = vcs.createtext(Tt_source=template.legend.texttable, To_source=template.legend.textorientation)
+            labels = self.create_text(template.legend.texttable, template.legend.textorientation)
             labels.x = []
             labels.y = []
             labels.string = []
+
+        if self.draw_lines:
+            line = vcs.createline()
+            line.x = []
+            line.y = []
+            line.type = self.lines
+            line.color = self.linecolors if self.linecolors is not None else self.markercolors
+            line.width = self.linewidths
+            line.priority = self.linepriority
+
+            # This is up here because when it's part of the main loop, we can lose "order" of points when we flatten them.
+            for mag, theta in zip(magnitudes, thetas):
+                x = []
+                y = []
+
+                for m, t in zip(mag, theta):
+                    t = self.theta_from_value(t)
+                    r = self.magnitude_from_value(m, (m_scale[0], m_scale[-1])) * radius
+                    x.append(xmul * numpy.cos(t) * r + center[0])
+                    y.append(ymul * numpy.sin(t) * r + center[1])
+
+                if self.connect_groups:
+                    line.x.extend(x)
+                    line.y.extend(y)
+                else:
+                    line.x.append(x)
+                    line.y.append(y)
+
+        if self.markercolorsource.lower() in ('magnitude', "theta"):
+            # Regroup the values using the appropriate metric
+
+            mag_flat = numpy.array(magnitudes).flatten()
+            theta_flat = numpy.array(thetas).flatten()
+
+            if self.markercolorsource.lower() == "magnitude":
+                scale = m_scale
+                vals = mag_flat
+            else:
+                scale = theta_ticks
+                vals = theta_flat
+
+            indices = [numpy.where(numpy.logical_and(vals >= scale[i], vals <= scale[i + 1])) for i in range(len(scale) - 1)]
+            magnitudes = [mag_flat[inds] for inds in indices]
+            thetas = [theta_flat[inds] for inds in indices]
+            names = vcs.mklabels(scale, output="list")
+            names = [names[i] + " - " + names[i + 1] for i in range(len(names) - 1)]
+            label_count = len(names)
 
         for mag, theta, name in zip(magnitudes, thetas, names):
             x = []
@@ -410,13 +503,44 @@ class Gpo(vcsaddons.core.VCSaddon):
                 y.append(ly)
                 labels.x.append(lx + .01)
                 labels.y.append(ly)
-                labels.string.append(name)
+                labels.string.append(str(name))
             values.x.append(x)
             values.y.append(y)
 
         if template.legend.priority > 0:
             canvas.plot(labels, **plot_kwargs)
             del vcs.elements["textcombined"][labels.name]
+        if self.draw_lines:
+            canvas.plot(line, **plot_kwargs)
+            del vcs.elements["line"][line.name]
+
+        for el in self.to_cleanup:
+            if vcs.istexttable(el):
+                if el.name in vcs.elements["texttable"]:
+                    del vcs.elements["texttable"][el.name]
+            else:
+                if el.name in vcs.elements["textorientation"]:
+                    del vcs.elements["textorientation"][el.name]
+        self.to_cleanup = []
+
+        # Prune unneeded levels from values
+        to_prune = []
+        for ind, (x, y) in enumerate(zip(values.x, values.y)):
+            if x and y:
+                continue
+            else:
+                to_prune.append(ind)
+
+        for prune_ind in to_prune[::-1]:
+            del values.x[prune_ind]
+            del values.y[prune_ind]
+            if len(values.color) > prune_ind and len(values.color) > 1:
+                del values.color[prune_ind]
+            if len(values.size) > prune_ind and len(values.size) > 1:
+                del values.size[prune_ind]
+            if len(values.type) > prune_ind and len(values.type) > 1:
+                del values.type[prune_ind]
+
         canvas.plot(values, bg=bg, donotstoredisplay=True)
         del vcs.elements["marker"][values.name]
         return canvas
