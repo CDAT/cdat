@@ -904,6 +904,16 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
       "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
       )
+    cdat_add_test(test_vcs_vectors_scale_options
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_scale_options.py
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_off.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constant.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_linear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_normalize.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNLinear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNNormalize.png"
+      )
   endif()
 endif()
 
