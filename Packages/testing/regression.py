@@ -20,10 +20,13 @@ def init(*args, **kwargs):
     testingDir = os.path.join(os.path.dirname(__file__), "..")
     sys.path.append(testingDir)
 
-    if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs)) and
-        ('geometry' not in kwargs)):
+    if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs))):
         vcsinst = vcs.init(*args, **dict(kwargs, bg=1))
-        vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
+        if ('geometry' not in kwargs):
+            vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
+        else:
+            xy = kwargs['geometry']
+            vcsinst.setbgoutputdimensions(xy[0], xy[1], units="pixels")
     else:
         vcsinst = vcs.init(*args, **dict(kwargs, bg=0))
 
