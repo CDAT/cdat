@@ -1,15 +1,10 @@
-import sys,os
+import sys
 src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 import vcs
 import vcsaddons, numpy
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
+x=regression.init()
 
 polar = vcsaddons.getpolar("degrees")
 polar.markers = ["dot", "circle"]
@@ -23,7 +18,7 @@ polar.datawc_y1 = 0
 polar.datawc_y2 = max(magnitude)
 polar.plot(magnitude, theta, bg=True, x=x)
 
-fnm = "vcs_addons_test_polar_degrees.png"
+fnm = "test_vcs_addons_polar_degrees.png"
 x.png(fnm)
-ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+ret = regression.check_result_image(fnm, src)
 sys.exit(ret)

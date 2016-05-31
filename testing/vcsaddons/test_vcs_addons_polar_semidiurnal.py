@@ -1,16 +1,11 @@
 import sys,os
 src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 import vcs
 import vcsaddons, numpy
 import cdms2, cdutil, cdtime
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
+x=regression.init()
 
 f = cdms2.open(os.path.join(vcs.sample_data, "thermo.nc"))
 temp = f('t')
@@ -38,7 +33,7 @@ polar.magnitude_tick_angle = numpy.pi / 8
 
 polar.plot(magnitudes, thetas, bg=True, x=x)
 
-fnm = "vcs_addons_test_polar_semidiurnal.png"
+fnm = "test_vcs_addons_polar_semidiurnal.png"
 x.png(fnm)
-ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+ret = regression.check_result_image(fnm, src)
 sys.exit(ret)

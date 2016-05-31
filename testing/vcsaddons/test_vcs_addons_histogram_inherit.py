@@ -1,15 +1,11 @@
 import sys,os
 src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 import vcs, cdms2
 import vcsaddons, numpy
 
-x=vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200,1091,units="pixels")
+x=regression.init()
+
 cdmsfile = cdms2.open(vcs.sample_data + "/clt.nc")
 clt = cdmsfile("clt")
 
@@ -56,7 +52,7 @@ histo3.datawc_x2 = 100
 histo3.bins = None
 histo3.plot(clt, template="default", bg=True)
 
-fnm = "vcs_addons_test_histogram_inherit.png"
+fnm = "test_vcs_addons_histogram_inherit.png"
 x.png(fnm)
-ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
+ret = regression.check_result_image(fnm, src)
 sys.exit(ret)
