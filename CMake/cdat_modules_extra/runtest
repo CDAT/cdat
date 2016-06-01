@@ -1,0 +1,4 @@
+#!/bin/bash
+source activate TEST _UVCDAT
+echo `which python`
+python $@
