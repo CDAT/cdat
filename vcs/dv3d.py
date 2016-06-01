@@ -126,19 +126,38 @@ class Gfdv3d(object):
         self.projection = 'default'
         self.provenanceHandler = None
 
+        vcs.elements[self.g_name][Gfdv3d_name] = self
+
+        self._axes = "xyz"
+
+        # Use parent config values if possible
+        if isinstance(Gfdv3d_name_src, (unicode, str)):
+            # Make sure we aren't inheriting from ourself
+            if Gfdv3d_name_src != Gfdv3d_name:
+                parent_cfg = vcs.elements[self.g_name][Gfdv3d_name_src].cfgManager
+                self._axes = vcs.elements[self.g_name][Gfdv3d_name_src]._axes
+            else:
+                parent_cfg = None
+        else:
+            # Make sure we aren't inheriting from ourself
+            if Gfdv3d_name_src.name != self.name:
+                parent_cfg = Gfdv3d_name_src.cfgManager
+                self._axes = Gfdv3d_name_src._axes
+            else:
+                parent_cfg = None
+
+        self.cfgManager = ConfigManager(cm=parent_cfg)
+
         if Gfdv3d_name == "Hovmoller3D":
             self._axes = "xyt"
-        else:
-            self._axes = "xyz"
 
-        self.cfgManager = ConfigManager()
         self.ncores = multiprocessing.cpu_count()
+
         self.addParameters()
 
-        vcs.elements[self.g_name][Gfdv3d_name] = self
         self.plot_attributes['name'] = self.g_name
         self.plot_attributes['template'] = Gfdv3d_name
-#        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+
 
     def setProvenanceHandler(self, provenanceHandler):
         self.provenanceHandler = provenanceHandler
@@ -215,14 +234,14 @@ class Gf3Dvector(Gfdv3d):
 
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         self.g_name = '3d_vector'
-        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src=Gfdv3d_name_src)
 
 
 class Gf3Dscalar(Gfdv3d):
 
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         self.g_name = '3d_scalar'
-        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src=Gfdv3d_name_src)
         self.VectorDisplay = Gfdv3d_name
 
 
@@ -230,7 +249,7 @@ class Gf3DDualScalar(Gfdv3d):
 
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         self.g_name = '3d_dual_scalar'
-        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src=Gfdv3d_name_src)
 
 if __name__ == '__main__':
     dv3d = vcs.get3d_scalar()
