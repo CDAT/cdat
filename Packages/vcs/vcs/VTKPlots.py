@@ -597,6 +597,7 @@ class VTKVCSBackend(object):
 
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
         vtk_backend_geo = kargs.get("vtk_backend_geo", None)
+        bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
 
         pipeline = vcsvtk.createPipeline(gm, self)
         if pipeline is not None:
@@ -626,7 +627,7 @@ class VTKVCSBackend(object):
                     ren,
                     to=to,
                     tt=tt,
-                    cmap=self.canvas.colormap)
+                    cmap=self.canvas.colormap, geoBounds=bounds, geo=vtk_backend_geo)
                 self.setLayer(ren, tt.priority)
                 self.text_renderers[tt_key] = ren
         elif gtype == "line":
@@ -635,7 +636,6 @@ class VTKVCSBackend(object):
                                           cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
                 create_renderer = True
-                bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,

@@ -11,11 +11,26 @@ cdat_add_test(test_vcs_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_png_path.py
 )
-cdat_add_test(test_vcs_boxfill_polar
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_polar.py
-  "${BASELINE_DIR}/test_vcs_boxfill_polar.png"
-  )
+
+foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
+  cdat_add_test(test_vcs_boxfill_${projection}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+    ${projection}
+    )
+endforeach()
+
+foreach(lat_0 45 90)
+  cdat_add_test(test_vcs_boxfill_orthographic_${lat_0}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_orthographic.py
+    "${BASELINE_DIR}/test_vcs_boxfill_orthographic_${lat_0}.png"
+    ${lat_0}
+    )
+endforeach()
+
+
 cdat_add_test(test_vcs_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_create_get.py
@@ -903,6 +918,16 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
       "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
+      )
+    cdat_add_test(test_vcs_vectors_scale_options
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_scale_options.py
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_off.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constant.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_linear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_normalize.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNLinear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNNormalize.png"
       )
   endif()
 endif()
