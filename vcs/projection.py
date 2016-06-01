@@ -16,13 +16,15 @@ import VCS_validation_functions
 import vcs
 import copy
 
-# projection that seems to be doing a circle
-# We will probably to add some more in it as we find more that fit this
-round_projections = ['polar (non gctp)', 'stereographic',
-                     'orthographic', "ortho", ]
+# used to decide if we show longitude labels for round projections or
+# latitude labels for elliptical projections
+round_projections = ['polar (non gctp)', 'stereographic']
+elliptical_projections = ["robinson", "mollweide", 'orthographic', "ortho"]
+# projections in this list are not deformed based on the window size
+no_deformation_projections = ['polar (non gctp)', 'stereographic',
+                              'orthographic', "ortho", ]
 
 no_over_proj4_parameter_projections = round_projections+["aeqd", "lambert conformal c"]
-elliptical_projections = ["robinson", "mollweide"]
 
 
 def process_src(nm, code):
