@@ -1,0 +1,4 @@
+#!/bin/bash
+source activate @CONDA_ENVIRONMENT_NAME@
+echo "Python:" `which python`
+python $@

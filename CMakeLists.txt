@@ -233,6 +233,9 @@ set(CDAT_PACKAGE_CACHE_DIR
 
 include(ExternalProject)
 include(cdat_pkg)
+# CONDA Options
+set(CONDA_ENVIRONMENT_NAME ${cdat_VERSION} CACHE STRING "Name of conda environment we want to build CDAT in")
+set(CONDA_CHANNEL_UVCDAT uvcdat CACHE STRING "channels to use (if more than one use '-c' between channels e.g. uvcdat/label/nightly -c uvcdat)")
 # Now sort and include external packages
 #=============================================================================
 include(TopologicalSort)
@@ -263,4 +266,14 @@ foreach(package ${external_packages})
     include("${lc_package}_external")
   endif()
 endforeach()
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest.in
+    ${cdat_CMAKE_BINARY_DIR}/runtest
+    @ONLY
+    )
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install_cdat_from_conda.bash.in
+    ${cdat_CMAKE_BINARY_DIR}/install_cdat_from_conda.bash
+    @ONLY
+    )
+
 add_subdirectory(testing)

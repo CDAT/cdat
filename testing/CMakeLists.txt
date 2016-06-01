@@ -12,7 +12,7 @@ macro (cdat_add_test name)
     endif()
   endif()
 
-  add_test(${name} ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runtest  ${ARGS})
+  add_test(${name} ${cdat_CMAKE_BINARY_DIR}/runtest  ${ARGS})
 
   if(DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
     set_tests_properties (${name}

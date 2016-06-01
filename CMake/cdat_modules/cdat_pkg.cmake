@@ -30,6 +30,5 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
   ${cdat_BINARY_DIR}/version
   @ONLY
 )
-message("[INFO] ADDIBNG CDAT")
 add_cdat_package(CDAT "" "" ON)
 
