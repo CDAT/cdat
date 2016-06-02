@@ -74,6 +74,7 @@ class BoxfillPipeline(Pipeline2D):
         ctj = 0
         _colorMap = self.getColorMap()
         _style = self._gm.fillareastyle
+        _pattern_scaling = self._gm._fillareascaling
         vp = self._resultDict.get(
             'ratio_autot_viewport',
             [self._template.data.x1, self._template.data.x2,
@@ -124,7 +125,7 @@ class BoxfillPipeline(Pipeline2D):
                         fillareaindex=self._customBoxfillArgs["tmpIndices"][cti],
                         fillareacolors=c,
                         fillareaopacity=self._customBoxfillArgs["tmpOpacities"][cti],
-                        size=(x2 - x1, y2 - y1),
+                        size=((x2 - x1)*_pattern_scaling, (y2 - y1)*_pattern_scaling),
                         xscale=xScale,
                         yscale=yScale)
 

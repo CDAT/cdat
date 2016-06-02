@@ -5,7 +5,7 @@ from patterns import pattern_list
 def num_pixels_for_size(size):
     # Select the largest dimension available
     dim = max(size)
-    return max(int(round(dim / 20)), 10)
+    return max(int(round(dim / 20)), 1)
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
