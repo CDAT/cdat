@@ -124,6 +124,14 @@ class IsofillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
+            # create a new renderer for this mapper
+            # (we need one for each mapper because of cmaera flips)
+            dataset_renderer, xScale, yScale = self._context().fitToViewport(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=(dataset_renderer is None))
             patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
@@ -142,7 +150,9 @@ class IsofillPipeline(Pipeline2D):
                                                                fillareaindex=tmpIndices[ct],
                                                                fillareacolors=c,
                                                                fillareaopacity=tmpOpacities[ct],
-                                                               size=viewsize)
+                                                               size=viewsize,
+                                                               xscale=xScale,
+                                                               yscale=yScale)
 
                 if patact is not None:
                     patternActors.append(patact)
@@ -150,14 +160,7 @@ class IsofillPipeline(Pipeline2D):
                 # increment the count
                 ct += 1
 
-            # create a new renderer for this mapper
-            # (we need one for each mapper because of cmaera flips)
-            dataset_renderer, xScale, yScale = self._context().fitToViewport(
-                act, vp,
-                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
-                geo=self._vtkGeoTransform,
-                priority=self._template.data.priority,
-                create_renderer=(dataset_renderer is None))
+
         for act in patternActors:
             self._context().fitToViewport(
                 act, vp,

@@ -5,12 +5,12 @@ from patterns import pattern_list
 def num_pixels_for_size(size):
     # Select the largest dimension available
     dim = max(size)
-    return int(round(dim / 20))
+    return max(int(round(dim / 20)), 10)
 
 
 def make_patterned_polydata(inputContours, fillareastyle=None,
                             fillareaindex=None, fillareacolors=None,
-                            fillareaopacity=None, size=None):
+                            fillareaopacity=None, size=None, xscale=1, yscale=1):
     if inputContours is None or fillareastyle == 'solid':
         return None
     if inputContours.GetNumberOfCells() == 0:
@@ -38,15 +38,16 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     xBounds = bounds[1] - bounds[0]
     yBounds = bounds[3] - bounds[2]
 
+    # Handle the case when the bounds are less than 1 in physical dimensions
     if xBounds <= 1 and yBounds <= 1 and size is not None:
         xBounds *= size[0]
         yBounds *= size[1]
-        xres, yres = int(xBounds), int(yBounds)
 
-    xres = int(4.0*xBounds)
-    yres = int(4.0*yBounds)
+    xres = int(2 * xBounds)
+    yres = int(2 * yBounds)
 
-    # Handle the case when the bounds are less than 1 in physical dimensions
+    xres = int(xres * xscale)
+    yres = int(yres * yscale)
 
     patternImage = create_pattern(xres, yres, num_pixels, fillareastyle,
                                   fillareaindex, fillareacolors,

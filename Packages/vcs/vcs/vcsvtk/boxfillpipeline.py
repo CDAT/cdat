@@ -90,6 +90,15 @@ class BoxfillPipeline(Pipeline2D):
                 act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
                                      self._dataWrapModulo)
 
+            # create a new renderer for this mapper
+            # (we need one for each mapper because of camera flips)
+            dataset_renderer, xScale, yScale = self._context().fitToViewport(
+                act, vp,
+                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+                geo=self._vtkGeoTransform,
+                priority=self._template.data.priority,
+                create_renderer=(dataset_renderer is None))
+
             # TODO We shouldn't need this conditional branch, the 'else' body
             # should be used and GetMapper called to get the mapper as needed.
             # If this is needed for other reasons, we need a comment explaining
@@ -115,21 +124,14 @@ class BoxfillPipeline(Pipeline2D):
                         fillareaindex=self._customBoxfillArgs["tmpIndices"][cti],
                         fillareacolors=c,
                         fillareaopacity=self._customBoxfillArgs["tmpOpacities"][cti],
-                        size=(x2 - x1, y2 - y1))
+                        size=(x2 - x1, y2 - y1),
+                        xscale=xScale,
+                        yscale=yScale)
 
                     ctj += 1
 
                     if patact is not None:
                         patternActors.append(patact)
-
-            # create a new renderer for this mapper
-            # (we need one for each mapper because of camera flips)
-            dataset_renderer, xScale, yScale = self._context().fitToViewport(
-                act, vp,
-                wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
-                geo=self._vtkGeoTransform,
-                priority=self._template.data.priority,
-                create_renderer=(dataset_renderer is None))
 
         for act in patternActors:
             if self._vtkGeoTransform is None:
