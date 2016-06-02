@@ -692,6 +692,11 @@ cdat_add_test(test_vcs_settings_color_name_rgba
    ENDFOREACH(ptype)
   ENDFOREACH(gm)
 
+  cdat_add_test(test_vcs_isoline_extend_attributes
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_extend_attributes.py
+    ${BASELINE_DIR}/test_vcs_isoline_extend_attributes.png
+    )
   cdat_add_test(test_vcs_isoline_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
