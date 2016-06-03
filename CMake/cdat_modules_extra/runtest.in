@@ -1,4 +1,5 @@
 #!/bin/bash
 source activate @CONDA_ENVIRONMENT_NAME@
+export DYLD_FALLBACK_LIBRARY_PATH=`python -c "import sys,os;print os.path.join(sys.prefix,'lib')"`
 echo "Python:" `which python`
 python $@
