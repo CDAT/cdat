@@ -71,7 +71,7 @@ canvas_closed = 0
 import vcsaddons  # noqa
 import vcs.manageElements  # noqa
 import configurator  # noqa
-from projection import round_projections  # noqa
+from projection import no_deformation_projections  # noqa
 
 # Python < 3 DeprecationWarning ignored by default
 warnings.simplefilter('default')
@@ -3497,7 +3497,7 @@ Options:::
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
             p = self.getprojection(gm.projection)
-            if p.type in round_projections and (
+            if p.type in no_deformation_projections and (
                     doratio == "0" or doratio[:4] == "auto"):
                 doratio = "1t"
             for keyarg in keyargs.keys():
@@ -3554,7 +3554,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in round_projections and (
+                if proj.type in no_deformation_projections and (
                         doratio == "0" or doratio[:4] == "auto"):
                     doratio = "1t"
 
@@ -3610,7 +3610,7 @@ Options:::
                         tp = "textcombined"
                     gm = vcs.elements[tp][arglist[4]]
                 p = self.getprojection(gm.projection)
-                if p.type in round_projections:
+                if p.type in no_deformation_projections:
                     doratio = "1t"
                 if p.type == 'linear':
                     if gm.g_name == 'Gfm':

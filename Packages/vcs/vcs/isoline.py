@@ -310,6 +310,8 @@ class Gi(object):
         iso.linewidths=([1,2,3,4,5,6,7,8])	# Will set the isoline to a specific
                                                 #     width size
         iso.linewidths=None			# Turns off the line width size
+    If the number of line styles, colors or widths are less than the number of levels
+    we extend the attribute list using the last attribute value in the attribute list.
 
     There are three ways to specify the text or font number:
         iso.text=(1,2,3,4,5,6,7,8,9)     	# Font numbers are between 1 and 9
