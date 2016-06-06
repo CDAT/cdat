@@ -1,6 +1,6 @@
 import vcs, sys, os, testing.regression as regression
 
-x = regression.init()
+x = regression.init(bg=0)
 x.setantialiasing(0)
 x.drawlogooff()
 x.open(814,628)
