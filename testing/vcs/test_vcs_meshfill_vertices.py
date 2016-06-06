@@ -1,19 +1,8 @@
-import numpy
-import vcs
-import sys
-import os
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import os, sys, numpy, vcs, testing.regression as regression
 
-x=vcs.init()
-
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200, 1090, units="pixels")
+x = regression.init()
 
 data_values = [ 25, 45, 55.]
-
 data_lon = [ 5., 10., 15.]
 data_lat = [ 5., 10., 15.]
 
@@ -50,8 +39,4 @@ m.levels = [20,30,50,70,80]
 m.mesh = True
 
 x.plot(numpy.array(data_values,),mesh,m,bg=True)
-x.png("test_vcs_meshfill_vertices_issue.png")
-src = sys.argv[1]
-ret = checkimage.check_result_image("test_vcs_meshfill_vertices_issue.png",
-                                    src, checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, "test_vcs_meshfill_vertices_issue.png")

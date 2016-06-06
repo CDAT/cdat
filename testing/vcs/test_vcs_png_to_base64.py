@@ -1,4 +1,4 @@
-import vcs,numpy,cdms2,MV2,os,sys
+import vcs, numpy, cdms2, MV2, os, sys
 
 x = vcs.init()
 x.drawlogooff()

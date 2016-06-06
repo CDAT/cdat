@@ -1,27 +1,12 @@
-import vcs
-import argparse
-import cdms2
-import  os
-import sys
-
-
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
+import argparse, os, sys, cdms2, vcs, testing.regression as regression
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument("-g",dest="gm",default="boxfill",choices = ["boxfill","isofill","meshfill","isoline","vector","1d"])
 parser.add_argument("-s",dest="src",default="vcs",choices=["vcs","canvas","gm"])
 parser.add_argument("-b",dest="baseline")
-
-
 args = parser.parse_args()
 
-x=vcs.init()
-x.setantialiasing(0)
-x.setbgoutputdimensions(1200, 1091, units="pixels")
-x.drawlogooff()
+x = regression.init()
 
 exec("gm = x.create%s()" % args.gm)
 
@@ -55,7 +40,4 @@ else:
 fnm = "test_vcs_colormaps_source_%s_%s.png" % (args.gm,args.src)
 x.png(fnm)
 baselineImage = args.baseline
-ret = checkimage.check_result_image(fnm, baselineImage,
-                                    checkimage.defaultThreshold)
-
-sys.exit(ret)
+ret = regression.run(x, fnm, baselineImage)

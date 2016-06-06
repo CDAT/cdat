@@ -1,15 +1,5 @@
 # Test animation of projected plots
-
-import argparse
-import cdms2
-import MV2
-import os
-import sys
-import vcs
-
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage  # noqa
+import argparse, os, sys, cdms2, MV2, vcs, testing.regression as regression
 
 p = argparse.ArgumentParser(description="Testing animation of projected plots")
 p.add_argument("--gm_type", dest="gm", help="gm to test")
@@ -19,18 +9,13 @@ p.add_argument("--source", dest="src", help="path to baseline image")
 p.add_argument("--keep", dest="keep", action="store_true", default=False,
                help="Save images, even if baseline matches.")
 p.add_argument("--threshold", dest="threshold", type=int,
-               default=checkimage.defaultThreshold,
+               default=regression.defaultThreshold,
                help="Threshold value for image differnces")
 
 args = p.parse_args(sys.argv[1:])
 
 gm_type = args.gm
-
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-x.setbgoutputdimensions(1200, 1091, units="pixels")
-
+x = regression.init()
 s = None
 
 if gm_type == "meshfill":
@@ -72,7 +57,7 @@ pngs = x.animate.close(preserve_pngs=True)  # so we can look at them again
 ret = 0
 pdir = os.path.split(pngs[0])[0]
 p = pdir + os.sep + "anim_0.png"
-ret = checkimage.check_result_image(p, args.src, args.threshold)
+ret = regression.check_result_image(p, args.src, args.threshold)
 if ret == 0 and not args.keep:
     for f in pngs:
         if os.path.isfile(f):

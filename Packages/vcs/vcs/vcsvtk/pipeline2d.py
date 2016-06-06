@@ -1,9 +1,10 @@
 from .pipeline import Pipeline
 from .. import vcs2vtk
 
-import vcs
-import numpy
 import fillareautils
+import numpy
+import vcs
+import vtk
 import warnings
 
 
@@ -45,8 +46,11 @@ class IPipeline2D(Pipeline):
         - _useContinents: Whether or not to plot continents.
         - _dataWrapModulo: Wrap modulo as [YMax, XMax], in degrees. 0 means
             'no wrapping'.
-        - _useCellScalars: True if data is applied to cell, false if data is
+        - _hasCellData: True if data is applied to cell, false if data is
             applied to points.
+        - _needsCellData: True if the plot needs cell scalars, false if
+            the plot needs point scalars
+        - _needsVectors: True if the plot needs vectors, false if it needs scalars
         - _scalarRange: The range of _data1 as tuple(float min, float max)
         - _maskedDataMapper: The mapper used to render masked data.
     """
@@ -74,7 +78,9 @@ class IPipeline2D(Pipeline):
         self._colorMap = None
         self._useContinents = None
         self._dataWrapModulo = None
-        self._useCellScalars = None
+        self._hasCellData = None
+        self._needsCellData = None
+        self._needsVectors = False
         self._scalarRange = None
         self._maskedDataMapper = None
 
@@ -82,7 +88,7 @@ class IPipeline2D(Pipeline):
         """Create _data1 and _data2 from _originalData1 and _originalData2."""
         raise NotImplementedError("Missing override.")
 
-    def _updateVTKDataSet(self):
+    def _updateVTKDataSet(self, plotBasedDualGrid):
         """Apply the vcs data to _vtkDataSet, creating it if necessary."""
         raise NotImplementedError("Missing override.")
 
@@ -272,10 +278,13 @@ class Pipeline2D(IPipeline2D):
 
         # Preprocess the input scalar data:
         self._updateScalarData()
+        self._min = self._data1.min()
+        self._max = self._data1.max()
         self._scalarRange = vcs.minmax(self._data1)
 
         # Create/update the VTK dataset.
-        self._updateVTKDataSet()
+        plotBasedDualGrid = kargs.get('plot_based_dual_grid', True)
+        self._updateVTKDataSet(plotBasedDualGrid)
 
         # Update the results:
         self._resultDict["vtk_backend_grid"] = self._vtkDataSet
@@ -308,18 +317,64 @@ class Pipeline2D(IPipeline2D):
         """Overrides baseclass implementation."""
         self._data1 = self._context().trimData2D(self._originalData1)
         self._data2 = self._context().trimData2D(self._originalData2)
-        self._min = self._data1.min()
-        self._max = self._data1.max()
 
-    def _updateVTKDataSet(self):
-        """Overrides baseclass implementation."""
+    def _updateVTKDataSet(self, plotBasedDualGrid):
+        """
+        """
+        if (plotBasedDualGrid):
+            hasCellData = self._data1.hasCellData()
+            dualGrid = (hasCellData != self._needsCellData)
+        else:
+            dualGrid = False
         genGridDict = vcs2vtk.genGrid(self._data1, self._data2, self._gm,
                                       deep=False,
                                       grid=self._vtkDataSet,
-                                      geo=self._vtkGeoTransform)
-
+                                      geo=self._vtkGeoTransform, genVectors=self._needsVectors,
+                                      dualGrid=dualGrid)
         self._data1 = genGridDict["data"]
+        self._data2 = genGridDict["data2"]
         self._updateFromGenGridDict(genGridDict)
+
+    def _createPolyDataFilter(self):
+        """This is only used when we use the grid stored in the file for all plots."""
+        self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
+        if self._hasCellData == self._needsCellData:
+            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
+        elif self._hasCellData:
+            # use cells but needs points
+            c2p = vtk.vtkCellDataToPointData()
+            c2p.PassCellDataOn()
+            c2p.SetInputData(self._vtkDataSet)
+            self._vtkPolyDataFilter.SetInputConnection(c2p.GetOutputPort())
+        else:
+            # use points but needs cells
+            p2c = vtk.vtkPointDataToCellData()
+            p2c.SetInputData(self._vtkDataSet)
+            # For contouring duplicate points seem to confuse it
+            self._vtkPolyDataFilter.SetInputConnection(p2c.GetOutputPort())
+        self._vtkPolyDataFilter.Update()
+        self._resultDict["vtk_backend_filter"] = self._vtkPolyDataFilter
+        # create an actor and a renderer for the surface mesh.
+        # this is used for displaying point information using the hardware selection
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
+        act = vtk.vtkActor()
+        act.SetMapper(mapper)
+        vp = self._resultDict.get(
+            'ratio_autot_viewport',
+            [self._template.data.x1, self._template.data.x2,
+             self._template.data.y1, self._template.data.y2])
+        plotting_dataset_bounds = self.getPlottingBounds()
+        surface_renderer, xScale, yScale = self._context().fitToViewport(
+            act, vp,
+            wc=plotting_dataset_bounds, geoBounds=self._vtkDataSet.GetBounds(),
+            geo=self._vtkGeoTransform,
+            priority=self._template.data.priority,
+            create_renderer=True)
+        self._resultDict['surface_renderer'] = surface_renderer
+        self._resultDict['surface_scale'] = (xScale, yScale)
+        if (surface_renderer):
+            surface_renderer.SetDraw(False)
 
     def _updateFromGenGridDict(self, genGridDict):
         """Overrides baseclass implementation."""
@@ -329,7 +384,7 @@ class Pipeline2D(IPipeline2D):
         self._useContinents = genGridDict['continents']
         self._dataWrapModulo = genGridDict['wrap']
         self._vtkGeoTransform = genGridDict['geo']
-        self._useCellScalars = genGridDict['cellData']
+        self._hasCellData = genGridDict['cellData']
 
     def _createMaskedDataMapper(self):
         """Overrides baseclass implementation."""
@@ -338,11 +393,11 @@ class Pipeline2D(IPipeline2D):
         if color is not None:
             color = self.getColorIndexOrRGBA(_colorMap, color)
         self._maskedDataMapper = vcs2vtk.putMaskOnVTKGrid(
-            self._data1, self._vtkDataSet, color, self._useCellScalars,
+            self._data1, self._vtkDataSet, color, self._hasCellData,
             deep=False)
 
         self._resultDict["vtk_backend_missing_mapper"] = (
-            self._maskedDataMapper, color, self._useCellScalars)
+            self._maskedDataMapper, color, self._hasCellData)
 
     def getPlottingBounds(self):
         """gm.datawc if it is set or dataset_bounds if there is not geographic projection
