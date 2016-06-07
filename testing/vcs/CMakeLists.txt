@@ -442,6 +442,11 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom.py
     "${BASELINE_DIR}/test_vcs_boxfill_custom.png"
     )
+  cdat_add_test(test_vcs_boxfill_datawc_time
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_datawc_time.py
+    "${BASELINE_DIR}/test_vcs_boxfill_datawc_time.png"
+    )
   cdat_add_test(test_vcs_boxfill_custom_non_default_levels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_non_default_levels.py
