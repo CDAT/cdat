@@ -1670,7 +1670,7 @@ def creategraphicsmethod(gtype, gname='default', name=None):
 # datawc_ can be a float or a cdtime.reltime
 # TODO: Investigate why datawc is converted to a cdtime.reltime
 def getDataWcValue(v):
-    if (type(v) is type(cdtime.reltime(0, 'months since 1900'))):
+    if (type(v) is type(cdtime.reltime(0, 'months since 1900'))):  # noqa
         return v.value
     else:
         return v
