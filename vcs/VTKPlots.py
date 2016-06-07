@@ -1499,7 +1499,10 @@ class VTKVCSBackend(object):
                                 float(cdutil.averager(array1, axis=" ".join(["(%s)" %
                                                                              S for S in array1.getAxisIds()])))
                         except:
-                            meanstring = 'Mean %.4g' % array1.mean()
+                            try:
+                                meanstring = 'Mean %.4g' % array1.mean()
+                            except:
+                                meanstring = 'Mean %.4g' % numpy.mean(array1.filled())
                     t.SetInput(meanstring)
                 elif att == "crdate" and tstr is not None:
                     t.SetInput(tstr.split()[0].replace("-", "/"))
