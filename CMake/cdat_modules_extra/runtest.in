@@ -2,7 +2,5 @@
 source activate @CONDA_ENVIRONMENT_NAME@
 export DYLD_FALLBACK_LIBRARY_PATH=`python -c "import sys,os;print os.path.join(sys.prefix,'lib')"`
 echo "Python:" `which python`
-# make sure data is downloaded
-python -c "import vcs;vcs.download_sample_data_files()"
 echo "Running:"$*
 $*

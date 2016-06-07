@@ -1,6 +1,4 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
-set(PYTHON_EXECUTABLE python)
-set(CDAT_DOWNLOAD_SAMPLE_DATA ON)
 
 cdat_add_test(flake8_vcs
   flake8 "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"

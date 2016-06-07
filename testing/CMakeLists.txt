@@ -1,5 +1,5 @@
-# Disabling GUI tests as they don't work
-#add_subdirectory(uvcdat)
+set(PYTHON_EXECUTABLE python)
+set(CDAT_DOWNLOAD_SAMPLE_DATA ON)
 
 # Helper macro that sets the environment correctly
 macro (cdat_add_test name)
@@ -13,6 +13,9 @@ macro (cdat_add_test name)
   endif()
 
   add_test(${name} ${cdat_CMAKE_BINARY_DIR}/runtest  ${ARGS})
+  if ( NOT (${name} STREQUAL download_sample_data ))
+      set_tests_properties(${name} PROPERTIES DEPENDS download_sample_data)
+  endif()
 
   if(DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
     set_tests_properties (${name}
@@ -24,6 +27,13 @@ macro (cdat_add_test name)
     )
   endif()
 endmacro()
+
+#separate_arguments(DOWNLOAD_ARGS)
+# make sure data is downloaded
+cdat_add_test(download_sample_data
+    vcs_download_sample_data
+    )
+
 add_subdirectory(regrid)
 add_subdirectory(vcs)
 add_subdirectory(vcsaddons)
@@ -33,5 +43,4 @@ add_subdirectory(Thermo)
 add_subdirectory(unidata)
 add_subdirectory(cdms2)
 add_subdirectory(xmgrace)
-
 add_subdirectory(pcmdi)
