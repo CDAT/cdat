@@ -1,4 +1,5 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
+set(PYTHON_EXECUTABLE python)
 
 cdat_add_test(flake8_vcs
   flake8 "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"
@@ -406,531 +407,529 @@ cdat_add_test(test_vcs_geometry
 # These tests perform plotting and need sample data
 #
 ##############################################################################
-if (CDAT_DOWNLOAD_SAMPLE_DATA)
-  FOREACH(gm boxfill isofill meshfill isoline vector)
-    FOREACH(src vcs canvas gm)
-      cdat_add_test(test_vcs_colormaps_source_${gm}_${src}
-        "${PYTHON_EXECUTABLE}"
-        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colormaps_source.py
-        -b ${BASELINE_DIR}/test_vcs_colormaps_source_${gm}_${src}.png
-        -g ${gm}
-        -s ${src}
-        )
-    ENDFOREACH()
-  ENDFOREACH()
+FOREACH(gm boxfill isofill meshfill isoline vector)
+FOREACH(src vcs canvas gm)
+  cdat_add_test(test_vcs_colormaps_source_${gm}_${src}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_colormaps_source.py
+    -b ${BASELINE_DIR}/test_vcs_colormaps_source_${gm}_${src}.png
+    -g ${gm}
+    -s ${src}
+    )
+ENDFOREACH()
+ENDFOREACH()
 
-  # NOTE Fix baseline name
-  cdat_add_test(test_vcs_meshfill_regular_grid
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_regular_grid.py
-    "${BASELINE_DIR}/test_vcs_meshfill_regular_grid.png"
-  )
-  # NOTE Fix baseline name
-  cdat_add_test(test_vcs_plot_unstructured_via_boxfill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_unstructured_via_boxfill.py
-    "${BASELINE_DIR}/test_vcs_plot_unstructured_via_boxfill.png"
-  )
-  # NOTE Fix baseline name
-  cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_box_custom_as_def_vistrails_exts.py
-    "${BASELINE_DIR}/test_vcs_box_custom_as_def_vistrails_exts.png"
-    )
-  # NOTE Fix baseline name
-  cdat_add_test(test_vcs_boxfill_custom
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom.py
-    "${BASELINE_DIR}/test_vcs_boxfill_custom.png"
-    )
-  cdat_add_test(test_vcs_boxfill_custom_non_default_levels
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_non_default_levels.py
-    "${BASELINE_DIR}/test_vcs_boxfill_custom_non_default_levels.png"
-    )
-  cdat_add_test(test_vcs_boxfill_custom_ext1
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext1.py
-    "${BASELINE_DIR}/test_vcs_boxfill_custom_ext1.png"
-    )
-  cdat_add_test(test_vcs_boxfill_custom_ext2
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext2.py
-    "${BASELINE_DIR}/test_vcs_boxfill_custom_ext2.png"
-    )
-  cdat_add_test(test_vcs_boxfill_custom_ext1_ext2
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext1_ext2.py
-    "${BASELINE_DIR}/test_vcs_boxfill_custom_ext1_ext2.png"
-    )
-  cdat_add_test(test_vcs_boxfill_number_color_less_than_number_levels
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_number_color_less_than_number_levels.py
-    )
-  cdat_add_test(test_vcs_boxfill_number_color_more_than_number_levels
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_number_color_more_than_number_levels.py
-    )
-  cdat_add_test(test_vcs_user_passed_date
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date.py
-    "${BASELINE_DIR}/test_vcs_user_passed_date.png"
-    )
-  cdat_add_test(test_vcs_user_passed_date_as_string
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date_as_string.py
-    "${BASELINE_DIR}/test_vcs_user_passed_date_as_string.png"
-    )
-  cdat_add_test(test_vcs_auto_time_labels
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
-    "${BASELINE_DIR}/test_vcs_auto_time_labels.png"
-    )
-  cdat_add_test(test_vcs_isofill_data_read_north_to_south
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_data_read_north_to_south.py
-    "${BASELINE_DIR}/test_vcs_isofill_data_read_north_to_south.png"
-    )
-  # Rename baseline
-  cdat_add_test(test_vcs_lon_axes_freak_out
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lon_axes_freak_out.py
-    "${BASELINE_DIR}/test_vcs_lon_axes_freak_out.png"
-    )
+# NOTE Fix baseline name
+cdat_add_test(test_vcs_meshfill_regular_grid
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_regular_grid.py
+"${BASELINE_DIR}/test_vcs_meshfill_regular_grid.png"
+)
+# NOTE Fix baseline name
+cdat_add_test(test_vcs_plot_unstructured_via_boxfill
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_unstructured_via_boxfill.py
+"${BASELINE_DIR}/test_vcs_plot_unstructured_via_boxfill.png"
+)
+# NOTE Fix baseline name
+cdat_add_test(test_vcs_box_custom_as_def_vistrails_exts
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_box_custom_as_def_vistrails_exts.py
+"${BASELINE_DIR}/test_vcs_box_custom_as_def_vistrails_exts.png"
+)
+# NOTE Fix baseline name
+cdat_add_test(test_vcs_boxfill_custom
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom.py
+"${BASELINE_DIR}/test_vcs_boxfill_custom.png"
+)
+cdat_add_test(test_vcs_boxfill_custom_non_default_levels
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_non_default_levels.py
+"${BASELINE_DIR}/test_vcs_boxfill_custom_non_default_levels.png"
+)
+cdat_add_test(test_vcs_boxfill_custom_ext1
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext1.py
+"${BASELINE_DIR}/test_vcs_boxfill_custom_ext1.png"
+)
+cdat_add_test(test_vcs_boxfill_custom_ext2
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext2.py
+"${BASELINE_DIR}/test_vcs_boxfill_custom_ext2.png"
+)
+cdat_add_test(test_vcs_boxfill_custom_ext1_ext2
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom_ext1_ext2.py
+"${BASELINE_DIR}/test_vcs_boxfill_custom_ext1_ext2.png"
+)
+cdat_add_test(test_vcs_boxfill_number_color_less_than_number_levels
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_number_color_less_than_number_levels.py
+)
+cdat_add_test(test_vcs_boxfill_number_color_more_than_number_levels
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_number_color_more_than_number_levels.py
+)
+cdat_add_test(test_vcs_user_passed_date
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date.py
+"${BASELINE_DIR}/test_vcs_user_passed_date.png"
+)
+cdat_add_test(test_vcs_user_passed_date_as_string
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_user_passed_date_as_string.py
+"${BASELINE_DIR}/test_vcs_user_passed_date_as_string.png"
+)
+cdat_add_test(test_vcs_auto_time_labels
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_auto_time_labels.py
+"${BASELINE_DIR}/test_vcs_auto_time_labels.png"
+)
+cdat_add_test(test_vcs_isofill_data_read_north_to_south
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_data_read_north_to_south.py
+"${BASELINE_DIR}/test_vcs_isofill_data_read_north_to_south.png"
+)
+# Rename baseline
+cdat_add_test(test_vcs_lon_axes_freak_out
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lon_axes_freak_out.py
+"${BASELINE_DIR}/test_vcs_lon_axes_freak_out.png"
+)
 cdat_add_test(test_vcs_set_colors_name_rgba_1d
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_1d.py
-    "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_1d.png"
-    )
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_1d.py
+"${BASELINE_DIR}/test_vcs_settings_color_name_rgba_1d.png"
+)
 cdat_add_test(test_vcs_set_colors_name_rgba_isoline
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_isoline.py
-    "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isoline.png"
-    )
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_isoline.py
+"${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isoline.png"
+)
 cdat_add_test(test_vcs_settings_color_name_rgba_meshfill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_meshfill.py
-    "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_meshfill.png"
-    )
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_meshfill.py
+"${BASELINE_DIR}/test_vcs_settings_color_name_rgba_meshfill.png"
+)
 cdat_add_test(test_vcs_settings_color_name_rgba_boxfill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_boxfill.py
-    "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_boxfill.png"
-    )
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba_boxfill.py
+"${BASELINE_DIR}/test_vcs_settings_color_name_rgba_boxfill.png"
+)
 cdat_add_test(test_vcs_settings_color_name_rgba
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba.py
-    "${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isofill.png"
-    )
-  cdat_add_test(test_vcs_isofill_mask_cell_shift
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
-    "${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png"
-    )
-  cdat_add_test(test_vcs_bad_time_units
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
-    )
-  cdat_add_test(test_vcs_plot_file_varible
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
-    )
-  FOREACH(gm boxfill isofill meshfill)
-    FOREACH(ori horizontal vertical)
-      FOREACH(ext1 y n)
-        FOREACH(ext2 y n)
-          cdat_add_test(test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
-            "${PYTHON_EXECUTABLE}"
-            ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py
-            --gm_type=${gm}
-            --orientation=${ori}
-            --ext1=${ext1}
-            --ext2=${ext2}
-            "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
-            )
-        ENDFOREACH(ext2)
-      ENDFOREACH(ext1)
-    ENDFOREACH(ori)
-  ENDFOREACH(gm)
-  FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
-    cdat_add_test(test_vcs_basic_${gm}_transparent
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --transparent
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_transparent.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_zero
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --zero
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_zero.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_masked
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --mask
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
-      )
-  ENDFOREACH(gm)
-  cdat_add_test(test_vcs_show
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
-    )
-  FOREACH(gm boxfill isofill isoline meshfill )
-   FOREACH(ptype 0 -3 aeqd)
-    cdat_add_test(test_vcs_basic_${gm}_masked_${ptype}_proj
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --mask
-      --projection=${ptype}
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked_${ptype}_proj.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      --lon1=-180
-      --lon2=180
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_0_360
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      --lon1=0
-      --lon2=360
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=90
-      --lat2=0
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_gm
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      --range_via_gm
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_gm
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      --lon1=-180
-      --lon2=180
-      --range_via_gm
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_gm
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=-90
-      --lat2=0
-      --lon1=0
-      --lon2=360
-      --range_via_gm
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH_gm
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=90
-      --lat2=0
-      --range_via_gm
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH_gm_flip
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --projection=${ptype}
-      --lat1=90
-      --lat2=0
-      --range_via_gm
-      --gm_flips_lat_range
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_gmflip_NH_via_gm.png"
-      )
-   ENDFOREACH(ptype)
-  ENDFOREACH(gm)
-
-  cdat_add_test(test_vcs_isoline_numpy
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
-    ${BASELINE_DIR}/test_vcs_isoline_numpy.png
-    )
-  # Rename baseline
-  cdat_add_test(test_vcs_meshfill_draw_mesh
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_draw_mesh.py
-    ${BASELINE_DIR}/test_vcs_meshfill_draw_mesh.png
-    )
-  # @dlonie is looking into why RH6 fails for these
-  # Rename baselines
-  if (NOT EXISTS /etc/redhat-release)
-    cdat_add_test(test_vcs_isoline_labels_multi_label_input_types
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
-      )
-    cdat_add_test(test_vcs_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labels.png"
-      )
-    cdat_add_test(test_vcs_isoline_labelskipdistance
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labelskipdistance.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labelskipdistance.png"
-      )
-    cdat_add_test(test_vcs_isofill_isoline_labels
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_isoline_labels.py"
-      "${BASELINE_DIR}/test_vcs_isofill_isoline_labels.png"
-      )
-    # Rename baseline
-    cdat_add_test(test_vcs_isoline_width_stipple
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_width_stipple.py"
-      "${BASELINE_DIR}/test_vcs_isoline_width_stipple.png"
-      )
-    cdat_add_test(test_vcs_isoline_labels_background
-      "${PYTHON_EXECUTABLE}"
-      "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_background.py"
-      "${BASELINE_DIR}/test_vcs_isoline_labels_background.png"
-      )
-  endif()
-  cdat_add_test(test_vcs_oned_level_axis
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_oned_level_axis.py
-    "${BASELINE_DIR}/test_vcs_oned_level_axis.png"
-    )
-  cdat_add_test(test_vcs_first_png_blank
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_first_png_blank.py
-    "${BASELINE_DIR}/first_png_blank.png"
-    )
-  #    cdat_add_test(test_vcs_aspect_ratio
-  #  "${PYTHON_EXECUTABLE}"
-  #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
-  #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
-  #  )
-  cdat_add_test(test_vcs_polar_set_opt_param_polar
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
-    "${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
-    )
-  cdat_add_test(test_vcs_boxfill_lev1_lev2
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py
-    "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2.png"
-    )
-  cdat_add_test(test_vcs_boxfill_lev1_lev2_ext1
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext1.py
-    "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext1.png"
-    )
-  cdat_add_test(test_vcs_boxfill_lev1_lev2_ext2
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext2.py
-    "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext2.png"
-    )
-  cdat_add_test(test_vcs_boxfill_lev1_lev2_ext1_ext2
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext1_ext2.py
-    "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext1_ext2.png"
-    )
-
-  cdat_add_test(test_vcs_hatches_patterns
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hatches_patterns.py
-    "${BASELINE_DIR}/test_vcs_hatches_patterns.png"
-    )
-  FOREACH(gm isofill boxfill meshfill)
-    FOREACH(style solid pattern hatch)
-      cdat_add_test(test_vcs_${gm}_${style}_fill_non-contig
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_settings_color_name_rgba.py
+"${BASELINE_DIR}/test_vcs_settings_color_name_rgba_isofill.png"
+)
+cdat_add_test(test_vcs_isofill_mask_cell_shift
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_mask_cell_shift.py
+"${BASELINE_DIR}/test_vcs_isofill_mask_cell_shift.png"
+)
+cdat_add_test(test_vcs_bad_time_units
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_time_units.py
+)
+cdat_add_test(test_vcs_plot_file_varible
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_plot_file_var.py
+)
+FOREACH(gm boxfill isofill meshfill)
+FOREACH(ori horizontal vertical)
+  FOREACH(ext1 y n)
+    FOREACH(ext2 y n)
+      cdat_add_test(test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}
         "${PYTHON_EXECUTABLE}"
-        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py
         --gm_type=${gm}
-        --fill_style=${style}
-        --non-contiguous
-        "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180_non-contig.png"
-        "--threshold=45"
+        --orientation=${ori}
+        --ext1=${ext1}
+        --ext2=${ext2}
+        "--source=${BASELINE_DIR}/test_vcs_legend_${gm}_${ori}_ext1_${ext1}_ext2_${ext2}.png"
         )
-      cdat_add_test(test_vcs_${gm}_${style}_fill
-        "${PYTHON_EXECUTABLE}"
-        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
-        --gm_type=${gm}
-        --fill_style=${style}
-        "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
-        "--threshold=45"
-        )
-      cdat_add_test(test_vcs_${gm}_${style}_fill_0_360
-        "${PYTHON_EXECUTABLE}"
-        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
-        --gm_type=${gm}
-        --fill_style=${style}
-        --lon1=0
-        --lon2=360
-        "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_0_360.png"
-        "--threshold=45"
-        )
-    ENDFOREACH(style)
-  ENDFOREACH(gm)
+    ENDFOREACH(ext2)
+  ENDFOREACH(ext1)
+ENDFOREACH(ori)
+ENDFOREACH(gm)
+FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
+cdat_add_test(test_vcs_basic_${gm}_transparent
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --transparent
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_transparent.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_zero
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --zero
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_zero.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_masked
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --mask
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
+  )
+ENDFOREACH(gm)
+cdat_add_test(test_vcs_show
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_show.py
+)
+FOREACH(gm boxfill isofill isoline meshfill )
+FOREACH(ptype 0 -3 aeqd)
+cdat_add_test(test_vcs_basic_${gm}_masked_${ptype}_proj
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --mask
+  --projection=${ptype}
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked_${ptype}_proj.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  --lon1=-180
+  --lon2=180
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_0_360
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  --lon1=0
+  --lon2=360
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=90
+  --lat2=0
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_gm
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  --range_via_gm
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_gm
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  --lon1=-180
+  --lon2=180
+  --range_via_gm
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_gm
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=-90
+  --lat2=0
+  --lon1=0
+  --lon2=360
+  --range_via_gm
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH_gm
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=90
+  --lat2=0
+  --range_via_gm
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png"
+  )
+cdat_add_test(test_vcs_basic_${gm}_${ptype}_proj_NH_gm_flip
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+  --gm_type=${gm}
+  --projection=${ptype}
+  --lat1=90
+  --lat2=0
+  --range_via_gm
+  --gm_flips_lat_range
+  "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_${ptype}_proj_gmflip_NH_via_gm.png"
+  )
+ENDFOREACH(ptype)
+ENDFOREACH(gm)
 
-  FOREACH(gm isofill meshfill boxfill)
-    FOREACH(proj robinson)
-      cdat_add_test(test_vcs_animate_projected_${gm}_${proj}
-        "${PYTHON_EXECUTABLE}"
-        "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
-        --gm_type=${gm}
-        --projection_type=${proj}
-        --source=${BASELINE_DIR}/test_vcs_animate_projected_${gm}_${proj}.png
-        --threshold=40
-        )
-    ENDFOREACH(proj)
-  ENDFOREACH(gm)
+cdat_add_test(test_vcs_isoline_numpy
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
+${BASELINE_DIR}/test_vcs_isoline_numpy.png
+)
+# Rename baseline
+cdat_add_test(test_vcs_meshfill_draw_mesh
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_meshfill_draw_mesh.py
+${BASELINE_DIR}/test_vcs_meshfill_draw_mesh.png
+)
+# @dlonie is looking into why RH6 fails for these
+# Rename baselines
+if (NOT EXISTS /etc/redhat-release)
+cdat_add_test(test_vcs_isoline_labels_multi_label_input_types
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_multi_label_input_types.py"
+  "${BASELINE_DIR}/test_vcs_isoline_labels_multi_label_input_types.png"
+  )
+cdat_add_test(test_vcs_isoline_labels
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels.py"
+  "${BASELINE_DIR}/test_vcs_isoline_labels.png"
+  )
+cdat_add_test(test_vcs_isoline_labelskipdistance
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labelskipdistance.py"
+  "${BASELINE_DIR}/test_vcs_isoline_labelskipdistance.png"
+  )
+cdat_add_test(test_vcs_isofill_isoline_labels
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_isoline_labels.py"
+  "${BASELINE_DIR}/test_vcs_isofill_isoline_labels.png"
+  )
+# Rename baseline
+cdat_add_test(test_vcs_isoline_width_stipple
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_width_stipple.py"
+  "${BASELINE_DIR}/test_vcs_isoline_width_stipple.png"
+  )
+cdat_add_test(test_vcs_isoline_labels_background
+  "${PYTHON_EXECUTABLE}"
+  "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_labels_background.py"
+  "${BASELINE_DIR}/test_vcs_isoline_labels_background.png"
+  )
+endif()
+cdat_add_test(test_vcs_oned_level_axis
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_oned_level_axis.py
+"${BASELINE_DIR}/test_vcs_oned_level_axis.png"
+)
+cdat_add_test(test_vcs_first_png_blank
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_first_png_blank.py
+"${BASELINE_DIR}/first_png_blank.png"
+)
+#    cdat_add_test(test_vcs_aspect_ratio
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+#  )
+cdat_add_test(test_vcs_polar_set_opt_param_polar
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
+"${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
+)
+cdat_add_test(test_vcs_boxfill_lev1_lev2
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py
+"${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2.png"
+)
+cdat_add_test(test_vcs_boxfill_lev1_lev2_ext1
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext1.py
+"${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext1.png"
+)
+cdat_add_test(test_vcs_boxfill_lev1_lev2_ext2
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext2.py
+"${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext2.png"
+)
+cdat_add_test(test_vcs_boxfill_lev1_lev2_ext1_ext2
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ext1_ext2.py
+"${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ext1_ext2.png"
+)
 
-  FOREACH(flip None X XY Y)
-    cdat_add_test(test_vcs_flip${flip}
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.py
-      "${BASELINE_DIR}/test_vcs_flip${flip}.png"
-      )
-  ENDFOREACH(flip)
+cdat_add_test(test_vcs_hatches_patterns
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hatches_patterns.py
+"${BASELINE_DIR}/test_vcs_hatches_patterns.png"
+)
+FOREACH(gm isofill boxfill meshfill)
+FOREACH(style solid pattern hatch)
+  cdat_add_test(test_vcs_${gm}_${style}_fill_non-contig
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+    --gm_type=${gm}
+    --fill_style=${style}
+    --non-contiguous
+    "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180_non-contig.png"
+    "--threshold=45"
+    )
+  cdat_add_test(test_vcs_${gm}_${style}_fill
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+    --gm_type=${gm}
+    --fill_style=${style}
+    "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_-180_180.png"
+    "--threshold=45"
+    )
+  cdat_add_test(test_vcs_${gm}_${style}_fill_0_360
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_patterns_hatches.py"
+    --gm_type=${gm}
+    --fill_style=${style}
+    --lon1=0
+    --lon2=360
+    "--source=${BASELINE_DIR}/test_vcs_${gm}_${style}_SH_0_360.png"
+    "--threshold=45"
+    )
+ENDFOREACH(style)
+ENDFOREACH(gm)
 
-  cdat_add_test(test_vcs_lambert
-     "${PYTHON_EXECUTABLE}"
-     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lambert.py
-     "${BASELINE_DIR}/test_vcs_lambert.png"
+FOREACH(gm isofill meshfill boxfill)
+FOREACH(proj robinson)
+  cdat_add_test(test_vcs_animate_projected_${gm}_${proj}
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gms_animate_projected_plots.py"
+    --gm_type=${gm}
+    --projection_type=${proj}
+    --source=${BASELINE_DIR}/test_vcs_animate_projected_${gm}_${proj}.png
+    --threshold=40
     )
-  # Rename baseline
-  cdat_add_test(test_vcs_boxfill_lev1_lev2_ta_missing
-     "${PYTHON_EXECUTABLE}"
-     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ta_missing.py
-     "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ta_missing.png"
-    )
+ENDFOREACH(proj)
+ENDFOREACH(gm)
 
-  cdat_add_test(test_vcs_close
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
-    "${BASELINE_DIR}/test_vcs_close.png"
-    )
+FOREACH(flip None X XY Y)
+cdat_add_test(test_vcs_flip${flip}
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.py
+  "${BASELINE_DIR}/test_vcs_flip${flip}.png"
+  )
+ENDFOREACH(flip)
 
-  cdat_add_test(test_vcs_basic_isofill_bigvalues
-    "${PYTHON_EXECUTABLE}"
-    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py"
-    --gm_type=isofill
-    --bigvalues
-    "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
-    )
-  cdat_add_test(test_vcs_issue_960_labels
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
-    ${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
-    ${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
-    )
-  cdat_add_test(test_vcs_animate_meshfill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_meshfill.py
-    ${BASELINE_DIR}
-    )
-  cdat_add_test(test_vcs_animate_isofill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isofill.py
-    ${BASELINE_DIR}
-    )
-  cdat_add_test(test_vcs_animate_boxfill
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_boxfill.py
-    ${BASELINE_DIR}
-    )
-  cdat_add_test(test_vcs_animate_isoline
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline.py
-    ${BASELINE_DIR}
-    )
-  cdat_add_test(test_vcs_animate_isoline_colored
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_colored.py
-    ${BASELINE_DIR}
-    )
-  if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
-    cdat_add_test(test_vcs_animate_isoline_text_labels
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_text_labels.py
-      ${BASELINE_DIR}
-      )
-    cdat_add_test(test_vcs_animate_isoline_text_labels_colored
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_text_labels_colored.py
-      ${BASELINE_DIR}
-      )
-    cdat_add_test(test_vcs_patterns
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-      "${BASELINE_DIR}/test_vcs_patterns.png"
-      )
-    cdat_add_test(test_vcs_vectors_robinson
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
-      "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
-      )
-    cdat_add_test(test_vcs_vectors_robinson_wrap
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
-      "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
-      )
-    cdat_add_test(test_vcs_vectors_scale_options
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_scale_options.py
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_off.png"
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constant.png"
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_linear.png"
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_normalize.png"
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNLinear.png"
-      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNNormalize.png"
-      )
-  endif()
+cdat_add_test(test_vcs_lambert
+ "${PYTHON_EXECUTABLE}"
+ ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_lambert.py
+ "${BASELINE_DIR}/test_vcs_lambert.png"
+)
+# Rename baseline
+cdat_add_test(test_vcs_boxfill_lev1_lev2_ta_missing
+ "${PYTHON_EXECUTABLE}"
+ ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2_ta_missing.py
+ "${BASELINE_DIR}/test_vcs_boxfill_lev1_lev2_ta_missing.png"
+)
+
+cdat_add_test(test_vcs_close
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
+"${BASELINE_DIR}/test_vcs_close.png"
+)
+
+cdat_add_test(test_vcs_basic_isofill_bigvalues
+"${PYTHON_EXECUTABLE}"
+"${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py"
+--gm_type=isofill
+--bigvalues
+"--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
+)
+cdat_add_test(test_vcs_issue_960_labels
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
+${BASELINE_DIR}/test_vcs_issue_960_labels_1.png
+${BASELINE_DIR}/test_vcs_issue_960_labels_2.png
+)
+cdat_add_test(test_vcs_animate_meshfill
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_meshfill.py
+${BASELINE_DIR}
+)
+cdat_add_test(test_vcs_animate_isofill
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isofill.py
+${BASELINE_DIR}
+)
+cdat_add_test(test_vcs_animate_boxfill
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_boxfill.py
+${BASELINE_DIR}
+)
+cdat_add_test(test_vcs_animate_isoline
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline.py
+${BASELINE_DIR}
+)
+cdat_add_test(test_vcs_animate_isoline_colored
+"${PYTHON_EXECUTABLE}"
+${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_colored.py
+${BASELINE_DIR}
+)
+if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))
+cdat_add_test(test_vcs_animate_isoline_text_labels
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_text_labels.py
+  ${BASELINE_DIR}
+  )
+cdat_add_test(test_vcs_animate_isoline_text_labels_colored
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_text_labels_colored.py
+  ${BASELINE_DIR}
+  )
+cdat_add_test(test_vcs_patterns
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+  "${BASELINE_DIR}/test_vcs_patterns.png"
+  )
+cdat_add_test(test_vcs_vectors_robinson
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+  "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
+  )
+cdat_add_test(test_vcs_vectors_robinson_wrap
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
+  "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
+  )
+cdat_add_test(test_vcs_vectors_scale_options
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_scale_options.py
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_off.png"
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_constant.png"
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_linear.png"
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_normalize.png"
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNLinear.png"
+  "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNNormalize.png"
+  )
 endif()
 
 cdat_add_test(test_vcs_endconfigure
