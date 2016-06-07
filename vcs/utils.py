@@ -1795,42 +1795,38 @@ def png_read_metadata(path):
         m[reader.GetTextKey(i)] = reader.GetTextValue(i)
     return m
 
+
 def download_sample_data_files(path=None):
     import requests
-    import sys
     import hashlib
     if path is None:
         path = vcs.sample_data
-    samples = open(os.path.join(vcs.prefix,"share","vcs","sample_files.txt")).readlines()
+    samples = open(os.path.join(vcs.prefix, "share", "vcs", "sample_files.txt")).readlines()
     for sample in samples:
-        good_md5,name = sample.split()
-        local_filename = os.path.join(path,name)
+        good_md5, name = sample.split()
+        local_filename = os.path.join(path, name)
         try:
             os.makedirs(os.path.dirname(local_filename))
-        except Exception,err:
+        except:
             pass
         attempts = 0
         while attempts < 3:
             md5 = hashlib.md5()
             if os.path.exists(local_filename):
-                f=open(local_filename)
+                f = open(local_filename)
                 md5.update(f.read())
-                if md5.hexdigest()==good_md5:
+                if md5.hexdigest() == good_md5:
                     attempts = 5
                     continue
-            print "Downloading:",name,"in",local_filename
-            r = requests.get("http://uvcdat.llnl.gov/cdat/sample_data/"+name,stream = True)
+            print "Downloading:", name, "in", local_filename
+            r = requests.get("http://uvcdat.llnl.gov/cdat/sample_data/" + name, stream=True)
             with open(local_filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024): 
-                    if chunk: # filter local_filename keep-alive new chunks
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:  # filter local_filename keep-alive new chunks
                         f.write(chunk)
                         md5.update(chunk)
             f.close()
             if md5.hexdigest() == good_md5:
                 attempts = 5
             else:
-                attempts+=1
-
-
-
-
+                attempts += 1
