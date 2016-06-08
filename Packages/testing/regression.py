@@ -83,7 +83,7 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThreshold,
-                       baseline=True, cleanup=True, update_baselines = True):
+                       baseline=True, cleanup=True, update_baselines = True, suffix="_linux"):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."
@@ -134,10 +134,11 @@ def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThresh
     print "All baselines failed! Lowest error (%f) exceeds threshold (%f)."%(bestDiff, threshold)
 
     if update_baselines:
+        bestFilename2=bestFilename[:-4]+suffix+".png"
         print "Update baselines is ON so we are assuming you know what you're doing"
-        print "Replacing baseline %s with new baseline from %s" % (bestFilename, fname)
+        print "Replacing baseline %s with new baseline from %s" % (bestFilename2, fname)
         import shutil
-        shutil.copy2(fname, bestFilename)
+        shutil.copy2(fname, bestFilename2)
 
     sp = fname.split(".")
     diffFilename = ".".join(sp[:-1])+"_diff."+sp[-1]
