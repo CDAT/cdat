@@ -12,21 +12,15 @@ class IsolinePipeline(Pipeline2D):
 
     def __init__(self, gm, context_):
         super(IsolinePipeline, self).__init__(gm, context_)
+        self._needsCellData = False
 
-    def _updateVTKDataSet(self):
-        """Overrides baseclass implementation."""
-        # Force point data for isoline/isofill
-        genGridDict = vcs2vtk.genGridOnPoints(self._data1, self._gm,
-                                              deep=False,
-                                              grid=self._vtkDataSet,
-                                              geo=self._vtkGeoTransform)
-        genGridDict["cellData"] = False
-        self._data1 = genGridDict["data"]
-        self._updateFromGenGridDict(genGridDict)
-
-        data = vcs2vtk.numpy_to_vtk_wrapper(self._data1.filled(0.).flat,
-                                            deep=False)
-        self._vtkDataSet.GetPointData().SetScalars(data)
+    def extendAttribute(self, attributes, default):
+        if len(attributes) < len(self._contourLevels):
+            if (len(attributes) == 0):
+                attributeValue = default
+            else:
+                attributeValue = attributes[-1]
+            attributes += [attributeValue] * (len(self._contourLevels) - len(attributes))
 
     def _updateContourLevelsAndColors(self):
         """Overrides baseclass implementation."""
@@ -45,23 +39,8 @@ class IsolinePipeline(Pipeline2D):
             else:
                 if numpy.allclose(self._contourLevels[0], 1.e20):
                     self._contourLevels[0] = -1.e20
-
-        # Contour colors:
         self._contourColors = self._gm.linecolors
-
-    def _createPolyDataFilter(self):
-        """Overrides baseclass implementation."""
-        self._vtkPolyDataFilter = vtk.vtkDataSetSurfaceFilter()
-        if self._useCellScalars:
-            # Sets data to point instead of just cells
-            c2p = vtk.vtkCellDataToPointData()
-            c2p.SetInputData(self._vtkDataSet)
-            c2p.Update()
-            # For contouring duplicate points seem to confuse it
-            self._vtkPolyDataFilter.SetInputConnection(c2p.GetOutputPort())
-        else:
-            self._vtkPolyDataFilter.SetInputData(self._vtkDataSet)
-        self._resultDict["vtk_backend_filter"] = self._vtkPolyDataFilter
+        self.extendAttribute(self._contourColors, default='black')
 
     def _plotInternal(self):
         """Overrides baseclass implementation."""
@@ -71,15 +50,10 @@ class IsolinePipeline(Pipeline2D):
         tmpLineStyles = []
 
         linewidth = self._gm.linewidths
+        self.extendAttribute(linewidth, default=1.0)
+
         linestyle = self._gm.line
-
-        if len(linewidth) < len(self._contourLevels):
-            # fill up the line width values
-            linewidth += [1.0] * (len(self._contourLevels) - len(linewidth))
-
-        if len(linestyle) < len(self._contourLevels):
-            # fill up the line style values
-            linestyle += ['solid'] * (len(self._contourLevels) - len(linestyle))
+        self.extendAttribute(linestyle, default='solid')
 
         plotting_dataset_bounds = self.getPlottingBounds()
         x1, x2, y1, y2 = plotting_dataset_bounds
@@ -97,20 +71,14 @@ class IsolinePipeline(Pipeline2D):
                 if W == linewidth[i] and S == linestyle[i]:
                     # Ok same style and width, lets keep going
                     L.append(l)
-                    if i >= len(self._contourColors):
-                        C.append(self._contourColors[-1])
-                    else:
-                        C.append(self._contourColors[i])
+                    C.append(self._contourColors[i])
                 else:
                     tmpLevels.append(L)
                     tmpColors.append(C)
                     tmpLineWidths.append(W)
                     tmpLineStyles.append(S)
                     L = [l]
-                    if i >= len(self._contourColors):
-                        C = [self._contourColors[-1]]
-                    else:
-                        C = [self._contourColors[i]]
+                    C = [self._contourColors[i]]
                     W = linewidth[i]
                     S = linestyle[i]
 
@@ -164,7 +132,7 @@ class IsolinePipeline(Pipeline2D):
             numLevels = len(l)
 
             cot = vtk.vtkContourFilter()
-            if self._useCellScalars:
+            if self._hasCellData:
                 cot.SetInputConnection(self._vtkPolyDataFilter.GetOutputPort())
             else:
                 cot.SetInputData(self._vtkDataSet)
@@ -172,7 +140,6 @@ class IsolinePipeline(Pipeline2D):
 
             for n in range(numLevels):
                 cot.SetValue(n, l[n])
-            cot.SetValue(numLevels, l[-1])
             # TODO remove update
             cot.Update()
 
@@ -301,8 +268,6 @@ class IsolinePipeline(Pipeline2D):
                 create_renderer=(dataset_renderer is None))
 
             countLevels += len(l)
-        self._resultDict['dataset_renderer'] = dataset_renderer
-        self._resultDict['dataset_scale'] = (xScale, yScale)
         if len(textprops) > 0:
             self._resultDict["vtk_backend_contours_labels_text_properties"] = \
                 textprops
@@ -342,7 +307,8 @@ class IsolinePipeline(Pipeline2D):
             z = None
         kwargs = {"vtk_backend_grid": self._vtkDataSet,
                   "dataset_bounds": self._vtkDataSetBounds,
-                  "plotting_dataset_bounds": plotting_dataset_bounds}
+                  "plotting_dataset_bounds": plotting_dataset_bounds,
+                  "vtk_backend_geo": self._vtkGeoTransform}
         if ("ratio_autot_viewport" in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
         self._resultDict.update(self._context().renderTemplate(
@@ -360,4 +326,3 @@ class IsolinePipeline(Pipeline2D):
                 vp, self._template.data.priority,
                 vtk_backend_grid=self._vtkDataSet,
                 dataset_bounds=self._vtkDataSetBounds)
-            self._resultDict['continents_renderer'] = continents_renderer

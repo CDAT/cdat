@@ -1,20 +1,14 @@
-import vcs
-import cdms2
-import os
-import sys
-import time
+import vcs, numpy, cdms2, MV2, os, sys, time, testing.regression as regression
+
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
-import checkimage
-
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",slice(0,12)) # read only 12 times steps to speed up things
 
-x=vcs.init()
+x = regression.init()
 x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
-
 gm=x.createboxfill()
 x.plot(s,gm,bg=1)
 x.animate.create()
@@ -26,8 +20,7 @@ src_pth = sys.argv[1]
 pth = os.path.join(src_pth,prefix)
 ret = 0
 for p in pngs:
-  print "Checking:",p
-  ret += checkimage.check_result_image(p,os.path.join(pth,os.path.split(p)[1]),checkimage.defaultThreshold)
+  ret += regression.check_result_image(p,os.path.join(pth,os.path.split(p)[1]))
 if ret == 0:
     os.removedirs(os.path.split(p)[0])
     os.remove("%s.mp4" % prefix)

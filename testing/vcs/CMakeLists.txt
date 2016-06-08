@@ -11,11 +11,26 @@ cdat_add_test(test_vcs_bad_png_path
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_bad_png_path.py
 )
-cdat_add_test(test_vcs_boxfill_polar
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_polar.py
-  "${BASELINE_DIR}/test_vcs_boxfill_polar.png"
-  )
+
+foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
+  cdat_add_test(test_vcs_boxfill_${projection}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+    ${projection}
+    )
+endforeach()
+
+foreach(lat_0 45 90)
+  cdat_add_test(test_vcs_boxfill_orthographic_${lat_0}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_orthographic.py
+    "${BASELINE_DIR}/test_vcs_boxfill_orthographic_${lat_0}.png"
+    ${lat_0}
+    )
+endforeach()
+
+
 cdat_add_test(test_vcs_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_create_get.py
@@ -381,6 +396,10 @@ cdat_add_test(test_vcs_missing_colorname
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
   "${BASELINE_DIR}/test_vcs_missing_colorname.png"
   )
+cdat_add_test(test_vcs_geometry
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data
@@ -422,6 +441,11 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_custom.py
     "${BASELINE_DIR}/test_vcs_boxfill_custom.png"
+    )
+  cdat_add_test(test_vcs_boxfill_datawc_time
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_datawc_time.py
+    "${BASELINE_DIR}/test_vcs_boxfill_datawc_time.png"
     )
   cdat_add_test(test_vcs_boxfill_custom_non_default_levels
     "${PYTHON_EXECUTABLE}"
@@ -673,6 +697,11 @@ cdat_add_test(test_vcs_settings_color_name_rgba
    ENDFOREACH(ptype)
   ENDFOREACH(gm)
 
+  cdat_add_test(test_vcs_isoline_extend_attributes
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_extend_attributes.py
+    ${BASELINE_DIR}/test_vcs_isoline_extend_attributes.png
+    )
   cdat_add_test(test_vcs_isoline_numpy
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isoline_numpy.py
@@ -900,6 +929,16 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py
       "${BASELINE_DIR}/test_vcs_vectors_robinson_wrap.png"
       )
+    cdat_add_test(test_vcs_vectors_scale_options
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_scale_options.py
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_off.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constant.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_linear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_normalize.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNLinear.png"
+      "${BASELINE_DIR}/test_vcs_vectors_scale_options_constantNNormalize.png"
+      )
   endif()
 endif()
 
@@ -947,33 +986,22 @@ cdat_add_test(test_vcs_colorpicker_appearance
   ${BASELINE_DIR}/test_vcs_colorpicker_appearance.png
 )
 
-cdat_add_test(test_vcs_click_info
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info.png
-  a_boxfill
-)
 
-cdat_add_test(test_vcs_click_info_mollweide_boxfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_mollweide_boxfill.png
-  a_mollweide_boxfill
-)
-
-cdat_add_test(test_vcs_click_info_meshfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_meshfill.png
-  a_meshfill
-)
-
-cdat_add_test(test_vcs_click_info_robinson_meshfill
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
-  ${BASELINE_DIR}/test_vcs_click_info_robinson_meshfill.png
-  a_robinson_meshfill
-)
+foreach(plot a_boxfill a_mollweide_boxfill a_meshfill a_robinson_meshfill
+        a_isofill a_isoline vector_default)
+  string(SUBSTRING ${plot} 0 2 plot_prefix)
+  if (${plot_prefix} STREQUAL "a_")
+    string(SUBSTRING ${plot} 2 -1 plot_name)
+  else ()
+    string(REGEX MATCH "[^_]+" plot_name ${plot})
+  endif ()
+  cdat_add_test(test_vcs_click_info_${plot_name}
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_click_info.py
+    "${BASELINE_DIR}/test_vcs_click_info_${plot_name}.png"
+    ${plot}
+    )
+endforeach()
 
 
 cdat_add_test(test_vcs_mercator_edge
@@ -994,29 +1022,37 @@ cdat_add_test(test_vcs_large_pattern_hatch
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_large_pattern_hatch.py
   ${BASELINE_DIR}/test_vcs_large_pattern_hatch.png
 )
-# crashes on mac commenting out for release`
-#foreach(x_over_y 0.5 2)
-#  # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
-#  foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
-#    foreach(mode foreground background)
-#      string(SUBSTRING ${plot} 2 -1 plot_name)
-#      cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
-#        "${PYTHON_EXECUTABLE}"
-#        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
-#        "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
-#        ${mode}
-#        ${plot}
-#        ${x_over_y}
-#        )
-#    endforeach()
-#  endforeach()
-#endforeach()
+
+foreach(x_over_y 0.5 2)
+ # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
+ foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
+   foreach(mode foreground background)
+     string(SUBSTRING ${plot} 2 -1 plot_name)
+     cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
+       "${PYTHON_EXECUTABLE}"
+       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
+       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
+       ${mode}
+       ${plot}
+       ${x_over_y}
+       )
+   endforeach()
+ endforeach()
+endforeach()
+
 cdat_add_test(test_vcs_boxfill_lambert_crash
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lambert_crash.py
   "${BASELINE_DIR}/test_vcs_boxfill_lambert_crash.png"
   "${UVCDAT_GIT_TESTDATA_DIR}/data/NCEP_09_climo.nc"
 )
+
+cdat_add_test(test_vcs_line_patterns
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_line_patterns.py
+  "${BASELINE_DIR}/test_vcs_line_patterns.png"
+)
+
 cdat_add_test(test_vcs_init_open_sizing
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init_open_sizing.py

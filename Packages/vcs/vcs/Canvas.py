@@ -71,7 +71,10 @@ canvas_closed = 0
 import vcsaddons  # noqa
 import vcs.manageElements  # noqa
 import configurator  # noqa
-from projection import round_projections  # noqa
+from projection import no_deformation_projections  # noqa
+
+# Python < 3 DeprecationWarning ignored by default
+warnings.simplefilter('default')
 
 
 class SIGNAL(object):
@@ -2333,7 +2336,11 @@ Options:::
                                                     # bunch of plots in a row)
         display_name = "__display_123"                # VCS Display plot name (used to prevent duplicate display plots)
         ratio = 1.5|"autot"|"auto"                   # Ratio of height/width for the plot; autot and auto will choose a
-                                                    # "good" ratio for you.
+                                                     # "good" ratio for you.
+        plot_based_dual_grid = True | False          # Plot the actual grid or the dual grid based on what is
+                                                     # needed by the plot: isofill, isoline, vector need
+                                                     # point attributes, boxfill and meshfill need cell attributes
+                                                     # The default is True (if the parameter is not specified).
     Graphics Output in Background Mode:
        bg                 = 0|1   # if ==1, create images in the background
                                                              (Don't display the VCS Canvas)
@@ -3490,7 +3497,7 @@ Options:::
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
             p = self.getprojection(gm.projection)
-            if p.type in round_projections and (
+            if p.type in no_deformation_projections and (
                     doratio == "0" or doratio[:4] == "auto"):
                 doratio = "1t"
             for keyarg in keyargs.keys():
@@ -3547,7 +3554,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
 
                 proj = self.getprojection(p.projection)
-                if proj.type in round_projections and (
+                if proj.type in no_deformation_projections and (
                         doratio == "0" or doratio[:4] == "auto"):
                     doratio = "1t"
 
@@ -3603,7 +3610,7 @@ Options:::
                         tp = "textcombined"
                     gm = vcs.elements[tp][arglist[4]]
                 p = self.getprojection(gm.projection)
-                if p.type in round_projections:
+                if p.type in no_deformation_projections:
                     doratio = "1t"
                 if p.type == 'linear':
                     if gm.g_name == 'Gfm':
@@ -4109,6 +4116,9 @@ Options:::
     a.geometry(450,337)
 
 """
+        if len(args) == 0:
+            return self.backend.geometry()
+
         if (args[0] <= 0) or (args[1] <= 0):
             raise ValueError(
                 'Error -  The width and height values must be an integer greater than 0.')
@@ -5308,43 +5318,8 @@ Options:::
     ##########################################################################
     def gs(self, filename='noname.gs', device='png256',
            orientation=None, resolution='792x612'):
-        """
-        Function: gs
 
-        Description of Function:
-        This routine allows the user to save the VCS canvas in one of the many
-        GhostScript (gs) file types (also known as devices). To view other
-        GhostScript devices, issue the command "gs --help" at the terminal
-        prompt. Device names include: bmp256, epswrite, jpeg, jpeggray,
-        pdfwrite, png256, png16m, sgirgb, tiffpack, and tifflzw. By default
-        the device = 'png256'.
-
-        If no path/file name is given and no previously created gs file has been
-        designated, then file
-
-        /$HOME/%s/default.gs
-
-        will be used for storing gs images. However, if a previously created gs
-        file exist, then this output file will be used for storage.
-
-        By default, the page orientation is the canvas' orientation.
-        To translate the page orientation to portrait mode (p), set the parameter orientation = 'p'.
-        To translate the page orientation to landscape mode (l), set the parameter orientation = 'l'.
-
-        The gs command is used to create a single gs file at this point. The user
-        can use other tools to append separate image files.
-
-        Example of Use:
-        a=vcs.init()
-        a.plot(array)
-        a.gs('example') #defaults: device='png256', orientation='l' and resolution='792x612'
-        a.gs(filename='example.tif', device='tiffpack', orientation='l', resolution='800x600')
-        a.gs(filename='example.pdf', device='pdfwrite', orientation='l', resolution='200x200')
-        a.gs(filename='example.jpg', device='jpeg', orientation='p', resolution='1000x1000')
-
-        NOTE: This method is marked as deprecated
-        """ % (self._dotdir)
-        warnings.warn("Export to GhostScript is no longer supported", Warning)
+        warnings.warn("Export to GhostScript is no longer supported", DeprecationWarning)
 
     ##########################################################################
     #                                                                           #
