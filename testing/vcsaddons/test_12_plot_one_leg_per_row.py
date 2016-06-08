@@ -1,5 +1,5 @@
 import os, sys, vcs, testing.regression as regression
-from vcsaddons import EzTemplates
+from vcsaddons import EzTemplate
 
 ## Initialize VCS
 x = vcs.init()
