@@ -16,13 +16,25 @@ vcs specific entities will be ``formatted like this``.
 Installation
 ------------
 While there are many ways a user can install vcs, installation using conda is
-preferred for the end user. Currently, to install vcs, you need to install the entire uvcdat
-pacakge. ::
+preferred for the end user. To install just vcs or uvcdat, make sure that anaconda
+or miniconda is installed and in path of your shell. Information on how to install conda
+can be found `here <https://www.continuum.io>`_. Very conda is available on the shell using
+the following command ::
 
-    conda install -c uvcdat
+    conda --help
 
-It is assumed that conda is installed on user's system and is available on the shell.
+To enable conda installation in a tight ssl certificate/security environment try ::
 
+    conda config --set ssl_verify False
+    binstar config --set verify_ssl False
+
+Install uvcdat which will install vcs as well using the following command ::
+
+    conda install uvcdat -c uvcdat
+
+To install only vcs, use the following command ::
+
+    conda install vcs -c uvcdat
 
 Concepts
 --------
