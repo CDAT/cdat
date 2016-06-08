@@ -49,7 +49,8 @@ def convert_arrays(var, theta):
                         except AttributeError:
                             names.append(None)
                     else:
-                        raise ValueError("Array is wrong shape; expected 2d array of 2-long elements, got %dd array of %d-long elements." % (len(arr.shape), arr.shape[-1]))
+                        raise ValueError("Array is wrong shape; expected 2d array of 2-long elements,"
+                                         " got %dd array of %d-long elements." % (len(arr.shape), arr.shape[-1]))
                 else:
                     if len(arr) == 2:
                         # Might be just a pair
@@ -62,7 +63,8 @@ def convert_arrays(var, theta):
                     theta_group = []
                     for val in arr:
                         if len(val) != 2:
-                            raise ValueError("List is wrong shape; expected list/tuple of 2 element list/tuples, got %s of %d elements." % (type(val).__name__, len(val)))
+                            raise ValueError("List is wrong shape; expected list/tuple of 2 element list/tuples,"
+                                             " got %s of %d elements." % (type(val).__name__, len(val)))
                         mag_group.append(val[0])
                         theta_group.append(val[1])
                         names.append(None)
@@ -112,7 +114,8 @@ def convert_arrays(var, theta):
                     except AttributeError:
                         names.append(None)
             else:
-                raise ValueError("Array is wrong shape; expected 1d array or 2d array, got %dd array." % len(var.shape))
+                raise ValueError("Array is wrong shape; expected 1d array or 2d array,"
+                                 " got %dd array." % len(var.shape))
 
         thetas = []
         if isinstance(theta, (list, tuple)):
@@ -126,7 +129,8 @@ def convert_arrays(var, theta):
             elif len(theta.shape) == 2:
                 thetas = [list(theta[i]) for i in range(theta.shape[0])]
             else:
-                raise ValueError("Array is wrong shape; expected 1d array or 2d array, got %dd array." % len(var.shape))
+                raise ValueError("Array is wrong shape; expected 1d array or 2d array,"
+                                 " got %dd array." % len(var.shape))
         if not names:
             names = [None] * len(var)
     return magnitudes, thetas, names
@@ -335,7 +339,8 @@ class Gpo(vcsaddons.core.VCSaddon):
             m_ticks.y = []
 
             if template.ylabel1.priority > 0:
-                to = self.text_orientation_for_angle(self.magnitude_tick_angle, source=template.ylabel1.textorientation)
+                to = self.text_orientation_for_angle(self.magnitude_tick_angle,
+                                                     source=template.ylabel1.textorientation)
                 m_labels = self.create_text(template.ylabel1.texttable, to)
                 m_labels.x = []
                 m_labels.y = []
@@ -410,7 +415,9 @@ class Gpo(vcsaddons.core.VCSaddon):
                 y0 = center[1] + (ymul * radius * numpy.sin(angle))
                 y1 = center[1]
                 if t_labels is not None:
-                    label = self.create_text(template.xlabel1.texttable, self.text_orientation_for_angle(angle, source=template.xlabel1.textorientation))
+                    label = self.create_text(template.xlabel1.texttable,
+                                             self.text_orientation_for_angle(angle,
+                                                                             source=template.xlabel1.textorientation))
                     label.string = [theta_labels[t]]
                     label.x = [x0]
                     label.y = [y0]
@@ -481,7 +488,8 @@ class Gpo(vcsaddons.core.VCSaddon):
                 scale = theta_ticks
                 vals = theta_flat
 
-            indices = [numpy.where(numpy.logical_and(vals >= scale[i], vals <= scale[i + 1])) for i in range(len(scale) - 1)]
+            indices = [numpy.where(numpy.logical_and(vals >= scale[i], vals <= scale[i + 1]))
+                       for i in range(len(scale) - 1)]
             magnitudes = [mag_flat[inds] for inds in indices]
             thetas = [theta_flat[inds] for inds in indices]
             names = vcs.mklabels(scale, output="list")
@@ -498,7 +506,8 @@ class Gpo(vcsaddons.core.VCSaddon):
                 y.append(ymul * numpy.sin(t) * r + center[1])
 
             if template.legend.priority > 0 and name is not None:
-                lx, ly = template.legend.x1, template.legend.y1 + len(labels.x) / float(label_count) * (template.legend.y2 - template.legend.y1)
+                y_offset = len(labels.x) / float(label_count) * (template.legend.y2 - template.legend.y1)
+                lx, ly = template.legend.x1, template.legend.y1 + y_offset
                 x.append(lx)
                 y.append(ly)
                 labels.x.append(lx + .01)
