@@ -4,7 +4,7 @@ import testing.regression as regression
 import vcs
 import vcsaddons, numpy
 
-x=regression.init()
+x = regression.init()
 
 numpy.random.seed(seed=12345)
 vals = numpy.random.random_sample(2000) * 100

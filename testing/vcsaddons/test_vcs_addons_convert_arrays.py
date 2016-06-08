@@ -18,23 +18,24 @@ one_list_tuples = zip(magnitudes, thetas)
 one_list_grouped_tuples = [zip(magnitudes[:2], thetas[:2]), zip(magnitudes[2:], thetas[2:])]
 one_list_of_arrays = [numpy.array(zip(magnitudes[:2], thetas[:2])), numpy.array(zip(magnitudes[2:], thetas[2:]))]
 
+
 def compare(input, expected):
     result = vcsaddons.polar.convert_arrays(*input)
     print "Checking", result[0:2], "vs", expected
     assert result[0] == expected[0]
     assert result[1] == expected[1]
 
-grouped = ([magnitudes[:2], magnitudes[2:]],[thetas[:2], thetas[2:]])
+grouped = ([magnitudes[:2], magnitudes[2:]], [thetas[:2], thetas[2:]])
 
-compare((one_array, None), ([magnitudes],[thetas]))
-compare(two_arrays, ([magnitudes],[thetas]))
+compare((one_array, None), ([magnitudes], [thetas]))
+compare(two_arrays, ([magnitudes], [thetas]))
 compare(two_array_groups, grouped)
 three_d_expected = ([[1, 2], [3, 4]], [[5, 6], [7, 8]])
 compare((three_d_array, None), three_d_expected)
-compare(list_and_array, ([magnitudes],[thetas]))
-compare(two_lists, ([magnitudes],[thetas]))
-compare(lists_of_arrays, ([magnitudes],[thetas]))
-compare(array_and_list, ([magnitudes],[thetas]))
+compare(list_and_array, ([magnitudes], [thetas]))
+compare(two_lists, ([magnitudes], [thetas]))
+compare(lists_of_arrays, ([magnitudes], [thetas]))
+compare(array_and_list, ([magnitudes], [thetas]))
 compare((one_list_tuples, None), ([[i] for i in magnitudes], [[i] for i in thetas]))
 compare((one_list_grouped_tuples, None), grouped)
 compare((one_list_of_arrays, None), grouped)

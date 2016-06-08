@@ -4,7 +4,7 @@ import testing.regression as regression
 import vcs, cdms2
 import vcsaddons, numpy
 
-x=regression.init()
+x = regression.init()
 
 cdmsfile = cdms2.open(vcs.sample_data + "/clt.nc")
 clt = cdmsfile("clt")

@@ -4,7 +4,7 @@ import testing.regression as regression
 import vcs
 import vcsaddons, numpy
 
-x=regression.init()
+x = regression.init()
 
 polar = vcsaddons.polar.Gpo()
 polar.markers = ["dot", "circle"]

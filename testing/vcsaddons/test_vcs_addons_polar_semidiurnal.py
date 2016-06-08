@@ -5,7 +5,7 @@ import vcs
 import vcsaddons, numpy
 import cdms2, cdutil, cdtime
 
-x=regression.init()
+x = regression.init()
 
 f = cdms2.open(os.path.join(vcs.sample_data, "thermo.nc"))
 temp = f('t')

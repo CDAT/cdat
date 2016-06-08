@@ -5,7 +5,7 @@ import vcs
 import vcsaddons, numpy, MV2
 import cdms2, cdutil, cdtime
 
-x=regression.init()
+x = regression.init()
 
 f = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 # Trim first few months and last month so we have even number of seasons
