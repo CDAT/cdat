@@ -6,8 +6,7 @@ Document Conventions
 
 This User Guide is written for end-users of vcs, rather than developers. If you
 have suggestions or questions about this documentation, feel free to contact us
-on `UV-CDAT <https://github.com/UV-CDAT/uvcdat>`_,
-`mailing list <uvcdat-users@lists.llnl.gov>`_.
+on `UV-CDAT <https://github.com/UV-CDAT/uvcdat>`_ `mailing list <uvcdat-users@lists.llnl.gov>`_.
 
 vcs specific entities will be ``formatted like this``.
 
@@ -95,7 +94,8 @@ A description of each secondary object is warranted before showing their use and
 The colormap object is used to specify, create, and modify colormaps. There are 256 colors and color indices, but only the first 240 color indices can be modified (indices 240 through 255 are reserved for VCS internal use). The description of the colormap object is as follows:
 
 * ``colormap`` - A colormap contains 240 user-definable colors that are used for graphical displays. The color mixtures are defined in terms of percentages of red, green, and blue colors (0 to 100% for each). The resulting color depends on the specified mixtures of red, green, and blue. Its class symbol or alias is “Cp”.
-Note: VCS colormaps are objects, but they are not referenced like other secondary objects.
+
+.. note:: VCS colormaps are objects, but they are not referenced like other secondary objects.
 
 
 **Fillarea Object**
