@@ -2,7 +2,7 @@ import os, sys, testing.regression as regression
 
 import vcs
 from vcsaddons import EzTemplate
-import cdms,EzTemplate,vcs,sys
+import cdms,vcs,sys
 ## 12 plots 1 legend per row on the right
 ## Initialize VCS
 x = vcs.init()
