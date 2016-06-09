@@ -19,6 +19,14 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
 )
 
+find_program(CONDA NAMES conda)
+
+if ( ${CONDA} STREQUAL "CONDA-NOTFOUND" ) 
+    message(FATAL_ERROR "Could not locate conda, please make sure conda is installed and in your PATH")
+endif()
+
+message("[INFO] Found conda at: ${CONDA}")
+
 if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
   if (($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "yes") OR
       ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "no"))
