@@ -67,8 +67,8 @@ class IsofillPipeline(Pipeline2D):
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
-            mapper.SetScalarRange(0, len(l) - 1)
-            mapper.SetScalarModeToUseCellData()
+            mapper.SetScalarRange(l[0],l[-1])
+            #mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
         self._resultDict["vtk_backend_luts"] = luts
