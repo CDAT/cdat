@@ -1,9 +1,5 @@
-
-import vcs
-import numpy
-import cdtime
-
-from vcs_test_common import *
+import numpy, cdtime, vcs
+from testing.common import test_values_setting
 
 x=vcs.init()
 x.drawlogooff()

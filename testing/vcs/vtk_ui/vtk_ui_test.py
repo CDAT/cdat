@@ -1,8 +1,4 @@
-import vtk
-import vcs.vtk_ui
-import os
-import sys
-import time
+import os, sys, time, vtk, vcs.vtk_ui
 
 
 def init():
@@ -101,15 +97,13 @@ class vtk_ui_test(object):
     def check_image(self, compare_against):
         """
         Checks the current render window's output against the image specified in the argument,
-        returns the result of checkimage.check_result_image
+        returns the result of regression.check_result_image
         """
         generate_png(self.win, self.test_file)
         pth = os.path.join(os.path.dirname(__file__), "../..")
         sys.path.append(pth)
-        import checkimage
-        print "fnm:", self.test_file
-        print "src:", compare_against
-        return checkimage.check_result_image(self.test_file, compare_against, checkimage.defaultThreshold)
+        import testing.regression as regression
+        return regression.check_result_image(self.test_file, compare_against)
 
     def test(self):
         self.do_test()
