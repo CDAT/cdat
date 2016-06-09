@@ -230,11 +230,11 @@ class Pipeline2D(IPipeline2D):
                 I = indices[i]
                 O = opacities[i]
             else:
-                if l[0] == L[-1] and\
+                if (l[0] == L[-1] and numpy.allclose(l[1]-l[0], L[-1]-L[-2])) and\
                         ((style == 'solid') or
                             (I == indices[i] and C[-1] == self._contourColors[i] and
                              O == opacities[i])):
-                    # Ok same type lets keep going
+                    # Ok same type and interval length lets keep going
                     if numpy.allclose(l[1], 1.e20):
                         L.append(self._scalarRange[1] + 1.)
                     else:
