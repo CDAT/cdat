@@ -105,6 +105,10 @@ cdat_add_test("CDMS_Test_20"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/cdtest20.py)
 
+cdat_add_test("test_ncString"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/test_ncString.py)
+
 if(CDAT_DOWNLOAD_SAMPLE_DATA)
     cdat_add_test("CDMS_Test_JSON"
         "${PYTHON_EXECUTABLE}"

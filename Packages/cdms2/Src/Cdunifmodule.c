@@ -241,7 +241,7 @@ static int cdattget(PyCdunifFileObject *file, int varid, const char* name, void*
 	if (err==-1)
 	    return -1;
 	err = nc_get_att_any(file->id, varid, name, dtype, value);
-	if (dtype == NC_CHAR) {
+	if ((dtype == NC_CHAR)  || (dtype == NC_STRING)) {
 	  ((char *)value)[t_len]='\0';
 	}
 	return err;
