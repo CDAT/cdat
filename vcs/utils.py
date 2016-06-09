@@ -1629,7 +1629,7 @@ def getgraphicsmethod(type, name):
     return copy_mthd
 
 
-def creategraphicsmethod(gtype, name):
+def creategraphicsmethod(gtype, gname='default', name=None):
     if gtype in ['isoline', 'Gi']:
         func = vcs.createisoline
     elif gtype in ['isofill', 'Gfi']:
@@ -1652,12 +1652,28 @@ def creategraphicsmethod(gtype, name):
         func = vcs.createvector
     elif gtype in ['taylordiagram', 'Gtd']:
         func = vcs.createtaylordiagram
-    elif isinstance(type, vcsaddons.core.VCSaddon):
-        func = type.creategm
+    elif gtype == '3d_scalar':
+        func = vcs.create3d_scalar
+    elif gtype == '3d_dual_scalar':
+        func = vcs.create3d_dual_scalar
+    elif gtype == '3d_vector':
+        func = vcs.create3d_vector
+    elif isinstance(gtype, vcsaddons.core.VCSaddon):
+        func = gtype.creategm
     else:
         return None
-    copy_mthd = func(source=name)
+    copy_mthd = func(name=name, source=gname)
     return copy_mthd
+
+
+# Returns the float value for datawc_...
+# datawc_ can be a float or a cdtime.reltime
+# TODO: Investigate why datawc is converted to a cdtime.reltime
+def getDataWcValue(v):
+    if (type(v) is type(cdtime.reltime(0, 'months since 1900'))):
+        return v.value
+    else:
+        return v
 
 
 def getworldcoordinates(gm, X, Y):
@@ -1666,7 +1682,9 @@ def getworldcoordinates(gm, X, Y):
     # compute the spanning in x and y, and adjust for the viewport
     wc = [0, 1, 0, 1]
     try:
-        if gm.datawc_x1 > 9.E19:
+        datawc = [getDataWcValue(gm.datawc_x1), getDataWcValue(gm.datawc_x2),
+                  getDataWcValue(gm.datawc_y1), getDataWcValue(gm.datawc_y2)]
+        if numpy.isclose(datawc[0], 1.e20):
             try:
                 i = 0
                 try:
@@ -1678,8 +1696,8 @@ def getworldcoordinates(gm, X, Y):
             except:
                 wc[0] = X[:].min()
         else:
-            wc[0] = gm.datawc_x1
-        if gm.datawc_x2 > 9.E19:
+            wc[0] = datawc[0]
+        if numpy.isclose(datawc[1], 1.e20):
             try:
                 i = -1
                 try:
@@ -1691,18 +1709,18 @@ def getworldcoordinates(gm, X, Y):
             except:
                 wc[1] = X[:].max()
         else:
-            wc[1] = gm.datawc_x2
+            wc[1] = datawc[1]
     except:
         return wc
     if (((not isinstance(X, cdms2.axis.TransientAxis) and
           isinstance(Y, cdms2.axis.TransientAxis)) or
          not vcs.utils.monotonic(X[:])) and
-        numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20))\
+        numpy.allclose([datawc[0], datawc[1]], 1.e20))\
             or (hasattr(gm, "projection") and
                 vcs.elements["projection"][gm.projection].type != "linear"):
         wc[0] = X[:].min()
         wc[1] = X[:].max()
-    if gm.datawc_y1 > 9.E19:
+    if numpy.isclose(datawc[2], 1.e20):
         try:
             i = 0
             try:
@@ -1714,8 +1732,8 @@ def getworldcoordinates(gm, X, Y):
         except:
             wc[2] = Y[:].min()
     else:
-        wc[2] = gm.datawc_y1
-    if gm.datawc_y2 > 9.E19:
+        wc[2] = datawc[2]
+    if numpy.isclose(datawc[3], 1.e20):
         try:
             i = -1
             try:
@@ -1727,16 +1745,16 @@ def getworldcoordinates(gm, X, Y):
         except:
             wc[3] = Y[:].max()
     else:
-        wc[3] = gm.datawc_y2
+        wc[3] = datawc[3]
     if (((not isinstance(Y, cdms2.axis.TransientAxis) and
           isinstance(X, cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(Y[:])) and
-        numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20)) \
+        numpy.allclose([datawc[2], datawc[3]], 1.e20)) \
             or (hasattr(gm, "projection") and
                 vcs.elements["projection"][
                 gm.projection].type.lower().split()[0]
                 not in ["linear", "polar"] and
-                numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20) and
-                numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20)):
+                numpy.allclose([datawc[2], datawc[3]], 1.e20) and
+                numpy.allclose([datawc[0], datawc[1]], 1.e20)):
         wc[2] = Y[:].min()
         wc[3] = Y[:].max()
     if wc[3] == wc[2]:

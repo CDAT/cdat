@@ -597,6 +597,7 @@ class VTKVCSBackend(object):
 
         vtk_backend_grid = kargs.get("vtk_backend_grid", None)
         vtk_backend_geo = kargs.get("vtk_backend_geo", None)
+        bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
 
         pipeline = vcsvtk.createPipeline(gm, self)
         if pipeline is not None:
@@ -626,7 +627,7 @@ class VTKVCSBackend(object):
                     ren,
                     to=to,
                     tt=tt,
-                    cmap=self.canvas.colormap)
+                    cmap=self.canvas.colormap, geoBounds=bounds, geo=vtk_backend_geo)
                 self.setLayer(ren, tt.priority)
                 self.text_renderers[tt_key] = ren
         elif gtype == "line":
@@ -635,7 +636,6 @@ class VTKVCSBackend(object):
                                           cmap=self.canvas.colormap)
                 returned["vtk_backend_line_actors"] = actors
                 create_renderer = True
-                bounds = vtk_backend_grid.GetBounds() if vtk_backend_grid else None
                 for act, geo in actors:
                     ren = self.fitToViewport(
                         act,
@@ -1063,8 +1063,28 @@ class VTKVCSBackend(object):
                 break
         return plot
 
-    def vectorGraphics(
-            self, output_type, file, width=None, height=None, units=None):
+    def vectorGraphics(self, output_type, file, width=None, height=None,
+                       units=None, textAsPaths=True):
+        """Export vector graphics to PDF, Postscript, SVG and EPS format.
+
+       Reasoning for textAsPaths as default:
+       The output formats supported by gl2ps which VTK uses for postscript/pdf/svg/etc
+       vector exports) handle text objects inconsistently. For example, postscript mangles
+       newlines, pdf doesn't fully support rotation and alignment, stuff like that.
+       These are limitations in the actual format specifications themselves.
+
+       On top of that, embedding text objects then relies on the viewer to locate
+       a similar font and render the text, and odds are good that the fonts used
+       by the viewer will have different characteristics than the ones used in the
+       original rendering. So, for instance, you have some right-justified lines of
+       text, like the data at the top of the VCS plots. If the font used by the viewer
+       uses different widths for any of glyphs composing the text, the text will be
+       unaligned along the right-hand side, since the text is always anchored on
+       it's left side due to how these formats represent text objects. This just looks bad.
+       Exporting text as paths eliminates all of these problems with portability across
+       viewers and inconsistent text object handling between output formats.
+       """
+
         if self.renWin is None:
             raise Exception("Nothing on Canvas to dump to file")
 
@@ -1095,7 +1115,11 @@ class VTKVCSBackend(object):
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
-        gl.TextAsPathOn()
+
+        if textAsPaths:
+            gl.TextAsPathOff()
+        else:
+            gl.TextAsPathOn()
         if output_type == "svg":
             gl.SetFileFormatToSVG()
         elif output_type == "ps":
@@ -1112,14 +1136,17 @@ class VTKVCSBackend(object):
         self.showGUI()
 
     def postscript(self, file, width=None, height=None,
-                   units=None):
-        return self.vectorGraphics("ps", file, width, height, units)
+                   units=None, textAsPaths=True):
+        return self.vectorGraphics("ps", file, width, height,
+                                   units, textAsPaths)
 
-    def pdf(self, file, width=None, height=None, units=None):
-        return self.vectorGraphics("pdf", file, width, height, units)
+    def pdf(self, file, width=None, height=None, units=None, textAsPaths=True):
+        return self.vectorGraphics("pdf", file, width, height,
+                                   units, textAsPaths)
 
-    def svg(self, file, width=None, height=None, units=None):
-        return self.vectorGraphics("svg", file, width, height, units)
+    def svg(self, file, width=None, height=None, units=None, textAsPaths=True):
+        return self.vectorGraphics("svg", file, width,
+                                   height, units, textAsPaths)
 
     def gif(self, filename='noname.gif', merge='r', orientation=None,
             geometry='1600x1200'):

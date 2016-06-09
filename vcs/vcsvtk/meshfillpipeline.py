@@ -210,7 +210,8 @@ class MeshfillPipeline(Pipeline2D):
         self._resultDict["vtk_backend_actors"] = actors
         kwargs = {"vtk_backend_grid": self._vtkDataSet,
                   "dataset_bounds": self._vtkDataSetBounds,
-                  "plotting_dataset_bounds": plotting_dataset_bounds}
+                  "plotting_dataset_bounds": plotting_dataset_bounds,
+                  "vtk_backend_geo": self._vtkGeoTransform}
         if ("ratio_autot_viewport" in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
         self._template.plot(self._context().canvas, self._data1, self._gm,

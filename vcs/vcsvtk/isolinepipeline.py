@@ -14,6 +14,14 @@ class IsolinePipeline(Pipeline2D):
         super(IsolinePipeline, self).__init__(gm, context_)
         self._needsCellData = False
 
+    def extendAttribute(self, attributes, default):
+        if len(attributes) < len(self._contourLevels):
+            if (len(attributes) == 0):
+                attributeValue = default
+            else:
+                attributeValue = attributes[-1]
+            attributes += [attributeValue] * (len(self._contourLevels) - len(attributes))
+
     def _updateContourLevelsAndColors(self):
         """Overrides baseclass implementation."""
         # Contour values:
@@ -31,9 +39,8 @@ class IsolinePipeline(Pipeline2D):
             else:
                 if numpy.allclose(self._contourLevels[0], 1.e20):
                     self._contourLevels[0] = -1.e20
-
-        # Contour colors:
         self._contourColors = self._gm.linecolors
+        self.extendAttribute(self._contourColors, default='black')
 
     def _plotInternal(self):
         """Overrides baseclass implementation."""
@@ -43,15 +50,10 @@ class IsolinePipeline(Pipeline2D):
         tmpLineStyles = []
 
         linewidth = self._gm.linewidths
+        self.extendAttribute(linewidth, default=1.0)
+
         linestyle = self._gm.line
-
-        if len(linewidth) < len(self._contourLevels):
-            # fill up the line width values
-            linewidth += [1.0] * (len(self._contourLevels) - len(linewidth))
-
-        if len(linestyle) < len(self._contourLevels):
-            # fill up the line style values
-            linestyle += ['solid'] * (len(self._contourLevels) - len(linestyle))
+        self.extendAttribute(linestyle, default='solid')
 
         plotting_dataset_bounds = self.getPlottingBounds()
         x1, x2, y1, y2 = plotting_dataset_bounds
@@ -69,20 +71,14 @@ class IsolinePipeline(Pipeline2D):
                 if W == linewidth[i] and S == linestyle[i]:
                     # Ok same style and width, lets keep going
                     L.append(l)
-                    if i >= len(self._contourColors):
-                        C.append(self._contourColors[-1])
-                    else:
-                        C.append(self._contourColors[i])
+                    C.append(self._contourColors[i])
                 else:
                     tmpLevels.append(L)
                     tmpColors.append(C)
                     tmpLineWidths.append(W)
                     tmpLineStyles.append(S)
                     L = [l]
-                    if i >= len(self._contourColors):
-                        C = [self._contourColors[-1]]
-                    else:
-                        C = [self._contourColors[i]]
+                    C = [self._contourColors[i]]
                     W = linewidth[i]
                     S = linestyle[i]
 
@@ -311,7 +307,8 @@ class IsolinePipeline(Pipeline2D):
             z = None
         kwargs = {"vtk_backend_grid": self._vtkDataSet,
                   "dataset_bounds": self._vtkDataSetBounds,
-                  "plotting_dataset_bounds": plotting_dataset_bounds}
+                  "plotting_dataset_bounds": plotting_dataset_bounds,
+                  "vtk_backend_geo": self._vtkGeoTransform}
         if ("ratio_autot_viewport" in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
         self._resultDict.update(self._context().renderTemplate(
