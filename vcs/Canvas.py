@@ -2450,13 +2450,13 @@ Options:::
     def __plot(self, arglist, keyargs):
         import vcsaddons
 
-            # This routine has five arguments in arglist from _determine_arg_list
-            # It adds one for bg and passes those on to Canvas.plot as its sixth
-            # arguments.
+        # This routine has five arguments in arglist from _determine_arg_list
+        # It adds one for bg and passes those on to Canvas.plot as its sixth
+        # arguments.
 
-            # First of all let's remember which elets we have before comin in here
-            # so that anything added (temp objects) can be removed at clear
-            # time
+        # First of all let's remember which elets we have before comin in here
+        # so that anything added (temp objects) can be removed at clear
+        # time
         original_elts = {}
         new_elts = {}
         for k in vcs.elements.keys():
