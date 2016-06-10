@@ -20,16 +20,20 @@ def createusercontinents(name=None,source="default",x=None,template=None):
 
 
 def createpolar(name=None, source="default", x=None, template=None):
+    if "polar_oned" not in gms:
+        init_polar()
     return polar.Gpo(name, source=source, x=x, template=template)
 
 
 def getpolar(name=None):
+    if "polar_oned" not in gms:
+        init_polar()
     if name in gms["polar_oned"]:
         return gms["polar_oned"][name]
     raise KeyError("No Polar GM exists with name '%s'" % name)
 
 
-if "polar_oned" not in gms:
+def init_polar():
     # Create nice polar template
     try:
         t = vcs.createtemplate("polar_oned")
@@ -58,14 +62,14 @@ if "polar_oned" not in gms:
         # Template already exists
         pass
     # Create some nice default polar GMs
-    degree_polar = createpolar("degrees", template="polar_oned")
+    degree_polar = polar.Gpo("degrees", template="polar_oned")
     degree_polar.datawc_x1 = 0
     degree_polar.datawc_x2 = 360
     degree_polar.xticlabels1 = {
         i: str(i) for i in range(0, 360, 45)
     }
 
-    clock_24 = createpolar("diurnal", template="polar_oned")
+    clock_24 = polar.Gpo("diurnal", template="polar_oned")
     clock_24.datawc_x1 = 0
     clock_24.datawc_x2 = 24
     clock_24.clockwise = True
@@ -75,8 +79,7 @@ if "polar_oned" not in gms:
         i: str(i) for i in range(0, 24, 3)
     }
 
-
-    clock_24_meridiem = createpolar("diurnal_12_hour", source="diurnal", template="polar_oned")
+    clock_24_meridiem = polar.Gpo("diurnal_12_hour", source="diurnal", template="polar_oned")
     clock_24_meridiem.xticlabels1 = {
         0: "12 AM",
         3: "3 AM",
@@ -88,7 +91,7 @@ if "polar_oned" not in gms:
         21: "9 PM"
     }
 
-    clock_12 = createpolar("semidiurnal", source="diurnal", template="polar_oned")
+    clock_12 = polar.Gpo("semidiurnal", source="diurnal", template="polar_oned")
     clock_12.datawc_x2 = 12
     clock_12.xticlabels1 = {
         i: str(i) for i in range(3, 13, 3)
@@ -96,7 +99,7 @@ if "polar_oned" not in gms:
     # 3 on the right
     clock_12.theta_offset = -3
 
-    annual_cycle = createpolar("annual_cycle", template="polar_oned")
+    annual_cycle = polar.Gpo("annual_cycle", template="polar_oned")
     annual_cycle.datawc_x1 = 1
     annual_cycle.datawc_x2 = 13
     annual_cycle.clockwise = True
@@ -117,7 +120,7 @@ if "polar_oned" not in gms:
     # Put December on the top
     annual_cycle.theta_offset = -2
 
-    seasonal = createpolar("seasonal", template="polar_oned")
+    seasonal = polar.Gpo("seasonal", template="polar_oned")
     seasonal.datawc_x1 = 0
     seasonal.datawc_x2 = 4
     seasonal.xticlabels1 = {0: "DJF", 1: "MAM", 2: "JJA", 3: "SON"}
