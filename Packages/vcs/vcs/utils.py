@@ -20,7 +20,6 @@ import colormap
 import json
 import os
 import tempfile
-import vcsaddons
 import cdms2
 import genutil
 import vtk
@@ -1616,6 +1615,7 @@ def monotonic(x):
 
 
 def getgraphicsmethod(type, name):
+    import vcsaddons
     if type == "default":
         type = "boxfill"
     if isinstance(type, vcsaddons.core.VCSaddon):
@@ -1630,6 +1630,7 @@ def getgraphicsmethod(type, name):
 
 
 def creategraphicsmethod(gtype, gname='default', name=None):
+    import vcsaddons
     if gtype in ['isoline', 'Gi']:
         func = vcs.createisoline
     elif gtype in ['isofill', 'Gfi']:
@@ -1670,7 +1671,7 @@ def creategraphicsmethod(gtype, gname='default', name=None):
 # datawc_ can be a float or a cdtime.reltime
 # TODO: Investigate why datawc is converted to a cdtime.reltime
 def getDataWcValue(v):
-    if (type(v) is type(cdtime.reltime(0, 'months since 1900'))):
+    if isinstance(v, cdtime.reltime):
         return v.value
     else:
         return v

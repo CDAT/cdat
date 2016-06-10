@@ -44,7 +44,6 @@ import dv3d
 import displayplot
 import projection
 import vcs
-import vcsaddons
 
 from error import vcsError
 
@@ -69,6 +68,7 @@ box=a.getboxfill('quick')  # To Modify an existing boxfill use:
 if vcs.isgraphicsmethod(box):
    box.list()
 """
+    import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
         return 1
     elif (isinstance(gobj, isofill.Gfi)):
@@ -134,6 +134,7 @@ print vcs.graphicsmethodtype(iso)         # Will print 'isofill'
 print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
                                           #         graphics method
 """
+    import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
         return 'boxfill'
     elif (isinstance(gobj, isofill.Gfi)):
