@@ -876,6 +876,17 @@ cdat_add_test(test_vcs_settings_color_name_rgba
     --bigvalues
     "--source=${BASELINE_DIR}/test_vcs_basic_isofill_bigvalues.png"
     )
+
+   foreach(level 0 1 2)
+     cdat_add_test(test_vcs_isofill_level${level}
+       "${PYTHON_EXECUTABLE}"
+       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_levels.py
+       "${BASELINE_DIR}/test_vcs_isofill_level${level}.png"
+       "${UVCDAT_GIT_TESTDATA_DIR}/data/HadSST1870to99.nc"
+       ${level}
+       )
+   endforeach()
+
   cdat_add_test(test_vcs_issue_960_labels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
