@@ -35,6 +35,55 @@ cdat_add_test(vcs_addons_test_EzTemplate_12_plots_spacing
   ${cdat_SOURCE_DIR}/testing/vcsaddons/test_EzTemplate_12_plots_spacing.py
   ${BASELINE_DIR}/test_EzTemplate_12_plots_spacing.png
 )
+cdat_add_test(vcs_addons_test_histogram_defaults
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_histogram_defaults.py
+  ${BASELINE_DIR}/test_vcs_addons_histogram_defaults.png
+)
+cdat_add_test(vcs_addons_test_histogram_inherit
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_histogram_inherit.py
+  ${BASELINE_DIR}/test_vcs_addons_histogram_inherit.png
+)
+cdat_add_test(vcs_addons_test_polar
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar.py
+  ${BASELINE_DIR}/test_vcs_addons_polar.png
+)
+cdat_add_test(vcs_addons_test_polar_inherit
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_inherit.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_inherit.png
+)
+cdat_add_test(vcs_addons_test_convert_arrays
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_convert_arrays.py
+)
+cdat_add_test(vcs_addons_test_polar_degrees
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_degrees.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_degrees.png
+)
+cdat_add_test(vcs_addons_test_polar_annual
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_annual.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_annual.png
+)
+cdat_add_test(vcs_addons_test_polar_diurnal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_diurnal.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_diurnal.png
+)
+cdat_add_test(vcs_addons_test_polar_seasonal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_seasonal.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_seasonal.png
+)
+cdat_add_test(vcs_addons_test_polar_semidiurnal
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_polar_semidiurnal.py
+  ${BASELINE_DIR}/test_vcs_addons_polar_semidiurnal.png
+)
 
 if (CDAT_DOWNLOAD_SAMPLE_DATA)
   cdat_add_test(vcs_addons_EzTemplate_2x2

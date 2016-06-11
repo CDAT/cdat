@@ -68,7 +68,6 @@ from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisc
     plot_2_1D_options
 gui_canvas_closed = 0
 canvas_closed = 0
-import vcsaddons  # noqa
 import vcs.manageElements  # noqa
 import configurator  # noqa
 from projection import no_deformation_projections  # noqa
@@ -127,7 +126,7 @@ def dictionarytovcslist(dictionary, name):
 
 def _determine_arg_list(g_name, actual_args):
     "Determine what is in the argument list for plotting graphics methods"
-
+    import vcsaddons
     itemplate_name = 2
     igraphics_method = 3
     igraphics_option = 4
@@ -2449,14 +2448,15 @@ Options:::
         return new
 
     def __plot(self, arglist, keyargs):
+        import vcsaddons
 
-            # This routine has five arguments in arglist from _determine_arg_list
-            # It adds one for bg and passes those on to Canvas.plot as its sixth
-            # arguments.
+        # This routine has five arguments in arglist from _determine_arg_list
+        # It adds one for bg and passes those on to Canvas.plot as its sixth
+        # arguments.
 
-            # First of all let's remember which elets we have before comin in here
-            # so that anything added (temp objects) can be removed at clear
-            # time
+        # First of all let's remember which elets we have before comin in here
+        # so that anything added (temp objects) can be removed at clear
+        # time
         original_elts = {}
         new_elts = {}
         for k in vcs.elements.keys():
@@ -3493,9 +3493,14 @@ Options:::
                     tp = "boxfill"
                 elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
                     tp = "1d"
-                gm = vcs.elements[tp][arglist[4]]
+                if tp in vcsaddons.gms:
+                    gm = vcsaddons.gms[tp][arglist[4]]
+                    arglist[3] = gm
+                else:
+                    gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
+
             p = self.getprojection(gm.projection)
             if p.type in no_deformation_projections and (
                     doratio == "0" or doratio[:4] == "auto"):
@@ -3710,20 +3715,22 @@ Options:::
                 del(keyargs["bg"])
             if isinstance(arglist[3], vcsaddons.core.VCSaddon):
                 if arglist[1] is None:
-                    dn = arglist[3].plot(
+                    dn = arglist[3].plot_internal(
                         arglist[0],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
                 else:
-                    dn = arglist[3].plot(
+                    dn = arglist[3].plot_internal(
                         arglist[0],
                         arglist[1],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
+                self.display_names.append(dn.name)
+                return dn
             else:
                 returned_kargs = self.backend.plot(*arglist, **keyargs)
                 if not keyargs.get("donotstoredisplay", False):
@@ -4912,7 +4919,6 @@ Options:::
             W = H
             H = tmp
         return W, H
-
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches', textAsPaths=True):
