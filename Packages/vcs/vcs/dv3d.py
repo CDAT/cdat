@@ -158,7 +158,6 @@ class Gfdv3d(object):
         self.plot_attributes['name'] = self.g_name
         self.plot_attributes['template'] = Gfdv3d_name
 
-
     def setProvenanceHandler(self, provenanceHandler):
         self.provenanceHandler = provenanceHandler
 

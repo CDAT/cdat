@@ -4920,7 +4920,6 @@ Options:::
             H = tmp
         return W, H
 
-
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches', textAsPaths=True):
         """
