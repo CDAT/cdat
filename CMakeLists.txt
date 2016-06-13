@@ -284,4 +284,13 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install_cdat_from_con
     @ONLY
     )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/clean_cdat_from_conda.bash.in
+    ${cdat_CMAKE_BINARY_DIR}/clean_cdat_from_conda.bash
+    @ONLY
+    )
 add_subdirectory(testing)
+
+# Clean conda env
+add_custom_target(clean-conda
+    COMMAND ${cdat_CMAKE_BINARY_DIR}/clean_cdat_from_conda.bash
+    )
