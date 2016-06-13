@@ -401,6 +401,10 @@ cdat_add_test(test_vcs_geometry
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
   )
+cdat_add_test(test_vcs_export_text
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_export_text.py
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data

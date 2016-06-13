@@ -1823,10 +1823,10 @@ def generateVectorArray(data1, data2, vtk_grid):
 
 def vtkIterate(iterator):
     iterator.InitTraversal()
-    obj = iterator.GetNextItem()
+    obj = iterator.GetNextItemAsObject()
     while obj is not None:
         yield obj
-        obj = iterator.GetNextItem()
+        obj = iterator.GetNextItemAsObject()
 
 
 def getPlottingBounds(gmbounds, databounds, geo):
