@@ -134,7 +134,7 @@ class VTKAnimationPlayback(animate_helper.AnimationPlayback):
             self.controller.draw_frame(
                 allow_static=False,
                 render_offscreen=False,
-                main_window_png=False)
+                main_window_png=True)
 
             self.controller.frame_num += 1
             if self.controller.frame_num >= self.controller.number_of_frames():
@@ -280,8 +280,8 @@ class VTKAnimate(animate_helper.AnimationController):
         be.showGUI()
         be.renWin.Render()
 
-    def draw_frame(self, frame_num=None, render_offscreen=True,
-                   allow_static=True, main_window_png=False):
+    def draw_frame(self, frame_num=None, render_offscreen=False,
+                   allow_static=False, main_window_png=True):
         """
         Draws a frame on the canvas
           frame_num: Which frame to draw- defaults to self.frame_num
@@ -295,8 +295,7 @@ class VTKAnimate(animate_helper.AnimationController):
         else:
             self.frame_num = frame_num
 
-        if render_offscreen or (
-                allow_static and len(self.animation_files) == self.number_of_frames()):
+        if len(self.animation_files) == self.number_of_frames():
             # Attempt to extract the renderers and place them onto the create
             # thread
             self.extract_renderers()
@@ -346,4 +345,5 @@ class VTKAnimate(animate_helper.AnimationController):
         self.draw_frame(
             frame_num=frame,
             allow_static=False,
-            render_offscreen=False)
+            render_offscreen=False,
+            main_window_png=True)
