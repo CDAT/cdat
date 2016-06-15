@@ -1,10 +1,11 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
-add_test(flake8_vcs
-  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"
+cdat_add_test(flake8_vcs
+  flake8 "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"
   --show-source # Show context for detected errors
   --statistics  # Show summary of errors at end of output
   --max-line-length=120 # Reasonable line length
+  --ignore=F999,E121,E123,E126,E226,E24,E704 # recent version show zillions of errors if object come from an import * line
 )
 
 cdat_add_test(test_vcs_bad_png_path

@@ -1,0 +1,5 @@
+
+#!/usr/bin/env bash
+
+source activate root
+@CONDA@ remove --all -y -n @CONDA_ENVIRONMENT_NAME@
