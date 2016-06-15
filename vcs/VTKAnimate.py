@@ -134,7 +134,7 @@ class VTKAnimationPlayback(animate_helper.AnimationPlayback):
             self.controller.draw_frame(
                 allow_static=False,
                 render_offscreen=False,
-                main_window_png=True)
+                main_window_png=False)
 
             self.controller.frame_num += 1
             if self.controller.frame_num >= self.controller.number_of_frames():
@@ -317,7 +317,7 @@ class VTKAnimate(animate_helper.AnimationController):
 
             self.vcs_self.backend.renWin.Render()
 
-            if main_window_png:
+            if main_window_png or self.playback_params.zoom_factor != 1:
                 png_name = self.create_thread.get_frame_name(self.frame_num)
                 self.vcs_self.png(png_name)
                 self.animation_files = sorted(
@@ -346,4 +346,4 @@ class VTKAnimate(animate_helper.AnimationController):
             frame_num=frame,
             allow_static=False,
             render_offscreen=False,
-            main_window_png=True)
+            main_window_png=False)
