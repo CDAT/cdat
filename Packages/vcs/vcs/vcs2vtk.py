@@ -647,9 +647,9 @@ def projectArray(w, projection, wc, geo=None):
 
     for i in range(0, w.GetNumberOfTuples()):
         tuple = [0, 0, 0]
-        w.GetTupleValue(i, tuple)
+        w.GetTypedTuple(i, tuple)
         geo.TransformPoint(tuple, tuple)
-        w.SetTupleValue(i, tuple)
+        w.SetTypedTuple(i, tuple)
 
 
 # Geo projection
@@ -1296,9 +1296,9 @@ def prepFillarea(renWin, farea, cmap=None):
             if opacity is not None:
                 color[-1] = opacity
             color = [int(C / 100. * 255) for C in color]
-            colors.SetTupleValue(cellId, color)
+            colors.SetTypedTuple(cellId, color)
         else:
-            color_arr.SetTupleValue(cellId, [255, 255, 255, 0])
+            color_arr.SetTypedTuple(cellId, [255, 255, 255, 0])
 
         if st != "solid":
             # Patterns/hatches support
@@ -1706,7 +1706,7 @@ def prepLine(renWin, line, cmap=None):
                     pts.InsertNextPoint(tmpx, tmpy, 0.)
                     n2 += 1
         for j in range(n2):
-            colors.InsertNextTupleValue(vtk_color)
+            colors.InsertNextTypedTuple(vtk_color)
             l = vtk.vtkLine()
             l.GetPointIds().SetId(0, j + point_offset)
             l.GetPointIds().SetId(1, j + point_offset + 1)
