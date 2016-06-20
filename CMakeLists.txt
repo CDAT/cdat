@@ -25,6 +25,10 @@ if ( ${CONDA} STREQUAL "CONDA-NOTFOUND" )
     message(FATAL_ERROR "Could not locate conda, please make sure conda is installed and in your PATH")
 endif()
 
+find_program(ACTIVATE NAMES activate)
+if ( ${ACTIVATE} STREQUAL "ACTIVATE-NOTFOUND" ) 
+    message(FATAL_ERROR "Could not locate activate, please make sure conda is installed and in your PATH")
+endif()
 message("[INFO] Found conda at: ${CONDA}")
 
 if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
