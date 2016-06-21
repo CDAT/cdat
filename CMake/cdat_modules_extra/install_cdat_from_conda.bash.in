@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+@CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c @CONDA_CHANNEL_UVCDAT@  hdf5 libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>=4.9.2 vtk==uvcdat libcdms cdat_info flake8 requests numpy==1.9.2 matplotlib --show-channel-urls --copy
+
+source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
+for pkg in testing cdtime regrid2 cdms2 esg DV3D vcs vcsaddons cdutil unidata xmgrace genutil Thermo WK distarray; do
+    cd @cdat_SOURCE_DIR@/Packages/${pkg}
+    rm -rf build
+    if [ ${pkg} == "vcs" ]; then
+        python setup.py install --old-and-unmanageable
+    else
+        python setup.py install
+    fi
+done
+

@@ -1,5 +1,5 @@
 import vcs
-import EzTemplate
+form vcsaddons import EzTemplate
 
 M=EzTemplate.Multi(rows=2,columns=2)
 

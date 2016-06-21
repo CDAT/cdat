@@ -1,4 +1,0 @@
-[DEFAULT]
-library_dirs = @EXTERNALS@/lib
-include_dirs = @EXTERNALS@/include
-
