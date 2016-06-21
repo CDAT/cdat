@@ -94,15 +94,14 @@ def setArray(grid, array, arrayName, isCellData, isScalars):
 
 
 def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
-    # Ok now looking
     msk = data.mask
     mapper = None
     if msk is not numpy.ma.nomask and not numpy.allclose(msk, False):
         if actorColor is not None:
-            flatIMask = msk.astype(numpy.int).flat
+            flatIMask = msk.astype(numpy.double).flat
             if grid.IsA("vtkStructuredGrid"):
                 grid2 = vtk.vtkStructuredGrid()
-                vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep)
+                vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep, array_type=vtk.VTK_DOUBLE)
                 attributes2 = grid2.GetCellData() if cellData else grid2.GetPointData()
             else:
                 grid2 = vtk.vtkUnstructuredGrid()
@@ -114,26 +113,32 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
                     attributes = grid.GetPointData()
                 if (attributes.GetPedigreeIds()):
                     attributes2.SetPedigreeIds(attributes.GetPedigreeIds())
-                    vtkmask = vtk.vtkIntArray()
+                    pedigreeId = attributes2.GetPedigreeIds()
+                    vtkmask = vtk.vtkDoubleArray()
                     vtkmask.SetNumberOfTuples(attributes2.GetPedigreeIds().GetNumberOfTuples())
+                    for i in range(0, vtkmask.GetNumberOfTuples()):
+                        vtkmask.SetValue(i, flatIMask[pedigreeId.GetValue(i)])
                 else:
                     # the unstructured grid is not wrapped
-                    vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep)
+                    vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep, array_type=vtk.VTK_DOUBLE)
             vtkmask.SetName("scalar")
             attributes2.RemoveArray(vtk.vtkDataSetAttributes.GhostArrayName())
             attributes2.SetScalars(vtkmask)
             grid2.CopyStructure(grid)
-            setArray(grid2, flatIMask, "scalar", isCellData=cellData,
-                     isScalars=True)
             geoFilter = vtk.vtkDataSetSurfaceFilter()
             lut = vtk.vtkLookupTable()
             r, g, b, a = actorColor
-            lut.SetNumberOfTableValues(2)
             geoFilter.SetInputData(grid2)
             if not cellData:
-                lut.SetTableValue(0, r / 100., g / 100., b / 100., a / 100.)
-                lut.SetTableValue(1, r / 100., g / 100., b / 100., a / 100.)
+                pointToCell = vtk.vtkPointDataToCellData()
+                pointToCell.SetInputConnection(geoFilter.GetOutputPort())
+                geoFilter = pointToCell
+                lut.SetNumberOfTableValues(256)
+                lut.SetTableValue(0, 1., 1., 1., 1.)
+                for i in range(1, 256):
+                    lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
             else:
+                lut.SetNumberOfTableValues(2)
                 lut.SetTableValue(0, r / 100., g / 100., b / 100., 0.)
                 lut.SetTableValue(1, r / 100., g / 100., b / 100., 1.)
             geoFilter.Update()
