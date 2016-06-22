@@ -1,18 +1,16 @@
 """CDMS database objects"""
 
-from error import CDMSError
-import cdmsobj
-import cdurlparse
-## import internattr
+from .error import CDMSError
+from . import cdmsobj
+from . import cdurlparse
+# import internattr
 import copy
 import os
 import re
-import string
 import sys
-import types
-from CDMLParser import CDMLParser
-from cdmsobj import CdmsObj
-from dataset import Dataset
+from .CDMLParser import CDMLParser
+from .cdmsobj import CdmsObj
+from .dataset import Dataset
 
 try:
     import ldap
@@ -33,9 +31,11 @@ MethodNotImplemented = "Method not yet implemented"
 PermissionError = "No permission to access"
 SchemeNotSupported = "Scheme not supported"
 
-_Att = re.compile('([a-zA-Z_:][-a-zA-Z0-9._:]*)=(.*)',re.DOTALL)
+_Att = re.compile('([a-zA-Z_:][-a-zA-Z0-9._:]*)=(.*)', re.DOTALL)
 
 # Open a database connection
+
+
 def connect(uri=None, user="", password=""):
     """
     Method:
@@ -64,36 +64,48 @@ def connect(uri=None, user="", password=""):
         try:
             uri = os.environ['CDMSROOT']
         except KeyError:
-            raise CDMSError, ConnectError + '%s\nSet environment variable CDMSROOT to default database location'%uri
-    (scheme,netloc,path,parameters,query,fragment)=cdurlparse.urlparse(uri)
+            raise CDMSError(
+                ConnectError +
+                '%s\nSet environment variable CDMSROOT to default database location' %
+                uri)
+    (scheme, netloc, path, parameters, query,
+     fragment) = cdurlparse.urlparse(uri)
 
-    if scheme in ['','ldap']:
+    if scheme in ['', 'ldap']:
         try:
             ldapdb = ldap.open(netloc)
         except:
-            raise CDMSError, ConnectError +"%s\n%s"%(uri,sys.exc_value)
+            raise CDMSError(ConnectError + "%s\n%s" % (uri, sys.exc_info()[1]))
 
         try:
-            ldapdb.simple_bind_s(user,password)
+            ldapdb.simple_bind_s(user, password)
         except:
-            raise CDMSError, AuthenticationError + "%s\n%s"%(uri,sys.exc_value)
+            raise CDMSError(
+                AuthenticationError + "%s\n%s" %
+                (uri, sys.exc_info()[1]))
 
         try:
-            result = ldapdb.search_s(path[1:], ldap.SCOPE_SUBTREE, "objectclass=database")
+            result = ldapdb.search_s(
+                path[1:],
+                ldap.SCOPE_SUBTREE,
+                "objectclass=database")
         except:
-            raise CDMSError, DatabaseNotFound + "%s\n%s"%(uri,sys.exc_value)
+            raise CDMSError(
+                DatabaseNotFound + "%s\n%s" %
+                (uri, sys.exc_info()[1]))
 
         try:
             dn, attrs = result[0]
         except:
-            raise CDMSError, PermissionError + uri
-        newuri = "ldap://%s/%s"%(netloc,dn)
+            raise CDMSError(PermissionError + uri)
+        newuri = "ldap://%s/%s" % (netloc, dn)
         db = LDAPDatabase(newuri, ldapdb)
         db.setExternalDict(attrs)
         return db
 
     else:
-        raise CDMSError, SchemeNotSupported +  scheme
+        raise CDMSError(SchemeNotSupported + scheme)
+
 
 def loadString(text, uri, parent=None, datapath=None):
     """ Create a dataset from a text string. <text> is the string in CDML format.
@@ -101,59 +113,61 @@ def loadString(text, uri, parent=None, datapath=None):
         <parent> is the containing database object, if any.
         <datapath> is the location of data files relative to the parent database URL.
     """
-    p=CDMLParser()
+    p = CDMLParser()
     p.feed(text)
     p.close()
-    return Dataset(uri,'r',p.getRoot(),parent,datapath)
-    
+    return Dataset(uri, 'r', p.getRoot(), parent, datapath)
+
 
 class AbstractDatabase(CdmsObj):
-    """AbstractDatabase defines the common database interface. Concrete database classes are 
+
+    """AbstractDatabase defines the common database interface. Concrete database classes are
        derived from this class.
     """
 
     def __init__(self, uri, path):
-        CdmsObj.__init__(self,None)
+        CdmsObj.__init__(self, None)
         self.uri = uri
         self.path = path
         self._cache_ = {}
         self._cdmlcache_ = {}
-        self._datacache_ = None # datasetdn: obj # Remote file data cache
+        self._datacache_ = None  # datasetdn: obj # Remote file data cache
         self.lcBaseDN = None            # Logical Collection base distinguished name
         self.useReplica = None          # Use replica catalog if true (request manager transfers only)
         self.userid = None              # User ID for request manager transfers
 
     def close(self):
-        raise CDMSError, MethodNotImplemented
+        raise CDMSError(MethodNotImplemented)
 
     def cachecdml(self, name, cdml):
-        raise CDMSError, MethodNotImplemented
+        raise CDMSError(MethodNotImplemented)
 
     def getDataset(self, name):
-        raise CDMSError, MethodNotImplemented
+        raise CDMSError(MethodNotImplemented)
 
     def getObjFromDataset(self, name):
-        raise CDMSError, MethodNotImplemented
+        raise CDMSError(MethodNotImplemented)
 
     def openDataset(self, dsetid, mode='r'):
-        raise CDMSError, MethodNotImplemented
+        raise CDMSError(MethodNotImplemented)
 
-    def searchFilter(self, filter, classtag=None, relbase=None, scope=Subtree, attnames=[]):
-        raise CDMSError, MethodNotImplemented
+    def searchFilter(self, filter, classtag=None,
+                     relbase=None, scope=Subtree, attnames=[]):
+        raise CDMSError(MethodNotImplemented)
 
     def enableCache(self):
         if self._datacache_ is None:
-            import cache
+            from . import cache
             self._datacache_ = cache.Cache()
         return self._datacache_
 
     def disableCache(self):
-        if self._datacache_ != None:
+        if self._datacache_ is not None:
             self._datacache_.delete()
             self._datacache_ = None
 
-    def useRequestManager(self, lcBaseDN, useReplica=1, userid = "anonymous"):
-        import cache
+    def useRequestManager(self, lcBaseDN, useReplica=1, userid="anonymous"):
+        from . import cache
         self.enableCache()
         cache.useRequestManagerTransfer()
         self.lcBaseDN = lcBaseDN
@@ -161,20 +175,23 @@ class AbstractDatabase(CdmsObj):
         self.userid = userid
 
     def usingRequestManager(self):
-        import cache
-        return (cache._transferMethod==cache._requestManagerTransfer)
+        from . import cache
+        return (cache._transferMethod == cache._requestManagerTransfer)
 
     def __repr__(self):
-        return "<Database '%s'>"%(self.uri)
+        return "<Database '%s'>" % (self.uri)
 
-## internattr.add_internal_attribute(AbstractDatabase, 'uri', 'path')
+# internattr.add_internal_attribute(AbstractDatabase, 'uri', 'path')
 
 # Database implemented via LDAP (Lightweight Directory Access Protocol)
+
+
 class LDAPDatabase(AbstractDatabase):
 
     def __init__(self, uri, db):
-        (scheme,netloc,path,parameters,query,fragment)=cdurlparse.urlparse(uri)
-        AbstractDatabase.__init__(self,uri,path[1:])
+        (scheme, netloc, path, parameters, query,
+         fragment) = cdurlparse.urlparse(uri)
+        AbstractDatabase.__init__(self, uri, path[1:])
         self.netloc = netloc
         self.db = db
 
@@ -193,58 +210,64 @@ class LDAPDatabase(AbstractDatabase):
           None
 
         """
-        if self.db != None:
+        if self.db is not None:
             self.db.unbind()
         self.db = None
         self.disableCache()
-        
+
     def __del__(self):
         # if cdmsobj._debug==1:
         #    print 'Deleting object',self
         self.close()
-    
+
     def normalizedn(self, dn):
         explodeddn = ldap.explode_dn(dn)
-        return string.join(explodeddn,',')
+        return ','.join(explodeddn)
 
     def cachecdml(self, name, cdml, datapath):
         normaldn = self.normalizedn(name)
-        self._cdmlcache_[normaldn] = (cdml,datapath)
+        self._cdmlcache_[normaldn] = (cdml, datapath)
 
     def getDataset(self, dn):
         normaldn = self.normalizedn(dn)
-        if self._cache_.has_key(normaldn):
+        if normaldn in self._cache_:
             dataset = self._cache_[normaldn]
-        elif self._cdmlcache_.has_key(normaldn):
-            (text,datapath) = self._cdmlcache_[normaldn]
-            uri = "ldap://%s/%s"%(self.netloc,normaldn)
-            if cdmsobj._debug==1:
-                print 'Loading %s from cached CDML'%uri
-            dataset = loadString(text,uri,self,datapath)
+        elif normaldn in self._cdmlcache_:
+            (text, datapath) = self._cdmlcache_[normaldn]
+            uri = "ldap://%s/%s" % (self.netloc, normaldn)
+            if cdmsobj._debug == 1:
+                print 'Loading %s from cached CDML' % uri
+            dataset = loadString(text, uri, self, datapath)
             self._cache_[normaldn] = dataset
         else:
-            if cdmsobj._debug==1:
-                print 'Search filter: (objectclass=dataset), scope: base, base: "%s", attributes=["cdml"]'%(dn,)
-            result = self.db.search_s(dn, ldap.SCOPE_BASE, "objectclass=dataset",["cdml","datapath"])
-            resultdn,attrs = result[0]
+            if cdmsobj._debug == 1:
+                print 'Search filter: (objectclass=dataset), scope: base, base: "%s", attributes=["cdml"]' % (dn,)
+            result = self.db.search_s(
+                dn,
+                ldap.SCOPE_BASE,
+                "objectclass=dataset",
+                ["cdml",
+                 "datapath"])
+            resultdn, attrs = result[0]
             text = attrs["cdml"][0]
-            uri = "ldap://%s/%s"%(self.netloc,normaldn)
+            uri = "ldap://%s/%s" % (self.netloc, normaldn)
             datapath = attrs.get("datapath")
-            if datapath: datapath = datapath[0]
-            dataset = loadString(text,uri,self,datapath)
+            if datapath:
+                datapath = datapath[0]
+            dataset = loadString(text, uri, self, datapath)
             self._cache_[normaldn] = dataset
         return dataset
- 
+
     def getObjFromDataset(self, dn):
 
         # Get the parent dataset
         explodeddn = ldap.explode_dn(dn)
-        dsetdn = string.join(explodeddn[1:],',') # Dataset node is parent of variable
+        dsetdn = ','.join(explodeddn[1:])  # Dataset node is parent of variable
         dset = self.getDataset(dsetdn)
         rdn = explodeddn[0]
         matchobj = _Att.match(rdn)
         if matchobj is None:
-            raise CDMSError, InvalidEntryName +  dn
+            raise CDMSError(InvalidEntryName + dn)
         tag, id = matchobj.groups()
 
         # Get the correct dictionary for this tag
@@ -275,7 +298,7 @@ class LDAPDatabase(AbstractDatabase):
 
           dset = db.openDataset('ncep_reanalysis_mo')
         """
-        dn = "dataset=%s,%s"%(dsetid,self.path)
+        dn = "dataset=%s,%s" % (dsetid, self.path)
         dset = self.getDataset(dn)
         return dset
 
@@ -287,23 +310,24 @@ class LDAPDatabase(AbstractDatabase):
     def setExternalDict(self, ldapattrs):
         for attname in ldapattrs.keys():
             attvals = ldapattrs[attname]
-            if attname=='objectclass':
+            if attname == 'objectclass':
                 continue
-            elif attname=='attr':       # Handle attr: name=value
+            elif attname == 'attr':       # Handle attr: name=value
                 for attval in attvals:
                     matchobj = _Att.match(attval)
                     if matchobj is not None:
-                        newname,newval = matchobj.groups()
+                        newname, newval = matchobj.groups()
                         self.attributes[newname] = newval
 
             # If the attribute value is a multi-valued list, keep it as a list
             # otherwise copy the single value from the list.
-            if len(attvals)==1:
+            if len(attvals) == 1:
                 self.attributes[attname] = attvals[0]
             else:
                 self.attributes[attname] = attvals
 
-    def searchFilter(self, filter=None, tag=None, relbase=None, scope=Subtree, attnames=None, timeout=None):
+    def searchFilter(self, filter=None, tag=None,
+                     relbase=None, scope=Subtree, attnames=None, timeout=None):
         """
         Method:
 
@@ -334,7 +358,7 @@ class LDAPDatabase(AbstractDatabase):
                              "<=" |     # lexicographically less than or equal to
                              ">="       # lexicographically greater than or equal to
               value      ::= string, may include '*' as a wild card
-                             
+
           tag: string class tag ("dataset" | "variable" | "database" | "axis" | "grid").
             Restricts the search to a class of objects
           relbase: string search base, relative to the database path
@@ -366,25 +390,26 @@ class LDAPDatabase(AbstractDatabase):
           result = db.searchFilter(relbase="dataset=ncep_reanalysis_mo"), scope=cdms.Onelevel)
 
         """
-        if tag is None: tag='*'
-        newfilter = "(objectclass=%s)"%tag
+        if tag is None:
+            tag = '*'
+        newfilter = "(objectclass=%s)" % tag
         if filter is not None:
-            if filter[0]!='(':
-                filter = "(%s)"%filter
-            newfilter = "(&%s%s)"%(newfilter,filter)
+            if filter[0] != '(':
+                filter = "(%s)" % filter
+            newfilter = "(&%s%s)" % (newfilter, filter)
 
         if relbase is None:
             base = self.path
         else:
-            base = "%s,%s"%(relbase,self.path)
+            base = "%s,%s" % (relbase, self.path)
 
         if attnames is None:
             atts = None
         else:
-            atts = ["objectclass","cdml","id"]+attnames
-            
-        if cdmsobj._debug==1:
-            print 'Search filter:%s, scope %s, base: "%s", attributes=%s'%(newfilter,`scope`,base,`atts`)
+            atts = ["objectclass", "cdml", "id"] + attnames
+
+        if cdmsobj._debug == 1:
+            print 'Search filter:%s, scope %s, base: "%s", attributes=%s' % (newfilter, repr(scope), base, repr(atts))
         if timeout is None:
             result = self.db.search_s(base, scope, newfilter, atts)
         else:
@@ -394,11 +419,12 @@ class LDAPDatabase(AbstractDatabase):
 
     def listDatasets(self):
         """ Return a list of the dataset IDs in this database."""
-        entries = self.searchFilter(tag='dataset', scope=Onelevel )
+        entries = self.searchFilter(tag='dataset', scope=Onelevel)
         result = map(lambda x: x.attributes['id'][0], entries)
         return result
 
-## internattr.add_internal_attribute(LDAPDatabase, 'netloc', 'db')
+# internattr.add_internal_attribute(LDAPDatabase, 'netloc', 'db')
+
 
 class AbstractSearchResult:
 
@@ -411,6 +437,7 @@ class AbstractSearchResult:
     def searchPredicate(self, predicate, tag=None):
         MethodNotImplemented = "Method not yet implemented"
 
+
 class LDAPSearchResult(AbstractSearchResult):
 
     def __init__(self, db, LDAPresult):
@@ -419,15 +446,15 @@ class LDAPSearchResult(AbstractSearchResult):
 
         # Scan the result for CDML attributes, cache them in the database
         for dn, attrs in self.result:
-            if attrs.has_key('cdml') and attrs.has_key('datapath'):
+            if 'cdml' in attrs and 'datapath' in attrs:
                 cdml = attrs['cdml'][0]
                 datapath = attrs['datapath'][0]
-                self.db.cachecdml(dn,cdml,datapath)
+                self.db.cachecdml(dn, cdml, datapath)
                 del attrs['cdml']
 
     def __getitem__(self, key):
-        if key>=len(self):
-            raise IndexError, 'index out of bounds'
+        if key >= len(self):
+            raise IndexError('index out of bounds')
 
         dn, attributes = self.result[key]
 
@@ -468,15 +495,15 @@ class LDAPSearchResult(AbstractSearchResult):
 
         """
         if tag is not None:
-            tag = string.lower(tag)
+            tag = tag.lower()
 
         resultlist = []
         for entry in self:
             obj = entry.getObject()
-            if tag is None or tag==entry.tag:
+            if tag is None or tag == entry.tag:
                 try:
-                    if apply(predicate,(obj,))==1:
-                        resultlist.append((entry.name,entry.attributes))
+                    if predicate(*(obj,)) == 1:
+                        resultlist.append((entry.name, entry.attributes))
                 except:
                     pass
 
@@ -484,6 +511,7 @@ class LDAPSearchResult(AbstractSearchResult):
 
     def __len__(self):
         return len(self.result)
+
 
 class AbstractResultEntry:
 
@@ -506,14 +534,15 @@ class AbstractResultEntry:
 
         """
 
-        if self.tag=="database":
+        if self.tag == "database":
             obj = self.db
-        elif self.tag=="dataset":
+        elif self.tag == "dataset":
             obj = self.db.getDataset(self.name)
         else:
             obj = self.db.getObjFromDataset(self.name)
 
         return obj
+
 
 class LDAPResultEntry(AbstractResultEntry):
 
@@ -527,9 +556,6 @@ class LDAPResultEntry(AbstractResultEntry):
         rdn = explodeddn[0]
         matchobj = _Att.match(rdn)
         if matchobj is None:
-            raise IndexError, InvalidEntryName + dn
+            raise IndexError(InvalidEntryName + dn)
 
         self.tag = matchobj.group(1)
-
-
-
