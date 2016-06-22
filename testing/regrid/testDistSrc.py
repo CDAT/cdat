@@ -14,7 +14,7 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-import scipy.io.netcdf
+#import scipy.io.netcdf
 from regrid2 import ESMFRegrid
 import sys
 HAS_MPI = False
@@ -75,7 +75,7 @@ class Test(unittest.TestCase):
 
     def Xtest0_ESMP(self):
 
-        import scipy.io.netcdf
+        #import scipy.io.netcdf
 
         #
         # 1. input
@@ -85,7 +85,8 @@ class Test(unittest.TestCase):
 
         inFile = cdat_info.get_sampledata_path() + \
             '/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc'
-        srcF = scipy.io.netcdf.netcdf_file(inFile)
+        #srcF = scipy.io.netcdf.netcdf_file(inFile)
+        srcF = cdms2.open(inFile)
         #so = srcF.variables['so'][0, 0,...]
         missing_value = 1.e20
         srcGrd = [srcF.variables['lat'][:], srcF.variables['lon'][:]]

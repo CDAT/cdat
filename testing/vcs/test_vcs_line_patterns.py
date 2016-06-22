@@ -8,8 +8,6 @@ import testing.regression as regression
 pth = os.path.join(os.path.dirname(__file__), "..")
 sys.path.append(pth)
 
-import checkimage
-
 x = regression.init(bg=1, geometry=(1620, 1080))
 
 f = cdms2.open(vcs.sample_data + "/clt.nc")

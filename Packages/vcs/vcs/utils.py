@@ -20,7 +20,6 @@ import colormap
 import json
 import os
 import tempfile
-import vcsaddons
 import cdms2
 import genutil
 import vtk
@@ -1616,6 +1615,7 @@ def monotonic(x):
 
 
 def getgraphicsmethod(type, name):
+    import vcsaddons
     if type == "default":
         type = "boxfill"
     if isinstance(type, vcsaddons.core.VCSaddon):
@@ -1630,6 +1630,7 @@ def getgraphicsmethod(type, name):
 
 
 def creategraphicsmethod(gtype, gname='default', name=None):
+    import vcsaddons
     if gtype in ['isoline', 'Gi']:
         func = vcs.createisoline
     elif gtype in ['isofill', 'Gfi']:
@@ -1666,13 +1667,25 @@ def creategraphicsmethod(gtype, gname='default', name=None):
     return copy_mthd
 
 
+# Returns the float value for datawc_...
+# datawc_ can be a float or a cdtime.reltime
+# TODO: Investigate why datawc is converted to a cdtime.reltime
+def getDataWcValue(v):
+    if (type(v) is type(cdtime.reltime(0, 'months since 1900'))):  # noqa
+        return v.value
+    else:
+        return v
+
+
 def getworldcoordinates(gm, X, Y):
     """Given a graphics method and two axes
     figures out correct world coordinates"""
     # compute the spanning in x and y, and adjust for the viewport
     wc = [0, 1, 0, 1]
     try:
-        if gm.datawc_x1 > 9.E19:
+        datawc = [getDataWcValue(gm.datawc_x1), getDataWcValue(gm.datawc_x2),
+                  getDataWcValue(gm.datawc_y1), getDataWcValue(gm.datawc_y2)]
+        if numpy.isclose(datawc[0], 1.e20):
             try:
                 i = 0
                 try:
@@ -1684,8 +1697,8 @@ def getworldcoordinates(gm, X, Y):
             except:
                 wc[0] = X[:].min()
         else:
-            wc[0] = gm.datawc_x1
-        if gm.datawc_x2 > 9.E19:
+            wc[0] = datawc[0]
+        if numpy.isclose(datawc[1], 1.e20):
             try:
                 i = -1
                 try:
@@ -1697,18 +1710,18 @@ def getworldcoordinates(gm, X, Y):
             except:
                 wc[1] = X[:].max()
         else:
-            wc[1] = gm.datawc_x2
+            wc[1] = datawc[1]
     except:
         return wc
     if (((not isinstance(X, cdms2.axis.TransientAxis) and
           isinstance(Y, cdms2.axis.TransientAxis)) or
          not vcs.utils.monotonic(X[:])) and
-        numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20))\
+        numpy.allclose([datawc[0], datawc[1]], 1.e20))\
             or (hasattr(gm, "projection") and
                 vcs.elements["projection"][gm.projection].type != "linear"):
         wc[0] = X[:].min()
         wc[1] = X[:].max()
-    if gm.datawc_y1 > 9.E19:
+    if numpy.isclose(datawc[2], 1.e20):
         try:
             i = 0
             try:
@@ -1720,8 +1733,8 @@ def getworldcoordinates(gm, X, Y):
         except:
             wc[2] = Y[:].min()
     else:
-        wc[2] = gm.datawc_y1
-    if gm.datawc_y2 > 9.E19:
+        wc[2] = datawc[2]
+    if numpy.isclose(datawc[3], 1.e20):
         try:
             i = -1
             try:
@@ -1733,16 +1746,16 @@ def getworldcoordinates(gm, X, Y):
         except:
             wc[3] = Y[:].max()
     else:
-        wc[3] = gm.datawc_y2
+        wc[3] = datawc[3]
     if (((not isinstance(Y, cdms2.axis.TransientAxis) and
           isinstance(X, cdms2.axis.TransientAxis)) or not vcs.utils.monotonic(Y[:])) and
-        numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20)) \
+        numpy.allclose([datawc[2], datawc[3]], 1.e20)) \
             or (hasattr(gm, "projection") and
                 vcs.elements["projection"][
                 gm.projection].type.lower().split()[0]
                 not in ["linear", "polar"] and
-                numpy.allclose([gm.datawc_y1, gm.datawc_y2], 1.e20) and
-                numpy.allclose([gm.datawc_x1, gm.datawc_x2], 1.e20)):
+                numpy.allclose([datawc[2], datawc[3]], 1.e20) and
+                numpy.allclose([datawc[0], datawc[1]], 1.e20)):
         wc[2] = Y[:].min()
         wc[3] = Y[:].max()
     if wc[3] == wc[2]:
@@ -1794,3 +1807,39 @@ def png_read_metadata(path):
     for i in range(0, numberOfTextChunks):
         m[reader.GetTextKey(i)] = reader.GetTextValue(i)
     return m
+
+
+def download_sample_data_files(path=None):
+    import requests
+    import hashlib
+    if path is None:
+        path = vcs.sample_data
+    samples = open(os.path.join(vcs.prefix, "share", "vcs", "sample_files.txt")).readlines()
+    for sample in samples:
+        good_md5, name = sample.split()
+        local_filename = os.path.join(path, name)
+        try:
+            os.makedirs(os.path.dirname(local_filename))
+        except:
+            pass
+        attempts = 0
+        while attempts < 3:
+            md5 = hashlib.md5()
+            if os.path.exists(local_filename):
+                f = open(local_filename)
+                md5.update(f.read())
+                if md5.hexdigest() == good_md5:
+                    attempts = 5
+                    continue
+            print "Downloading:", name, "in", local_filename
+            r = requests.get("http://uvcdat.llnl.gov/cdat/sample_data/" + name, stream=True)
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:  # filter local_filename keep-alive new chunks
+                        f.write(chunk)
+                        md5.update(chunk)
+            f.close()
+            if md5.hexdigest() == good_md5:
+                attempts = 5
+            else:
+                attempts += 1
