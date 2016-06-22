@@ -1486,7 +1486,10 @@ class P(object):
                                                       axis=" ".join(["(%s)" %
                                                                      S for S in slab.getAxisIds()])))
                         except:
-                            meanstring = 'Mean %.4g' % slab.mean()
+                            try:
+                                meanstring = 'Mean %.4g' % slab.mean()
+                            except:
+                                meanstring = 'Mean %.4g' % numpy.mean(slab.filled())
                     tt.string = meanstring
                 else:
                     tt.string = str(getattr(slab, s))

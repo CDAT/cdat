@@ -4,9 +4,9 @@ import cdms2
 import genutil
 import unidata
 import vcs
+import numpy
 from vcs import VCS_validation_functions
 thermo_objects = []
-import numpy
 
 
 def Es(T, method=None):

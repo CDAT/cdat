@@ -71,3 +71,4 @@ else:
     assert(gm.ymtics1=="lat5")
     assert(gm.fillareastyle == "solid")
     assert(gm.fillareacolors == [30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 35, 36])
+sys.exit(0)

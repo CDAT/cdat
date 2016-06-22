@@ -106,9 +106,8 @@ class vcsTest:
 
         plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
         self.canvas.setantialiasing(False)
-        self.canvas.plot( *plot_args, **plot_kwargs )
-        self.plot = self.canvas.backend.plotApps[ self.gm ]
-#        self.applyActions()
+        display = self.canvas.plot( *plot_args, **plot_kwargs )
+        self.plot = self.canvas.backend.plotApps[ vcs.elements[display.g_type][display.g_name] ]
 
     def applyActions(self):
         for action in self.actions:

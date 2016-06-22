@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+import vcs
+vcs.download_sample_data_files()
+

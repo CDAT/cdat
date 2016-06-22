@@ -245,7 +245,7 @@ class ConfigManager:
         if ( self.parent <> None ):
             for parm_address in self.parent.parameters.keys():
                 basename = get_parameter_name( parm_address )
-                self.parameters[basename] = self.getParameter( basename  )
+                self.parameters[basename] = ConfigParameter(basename, parent=self.parent.getParameter(basename))
         self.initialized = False
 
     def clear( self, cell ):
@@ -264,7 +264,6 @@ class ConfigManager:
             if self.parent is None:
                 cparm = ConfigParameter( param_name, **args )
             else:
-#                print "Getting config param from parent: ", param_name
                 cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
             self.addParam( param_name, cparm )
