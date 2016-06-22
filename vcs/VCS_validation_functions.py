@@ -2007,7 +2007,7 @@ def add_level_ext_2(self, ext_value):
         if isinstance(self.levels[0], list):  # remove from tuple of lists
             if self.levels[-1][1] > 9.e19:
                 self.levels.pop(-1)
-        if isinstance(self.levels, tuple):       # remove from list
+        if isinstance(self.levels, (tuple, list)):       # remove from list
             ret_tup = []
             for i in range(len(self.levels) - 1):
                 ret_tup.insert(i + 1, self.levels[i])
@@ -2021,15 +2021,16 @@ def add_level_ext_2(self, ext_value):
         return self.levels
 
     # We may need to add extnsion
-    if isinstance(self.levels, tuple):
-        self.levels = list(self.levels)
-    if isinstance(self.levels[-1], list):  # add to tuple of lists
-        if self.levels[-1][1] < 9.e19:
-            self.levels.append([self.levels[-1][1], 1e20])
-    else:
-        if self.levels[-1] < 9.e19:
-            self.levels.append(1.e20)
-    return self.levels
+    if isinstance(self.levels, (list, tuple)):
+        if isinstance(self.levels, tuple):
+            self.levels = list(self.levels)
+        if isinstance(self.levels[-1], list):  # add to tuple of lists
+            if self.levels[-1][1] < 9.e19:
+                self.levels.append([self.levels[-1][1], 1e20])
+        else:
+            if self.levels[-1] < 9.e19:
+                self.levels.append(1.e20)
+        return self.levels
 
 
 def _getext_1(self):
