@@ -40,15 +40,15 @@ class VectorPipeline(Pipeline2D):
         if self._vtkGeoTransform is not None:
             newv = vtk.vtkDoubleArray()
             newv.SetNumberOfComponents(3)
-            newv.InsertTupleValue(0, [lon.min(), lat.min(), 0])
-            newv.InsertTupleValue(1, [lon.max(), lat.max(), 0])
+            newv.InsertTypedTuple(0, [lon.min(), lat.min(), 0])
+            newv.InsertTypedTuple(1, [lon.max(), lat.max(), 0])
 
             vcs2vtk.projectArray(newv, projection, self._vtkDataSetBounds)
             dimMin = [0, 0, 0]
             dimMax = [0, 0, 0]
 
-            newv.GetTupleValue(0, dimMin)
-            newv.GetTupleValue(1, dimMax)
+            newv.GetTypedTuple(0, dimMin)
+            newv.GetTypedTuple(1, dimMax)
 
             maxDimX = max(dimMin[0], dimMax[0])
             maxDimY = max(dimMin[1], dimMax[1])
