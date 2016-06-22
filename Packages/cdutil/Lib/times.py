@@ -118,7 +118,7 @@ def getMonthIndex(my_str):
        # end of for mon in mon_list:
            
    yr = 'JFMAMJJASOND'
-   yrs = yr+yr[:6]
+   yrs = yr+yr
    #
    result = string.find(yrs, my_str)
    if result == -1: return []
