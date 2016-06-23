@@ -648,7 +648,7 @@ class AbstractAxis(CdmsObj):
         self._doubledata_ = None
 
     def __str__(self):
-        return "\n".join(self.listall() + "\n"
+        return "\n".join(self.listall()) + "\n"
 
     __repr__=__str__
 
