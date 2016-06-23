@@ -2012,7 +2012,7 @@ class FileAxis(AbstractAxis):
                 if isinstance(key, int) and key >= len(self):
                     raise IndexError, 'Index out of bounds: %d' % key
                     if isinstance(key, tuple):
-                    key=(key,)
+                        key=(key,)
                 return apply(self._obj_.getitem, key)
         if self._data_ is None:
             self._data_=self.getData()
