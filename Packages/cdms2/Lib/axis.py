@@ -2004,7 +2004,7 @@ class FileAxis(AbstractAxis):
         if (self._obj_ is not None) and (self.parent._mode_ != 'r') and not (hasattr(self.parent, 'format') and self.parent.format == "DRS"):
             # For negative strides, get the equivalent slice with positive stride,
             # then reverse the result.
-            if (isinstance(key, slice) and (key.step is not None) and key.step < 0:
+            if (isinstance(key, slice)) and (key.step is not None) and key.step < 0:
                 posslice=reverseSlice(key, len(self))
                 result=apply(self._obj_.getitem, (posslice,))
                 return result[::-1]
