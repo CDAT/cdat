@@ -30,8 +30,10 @@ foreach(lat_0 45 90)
     ${lat_0}
     )
 endforeach()
-
-
+cdat_add_test(test_vcs_extends
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_extends.py
+)
 cdat_add_test(test_vcs_create_get
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_create_get.py
