@@ -1041,7 +1041,7 @@ class AttrNode(CdmsNode):
 
     def __init__(self, name, value=None):
         CdmsNode.__init__(self, "attr")
-        if not (isinstance(value, (int, numpy.integer, float, numpy.floating, basestring))) or (value is None):
+        if not (isinstance(value, (int, numpy.integer, float, numpy.floating, basestring)) or (value is None)):
             raise CDMSError, 'Invalid attribute type: ' + value
         self.name=name
         self.value=value
