@@ -11,4 +11,4 @@ kwargs = {}
 kwargs[ 'cdmsfile' ] = cdmsfile.id
 kwargs['bg'] = 1
 canvas.plot(clt3, gmBoxfill, **kwargs)
-regression.run(canvas, "test_robinson_wrap.png")
+regression.run(canvas, "test_vcs_robinson_wrap.png")
