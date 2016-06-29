@@ -3,6 +3,7 @@
 # Author: Sjoerd Mullender.
 
 import re
+import string
 
 # import warnings
 # warnings.warn("The xmllib module is obsolete.  Use xml.sax instead.",

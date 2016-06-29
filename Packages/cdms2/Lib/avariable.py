@@ -446,7 +446,7 @@ class AbstractVariable(CdmsObj, Slab):
             return
 
         selftype = self.typecode()
-        if isnstance(value, numpy.ndarray):
+        if isinstance(value, numpy.ndarray):
             value = value.astype(selftype).item()
         elif isinstance(value, (numpy.floating, numpy.integer)):
             value = numpy.array([value], selftype)

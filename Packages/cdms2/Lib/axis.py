@@ -1097,7 +1097,7 @@ class AbstractAxis(CdmsObj):
             #
             # mf 20010419 test if attribute is a string (non CF), set to 360.0
             #
-            if isnstance(cycle, basestring):
+            if isinstance(cycle, basestring):
                 cycle=360.0
         else:
             cycle=360.0
