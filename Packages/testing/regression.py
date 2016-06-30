@@ -20,13 +20,18 @@ def init(*args, **kwargs):
     testingDir = os.path.join(os.path.dirname(__file__), "..")
     sys.path.append(testingDir)
 
-    vcsinst = vcs.init(*args, **kwargs)
+    if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs))):
+        vcsinst = vcs.init(*args, **dict(kwargs, bg=1))
+        if ('geometry' not in kwargs):
+            vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
+        else:
+            xy = kwargs['geometry']
+            vcsinst.setbgoutputdimensions(xy[0], xy[1], units="pixels")
+    else:
+        vcsinst = vcs.init(*args, **dict(kwargs, bg=0))
+
     vcsinst.setantialiasing(0)
     vcsinst.drawlogooff()
-
-    if ((('bg' in kwargs and kwargs['bg']) or ('bg' not in kwargs)) and
-        ('geometry' not in kwargs)):
-        vcsinst.setbgoutputdimensions(1200, 1091, units="pixels")
     return vcsinst
 
 def run(vcsinst, fname, baseline=sys.argv[1], threshold=defaultThreshold):
@@ -78,7 +83,7 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThreshold,
-                       baseline=True, cleanup=True):
+                       baseline=True, cleanup=True, update_baselines = False, suffix="_2"):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."
@@ -127,6 +132,13 @@ def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThresh
         return 0
 
     print "All baselines failed! Lowest error (%f) exceeds threshold (%f)."%(bestDiff, threshold)
+
+    if update_baselines:
+        bestFilename2=bestFilename[:-4]+suffix+".png"
+        print "Update baselines is ON so we are assuming you know what you're doing"
+        print "Replacing baseline %s with new baseline from %s" % (bestFilename2, fname)
+        import shutil
+        shutil.copy2(fname, bestFilename2)
 
     sp = fname.split(".")
     diffFilename = ".".join(sp[:-1])+"_diff."+sp[-1]

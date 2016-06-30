@@ -1,4 +1,9 @@
 import os, sys, cdms2, vcs, testing.regression as regression
+import matplotlib
+sp = matplotlib.__version__.split(".")
+if int(sp[0])*10+int(sp[1])<15:
+    # This only works with matplotlib 1.5 and greater
+    sys.exit()
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))

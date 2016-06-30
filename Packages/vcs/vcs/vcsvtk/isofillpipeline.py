@@ -67,7 +67,13 @@ class IsofillPipeline(Pipeline2D):
                     lut.SetTableValue(j, 1., 1., 1., 0.)
             luts.append([lut, [0, len(l) - 1, True]])
             mapper.SetLookupTable(lut)
-            mapper.SetScalarRange(0, len(l) - 1)
+            minRange = 0
+            maxRange = len(l) - 1
+            if (i == 0 and self._scalarRange[0] < l[0]):
+                # band 0 is from self._scalarRange[0] to l[0]
+                # we don't show band 0
+                minRange += 1
+            mapper.SetScalarRange(minRange, maxRange)
             mapper.SetScalarModeToUseCellData()
             mappers.append(mapper)
 
@@ -179,7 +185,8 @@ class IsofillPipeline(Pipeline2D):
             z = None
         kwargs = {"vtk_backend_grid": self._vtkDataSet,
                   "dataset_bounds": self._vtkDataSetBounds,
-                  "plotting_dataset_bounds": plotting_dataset_bounds}
+                  "plotting_dataset_bounds": plotting_dataset_bounds,
+                  "vtk_backend_geo": self._vtkGeoTransform}
         if ("ratio_autot_viewport" in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
         self._resultDict.update(self._context().renderTemplate(

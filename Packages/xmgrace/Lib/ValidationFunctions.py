@@ -74,8 +74,8 @@ def isNumber(value):
 def checkPositiveInt(self, name, value):
     if not isNumber(value):
         raise ValueError(name + ' must be an integer')
-    elif (not (isinstance(value, int) or isinstance(value, long))
-            and (not int(value) == value)):
+    elif (not (isinstance(value, int) or isinstance(value, long)) and
+            (not int(value) == value)):
         raise ValueError(name + ' must be an integer')
     elif value < 0:
         raise ValueError(name + ' must be positve')
@@ -172,8 +172,7 @@ def checkSide(self, name, value):
 def checkLoc(self, name, value):
     """ check the loc (auto) or a location """
     if not (
-        (isinstance(value, str) and value.lower() == 'auto')
-        or
+        (isinstance(value, str) and value.lower() == 'auto') or
         isListorTuple(value)
     ):
         raise ValueError(name + 'must be a "auto" or a tuple/list')
@@ -296,8 +295,7 @@ def checkFormat(self, name, value):
 def checkAuto(self, name, value):
     """ check for 'auto' or a value """
     if not (
-        (isinstance(value, str) and value.lower() == 'auto')
-        or
+        (isinstance(value, str) and value.lower() == 'auto') or
         isNumber(value)
     ):
         raise ValueError(name + 'must be a "auto" or a number')
