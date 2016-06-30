@@ -5,13 +5,13 @@ David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
+import types
 import operator
 import re
 import numpy
 import cdms2
-from .error import CDMSError
+from error import CDMSError
 import regrid2
-from functools import reduce
 
 def _areCellsOk(cornerCoords, mask=None):
     """
@@ -44,8 +44,8 @@ def _areCellsOk(cornerCoords, mask=None):
     # compute area elements in Cartesian space
     lat0 = numpy.array(cornerCoords[0][ :-1,  :-1], numpy.float64)
     lat1 = numpy.array(cornerCoords[0][ :-1, 1:  ], numpy.float64)
-    lat2 = numpy.array(cornerCoords[0][1:, 1:  ], numpy.float64)
-    lat3 = numpy.array(cornerCoords[0][1:,  :-1], numpy.float64)
+    lat2 = numpy.array(cornerCoords[0][1:  , 1:  ], numpy.float64)
+    lat3 = numpy.array(cornerCoords[0][1:  ,  :-1], numpy.float64)
 
     the0 = lat0*numpy.pi/180.
     the1 = lat1*numpy.pi/180.
@@ -53,8 +53,8 @@ def _areCellsOk(cornerCoords, mask=None):
     the3 = lat3*numpy.pi/180.
     lam0 = numpy.array(cornerCoords[1][ :-1,  :-1], numpy.float64)*numpy.pi/180.
     lam1 = numpy.array(cornerCoords[1][ :-1, 1:  ], numpy.float64)*numpy.pi/180.
-    lam2 = numpy.array(cornerCoords[1][1:, 1:  ], numpy.float64)*numpy.pi/180.
-    lam3 = numpy.array(cornerCoords[1][1:,  :-1], numpy.float64)*numpy.pi/180.
+    lam2 = numpy.array(cornerCoords[1][1:  , 1:  ], numpy.float64)*numpy.pi/180.
+    lam3 = numpy.array(cornerCoords[1][1:  ,  :-1], numpy.float64)*numpy.pi/180.
     
     x0, y0, z0 = projectToSphere(the0, lam0)
     x1, y1, z1 = projectToSphere(the1, lam1)
@@ -129,7 +129,7 @@ def _areCellsOk(cornerCoords, mask=None):
     if len(inds[0]) > 0:
         # package the result
         badCellIndices = [(inds[0][i], inds[1][i]) for i in range(len(inds[0]))]
-        bcis1 = [(inds[0][i], inds[1][i]+1) for i in range(len(inds[0]))]
+        bcis1 = [(inds[0][i]  , inds[1][i]+1) for i in range(len(inds[0]))]
         bcis2 = [(inds[0][i]+1, inds[1][i]+1) for i in range(len(inds[0]))]
         bcis3 = [(inds[0][i]+1, inds[1][i]  ) for i in range(len(inds[0]))]
         badCellCoords = [[(cornerCoords[0][badCellIndices[i]], cornerCoords[1][badCellIndices[i]]),
@@ -160,10 +160,10 @@ def _buildBounds(bounds):
         bnd[:-1] = bounds[..., 0]
         bnd[ -1] = bounds[ -1, 1]
     elif len(bndShape) > 1:
-        bnd[:-1, :-1] = bounds[:,:, 0]
-        bnd[:-1,  -1] = bounds[:, -1, 1]
+        bnd[:-1, :-1] = bounds[  :,  :, 0]
+        bnd[:-1,  -1] = bounds[  :, -1, 1]
         bnd[ -1,  -1] = bounds[ -1, -1, 2]
-        bnd[ -1, :-1] = bounds[ -1,:, 3]
+        bnd[ -1, :-1] = bounds[ -1,  :, 3]
 
     return bnd
 
@@ -382,9 +382,8 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
 
         # If LibCF handleCut is True, the bounds are needed to extend the grid
         # close the cut at the top
-        if re.search('LibCF', regridTool, re.I) and 'handleCut' in args:
-            if args['handleCut']:
-                srcBounds = getBoundList(srcCoords)
+        if re.search('LibCF', regridTool, re.I) and args.has_key('handleCut'):
+            if args['handleCut']: srcBounds = getBoundList(srcCoords)
 
         srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
         dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
@@ -441,7 +440,7 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
                              **args)
 
         # fill in diagnostic data
-        if 'diag' in args:
+        if args.has_key('diag'):
             self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
 
         # construct the axis list for dstVar
@@ -451,7 +450,7 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
         attrs = {}
         for a in srcVar.attributes:
             v = srcVar.attributes[a]
-            if isinstance(v, basestring):
+            if type(v) is types.StringType:
                 attrs[a] = v
 
         # if the missing value is present in the destination data, set
