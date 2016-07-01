@@ -4473,7 +4473,12 @@ Options:::
         """
         self.backend.setantialiasing(antialiasing)
 
-    def setbgoutputdimensions(self, width=None, height=None, units='inches'):
+    ##########################################################################
+    #                                                                        #
+    # bg dims wrapper for VCS.                                               #
+    #                                                                        #
+    ##########################################################################
+    def setbgoutputdimensions(self, width=None, height=None, units='pixels'):
         """
         Sets dimensions for output in bg mode.
 
