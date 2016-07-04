@@ -50,7 +50,7 @@ if sys.argv[1][-7:]=="old.scr":
     gm = x.getisoline("div_anom")
     assert(gm.xmtics1=="lon5")
     assert(gm.xticlabels1=="lon15")
-    assert(gm.line == ['dash', 'dash', 'dash', 'dash', 'solid', 'dash', 'dash', 'dash', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid'])
+    assert(gm.linetypes == ['dash', 'dash', 'dash', 'dash', 'solid', 'dash', 'dash', 'dash', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid', 'solid'])
     assert(gm.linecolors ==  [241, 241, 241, 241, 242, 241, 241, 241, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     assert(gm.linewidths ==  [1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
     gm = x.getvector("lon_lat_IO_5")

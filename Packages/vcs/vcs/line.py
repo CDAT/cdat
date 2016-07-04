@@ -176,9 +176,9 @@ class Tl(object):
     def _settype(self, value):
         if isinstance(value, (str, int)):
             value = [value, ]
-        self._type, colors, width = VCS_validation_functions.checkLinesList(
+        self._type = VCS_validation_functions.checkLineTypeList(
             self,
-            'index',
+            'type',
             value)
 
     type = property(_gettype, _settype)

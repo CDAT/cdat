@@ -47,13 +47,13 @@ class IsolinePipeline(Pipeline2D):
         tmpLevels = []
         tmpColors = []
         tmpLineWidths = []
-        tmpLineStyles = []
+        tmpLineTypes = []
 
         linewidth = self._gm.linewidths
         self.extendAttribute(linewidth, default=1.0)
 
-        linestyle = self._gm.line
-        self.extendAttribute(linestyle, default='solid')
+        linetype = self._gm.linetypes
+        self.extendAttribute(linetype, default='solid')
 
         plotting_dataset_bounds = self.getPlottingBounds()
         x1, x2, y1, y2 = plotting_dataset_bounds
@@ -61,14 +61,14 @@ class IsolinePipeline(Pipeline2D):
         for i, l in enumerate(self._contourLevels):
             if i == 0:
                 W = linewidth[i]
-                S = linestyle[i]
+                S = linetype[i]
                 C = [self._contourColors[i]]
                 if l == 1.e20:
                     L = [-1.e20]
                 else:
                     L = [l]
             else:
-                if W == linewidth[i] and S == linestyle[i]:
+                if W == linewidth[i] and S == linetype[i]:
                     # Ok same style and width, lets keep going
                     L.append(l)
                     C.append(self._contourColors[i])
@@ -76,16 +76,16 @@ class IsolinePipeline(Pipeline2D):
                     tmpLevels.append(L)
                     tmpColors.append(C)
                     tmpLineWidths.append(W)
-                    tmpLineStyles.append(S)
+                    tmpLineTypes.append(S)
                     L = [l]
                     C = [self._contourColors[i]]
                     W = linewidth[i]
-                    S = linestyle[i]
+                    S = linetype[i]
 
         tmpLevels.append(L)
         tmpColors.append(C)
         tmpLineWidths.append(W)
-        tmpLineStyles.append(S)
+        tmpLineTypes.append(S)
 
         cots = []
         textprops = []
@@ -249,7 +249,7 @@ class IsolinePipeline(Pipeline2D):
             # Set line properties here
             p = act.GetProperty()
             p.SetLineWidth(tmpLineWidths[i])
-            vcs2vtk.stippleLine(p, tmpLineStyles[i])
+            vcs2vtk.stippleLine(p, tmpLineTypes[i])
 
             if self._vtkGeoTransform is None:
                 # If using geofilter on wireframed does not get wrppaed not

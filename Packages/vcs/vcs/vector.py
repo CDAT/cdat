@@ -59,9 +59,7 @@ def process_src(nm, code):
         sp = scode.split("=")
         nm = sp[0].strip()
         nm = nm.replace("#", "")
-        if nm == "Tl":
-            nm = "line"
-        elif nm == "vector_scale":
+        if nm == "vector_scale":
             nm = "scale"
         elif nm == "vector_align":
             nm = "alignement"
@@ -90,6 +88,23 @@ def process_src(nm, code):
                     setattr(gm, nm, sp[1])
                 except:
                     pass  # oh well we stick to default value
+    # Tl
+    i = code.find("Tl")
+    if (i > -1):
+        j = code[i:].find(",")
+        if (j == -1):
+            j = code[i:].find(")")
+        if (j > -1):
+            scode = code[i:(i + j)]
+            sp = scode.split("=")
+            tlValue = sp[1].strip()
+            try:
+                gm.linetype = tlValue
+            except ValueError:
+                try:
+                    gm.setLineAttributes(tlValue)
+                except:
+                    pass
         # Datawc
         idwc = code.find(" datawc(")
         if idwc > -1:
@@ -190,11 +205,11 @@ class Gv(object):
     vc.xyscale('linear', 'area_wt')     # Will set them both
 
     Specify the line style:
-     vc.line=0              # Same as vc.line='solid'
-     vc.line=1              # Same as vc.line='dash'
-     vc.line=2              # Same as vc.line='dot'
-     vc.line=3              # Same as vc.line='dash-dot'
-     vc.line=4              # Same as vc.line='long-dot'
+     vc.linetype=0              # Same as vc.linetype='solid'
+     vc.linetype=1              # Same as vc.linetype='dash'
+     vc.linetype=2              # Same as vc.linetype='dot'
+     vc.linetype=3              # Same as vc.linetype='dash-dot'
+     vc.linetype=4              # Same as vc.linetype='long-dot'
 
     Specify the line color of the vectors:
      vc.linecolor=16            # Color range: 16 to 230, default line color is black
@@ -222,7 +237,7 @@ class Gv(object):
         'xaxisconvert',
         'yaxisconvert',
         'linecolor',
-        'line',
+        'linetype',
         'linewidth',
         'projection',
         'xticlabels1',
@@ -251,7 +266,7 @@ class Gv(object):
         '_xaxisconvert',
         '_yaxisconvert',
         '_linecolor',
-        '_line',
+        '_linetype',
         '_linewidth',
         '_projection',
         '_xticlabels1',
@@ -507,14 +522,37 @@ class Gv(object):
         self._linecolor = value
     linecolor = property(_getlinecolor, _setlinecolor)
 
-    def _getline(self):
-        return self._line
+    def _getlinetype(self):
+        return self._linetype
 
-    def _setline(self, value):
+    def _setlinetype(self, value):
         if value is not None:
-            value = VCS_validation_functions.checkLineType(self, 'line', value)
-        self._line = value
+            value = VCS_validation_functions.checkLineType(self, 'linetype', value)
+        self._linetype = value
+    linetype = property(_getlinetype, _setlinetype)
+
+    def _getline(self):
+        print 'DEPRECATED: Use linetype or setLineAttributes instead.'
+        return self._linetype
+
+    def _setline(self, l):
+        import queries
+        print 'DEPRECATED: Use linetype or setLineAttributes instead.'
+        if (queries.isline(l) or
+                (isinstance(l, basestring) and l in vcs.elements["line"])):
+            l = vcs.elements["line"][l]
+            self.setLineAttributes(l)
+        else:
+            self._linetype = l
+
     line = property(_getline, _setline)
+
+    def setLineAttributes(self, line):
+        '''
+        Set attributes linecolor, linewidth and linetype from line l.
+        l can be a line name defined in vcs.elements or a line object
+        '''
+        vcs.setLineAttributes(self, line)
 
     def _gettype(self):
         return self._type
@@ -589,7 +627,7 @@ class Gv(object):
             self._datawc_x2 = 1.e20
             self._xaxisconvert = "linear"
             self._yaxisconvert = "linear"
-            self._line = None
+            self._linetype = None
             self._linecolor = None
             self._linewidth = None
             self._scale = 1.
@@ -614,7 +652,7 @@ class Gv(object):
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2',
                         'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert',
-                        'line', 'linecolor', 'linewidth',
+                        'linetype', 'linecolor', 'linewidth',
                         'datawc_timeunits', 'datawc_calendar', 'colormap',
                         'scale', 'alignment', 'type', 'reference', 'scaletype',
                         'scalerange']:
