@@ -87,13 +87,14 @@ def createtemplate(name=None, source='default'):
     con=vcs.createtemplate('example2','quick')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a template or a string name of a template
+    :param source: The object to inherit from
+    :type source: a template or a string name of a template
 
-:return: A new template
+    :return: A vcs.template.P object
+
 """
     name, source = check_name_source(name, source, 'template')
 
@@ -148,13 +149,14 @@ def createprojection(name=None, source='default'):
     p=vcs.createprojection('example2','quick')
     vcs.show('projection')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a projection or a string name of a projection
+    :param source: The object to inherit from
+    :type source: a projection or a string name of a projection
 
-:return: A new projection method
+    :return: A vcs.projection.Proj object
+
 """
 
     name, source = check_name_source(name, source, 'projection')
@@ -205,25 +207,32 @@ Output:::
 %s
 :::
 
-Function: createboxfill                # Construct a new boxfill graphics method
+    Create a new boxfill graphics method given the the name and the existing
+    boxfill graphics method to copy the attributes from. If no existing
+    boxfill graphics method name is given, then the default boxfill graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new boxfill graphics method given the the name and the existing
-boxfill graphics method to copy the attributes from. If no existing
-boxfill graphics method name is given, then the default boxfill graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then an error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-:Example:
-vcs.show('boxfill')
-box=vcs.createboxfill('example1',)
-vcs.show('boxfill')
-box=vcs.createboxfill('example2','quick')
-vcs.show('boxfill')
+::
 
+    vcs.show('boxfill')
+    box=vcs.createboxfill('example1',)
+    vcs.show('boxfill')
+    box=vcs.createboxfill('example2','quick')
+    vcs.show('boxfill')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a boxfill or a string name of a boxfill
+
+    :return: A vcs.boxfill.Gfb object
 """
 
     name, source = check_name_source(name, source, 'boxfill')
@@ -302,13 +311,14 @@ def createtaylordiagram(name=None, source='default'):
     td=vcs.createtaylordiagram('example2','quick')
     vcs.show('taylordiagram')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a taylordiagram or a string name of a
+    :param source: The object to inherit from
+    :type source: a taylordiagram or a string name of a
 
-:return: A new taylordiagram graphics method
+    :return: A vcs.taylor.Gtd object
+
 """
 
     name, source = check_name_source(name, source, 'taylordiagram')
@@ -375,18 +385,19 @@ def createmeshfill(name=None, source='default'):
 ::
 
     vcs.show('meshfill')
-    mesh=vcs.createmeshfill('example1',)
+    mesh=vcs.createmeshfill('example1')
     vcs.show('meshfill')
     mesh=vcs.createmeshfill('example2','quick')
     vcs.show('meshfill')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a meshfill or a string name of a meshfill
+    :param source: The object to inherit from
+    :type source: a meshfill or a string name of a meshfill
 
-:return: A meshfill graphics method
+    :return: A vcs.meshfill.Gfm object
+
 """
     name, source = check_name_source(name, source, 'meshfill')
     return meshfill.Gfm(name, source)
@@ -451,19 +462,19 @@ Output:::
 
 ::
 
-vcs.show('isofill')
-iso=vcs.createisofill('example1',)
-vcs.show('isofill')
-iso=vcs.createisofill('example2','quick')
-vcs.show('isofill')
+    vcs.show('isofill')
+    iso=vcs.createisofill('example1')
+    vcs.show('isofill')
+    iso=vcs.createisofill('example2','quick')
+    vcs.show('isofill')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: an isofill object, or string name of an isofill object
+    :param source: The object to inherit from
+    :type source: an isofill object, or string name of an isofill object
 
-:return: An isofill object
+    :return: A vcs.isofill.Gfi object
 
 """
 
@@ -543,20 +554,20 @@ Output:::
 
     :Example:
 
-vcs.show('isoline')
-iso=vcs.createisoline('example1',)
-vcs.show('isoline')
-iso=vcs.createisoline('example2','quick')
-vcs.show('isoline')
+    vcs.show('isoline')
+    iso=vcs.createisoline('example1')
+    vcs.show('isoline')
+    iso=vcs.createisoline('example2','quick')
+    vcs.show('isoline')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: an isoline object, or string name of an isoline object
+    :param source: The object to inherit from
+    :type source: an isoline object, or string name of an isoline object
 
-:return: An isoline object
-"""
+    :return: A vcs.isoline.Gi object
+    """
 
     name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
@@ -662,13 +673,14 @@ Output:::
     vcs.show('xyvsy')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a xyvsy or a string name of a xyvsy
+    :param source: The object to inherit from
+    :type source: a xyvsy or a string name of a xyvsy
 
-:return: A new xyvsy graphics method
+    :return: A vcs.unified1D.G1d object
+
 """
     try:
         gm = vcs.create1d(name, source)
@@ -768,13 +780,14 @@ Output:::
     vcs.show('yxvsx')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a yxvsy or a string name of a yxvsy
+    :param source: The object to inherit from
+    :type source: a yxvsy or a string name of a yxvsy
 
-:return: A new yxvsy graphics method
+    :return: A vcs.unified1D.G1d object
+
 """
     try:
         gm = vcs.create1d(name, source)
@@ -873,13 +886,14 @@ Output:::
     vcs.show('xvsy')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a xvsy or a string name of a xvsy
+    :param source: The object to inherit from
+    :type source: a xvsy or a string name of a xvsy
 
-:return: A new xvsy graphics method
+    :return: A vcs.unified1D.G1d object
+
 """
     try:
         gm = vcs.create1d(name, source)
@@ -946,7 +960,7 @@ getxvsy.__doc__ = getxvsy.__doc__ % (
 
 
 def createvector(name=None, source='default'):
-    """
+"""
     Create a new vector graphics method given the the name and the existing
     vector graphics method to copy the attributes from. If no existing
     vector graphics method name is given, then the default vector graphics
@@ -968,13 +982,14 @@ def createvector(name=None, source='default'):
     vcs.show('vector')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a vector or a string name of a vector
+    :param source: The object to inherit from
+    :type source: a vector or a string name of a vector
 
-:return: A new vector graphics method
+    :return: A vcs.vector.Gv object
+
 """
     name, source = check_name_source(name, source, 'vector')
     return vector.Gv(name, source)
@@ -1044,13 +1059,14 @@ Output:::
     sct=vcs.createscatter('example2','quick')
     vcs.show('scatter')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a scatter or a string name of a scatter
+    :param source: The object to inherit from
+    :type source: a scatter or a string name of a scatter
 
-:return: A new scatter graphics method
+    :return: A vcs.unified1D.G1d object
+
 """
     try:
         gm = vcs.create1d(name, source)
@@ -1134,56 +1150,56 @@ def createline(name=None, source='default', ltype=None,
 
 ::
 
-a=vcs.init()
-vcs.show('line')
-ln=vcs.createline('example1',)
-vcs.show('line')
-ln=vcs.createline('example2','black')
-vcs.show('line')
-# Create instance of line object 'red'
-ln2=vcs.createline(name='new', name_src='red',ltype='dash', width=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )
-# Plot using specified line object
-vcs.line(ln2)
+    a=vcs.init()
+    vcs.show('line')
+    ln=vcs.createline('example1')
+    vcs.show('line')
+    ln=vcs.createline('example2','black')
+    vcs.show('line')
+    # Create instance of line object 'red'
+    ln2=vcs.createline(name='new', name_src='red',ltype='dash', width=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified line object
+    vcs.line(ln2)
 
-:param name: Name of created object
-:type name: str
+    :param name: Name of created object
+    :type name: str
 
-:param source: a line, or string name of a line
-:type source: str
+    :param source: a line, or string name of a line
+    :type source: str
 
-:param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
-:type ltype: str
+    :param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
+    :type ltype: str
 
-:param width: Thickness of the line to be created
-:type width: int
+    :param width: Thickness of the line to be created
+    :type width: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
-or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param priority: The layer on which the line will be drawn.
-:type priority: int
+    :param priority: The layer on which the line will be drawn.
+    :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-:type viewport: list of floats
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
 
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
-:type projection: str or projection object
+    :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+    :type projection: str or projection object
 
-:return: A line object
+    :return: A vcs.line.Tl object
 
 """
 
@@ -1288,55 +1304,56 @@ def createmarker(name=None, source='default', mtype=None,
 
 ::
 
-a=vcs.init()
-vcs.show('marker')
-mrk=vcs.createmarker('example1',)
-vcs.show('marker')
-mrk=vcs.createmarker('example2','black')
-vcs.show('boxfill')
-# Create instance of marker object 'red'
-mrk2=vcs.createmarker(name='new', name_src='red',mtype='dash', size=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )
-# Plot using specified marker object
-vcs.marker(mrk2)
+    a=vcs.init()
+    vcs.show('marker')
+    mrk=vcs.createmarker('example1',)
+    vcs.show('marker')
+    mrk=vcs.createmarker('example2','black')
+    vcs.show('boxfill')
+    # Create instance of marker object 'red'
+    mrk2=vcs.createmarker(name='new', name_src='red',mtype='dot', size=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified marker object
+    vcs.marker(mrk2)
 
 
-:param name: Name of created object
-:type name: str
+    :param name: Name of created object
+    :type name: str
 
-:param source: a marker, or string name of a marker
-:type source: str
+    :param source: A marker, or string name of a marker
+    :type source: str
 
-:param mtype:
-:type mtype: str
+    :param mtype: Specifies the type of marker, i.e. "dot", "circle"
+    :type mtype: str
 
-:param size:
-:type size: int
+    :param size:
+    :type size: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
-or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param priority: The layer on which the marker will be drawn.
-:type priority: int
+    :param priority: The layer on which the marker will be drawn.
+    :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-:type viewport: list of floats
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
 
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:return: A marker object
-"""
+    :return: A vcs.marker.Tm object
+
+    """
 
     name, source = check_name_source(name, source, 'marker')
 
@@ -1437,53 +1454,53 @@ def createfillarea(name=None, source='default', style=None,
 
 ::
 
-vcs.show('fillarea')
-fa=vcs.createfillarea('example1',)
-vcs.show('fillarea')
-fa=vcs.createfillarea('example2','black')
-vcs.show('fillarea')
-# Create instance of fill area object 'red'
-fa2=vcs.createmarker(name='new', name_src='red',style=1, index=1,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )
-# Plot using specified fill area object
-vcs.fillarea(fa2)
+    vcs.show('fillarea')
+    fa=vcs.createfillarea('example1',)
+    vcs.show('fillarea')
+    fa=vcs.createfillarea('example2','black')
+    vcs.show('fillarea')
+    # Create instance of fill area object 'red'
+    fa2=vcs.createmarker(name='new', name_src='red',style=1, index=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified fill area object
+    vcs.fillarea(fa2)
 
-:param name: Name of created object
-:type name: str
+    :param name: Name of created object
+    :type name: str
 
-:param source: a fillarea, or string name of a fillarea
-:type source: str
+    :param source: a fillarea, or string name of a fillarea
+    :type source: str
 
-:param style: One of "hatch", "solid", or "pattern".
-:type style: str
+    :param style: One of "hatch", "solid", or "pattern".
+    :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
-:type index: int
+    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+    :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
-or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param priority: The layer on which the fillarea will be drawn.
-:type priority: int
+    :param priority: The layer on which the fillarea will be drawn.
+    :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-:type viewport: list of floats
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
 
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:return: A fillarea object
-"""
+    :return: A vcs.fillarea.Tf object
+    """
 
     name, source = check_name_source(name, source, 'fillarea')
 
@@ -1597,38 +1614,39 @@ def createtexttable(name=None, source='default', font=None,
     # Plot using specified texttable object
     vcs.texttable(tt)
 
-:param name: Name of created object
-:type name: str
+    :param name: Name of created object
+    :type name: str
 
-:param source: a texttable, or string name of a texttable
-:type source: str
+    :param source: a texttable, or string name of a texttable
+    :type source: str
 
-:param font:
-:type font:
+    :param font:
+    :type font:
 
-:param expansion:
-:type expansion:
+    :param expansion:
+    :type expansion:
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
-or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param priority: The layer on which the texttable will be drawn.
-:type priority: int
+    :param priority: The layer on which the texttable will be drawn.
+    :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-:type viewport: list of floats
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
 
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:return: A new texttable secondary method
+    :return: A vcs.texttable.Tt object
+
 """
 
     name, source = check_name_source(name, source, 'texttable')
@@ -1727,7 +1745,7 @@ def createtextorientation(name=None, source='default'):
 :param source: The object to inherit from
 :type source: a textorientation or a string name of a textorientation
 
-:return: A new textorientation secondary method
+:return: A vcs.textorientation.To object
 """
 
     name, source = check_name_source(name, source, 'textorientation')
@@ -1794,8 +1812,8 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
     vcs.show('texttable')
     vcs.show('textorientation')
 
-:param Tt_name:
-:type Tt_name:
+:param Tt_name: Name of created object
+:type Tt_name: str
 
 :param Tt_source:
 :type Tt_source:
@@ -1809,8 +1827,8 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param font:
 :type font:
 
-:param spacing
-:type spacing
+:param spacing:
+:type spacing:
 
 :param expansion:
 :type expansion:
@@ -1852,7 +1870,8 @@ or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :param projection:
 :type projection:
 
-:return: A new textcombined secondary method
+:return: A vcs.textcombined.Tc object
+
 """
     # Check if to is defined
     if To_name is None:
@@ -2024,18 +2043,18 @@ def create3d_scalar(name=None, source='default'):
 
 ::
 
-a=vcs.init()
-a.show('3d_scalar')
-plot=a.create3d_scalar()
+    a=vcs.init()
+    a.show('3d_scalar')
+    plot=a.create3d_scalar()
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a 3d_scalar or a string name of a 3d_scalar
+    :param source: The object to inherit from
+    :type source: a 3d_scalar or a string name of a 3d_scalar
 
-:return: A 3d_scalar graphics method
-"""
+    :return: A vcs.dv3d.Gf3Dscalar object
+    """
     name, source = check_name_source(name, source, '3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
 
@@ -2084,18 +2103,18 @@ def create3d_dual_scalar(name=None, source='default'):
 
 ::
 
-a=vcs.init()
-a.show('3d_dual_scalar')
-plot=a.create3d_dual_scalar()
+    a=vcs.init()
+    a.show('3d_dual_scalar')
+    plot=a.create3d_dual_scalar()
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a 3d_dual_scalar or a string name of a 3d_dual_scalar
+    :param source: The object to inherit from
+    :type source: a 3d_dual_scalar or a string name of a 3d_dual_scalar
 
-:return: A 3d_dual_scalar graphics method
-"""
+    :return: A vcs.dv3d.Gf3DDualScalar object
+    """
     name, source = check_name_source(name, source, '3d_dual_scalar')
     return dv3d.Gf3DDualScalar(name, source)
 
@@ -2131,23 +2150,32 @@ plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graph
 
 def create3d_vector(name=None, source='default'):
     """
-Function: createdv3d                # Construct a new dv3d graphics method
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new dv3d graphics method given the the name and the existing
-dv3d graphics method to copy the attributes from. If no existing
-dv3d graphics method name is given, then the default dv3d graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then an error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-:Example:
-a=vcs.init()
-a.show('3Dvector')
-plot=a.create3d_vector()
+::
+
+    a=vcs.init()
+    a.show('3d_vector')
+    plot=a.create3d_vector()
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a 3d_vector or a string name of a 3d_vector
+
+    :return: A vcs.dv3d.Gf3Dvector object
 """
+
     name, source = check_name_source(name, source, '3d_vector')
     return dv3d.Gf3Dvector(name, source)
 
@@ -2173,22 +2201,22 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 
 ::
 
-a=vcs.init()
-cp=a.createcolormap('example1',)
-a.show('colormap')
-cp=a.createcolormap('example2','AMIP')
-a.show('colormap')
+    a=vcs.init()
+    cp=a.createcolormap('example1',)
+    a.show('colormap')
+    cp=a.createcolormap('example2','AMIP')
+    a.show('colormap')
 
-:param Cp_name: The name of the created object
-:type Cp_name: str
+    :param Cp_name: The name of the created object
+    :type Cp_name: str
 
-:param Cp_name_src: The object to inherit
-:type Cp_name_src: a colormap or a string name of a colormap
+    :param Cp_name_src: The object to inherit
+    :type Cp_name_src: a colormap or a string name of a colormap
 
-:return: A colormap object
-"""
+    :return: A vcs.colormap.Cp object
+    """
     Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
-    return colormap.Cp(Cp_name, Cp_name_src)
+    return colormap.Cp(Cp_name, Cp_name_srcvcs.colormap.Cp )
 
 
 def getcolormap(Cp_name_src='default'):
