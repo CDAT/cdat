@@ -1709,16 +1709,56 @@ Options:::
         """
     Generate and draw a line object on the VCS Canvas.
 
- :Example:
+     :Example:
+
+ ::
+
     a=vcs.init()
-    a.show('line')                      # Show all the existing line objects
+    # Show all the existing line objects
+    a.show('line')
+    # Create instance of line object 'red'
     ln=a.drawline(name='red', ltype='dash', width=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
-    a.line(ln)                          # Plot using specified line object
-"""
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified line object
+    a.line(ln)
+
+
+    :param name: Name of created object
+    :type name: str
+
+    :param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
+    :type ltype: str
+
+    :param width: Thickness of the line to be drawn
+    :type width: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the line will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+    :type projection: str or projection object
+
+    :return:
+    """
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the line.')
         else:
@@ -1908,8 +1948,6 @@ Options:::
                      worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                      x=None, y=None, bg=0):
         """
-        Generate and draw a fillarea plot
-
         Generate and draw a fillarea object on the VCS Canvas.
 
         :Example:
@@ -1919,11 +1957,11 @@ Options:::
     # Show all the existing fillarea objects
     a.show('fillarea')
     # Create instance of fillarea object 'red'
-    fa=a.drawfillarea(name='red', mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+    fa=a.drawfillarea(name='red', style=1, color=242,
+                  priority=1, viewport=[0, 2.0, 0, 2.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )
+                  y=[0,10,20,30,40,50], bg=0 )
     # Plot using specified fillarea object
     a.fillarea(fa)
 
@@ -1955,8 +1993,8 @@ Options:::
     :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
     :type y: list of floats
 
-    :param bg:
-    :type bg:
+    :param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
+    :type bg: boolean, or any statement that evaluates to a boolean
 
     :return:
 """
@@ -2136,13 +2174,51 @@ Options:::
 ::
 
     a=vcs.init()
-    a.show('texttable')                      # Show all the existing texttable objects
+    # Show all the existing texttable objects
+    a.show('texttable')
+    # Create instance of texttable object 'red'
     tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of texttable object 'red'
-    a.texttable(tt)                          # Plot using specified texttable object
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified texttable object
+    a.texttable(tt)
+
+
+    :param name: Name of created object
+    :type name: str
+
+    :param style: One of "hatch", "solid", or "pattern".
+    :type style: str
+
+    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+    :type index: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the fillarea will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :param bg:
+    :type bg:
+
+    :return:
+
 """
         if (Tt_name is None) or (not isinstance(Tt_name, str)):
             raise vcsError('Must provide string name for the texttable.')
@@ -5001,10 +5077,11 @@ Options:::
         """
         Add a font to VCS.
 
-:param path: Path to the font file you wish to add (must be .ttf)
-:param name: Name to use to represent the font.
-:type path: str
-:type name: str
+    :param path: Path to the font file you wish to add (must be .ttf)
+    :type path: str
+
+    :param name: Name to use to represent the font.
+    :type name: str
 """
         if not os.path.exists(path):
             raise ValueError('Error -  The font path does not exists')
