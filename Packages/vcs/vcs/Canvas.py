@@ -1,31 +1,3 @@
-#!/usr/bin/env python
-# Adapted for numpy/ma/cdms2 by convertcdms.py
-#
-# The VCS Canvas API controls -  canvas module
-#
-###############################################################################
-#                                                                             #
-# Module:       canvas module                                                 #
-#                                                                             #
-# Copyright:    "See file Legal.htm for copyright information."               #
-#                                                                             #
-# Authors:      PCMDI Software Team                                           #
-#               Lawrence Livermore National Laboratory:                       #
-#               support@pcmdi.llnl.gov                                        #
-#                                                                             #
-# Description:  PCMDI's VCS Canvas is used to display plots and to create and #
-#               run animations.  It is always visible on the screen in a      #
-#               landscape (width exceeding height), portrait (height exceeding#
-#               width), or full-screen mode.                                  #
-#                                                                             #
-# Version: 2.4                                                                #
-#                                                                             #
-###############################################################################
-
-"""Canvas: the class representing a vcs drawing window
-Normally, created by vcs.init()
-Contains the method plot.
-"""
 import warnings
 from pauser import pause
 import numpy.ma
@@ -68,6 +40,7 @@ from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert, xaxisc
     plot_2_1D_options
 gui_canvas_closed = 0
 canvas_closed = 0
+import vcsaddons  # noqa
 import vcs.manageElements  # noqa
 import configurator  # noqa
 from projection import no_deformation_projections  # noqa
@@ -126,7 +99,7 @@ def dictionarytovcslist(dictionary, name):
 
 def _determine_arg_list(g_name, actual_args):
     "Determine what is in the argument list for plotting graphics methods"
-    import vcsaddons
+
     itemplate_name = 2
     igraphics_method = 3
     igraphics_option = 4
@@ -309,22 +282,12 @@ def _process_keyword(obj, target, source, keyargs, default=None):
 
 
 class Canvas(object):
-
     """
- Function: Canvas                     # Construct a VCS Canvas class Object
+    The object onto which all plots are drawn.
 
- Description of Function:
-    Construct the VCS Canas object. There can only be at most 8 VCS
-    Canvases open at any given time.
-
- Example of Use:
-    a=vcs.Canvas()                    # This examples constructs a VCS Canvas
-"""
-    ##########################################################################
-    #                                                                        #
-    # Set attributes for VCS Canvas Class (i.e., set VCS Canvas Mode).       #
-    #                                                                        #
-    ##########################################################################
+    Usually created using `vcs.init`, this object provides easy access
+    to the functionality of the entire VCS module.
+    """
     __slots__ = [
         '_mode',
         '_pause_time',
@@ -332,9 +295,7 @@ class Canvas(object):
         '_worldcoordinate',
         '_winfo_id',
         '_varglist',
-        '_canvas_gui',
         '_animate_info',
-        '_canvas_template_editor',
         '_isplottinggridded',
         '_user_actions_names',
         '_user_actions',
@@ -347,7 +308,6 @@ class Canvas(object):
         'worldcoordinate',
         'winfo_id',
         'varglist',
-        'canvas_gui'
         'animate_info',
         'canvas_template_editor',
         'isplottinggridded',
@@ -357,7 +317,6 @@ class Canvas(object):
         'user_actions_names',
         'user_actions',
         'size',
-        'canvas_guianimate_info',
         'ParameterChanged',
         'colormap',
         'backgroundcolor',
@@ -444,13 +403,6 @@ class Canvas(object):
         return self._varglist
     varglist = property(_getvarglist, _setvarglist)
 
-    def _setcanvas_gui(self, value):
-        self._canvas_gui = value
-
-    def _getcanvas_gui(self):
-        return self._canvas_gui
-    canvas_gui = property(_getcanvas_gui, _setcanvas_gui)
-
     def _setcanvas(self, value):
         raise vcsError("Error, canvas is not an attribute you can set")
 
@@ -496,15 +448,6 @@ class Canvas(object):
     def _getworldcoordinate(self):
         return self._worldcoordinate
     worldcoordinate = property(_getworldcoordinate, _setworldcoordinate)
-
-    def _setcanvas_template_editor(self, value):
-        self._canvas_template_editor = value  # No check on this!
-
-    def _getcanvas_template_editor(self):
-        return self._canvas_template_editor
-    canvas_template_editor = property(
-        _getcanvas_template_editor,
-        _setcanvas_template_editor)
 
     def _setisplottinggridded(self, value):
         if not isinstance(value, bool):
@@ -833,34 +776,23 @@ class Canvas(object):
 #        tv = self._datawc_tv( tv, arglist )
         return tv
 
-    ##########################################################################
-    #                                                                        #
-    # Print out the object's doc string.                                     #
-    #                                                                        #
-    ##########################################################################
     def objecthelp(self, *arg):
         """
- Function: objecthelp               # Print out the object's doc string
-
- Description of Function:
     Print out information on the VCS object. See example below on its use.
 
- Example of Use:
-    a=vcs.init()
+    :Example:
 
-    ln=a.getline('red')                 # Get a VCS line object
-    a.objecthelp(ln)                    # This will print out information on how to use ln
+::
+
+    a=vcs.init()
+    # Get a VCS line object
+    ln=a.getline('red')
+    # This will print out information on how to use ln
+    a.objecthelp(ln)
     """
         for x in arg:
             print getattr(x, "__doc__", "")
 
-    ############################################################################
-    #                                                                          #
-    # Initialize the VCS Canvas and set the Canvas mode to 0. Because the mode #
-    # is set to 0, the user will have to manually update the VCS Canvas by     #
-    # using the "update" function.                                             #
-    #                                                                          #
-    ############################################################################
     def __init__(self, mode=1, pause_time=0,
                  call_from_gui=0, size=None, backend="vtk", geometry=None, bg=None):
         self._canvas_id = vcs.next_canvas_id
@@ -885,9 +817,7 @@ class Canvas(object):
 
         self.winfo_id = -99
         self.varglist = []
-        self.canvas_gui = None
         self.isplottinggridded = False
-        self.canvas_guianimate_info = None
 
         if size is None:
             psize = 1.2941176470588236
@@ -963,12 +893,10 @@ class Canvas(object):
 
 # Initial.attributes is being called in main.c, so it is not needed here!
 # Actually it is for taylordiagram graphic methods....
-###########################################################################################
-#  Okay, then this is redundant since it is done in main.c. When time perments, put the   #
-#  taylordiagram graphic methods attributes in main.c Because this is here we must check  #
-#  to make sure that the initial attributes file is called only once for normalization    #
-#  purposes....                                                                           #
-###########################################################################################
+#  Okay, then this is redundant since it is done in main.c. When time perments, put the
+#  taylordiagram graphic methods attributes in main.c Because this is here we must check
+#  to make sure that the initial attributes file is called only once for normalization
+#  purposes....
 
         self.canvas_template_editor = None
         self.ratio = '0'
@@ -998,25 +926,24 @@ class Canvas(object):
 
     # Functions to set/querie drawing of UV-CDAT logo
     def drawlogoon(self):
-        """Turn on drawing of logo on pix"""
+        """Show UV-CDAT logo on the canvas"""
         self.enableLogo = True
 
     def drawlogooff(self):
-        """Turn off drawing of logo on pix"""
+        """Hide UV-CDAT logo on the canvas"""
         self.enableLogo = False
 
     def getdrawlogo(self):
-        """Return value of draw logo"""
+        """
+        Returns value of draw logo
+
+        :return: draw logo value
+        """
         return self.enableLogo
 
     def initLogoDrawing(self):
         self.drawLogo = self.enableLogo
 
-    #############################################################################
-    #                                                                           #
-    # Update wrapper function for VCS.                                          #
-    #                                                                           #
-    #############################################################################
 
     def update(self, *args, **kargs):
         """
@@ -1027,7 +954,7 @@ class Canvas(object):
     set to manual, then use this function to update the plot(s)
     manually.
 
- Example of Use:
+ :Example:
     ...
 
     a=vcs.init()
@@ -1045,25 +972,7 @@ class Canvas(object):
 
         return self.backend.update(*args, **kargs)
 
-    #############################################################################
-    #                                                                           #
-    # Update wrapper function for VCS with a check to update the continents.    #
-    #                                                                           #
-    #############################################################################
-    def _update_continents_check(self, *args):
 
-        a = self.canvas.updatecanvas_continents(*args)
-        self.flush()  # update the canvas by processing all the X events
-        self.backing_store()
-        pause(self.pause_time)
-
-        return a
-
-    #############################################################################
-    #                                                                           #
-    # Script VCS primary or secondary elements wrapper functions for VCS.       #
-    #                                                                           #
-    #############################################################################
     def scriptobject(self, obj, script_filename=None, mode=None):
         """
  Function: scriptobject       # Script a single primary or secondary class object
@@ -1085,7 +994,7 @@ class Canvas(object):
           However, a `default' attribute set that has been copied under a
           different name can be saved as a script file.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     l=a.getline('red')         # To Modify an existing line object
     i=x.createisoline('dean')  # Create an instance of default isoline object
@@ -1138,13 +1047,14 @@ class Canvas(object):
         else:
             print 'This is not a template, graphics method or secondary method object.'
 
-    #############################################################################
-    #                                                                           #
-    # Remove VCS primary and secondary methods wrapper functions for VCS.       #
-    #                                                                           #
-    #############################################################################
-
     def removeobject(self, obj):
+        """
+        Removes a VCS object from the cache of available objects that can be referred to by name.
+
+        :param obj: The VCS object to be removed.
+        :type obj: a VCS object
+        :return:
+        """
         __doc__ = vcs.removeobject.__doc__  # noqa
         return vcs.removeobject(obj)
 
@@ -1152,18 +1062,23 @@ class Canvas(object):
         return vcs.removeP(*args)
 
     def clean_auto_generated_objects(self, type=None):
-        """ cleans all self/auto genrated objects in vcs, only if they're not in use
-        Example:
-        import vcs
-        x=vcs.init()
-        x.clean_auto_generated_objects() # cleans everything
-        x.clean_auto_generated_objects('template') # cleans template objects
+        """
+        Cleans up all automaticaly generated VCS objects.
+
+        This function will delete all references to objects that
+        VCS created automatically in response to user actions but are
+        no longer in use. This shouldn't be necessary most of the time,
+        but if you're running into performance/memory issues, calling it
+        periodically may help.
+
+        :param type: Type of objects to remove. By default, will remove everything.
+        :type type: None, str, list/tuple (of str)
         """
 
         if type is None:
             type = self.listelements()
             type.remove("fontNumber")
-        elif isinstance(type, str):
+        elif isinstance(type, (str, unicode)):
             type = [type, ]
         elif not isinstance(type, (list, tuple)):
             return
@@ -1191,12 +1106,8 @@ class Canvas(object):
 
     def check_name_source(self, name, source, typ):
         return vcs.check_name_source(name, source, typ)
+    check_name_source.__doc__ = vcs.manageElements.check_name_source.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Template functions for VCS.                                               #
-    #                                                                           #
-    #############################################################################
     def createtemplate(self, name=None, source='default'):
         return vcs.createtemplate(name, source)
     createtemplate.__doc__ = vcs.manageElements.createtemplate.__doc__
@@ -1205,11 +1116,6 @@ class Canvas(object):
         return vcs.gettemplate(Pt_name_src)
     gettemplate.__doc__ = vcs.manageElements.gettemplate.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Projection functions for VCS.                                             #
-    #                                                                           #
-    #############################################################################
     def createprojection(self, name=None, source='default'):
         return vcs.createprojection(name, source)
     createprojection.__doc__ = vcs.manageElements.createprojection.__doc__
@@ -1218,74 +1124,80 @@ class Canvas(object):
         return vcs.getprojection(Proj_name_src)
     getprojection.__doc__ = vcs.manageElements.getprojection.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Boxfill functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
     def createboxfill(self, name=None, source='default'):
+        """
+        Create a Boxfill Graphics Method
+
+        :param name: The name of the created object
+        :type name: str
+
+        :param source: The object to inherit from
+        :type source: a boxfill, or a string name of a boxfill
+
+        :return: A boxfill graphics method
+        """
         return vcs.createboxfill(name, source)
     createboxfill.__doc__ = vcs.manageElements.createboxfill.__doc__
 
     def getboxfill(self, Gfb_name_src='default'):
+        """
+
+        :param Gfb_name_src:
+        :return:
+        """
         return vcs.getboxfill(Gfb_name_src)
     getboxfill.__doc__ = vcs.manageElements.getboxfill
 
     def boxfill(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
+        Plot a boxfill.
 
- Function: boxfill                        # Generate a boxfill plot
+        Generate a boxfill plot given the data, boxfill graphics method, and
+        template. If no boxfill class object is given, then the 'default' boxfill
+        graphics method is used. Similarly, if no template class object is given,
+        then the 'default' template is used.
 
- Description of Function:
-    Generate a boxfill plot given the data, boxfill graphics method, and
-    template. If no boxfill class object is given, then the 'default' boxfill
-    graphics method is used. Similarly, if no template class object is given,
-    then the 'default' template is used.
+        :Example:
 
- Example of Use:
+::
+
     a=vcs.init()
-    a.show('boxfill')                        # Show all the existing boxfill graphics methods
-    box=a.getboxfill('quick')                # Create instance of 'quick'
-    a.boxfill(array,box)                # Plot array using specified box and default
-                                        #         template
-    templt=a.gettemplate('AMIP')        # Create an instance of template 'AMIP'
-    a.clear()                           # Clear VCS canvas
-    a.boxfill(array,box,template)       # Plot array using specified box and template
-    a.boxfill(box,array,template)       # Plot array using specified box and template
-    a.boxfill(template,array,box)       # Plot array using specified box and template
-    a.boxfill(template,array,box)       # Plot array using specified box and template
-    a.boxfill(array,'AMIP','quick')     # Use 'AMIP' template and 'quick' boxfill
-    a.boxfill('AMIP',array,'quick')     # Use 'AMIP' template and 'quick' boxfill
-    a.boxfill('AMIP','quick',array)     # Use 'AMIP' template and 'quick' boxfill
+    # Show all the existing boxfill graphics methods
+    a.show('boxfill')
+    # Create instance of 'quick'
+    box=a.getboxfill('quick')
+    # Plot array using specified box and default template
+    a.boxfill(array,box)
+    # Create an instance of template 'AMIP'
+    templt=a.gettemplate('AMIP')
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified box and template
+    a.boxfill(array,box,template)
+    # Plot array using specified box and template
+    a.boxfill(box,array,template)
+    # Plot array using specified box and template
+    a.boxfill(template,array,box)
+    # Plot array using specified box and template
+    a.boxfill(template,array,box)
+    # Use 'AMIP' template and 'quick' boxfill
+    a.boxfill(array,'AMIP','quick')
+    # Use 'AMIP' template and 'quick' boxfill
+    a.boxfill('AMIP',array,'quick')
+    # Use 'AMIP' template and 'quick' boxfill
+    a.boxfill('AMIP','quick',array)
 
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End boxfill Description ################################################
-#########################################                         #################################################
-###################################################################################################################
-
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('boxfill', args)
         return self.__plot(arglist, parms)
     boxfill.__doc__ = boxfill.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Taylordiagram functions for VCS.                                          #
-    #                                                                           #
-    #############################################################################
     def createtaylordiagram(self, name=None, source='default'):
         return vcs.createtaylordiagram(name, source)
     createtaylordiagram.__doc__ = vcs.manageElements.createtaylordiagram.__doc__
@@ -1296,31 +1208,32 @@ Options:::
 
     def taylordiagram(self, *args, **parms):
         """
- Function: taylordiagram                        # Generate an taylordiagram plot
+        Generate a taylor diagram plot.
 
- Description of Function:
-    Generate a taylordiagram plot given the data, taylordiagram graphics method, and
-    template. If no taylordiagram class object is given, then the 'default' taylordiagram
-    graphics method is used. Similarly, if no template class object is given,
-    then the 'default' template is used.
+        Generate a taylordiagram plot given the data, taylordiagram graphics method, and
+        template. If no taylordiagram class object is given, then the 'default' taylordiagram
+        graphics method is used. Similarly, if no template class object is given,
+        then the 'default' template is used.
 
- Example of Use:
+        :Example:
+
+::
+
     a=vcs.init()
-    a.show('taylordiagram')                   # Show all the existing taylordiagram graphics methods
-    td=a.gettaylordiagram()                   # Create instance of 'default'
-    a.taylordiagram(array,td)                 # Plot array using specified iso and default
-                                              #       template
-    a.clear()                                 # Clear VCS canvas
-    a.taylordiagram(array,td,template)        # Plot array using specified iso and template
+    # Show all the existing taylordiagram graphics methods
+    a.show('taylordiagram')
+    # Create instance of 'default'
+    td=a.gettaylordiagram()
+    # Plot array using specified iso and default template
+    a.taylordiagram(array,td)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified iso and template
+    a.taylordiagram(array,td,template)
 """
         arglist = _determine_arg_list('taylordiagram', args)
         return self.__plot(arglist, parms)
 
-    #############################################################################
-    #                                                                           #
-    # Meshfill functions for VCS.                                               #
-    #                                                                           #
-    #############################################################################
 
     def createmeshfill(self, name=None, source='default'):
         return vcs.createmeshfill(name, source)
@@ -1354,7 +1267,7 @@ Options:::
     data.shape=(10000,)
     mesh.shape=(10000,2,4)
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('meshfill')                   # Show all the existing meshfill graphics methods
     mesh=a.getmeshfill()                 # Create instance of 'default'
@@ -1366,12 +1279,6 @@ Options:::
 """
         arglist = _determine_arg_list('meshfill', args)
         return self.__plot(arglist, parms)
-
-    #############################################################################
-    #                                                                           #
-    # DV3D functions for VCS.                                                   #
-    #                                                                           #
-    #############################################################################
 
     def create3d_scalar(self, name=None, source='default'):
         return vcs.create3d_scalar(name, source)
@@ -1412,12 +1319,9 @@ Options:::
         arglist = _determine_arg_list('3d_dual_scalar', args)
         return self.__plot(arglist, parms)
 
-    #############################################################################
-    #                                                                           #
-    # Isofill functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
     def createisofill(self, name=None, source='default'):
+        """
+        """
         return vcs.createisofill(name, source)
     createisofill.__doc__ = vcs.manageElements.createisofill.__doc__
 
@@ -1439,28 +1343,27 @@ Options:::
 %s
     :::
 
- Function: isofill                        # Generate an isofill plot
-
- Description of Function:
     Generate a isofill plot given the data, isofill graphics method, and
     template. If no isofill class object is given, then the 'default' isofill
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
-    a=vcs.init()
-    a.show('isofill')                   # Show all the existing isofill graphics methods
-    iso=a.getisofill('quick')           # Create instance of 'quick'
-    a.isofill(array,iso)                # Plot array using specified iso and default
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.isofill(array,iso,template)       # Plot array using specified iso and template
+    :Example:
 
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End isofill Description ################################################
-#########################################                         #################################################
-###################################################################################################################
+::
+
+    a=vcs.init()
+     # Show all the existing isofill graphics methods
+    a.show('isofill')
+    # Create instance of 'quick'
+    iso=a.getisofill('quick')
+    # Plot array using specified iso and default
+    # template
+    a.isofill(array,iso)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified iso and template
+    a.isofill(array,iso,template)
 
 """
         arglist = _determine_arg_list('isofill', args)
@@ -1468,11 +1371,6 @@ Options:::
     isofill.__doc__ = isofill.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Isoline functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
     def createisoline(self, name=None, source='default'):
         return vcs.createisoline(name, source)
     createisoline.__doc__ = vcs.manageElements.createisoline.__doc__
@@ -1503,7 +1401,7 @@ Options:::
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('isoline')                   # Show all the existing isoline graphics methods
     iso=a.getisoline('quick')           # Create instance of 'quick'
@@ -1532,11 +1430,6 @@ Options:::
         return vcs.get1d(name)
     create1d.__doc__ = vcs.manageElements.create1d.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Xyvsy functions for VCS.                                                  #
-    #                                                                           #
-    #############################################################################
     def createxyvsy(self, name=None, source='default'):
         return vcs.createxyvsy(name, source)
     createxyvsy.__doc__ = vcs.manageElements.createxyvsy.__doc__
@@ -1567,7 +1460,7 @@ Options:::
     graphics method is used. Simerly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('xyvsy')                   # Show all the existing Xyvsy graphics methods
     xyy=a.getxyvsy('quick')           # Create instance of 'quick'
@@ -1588,11 +1481,6 @@ Options:::
     xyvsy.__doc__ = xyvsy.__doc__ % (
         plot_keywords_doc, graphics_method_core, xaxisconvert, plot_1D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Yxvsx functions for VCS.                                                  #
-    #                                                                           #
-    #############################################################################
     def createyxvsx(self, name=None, source='default'):
         return vcs.createyxvsx(name, source)
     createyxvsx.__doc__ = vcs.manageElements.createyxvsx.__doc__
@@ -1623,7 +1511,7 @@ Options:::
     graphics method is used. Simerly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('yxvsx')                   # Show all the existing Yxvsx graphics methods
     yxx=a.getyxvsx('quick')           # Create instance of 'quick'
@@ -1644,11 +1532,6 @@ Options:::
     yxvsx.__doc__ = yxvsx.__doc__ % (
         plot_keywords_doc, graphics_method_core, xaxisconvert, plot_1D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # XvsY functions for VCS.                                                   #
-    #                                                                           #
-    #############################################################################
     def createxvsy(self, name=None, source='default'):
         return vcs.createxvsy(name, source)
     createxvsy.__doc__ = vcs.manageElements.createxvsy.__doc__
@@ -1677,7 +1560,7 @@ Options:::
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('xvsy')                   # Show all the existing XvsY graphics methods
     xy=a.getxvsy('quick')            # Create instance of 'quick'
@@ -1701,11 +1584,6 @@ Options:::
                                    plot_2_1D_input,
                                    plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Vector functions for VCS.                                                 #
-    #                                                                           #
-    #############################################################################
     def createvector(self, name=None, source='default'):
         return vcs.createvector(name, source)
     createvector.__doc__ = vcs.manageElements.createvector.__doc__
@@ -1724,7 +1602,7 @@ Options:::
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('vector')                   # Show all the existing vector graphics methods
     vec=a.getvector('quick')           # Create instance of 'quick'
@@ -1736,11 +1614,6 @@ Options:::
         arglist = _determine_arg_list('vector', args)
         return self.__plot(arglist, parms)
 
-    #############################################################################
-    #                                                                           #
-    # Scatter functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
     def createscatter(self, name=None, source='default'):
         return vcs.createscatter(name, source)
     createscatter.__doc__ = vcs.manageElements.createscatter.__doc__
@@ -1769,7 +1642,7 @@ Options:::
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('scatter')                   # Show all the existing scatter graphics methods
     sct=a.getscatter('quick')           # Create instance of 'quick'
@@ -1791,11 +1664,6 @@ Options:::
     scatter.__doc__ = scatter.__doc__ % (
         plot_keywords_doc, graphics_method_core, axesconvert, plot_2_1D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Line  functions for VCS.                                                  #
-    #                                                                           #
-    #############################################################################
     def createline(self, name=None, source='default', ltype=None,  # noqa
                    width=None, color=None, priority=None,
                    viewport=None, worldcoordinate=None,
@@ -1820,7 +1688,7 @@ Options:::
     Plot a line segment on the Vcs Canvas. If no line class
     object is given, then an error will be returned.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('line')                      # Show all the existing line objects
     ln=a.getline('red')                 # Create instance of 'red'
@@ -1839,12 +1707,9 @@ Options:::
                  worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                  x=None, y=None, projection='default', bg=0):
         """
- Function: drawline                           # Generate and draw a line plot
-
- Description of Function:
     Generate and draw a line object on the VCS Canvas.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('line')                      # Show all the existing line objects
     ln=a.drawline(name='red', ltype='dash', width=2,
@@ -1875,11 +1740,6 @@ Options:::
 
         return ln
 
-    #############################################################################
-    #                                                                           #
-    # Marker  functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
     def createmarker(self, name=None, source='default', mtype=None,  # noqa
                      size=None, color=None, priority=1,
                      viewport=None, worldcoordinate=None,
@@ -1904,7 +1764,7 @@ Options:::
     Plot a marker segment on the Vcs Canvas. If no marker class
     object is given, then an error will be returned.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('marker')                     # Show all the existing marker objects
     mrk=a.getmarker('red')               # Create instance of 'red'
@@ -1923,21 +1783,55 @@ Options:::
                    worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                    x=None, y=None, bg=0):
         """
- Function: drawmarker                           # Generate and draw a marker plot
+        Generate and draw a marker object on the VCS Canvas.
 
- Description of Function:
-    Generate and draw a marker object on the VCS Canvas.
+        :Example:
 
- Example of Use:
+::
+
     a=vcs.init()
-    a.show('marker')                      # Show all the existing marker objects
+    # Show all the existing marker objects
+    a.show('marker')
+    # Create instance of marker object 'red'
     mrk=a.drawmarker(name='red', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
-    a.marker(mrk)                          # Plot using specified marker object
-"""
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified marker object
+    a.marker(mrk)
+
+
+    :param name: Name of created object
+    :type name: str
+
+    :param mtype:
+    :type mtype: str
+
+    :param size:
+    :type size: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the marker will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :return: A marker object
+    """
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the marker.')
         else:
@@ -1958,11 +1852,6 @@ Options:::
 
         return mrk
 
-    #############################################################################
-    #                                                                           #
-    # Fillarea  functions for VCS.                                              #
-    #                                                                           #
-    #############################################################################
     def createfillarea(self, name=None, source='default', style=None,
                        index=None, color=None, priority=1,
                        viewport=None, worldcoordinate=None,
@@ -1982,23 +1871,34 @@ Options:::
 
     def fillarea(self, *args, **parms):
         """
- Function: fillarea                           # Generate a fillarea plot
+        Generate a fillarea plot
 
- Description of Function:
-    Plot a fillarea segment on the Vcs Canvas. If no fillarea class
-    object is given, then an error will be returned.
+        Plot a fillarea segment on the Vcs Canvas. If no fillarea class
+        object is given, then an error will be returned.
 
- Example of Use:
+        :Example:
+
+::
+
     a=vcs.init()
-    a.show('fillarea')                  # Show all the existing fillarea objects
-    fa=a.getfillarea('red')             # Create instance of 'red'
-    fa.style=1                          # Set the fillarea style
-    fa.index=4                          # Set the fillarea index
-    fa.color = 242                      # Set the fillarea color
-    fa.type = 4                         # Set the fillarea type
-    fa.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]] # Set the x value points
-    fa.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]] # Set the y value points
-    a.fillarea(fa)                          # Plot using specified fillarea object
+    # Show all the existing fillarea objects
+    a.show('fillarea')
+    # Create instance of 'red'
+    fa=a.getfillarea('red')
+    # Set the fillarea style
+    fa.style=1
+    # Set the fillarea index
+    fa.index=4
+    # Set the fillarea color
+    fa.color = 242
+    # Set the fillarea type
+    fa.type = 4
+    # Set the x value points
+    fa.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
+    # Set the y value points
+    fa.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
+    # Plot using specified fillarea object
+    a.fillarea(fa)
 """
         arglist = _determine_arg_list('fillarea', args)
         return self.__plot(arglist, parms)
@@ -2008,20 +1908,57 @@ Options:::
                      worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                      x=None, y=None, bg=0):
         """
- Function: drawfillarea                           # Generate and draw a fillarea plot
+        Generate and draw a fillarea plot
 
- Description of Function:
-    Generate and draw a fillarea object on the VCS Canvas.
+        Generate and draw a fillarea object on the VCS Canvas.
 
- Example of Use:
+        :Example:
+::
+
     a=vcs.init()
-    a.show('fillarea')                      # Show all the existing fillarea objects
+    # Show all the existing fillarea objects
+    a.show('fillarea')
+    # Create instance of fillarea object 'red'
     fa=a.drawfillarea(name='red', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of fillarea object 'red'
-    a.fillarea(fa)                          # Plot using specified fillarea object
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified fillarea object
+    a.fillarea(fa)
+
+    :param name: Name of created object
+    :type name: str
+
+    :param style: One of "hatch", "solid", or "pattern".
+    :type style: str
+
+    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+    :type index: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the fillarea will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :param bg:
+    :type bg:
+
+    :return:
 """
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the fillarea.')
@@ -2043,11 +1980,6 @@ Options:::
 
         return fa
 
-    #############################################################################
-    #                                                                           #
-    # Text Table  functions for VCS.                                            #
-    #                                                                           #
-    #############################################################################
     def createtexttable(self, name=None, source='default', font=None,
                         spacing=None, expansion=None, color=None, priority=None,
                         viewport=None, worldcoordinate=None,
@@ -2065,11 +1997,6 @@ Options:::
                                 viewport, worldcoordinate, x, y)
     gettexttable.__doc__ = vcs.manageElements.gettexttable.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Text Orientation  functions for VCS.                                      #
-    #                                                                           #
-    #############################################################################
     def createtextorientation(self, name=None, source='default'):
         return vcs.createtextorientation(name, source)
     createtextorientation.__doc__ = vcs.manageElements.createtextorientation.__doc__
@@ -2078,11 +2005,6 @@ Options:::
         return vcs.gettextorientation(To_name_src)
     gettextorientation.__doc__ = vcs.manageElements.gettextorientation.__doc__
 
-    #############################################################################
-    #                                                                           #
-    # Text Combined  functions for VCS.                                         #
-    #                                                                           #
-    #############################################################################
     def createtextcombined(self, Tt_name=None, Tt_source='default', To_name=None, To_source='default',  # noqa
                            font=None, spacing=None, expansion=None, color=None,
                            priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
@@ -2110,28 +2032,39 @@ Options:::
 
     def textcombined(self, *args, **parms):
         """
-        Function: text or textcombined         # Generate a textcombined plot
+        Generate a textcombined plot
 
-        Description of Function:
         Plot a textcombined segment on the Vcs Canvas. If no textcombined class
         object is given, then an error will be returned.
+        *This function can also be called using the format **text(self, *args, **parms)** *
 
-        Example of Use:
+        :Example:
+
+::
+
         a=vcs.init()
-        a.show('texttable')                 # Show all the existing texttable objects
-        a.show('textorientation')           # Show all the existing textorientation objects
-        tt=a.gettext('std','7left')         # Create instance of 'std' and '7left'
-        tt.string = 'Text1'                 # Show the string "Text1" on the VCS Canvas
-        tt.font=2                           # Set the text size
-        tt.color = 242                      # Set the text color
-        tt.angle = 45                       # Set the text angle
-        tt.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]] # Set the x value points
-        tt.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]] # Set the y value points
-        a.text(tt)                          # Plot using specified text object
-
-        Optionally you can pass a string, the coordinates and any keyword
-        Example:
-        x.plot('Hi',.5,.5,color=241,angle=45)
+        # Show all the existing texttable objects
+        a.show('texttable')
+        # Show all the existing textorientation objects
+        a.show('textorientation')
+        # Create instance of 'std' and '7left'
+        tt=a.gettext('std','7left')
+        # Show the string "Text1" on the VCS Canvas
+        tt.string = 'Text1'
+        # Set the text size
+        tt.font=2
+        # Set the text color
+        tt.color = 242
+        # Set the text angle
+        tt.angle = 45
+        # Set the x value points
+        tt.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
+        # Set the y value points
+        tt.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
+        # Plot using specified text object
+        a.text(tt)
+        #Optionally you can pass a string, the coordinates, and any keyword
+        a.plot('Hi',.5,.5,color=241,angle=45)
         """
         # First check if color is a string
         if 'color' in parms.keys():
@@ -2166,7 +2099,11 @@ Options:::
 
     def gettextextent(self, textobject):
         """Returns the coordinate of the box surrounding a text object once printed
-        Example:
+
+        :Example:
+
+::
+
         x=vcs.init()
         t=x.createtext()
         t.x=[.5]
@@ -2192,12 +2129,12 @@ Options:::
                          worldcoordinate=[0.0, 1.0, 0.0, 1.0],
                          x=None, y=None, bg=0):
         """
- Function: drawtexttable                           # Generate and draw a texttable plot
-
- Description of Function:
     Generate and draw a texttable object on the VCS Canvas.
 
- Example of Use:
+     :Example:
+
+::
+
     a=vcs.init()
     a.show('texttable')                      # Show all the existing texttable objects
     tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
@@ -2259,11 +2196,6 @@ Options:::
     #    self.clear()
     #    self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
 
-    ###########################################################################
-    #                                                                         #
-    # Plot wrapper for VCS.                                                   #
-    #                                                                         #
-    ###########################################################################
     def plot(self, *actual_args, **keyargs):
         """
 Options:::
@@ -2355,7 +2287,7 @@ Options:::
     if both 'xaxis' and 'grid' keywords are specified, the value of 'xaxis' takes precedence
     over the x-axis of grid.
 
- Example of Use:
+ :Example:
     x=vcs.init()        # x is an instance of the VCS class object (constructor)
     x.plot(array)       # this call will use default settings for template and boxfill
     x.plot(array, 'AMIP', 'isofill','AMIP_psl') # this is specifying the template and
@@ -2448,15 +2380,14 @@ Options:::
         return new
 
     def __plot(self, arglist, keyargs):
-        import vcsaddons
 
-        # This routine has five arguments in arglist from _determine_arg_list
-        # It adds one for bg and passes those on to Canvas.plot as its sixth
-        # arguments.
+            # This routine has five arguments in arglist from _determine_arg_list
+            # It adds one for bg and passes those on to Canvas.plot as its sixth
+            # arguments.
 
-        # First of all let's remember which elets we have before comin in here
-        # so that anything added (temp objects) can be removed at clear
-        # time
+            # First of all let's remember which elets we have before comin in here
+            # so that anything added (temp objects) can be removed at clear
+            # time
         original_elts = {}
         new_elts = {}
         for k in vcs.elements.keys():
@@ -3493,14 +3424,9 @@ Options:::
                     tp = "boxfill"
                 elif tp in ("xvsy", "xyvsy", "yxvsx", "scatter"):
                     tp = "1d"
-                if tp in vcsaddons.gms:
-                    gm = vcsaddons.gms[tp][arglist[4]]
-                    arglist[3] = gm
-                else:
-                    gm = vcs.elements[tp][arglist[4]]
+                gm = vcs.elements[tp][arglist[4]]
                 if hasattr(gm, "priority") and gm.priority == 0:
                     return
-
             p = self.getprojection(gm.projection)
             if p.type in no_deformation_projections and (
                     doratio == "0" or doratio[:4] == "auto"):
@@ -3715,22 +3641,20 @@ Options:::
                 del(keyargs["bg"])
             if isinstance(arglist[3], vcsaddons.core.VCSaddon):
                 if arglist[1] is None:
-                    dn = arglist[3].plot_internal(
+                    dn = arglist[3].plot(
                         arglist[0],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
                 else:
-                    dn = arglist[3].plot_internal(
+                    dn = arglist[3].plot(
                         arglist[0],
                         arglist[1],
                         template=arglist[2],
                         bg=bg,
                         x=self,
                         **keyargs)
-                self.display_names.append(dn.name)
-                return dn
             else:
                 returned_kargs = self.backend.plot(*arglist, **keyargs)
                 if not keyargs.get("donotstoredisplay", False):
@@ -3808,86 +3732,46 @@ Options:::
     def setAnimationStepper(self, stepper):
         self.backend.setAnimationStepper(stepper)
 
-    ##########################################################################
-    #                                                                        #
-    # VCS utility wrapper to return the number of displays that are "ON".    #
-    #                                                                        #
-    ##########################################################################
-    def return_display_ON_num(self, *args):
-        return self.canvas.return_display_ON_num(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # VCS utility wrapper to return the current display names.               #
-    #                                                                        #
-    ##########################################################################
     def return_display_names(self, *args):
         return self.display_names
 
-    ##########################################################################
-    #                                                                        #
-    # VCS utility wrapper to remove the display names.                       #
-    #                                                                        #
-    ##########################################################################
     def remove_display_name(self, *args):
-        return self.canvas.remove_display_name(*args)
+        """
+        Removes a plotted item from the canvas.
 
-    ##########################################################################
-    #                                                                        #
-    # CGM  wrapper for VCS.                                                  #
-    #                                                                        #
-    ##########################################################################
+        :param args: Any number of display names to remove.
+        :type args: str list
+        """
+        for a in args:
+            if a in self.display_names:
+                self.display_names.remove(a)
+        self.update()
+
     def cgm(self, file, mode='w'):
         """
- Function: cgm
+        Export an image in CGM format.
 
- Description of Function:
-    To save a graphics plot in CDAT the user can call CGM along with the name of
-    the output. This routine will save the displayed image on the VCS canvas as
-    a binary vector graphics that can be imported into MSWord or Framemaker. CGM
-    files are in ISO standards output format.
+        :param file: Filename to save
+        :param mode: Ignored.
+        """
 
-    The CGM command is used to create or append to a cgm file. There are two modes
-    for saving a cgm file: `Append' mode (a) appends cgm output to an existing cgm
-    file; `Replace' (r) mode overwrites an existing cgm file with new cgm output.
-    The default mode is to overwrite an existing cgm file (i.e. mode (r)).
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.cgm(o)
-    a.cgm('example')           # by default a cgm file will overwrite an existing file
-    a.cgm('example','w')  # 'r' will instruct cgm to overwrite an existing file
-    a.cgm('example',mode='w')  # 'r' will instruct cgm to overwrite an existing file
-
-"""
         if mode != 'w':
             warnings.warn(
                 "cgm only supports 'w' mode ignoring your mode ('%s')" %
                 mode)
         return self.backend.cgm(file)
 
-    ##########################################################################
-    #                                                                        #
-    # Clear VCS Canvas wrapper for VCS.                                      #
-    #                                                                        #
-    ##########################################################################
     def clear(self, *args, **kargs):
         """
- Function: clear
+        Clears all the VCS displays on a page (i.e., the VCS Canvas object).
 
- Description of Function:
-    In VCS it is necessary to clear all the plots from a page. This routine
-    will clear all the VCS displays on a page (i.e., the VCS Canvas object).
-
- Example of Use:
+        :Example:
+:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
+    #clear VCS displays from the page
     a.clear()
 
-  Internally, update() calls clear() to assist in removing plots. The preserve_display argument is used to
-  make sure that the display plots that are associated with the current canvas are not eliminated, and
-  are still able to be used to regenerate the plots.
 """
         if self.animate.created():
             self.animate.close()
@@ -3918,22 +3802,16 @@ Options:::
         self.display_names = []
         return
 
-    ##########################################################################
-    #                                                                        #
-    # Close VCS Canvas wrapper for VCS.                                      #
-    #                                                                        #
-    ##########################################################################
     def close(self, *args, **kargs):
         """
- Function: close
+        Close the VCS Canvas. It will not deallocate the VCS Canvas object.
+        To deallocate the VCS Canvas, use the destroy method.
 
- Description of Function:
-    Close the VCS Canvas. It will not deallocate the VCS Canvas object.
-    To deallocate the VCS Canvas, use the destroy method.
-
- Example of Use:
+        :Example:
+::
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
+    #close the vcs canvas
     a.close()
 
 """
@@ -3944,19 +3822,14 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                        #
-    # Destroy VCS Canvas Object (i.e., call the Dealloc C code).             #
-    #                                                                        #
-    ##########################################################################
     def destroy(self):
         """
- Function: destroy
-
- Description of Function:
     Destroy the VCS Canvas. It will deallocate the VCS Canvas object.
 
- Example of Use:
+    :Example:
+
+::
+
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.destory()
@@ -3968,26 +3841,23 @@ Options:::
         gc.garbage
         gc.collect()
 
-    ##########################################################################
-    #                                                                        #
-    # Graphics Method Change display.                                        #
-    #                                                                        #
-    ##########################################################################
     def change_display_graphic_method(self, display, type, name):
         '''
- Function: change_display_graphic_method
+        Changes the type and graphic method of a plot.
 
- Description of Function:
-    Changes the type and graphic metohd of a display.
+        :param display: Display to change.
+        :param type: New graphics method type.
+        :param name: Name of new graphics method.
+        :type display: str or vcs.displayplot.Dp
+        :type name: str
+        :type type: str
+        '''
 
-'''
-        return self.canvas.change_display_graphic_method(
-            *(display, type, name))
-    ##########################################################################
-    #                                                                        #
-    # Figures out which display is selected in graphic method editor mode    #
-    #                                                                        #
-    ##########################################################################
+        if isinstance(display, (str, unicode)):
+            display = vcs.elements["display"][display]
+        display.g_type = type
+        display.g_name = name
+        self.update()
 
     def get_selected_display(self):
         """
@@ -3996,100 +3866,10 @@ Options:::
     """
         return self.canvas.get_selected_display(*())
 
-    ##########################################################################
-    #                                                                        #
-    # Send a request to turn on a picture template object in the VCS Canvas. #
-    #                                                                        #
-    ##########################################################################
-    def _select_one(self, template_name, attr_name, X1, X2, Y1, Y2):
-        # flush and block the X main loop
-
-        self.canvas._select_one(template_name, attr_name, X1, X2, Y1, Y2)
-
-    ##########################################################################
-    #                                                                        #
-    # Send a request to turn off a picture template object in the VCS Canvas.#
-    #                                                                        #
-    ##########################################################################
-    def _unselect_one(self, template_name, attr_name, X1, X2, Y1, Y2):
-
-        self.canvas._unselect_one(template_name, attr_name, X1, X2, Y1, Y2)
-
-    ##########################################################################
-    #                                                                        #
-    # Set the template editor event flag to select all template objects on   #
-    # the VCS Canvas.                                                        #
-    #                                                                        #
-    ##########################################################################
-    def _select_all(self):
-        # flush and block the X main loop
-
-        self.canvas._select_all()
-
-    ##########################################################################
-    #                                                                        #
-    # Set the template editor event flag to unselect all the template        #
-    # objects on the VCS Canvas.                                             #
-    #                                                                        #
-    ##########################################################################
-    def _unselect_all(self):
-        # flush and block the X main loop
-
-        self.canvas._unselect_all()
-
-    ##########################################################################
-    #                                                                        #
-    # Set the template editor mode for the VCS Canvas screen.                #
-    #                                                                        #
-    ##########################################################################
-    def _SCREEN_TEMPLATE_FLAG(self):
-        self.canvas.SCREEN_TEMPLATE_FLAG()
-
-    ##########################################################################
-    #                                                                        #
-    # Set the graphic method editor mode for the VCS Canvas screen.          #
-    #                                                                        #
-    ##########################################################################
-    def _SCREEN_GM_FLAG(self):
-        self.canvas.SCREEN_GM_FLAG()
-
-    ##########################################################################
-    #                                                                        #
-    # Set the data mode for the VCS Canvas screen.                           #
-    #                                                                        #
-    ##########################################################################
-    def _SCREEN_DATA_FLAG(self):
-        self.canvas.SCREEN_DATA_FLAG()
-
-    ##########################################################################
-    #                                                                        #
-    # Set the screen check mode to DATA for the VCS Canvas.                  #
-    #                                                                        #
-    ##########################################################################
-    def _SCREEN_CHECKMODE_DATA_FLAG(self):
-        self.canvas.SCREEN_CHECKMODE_DATA_FLAG()
-
-    ##########################################################################
-    #                                                                        #
-    # Return the Screen mode, either data mode or template editor mode.      #
-    #                                                                        #
-    ##########################################################################
-    def SCREEN_MODE(self, *args):
-        return self.canvas.SCREEN_MODE(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Return the Screen mode, either data mode or template editor mode.      #
-    #                                                                        #
-    ##########################################################################
     def plot_annotation(self, *args):
         self.canvas.plot_annotation(*args)
 
-    ##########################################################################
-    #                                                                        #
-    # Flush X event que wrapper for VCS.                                     #
-    #                                                                        #
-    ##########################################################################
+
     def flush(self, *args):
         """
  Function: flush
@@ -4097,7 +3877,7 @@ Options:::
  Description of Function:
     The flush command executes all buffered X events in the que.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.flush()
@@ -4105,11 +3885,7 @@ Options:::
 """
         return self.backend.flush(*args)
 
-    ##########################################################################
-    #                                                                        #
-    # Geometry wrapper for VCS.                                              #
-    #                                                                        #
-    ##########################################################################
+
     def geometry(self, *args):
         """
  Function: geometry
@@ -4117,7 +3893,7 @@ Options:::
  Description of Function:
     The geometry command is used to set the size and position of the VCS canvas.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.geometry(450,337)
@@ -4135,31 +3911,14 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                        #
-    # VCS Canvas Information wrapper.                                        #
-    #                                                                        #
-    ##########################################################################
     def canvasinfo(self, *args, **kargs):
         """
- Function: canvasinfo
+        Obtain the current attributes of the VCS Canvas window.
 
- Description of Function:
-    Obtain the current attributes of the VCS Canvas window.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.canvasinfo()
-
-"""
+        :return: Dictionary with keys: "mapstate" (whether the canvas is opened), "height", "width", "depth", "x", "y"
+        """
         return self.backend.canvasinfo(*args, **kargs)
 
-    ##########################################################################
-    #                                                                        #
-    # Get continents type wrapper for VCS.                                   #
-    #                                                                        #
-    ##########################################################################
     def getcontinentstype(self, *args):
         """
  Function: getcontinentstype
@@ -4168,7 +3927,7 @@ Options:::
     Retrieve continents type from VCS; either an integer between 0 and 11 or the
     path to a custom continentstype.
 
- Example of Use:
+ :Example:
      a=vcs.init()
      cont_type = a.getcontinentstype() # Get the continents type
 """
@@ -4177,11 +3936,6 @@ Options:::
         except:
             return None
 
-    ###########################################################################
-    #                                                                         #
-    # Postscript to GIF wrapper for VCS.                                      #
-    #                                                                         #
-    ###########################################################################
     def pstogif(self, filename, *opt):
         """
   Function: pstogif
@@ -4190,7 +3944,7 @@ Options:::
      In some cases, the user may want to save the plot out as a gif image. This
      routine allows the user to convert a postscript file to a gif file.
 
-  Example of Use:
+  :Example:
      a=vcs.init()
      a.plot(array)
      a.pstogif('filename.ps')       # convert the postscript file to a gif file (l=landscape)
@@ -4225,11 +3979,6 @@ Options:::
         f.close()
         return
 
-    ##########################################################################
-    #                                                                        #
-    # Grid wrapper for VCS.                                                  #
-    #                                                                        #
-    ##########################################################################
     def grid(self, *args):
         """
  Function: grid
@@ -4240,7 +3989,7 @@ Options:::
     third and fourth dimensions.
 
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
 """
@@ -4249,11 +3998,6 @@ Options:::
 
         return p
 
-    ##########################################################################
-    #                                                                        #
-    # Landscape VCS Canvas orientation wrapper for VCS.                      #
-    #                                                                        #
-    ##########################################################################
     def landscape(self, width=-99, height=-99, x=-99, y=-99, clear=0):
         """
  Function: landscape
@@ -4272,7 +4016,7 @@ Options:::
                 the screen with the point. Some X servers are not handling the threads properly
                 to keep up with the demands of the X client.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.landscape() # Change the VCS Canvas orientation and set object flag to landscape
@@ -4311,11 +4055,6 @@ Options:::
 
         return l
 
-    ##########################################################################
-    #                                                                        #
-    # List Primary and Secondary elements wrapper for VCS.                   #
-    #                                                                        #
-    ##########################################################################
     def listelements(self, *args):
         """
  Function: listelements
@@ -4328,7 +4067,7 @@ Options:::
     'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'colormap', 'fillarea', 'format',
     'line', 'list', 'marker', 'text']
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.listelements()
 """
@@ -4337,14 +4076,9 @@ Options:::
 
         return L
 
-    ##########################################################################
-    #                                                                        #
-    # update VCS's Canvas orientation wrapper for VCS.                       #
-    #                                                                        #
-    ##########################################################################
     def updateorientation(self, *args):
         """
- Example of Use:
+ :Example:
     a=vcs.init()
     x.updateorientation()
 """
@@ -4353,11 +4087,6 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                        #
-    # Open VCS Canvas wrapper for VCS.                                       #
-    #                                                                        #
-    ##########################################################################
     def open(self, width=None, height=None, **kargs):
         """
  Function: open
@@ -4366,7 +4095,7 @@ Options:::
     Open VCS Canvas object. This routine really just manages the VCS canvas. It will
     popup the VCS Canvas for viewing. It can be used to display the VCS Canvas.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.open()
     a.open(800,600)
@@ -4376,85 +4105,24 @@ Options:::
 
         return a
 
-    ##########################################################################
-    #                                                                        #
-    # Return VCS Canvas ID.                                                  #
-    #                                                                        #
-    ##########################################################################
     def canvasid(self, *args):
         '''
- Function: canvasid
+        Get the ID of this canvas.
 
- Description of Function:
-    Return VCS Canvas object ID. This ID number is found at the top of the VCS Canvas
-    as part of its title.
-
- Example of Use:
-    a=vcs.init()
-    a.open()
-    id = a.canvasid()
-'''
+        This ID number is found at the top of the VCS Canvas, as part of its title.
+        '''
         return self._canvas_id
 
-    ##########################################################################
-    #                                                                        #
-    # Connect the VCS Canvas to the GUI.                                     #
-    #                                                                        #
-    ##########################################################################
-    def _connect_gui_and_canvas(self, *args):
-        return self.canvas.connect_gui_and_canvas(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Page VCS Canvas orientation ('portrait' or 'landscape') wrapper for    #
-    # VCS.                                                                   #
-    #                                                                        #
-    ##########################################################################
-    def page(self, *args):
-        """
- Function: page
-
- Description of Function:
-    Change the VCS Canvas orientation to either 'portrait' or 'landscape'.
-
-    The orientation of the VCS Canvas and of cgm and raster images is controlled by
-    the PAGE command. Only portrait (y > x) or landscape (x > y) orientations are
-    permitted.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.page()      # Change the VCS Canvas orientation and set object flag to portrait
-"""
-
-        l = self.canvas.page(*args)
-
-        return l
-
-    ##########################################################################
-    #                                                                        #
-    # Portrait VCS Canvas orientation wrapper for VCS.                       #
-    #                                                                        #
-    ##########################################################################
     def portrait(self, width=-99, height=-99, x=-99, y=-99, clear=0):
         """
- Function: portrait
+        Change the VCS Canvas orientation to Portrait.
 
- Description of Function:
-    Change the VCS Canvas orientation to Portrait.
+        **Note**: If the current orientation of the canvas is already portrait, nothing happens.
 
-     Note: the (width, height) and (x, y) arguments work in pairs. That is, you must
-           set (width, height) or (x, y) together to see any change in the VCS Canvas.
+        :Example:
 
-           If the portrait method is called  with arguments before displaying a VCS Canvas,
-           then the arguments (width, height, x, y, and clear) will have no effect on the
-           canvas.
+::
 
-     Known Bug: If the visible plot on the VCS Canvas is not adjusted properly, then resize
-                the screen with the point. Some X servers are not handling the threads properly
-                to keep up with the demands of the X client.
-
- Example of Use:
     a=vcs.init()
     a.plot(array)
     a.portrait()      # Change the VCS Canvas orientation and set object flag to portrait
@@ -4462,6 +4130,11 @@ Options:::
     a.portrait(width = 337, height = 400) # Change to portrait and set the window size
     a.portrait(x=100, y = 200) # Change to portrait and set the x and y screen position
     a.portrait(width = 337, height = 400, x=100, y = 200, clear=1) # Chagne to portrait and give specifications
+
+:param width: Width to set the canvas to
+:param height: Height to set the canvas to
+:param x: Unused.
+:param y: Unused.
 """
         if (self.orientation() == 'portrait'):
             return
@@ -4493,11 +4166,6 @@ Options:::
 
         return p
 
-    ##########################################################################
-    #                                                                        #
-    # png wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
     def ffmpeg(self, movie, files, bitrate=1024, rate=None, options=None):
         """
  Function: ffmpeg
@@ -4506,7 +4174,7 @@ Options:::
     MPEG output from a list of valid files.
     Note that ffmpeg is smart enough to output to more than just mpeg format
 
- Example of Use:
+ :Example:
     a=vcs.init()
     #... code to generate png files ...
     # here is dummy example
@@ -4610,11 +4278,6 @@ Options:::
         """ Turn ON/OFF antialiasing"""
         self.backend.setantialiasing(antialiasing)
 
-    ##########################################################################
-    #                                                                        #
-    # bg dims wrapper for VCS.                                               #
-    #                                                                        #
-    ##########################################################################
     def setbgoutputdimensions(self, width=None, height=None, units='inches'):
         """
  Function: setbgoutputdimensions
@@ -4622,7 +4285,7 @@ Options:::
  Description of Function:
     Sets dimensions for output in bg mode.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
     a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
@@ -4651,11 +4314,6 @@ Options:::
             *args,
             **kargs)
 
-    ##########################################################################
-    #                                                                        #
-    # png wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
     def png(self, file, width=None, height=None,
             units=None, draw_white_background=True, **args):
         """
@@ -4664,7 +4322,7 @@ Options:::
  Description of Function:
     PNG output, dimensions set via setbgoutputdimensions
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.png('example')       # Overwrite a png file
@@ -4683,11 +4341,6 @@ Options:::
         return self.backend.png(
             file, W, H, units, draw_white_background, **args)
 
-    ##########################################################################
-    #                                                                        #
-    # pdf wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
     def pdf(self, file, width=None, height=None, units='inches',
             textAsPaths=True):
         """
@@ -4696,7 +4349,7 @@ Options:::
  Description of Function:
     SVG output is another form of vector graphics.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.pdf('example')       # Overwrite a postscript file
@@ -4714,11 +4367,6 @@ Options:::
         if not file.split('.')[-1].lower() in ['pdf']:
             file += '.pdf'
         return self.backend.pdf(file, W, H, textAsPaths)
-    ##########################################################################
-    #                                                                        #
-    # SVG wrapper for VCS.                                                   #
-    #                                                                        #
-    ##########################################################################
 
     def svg(self, file, width=None, height=None, units='inches',
             textAsPaths=True):
@@ -4728,7 +4376,7 @@ Options:::
  Description of Function:
     SVG output is another form of vector graphics.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.svg('example')       # Overwrite a postscript file
@@ -4920,6 +4568,7 @@ Options:::
             H = tmp
         return W, H
 
+
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches', textAsPaths=True):
         """
@@ -4935,7 +4584,7 @@ Options:::
     postscript file (i.e. mode (r)).
 
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.postscript('example')       # Overwrite a postscript file
@@ -4976,152 +4625,12 @@ Options:::
             else:
                 shutil.move(psnm, file)
 
-    ##########################################################################
-    #                                                                        #
-    # Showbg wrapper for VCS.                                                #
-    #                                                                        #
-    ##########################################################################
-    def showbg(self, *args):
-        """
- Function: showbg
-
- Description of Function:
-    This function displays graphics segments, which are currently stored in the frame buffer,
-    on the VCS Canvas. That is, if the plot function was called with the option bg = 1 (i.e.,
-    background mode), then the plot is produced in the frame buffer and not visible to the
-    user. In order to view  the graphics segments, this function will copy the contents of
-    the frame buffer to the VCS Canvas, where the graphics can be viewed by the user.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array, bg=1)
-    x.showbg()
-"""
-        a = self.canvas.showbg(*args)
-
-        return a
-
-    ##########################################################################
-    #                                                                        #
-    # Backing Store wrapper for VCS.                                         #
-    #                                                                        #
-    ##########################################################################
-    def backing_store(self, *args):
-        """
- Function: backing_store
-
- Description of Function:
-    This function creates a backing store pixmap for the VCS Canvas.
-
- Example of Use:
-    a=vcs.init()
-    a.backing_store()
-"""
-        return self.canvas.backing_store(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Update the animation slab. Used only for the VCS Canvas GUI.           #
-    #                                                                        #
-    ##########################################################################
-    def update_animation_data(self, *args):
-        return self.canvas.update_animation_data(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Return the dimension information. Used only for the VCS Canvas GUI.    #
-    #                                                                        #
-    ##########################################################################
-    def return_dimension_info(self, *args):
-        return self.canvas.return_dimension_info(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Raster wrapper for VCS.                                                #
-    #                                                                        #
-    ##########################################################################
-    def raster(self, file, mode='a'):
-        """
- Function: raster
-
- Description of Function:
-    In some cases, the user may want to save the plot out as an raster image. This
-    routine allows the user to save the VCS canvas output as a SUN raster file.
-    This file can be converted to other raster formats with the aid of xv and other
-    such imaging tools found freely on the web.
-
-    If no path/file name is given and no previously created raster file has been
-    designated, then file
-
-    /$HOME/%s/default.ras
-
-    will be used for storing raster images. However, if a previously created raster
-    file is designated, that file will be used for raster output.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array)
-    a.raster('example','a')   # append raster image to existing file
-    a.raster('example','r')   # overwrite existing raster file
-    a.raster(file='example',mode='r')   # overwrite existing raster file
-""" % (self._dotdir)
-        return self.canvas.raster(*(file, mode))
-
-    ##########################################################################
-    #                                                                        #
-    # Reset grid wrapper for VCS.                                            #
-    #                                                                        #
-    ##########################################################################
-    def resetgrid(self, *args):
-        """
- Function: resetgrid
-
- Description of Function:
-    Set the plotting region to default values.
-
- Example of Use:
-    Not Working!
-"""
-        return self.canvas.resetgrid(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Script wrapper for VCS.                                                #
-    #                                                                        #
-    ##########################################################################
     def _scriptrun(self, *args):
         return vcs._scriptrun(*args)
 
     def scriptrun(self, aFile, *args, **kargs):
         vcs.scriptrun(aFile, *args, **kargs)
 
-    ##########################################################################
-    #                                                                        #
-    # Set default graphics method and template wrapper for VCS.              #
-    #                                                                        #
-    ##########################################################################
-    def set(self, *args):
-        """
- Function: set
-
- Description of Function:
-    Set the default VCS primary class objects: template and graphics methods.
-    Keep in mind the template, determines the appearance of each graphics segment;
-    the graphic method specifies the display technique; and the data defines what
-    is to be displayed. Note, the data cannot be set with this function.
-
- Example of Use:
-    a=vcs.init()
-    a.set('isofill','quick') # Changes the default graphics method to Isofill: 'quick'
-    a.plot(array)
-"""
-        return self.canvas.set(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Set VCS color map wrapper for VCS.                                     #
-    #                                                                        #
-    ##########################################################################
     def setcolormap(self, name):
         """
  Function: setcolormap
@@ -5133,7 +4642,7 @@ Options:::
     If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
     of the VCS Canvas is made evertime the colormap is changed.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
@@ -5149,11 +4658,6 @@ Options:::
         self.update()
         return
 
-    ##########################################################################
-    #                                                                        #
-    # Set VCS color map cell wrapper for VCS.                                #
-    #                                                                        #
-    ##########################################################################
     def setcolorcell(self, *args):
         """
  Function: setcolorcell
@@ -5169,7 +4673,7 @@ Options:::
     value must range from 0 to 100. Where 0 represents no color intensity
     and 100 is the greatest color intensity.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
@@ -5185,11 +4689,6 @@ Options:::
         a = vcs.setcolorcell(self.colormap, *args)
         return a
 
-    ##########################################################################
-    #                                                                        #
-    # Set continents line wrapper for VCS.                                   #
-    #                                                                        #
-    ##########################################################################
     def setcontinentsline(self, line="default"):
         """
     Function: setcontinentsline
@@ -5198,7 +4697,7 @@ Options:::
         One has the option of configuring the appearance of the lines used to
         draw continents by providing a VCS Line object.
 
-    Example of Use:
+    :Example:
         a = vcs.init()
         line = vcs.createline()
         line.width = 5
@@ -5217,11 +4716,6 @@ Options:::
         else:
             return self._continents_line
 
-    ##########################################################################
-    #                                                                        #
-    # Set continents type wrapper for VCS.                                   #
-    #                                                                        #
-    ##########################################################################
     def setcontinentstype(self, value):
         """
    Function: setcontinentstype
@@ -5244,7 +4738,7 @@ Options:::
 
       You can also pass a file by path.
 
-   Example of Use:
+   :Example:
       a=vcs.init()
       a.setcontinentstype(3)
       a.plot(array,'default','isofill','quick')
@@ -5269,11 +4763,6 @@ Options:::
         except:
             return VCS_validation_functions.checkContinents(self, 1)
 
-    ##########################################################################
-    #                                                                           #
-    # Screen GIF wrapper for VCS.                                               #
-    #                                                                           #
-    ##########################################################################
     def gif(self, filename='noname.gif', merge='r', orientation=None,
             geometry='1600x1200'):
         """
@@ -5301,7 +4790,7 @@ Options:::
     file; `Replace' (r) mode overwrites an existing gif file with new gif output.
     The default mode is to overwrite an existing gif file (i.e. mode (r)).
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.plot(array)
     a.gif(filename='example.gif', merge='a', orientation='l', geometry='800x600')
@@ -5321,21 +4810,11 @@ Options:::
         nargs = ('gif', filename, merge, orientation, geometry)
         return self.backend.gif(nargs)
 
-    ##########################################################################
-    #                                                                        #
-    # Screen GhostScript (gs) wrapper for VCS.                               #
-    #                                                                        #
-    ##########################################################################
     def gs(self, filename='noname.gs', device='png256',
            orientation=None, resolution='792x612'):
 
         warnings.warn("Export to GhostScript is no longer supported", DeprecationWarning)
 
-    ##########################################################################
-    #                                                                        #
-    # Screen Encapsulated PostScript wrapper for VCS.                        #
-    #                                                                        #
-    ##########################################################################
     def eps(self, file, mode='r', orientation=None, width=None, height=None,
             units='inches', textAsPaths=True):
         """
@@ -5349,7 +4828,7 @@ Options:::
         such imaging tools found freely on the web.
 
 
-        Example of Use:
+        :Example:
         a=vcs.init()
         a.plot(array)
         a.postscript('example')       # Overwrite a postscript file
@@ -5380,20 +4859,10 @@ Options:::
         os.popen("ps2epsi %s %s" % (tmpfile, file)).readlines()
         os.remove(tmpfile)
 
-    ##########################################################################
-    #                                                                        #
-    # Show VCS primary and secondary elements wrapper for VCS.               #
-    #                                                                        #
-    ##########################################################################
     def show(self, *args):
         return vcs.show(*args)
     show.__doc__ = vcs.__doc__
 
-    ##########################################################################
-    #                                                                        #
-    # Look if a graphic method is in a file           .                      #
-    #                                                                        #
-    ##########################################################################
     def isinfile(self, GM, file=None):
         """ Checks if a graphic method is stored in a file
         if no file name is passed then looks into the initial.attributes file"""
@@ -5411,11 +4880,6 @@ Options:::
                 f.close()
                 return 1
         return 0
-    ##########################################################################
-    #                                                                        #
-    # Save VCS initial.attribute file  wrapper for VCS.                      #
-    #                                                                        #
-    ##########################################################################
 
     def saveinitialfile(self):
         """
@@ -5433,7 +4897,7 @@ Options:::
     The contents of the initial.attributes file can be customized by
     the user.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     ...
 
@@ -5450,56 +4914,12 @@ Options:::
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
 
-    ##########################################################################
-    #                                                                        #
-    # Raise VCS Canvas to the top of all its siblings.                       #
-    #                                                                        #
-    ##########################################################################
     def canvasraised(self, *args):
         """
- Function: canvasraised                         # Raise the VCS Canvas to the top
-
- Description of Function:
-    This function marks a VCS Canvas as eligible to be displayed and
-    positions the window at the top of the stack of its siblings.
-
- Example of Use:
-    a=vcs.init()
-    ...
-
-    a.canvasraised()
-"""
-
+        Raise the VCS Canvas to the top of all open windows.
+        """
         return self.backend.canvasraised(*args)
 
-    ##########################################################################
-    #                                                                        #
-    # Returns 1 if a VCS Canvas is displayed on the screen. Returns a 0 if no#
-    # VCS Canvas is displayed on the screen.                                 #
-    #                                                                        #
-    ##########################################################################
-    def iscanvasdisplayed(self, *args):
-        """
- Function: iscanvasdisplayed          # Return 1 if a VCS Canvas is displayed
-
- Description of Function:
-    This function returns a 1 if a VCS Canvas is displayed or a 0 if
-    no VCS Canvas is displayed on the screen.
-
- Example of Use:
-    a=vcs.init()
-    ...
-
-    a.iscanvasdisplayed()
-"""
-
-        return self.canvas.iscanvasdisplayed(*args)
-
-    ##########################################################################
-    #                                                                        #
-    # Is VCS's orientation landscape?                                        #
-    #                                                                        #
-    ##########################################################################
     def islandscape(self):
         """
  Function: islandscape
@@ -5510,7 +4930,7 @@ Options:::
     Returns a 1 if orientation is landscape.
     Otherwise, it will return a 0, indicating false (not in landscape mode).
 
- Example of Use:
+ :Example:
     a=vcs.init()
     ...
 
@@ -5522,11 +4942,6 @@ Options:::
         else:
             return 0
 
-    ##########################################################################
-    #                                                                        #
-    # Is VCS's orientation portrait?                                         #
-    #                                                                        #
-    ##########################################################################
     def isportrait(self):
         """
  Function: isportrait
@@ -5537,7 +4952,7 @@ Options:::
     Returns a 1 if orientation is portrait.
     Otherwise, it will return a 0, indicating false (not in portrait mode).
 
- Example of Use:
+ :Example:
     a=vcs.init()
     ...
 
@@ -5548,11 +4963,6 @@ Options:::
             return 1
         else:
             return 0
-    ##########################################################################
-    #                                                                        #
-    # Dislplay plot functions for VCS.                                       #
-    #                                                                        #
-    ##########################################################################
 
     def getplot(self, Dp_name_src='default', template=None):
         """
@@ -5563,7 +4973,7 @@ Options:::
     plot object from an existing VCS plot. If no display plot name
     is given, then None is returned.
 
- Example of Use:
+ :Example:
     a=vcs.init()
     a.show('template')                  # Show all the existing templates
     plot1=a.getplot('dpy_plot_1')       # plot1 instance of 'dpy_plot_1' display plot
@@ -5577,12 +4987,9 @@ Options:::
             display._template_origin = template
         return display
 
-    ##########################################################################
-    #                                                                        #
-    # Colormap functions for VCS.                                            #
-    #                                                                        #
-    ##########################################################################
     def createcolormap(self, Cp_name=None, Cp_name_src='default'):
+        """
+        """
         return vcs.createcolormap(Cp_name, Cp_name_src)
     createcolormap.__doc__ = vcs.manageElements.createcolormap.__doc__
 
@@ -5590,15 +4997,15 @@ Options:::
         return vcs.getcolormap(Cp_name_src)
     getcolormap.__doc__ = vcs.manageElements.getcolormap.__doc__
 
-    ##########################################################################
-    #                                                                        #
-    # Font functions.                                                        #
-    #                                                                        #
-    ##########################################################################
     def addfont(self, path, name=""):
         """
-        Add a font to VCS, path then a name you'd like to associate it with
-        """
+        Add a font to VCS.
+
+:param path: Path to the font file you wish to add (must be .ttf)
+:param name: Name to use to represent the font.
+:type path: str
+:type name: str
+"""
         if not os.path.exists(path):
             raise ValueError('Error -  The font path does not exists')
         if os.path.isdir(path):
@@ -5632,20 +5039,19 @@ Options:::
             return nms[0]
 
     def getfontnumber(self, name):
-        """
-        get the font number associated with a font name
-        """
         return vcs.getfontnumber(name)
+    getfontnumber.__doc__ = vcs.utils.getfontnumber.__doc__
 
     def getfontname(self, number):
-        """
-        get the font name associated with a font number
-        """
         return vcs.getfontname(number)
+    getfontname.__doc__ = vcs.utils.getfontname.__doc__
 
     def getfont(self, font):
         """
-        get the font name/number associated with a font number/name
+        Get the font name/number associated with a font number/name
+
+        :param font: The font name/number
+        :type font: int or str
         """
         if isinstance(font, int):
             return self.getfontname(font)
@@ -5655,7 +5061,14 @@ Options:::
             raise vcsError("Error you must pass a string or int")
 
     def switchfonts(self, font1, font2):
-        """ Switch 2 font indexes, you can pass either the font names or indexes """
+        """
+        Switch the font numbers of two fonts.
+
+        :param font1: The first font
+        :type font1: int or str
+        :param font2: The second font
+        :type font2: int or str
+        """
         if isinstance(font1, str):
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
@@ -5678,7 +5091,14 @@ Options:::
         return self.canvas.switchfontnumbers(*(index1, index2))
 
     def copyfontto(self, font1, font2):
-        """ copy name and path of font 1 into font 2, you can pass either the font names or indexes """
+        """
+        Copy `font1` into `font2`.
+
+        :param font1: Name/number of font to copy
+        :type font1: str or int
+        :param font2: Name/number of destination
+        :type font2: str or int
+        """
         if isinstance(font1, str):
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
@@ -5700,81 +5120,34 @@ Options:::
         return self.canvas.copyfontto(*(index1, index2))
 
     def setdefaultfont(self, font):
-        """Sets the passed font as the default font for vcs"""
+        """
+        Sets the passed font as the default font for vcs
+
+        :param font: Font name or index to use as default
+        :type font: str or int
+        """
         if isinstance(font, str):
             font = self.getfont(font)
         return self.copyfontto(font, 1)
 
-    ##########################################################################
-    #                                                                        #
-    # Orientation VCS Canvas orientation wrapper for VCS.                    #
-    #                                                                        #
-    ##########################################################################
     def orientation(self, *args, **kargs):
         """
- Function: orientation
+        Return canvas orientation. Will return either "portrait" or "landscape".
 
- Description of Function:
-    Return VCS's orientation. Will return either Portrait or Landscape.
-
- Example of Use:
-    a=vcs.init()
-    a.orientation()      # Return either "landscape" or "portrait"
-"""
+        The current implementation does not use any args or kargs.
+        """
         return self.backend.orientation(*args, **kargs)
 
-    ##########################################################################
-    #                                                                        #
-    # Get VCS color map cell wrapper for VCS.                                #
-    #                                                                        #
-    ##########################################################################
     def getcolorcell(self, *args):
-        """
- Function: getcolorcell
-
- Description of Function:
-    Get an individual color cell in the active colormap. If default is
-    the active colormap, then return an error string.
-
-    If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
-    of the VCS Canvas is made evertime the color cell is changed.
-
-    Note, the user can only change color cells 0 through 239 and R,G,B
-    value must range from 0 to 100. Where 0 represents no color intensity
-    and 100 is the greatest color intensity.
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.setcolormap("AMIP")
-    a.getcolorcell(11,0,0,0)
-    a.getcolorcell(21,100,0,0)
-    a.getcolorcell(31,0,100,0)
-    a.getcolorcell(41,0,0,100)
-    a.getcolorcell(51,100,100,100)
-    a.getcolorcell(61,70,70,70)
-
-"""
+        """%s""" % vcs.getcolorcell.__doc__
         return vcs.getcolorcell(args[0], self)
 
-    ##########################################################################
-    #                                                                        #
-    # Get VCS color map name wrapper for VCS.                                #
-    #                                                                        #
-    ##########################################################################
-    def getcolormapname(self, *args):
+    def getcolormapname(self):
         """
- Function: getcolormapcell
+        Returns the name of the colormap this canvas is set to use by default.
 
- Description of Function:
-    Get colormap name of the active colormap.
-
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.getcolormapname()
-"""
+        To set that colormap, use :ref:`vcs.Canvas.Canvas.setcolormap`.
+        """
         if self.colormap is None:
             return vcs._colorMap
         return self.colormap
@@ -5783,12 +5156,6 @@ Options:::
         print 'Arguments:', args
         print 'Keywords:', kargs
         return None
-
-#############################################################################
-#                                                                           #
-# Primarily used for reseting the animation date and time string.           #
-#                                                                           #
-#############################################################################
 
 
 def change_date_time(tv, number):
