@@ -1718,7 +1718,7 @@ Options:::
     a.show('line')
     # Create instance of line object 'red'
     ln=a.drawline(name='red', ltype='dash', width=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
                   y=[0,10,20,30,40,50] )
@@ -1833,8 +1833,8 @@ Options:::
     # Show all the existing marker objects
     a.show('marker')
     # Create instance of marker object 'red'
-    mrk=a.drawmarker(name='red', mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+    mrk=a.drawmarker(name='red', mtype='dot', size=2,
+                  color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
                   y=[0,10,20,30,40,50] )
@@ -1845,7 +1845,7 @@ Options:::
     :param name: Name of created object
     :type name: str
 
-    :param mtype:
+    :param mtype: Marker type, i.e. 'dot', 'plus', 'star, etc.
     :type mtype: str
 
     :param size:
@@ -1870,7 +1870,7 @@ Options:::
     :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
     :type y: list of floats
 
-    :return: A marker object
+    :return: A vcs.marker.Tm object
     """
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the marker.')
@@ -1911,12 +1911,12 @@ Options:::
 
     def fillarea(self, *args, **parms):
         """
-        Generate a fillarea plot
+    Generate a fillarea plot
 
-        Plot a fillarea segment on the Vcs Canvas. If no fillarea class
-        object is given, then an error will be returned.
+    Plot a fillarea segment on the Vcs Canvas. If no fillarea class
+    object is given, then an error will be returned.
 
-        :Example:
+    :Example:
 
 ::
 
@@ -1939,6 +1939,8 @@ Options:::
     fa.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
     # Plot using specified fillarea object
     a.fillarea(fa)
+
+    :return: vcs.displayplot.Dp
 """
         arglist = _determine_arg_list('fillarea', args)
         return self.__plot(arglist, parms)
@@ -1958,7 +1960,7 @@ Options:::
     a.show('fillarea')
     # Create instance of fillarea object 'red'
     fa=a.drawfillarea(name='red', style=1, color=242,
-                  priority=1, viewport=[0, 2.0, 0, 2.0],
+                  priority=1, viewport=[0, 1.0, 0, 1.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
                   y=[0,10,20,30,40,50], bg=0 )
@@ -2178,7 +2180,7 @@ Options:::
     a.show('texttable')
     # Create instance of texttable object 'red'
     tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
                   y=[0,10,20,30,40,50] )
@@ -2214,8 +2216,8 @@ Options:::
     :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
     :type y: list of floats
 
-    :param bg:
-    :type bg:
+    :param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
+    :type bg: boolean, or any statement that evaluates to a boolean
 
     :return:
 
@@ -3948,12 +3950,12 @@ Options:::
 
     def flush(self, *args):
         """
- Function: flush
+    The flush command executes all buffered X events in the queue.
 
- Description of Function:
-    The flush command executes all buffered X events in the que.
+    :Example:
 
- :Example:
+::
+
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.flush()
@@ -3964,12 +3966,12 @@ Options:::
 
     def geometry(self, *args):
         """
- Function: geometry
-
- Description of Function:
     The geometry command is used to set the size and position of the VCS canvas.
 
- :Example:
+     :Example:
+
+::
+
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.geometry(450,337)
@@ -4244,30 +4246,48 @@ Options:::
 
     def ffmpeg(self, movie, files, bitrate=1024, rate=None, options=None):
         """
- Function: ffmpeg
-
- Description of Function:
     MPEG output from a list of valid files.
-    Note that ffmpeg is smart enough to output to more than just mpeg format
+    Can output to more than just mpeg format.
 
- :Example:
+    Note: ffmpeg ALWAYS overwrites the output file
+
+    :Example:
+
+::
+
     a=vcs.init()
     #... code to generate png files ...
-    # here is dummy example
+    # here is a dummy example
     files =[]
     for i in range(10):
       x.png('my_png__%i' % i)
       files.append('my_png__%i.png' % i)
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png') # generates mpeg from pattern
-    x.ffmpeg('mymovie.mpeg',files) # generates from list of files
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512) # generates mpeg at 512kbit
-                                 bitrate (bitrate is important to movie quality)
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50) # generates movie with 50 frame per second
+    # generates mpeg from pattern
+    x.ffmpeg('mymovie.mpeg','my_png_%d.png')
+    # generates from list of files
+    x.ffmpeg('mymovie.mpeg',files)
+    # generates mpeg at 512kbit
+    x.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512)
+    # generates movie with 50 frame per second
+    x.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50)
     x.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
-    # genrats movie at 50 frame per sec and 1024k bitrate
-    NOTE : via the optins arg you can add audio file to your movie (see ffmpeg help)
-    returns the output string generated by ffmpeg program
-    ALWAYS overwrite output file
+    # generates movie at 50 frame per sec and 1024k bitrate
+    NOTE : via the options arg you can add audio file to your movie (see ffmpeg help)
+
+    :param movie:
+    :type movie:
+
+    :param files:
+    :type files:
+
+    :param rate:
+    :type rate:
+
+    :param options:
+    :type options:
+
+    :return: The output string generated by ffmpeg program
+
 """
         args = ["ffmpeg", "-y"]
 
@@ -4894,27 +4914,52 @@ Options:::
     def eps(self, file, mode='r', orientation=None, width=None, height=None,
             units='inches', textAsPaths=True):
         """
-        Function: Encapsulated PostScript
-
-        Description of Function:
         In some cases, the user may want to save the plot out as an Encapsulated
         PostScript image. This routine allows the user to save the VCS canvas output
         as an Encapsulated PostScript file.
         This file can be converted to other image formats with the aid of xv and other
         such imaging tools found freely on the web.
 
-
         :Example:
+
+::
+
         a=vcs.init()
         a.plot(array)
-        a.postscript('example')       # Overwrite a postscript file
-        a.postscript('example', 'a')  # Append postscript to an existing file
-        a.postscript('example', 'r')  # Overwrite an existing file
-        a.postscript('example', mode='a')  # Append postscript to an existing file
-        a.postscript('example', width=11.5, height= 8.5)  # US Legal (default)
-        a.postscript('example', width=21, height=29.7, units='cm')  # A4
+        # Overwrite a postscript file
+        a.postscript('example')
+        # Append postscript to an existing file
+        a.postscript('example', 'a')
+        # Overwrite an existing file
+        a.postscript('example', 'r')
+        # Append postscript to an existing file
+        a.postscript('example', mode='a')
+         # US Legal (default)
+        a.postscript('example', width=11.5, height= 8.5)
+        # A4
+        a.postscript('example', width=21, height=29.7, units='cm')
         a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
         # US Legal output and control of margins (for printer friendly output), default units 'inches'
+
+        :param file:
+        :type file:
+
+        :param mode:
+        :type mode:
+
+        :param orientation:
+        :type orientation:
+
+        :param width:
+        :type width:
+
+        :param height:
+        :type height:
+
+        :param units:
+        :type units:
+
+        :return:
         """
         ext = file.split(".")[-1]
         if ext.lower() != 'eps':
@@ -4955,9 +5000,7 @@ Options:::
             if ln.find(key) > -1:
                 f.close()
                 return 1
-        return 0
-
-    def saveinitialfile(self):
+        return def saveinitialfile(self):
         """
  Function: saveinitialfile                      # Save initial.attribute file
 
