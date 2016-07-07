@@ -67,21 +67,34 @@ def check_name_source(name, source, typ):
 
 def createtemplate(name=None, source='default'):
     """
-Function: createtemplate                  # Construct a new template
+    Create a new template given the the name and the existing template to copy
+    the attributes from. If no existing template name is given, then the default
+    template will be used as the template to which the attributes will be copied
+    from.
 
-Description of Function:
-Create a new template given the the name and the existing template to copy
-the attributes from. If no existing template name is given, then the default
-template will be used as the template to which the attributes will be copied
-from.
+    If the name provided already exists, then an error will be returned. Template
+    names must be unique.
 
-If the name provided already exists, then a error will be returned. Template
-names must be unique.
+    :Example:
 
-Example of Use:
-con=vcs.createtemplate('example1') # create 'example1' template from 'default' template
-vcs.listelements('template')                       # Show all the existing templates
-con=vcs.createtemplate('example2','quick') # create 'example2' from 'quick' template
+::
+
+    # create 'example1' template from 'default' template
+    con=vcs.createtemplate('example1')
+    # Show all the existing templates
+    vcs.listelements('template')
+    # create 'example2' from 'quick' template
+    con=vcs.createtemplate('example2','quick')
+
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a template or a string name of a template
+
+    :return: A vcs.template.P object
+
 """
     name, source = check_name_source(name, source, 'template')
 
@@ -101,7 +114,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createtemplate function.)
 
-Example of Use:
+:Example:
 vcs.listelements('template')                  # Show all the existing templates
 templt=vcs.gettemplate()              # templt instance of 'default' template
 templt2=vcs.gettemplate('quick')      # templt2 contains 'quick' template
@@ -117,24 +130,33 @@ templt2=vcs.gettemplate('quick')      # templt2 contains 'quick' template
 
 def createprojection(name=None, source='default'):
     """
-Function: createprojection                # Construct a new projection method
+    Create a new projection method given the the name and the existing
+    projection method to copy the attributes from. If no existing
+    projection method name is given, then the default projection
+    method will be used as the projection method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new projection method given the the name and the existing
-projection method to copy the attributes from. If no existing
-projection method name is given, then the default projection
-method will be used as the projection method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Projection
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Projection
-method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('projection')
-p=vcs.createprojection('example1',)
-vcs.show('projection')
-p=vcs.createprojection('example2','quick')
-vcs.show('projection')
+::
+
+    vcs.show('projection')
+    p=vcs.createprojection('example1',)
+    vcs.show('projection')
+    p=vcs.createprojection('example2','quick')
+    vcs.show('projection')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a projection or a string name of a projection
+
+    :return: A vcs.projection.Proj object
+
 """
 
     name, source = check_name_source(name, source, 'projection')
@@ -154,7 +176,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createprojection function.)
 
-Example of Use:
+:Example:
 vcs.show('projection')                   # Show all the existing projection methods
 p=vcs.getprojection()                  # box instance of 'default' projection
                                     # method
@@ -185,25 +207,32 @@ Output:::
 %s
 :::
 
-Function: createboxfill                # Construct a new boxfill graphics method
+    Create a new boxfill graphics method given the the name and the existing
+    boxfill graphics method to copy the attributes from. If no existing
+    boxfill graphics method name is given, then the default boxfill graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new boxfill graphics method given the the name and the existing
-boxfill graphics method to copy the attributes from. If no existing
-boxfill graphics method name is given, then the default boxfill graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('boxfill')
-box=vcs.createboxfill('example1',)
-vcs.show('boxfill')
-box=vcs.createboxfill('example2','quick')
-vcs.show('boxfill')
+::
 
+    vcs.show('boxfill')
+    box=vcs.createboxfill('example1',)
+    vcs.show('boxfill')
+    box=vcs.createboxfill('example2','quick')
+    vcs.show('boxfill')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a boxfill or a string name of a boxfill
+
+    :return: A vcs.boxfill.Gfb object
 """
 
     name, source = check_name_source(name, source, 'boxfill')
@@ -236,7 +265,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createboxfill function.)
 
-Example of Use:
+:Example:
 vcs.show('boxfill')                   # Show all the existing boxfill graphics methods
 box=vcs.getboxfill()                  # box instance of 'default' boxfill graphics
                                     # method
@@ -263,24 +292,33 @@ getboxfill.__doc__ = getboxfill.__doc__ % (
 
 def createtaylordiagram(name=None, source='default'):
     """
-Function: createtaylordiagram  # Construct a new taylordiagram graphics method
+    Create a new taylordiagram graphics method given the the name and the existing
+    taylordiagram graphics method to copy the attributes from. If no existing
+    taylordiagram graphics method name is given, then the default taylordiagram graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new taylordiagram graphics method given the the name and the existing
-taylordiagram graphics method to copy the attributes from. If no existing
-taylordiagram graphics method name is given, then the default taylordiagram graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('taylordiagram')
-td=vcs.createtaylordiagram('example1',)
-vcs.show('taylordiagram')
-td=vcs.createtaylordiagram('example2','quick')
-vcs.show('taylordiagram')
+::
+
+    vcs.show('taylordiagram')
+    td=vcs.createtaylordiagram('example1',)
+    vcs.show('taylordiagram')
+    td=vcs.createtaylordiagram('example2','quick')
+    vcs.show('taylordiagram')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a taylordiagram or a string name of a
+
+    :return: A vcs.taylor.Gtd object
+
 """
 
     name, source = check_name_source(name, source, 'taylordiagram')
@@ -311,7 +349,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createboxfill function.)
 
-Example of Use:
+:Example:
 vcs.show('taylordiagram')                    # Show all the existing taylordiagram graphics methods
 td=vcs.gettaylordiagram()                    # td instance of 'default' taylordiagram graphics
                                            # method
@@ -333,24 +371,33 @@ td2=vcs.gettaylordiagram('default')          # td2 instance of existing 'default
 
 def createmeshfill(name=None, source='default'):
     """
-Function: createmeshfill                # Construct a new meshfill graphics method
+    Create a new meshfill graphics method given the the name and the existing
+    meshfill graphics method to copy the attributes from. If no existing
+    meshfill graphics method name is given, then the default meshfill graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new meshfill graphics method given the the name and the existing
-meshfill graphics method to copy the attributes from. If no existing
-meshfill graphics method name is given, then the default meshfill graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('meshfill')
-mesh=vcs.createmeshfill('example1',)
-vcs.show('meshfill')
-mesh=vcs.createmeshfill('example2','quick')
-vcs.show('meshfill')
+::
+
+    vcs.show('meshfill')
+    mesh=vcs.createmeshfill('example1')
+    vcs.show('meshfill')
+    mesh=vcs.createmeshfill('example2','quick')
+    vcs.show('meshfill')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a meshfill or a string name of a meshfill
+
+    :return: A vcs.meshfill.Gfm object
+
 """
     name, source = check_name_source(name, source, 'meshfill')
     return meshfill.Gfm(name, source)
@@ -369,7 +416,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createmeshfill function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 a.show('meshfill')                   # Show all the existing meshfill graphics methods
 mesh=a.getmeshfill()                  # mesh instance of 'default' meshfill graphics
@@ -402,24 +449,32 @@ Output:::
 %s
 :::
 
-Function: createisofill  # Construct a new isofill graphics method
+    Create a new isofill graphics method given the the name and the existing
+    isofill graphics method to copy the attributes from. If no existing
+    isofill graphics method name is given, then the default isofill graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new isofill graphics method given the the name and the existing
-isofill graphics method to copy the attributes from. If no existing
-isofill graphics method name is given, then the default isofill graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('isofill')
-iso=vcs.createisofill('example1',)
-vcs.show('isofill')
-iso=vcs.createisofill('example2','quick')
-vcs.show('isofill')
+::
+
+    vcs.show('isofill')
+    iso=vcs.createisofill('example1')
+    vcs.show('isofill')
+    iso=vcs.createisofill('example2','quick')
+    vcs.show('isofill')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: an isofill object, or string name of an isofill object
+
+    :return: A vcs.isofill.Gfi object
 
 """
 
@@ -454,7 +509,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createisofill function.)
 
-Example of Use:
+:Example:
 vcs.show('isofill')                   # Show all the existing isofill graphics methods
 iso=vcs.getisofill()                  # iso instance of 'default' isofill graphics
                                     #       method
@@ -488,27 +543,31 @@ Output:::
 %s
 :::
 
-Function: createisoline                # Construct a new isoline graphics method
+    Create a new isoline graphics method given the the name and the existing
+    isoline graphics method to copy the attributes from. If no existing
+    isoline graphics method name is given, then the default isoline graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new isoline graphics method given the the name and the existing
-isoline graphics method to copy the attributes from. If no existing
-isoline graphics method name is given, then the default isoline graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
+    vcs.show('isoline')
+    iso=vcs.createisoline('example1')
+    vcs.show('isoline')
+    iso=vcs.createisoline('example2','quick')
+    vcs.show('isoline')
 
-vcs.show('isoline')
-iso=vcs.createisoline('example1',)
-vcs.show('isoline')
-iso=vcs.createisoline('example2','quick')
-vcs.show('isoline')
+    :param name: The name of the created object
+    :type name: str
 
-"""
+    :param source: The object to inherit from
+    :type source: an isoline object, or string name of an isoline object
+
+    :return: A vcs.isoline.Gi object
+    """
 
     name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
@@ -541,7 +600,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createisoline function.)
 
-Example of Use:
+:Example:
 vcs.show('isoline')                   # Show all the existing isoline graphics methods
 iso=vcs.getisoline()                  # iso instance of 'default' isoline graphics
                                     #       method
@@ -593,33 +652,34 @@ Input:::
 Output:::
 %s
 :::
+    Create a new Xyvsy graphics method given the the name and the existing
+    Xyvsy graphics method to copy the attributes from. If no existing
+    Xyvsy graphics method name is given, then the default Xyvsy graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Function: createxyvsy                  # Construct a new Xyvsy graphics method
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-Description of Function:
-Create a new Xyvsy graphics method given the the name and the existing
-Xyvsy graphics method to copy the attributes from. If no existing
-Xyvsy graphics method name is given, then the default Xyvsy graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    :Example:
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+::
 
-Example of Use:
+    a=vcs.init()
+    vcs.show('xyvsy')
+    xyy=vcs.createxyvsy('example1',)
+    vcs.show('xyvsy')
+    xyy=vcs.createxyvsy('example2','quick')
+    vcs.show('xyvsy')
 
-a=vcs.init()
-vcs.show('xyvsy')
-xyy=vcs.createxyvsy('example1',)
-vcs.show('xyvsy')
-xyy=vcs.createxyvsy('example2','quick')
-vcs.show('xyvsy')
 
-#######################################################################################################################
-###########################################                             ###############################################
-########################################## End createxyvsy Description ################################################
-#########################################                             #################################################
-#######################################################################################################################
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a xyvsy or a string name of a xyvsy
+
+    :return: A vcs.unified1D.G1d object
 
 """
     try:
@@ -663,7 +723,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createxyvsy function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('xyvsy')                     # Show all the existing Xyvsy graphics methods
 xyy=vcs.getxyvsy()                    # xyy instance of 'default' Xyvsy graphics
@@ -699,33 +759,34 @@ Input:::
 Output:::
 %s
 :::
+    Create a new Yxvsx graphics method given the the name and the existing
+    Yxvsx graphics method to copy the attributes from. If no existing
+    Yxvsx graphics method name is given, then the default Yxvsx graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Function: createyxvsx                  # Construct a new Yxvsx graphics method
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-Description of Function:
-Create a new Yxvsx graphics method given the the name and the existing
-Yxvsx graphics method to copy the attributes from. If no existing
-Yxvsx graphics method name is given, then the default Yxvsx graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    :Example:
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+::
 
-Example of Use:
+    a=vcs.init()
+    vcs.show('yxvsx')
+    yxx=vcs.createyxvsx('example1',)
+    vcs.show('yxvsx')
+    yxx=vcs.createyxvsx('example2','quick')
+    vcs.show('yxvsx')
 
-a=vcs.init()
-vcs.show('yxvsx')
-yxx=vcs.createyxvsx('example1',)
-vcs.show('yxvsx')
-yxx=vcs.createyxvsx('example2','quick')
-vcs.show('yxvsx')
 
-#######################################################################################################################
-###########################################                             ###############################################
-########################################## End createyxvsx Description ################################################
-#########################################                             #################################################
-#######################################################################################################################
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a yxvsy or a string name of a yxvsy
+
+    :return: A vcs.unified1D.G1d object
 
 """
     try:
@@ -768,7 +829,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createyxvsx function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('yxvsx')                     # Show all the existing Yxvsx graphics methods
 yxx=vcs.getyxvsx()                    # yxx instance of 'default' Yxvsx graphics
@@ -804,31 +865,34 @@ Output:::
 %s
 :::
 
-Function: createxvsy                      # Construct a new XvsY graphics method
+    Create a new XvsY graphics method given the the name and the existing
+    XvsY graphics method to copy the attributes from. If no existing
+    XvsY graphics method name is given, then the default XvsY graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new XvsY graphics method given the the name and the existing
-XvsY graphics method to copy the attributes from. If no existing
-XvsY graphics method name is given, then the default XvsY graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('xvsy')
-xy=vcs.createxvsy('example1',)
-vcs.show('xvsy')
-xy=vcs.createxvsy('example2','quick')
-vcs.show('xvsy')
+::
 
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End createxvsy Description ################################################
-#########################################                            #################################################
-######################################################################################################################
+    a=vcs.init()
+    vcs.show('xvsy')
+    xy=vcs.createxvsy('example1',)
+    vcs.show('xvsy')
+    xy=vcs.createxvsy('example2','quick')
+    vcs.show('xvsy')
+
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a xvsy or a string name of a xvsy
+
+    :return: A vcs.unified1D.G1d object
 
 """
     try:
@@ -871,7 +935,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createxvsy function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('xvsy')                      # Show all the existing XvsY graphics methods
 xy=vcs.getxvsy()                      # xy instance of 'default' XvsY graphics
@@ -896,26 +960,36 @@ getxvsy.__doc__ = getxvsy.__doc__ % (
 
 
 def createvector(name=None, source='default'):
-    """
-Function: createvector                # Construct a new vector graphics method
+"""
+    Create a new vector graphics method given the the name and the existing
+    vector graphics method to copy the attributes from. If no existing
+    vector graphics method name is given, then the default vector graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new vector graphics method given the the name and the existing
-vector graphics method to copy the attributes from. If no existing
-vector graphics method name is given, then the default vector graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('vector')
-vec=vcs.createvector('example1',)
-vcs.show('vector')
-vec=vcs.createvector('example2','quick')
-vcs.show('vector')
+::
+
+    a=vcs.init()
+    vcs.show('vector')
+    vec=vcs.createvector('example1',)
+    vcs.show('vector')
+    vec=vcs.createvector('example2','quick')
+    vcs.show('vector')
+
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a vector or a string name of a vector
+
+    :return: A vcs.vector.Gv object
+
 """
     name, source = check_name_source(name, source, 'vector')
     return vector.Gv(name, source)
@@ -934,7 +1008,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createvector function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('vector')                   # Show all the existing vector graphics methods
 vec=vcs.getvector()                  # vec instance of 'default' vector graphics
@@ -965,25 +1039,33 @@ Output:::
 %s
 :::
 
-Function: createscatter                # Construct a new scatter graphics method
+    Create a new scatter graphics method given the the name and the existing
+    scatter graphics method to copy the attributes from. If no existing
+    scatter graphics method name is given, then the default scatter graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new scatter graphics method given the the name and the existing
-scatter graphics method to copy the attributes from. If no existing
-scatter graphics method name is given, then the default scatter graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('scatter')
-sct=vcs.createscatter('example1',)
-vcs.show('scatter')
-sct=vcs.createscatter('example2','quick')
-vcs.show('scatter')
+::
+
+    a=vcs.init()
+    vcs.show('scatter')
+    sct=vcs.createscatter('example1',)
+    vcs.show('scatter')
+    sct=vcs.createscatter('example2','quick')
+    vcs.show('scatter')
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a scatter or a string name of a scatter
+
+    :return: A vcs.unified1D.G1d object
 
 """
     try:
@@ -1027,7 +1109,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createscatter function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('scatter')                   # Show all the existing scatter graphics methods
 sct=vcs.getscatter()                  # sct instance of 'default' scatter graphics
@@ -1055,31 +1137,70 @@ def createline(name=None, source='default', ltype=None,
                viewport=None, worldcoordinate=None,
                x=None, y=None, projection=None):
     """
-Function: createline                       # Construct a new line secondary method
+    Create a new line secondary method given the the name and the existing
+    line secondary method to copy the attributes from. If no existing line
+    secondary method name is given, then the default line secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
 
-Description of Function:
-Create a new line secondary method given the the name and the existing
-line secondary method to copy the attributes from. If no existing line
-secondary method name is given, then the default line secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('line')
-ln=vcs.createline('example1',)
-vcs.show('line')
-ln=vcs.createline('example2','black')
-vcs.show('line')
-ln2=vcs.createline(name='new', name_src='red',ltype='dash', width=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
-vcs.line(ln2)                      # Plot using specified line object
+::
+
+    a=vcs.init()
+    vcs.show('line')
+    ln=vcs.createline('example1')
+    vcs.show('line')
+    ln=vcs.createline('example2','black')
+    vcs.show('line')
+    # Create instance of line object 'red'
+    ln2=vcs.createline(name='new', name_src='red',ltype='dash', width=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified line object
+    vcs.line(ln2)
+
+    :param name: Name of created object
+    :type name: str
+
+    :param source: a line, or string name of a line
+    :type source: str
+
+    :param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
+    :type ltype: str
+
+    :param width: Thickness of the line to be created
+    :type width: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the line will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+    :type projection: str or projection object
+
+    :return: A vcs.line.Tl object
+
 """
 
     name, source = check_name_source(name, source, 'line')
@@ -1122,7 +1243,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createline function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('line')                   # Show all the existing line secondary methods
 ln=vcs.getline()                   # ln instance of 'default' line secondary
@@ -1170,32 +1291,69 @@ def createmarker(name=None, source='default', mtype=None,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None, projection=None):
     """
-Function: createmarker                   # Construct a new marker secondary method
+    Create a new marker secondary method given the the name and the existing
+    marker secondary method to copy the attributes from. If no existing marker
+    secondary method name is given, then the default marker secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
 
-Description of Function:
-Create a new marker secondary method given the the name and the existing
-marker secondary method to copy the attributes from. If no existing marker
-secondary method name is given, then the default marker secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('marker')
-mrk=vcs.createmarker('example1',)
-vcs.show('marker')
-mrk=vcs.createmarker('example2','black')
-vcs.show('boxfill')
-mrk2=vcs.createmarker(name='new', name_src='red',mtype='dash', size=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
-vcs.marker(mrk2)                      # Plot using specified marker object
-"""
+::
+
+    a=vcs.init()
+    vcs.show('marker')
+    mrk=vcs.createmarker('example1',)
+    vcs.show('marker')
+    mrk=vcs.createmarker('example2','black')
+    vcs.show('boxfill')
+    # Create instance of marker object 'red'
+    mrk2=vcs.createmarker(name='new', name_src='red',mtype='dot', size=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified marker object
+    vcs.marker(mrk2)
+
+
+    :param name: Name of created object
+    :type name: str
+
+    :param source: A marker, or string name of a marker
+    :type source: str
+
+    :param mtype: Specifies the type of marker, i.e. "dot", "circle"
+    :type mtype: str
+
+    :param size:
+    :type size: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the marker will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :return: A vcs.marker.Tm object
+
+    """
 
     name, source = check_name_source(name, source, 'marker')
 
@@ -1237,7 +1395,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createmarker function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('marker')                    # Show all the existing marker secondary methods
 mrk=vcs.getmarker()                   # mrk instance of 'default' marker secondary
@@ -1283,31 +1441,66 @@ def createfillarea(name=None, source='default', style=None,
                    viewport=None, worldcoordinate=None,
                    x=None, y=None):
     """
-Function: createfillarea     # Construct a new fillarea secondary method
+    Create a new fillarea secondary method given the the name and the existing
+    fillarea secondary method to copy the attributes from. If no existing fillarea
+    secondary method name is given, then the default fillarea secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
 
-Description of Function:
-Create a new fillarea secondary method given the the name and the existing
-fillarea secondary method to copy the attributes from. If no existing fillarea
-secondary method name is given, then the default fillarea secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('fillarea')
-fa=vcs.createfillarea('example1',)
-vcs.show('fillarea')
-fa=vcs.createfillarea('example2','black')
-vcs.show('fillarea')
-fa2=vcs.createmarker(name='new', name_src='red',style=1, index=1,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of fill area object 'red'
-vcs.fillarea(fa2)                      # Plot using specified fill area object
-"""
+::
+
+    vcs.show('fillarea')
+    fa=vcs.createfillarea('example1',)
+    vcs.show('fillarea')
+    fa=vcs.createfillarea('example2','black')
+    vcs.show('fillarea')
+    # Create instance of fill area object 'red'
+    fa2=vcs.createmarker(name='new', name_src='red',style=1, index=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified fill area object
+    vcs.fillarea(fa2)
+
+    :param name: Name of created object
+    :type name: str
+
+    :param source: a fillarea, or string name of a fillarea
+    :type source: str
+
+    :param style: One of "hatch", "solid", or "pattern".
+    :type style: str
+
+    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+    :type index: int
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the fillarea will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :return: A vcs.fillarea.Tf object
+    """
 
     name, source = check_name_source(name, source, 'fillarea')
 
@@ -1348,7 +1541,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createfillarea function.)
 
-Example of Use:
+:Example:
 vcs.show('fillarea')                 # Show all the existing fillarea secondary methods
 fa=vcs.getfillarea()                 # fa instance of 'default' fillarea secondary
                                    #       method
@@ -1393,31 +1586,67 @@ def createtexttable(name=None, source='default', font=None,
                     viewport=None, worldcoordinate=None,
                     x=None, y=None):
     """
-Function: createtexttable            # Construct a new texttable secondary method
+    Create a new texttable secondary method given the the name and the existing
+    texttable secondary method to copy the attributes from. If no existing texttable
+    secondary method name is given, then the default texttable secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
 
-Description of Function:
-Create a new texttable secondary method given the the name and the existing
-texttable secondary method to copy the attributes from. If no existing texttable
-secondary method name is given, then the default texttable secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-vcs.show('texttable')
-tt=vcs.createtexttable('example1',)
-vcs.show('texttable')
-tt=vcs.createtexttable('example2','black')
-vcs.show('texttable')
-tt=vcs.createtexttable(name='new',name_src='red',font=1,spacing=1,expansion=1,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of texttable object 'new'
-vcs.texttable(tt)                      # Plot using specified texttable object
+::
+
+    a=vcs.init()
+    vcs.show('texttable')
+    tt=vcs.createtexttable('example1',)
+    vcs.show('texttable')
+    tt=vcs.createtexttable('example2','black')
+    vcs.show('texttable')
+    # Create instance of texttable object 'new'
+    tt=vcs.createtexttable(name='new',name_src='red',font=1,spacing=1,expansion=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified texttable object
+    vcs.texttable(tt)
+
+    :param name: Name of created object
+    :type name: str
+
+    :param source: a texttable, or string name of a texttable
+    :type source: str
+
+    :param font:
+    :type font:
+
+    :param expansion:
+    :type expansion:
+
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+    or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
+
+    :param priority: The layer on which the texttable will be drawn.
+    :type priority: int
+
+    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+    :type viewport: list of floats
+
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
+
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
+
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
+
+    :return: A vcs.texttable.Tt object
+
 """
 
     name, source = check_name_source(name, source, 'texttable')
@@ -1464,7 +1693,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createtexttable function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('texttable')              # Show all the existing texttable secondary methods
 tt=vcs.gettexttable()              # tt instance of 'default' texttable secondary
@@ -1490,24 +1719,33 @@ vcs.texttable(tt3)                      # Plot using specified texttable object
 
 def createtextorientation(name=None, source='default'):
     """
-Function: createtextorientation   # Construct a new textorientation secondary method
+    Create a new textorientation secondary method given the the name and
+    the existing textorientation secondary method to copy the attributes
+    from. If no existing textorientation secondary method name is given,
+    then the default textorientation secondary method will be used as the
+    secondary method to which the attributes will be copied from.
 
-Description of Function:
-Create a new textorientation secondary method given the the name and
-the existing textorientation secondary method to copy the attributes
-from. If no existing textorientation secondary method name is given,
-then the default textorientation secondary method will be used as the
-secondary method to which the attributes will be copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('textorientation')
-to=vcs.createtextorientation('example1',)
-vcs.show('textorientation')
-to=vcs.createtextorientation('example2','black')
-vcs.show('textorientation')
+::
+
+    vcs.show('textorientation')
+    to=vcs.createtextorientation('example1',)
+    vcs.show('textorientation')
+    to=vcs.createtextorientation('example2','black')
+    vcs.show('textorientation')
+
+
+:param name: The name of the created object
+:type name: str
+
+:param source: The object to inherit from
+:type source: a textorientation or a string name of a textorientation
+
+:return: A vcs.textorientation.To object
 """
 
     name, source = check_name_source(name, source, 'textorientation')
@@ -1529,7 +1767,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createtextorientation function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('textorientation')    # Show all the existing textorientation secondary methods
 to=vcs.gettextorientation()    # to instance of 'default' textorientation secondary
@@ -1554,25 +1792,86 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
                        priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
                        height=None, angle=None, path=None, halign=None, valign=None, projection=None):
     """
-Function: createtext or createtextcombined  # Construct a new text combined secondary method
+    Create a new textcombined secondary method given the the names and
+    the existing texttable and textorientation secondary methods to copy
+    the attributes from. If no existing texttable and textorientation
+    secondary method names are given, then the default texttable and
+    textorientation secondary methods will be used as the secondary method
+    to which the attributes will be copied from.
 
-Description of Function:
-Create a new textcombined secondary method given the the names and
-the existing texttable and textorientation secondary methods to copy
-the attributes from. If no existing texttable and textorientation
-secondary method names are given, then the default texttable and
-textorientation secondary methods will be used as the secondary method
-to which the attributes will be copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-vcs.show('texttable')
-vcs.show('textorientation')
-tc=vcs.createtextcombined('example1','std','example1','7left')
-vcs.show('texttable')
-vcs.show('textorientation')
+::
+
+    vcs.show('texttable')
+    vcs.show('textorientation')
+    tc=vcs.createtextcombined('example1','std','example1','7left')
+    vcs.show('texttable')
+    vcs.show('textorientation')
+
+:param Tt_name: Name of created object
+:type Tt_name: str
+
+:param Tt_source:
+:type Tt_source:
+
+:param To_name:
+:type To_name:
+
+:param To_source:
+:type To_source:
+
+:param font:
+:type font:
+
+:param spacing:
+:type spacing:
+
+:param expansion:
+:type expansion:
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255,
+or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority:
+:type priority:
+
+:param viewport:
+:type viewport:
+
+:param worldcoordinate:
+:type worldcoordinate:
+
+:param x:
+:type x:
+
+:param y:
+:type y:
+
+:param height:
+:type height:
+
+:param angle:
+:type angle:
+
+:param path:
+:type path:
+
+:param halign:
+:type halign:
+
+:param valign:
+:type valign:
+
+:param projection:
+:type projection:
+
+:return: A vcs.textcombined.Tc object
+
 """
     # Check if to is defined
     if To_name is None:
@@ -1636,7 +1935,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createtextcombined function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 vcs.show('texttable')                  # Show all the existing texttable secondary methods
 vcs.show('textorientation')            # Show all the existing textorientation secondary methods
@@ -1714,7 +2013,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dscalar function.)
 
-Example of Use:
+:Example:
 a.show('3d_scalar')                      # Show all the existing 3Dscalar graphics methods
 plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graphics
                                         # method
@@ -1732,26 +2031,30 @@ plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graph
 
 def create3d_scalar(name=None, source='default'):
     """
-Function: create3d_scalar                # Construct a new dv3d graphics method
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new dv3d graphics method given the the name and the existing
-dv3d graphics method to copy the attributes from. If no existing
-dv3d graphics method name is given, then the default dv3d graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-a.show('3d_scalar')
-plot=a.create3d_scalar()
-"""
-# print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# create3d_scalar
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+::
+
+    a=vcs.init()
+    a.show('3d_scalar')
+    plot=a.create3d_scalar()
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a 3d_scalar or a string name of a 3d_scalar
+
+    :return: A vcs.dv3d.Gf3Dscalar object
+    """
     name, source = check_name_source(name, source, '3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
 
@@ -1769,7 +2072,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dscalar function.)
 
-Example of Use:
+:Example:
 a.show('3d_dual_scalar')                      # Show all the existing 3Dscalar graphics methods
 plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d graphics
                                         # method
@@ -1787,26 +2090,31 @@ plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d 
 
 def create3d_dual_scalar(name=None, source='default'):
     """
-Function: create3d_dual_scalar                # Construct a new dv3d graphics method
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new dv3d graphics method given the the name and the existing
-dv3d graphics method to copy the attributes from. If no existing
-dv3d graphics method name is given, then the default dv3d graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-a.show('3d_dual_scalar')
-plot=a.create3d_dual_scalar()
-"""
-# print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# create3d_scalar
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+::
+
+    a=vcs.init()
+    a.show('3d_dual_scalar')
+    plot=a.create3d_dual_scalar()
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a 3d_dual_scalar or a string name of a 3d_dual_scalar
+
+    :return: A vcs.dv3d.Gf3DDualScalar object
+    """
     name, source = check_name_source(name, source, '3d_dual_scalar')
     return dv3d.Gf3DDualScalar(name, source)
 
@@ -1824,7 +2132,7 @@ Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a
 different name can be modified. (See the create3Dvector function.)
 
-Example of Use:
+:Example:
 a.show('3d_vector')                      # Show all the existing 3Dvector graphics methods
 plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graphics
                                         # method
@@ -1842,23 +2150,32 @@ plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graph
 
 def create3d_vector(name=None, source='default'):
     """
-Function: createdv3d                # Construct a new dv3d graphics method
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-Description of Function:
-Create a new dv3d graphics method given the the name and the existing
-dv3d graphics method to copy the attributes from. If no existing
-dv3d graphics method name is given, then the default dv3d graphics
-method will be used as the graphics method to which the attributes will
-be copied from.
+    If the name provided already exists, then an error will be returned. Graphics
+    method names must be unique.
 
-If the name provided already exists, then a error will be returned. Graphics
-method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-a.show('3Dvector')
-plot=a.create3d_vector()
+::
+
+    a=vcs.init()
+    a.show('3d_vector')
+    plot=a.create3d_vector()
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a 3d_vector or a string name of a 3d_vector
+
+    :return: A vcs.dv3d.Gf3Dvector object
 """
+
     name, source = check_name_source(name, source, '3d_vector')
     return dv3d.Gf3Dvector(name, source)
 
@@ -1871,28 +2188,35 @@ plot=a.create3d_vector()
 
 def createcolormap(Cp_name=None, Cp_name_src='default'):
     """
-Function: createcolormap               # Construct a new colormap secondary method
+    Create a new colormap secondary method given the the name and the existing
+    colormap secondary method to copy the attributes from. If no existing colormap
+    secondary method name is given, then the default colormap secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
 
-Description of Function:
-Create a new colormap secondary method given the the name and the existing
-colormap secondary method to copy the attributes from. If no existing colormap
-secondary method name is given, then the default colormap secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
+    If the name provided already exists, then an error will be returned.
+    Secondary method names must be unique.
 
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
+    :Example:
 
-Example of Use:
-a=vcs.init()
-cp=a.createcolormap('example1',)
-a.show('colormap')
-cp=a.createcolormap('example2','AMIP')
-a.show('colormap')
+::
 
-"""
+    a=vcs.init()
+    cp=a.createcolormap('example1',)
+    a.show('colormap')
+    cp=a.createcolormap('example2','AMIP')
+    a.show('colormap')
+
+    :param Cp_name: The name of the created object
+    :type Cp_name: str
+
+    :param Cp_name_src: The object to inherit
+    :type Cp_name_src: a colormap or a string name of a colormap
+
+    :return: A vcs.colormap.Cp object
+    """
     Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
-    return colormap.Cp(Cp_name, Cp_name_src)
+    return colormap.Cp(Cp_name, Cp_name_srcvcs.colormap.Cp )
 
 
 def getcolormap(Cp_name_src='default'):
@@ -1908,7 +2232,7 @@ Note, VCS does not allow the modification of `default' attribute sets.
 However, a `default' attribute set that has been copied under a
 different name can be modified. (See the createcolormap function.)
 
-Example of Use:
+:Example:
 a=vcs.init()
 a.show('colormap')                      # Show all the existing colormap secondary methods
 cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
@@ -2043,7 +2367,7 @@ use the "del" function.
 Also note, The user is not allowed to remove a "default" class
 object.
 
-Example of Use:
+:Example:
 a=vcs.init()
 line=a.getline('red')       # To Modify an existing line object
 iso=x.createisoline('dean') # Create an instance of an isoline object
