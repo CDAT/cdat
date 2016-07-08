@@ -810,10 +810,10 @@ class VTKVCSBackend(object):
                                   priority=priority,
                                   create_renderer=True)
 
-    def renderTemplate(self, tmpl, data, gm, taxis, zaxis, **kargs):
+    def renderTemplate(self, tmpl, data, gm, taxis, zaxis, X=None, Y=None, **kargs):
         # ok first basic template stuff, let's store the displays
         # because we need to return actors for min/max/mean
-        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg, **kargs)
+        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg, X=X, Y=Y, **kargs)
         returned = {}
         for d in displays:
             if d is None:
