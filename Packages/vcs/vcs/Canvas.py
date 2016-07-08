@@ -1849,35 +1849,36 @@ Options:::
     a.marker(mrk)
 
 
-    :param name: Name of created object
-    :type name: str
+:param name: Name of created object
+:type name: str
 
-    :param mtype: Marker type, i.e. 'dot', 'plus', 'star, etc.
-    :type mtype: str
+:param mtype: Marker type, i.e. 'dot', 'plus', 'star, etc.
+:type mtype: str
 
-    :param size:
-    :type size: int
+:param size:
+:type size: int
 
-    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-    :type color: str or int
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
 
-    :param priority: The layer on which the marker will be drawn.
-    :type priority: int
+:param priority: The layer on which the marker will be drawn.
+:type priority: int
 
-    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-    :type viewport: list of floats
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
 
-    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-    :type worldcoordinate: list of floats
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
 
-    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-    :type x: list of floats
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
 
-    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-    :type y: list of floats
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
 
-    :returns: A vcs.marker.Tm object
-    """
+:returns: A drawmarker object
+:rtype: vcs.marker.Tm
+"""
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the marker.')
         else:
@@ -2195,38 +2196,38 @@ Options:::
     a.texttable(tt)
 
 
-    :param name: Name of created object
-    :type name: str
+:param name: Name of created object
+:type name: str
 
-    :param style: One of "hatch", "solid", or "pattern".
-    :type style: str
+:param style: One of "hatch", "solid", or "pattern".
+:type style: str
 
-    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
-    :type index: int
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:type index: int
 
-    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-    :type color: str or int
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
 
-    :param priority: The layer on which the fillarea will be drawn.
-    :type priority: int
+:param priority: The layer on which the fillarea will be drawn.
+:type priority: int
 
-    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-    :type viewport: list of floats
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
 
-    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-    :type worldcoordinate: list of floats
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
 
-    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-    :type x: list of floats
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
 
-    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-    :type y: list of floats
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
 
-    :param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
-    :type bg: boolean, or any statement that evaluates to a boolean
+:param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
+:type bg: boolean, or any statement that evaluates to a boolean
 
-    :returns:
-
+:returns: A texttable object
+:rtype:
 """
         if (Tt_name is None) or (not isinstance(Tt_name, str)):
             raise vcsError('Must provide string name for the texttable.')
