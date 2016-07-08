@@ -8,6 +8,8 @@ for pkg in testing cdtime regrid2 cdms2 esg DV3D vcs vcsaddons cdutil unidata xm
     rm -rf build
     if [ ${pkg} == "vcs" ]; then
         python setup.py install --old-and-unmanageable
+    elif [ ${pkg} == "cdat_info" ]; then
+        python setup.py build -b build install
     else
         python setup.py install
     fi
