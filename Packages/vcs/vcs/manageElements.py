@@ -228,13 +228,14 @@ Output:::
     box=vcs.createboxfill('example2','quick')
     vcs.show('boxfill')
 
-    :param name: The name of the created object
-    :type name: str
+:param name: The name of the created object
+:type name: str
 
-    :param source: The object to inherit from
-    :type source: a boxfill or a string name of a boxfill
+:param source: The object to inherit from
+:type source: a boxfill or a string name of a boxfill
 
-    :return: A vcs.boxfill.Gfb object
+:return: A boxfill graphics method object
+:rtype: vcs.boxfill.Gfb
 """
 
     name, source = check_name_source(name, source, 'boxfill')
@@ -319,7 +320,8 @@ def createtaylordiagram(name=None, source='default'):
 :param source: The object to inherit from
 :type source: a taylordiagram or a string name of a
 
-:return: A vcs.taylor.Gtd object
+:returns: A taylordiagram graphics method object
+:rtype: vcs.taylor.Gtd
 
 """
 
@@ -392,13 +394,13 @@ def createmeshfill(name=None, source='default'):
     mesh=vcs.createmeshfill('example2','quick')
     vcs.show('meshfill')
 
-    :param name: The name of the created object
-    :type name: str
+:param name: The name of the created object
+:type name: str
 
-    :param source: The object to inherit from
-    :type source: a meshfill or a string name of a meshfill
+:param source: The object to inherit from
+:type source: a meshfill or a string name of a meshfill
 
-    :return: A vcs.meshfill.Gfm object
+:return: A vcs.meshfill.Gfm object
 
 """
     name, source = check_name_source(name, source, 'meshfill')
@@ -470,14 +472,14 @@ Output:::
     iso=vcs.createisofill('example2','quick')
     vcs.show('isofill')
 
-    :param name: The name of the created object
-    :type name: str
+:param name: The name of the created object
+:type name: str
 
-    :param source: The object to inherit from
-    :type source: an isofill object, or string name of an isofill object
+:param source: The object to inherit from
+:type source: an isofill object, or string name of an isofill object
 
-    :returns:
-    :rtype: vcs.isofill.Gfi
+:returns: An isofill graphics method
+:rtype: vcs.isofill.Gfi
 
 """
 
@@ -563,14 +565,15 @@ Output:::
     iso=vcs.createisoline('example2','quick')
     vcs.show('isoline')
 
-    :param name: The name of the created object
-    :type name: str
+:param name: The name of the created object
+:type name: str
 
-    :param source: The object to inherit from
-    :type source: an isoline object, or string name of an isoline object
+:param source: The object to inherit from
+:type source: an isoline object, or string name of an isoline object
 
-    :return: A vcs.isoline.Gi object
-    """
+:returns: An isoline graphics method object
+:rtype: vcs.isoline.Gi
+"""
 
     name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
@@ -1173,40 +1176,40 @@ def createline(name=None, source='default', ltype=None,
     # Plot using specified line object
     vcs.line(ln2)
 
-    :param name: Name of created object
-    :type name: str
+:param name: Name of created object
+:type name: str
 
-    :param source: a line, or string name of a line
-    :type source: str
+:param source: a line, or string name of a line
+:type source: str
 
-    :param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
-    :type ltype: str
+:param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
+:type ltype: str
 
-    :param width: Thickness of the line to be created
-    :type width: int
+:param width: Thickness of the line to be created
+:type width: int
 
-    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-    :type color: str or int
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
 
-    :param priority: The layer on which the line will be drawn.
-    :type priority: int
+:param priority: The layer on which the line will be drawn.
+:type priority: int
 
-    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-    :type viewport: list of floats
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
 
-    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-    :type worldcoordinate: list of floats
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
 
-    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-    :type x: list of floats
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
 
-    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-    :type y: list of floats
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
 
-    :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
-    :type projection: str or projection object
+:param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+:type projection: str or projection object
 
-    :return: A vcs.line.Tl object
+:return: A vcs.line.Tl object
 
 """
 
@@ -1327,37 +1330,37 @@ def createmarker(name=None, source='default', mtype=None,
     vcs.marker(mrk2)
 
 
-    :param name: Name of created object
-    :type name: str
+:param name: Name of created object
+:type name: str
 
-    :param source: A marker, or string name of a marker
-    :type source: str
+:param source: A marker, or string name of a marker
+:type source: str
 
-    :param mtype: Specifies the type of marker, i.e. "dot", "circle"
-    :type mtype: str
+:param mtype: Specifies the type of marker, i.e. "dot", "circle"
+:type mtype: str
 
-    :param size:
-    :type size: int
+:param size:
+:type size: int
 
-    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-    :type color: str or int
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
 
-    :param priority: The layer on which the marker will be drawn.
-    :type priority: int
+:param priority: The layer on which the marker will be drawn.
+:type priority: int
 
-    :param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
-    :type viewport: list of floats
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
 
-    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-    :type worldcoordinate: list of floats
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
 
-    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-    :type x: list of floats
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
 
-    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-    :type y: list of floats
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
 
-    :return: A vcs.marker.Tm object
+:return: A vcs.marker.Tm object
 
     """
 
@@ -2008,21 +2011,26 @@ gettext = gettextcombined
 
 def get3d_scalar(Gfdv3d_name_src='default'):
     """
-Function: get3d_scalar                        # Construct a new 3Dscalar graphics method
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-dv3d class object from an existing VCS dv3d graphics method. If
-no dv3d name is given, then dv3d 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the create3Dscalar function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the create3Dscalar function.)
+    :Example:
 
-:Example:
-a.show('3d_scalar')                      # Show all the existing 3Dscalar graphics methods
-plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graphics
-                                        # method
+    # Show all the existing 3Dscalar graphics methods
+    a.show('3d_scalar')
+    # plot instance of 'default' dv3d graphics method
+    plot=vcs.get3d_scalar()
+
+:param Gfdv3d_name_src: String name of an existing 3d_scalar VCS object.
+:type Gfdv3d_name_src: str
+
+:returns: A pre-existing 3d_scalar VCS object
+:rtype: vcs.dv3d.Gf3Dscalar
 """
 
     # Check to make sure the argument passed in is a STRING
@@ -2068,21 +2076,29 @@ def create3d_scalar(name=None, source='default'):
 
 def get3d_dual_scalar(Gfdv3d_name_src='default'):
     """
-Function: get3d_dual_scalar                        # Construct a new 3DDualScalar graphics method
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-dv3d class object from an existing VCS dv3d graphics method. If
-no dv3d name is given, then dv3d 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the create3Dscalar function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the create3Dscalar function.)
+    :Example:
 
-:Example:
-a.show('3d_dual_scalar')                      # Show all the existing 3Dscalar graphics methods
-plot=vcs.get3d_dual_scalar()                  # plot instance of 'default' dv3d graphics
-                                        # method
+::
+
+    # Show all the existing 3Dscalar graphics methods
+    a.show('3d_dual_scalar')
+    # plot instance of 'default' dv3d graphics method
+    plot=vcs.get3d_dual_scalar()
+
+:param Gfdv3d_name_src: String name of an existing 3d_dual_scalar VCS object
+:type Gfdv3d_name_src: str
+
+:returns: A pre-existing 3d_dual_scalar VCS object
+:rtype: vcs.dv3d.Gf3DDualScalar
+
 """
 
     # Check to make sure the argument passed in is a STRING
@@ -2129,21 +2145,25 @@ def create3d_dual_scalar(name=None, source='default'):
 
 def get3d_vector(Gfdv3d_name_src='default'):
     """
-Function: get3d_vector                        # Construct a new 3Dvector graphics method
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-dv3d class object from an existing VCS dv3d graphics method. If
-no dv3d name is given, then dv3d 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the create3Dvector function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the create3Dvector function.)
+    :Example:
+    # Show all the existing 3Dvector graphics methods
+    a.show('3d_vector')
+    # plot instance of 'default' dv3d graphics method
+    plot=vcs.get3d_vector()
 
-:Example:
-a.show('3d_vector')                      # Show all the existing 3Dvector graphics methods
-plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graphics
-                                        # method
+:param Gfdv3d_name_src: String name of an existing 3d_vector VCS object
+:type Gfdv3d_name_src: str
+
+:returns: A pre-existing 3d_vector VCS object
+:rtype: vcs.dv3d.Gf3Dvector
 """
 
     # Check to make sure the argument passed in is a STRING
