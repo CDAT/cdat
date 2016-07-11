@@ -937,7 +937,8 @@ class Canvas(object):
         """
         Returns value of draw logo
 
-        :returns: draw logo value
+        :returns: Boolean value of system variable which indicates whether log will be drawn
+        :rtype: bool
         """
         return self.enableLogo
 
@@ -1354,6 +1355,9 @@ Options:::
     a.clear()
     # Plot array using specified iso and template
     a.isofill(array,iso,template)
+
+:returns:
+:rtype:
 
 """
         arglist = _determine_arg_list('isofill', args)
@@ -2159,6 +2163,13 @@ Options:::
         t.string=['Hello World']
         extent = x.gettextextent(t)
         print extent
+
+:param textobject: A VCS text object
+:type textobject:
+
+:returns:
+:rtype:
+
         """
         if not vcs.istext(textobject):
             raise vcsError('You must pass a text object')
@@ -4010,15 +4021,19 @@ Options:::
 
     def getcontinentstype(self, *args):
         """
- Function: getcontinentstype
-
- Description of Function:
     Retrieve continents type from VCS; either an integer between 0 and 11 or the
     path to a custom continentstype.
 
- :Example:
+     :Example:
+
+::
+
      a=vcs.init()
-     cont_type = a.getcontinentstype() # Get the continents type
+     # Get the continents type
+     cont_type = a.getcontinentstype()
+
+:returns: An int between 1 and 0, or the path to a custom continentstype
+:rtype: int or system filepath
 """
         try:
             return self._continents
@@ -4070,15 +4085,15 @@ Options:::
 
     def grid(self, *args):
         """
- Function: grid
-
- Description of Function:
     Set the default plotting region for variables that have more dimension values
     than the graphics method. This will also be used for animating plots over the
     third and fourth dimensions.
 
 
  :Example:
+
+::
+
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
 """
@@ -5098,20 +5113,28 @@ Options:::
 
     def getplot(self, Dp_name_src='default', template=None):
         """
- Function: getplot                  # Get existing display plot
-
- Description of Function:
     This function will create a display plot object from an existing display
     plot object from an existing VCS plot. If no display plot name
     is given, then None is returned.
 
- :Example:
+     :Example:
 
 ::
 
     a=vcs.init()
-    a.show('template')                  # Show all the existing templates
-    plot1=a.getplot('dpy_plot_1')       # plot1 instance of 'dpy_plot_1' display plot
+    # Show all the existing templates
+    a.show('template')
+    # plot1 instance of 'dpy_plot_1' display plot
+    plot1=a.getplot('dpy_plot_1')
+
+:param Dp_name_src: String name of an existing display plot object
+:type Dp_name_src: str
+
+:param template:
+:type template:
+
+:returns:
+:rtype:
 """
         if not isinstance(Dp_name_src, str):
             raise ValueError('Error -  The argument must be a string.')
@@ -5275,6 +5298,9 @@ Options:::
         return self.backend.orientation(*args, **kargs)
 
     def getcolorcell(self, *args):
+        """
+
+        """
         """%s""" % vcs.getcolorcell.__doc__
         return vcs.getcolorcell(args[0], self)
 
