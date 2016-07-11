@@ -1254,7 +1254,8 @@ class VTKVCSBackend(object):
         from vtk_ui.text import text_dimensions
         
         text_property = vtk.vtkTextProperty()
-        win_size = self.renWin.GetSize()
+        info = self.canvasinfo()
+        win_size = info["width"], info["height"]
         vcs2vtk.prepTextProperty(text_property, win_size, to=textorientation, tt=texttable)
         
         dpi = self.renWin.GetDPI()
