@@ -1243,7 +1243,38 @@ class VTKVCSBackend(object):
         return VTKAnimate.VTKAnimate(*args, **kargs)
 
     def gettextextent(self, textorientation, texttable):
-        warnings.warn("Please implement gettextextent for VTK Backend")
+        # Ensure renwin exists
+        self.createRenWin()
+
+        if isinstance(textorientation, (str, unicode)):
+            textorientation = vcs.gettextorientation(textorientation)
+        if isinstance(texttable, (str, unicode)):
+            texttable = vcs.gettexttable(texttable)
+
+        from vtk_ui.text import text_dimensions
+        
+        text_property = vtk.vtkTextProperty()
+        win_size = self.renWin.GetSize()
+        vcs2vtk.prepTextProperty(text_property, win_size, to=textorientation, tt=texttable)
+        
+        dpi = self.renWin.GetDPI()
+        
+        length = max(len(texttable.string), len(texttable.x), len(texttable.y))
+        
+        strings = texttable.string + [texttable.string[-1]] * (length - len(texttable.string))
+        xs = texttable.x + [texttable.x[-1]] * (length - len(texttable.x))
+        ys = texttable.y + [texttable.y[-1]] * (length - len(texttable.y))
+
+        labels = zip(strings, xs, ys)
+
+        extents = []
+
+        for s, x, y in labels:
+            width, height = text_dimensions(s, text_property, dpi)
+            extents.append([x, x + float(width) / win_size[0], y, y + float(height) / win_size[1]])
+
+        return extents
+
 
     def getantialiasing(self):
         if self.renWin is None:
