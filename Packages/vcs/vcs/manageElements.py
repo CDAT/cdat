@@ -104,22 +104,31 @@ def createtemplate(name=None, source='default'):
 
 def gettemplate(Pt_name_src='default'):
     """
-Function: gettemplate                       # Construct a new template
+    VCS contains a list of predefined templates. This function will create a
+    template class object from an existing VCS template. If no template name
+    is given, then template 'default' will be used.
 
-Description of Function:
-VCS contains a list of predefined templates. This function will create a
-template class object from an existing VCS template. If no template name
-is given, then template 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createtemplate function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createtemplate function.)
+    :Example:
 
-:Example:
-vcs.listelements('template')                  # Show all the existing templates
-templt=vcs.gettemplate()              # templt instance of 'default' template
-templt2=vcs.gettemplate('quick')      # templt2 contains 'quick' template
-"""
+::
+
+    # Show all the existing templates
+    vcs.listelements('template')
+    # templt instance of 'default' template
+    templt=vcs.gettemplate()
+    # templt2 contains 'quick' template
+    templt2=vcs.gettemplate('quick')
+
+:param Pt_name_src: String name of an existing template VCS object
+:type Pt_name_src:
+
+:returns: A VCS template object
+:rtype: vcs.template.P
+    """
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Pt_name_src, str):
         raise vcsError('The argument must be a string.')
@@ -167,24 +176,31 @@ def createprojection(name=None, source='default'):
 
 def getprojection(Proj_name_src='default'):
     """
-Function: getprojection                    # Construct a new projection method
+    VCS contains a list of graphics methods. This function will create a
+    projection class object from an existing VCS projection method. If
+    no projection name is given, then projection 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-projection class object from an existing VCS projection method. If
-no projection name is given, then projection 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createprojection function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createprojection function.)
+    :Example:
 
-:Example:
-vcs.show('projection')                   # Show all the existing projection methods
-p=vcs.getprojection()                  # box instance of 'default' projection
-                                    # method
-p2=vcs.getprojection('quick')          # box2 instance of existing 'quick' projection
-                                    #         graphics method
-"""
+::
+
+    # Show all the existing projection methods
+    vcs.show('projection')
+    # box instance of 'default' projection method
+    p=vcs.getprojection()
+    # box2 instance of existing 'quick' projection graphics method
+    p2=vcs.getprojection('quick')
+
+:param Proj_name_src: String name of an existing VCS projection object
+:type Proj_name_src: str
+
+:returns: A VCS projection object
+:rtype: vcs.projection.Proj
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Proj_name_src, str):
@@ -257,31 +273,28 @@ Input:::
 Output:::
 %s
 :::
-Function: getboxfill                        # Construct a new boxfill graphics method
+    VCS contains a list of graphics methods. This function will create a
+    boxfill class object from an existing VCS boxfill graphics method. If
+    no boxfill name is given, then boxfill 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-boxfill class object from an existing VCS boxfill graphics method. If
-no boxfill name is given, then boxfill 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createboxfill function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createboxfill function.)
+    :Example:
+    # Show all the existing boxfill graphics methods
+    vcs.show('boxfill')
+    # box instance of 'default' boxfill graphics method
+    box=vcs.getboxfill()
+    # box2 instance of existing 'quick' boxfill graphics method
+    box2=vcs.getboxfill('quick')
 
-:Example:
-vcs.show('boxfill')                   # Show all the existing boxfill graphics methods
-box=vcs.getboxfill()                  # box instance of 'default' boxfill graphics
-                                    # method
-box2=vcs.getboxfill('quick')          # box2 instance of existing 'quick' boxfill
-                                    #         graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getboxfill Description ################################################
-#########################################                            #################################################
-######################################################################################################################
+:param Gfb_name_src: String name of an existing boxfill VCS object
+:type Gfb_name_src: str
 
+:return: A pre-existing boxfill graphics method
+:rtype: vcs.boxfill.Gfb
 """
-
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfb_name_src, str):
         raise vcsError('The argument must be a string.')
@@ -342,24 +355,31 @@ def createtaylordiagram(name=None, source='default'):
 
 def gettaylordiagram(Gtd_name_src='default'):
     """
-Function: gettaylordiagram                     # Construct a new taylordiagram graphics method
+    VCS contains a list of graphics methods. This function will create a
+    taylordiagram class object from an existing VCS taylordiagram graphics method. If
+    no taylordiagram name is given, then taylordiagram 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-taylordiagram class object from an existing VCS taylordiagram graphics method. If
-no taylordiagram name is given, then taylordiagram 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createboxfill function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createboxfill function.)
+    :Example:
 
-:Example:
-vcs.show('taylordiagram')                    # Show all the existing taylordiagram graphics methods
-td=vcs.gettaylordiagram()                    # td instance of 'default' taylordiagram graphics
-                                           # method
-td2=vcs.gettaylordiagram('default')          # td2 instance of existing 'default' taylordiagram
-                                           #         graphics method
-                                    """
+::
+
+    # Show all the existing taylordiagram graphics methods
+    vcs.show('taylordiagram')
+    # td instance of 'default' taylordiagram graphics method
+    td=vcs.gettaylordiagram()
+    # td2 instance of existing 'default' taylordiagram graphics method
+    td2=vcs.gettaylordiagram('default')
+
+:param Gtd_name_src: String name of an existing taylordiagram VCS object
+:type Gtd_name_src: str
+
+:returns: A taylordiagram VCS object
+:rtype: vcs.taylor.Gtd
+                                        """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gtd_name_src, str):
@@ -409,25 +429,32 @@ def createmeshfill(name=None, source='default'):
 
 def getmeshfill(Gfm_name_src='default'):
     """
-Function: getmeshfill                        # Construct a new meshfill graphics method
+    VCS contains a list of graphics methods. This function will create a
+    meshfill class object from an existing VCS meshfill graphics method. If
+    no meshfill name is given, then meshfill 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-meshfill class object from an existing VCS meshfill graphics method. If
-no meshfill name is given, then meshfill 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createmeshfill function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createmeshfill function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-a.show('meshfill')                   # Show all the existing meshfill graphics methods
-mesh=a.getmeshfill()                  # mesh instance of 'default' meshfill graphics
-                                    # method
-mesh2=a.getmeshfill('quick')          # mesh2 instance of existing 'quick' meshfill
-                                    #         graphics method
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing meshfill graphics methods
+    a.show('meshfill')
+    # mesh instance of 'default' meshfill graphics method
+    mesh=a.getmeshfill()
+    # mesh2 instance of existing 'quick' meshfill graphics method
+    mesh2=a.getmeshfill('quick')
+
+:param Gfm_name_src: String name of an existing meshfill VCS object
+:type Gfm_name_src: str
+
+:returns: A meshfill VCS object
+:rtype: vcs.meshfill.Gfm
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfm_name_src, str):
@@ -503,24 +530,30 @@ Output:::
 %s
 :::
 
-Function: getisofill          Construct a new isofill graphics method
+    VCS contains a list of graphics methods. This function will create a
+    isofill class object from an existing VCS isofill graphics method. If
+    no isofill name is given, then isofill 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-isofill class object from an existing VCS isofill graphics method. If
-no isofill name is given, then isofill 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createisofill function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createisofill function.)
+    :Example:
 
-:Example:
-vcs.show('isofill')                   # Show all the existing isofill graphics methods
-iso=vcs.getisofill()                  # iso instance of 'default' isofill graphics
-                                    #       method
-iso2=vcs.getisofill('quick')          # iso2 instance of existing 'quick' isofill
-                                    #       graphics method
+::
 
+    # Show all the existing isofill graphics methods
+    vcs.show('isofill')
+    # iso instance of 'default' isofill graphics method
+    iso=vcs.getisofill()
+    # iso2 instance of existing 'quick' isofill graphics method
+    iso2=vcs.getisofill('quick')
+
+:param Gfi_name_src: String name of an existing isofill VCS object
+:type Gfi_name_src: str
+
+:returns: The specified isofill VCS object
+:rtype: vcs.isofill.Gfi
 """
 
     # Check to make sure the argument passed in is a STRING
@@ -594,30 +627,31 @@ Input:::
 Output:::
 %s
 :::
+    VCS contains a list of graphics methods. This function will create a
+    isoline class object from an existing VCS isoline graphics method. If
+    no isoline name is given, then isoline 'default' will be used.
 
-Function: getisoline                        # Construct a new isoline graphics method
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createisoline function.)
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-isoline class object from an existing VCS isoline graphics method. If
-no isoline name is given, then isoline 'default' will be used.
+    :Example:
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createisoline function.)
+::
 
-:Example:
-vcs.show('isoline')                   # Show all the existing isoline graphics methods
-iso=vcs.getisoline()                  # iso instance of 'default' isoline graphics
-                                    #       method
-iso2=vcs.getisoline('quick')          # iso2 instance of existing 'quick' isoline
-gm.linewidth=0
-                                    #       graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getisoline Description ################################################
-#########################################                            #################################################
-######################################################################################################################
+    # Show all the existing isoline graphics methods
+    vcs.show('isoline')
+    # iso instance of 'default' isoline graphics method
+    iso=vcs.getisoline()
+    # iso2 instance of existing 'quick' isoline graphics method
+    iso2=vcs.getisoline('quick')
+    gm.linewidth=0
+
+:param Gi_name_src: String name of an existing isoline VCS object
+:type Gi_name_src: str
+
+:returns: The requested isoline VCS object
+:rtype: vcs.isoline.Gi
 """
 
     # Check to make sure the argument passed in is a STRING
@@ -719,29 +753,31 @@ Output:::
 %s
 :::
 
-Function: getxyvsy        # Construct a new Xyvsy graphics method
+    VCS contains a list of graphics methods. This function will create a
+    Xyvsy class object from an existing VCS Xyvsy graphics method. If
+    no Xyvsy name is given, then Xyvsy 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-Xyvsy class object from an existing VCS Xyvsy graphics method. If
-no Xyvsy name is given, then Xyvsy 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createxyvsy function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createxyvsy function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('xyvsy')                     # Show all the existing Xyvsy graphics methods
-xyy=vcs.getxyvsy()                    # xyy instance of 'default' Xyvsy graphics
-                                    #       method
-xyy2=vcs.getxyvsy('quick')            # xyy2 instance of existing 'quick' Xyvsy
-                                    #       graphics method
-####################################################################################################################
-###########################################                          ###############################################
-########################################## End getxyvsy Description ################################################
-#########################################                          #################################################
-####################################################################################################################
+::
+
+    a=vcs.init()
+    # Show all the existing Xyvsy graphics methods
+    vcs.show('xyvsy')
+    # xyy instance of 'default' Xyvsy graphics method
+    xyy=vcs.getxyvsy('default_xyvsy_')
+     # xyy2 instance of existing 'quick' Xyvsy graphics method
+    xyy2=vcs.getxyvsy('quick')
+
+:param GXy_name_src: String name of an existing Xyvsy graphics method
+:type GXy_name_src: str
+
+:returns: An Xyvsy graphics method object
+:rtype: vcs.unified1D.G1d
 
 """
     gm = vcs.get1d(GXy_name_src)
@@ -826,30 +862,31 @@ Output:::
 %s
 :::
 
-Function: getyxvsx                     # Construct a new Yxvsx graphics method
+    VCS contains a list of graphics methods. This function will create a
+    Yxvsx class object from an existing VCS Yxvsx graphics method. If
+    no Yxvsx name is given, then Yxvsx 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-Yxvsx class object from an existing VCS Yxvsx graphics method. If
-no Yxvsx name is given, then Yxvsx 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createyxvsx function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createyxvsx function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('yxvsx')                     # Show all the existing Yxvsx graphics methods
-yxx=vcs.getyxvsx()                    # yxx instance of 'default' Yxvsx graphics
-                                    #       method
-yxx2=vcs.getyxvsx('quick')            # yxx2 instance of existing 'quick' Yxvsx
-                                    #       graphics method
-####################################################################################################################
-###########################################                          ###############################################
-########################################## End getyxvsx Description ################################################
-#########################################                          #################################################
-####################################################################################################################
+::
 
+    a=vcs.init()
+    # Show all the existing Yxvsx graphics methods
+    vcs.show('yxvsx')
+    # yxx instance of 'default' Yxvsx graphics method
+    yxx=vcs.getyxvsx()
+    # yxx2 instance of existing 'quick' Yxvsx graphics method
+    yxx2=vcs.getyxvsx('quick')
+
+:param GYx_name_src: String name of an existing Yxvsx graphics method
+:type GYx_name_src: str
+
+:return: A Yxvsx graphics method object
+:rtype: vcs.unified1D.G1d
 """
     gm = vcs.get1d(GYx_name_src)
     if gm.g_type != "yxvsx":
@@ -933,31 +970,31 @@ Output:::
 %s
 :::
 
-Function: getxvsy                   # Construct a new XvsY graphics method
+    VCS contains a list of graphics methods. This function will create a
+    XvsY class object from an existing VCS XvsY graphics method. If
+    no XvsY name is given, then XvsY 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-XvsY class object from an existing VCS XvsY graphics method. If
-no XvsY name is given, then XvsY 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createxvsy function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createxvsy function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('xvsy')                      # Show all the existing XvsY graphics methods
-xy=vcs.getxvsy()                      # xy instance of 'default' XvsY graphics
-                                    #       method
-xy2=vcs.getxvsy('quick')              # xy2 instance of existing 'quick' XvsY
-                                    #       graphics method
+::
 
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End getxvsy Description ################################################
-#########################################                         #################################################
-###################################################################################################################
+    a=vcs.init()
+    # Show all the existing XvsY graphics methods
+    vcs.show('xvsy')
+    # xy instance of 'default' XvsY graphics method
+    xy=vcs.getxvsy()
+    # xy2 instance of existing 'quick' XvsY graphics method
+    xy2=vcs.getxvsy('quick')
 
+:param GXY_name_src: String name of a 1d graphics method
+:type GXY_name_src: str
+
+:returns: A XvsY graphics method object
+:rtype: vcs.unified1D.G1d
 """
     gm = vcs.get1d(GXY_name_src)
     # Deliberately yxvsx here; xvsy is just an alias
@@ -1007,25 +1044,32 @@ def createvector(name=None, source='default'):
 
 def getvector(Gv_name_src='default'):
     """
-Function: getvector                   # Construct a new vector graphics method
+    VCS contains a list of graphics methods. This function will create a
+    vector class object from an existing VCS vector graphics method. If
+    no vector name is given, then vector 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-vector class object from an existing VCS vector graphics method. If
-no vector name is given, then vector 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createvector function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createvector function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('vector')                   # Show all the existing vector graphics methods
-vec=vcs.getvector()                  # vec instance of 'default' vector graphics
-                                    #       method
-vec2=vcs.getvector('quick')          # vec2 instance of existing 'quick' vector
-                                    #       graphics method
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing vector graphics methods
+    vcs.show('vector')
+    # vec instance of 'default' vector graphics method
+    vec=vcs.getvector()
+    # vec2 instance of existing 'quick' vector graphics method
+    vec2=vcs.getvector('quick')
+
+:param Gv_name_src: String name of an existing vector VCS object
+:type Gv_name_src: str
+
+:returns: A vector graphics method object
+:rtype: vcs.vector.Gv
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gv_name_src, str):
@@ -1109,31 +1153,31 @@ Output:::
 %s
 :::
 
-Function: getscatter                   # Construct a new scatter graphics method
+    VCS contains a list of graphics methods. This function will create a
+    scatter class object from an existing VCS scatter graphics method. If
+    no scatter name is given, then scatter 'default' will be used.
 
-Description of Function:
-VCS contains a list of graphics methods. This function will create a
-scatter class object from an existing VCS scatter graphics method. If
-no scatter name is given, then scatter 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createscatter function.)
 
-Note, VCS does not allow the modification of `default' attribute
-sets. However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createscatter function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('scatter')                   # Show all the existing scatter graphics methods
-sct=vcs.getscatter()                  # sct instance of 'default' scatter graphics
-                                    #       method
-sct2=vcs.getscatter('quick')          # sct2 instance of existing 'quick' scatter
-                                    #       graphics method
+::
 
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getscatter Description ################################################
-#########################################                            #################################################
-######################################################################################################################
+    a=vcs.init()
+    # Show all the existing scatter graphics methods
+    vcs.show('scatter')
+    # sct instance of 'default' scatter graphics method
+    sct=vcs.getscatter('default_scatter_')
+    # sct2 instance of existing 'quick' scatter graphics method
+    sct2=vcs.getscatter('quick')
 
+:param GSp_name_src: String name of an existing scatter VCS object.
+:type GSp_name_src: str
+
+:returns: A scatter graphics method object
+:rtype: vcs.unified1D.G1d
 """
     gm = vcs.get1d(GSp_name_src)
     if gm.g_type != "scatter":
@@ -1242,38 +1286,71 @@ def getline(name='default', ltype=None, width=None, color=None,
             worldcoordinate=None,
             x=None, y=None):
     """
-Function: getline        # Construct a new line secondary method
+    VCS contains a list of secondary methods. This function will create a
+    line class object from an existing VCS line secondary method. If
+    no line name is given, then line 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-line class object from an existing VCS line secondary method. If
-no line name is given, then line 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createline function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createline function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('line')                   # Show all the existing line secondary methods
-ln=vcs.getline()                   # ln instance of 'default' line secondary
-                                 #       method
-ln2=vcs.getline('quick')           # ln2 instance of existing 'quick' line
-                                 #       secondary method
-ln3=vcs.getline(name='red', ltype='dash', width=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
-vcs.line(ln3)                      # Plot using specified line object
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing line secondary methods
+    vcs.show('line')
+    # ln instance of 'default' line secondary method
+    ln=vcs.getline()
+    # ln2 instance of existing 'quick' line secondary method
+    ln2=vcs.getline('quick')
+    # Create instance of line object 'red'
+    ln3=vcs.getline(name='red', ltype='dash', width=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50],
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified line object
+    vcs.line(ln3)
+
+:param name: Name of created object
+:type name: str
+
+:param ltype: One of "dash", "dash-dot", "solid", "dot", or "long-dash".
+:type ltype: str
+
+:param width: Thickness of the line to be created
+:type width: int
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority: The layer on which the marker will be drawn.
+:type priority: int
+
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
+
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
+
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
+
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
+
+:returns: A VCS line object
+:rtype: vcs.line.Tl
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
 
     if name not in vcs.elements["line"]:
-        raise ValueError("The line '%s' does not exists" % name)
+        raise ValueError("The line '%s' does not exist" % name)
     ln = vcs.elements["line"][name]
     if ltype is not None and ln.name != 'default':
         ln.type = ltype
@@ -1360,7 +1437,8 @@ def createmarker(name=None, source='default', mtype=None,
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:return: A vcs.marker.Tm object
+:returns: A secondary marker method
+:rtype: vcs.marker.Tm
 
     """
 
@@ -1393,31 +1471,68 @@ def getmarker(name='default', mtype=None, size=None, color=None,
               worldcoordinate=None,
               x=None, y=None):
     """
-Function: getmarker                      # Construct a new marker secondary method
+    VCS contains a list of secondary methods. This function will create a
+    marker class object from an existing VCS marker secondary method. If
+    no marker name is given, then marker 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-marker class object from an existing VCS marker secondary method. If
-no marker name is given, then marker 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createmarker function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createmarker function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('marker')                    # Show all the existing marker secondary methods
-mrk=vcs.getmarker()                   # mrk instance of 'default' marker secondary
-                                    #       method
-mrk2=vcs.getmarker('quick')           # mrk2 instance of existing 'quick' marker
-                                    #       secondary method
-mrk3=vcs.getmarker(name='red', mtype='dash', size=2,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
-vcs.marker(mrk3)                      # Plot using specified marker object
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing marker secondary methods
+    vcs.show('marker')
+    # mrk instance of 'default' marker secondary method
+    mrk=vcs.getmarker()
+    # mrk2 instance of existing 'quick' marker secondary method
+    mrk2=vcs.getmarker('quick')
+    # Create instance of marker object 'red'
+    mrk3=vcs.getmarker(name='red', mtype='dash', size=2,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified marker object
+    vcs.marker(mrk3)
+
+:param name: Name of created object
+:type name: str
+
+:param source: A marker, or string name of a marker
+:type source: str
+
+:param mtype: Specifies the type of marker, i.e. "dot", "circle"
+:type mtype: str
+
+:param size: Size of the marker
+:type size: int
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority: The layer on which the marker will be drawn.
+:type priority: int
+
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
+
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
+
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
+
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
+
+:returns: A marker graphics method object
+:rtype: vcs.marker.Tm
+
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
@@ -1539,36 +1654,70 @@ def getfillarea(name='default', style=None,
                 worldcoordinate=None,
                 x=None, y=None):
     """
-Function: getfillarea              # Construct a new fillarea secondary method
+    VCS contains a list of secondary methods. This function will create a
+    fillarea class object from an existing VCS fillarea secondary method. If
+    no fillarea name is given, then fillarea 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-fillarea class object from an existing VCS fillarea secondary method. If
-no fillarea name is given, then fillarea 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createfillarea function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createfillarea function.)
+    :Example:
 
-:Example:
-vcs.show('fillarea')                 # Show all the existing fillarea secondary methods
-fa=vcs.getfillarea()                 # fa instance of 'default' fillarea secondary
-                                   #       method
-fa2=vcs.getfillarea('quick')         # fa2 instance of existing 'quick' fillarea
-                                    #       secondary method
-fa3=vcs.createmarker(name='new', name='red',style=1, index=1,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of fill area object 'red'
-vcs.fillarea(fa3)                      # Plot using specified fill area object
-"""
+::
+
+    # Show all the existing fillarea secondary methods
+    vcs.show('fillarea')
+    # fa instance of 'default' fillarea secondary method
+    fa=vcs.getfillarea()
+    # fa2 instance of existing 'quick' fillarea secondary method
+    fa2=vcs.getfillarea('quick')
+    # Create instance of fill area object 'red'
+    fa3=vcs.createfillarea(name='new', name='red',style=1, index=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified fill area object
+    vcs.fillarea(fa3)
+
+:param name: String name of an existing fillarea VCS object
+:type name: str
+
+:param style: One of "hatch", "solid", or "pattern".
+:type style: str
+
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:type index: int
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority: The layer on which the texttable will be drawn.
+:type priority: int
+
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
+
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
+
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
+
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
+
+:returns: A fillarea secondary object
+:rtype: vcs.fillarea.Tf
+
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
         raise vcsError('The argument must be a string.')
     if name not in vcs.elements["fillarea"].keys():
-        raise vcsError("Fillarea '%s' doe not exists" % (name))
+        raise vcsError("Fillarea '%s' does not exist" % (name))
 
     fa = vcs.elements["fillarea"][name]
     if (style is not None) and (fa.name != "default"):
@@ -1692,31 +1841,65 @@ def gettexttable(name='default', font=None,
                  worldcoordinate=None,
                  x=None, y=None):
     """
-Function: gettexttable           # Construct a new texttable secondary method
+    VCS contains a list of secondary methods. This function will create a
+    texttable class object from an existing VCS texttable secondary method. If
+    no texttable name is given, then texttable 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-texttable class object from an existing VCS texttable secondary method. If
-no texttable name is given, then texttable 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createtexttable function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createtexttable function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('texttable')              # Show all the existing texttable secondary methods
-tt=vcs.gettexttable()              # tt instance of 'default' texttable secondary
-                                 #       method
-tt2=vcs.gettexttable('quick')      # tt2 instance of existing 'quick' texttable
-                                 #       secondary method
-tt3=vcs.gettexttable(name='red', font=1, spacing=1,expansion=1,
-              color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-              worldcoordinate=[0,100, 0,50]
-              x=[0,20,40,60,80,100],
-              y=[0,10,20,30,40,50] )      # Create instance of texttable object 'red'
-vcs.texttable(tt3)                      # Plot using specified texttable object
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing texttable secondary methods
+    vcs.show('texttable')
+    # tt instance of 'default' texttable secondary method
+    tt=vcs.gettexttable()
+    # tt2 instance of existing 'quick' texttable secondary method
+    tt2=vcs.gettexttable('quick')
+    # Create instance of texttable object 'red'
+    tt3=vcs.gettexttable(name='red', font=1, spacing=1,expansion=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified texttable object
+    vcs.texttable(tt3)
+
+:param name: String name of an existing VCS texttable object
+:type name: str
+
+:param font:
+:type font:
+
+:param expansion:
+:type expansion:
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority: The layer on which the texttable will be drawn.
+:type priority: int
+
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
+
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
+
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
+
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
+
+:returns: A texttable graphics method object
+:rtype: vcs.texttable.Tt
+
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
@@ -1765,26 +1948,33 @@ def createtextorientation(name=None, source='default'):
 
 def gettextorientation(To_name_src='default'):
     """
-Function: gettextorientation       # Construct a new textorientation secondary method
+    VCS contains a list of secondary methods. This function will create
+    a textorientation class object from an existing VCS textorientation
+    secondary method. If no textorientation name is given, then
+    textorientation 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create
-a textorientation class object from an existing VCS textorientation
-secondary method. If no textorientation name is given, then
-textorientation 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createtextorientation function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createtextorientation function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('textorientation')    # Show all the existing textorientation secondary methods
-to=vcs.gettextorientation()    # to instance of 'default' textorientation secondary
-                             #       method
-to2=vcs.gettextorientation('quick')  # to2 instance of existing 'quick' textorientation
-                                   #       secondary method
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing textorientation secondary methods
+    vcs.show('textorientation')
+    # to instance of 'default' textorientation secondary method
+    to=vcs.gettextorientation()
+    # to2 instance of existing 'quick' textorientation secondary method
+    to2=vcs.gettextorientation('quick')
+
+:param To_name_src: String name of an existing textorientation VCS object
+:type To_name_src: str
+
+:returns: A textorientation VCS object
+:rtype: vcs.textorientation.To
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(To_name_src, str):
@@ -1931,28 +2121,89 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
                     priority=None, viewport=None, worldcoordinate=None, x=None, y=None,
                     height=None, angle=None, path=None, halign=None, valign=None):
     """
-Function: gettext or gettextcombined   # Construct a new textcombined secondary method
+    VCS contains a list of secondary methods. This function will create
+    a textcombined class object from an existing VCS texttable secondary
+    method and an existing VCS textorientation secondary method. If no
+    texttable or textorientation names are given, then the 'default' names
+    will be used in both cases.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create
-a textcombined class object from an existing VCS texttable secondary
-method and an existing VCS textorientation secondary method. If no
-texttable or textorientation names are given, then the 'default' names
-will be used in both cases.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createtextcombined function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createtextcombined function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-vcs.show('texttable')                  # Show all the existing texttable secondary methods
-vcs.show('textorientation')            # Show all the existing textorientation secondary methods
-tc=vcs.gettextcombined()               # Use 'default' for texttable and textorientation
-tc2=vcs.gettextcombined('std','7left') # Use 'std' texttable and '7left' textorientation
-if istextcombined(tc):               # Check to see if tc is a textcombined
-   tc.list()                         # Print out all its attriubtes
-"""
+::
+
+    a=vcs.init()
+    # Show all the existing texttable secondary methods
+    vcs.show('texttable')
+    # Show all the existing textorientation secondary methods
+    vcs.show('textorientation')
+    # Use 'default' for texttable and textorientation
+    tc=vcs.gettextcombined()
+    # Use 'std' texttable and '7left' textorientation
+    tc2=vcs.gettextcombined('std','7left')
+    # Check to see if tc is a textcombined
+    if istextcombined(tc):
+       # Print out all its attriubtes
+       tc.list()
+
+
+:param Tt_name_src: Name of created object
+:type Tt_name_src: str
+
+:param To_name_src:
+:type To_name_src:
+
+:param string:
+:param string:
+
+:param font:
+:type font:
+
+:param spacing:
+:type spacing:
+
+:param expansion:
+:type expansion:
+
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:type color: str or int
+
+:param priority: The layer on which the object will be drawn.
+:type priority: int
+
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
+
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
+
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
+
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
+
+:param height:
+:type height:
+
+:param angle:
+:type angle:
+
+:param path:
+:type path:
+
+:param halign:
+:type halign:
+
+:param valign:
+:type valign:
+
+:returns: A textcombined object
+:rtype: vcs.textcombined.Tc
+    """
 
     # Check to make sure the arguments passed in are a STRINGS
     if not isinstance(Tt_name_src, str):
@@ -2020,6 +2271,8 @@ def get3d_scalar(Gfdv3d_name_src='default'):
     different name can be modified. (See the create3Dscalar function.)
 
     :Example:
+
+::
 
     # Show all the existing 3Dscalar graphics methods
     a.show('3d_scalar')
@@ -2154,6 +2407,9 @@ def get3d_vector(Gfdv3d_name_src='default'):
     different name can be modified. (See the create3Dvector function.)
 
     :Example:
+
+::
+
     # Show all the existing 3Dvector graphics methods
     a.show('3d_vector')
     # plot instance of 'default' dv3d graphics method
@@ -2251,24 +2507,31 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 
 def getcolormap(Cp_name_src='default'):
     """
-Function: getcolormap                      # Construct a new colormap secondary method
+    VCS contains a list of secondary methods. This function will create a
+    colormap class object from an existing VCS colormap secondary method. If
+    no colormap name is given, then colormap 'default' will be used.
 
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-colormap class object from an existing VCS colormap secondary method. If
-no colormap name is given, then colormap 'default' will be used.
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createcolormap function.)
 
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createcolormap function.)
+    :Example:
 
-:Example:
-a=vcs.init()
-a.show('colormap')                      # Show all the existing colormap secondary methods
-cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
-                                        #       method
-cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' colormap
-                                        #       secondary method
+::
+
+    a=vcs.init()
+    # Show all the existing colormap secondary methods
+    a.show('colormap')
+    # cp instance of 'default' colormap secondary method
+    cp=a.getcolormap()
+    # cp2 instance of existing 'quick' colormap secondary method
+    cp2=a.getcolormap('quick')
+
+:param Cp_name_src: String name of an existing colormap VCS object
+:type Cp_name_src: str
+
+:returns: A pre-existing VCS colormap object
+:rtype: vcs.colormap.Cp
 """
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Cp_name_src, str):
