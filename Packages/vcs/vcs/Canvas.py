@@ -1054,7 +1054,7 @@ class Canvas(object):
 
         :param obj: The VCS object to be removed.
         :type obj: a VCS object
-        :returns:
+        :returns: ???
         """
         __doc__ = vcs.removeobject.__doc__  # noqa
         return vcs.removeobject(obj)
@@ -1130,11 +1130,6 @@ class Canvas(object):
     createboxfill.__doc__ = vcs.manageElements.createboxfill.__doc__
 
     def getboxfill(self, Gfb_name_src='default'):
-        """
-
-        :param Gfb_name_src:
-        :returns:
-        """
         return vcs.getboxfill(Gfb_name_src)
     getboxfill.__doc__ = vcs.manageElements.getboxfill
 
@@ -1270,8 +1265,8 @@ class Canvas(object):
     # Plot array using specified mesh mesh graphic method and template
     a.meshfill(array,mesh,mesh_graphic_method,template)
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         arglist = _determine_arg_list('meshfill', args)
         return self.__plot(arglist, parms)
@@ -1358,8 +1353,8 @@ Options:::
     # Plot array using specified iso and template
     a.isofill(array,iso,template)
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 
 """
         arglist = _determine_arg_list('isofill', args)
@@ -1406,8 +1401,8 @@ Options:::
     a.clear()                           # Clear VCS canvas
     a.isoline(array,iso,template)       # Plot array using specified iso and template
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 
 """
         arglist = _determine_arg_list('isoline', args)
@@ -1445,32 +1440,29 @@ Options:::
 %s
     :::
 
- Function: xyvsy                        # Generate a Xyvsy plot
-
- Description of Function:
     Generate a Xyvsy plot given the data, Xyvsy graphics method, and
     template. If no Xyvsy class object is given, then the 'default' Xyvsy
     graphics method is used. Simerly, if no template class object is given,
     then the 'default' template is used.
 
- :Example:
+    :Example:
 
 ::
 
     a=vcs.init()
-    a.show('xyvsy')                   # Show all the existing Xyvsy graphics methods
-    xyy=a.getxyvsy('quick')           # Create instance of 'quick'
-    a.xyvsy(array,xyy)                # Plot array using specified xyy and default
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.xyvsy(array,xyy,template)       # Plot array using specified xyy and template
+    # Show all the existing Xyvsy graphics methods
+    a.show('xyvsy')
+    # Create instance of 'quick'
+    xyy=a.getxyvsy('quick')
+    # Plot array using specified xyy and default template
+    a.xyvsy(array,xyy)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified xyy and template
+    a.xyvsy(array,xyy,template)
 
-#################################################################################################################
-###########################################                       ###############################################
-########################################## End xyvsy Description ################################################
-#########################################                       #################################################
-#################################################################################################################
-
+:returns:
+:rtype:
 """
         arglist = _determine_arg_list('xyvsy', args)
         return self.__plot(arglist, parms)
@@ -1499,32 +1491,29 @@ Options:::
 %s
     :::
 
- Function: yxvsx                        # Generate a Yxvsx plot
-
- Description of Function:
     Generate a Yxvsx plot given the data, Yxvsx graphics method, and
     template. If no Yxvsx class object is given, then the 'default' Yxvsx
     graphics method is used. Simerly, if no template class object is given,
     then the 'default' template is used.
 
- :Example:
+     :Example:
 
 ::
 
     a=vcs.init()
-    a.show('yxvsx')                   # Show all the existing Yxvsx graphics methods
-    yxx=a.getyxvsx('quick')           # Create instance of 'quick'
-    a.yxvsx(array,yxx)                # Plot array using specified yxx and default
-                                      #       template
-    a.clear()                         # Clear VCS canvas
-    a.yxvsx(array,yxx,template)       # Plot array using specified yxx and template
+    # Show all the existing Yxvsx graphics methods
+    a.show('yxvsx')
+    # Create instance of 'quick'
+    yxx=a.getyxvsx('quick')
+    # Plot array using specified yxx and default template
+    a.yxvsx(array,yxx)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified yxx and template
+    a.yxvsx(array,yxx,template)
 
-#################################################################################################################
-###########################################                       ###############################################
-########################################## End yxvsx Description ################################################
-#########################################                       #################################################
-#################################################################################################################
-
+:returns:
+:rtype:
 """
         arglist = _determine_arg_list('yxvsx', args)
         return self.__plot(arglist, parms)
@@ -1551,29 +1540,29 @@ Options:::
 %s
     :::
 
- Function: xvsy                      # Generate a XvsY plot
-
- Description of Function:
     Generate a XvsY plot given the data, XvsY graphics method, and
     template. If no XvsY class object is given, then the 'default' XvsY
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- :Example:
+     :Example:
+
+::
+
     a=vcs.init()
-    a.show('xvsy')                   # Show all the existing XvsY graphics methods
-    xy=a.getxvsy('quick')            # Create instance of 'quick'
-    a.xvsy(array,xy)                 # Plot array using specified xy and default
-                                     #       template
-    a.clear()                        # Clear VCS canvas
-    a.xvsy(array,xy,template)        # Plot array using specified xy and template
+    # Show all the existing XvsY graphics methods
+    a.show('xvsy')
+    # Create instance of 'quick'
+    xy=a.getxvsy('quick')
+    # Plot array using specified xy and default template
+    a.xvsy(array,xy)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified xy and template
+    a.xvsy(array,xy,template)
 
-#################################################################################################################
-###########################################                       ###############################################
-########################################## End xvsy Description ################################################
-#########################################                       #################################################
-#################################################################################################################
-
+:returns:
+:rtype:
 """
         arglist = _determine_arg_list('xvsy', args)
         return self.__plot(arglist, parms)
@@ -1593,25 +1582,26 @@ Options:::
 
     def vector(self, *args, **parms):
         """
- Function: vector                      # Generate a vector plot
-
- Description of Function:
     Generate a vector plot given the data, vector graphics method, and
     template. If no vector class object is given, then the 'default' vector
     graphics method is used. Similarly, if no template class object is given,
     then the 'default' template is used.
 
- :Example:
+    :Example:
 
 ::
 
     a=vcs.init()
-    a.show('vector')                   # Show all the existing vector graphics methods
-    vec=a.getvector('quick')           # Create instance of 'quick'
-    a.vector(array,vec)                # Plot array using specified vec and default
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.vector(array,vec,template)       # Plot array using specified vec and template
+    # Show all the existing vector graphics methods
+    a.show('vector')
+    # Create instance of 'quick'
+    vec=a.getvector('quick')
+    # Plot array using specified vec and default template
+    a.vector(array,vec)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified vec and template
+    a.vector(array,vec,template)
 """
         arglist = _determine_arg_list('vector', args)
         return self.__plot(arglist, parms)
@@ -1765,8 +1755,8 @@ Options:::
 :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         if (name is None) or (not isinstance(name, str)):
             raise vcsError('Must provide string name for the line.')
@@ -1955,7 +1945,7 @@ Options:::
     # Plot using specified fillarea object
     a.fillarea(fa)
 
-:returns:
+:returns: A fillarea object
 :rtype: vcs.displayplot.Dp
 """
         arglist = _determine_arg_list('fillarea', args)
@@ -2122,6 +2112,9 @@ Options:::
         a.text(tt)
         #Optionally you can pass a string, the coordinates, and any keyword
         a.plot('Hi',.5,.5,color=241,angle=45)
+
+:returns: ???
+:rtype: ???
         """
         # First check if color is a string
         if 'color' in parms.keys():
@@ -2170,10 +2163,10 @@ Options:::
         print extent
 
 :param textobject: A VCS text object
-:type textobject:
+:type textobject: ???
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 
         """
         if not vcs.istext(textobject):
@@ -2408,8 +2401,8 @@ Options:::
     # plot array data using box 'new' and template 't'
     x.plot(box,t,array)
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
@@ -4073,8 +4066,8 @@ Options:::
 :param opt: One of 'l' or 'p', indicating landscape or portrait mode, respectively.
 :type opt: str
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
  """
         from os import popen
 
@@ -4154,10 +4147,10 @@ Options:::
     # Change to landscape and give specifications
     a.landscape(width = 400, height = 337, x=100, y = 200, clear=1)
 
-:param width: Width to set the canvas to
+:param width: Width of the canvas, in pixels
 :type width: int
 
-:param height: Height to set the canvas to
+:param height: Height of the canvas, in pixels
 :type height: int
 
 :param x: Unused
@@ -4228,9 +4221,12 @@ Options:::
 
     def updateorientation(self, *args):
         """
- :Example:
+     :Example:
+
+::
+
     a=vcs.init()
-    x.updateorientation()
+    a.updateorientation()
 """
 
         a = self.canvas.updateorientation(*args)
@@ -4308,8 +4304,8 @@ Options:::
 :param clear: 0: Do not clear the canvas when orientation is changed. 1: clear the canvas when orientation is changed.
 :type clear: int
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         if (self.orientation() == 'portrait'):
             return
@@ -4357,31 +4353,32 @@ Options:::
     # here is a dummy example
     files =[]
     for i in range(10):
-      x.png('my_png__%i' % i)
+      a.png('my_png__%i' % i)
       files.append('my_png__%i.png' % i)
     # generates mpeg from pattern
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png')
+    a.ffmpeg('mymovie.mpeg','my_png_%d.png')
     # generates from list of files
-    x.ffmpeg('mymovie.mpeg',files)
+    a.ffmpeg('mymovie.mpeg',files)
     # generates mpeg at 512kbit
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512)
+    a.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512)
     # generates movie with 50 frame per second
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50)
-    x.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
+    a.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50)
     # generates movie at 50 frame per sec and 1024k bitrate
+    a.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
+
     NOTE : via the options arg you can add audio file to your movie (see ffmpeg help)
 
-:param movie:
-:type movie:
+:param movie: ???
+:type movie: ???
 
-:param files:
+:param files: String file name
 :type files: str, list, or tuple
 
 :param rate: Desired output framerate
 :type rate: str
 
-:param options:
-:type options:
+:param options: ???
+:type options: ???
 
 :returns: The output string generated by ffmpeg program
 :rtype: str
@@ -4469,25 +4466,37 @@ Options:::
         return self.backend.getantialiasing()
 
     def setantialiasing(self, antialiasing):
-        """ Turn ON/OFF antialiasing
+        """ Set antialiasing rate.
 
-:param antialiasing:
-:type antialiasing:
+:param antialiasing: Integer from 0-64, representing the antialising rate (0 means no antialiasing).
+:type antialiasing: int
         """
         self.backend.setantialiasing(antialiasing)
 
     def setbgoutputdimensions(self, width=None, height=None, units='inches'):
         """
- Function: setbgoutputdimensions
+        Sets dimensions for output in bg mode.
 
- Description of Function:
-    Sets dimensions for output in bg mode.
+         :Example:
 
- :Example:
-    a=vcs.init()
-    a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
-    a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
-"""
+::
+
+            a=vcs.init()
+            # US Legal
+            a.setbgoutputdimensions(width=11.5, height= 8.5)
+            # A4
+            a.setbgoutputdimensions(width=21, height=29.7, units='cm')
+
+:param width: Float representing the desired width of the output, using the specified unit of measurement
+:type width: float
+
+:param height: Float representing the desired height of the output, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
+:type height: float
+
+:param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
+:type units: str
+
+        """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
             raise Exception(
@@ -4529,11 +4538,11 @@ Options:::
 :param file: A string containing the path to ???
 :type file: str
 
-:param width: Integer representing the desired width of the output png, using the specified unit of measurement
-:type width: int
+:param width: Float representing the desired width of the output png, using the specified unit of measurement
+:type width: float
 
-:param height: Integer representing the desired height of the output png, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
-:type height: int
+:param height: Float representing the desired height of the output png, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
+:type height: float
 
 :param units: String representing the units of measurement to be used when sizing the output png.
 :type units: str
@@ -4574,7 +4583,7 @@ Options:::
     a.pdf('example', width=21, height=29.7, units='cm')
 
 :param file: Desired string name of the output file
-:type file:
+:type file: str
 
 :param width: Integer specifying the desired width of the output, measured in the chosen units
 :type width: int
@@ -4585,11 +4594,11 @@ Options:::
 :param units: String indicating units of measurement. Must be one of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Default is 'inches'.
 :type units: str
 
-:param textAsPaths:
+:param textAsPaths: ???
 :type textAsPaths: bool
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4606,17 +4615,38 @@ Options:::
     def svg(self, file, width=None, height=None, units='inches',
             textAsPaths=True):
         """
- Function: postscript
-
- Description of Function:
     SVG output is another form of vector graphics.
 
- :Example:
+    :Example:
+
+::
+
     a=vcs.init()
     a.plot(array)
-    a.svg('example')       # Overwrite a postscript file
-    a.svg('example', width=11.5, height= 8.5)  # US Legal
-    a.svg('example', width=21, height=29.7, units='cm')  # A4
+    # Overwrite a postscript file
+    a.svg('example')
+    # US Legal
+    a.svg('example', width=11.5, height= 8.5)
+    # A4
+    a.svg('example', width=21, height=29.7, units='cm')
+
+:param file:
+:type file:
+
+:param width: Float to set width of output SVG, in specified unit of measurement
+:type width: float
+
+:param height: Float to set height of output SVG, in specified unit of measurement
+:type height: float
+
+:param units: Specifies units of measurement for the output image. One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Deafults to 'inches'.
+:type units: str
+
+:param textAsPaths: ???
+:type textAsPaths: bool
+
+:returns: ???
+:rtype: ???
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4843,14 +4873,14 @@ Options:::
     # US Legal output and control of margins (for printer friendly output), default units 'inches'
     a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
 
-:param file:
-:type file:
+:param file: String name of the desired output file
+:type file: str
 
-:param mode:
-:type mode:
+:param mode: The mode in which to open the file. One of 'r' or 'a'.
+:type mode: str
 
-:param orientation:
-:type orientation:
+:param orientation: Deprecated.
+:type orientation: None
 
 :param width: Desired width of the postscript output, in the specified unit of measurement
 :type width: int
@@ -4861,11 +4891,11 @@ Options:::
 :param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
 :type units: str
 
-:param textAsPaths:
-:type textAsPaths:
+:param textAsPaths: ???
+:type textAsPaths: ???
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4904,19 +4934,25 @@ Options:::
 
     def setcolormap(self, name):
         """
- Function: setcolormap
-
- Description of Function:
     It is necessary to change the colormap. This routine will change the VCS
     color map.
 
     If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
     of the VCS Canvas is made evertime the colormap is changed.
 
- :Example:
+    :Example:
+
+::
+
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
+
+:param name: ???
+:type name: ???
+
+:returns: ???
+:rtype: ???
 """
         # Don't update the VCS segment if there is no Canvas. This condition
         # happens in the initalize function for VCDAT only. This will cause a
@@ -4931,9 +4967,6 @@ Options:::
 
     def setcolorcell(self, *args):
         """
- Function: setcolorcell
-
- Description of Function:
     Set a individual color cell in the active colormap. If default is
     the active colormap, then return an error string.
 
@@ -4944,7 +4977,10 @@ Options:::
     value must range from 0 to 100. Where 0 represents no color intensity
     and 100 is the greatest color intensity.
 
- :Example:
+    :Example:
+
+::
+
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
@@ -4962,13 +4998,13 @@ Options:::
 
     def setcontinentsline(self, line="default"):
         """
-    Function: setcontinentsline
-
-    Description of Function:
         One has the option of configuring the appearance of the lines used to
         draw continents by providing a VCS Line object.
 
-    :Example:
+        :Example:
+
+::
+
         a = vcs.init()
         line = vcs.createline()
         line.width = 5
@@ -4976,6 +5012,12 @@ Options:::
         a.setcontinentsline(line)
         # Use default line
         a.setcontinentsline("default")
+
+:param line: ???
+:type line: str
+
+:returns: ???
+:rtype: ???
         """
         linename = VCS_validation_functions.checkLine(self, "continentsline", line)
         line = vcs.getline(linename)
@@ -4989,9 +5031,6 @@ Options:::
 
     def setcontinentstype(self, value):
         """
-   Function: setcontinentstype
-
-   Description of Function:
       One has the option of using continental maps that are predefined or that
       are user-defined. Predefined continental maps are either internal to VCS
       or are specified by external files. User-defined continental maps are
@@ -5009,10 +5048,19 @@ Options:::
 
       You can also pass a file by path.
 
-   :Example:
+      :Example:
+
+::
+
       a=vcs.init()
       a.setcontinentstype(3)
       a.plot(array,'default','isofill','quick')
+
+:param value: Integer representing continent type, as specified in function description
+:type value: int
+
+:returns: ???
+:rtype: ???
   """
         continent_path = VCS_validation_functions.checkContinents(self, value)
         self._continents = value
@@ -5117,25 +5165,26 @@ Options:::
         # US Legal output and control of margins (for printer friendly output), default units 'inches'
 
 
-:param file:
-:type file:
+:param file: String name of the desired output file
+:type file: str
 
-:param mode:
-:type mode:
+:param mode: The mode in which to open the file. One of 'r' or 'a'.
+:type mode: str
 
-:param orientation:
-:type orientation:
+:param orientation: Deprecated.
+:type orientation: None
 
-:param width:
-:type width:
+:param width: Width of the output image, in the unit of measurement specified
+:type width: float
 
-:param height:
-:type height:
+:param height: Height of the output image, in the unit of measurement specified
+:type height: float
 
-:param units:
-:type units:
+:param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
+:type units: str
 
-:returns:
+:returns: ???
+:rtype: ???
 """
         ext = file.split(".")[-1]
         if ext.lower() != 'eps':
@@ -5166,13 +5215,13 @@ Options:::
         if no file name is passed then looks into the initial.attributes file
 
 :param GM: The graphics method to search for
-:type GM:
+:type GM: ???
 
 :param file: String name of the file to search
 :type file: str
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 
         """
         nm = GM.name
@@ -5295,11 +5344,11 @@ Options:::
 :param Dp_name_src: String name of an existing display plot object
 :type Dp_name_src: str
 
-:param template:
-:type template:
+:param template: ???
+:type template: ???
 
-:returns:
-:rtype:
+:returns: ???
+:rtype: ???
 """
         if not isinstance(Dp_name_src, str):
             raise ValueError('Error -  The argument must be a string.')
@@ -5311,8 +5360,6 @@ Options:::
         return display
 
     def createcolormap(self, Cp_name=None, Cp_name_src='default'):
-        """
-        """
         return vcs.createcolormap(Cp_name, Cp_name_src)
     createcolormap.__doc__ = vcs.manageElements.createcolormap.__doc__
 
@@ -5418,11 +5465,12 @@ Options:::
         """
         Copy `font1` into `font2`.
 
-        :param font1: Name/number of font to copy
-        :type font1: str or int
-        :param font2: Name/number of destination
-        :type font2: str or int
-        """
+:param font1: Name/number of font to copy
+:type font1: str or int
+
+:param font2: Name/number of destination
+:type font2: str or int
+"""
         if isinstance(font1, str):
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
@@ -5445,10 +5493,12 @@ Options:::
 
     def setdefaultfont(self, font):
         """
-        Sets the passed font as the default font for vcs
+        Sets the passed/def show font as the default font for vcs
 
-        :param font: Font name or index to use as default
-        :type font: str or int
+:param font: Font name or index to use as default
+:type font: str or int
+
+
         """
         if isinstance(font, str):
             font = self.getfont(font)

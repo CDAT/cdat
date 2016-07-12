@@ -420,7 +420,8 @@ def createmeshfill(name=None, source='default'):
 :param source: The object to inherit from
 :type source: a meshfill or a string name of a meshfill
 
-:return: A vcs.meshfill.Gfm object
+:returns: A meshfill graphics method object
+:rtype: vcs.meshfill.Gfm
 
 """
     name, source = check_name_source(name, source, 'meshfill')
@@ -1253,8 +1254,8 @@ def createline(name=None, source='default', ltype=None,
 :param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
 
-:return: A vcs.line.Tl object
-
+:returns: A VCS line secondary method object
+:rtype: vcs.line.Tl
 """
 
     name, source = check_name_source(name, source, 'line')
@@ -1779,11 +1780,11 @@ def createtexttable(name=None, source='default', font=None,
 :param source: a texttable, or string name of a texttable
 :type source: str
 
-:param font:
-:type font:
+:param font: ???
+:type font: ???
 
-:param expansion:
-:type expansion:
+:param expansion: ???
+:type expansion: ???
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
@@ -1872,11 +1873,11 @@ def gettexttable(name='default', font=None,
 :param name: String name of an existing VCS texttable object
 :type name: str
 
-:param font:
-:type font:
+:param font: ???
+:type font: ???
 
-:param expansion:
-:type expansion:
+:param expansion: ???
+:type expansion: ???
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
@@ -1938,7 +1939,8 @@ def createtextorientation(name=None, source='default'):
 :param source: The object to inherit from
 :type source: a textorientation or a string name of a textorientation
 
-:return: A vcs.textorientation.To object
+:returns: A textorientation secondary method
+:rtype: vcs.textorientation.To
 """
 
     name, source = check_name_source(name, source, 'textorientation')
@@ -2015,61 +2017,62 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param Tt_name: Name of created object
 :type Tt_name: str
 
-:param Tt_source:
-:type Tt_source:
+:param Tt_source: ???
+:type Tt_source: ???
 
 :param To_name:
-:type To_name:
+:type To_name: str
 
-:param To_source:
-:type To_source:
+:param To_source: ???
+:type To_source: ???
 
-:param font:
-:type font:
+:param font: ???
+:type font: ???
 
-:param spacing:
-:type spacing:
+:param spacing: ???
+:type spacing: ???
 
-:param expansion:
-:type expansion:
+:param expansion: ???
+:type expansion: ???
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
-:param priority:
-:type priority:
+:param priority: The layer on which the object will be drawn.
+:type priority: int
 
-:param viewport:
-:type viewport:
+:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:type viewport: list of floats
 
-:param worldcoordinate:
-:type worldcoordinate:
+:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+:type worldcoordinate: list of floats
 
-:param x:
-:type x:
+:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+:type x: list of floats
 
-:param y:
-:type y:
+:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+:type y: list of floats
 
-:param height:
-:type height:
+:param height: ???
+:type height: ???
 
-:param angle:
-:type angle:
+:param angle: ???
+:type angle: ???
 
-:param path:
-:type path:
+:param path: ???
+:type path: ???
 
-:param halign:
-:type halign:
+:param halign: ???
+:type halign: ???
 
-:param valign:
-:type valign:
+:param valign: ???
+:type valign: ???
 
-:param projection:
-:type projection:
+:param projection: ???
+:type projection: ???
 
-:return: A vcs.textcombined.Tc object
+:returns: A VCS text object
+:rtype: vcs.textcombined.Tc
 
 """
     # Check if to is defined
@@ -2153,20 +2156,20 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 :param Tt_name_src: Name of created object
 :type Tt_name_src: str
 
-:param To_name_src:
-:type To_name_src:
+:param To_name_src: ???
+:type To_name_src: ???
 
-:param string:
-:param string:
+:param string: ???
+:param string: ???
 
-:param font:
-:type font:
+:param font: ???
+:type font: ???
 
-:param spacing:
-:type spacing:
+:param spacing: ???
+:type spacing: ???
 
-:param expansion:
-:type expansion:
+:param expansion: ???
+:type expansion: ???
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
@@ -2186,20 +2189,20 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param height:
-:type height:
+:param height: ???
+:type height: ???
 
-:param angle:
-:type angle:
+:param angle: ???
+:type angle: ???
 
-:param path:
-:type path:
+:param path: ???
+:type path: ???
 
-:param halign:
-:type halign:
+:param halign: ???
+:type halign: ???
 
-:param valign:
-:type valign:
+:param valign: ???
+:type valign: ???
 
 :returns: A textcombined object
 :rtype: vcs.textcombined.Tc
@@ -2498,7 +2501,7 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 :param Cp_name_src: The object to inherit
 :type Cp_name_src: a colormap or a string name of a colormap
 
-:returns:
+:returns: A VCS colormap object
 :rtype: vcs.colormap.Cp
 """
     Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
