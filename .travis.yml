@@ -2,20 +2,25 @@ os:
   - linux
   - osx
 
-language: c++
+language: python
+    - "2.7"
 
 before_install:
-    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y gfortran; fi
-    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then pushd $HOME && mkdir cmake3.1 && cd cmake3.1 && (curl -L "http://cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz" | gunzip -c | tar x) && cd cmake-*/bin && export PATH="${PWD}:${PATH}"; popd; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew outdated cmake || brew upgrade cmake ; fi
-    - cmake --version
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y gfortran xvfb; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi 
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://github.com/UV-CDAT/uvcdat/releases/download/v2.4.1/gfortran-4.9.2-Mac.tar.gz -O ~/gfortran-4.9.2-Mac.tar.gz ; pushd / ; sudo tar xzvf ~/gfortran-4.9.2-Mac.tar.gz ; pushd ; fi
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -y -q conda
+  - conda install openssl=1.0.2d
 
 script:
-    - git submodule init
-    - git submodule update
     - cd ..
     - mkdir _build
     - cd _build
-    - cmake -DGIT_PROTOCOL=git:// -DCDAT_BUILD_MODE=LEAN -DCDAT_BUILD_GRAPHICS=ON -DCDAT_BUILD_SCIPY=OFF ../uvcdat
-    - ctest -VV -S ../uvcdat/CMake/travis_build.cmake
-    - ctest -VV -S ../uvcdat/CMake/travis_submit.cmake
+    - cmake -DGIT_PROTOCOL=git:// ../uvcdat
+    - make
+    - ctest -j8 -D Experimental
