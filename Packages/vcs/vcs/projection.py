@@ -327,6 +327,12 @@ class Proj(object):
         print 'name =', self.name
         print 'type =', self.type
         # print 'parameters =',self.parameters
+
+        for att in self.attributes:
+            print att, '=', getattr(self, att)
+
+    @property
+    def attributes(self):
         p = []
         if self._type in [3, 4]:
             p.append('smajor')
@@ -455,8 +461,7 @@ class Proj(object):
             p.append('centerlatitude')
             p.append('falseeasting')
             p.append('falsenorthing')
-        for att in p:
-            print att, '=', getattr(self, att)
+        return p
 
     ##########################################################################
     #                                                                           #
