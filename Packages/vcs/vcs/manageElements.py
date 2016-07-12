@@ -2082,6 +2082,10 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param projection: Specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
 
+:param projection: ???
+:type projection: ???
+>>>>>>> 350516e7fe7fa36d0cf3452a8cc3bc3104319a1b
+
 :returns: A VCS text object
 :rtype: vcs.textcombined.Tc
 

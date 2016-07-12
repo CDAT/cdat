@@ -1,5 +1,4 @@
 import warnings
-from pauser import pause
 import numpy.ma
 import MV2
 import numpy
@@ -945,7 +944,6 @@ class Canvas(object):
     def initLogoDrawing(self):
         self.drawLogo = self.enableLogo
 
-
     def update(self, *args, **kargs):
         """
  Function: update                   # Update the VCS Canvas.
@@ -972,7 +970,6 @@ class Canvas(object):
 """
 
         return self.backend.update(*args, **kargs)
-
 
     def scriptobject(self, obj, script_filename=None, mode=None):
         """
@@ -1218,7 +1215,6 @@ class Canvas(object):
 """
         arglist = _determine_arg_list('taylordiagram', args)
         return self.__plot(arglist, parms)
-
 
     def createmeshfill(self, name=None, source='default'):
         return vcs.createmeshfill(name, source)
@@ -3975,7 +3971,6 @@ Options:::
     def plot_annotation(self, *args):
         self.canvas.plot_annotation(*args)
 
-
     def flush(self, *args):
         """
     The flush command executes all buffered X events in the queue.
@@ -3990,7 +3985,6 @@ Options:::
 
 """
         return self.backend.flush(*args)
-
 
     def geometry(self, *args):
         """
@@ -5241,7 +5235,7 @@ Options:::
             if ln.find(key) > -1:
                 f.close()
                 return 1
-        return 0
+        return
 
     def saveinitialfile(self):
         """
