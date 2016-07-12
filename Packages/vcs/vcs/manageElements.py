@@ -1233,13 +1233,14 @@ def createline(name=None, source='default', ltype=None,
 :param width: Thickness of the line to be created
 :type width: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the line will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1251,7 +1252,7 @@ def createline(name=None, source='default', ltype=None,
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+:param projection: Specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
 
 :returns: A VCS line secondary method object
@@ -1324,13 +1325,14 @@ def getline(name='default', ltype=None, width=None, color=None,
 :param width: Thickness of the line to be created
 :type width: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the marker will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1420,13 +1422,14 @@ def createmarker(name=None, source='default', mtype=None,
 :param size:
 :type size: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the marker will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1512,13 +1515,14 @@ def getmarker(name='default', mtype=None, size=None, color=None,
 :param size: Size of the marker
 :type size: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the marker will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1602,16 +1606,18 @@ def createfillarea(name=None, source='default', style=None,
 :param style: One of "hatch", "solid", or "pattern".
 :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill with.
+              Accepts ints from 1-20.
 :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the fillarea will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1688,16 +1694,18 @@ def getfillarea(name='default', style=None,
 :param style: One of "hatch", "solid", or "pattern".
 :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill with.
+              Accepts ints from 1-20.
 :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the texttable will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1786,13 +1794,14 @@ def createtexttable(name=None, source='default', font=None,
 :param expansion: ???
 :type expansion: ???
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the texttable will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1879,13 +1888,14 @@ def gettexttable(name='default', font=None,
 :param expansion: ???
 :type expansion: ???
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the texttable will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -2035,13 +2045,14 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param expansion: ???
 :type expansion: ???
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the object will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -2068,8 +2079,8 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param valign: ???
 :type valign: ???
 
-:param projection: ???
-:type projection: ???
+:param projection: Specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+:type projection: str or projection object
 
 :returns: A VCS text object
 :rtype: vcs.textcombined.Tc
@@ -2171,13 +2182,14 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 :param expansion: ???
 :type expansion: ???
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the object will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)

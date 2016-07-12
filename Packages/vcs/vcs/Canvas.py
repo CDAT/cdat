@@ -1734,13 +1734,14 @@ Options:::
 :param width: Thickness of the line to be drawn
 :type width: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the line will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1752,7 +1753,7 @@ Options:::
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param projection: Lets you specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
+:param projection: Specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
 
 :returns: ???
@@ -1858,13 +1859,14 @@ Options:::
 :param size: Size of the marker to draw
 :type size: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the marker will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1983,13 +1985,14 @@ Options:::
 :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
 :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the fillarea will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -2001,7 +2004,7 @@ Options:::
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
+:param bg: Boolean value. True => object drawn in background (not shown on canvas). False => object shown on canvas.
 :type bg: bool
 
 :returns: A fillarea object
@@ -2214,13 +2217,14 @@ Options:::
 :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
 :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_, or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
 :type color: str or int
 
 :param priority: The layer on which the fillarea will be drawn.
 :type priority: int
 
-:param viewport: A list of 4 floats between 0 and 1. These specify the area that the X/Y values are mapped into inside of the canvas.
+:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
 :type viewport: list of floats
 
 :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -2232,7 +2236,7 @@ Options:::
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param bg: Boolean value. If true, object is drawn in background (not shown on canvas). If false, object is shown on the canvas.
+:param bg: Boolean value. True => object drawn in background (not shown on canvas). False => object shown on canvas.
 :type bg: bool
 
 :returns: A texttable object
@@ -4490,7 +4494,7 @@ Options:::
 :param width: Float representing the desired width of the output, using the specified unit of measurement
 :type width: float
 
-:param height: Float representing the desired height of the output, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
+:param height: Float representing the desired height of the output, using the specified unit of measurement.
 :type height: float
 
 :param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
@@ -4544,7 +4548,7 @@ Options:::
 :param height: Float representing the desired height of the output png, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
 :type height: float
 
-:param units: String representing the units of measurement to be used when sizing the output png.
+:param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
 :type units: str
 
 :param draw_white_background: Boolean value indicating whether or no the background should be white. Defaults to True.
@@ -4591,7 +4595,7 @@ Options:::
 :param height: Integer specifying the desired height of the output, measured in the chosen units
 :type height: int
 
-:param units: String indicating units of measurement. Must be one of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Default is 'inches'.
+:param units: Must be one of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Default is 'inches'.
 :type units: str
 
 :param textAsPaths: ???
@@ -4639,7 +4643,7 @@ Options:::
 :param height: Float to set height of output SVG, in specified unit of measurement
 :type height: float
 
-:param units: Specifies units of measurement for the output image. One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Deafults to 'inches'.
+:param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Deafults to 'inches'.
 :type units: str
 
 :param textAsPaths: ???
@@ -5318,7 +5322,7 @@ Options:::
         # Set VCS's orientation to landscape mode
         a.landscape()
 
-:returns: Returns a 1 if orientation is portrait. Otherwise, it will return a 0, indicating false (not in portrait mode).
+:returns: Returns a 1 if orientation is portrait, or 0 if not in portrait mode
 :rtype: bool
 
 """
