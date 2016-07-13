@@ -1,27 +1,48 @@
 """
-# VCS Visualization and Control System - (VCS) module
-#
-#################################################################################
-#                                                                               #
-# Module:       vcs module                                                      #
-#                                                                               #
-# Authors:      PCMDI Software Team                                             #
-#               support@pcmdi.llnl.gov                                          #
-#               http://cdat.sf.net/cdat                                         #
-#                                                                               #
-# Description:  Python command wrapper for VCS's functionality. VCS is computer #
-#               software for the selection, manipulation, and display of        #
-#               scientific data. By specification of the desired data, the      #
-#               graphics method, and the display template, the VCS user gains   #
-#               virtually complete control of the appearance of the data        #
-#               display and associated text and animation.                      #
-#                                                                               #
-# Upgrade to VTK:                                                               #
-# Author: Charles Doutriaux                                                     #
-# Description: Took out all C code and used VTK's python bindings instead       #
-#                                                                               #
-#################################################################################
+=====================================
+VCS: Visualization and Control System
+=====================================
+
+-------
+Authors
+-------
+
+Creator: Dean Williams (LLNL, AIMS Team)
+
+Lead Developer: Charles Doutriaux (LLNL, AIMS Team)
+
+Contributors: https://github.com/UV-CDAT/uvcdat/graphs/contributors
+
+Support Email: uvcdat-support@llnl.gov
+
+Project Site: http://uvcdat.llnl.gov/
+
+Project Repo: https://github.com/UV-CDAT/uvcdat/graphs/contributors
+
+-----------
+Description
+-----------
+VCS is a visualization library for scientific data. It has a simple
+model for defining a plot, that is decomposed into three parts:
+
+1. **Data**: If it's iterable, we'll plot it... or at least try!
+   Currently we support numpy arrays, lists (nested and not),
+   and CDMS2 variables (there's some special support for metadata
+   from CDMS2 that gives some niceties in your plot, but it's not
+   mandatory).
+2. **Graphics Method**: We have a variety of plot types that we
+   support out-of-the box; you can easily customize every aspect
+   of them to create the effect that you're looking for. If you can't,
+   we also support defining your own graphics methods, which you can
+   share with other users using standard python infrastructure (conda, pip).
+3. **Template**: Templates control the appearance of everything that
+   *isn't* your data. They position labels, control fonts, adjust borders,
+   place legends, and more. They're very flexible, and give the fine-grained
+   control of your plot that is needed for the truly perfect plot. Once you've
+   customized them, you can also save them out for later use, and distribute
+   them to other users.
 """
+
 _doValidation = True
 next_canvas_id = 1
 import cdat_info  # noqa
@@ -223,37 +244,45 @@ if os.path.exists(user_init):
     vcs.scriptrun(user_init)
 
 canvaslist = []
-#
-#
-# Construct a VCS Canvas Object.                                                #
-#
-#
 
 
 def init(mode=1, pause_time=0, call_from_gui=0, size=None,
          backend="vtk", geometry=None, bg=None):
     '''
- Function: init   # Initialize, Construct a VCS Canvas Object
+    Initialize and construct a VCS Canvas object.
 
- Description of Function:
-    Construct the VCS Canas object.
+    :Example:
 
- Example of Use:
-    import vcs,cdms2
+::
 
-    file=cdms2.open('filename.nc')
-    slab=file.getslab('variable')
-    a=vcs.init()                        # This examples constructs 4 VCS Canvas
-    a.plot(slab)                        # Plot slab using default settings
-    b=vcs.init()                        # Construct VCS object
-    template=b.gettemplate('AMIP')      # Get 'example' template object
-    b.plot(slab,template)               # Plot slab using template 'AMIP'
-    c=vcs.init()                        # Construct new VCS object
-    isofill=c.getisofill('quick')       # Get 'quick' isofill graphics method
-    c.plot(slab,template,isofill)       # Plot slab using template and isofill objects
-    d=vcs.init()                        # Construct new VCS object
-    isoline=c.getisoline('quick')       # Get 'quick' isoline graphics method
-    c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
+    import vcs
+
+    # Portrait orientation of 1 width per 2 height
+    portrait = vcs.init(size=.5)
+    # also accepts "usletter"
+    letter = vcs.init(size="letter")
+    a4 = vcs.init(size="a4")
+
+    import vtk
+    # Useful for embedding VCS inside another application
+    my_win = vtk.vtkRenderWindow()
+    embedded = vcs.init(backend=my_win)
+
+    dict_init = vcs.init(geometry={"width": 1200, "height": 600})
+    tuple_init = vcs.init(geometry=(1200, 600))
+
+    bg_canvas = vcs.init(bg=True)
+
+:param size: Aspect ratio for canvas (width / height)
+:param backend: Which VCS backend to use
+:param geometry: Size (in pixels) you want the canvas to be.
+:param bg: Initialize a canvas to render in "background" mode (without displaying a window)
+:type size: float or case-insensitive str
+:type backend: str, `vtk.vtkRenderWindow`
+:type geometry: dict or tuple
+:type bg: bool
+:return: an initialized canvas
+:rtype: `vcs.Canvas.Canvas`
 '''
     canvas = Canvas.Canvas(
         mode=mode,
