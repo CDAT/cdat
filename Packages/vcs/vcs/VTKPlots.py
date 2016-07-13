@@ -1554,7 +1554,7 @@ class VTKVCSBackend(object):
         size = img.GetDimensions()
         return size[0], size[1]
 
-    def canvasraised(self):
+    def raisecanvas(self):
         if self.renWin is None:
             warnings.warn("Cannot raise if you did not open the canvas yet.")
             return
