@@ -535,7 +535,7 @@ Output:::
     isofill class object from an existing VCS isofill graphics method. If
     no isofill name is given, then isofill 'default' will be used.
 
-    Note, VCS does not allow the modification of `default' attribute
+    note:: VCS does not allow the modification of `default' attribute
     sets. However, a `default' attribute set that has been copied under a
     different name can be modified. (See the createisofill function.)
 
@@ -2521,7 +2521,7 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 :rtype: vcs.colormap.Cp
 """
     Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
-    return colormap.Cp(Cp_name, Cp_name_src)
+    return colormap.Cp(Cp_name, Cp_name_srcvcs.colormap.Cp )
 
 
 def getcolormap(Cp_name_src='default'):
@@ -2666,27 +2666,37 @@ def removeP(obj):
 
 def removeobject(obj):
     """
-Function: remove
+    The user has the ability to create primary and secondary class
+    objects. The function allows the user to remove these objects
+    from the appropriate class list.
 
-Description of Function:
-The user has the ability to create primary and secondary class
-objects. The function allows the user to remove these objects
-from the appropriate class list.
+    Note, To remove the object completely from Python, remember to
+    use the "del" function.
 
-Note, To remove the object completely from Python, remember to
-use the "del" function.
+    Also note, The user is not allowed to remove a "default" class
+    object.
 
-Also note, The user is not allowed to remove a "default" class
-object.
+    :Example:
 
-:Example:
-a=vcs.init()
-line=a.getline('red')       # To Modify an existing line object
-iso=x.createisoline('dean') # Create an instance of an isoline object
-...
-x.remove(line)      # Removes line object from VCS list
-x.remove(iso)       # Remove isoline object from VCS list
-"""
+::
+
+    a=vcs.init()
+    # To Modify an existing line object
+    line=a.getline('red')
+    # Create an instance of an isoline object
+    iso=a.createisoline('dean')
+    #...
+    # Removes line object from VCS list
+    a.remove(line)
+    # Remove isoline object from VCS list
+    a.remove(iso)
+
+:param obj: Any VCS primary or secondary object
+:type obj: VCS object
+
+:returns: String indicating the specified object was removed
+:rtype: str
+    """
     if vcs.istemplate(obj):
         msg = vcs.removeP(obj.name)
     elif vcs.isgraphicsmethod(obj):

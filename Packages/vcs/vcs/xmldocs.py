@@ -124,59 +124,120 @@ axisconvert = """:param {axis}axisconvert: (Ex: 'linear') converting {axis}axis 
 xaxisconvert = axisconvert.format(axis="x")
 yaxisconvert = axisconvert.format(axis="y")
 axesconvert = xaxisconvert + yaxisconvert
-colorsdoc = """Options:::
-           color1 :: (int) (16) value for color_1
-           color2 :: (int) (239) value for color_2
-           :::
-           Sets the color_1 and color_2 values on the object
+colorsdoc = """
+        Sets the color_1 and color_2 properties of the object.
+
+:param color1: Sets the color_1 value on the object
+:type color1: int
+
+:param color2: Sets the color_2 value on the object
+:type color2: int
            """
 
-extsdoc = """Options:::
-           ext1 :: (str) ('n') value for ext_1
-           ext2 :: (str) ('n') value for ext_2
-           :::
-           Sets the ext_1 and ext_2 values on the object
-           """
-ticlabeldoc = """Options:::
-           %stl1 :: ({float:str}) ('') value for %sticlabels1
-           %stl2 :: ({float:str}) ('') value for %sticlabels2
-           :::
-           Sets the %sticlabels1 and %sticlabels2 values on the object
-           """
-xticlabelsdoc = ticlabeldoc % (('x',) * 6)
-yticlabelsdoc = ticlabeldoc % (('y',) * 6)
+extsdoc = """
+        Sets the ext_1 and ext_2 values on the object.
 
-mticsdoc = """Options:::
-           %smt1 :: ({float:str}) ('') value for %smtics1
-           %smt2 :: ({float:str}) ('') value for %smtics2
-           :::
-           Sets the %smtics1 and %smtics2 values on the object
-           """
-xmticsdoc = mticsdoc % (('x',) * 6)
-ymticsdoc = mticsdoc % (('y',) * 6)
+:param ext1: Sets the ext_1 value on the object. 'y' sets it to True, 'n' sets it to False.
+:type ext1: str
 
-datawcdoc = """Options:::
-           dsp1 :: (float) (1e20) datawc_y1
-           dsp2 :: (float) (1e20) datawc_y2
-           dsp3 :: (float) (1e20) datawc_x1
-           dsp4 :: (float) (1e20) datawc_x2
-           :::
-           Sets the data world coordinates for object
+:param ext2: Sets the ext_2 value on the object. 'y' sets it to True, 'n' sets it to False.
+:type ext2: str
            """
-xyscaledoc = """Options:::
-           xat :: (str) ('linear') value for x axis convertion
-           yat :: (str) ('linear') value for x axis convertion
-           :::
-           Sets the xaxisconvert and yaxisconvert values for object
-           """
-listdoc = """ Lists object values """
+ticlabeldoc = """
+        Sets the %sticlabels1 and %sticlabels2 values on the object
 
-scriptdoc = """ Input:::
- script_filename :: (str) (0) name of the file to which the script will be saved
- :::
- Options:::
- mode :: (str) ('a') mode to open the file 'a' or 'w' (overwrite)
- :::"""
+:param %stl1: Sets the object's value for %sticlabels1. Must be  a str, or a dictionary object with float:str mappings.
+:type %stl1: {float:str} or str
+
+:param %stl2: Sets the object's value for %sticlabels2. Must be a str, or a dictionary object with float:str mappings.
+:type %stl2: {float:str} or str
+           """
+xticlabelsdoc = ticlabeldoc % (('x',) * 8)
+yticlabelsdoc = ticlabeldoc % (('y',) * 8)
+
+mticsdoc = """
+        Sets the %smtics1 and %smtics2 values on the object
+
+:param %smt1: Value for %smtics1. Must be a str, or a dictionary object with float:str mappings.
+:type %smt1: {float:str} or str
+
+:param %smt2: Value for %smtics2. Must be a str, or a dictionary object with float:str mappings.
+:type %smt2: {float:str} or str
+"""
+xmticsdoc = mticsdoc % (('x',) * 8)
+ymticsdoc = mticsdoc % (('y',) * 8)
+
+datawcdoc = """
+        Sets the data world coordinates for object
+
+:param dsp1: Sets the datawc_y1 property of the object.
+:type dsp1: float
+
+:param dsp2: Sets the datawc_y2 property of the object.
+:type dsp2: float
+
+:param dsp3: Sets the datawc_x1 property of the object.
+:type dsp3: float
+
+:param dsp4: Sets the datawc_x2 property of the object.
+:type dsp4: float
+           """
+xyscaledoc = """
+        Sets xaxisconvert and yaxisconvert values for the object.
+
+        :Example:
+
+::
+
+        a=vcs.init()
+        #create a boxfill to work with
+        box=a.createboxfill('temp')
+        # set xaxisconvert and yaxisconvert to 'linear'
+        box.xyscale(xat='linear', yat='linear')
+
+:param xat: Set value for x axis conversion.
+:type xat: str
+
+:param yat: Set value for y axis conversion.
+:type yat: str
+           """
+listdoc = """ Lists the current values of object attributes"""
+
+scriptdoc = """
+    Saves out a copy of the %s graphics method in JSON, Python, or VCS script form to a designated file.
+
+              Note: If the the filename has a ".py" at the end, it will produce a
+                    Python script. If the filename has a ".scr" at the end, it will
+                    produce a VCS script. If neither extensions are give, then by
+                    default a .json file containing a JSON serialization of the
+                    object's data will be produced.
+
+    :Example:
+
+::
+
+    a=vcs.init()
+    %s=a.create%s('temp')
+    # Append to a Python script named "filename.py"
+    %s.script('filename.py')
+    # Append to a VCS script named "filename.scr"
+    %s.script('filename.scr')
+    # Create a .json output. Overwrite 'filename.json', if extant.
+    %s.script('filename','w')
+
+:param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
+:type script_filename: str
+
+:param mode: Either 'w' for replace, or 'a' for append. Defaults to 'a', if not specified.
+:type mode: str
+"""
+
+colormap_script = scriptdoc %(('colormap',) * 6)
+boxfill_script = scriptdoc %(('boxfill',) * 6)
+isoline_script = scriptdoc %(('isoline',) * 6)
+isofill_script = scriptdoc %(('isofill',) * 6)
+yxvsx_script = scriptdoc %(('yxvsx',) * 6)
+meshfill_script = scriptdoc %(('meshfill',) * 6)
 
 meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
@@ -268,7 +329,7 @@ plot_2_1D_options = """
 """  # noqa
 #############################################################################
 #                                                                           #
-# Graphics Methon output section.                                           #
+# Graphics Method output section.                                           #
 #                                                                           #
 #############################################################################
 plot_output = """
