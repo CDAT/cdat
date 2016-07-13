@@ -1109,17 +1109,18 @@ class VTKVCSBackend(object):
 
         # Since the patterns are applied as textures on vtkPolyData, enabling
         # background rasterization is required to write them out
-        if self._rasterPropsInVectorFormats:
-            gl.Write3DPropsAsRasterImageOn()
+        # if self._rasterPropsInVectorFormats:
+        #     gl.Write3DPropsAsRasterImageOn()
 
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
 
         if textAsPaths:
-            gl.TextAsPathOff()
-        else:
             gl.TextAsPathOn()
+        else:
+            gl.TextAsPathOff()
+
         if output_type == "svg":
             gl.SetFileFormatToSVG()
         elif output_type == "ps":
@@ -1252,16 +1253,16 @@ class VTKVCSBackend(object):
             texttable = vcs.gettexttable(texttable)
 
         from vtk_ui.text import text_dimensions
-        
+
         text_property = vtk.vtkTextProperty()
         info = self.canvasinfo()
         win_size = info["width"], info["height"]
         vcs2vtk.prepTextProperty(text_property, win_size, to=textorientation, tt=texttable)
-        
+
         dpi = self.renWin.GetDPI()
-        
+
         length = max(len(texttable.string), len(texttable.x), len(texttable.y))
-        
+
         strings = texttable.string + [texttable.string[-1]] * (length - len(texttable.string))
         xs = texttable.x + [texttable.x[-1]] * (length - len(texttable.x))
         ys = texttable.y + [texttable.y[-1]] * (length - len(texttable.y))
