@@ -1978,7 +1978,8 @@ Options:::
 :param style: One of "hatch", "solid", or "pattern".
 :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_
+              to fill the fillarea with. Accepts ints from 1-20.
 :type index: int
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
@@ -2210,7 +2211,8 @@ Options:::
 :param style: One of "hatch", "solid", or "pattern".
 :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill the fillarea with. Accepts ints from 1-20.
+:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_
+              to fill the fillarea with. Accepts ints from 1-20.
 :type index: int
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
@@ -4539,7 +4541,8 @@ Options:::
 :param width: Float representing the desired width of the output png, using the specified unit of measurement
 :type width: float
 
-:param height: Float representing the desired height of the output png, using the specified unit of measurement. Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
+:param height: Float representing the desired height of the output png, using the specified unit of measurement.
+               Must be one of ['inches', 'in', 'cm', 'mm', None, 'pixel', 'pixels', 'dot', 'dots'].
 :type height: float
 
 :param units: One of ['inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']. Defaults to 'inches'.
@@ -4836,7 +4839,6 @@ Options:::
             W = H
             H = tmp
         return W, H
-
 
     def postscript(self, file, mode='r', orientation=None, width=None, height=None,
                    units='inches', textAsPaths=True):
