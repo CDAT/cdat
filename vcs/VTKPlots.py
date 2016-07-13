@@ -688,20 +688,15 @@ class VTKVCSBackend(object):
         self.scaleLogo()
 
         # Decide whether to rasterize background in vector outputs
-        # Current criteria to rasterize:
+        # Current limitation to vectorize:
         #       * if fillarea style is either pattern or hatch
-        #       * if fillarea opacity is less than 100 for solid fill
         try:
             if gm.style and all(style != 'solid' for style in gm.style):
-                self._rasterPropsInVectorFormats = True
-            elif gm.opacity and not all(o == 100 for o in gm.opacity):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
         try:
             if gm.fillareastyle in ['pattern', 'hatch']:
-                self._rasterPropsInVectorFormats = True
-            elif not all(o == 100 for o in gm.fillareaopacity):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
@@ -1109,8 +1104,9 @@ class VTKVCSBackend(object):
 
         # Since the patterns are applied as textures on vtkPolyData, enabling
         # background rasterization is required to write them out
-        # if self._rasterPropsInVectorFormats:
-        #     gl.Write3DPropsAsRasterImageOn()
+
+        if self._rasterPropsInVectorFormats:
+            gl.Write3DPropsAsRasterImageOn()
 
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
