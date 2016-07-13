@@ -690,137 +690,50 @@ class Gfb(object):
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
     def colors(self, color1=16, color2=239):
-        """
-        Sets the color_1 and color_2 properties of the object.
-
-:param color1: Sets the color_1 value on the object
-:type color1: int
-
-:param color2: Sets the color_2 value on the object
-:type color2: int
-
-"""
         self.color_1 = color1
         self.color_2 = color2
-    #colors.__doc__ = xmldocs.colorsdoc
+    colors.__doc__ = xmldocs.colorsdoc
 
     def exts(self, ext1='n', ext2='y'):
-        """
-        Sets the ext_1 and ext_2 values on the object.
-
-:param ext1: Sets the ext_1 value on the object. 'y' sets it to True, 'n' sets it to False.
-:type ext1: str
-
-:param ext2: Sets the ext_2 value on the object. 'y' sets it to True, 'n' sets it to False.
-:type ext2: str
-
-"""
         self.ext_1 = ext1
         self.ext_2 = ext2
-    #exts.__doc__ = xmldocs.extsdoc
+    exts.__doc__ = xmldocs.extsdoc
 #
 # Doesn't make sense to inherit. This would mean more coding in C.
 # I put this code back.
 #
 
     def xticlabels(self, xtl1='', xtl2=''):
-        """
-        Sets xticlabels1 and xticlabels2 properties of the object.
-
-:param xtl1: Sets the xticlabels1 property of the object.
-:type xtl1: str
-
-:param xtl2: Sets the xticlabels2 property of the object.
-:type xtl2: str
-
-"""
         self.xticlabels1 = xtl1
         self.xticlabels2 = xtl2
-    #xticlabels.__doc__ = xmldocs.xticlabelsdoc
+    xticlabels.__doc__ = xmldocs.xticlabelsdoc
 
     def xmtics(self, xmt1='', xmt2=''):
-        """
-        Sets xmtics1 and xmtics2 properties of the object.
-
-:param xmt1: Sets the xmtics1 property of the object.
-:type xmt1: str
-
-:param xmt2: Sets the xmtics1 property of the object.
-:type xmt2: str
-
-"""
         self.xmtics1 = xmt1
         self.xmtics2 = xmt2
-    #xmtics.__doc__ = xmldocs.xmticsdoc
+    xmtics.__doc__ = xmldocs.xmticsdoc
 
     def yticlabels(self, ytl1='', ytl2=''):
-        """
-        Sets yticlabels1 and yticlabels2 properties of the object.
-
-:param ytl1: Sets yticlabels1 property of the object.
-:type ytl1: str
-
-:param ytl2: Sets yticlabels2 property of the object.
-:type ytl2: str
-
-"""
         self.yticlabels1 = ytl1
         self.yticlabels2 = ytl2
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        """
-        Sets ymtics1 and ymtics2 properties of the object.
-
-:param ymt1: Sets ymtics1 property of the object.
-:type ymt1: str
-
-:param ymt2: Sets ymtics2 property of the object.
-:type ymt2: str
-"""
         self.ymtics1 = ymt1
         self.ymtics2 = ymt2
-    #ymtics.__doc__ = xmldocs.ymticsdoc
+    ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        """
-        Sets datawc properties of the object.
-
-:param dsp1: Sets the datawc_y1 property of the object.
-:type dsp1: ???
-
-:param dsp2: Sets the datawc_y2 property of the object.
-:type dsp2: ???
-
-:param dsp3: Sets the datawc_x1 property of the object.
-:type dsp3: ???
-
-:param dsp4: Sets the datawc_x2 property of the object.
-:type dsp4: ???
-
-"""
         self.datawc_y1 = dsp1
         self.datawc_y2 = dsp2
         self.datawc_x1 = dsp3
         self.datawc_x2 = dsp4
-    #datawc.__doc__ = xmldocs.datawcdoc
+    datawc.__doc__ = xmldocs.datawcdoc
 
     def xyscale(self, xat='linear', yat='linear'):
-        """
-        Sets xaxisconvert and yaxisconvert properties of the object.
-
-:param xat:
-:type xat:
-
-:param yat:
-:type yat:
-
-:returns:
-:rtype:
-        """
         self.xaxisconvert = xat
         self.yaxisconvert = yat
-    #xyscale.__doc__ = xmldocs.xyscaledoc
+    xyscale.__doc__ = xmldocs.xyscaledoc
 
     def getlevels(self, varmin, varmax):
         if self.boxfill_type == "custom":
@@ -945,34 +858,27 @@ class Gfb(object):
     def script(self, script_filename, mode='a'):
         """
 %s
-    Saves out a boxfill graphics method in Python or VCS script form to a
-    designated file.
+ Function:     script				# Calls _vcs.scriptGfb
+
+ Description of Function:
+       Saves out a boxfill graphics method in Python or VCS script form to a
+       designated file.
+
+ Example of Use:
+    script(scriptfile_name, mode)
+              where: scriptfile_name is the output name of the script file.
+                     mode is either "w" for replace or "a" for append.
 
               Note: If the the filename has a ".py" at the end, it will produce a
                     Python script. If the filename has a ".scr" at the end, it will
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    :Example:
-
-::
-
     a=vcs.init()
     box=a.createboxfill('temp')
-    # Append to a Python script named "filename.py"
-    box.script('filename.py')
-    # Append to a VCS script named "filename.scr"
-    box.script('filename.scr')
+    box.script('filename.py')         # Append to a Python file "filename.py"
+    box.script('filename.scr')        # Append to a VCS file "filename.scr"
     box.script('filename','w')
-
-:param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
-:type script_filename: str
-
-:param mode: Either 'w' for replace, or 'a' for append. Defaults to 'a', if not specified.
-:type mode: str
-
-:returns:
-:rtype:
     """
         if (script_filename is None):
             raise ValueError(

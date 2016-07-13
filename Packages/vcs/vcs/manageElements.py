@@ -2666,37 +2666,27 @@ def removeP(obj):
 
 def removeobject(obj):
     """
-    The user has the ability to create primary and secondary class
-    objects. The function allows the user to remove these objects
-    from the appropriate class list.
+Function: remove
 
-    Note, To remove the object completely from Python, remember to
-    use the "del" function.
+Description of Function:
+The user has the ability to create primary and secondary class
+objects. The function allows the user to remove these objects
+from the appropriate class list.
 
-    Also note, The user is not allowed to remove a "default" class
-    object.
+Note, To remove the object completely from Python, remember to
+use the "del" function.
 
-    :Example:
+Also note, The user is not allowed to remove a "default" class
+object.
 
-::
-
-    a=vcs.init()
-    # To Modify an existing line object
-    line=a.getline('red')
-    # Create an instance of an isoline object
-    iso=a.createisoline('dean')
-    #...
-    # Removes line object from VCS list
-    a.remove(line)
-    # Remove isoline object from VCS list
-    a.remove(iso)
-
-:param obj: Any VCS primary or secondary object
-:type obj: VCS object
-
-:returns: String indicating the specified object was removed
-:rtype: str
-    """
+:Example:
+a=vcs.init()
+line=a.getline('red')       # To Modify an existing line object
+iso=x.createisoline('dean') # Create an instance of an isoline object
+...
+x.remove(line)      # Removes line object from VCS list
+x.remove(iso)       # Remove isoline object from VCS list
+"""
     if vcs.istemplate(obj):
         msg = vcs.removeP(obj.name)
     elif vcs.isgraphicsmethod(obj):
