@@ -946,19 +946,18 @@ class Canvas(object):
 
     def update(self, *args, **kargs):
         """
- Function: update                   # Update the VCS Canvas.
-
- Description of Function:
     If a series of commands are given to VCS and the Canvas Mode is
     set to manual, then use this function to update the plot(s)
     manually.
 
- :Example:
-    ...
+    :Example:
+
+::
 
     a=vcs.init()
     a.plot(s,'default','boxfill','quick')
-    a.mode = 0                             # Go to manual mode
+    # Go to manual mode
+    a.mode = 0
     box=x.getboxfill('quick')
     box.color_1=100
     box.xticlabels('lon30','lon30')
@@ -2292,16 +2291,6 @@ Options:::
 
     def plot(self, *actual_args, **keyargs):
         """
-Options:::
-%s
-%s
-%s
-%s
-%s
-    :::
- Output:::
-%s
-    :::
 
     Plot an array(s) of data given a template and graphics method. The VCS template is
     used to define where the data and variable attributes will be displayed on the VCS
@@ -2367,7 +2356,7 @@ Options:::
        bg                 = 0|1   # if ==1, create images in the background
                                                              (Don't display the VCS Canvas)
 
- Note:
+ .. note::
     More specific attributes take precedence over general attributes. In particular,
     specifie attributes override variable object attributes, dimension attributes and
     arrays override axis objects, which override grid objects, which override variable
@@ -2378,7 +2367,8 @@ Options:::
     if both 'xaxis' and 'grid' keywords are specified, the value of 'xaxis' takes precedence
     over the x-axis of grid.
 
-     :Example:
+
+:Example:
 
 ::
 
@@ -2401,8 +2391,13 @@ Options:::
     # plot array data using box 'new' and template 't'
     x.plot(box,t,array)
 
-:returns: ???
-:rtype: ???
+%s
+%s
+%s
+%s
+%s
+%s
+
 """
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
@@ -4118,16 +4113,18 @@ Options:::
         """
     Change the VCS Canvas orientation to Landscape.
 
-     Note: the (width, height) and (x, y) arguments work in pairs. That is, you must
-           set (width, height) or (x, y) together to see any change in the VCS Canvas.
+     .. note::
+        The (width, height) and (x, y) arguments work in pairs. That is, you must
+        set (width, height) or (x, y) together to see any change in the VCS Canvas.
 
-           If the portrait method is called  with arguments before displaying a VCS Canvas,
-           then the arguments (width, height, x, y, and clear) will have no effect on the
-           canvas.
+        If the portrait method is called  with arguments before displaying a VCS Canvas,
+        then the arguments (width, height, x, y, and clear) will have no effect on the
+        canvas.
 
-     Known Bug: If the visible plot on the VCS Canvas is not adjusted properly, then resize
-                the screen with the point. Some X servers are not handling the threads properly
-                to keep up with the demands of the X client.
+     .. warning::
+        If the visible plot on the VCS Canvas is not adjusted properly, then resize
+        the screen with the point. Some X servers are not handling the threads properly
+        to keep up with the demands of the X client.
 
      :Example:
 ::
@@ -4340,7 +4337,8 @@ Options:::
     MPEG output from a list of valid files.
     Can output to more than just mpeg format.
 
-    Note: ffmpeg ALWAYS overwrites the output file
+    .. note::
+        ffmpeg ALWAYS overwrites the output file
 
     :Example:
 
