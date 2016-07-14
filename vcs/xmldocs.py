@@ -240,6 +240,38 @@ isofill_script = scriptdoc %(('isofill',) * 6)
 yxvsx_script = scriptdoc %(('yxvsx',) * 6)
 meshfill_script = scriptdoc %(('meshfill',) * 6)
 
+get_methods_doc = """
+    VCS contains a list of secondary methods. This function will create a
+    %s class object from an existing VCS %s secondary method. If
+    no %s name is given, then %s 'default' will be used.
+
+    .. note::
+        VCS does not allow the modification of `default' attribute sets.
+        However, a `default' attribute set that has been copied under a
+        different name can be modified. (See the createfillarea function.)
+
+    :Example:
+
+::
+
+    # Show all the existing %s secondary methods
+    vcs.show('%s')
+    # %s instance of 'default' %s secondary method
+    %s=vcs.get%s()
+    # %s2 instance of existing 'quick' %s secondary method
+    %s2=vcs.get%s('quick')
+    # Create instance of %s object 'red'
+    %s3=vcs.create%s(name='new', name='red',style=1, index=1,
+                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                  worldcoordinate=[0,100, 0,50]
+                  x=[0,20,40,60,80,100],
+                  y=[0,10,20,30,40,50] )
+    # Plot using specified %s object
+    vcs.%s(%s3)
+ """
+
+get_fillarea_doc = get_methods_doc % (('fillarea',) * 20)
+
 meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
     fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
