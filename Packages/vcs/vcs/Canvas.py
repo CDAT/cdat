@@ -972,32 +972,48 @@ class Canvas(object):
 
     def scriptobject(self, obj, script_filename=None, mode=None):
         """
- Function: scriptobject       # Script a single primary or secondary class object
-
- Description of Function:
     Save individual attributes sets (i.e., individual primary class
     objects and/or secondary class objects). These attribute sets
-    are saved in the user's current directory.
+    are saved in the user's current directory in one of three formats:
+    VCS script, Python script, or a Javascript Object.
 
-    Note: If the the filename has a ".py" at the end, it will produce a
-          Python script. If the filename has a ".scr" at the end, it will
-          produce a VCS script. If neither extensions are give, then by
-          default a Python script will be produced.
+    .. note::
+        If the the filename has a ".py" at the end, it will produce a
+        Python script. If the filename has a ".scr" at the end, it will
+        produce a VCS script. If neither extensions are give, then by
+        default a Python script will be produced.
 
-    Note: Mode is either "w" for replace or "a" for append.
+    .. note::
+        VCS does not allow the modification of `default' attribute sets,
+        it will not allow them to be saved as individual script files.
+        However, a `default' attribute set that has been copied under a
+        different name can be saved as a script file.
 
-    Note: VCS does not allow the modification of `default' attribute sets,
-          it will not allow them to be saved as individual script files.
-          However, a `default' attribute set that has been copied under a
-          different name can be saved as a script file.
+    :Example:
 
- :Example:
+::
+
     a=vcs.init()
-    l=a.getline('red')         # To Modify an existing line object
-    i=x.createisoline('dean')  # Create an instance of default isoline object
-    ...
-    x.scriptsingle(l,'line.scr','w') # Save line object as a VCS file 'line.scr'
-    x.scriptsingle(i,'isoline.py')   # Save isoline object as a Python file 'isoline.py'
+    # To Modify an existing line object
+    l=a.getline('red')
+    # Create an instance of default isoline object
+    i=a.createisoline('dean')
+    #...
+    # Save line object as a VCS file 'line.scr'
+    a.scriptsingle(l,'ex_line.scr','w')
+    # Save isoline object as a Python file 'isoline.py'
+    a.scriptsingle(i,'ex_isoline.py')
+    # Save isoline object as a JSON object 'isoline2.json'
+    a.scriptsingle(i,'ex_isoline2')
+
+:param script_filename: Name of the output script file.
+:type script_filename: str
+
+:param mode: Mode is either "w" for replace or "a" for append.
+:type mode: str
+
+:param obj: Any VCS primary class or secondary class object.
+:type obj: VCS object
 """
         if istemplate(obj):
             template.P.script(obj, script_filename, mode)
@@ -1189,8 +1205,6 @@ class Canvas(object):
 
     def taylordiagram(self, *args, **parms):
         """
-        Generate a taylor diagram plot.
-
         Generate a taylordiagram plot given the data, taylordiagram graphics method, and
         template. If no taylordiagram class object is given, then the 'default' taylordiagram
         graphics method is used. Similarly, if no template class object is given,
@@ -1315,18 +1329,6 @@ class Canvas(object):
 
     def isofill(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
     Generate a isofill plot given the data, isofill graphics method, and
     template. If no isofill class object is given, then the 'default' isofill
     graphics method is used. Similarly, if no template class object is given,
@@ -1348,9 +1350,11 @@ Options:::
     # Plot array using specified iso and template
     a.isofill(array,iso,template)
 
-:returns: ???
-:rtype: ???
-
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('isofill', args)
         return self.__plot(arglist, parms)
@@ -1367,18 +1371,6 @@ Options:::
 
     def isoline(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
     Generate a isoline plot given the data, isoline graphics method, and
     template. If no isoline class object is given, then the 'default' isoline
     graphics method is used. Similarly, if no template class object is given,
@@ -1389,16 +1381,22 @@ Options:::
 ::
 
     a=vcs.init()
-    a.show('isoline')                   # Show all the existing isoline graphics methods
-    iso=a.getisoline('quick')           # Create instance of 'quick'
-    a.isoline(array,iso)                # Plot array using specified iso and default
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.isoline(array,iso,template)       # Plot array using specified iso and template
+    # Show all the existing isoline graphics methods
+    a.show('isoline')
+    # Create instance of 'quick'
+    iso=a.getisoline('quick')
+    # Plot array using specified iso and default template
+    a.isoline(array,iso)
+    # Clear VCS canvas
+    a.clear()
+    # Plot array using specified iso and template
+    a.isoline(array,iso,template)
 
-:returns: ???
-:rtype: ???
-
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('isoline', args)
         return self.__plot(arglist, parms)
@@ -1423,18 +1421,6 @@ Options:::
 
     def xyvsy(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
     Generate a Xyvsy plot given the data, Xyvsy graphics method, and
     template. If no Xyvsy class object is given, then the 'default' Xyvsy
     graphics method is used. Simerly, if no template class object is given,
@@ -1456,8 +1442,11 @@ Options:::
     # Plot array using specified xyy and template
     a.xyvsy(array,xyy,template)
 
-:returns:
-:rtype:
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('xyvsy', args)
         return self.__plot(arglist, parms)
@@ -1474,18 +1463,6 @@ Options:::
 
     def yxvsx(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
     Generate a Yxvsx plot given the data, Yxvsx graphics method, and
     template. If no Yxvsx class object is given, then the 'default' Yxvsx
     graphics method is used. Simerly, if no template class object is given,
@@ -1507,8 +1484,11 @@ Options:::
     # Plot array using specified yxx and template
     a.yxvsx(array,yxx,template)
 
-:returns:
-:rtype:
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('yxvsx', args)
         return self.__plot(arglist, parms)
@@ -1525,16 +1505,6 @@ Options:::
 
     def xvsy(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-%s
-    :::
- Output:::
-%s
-    :::
-
     Generate a XvsY plot given the data, XvsY graphics method, and
     template. If no XvsY class object is given, then the 'default' XvsY
     graphics method is used. Similarly, if no template class object is given,
@@ -1556,8 +1526,11 @@ Options:::
     # Plot array using specified xy and template
     a.xvsy(array,xy,template)
 
-:returns:
-:rtype:
+%s
+%s
+%s
+%s
+%s
 """
         arglist = _determine_arg_list('xvsy', args)
         return self.__plot(arglist, parms)
@@ -1611,15 +1584,6 @@ Options:::
 
     def scatter(self, *args, **parms):
         """
-Options:::
-%s
-%s
-%s
-%s
-    :::
- Output:::
-%s
-    :::
     Generate a scatter plot given the data, scatter graphics method, and
     template. If no scatter class object is given, then the 'default' scatter
     graphics method is used. Similarly, if no template class object is given,
@@ -1641,7 +1605,11 @@ Options:::
     # Plot array using specified sct and template
     a.scatter(array,sct,template)
 
-
+%s
+%s
+%s
+%s
+%s
 """
 
         arglist = _determine_arg_list('scatter', args)
@@ -1797,6 +1765,9 @@ Options:::
         object is given, then an error will be returned.
 
          :Example:
+
+    ::
+
             a=vcs.init()
             # Show all the existing marker objects
             a.show('marker')
@@ -2077,8 +2048,6 @@ Options:::
 
     def textcombined(self, *args, **parms):
         """
-        Generate a textcombined plot
-
         Plot a textcombined segment on the Vcs Canvas. If no textcombined class
         object is given, then an error will be returned.
         *This function can also be called using the format **text(self, *args, **parms)** *
@@ -3958,7 +3927,8 @@ Options:::
 
     def get_selected_display(self):
         """
-        Deprecated. Does not work.
+        .. deprecated:: ?.?
+
 
     """
         return self.canvas.get_selected_display(*())
@@ -4216,7 +4186,9 @@ Options:::
 
     def updateorientation(self, *args):
         """
-     :Example:
+     .. deprecated:: ?.?
+        Use :func:`landscape` or :func:`portrait` instead.
+
 
 ::
 
@@ -4755,7 +4727,7 @@ Options:::
 
     def isopened(self):
         """
-        Is the Canvas opened?
+        Returns a boolean value indicating whether the canvas is opened or not.
 
 :returns: A boolean value indicating whether the Canvas is opened (1), or closed (0)
 :rtype: bool
@@ -5291,8 +5263,8 @@ Options:::
         # Set VCS's orientation to portrait mode
        a.portrait()
 
-:returns: Boolean indicating VCS is in landscape mode (1), or not (0)
-:rtype: bool
+:returns: Integer indicating VCS is in landscape mode (1), or not (0)
+:rtype: int
 """
         if (self.orientation() == 'landscape'):
             return 1
@@ -5419,8 +5391,12 @@ Options:::
         """
         Get the font name/number associated with a font number/name
 
-        :param font: The font name/number
-        :type font: int or str
+:param font: The font name/number
+:type font: int or str
+
+:returns: If font parameter was a string, will return the integer associated with that string.
+          If font parameter was an integer, will return the string associated with that integer.
+:rtype: int or str
         """
         if isinstance(font, int):
             return self.getfontname(font)
@@ -5433,11 +5409,12 @@ Options:::
         """
         Switch the font numbers of two fonts.
 
-        :param font1: The first font
-        :type font1: int or str
-        :param font2: The second font
-        :type font2: int or str
-        """
+:param font1: The first font
+:type font1: int or str
+
+:param font2: The second font
+:type font2: int or str
+"""
         if isinstance(font1, str):
             index1 = self.getfont(font1)
         elif isinstance(font1, (int, float)):
@@ -5456,7 +5433,6 @@ Options:::
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 2: %s" %
                 font2)
-
         return self.canvas.switchfontnumbers(*(index1, index2))
 
     def copyfontto(self, font1, font2):
@@ -5511,6 +5487,7 @@ Options:::
         :Example:
 
 ::
+
         a = vcs.init()
         # Show current orientation of the canvas
         a.orientation()
