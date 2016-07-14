@@ -206,11 +206,12 @@ listdoc = """ Lists the current values of object attributes"""
 scriptdoc = """
     Saves out a copy of the %s graphics method in JSON, Python, or VCS script form to a designated file.
 
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a .json file containing a JSON serialization of the
-                    object's data will be produced.
+              .. note::
+                If the the filename has a ".py" at the end, it will produce a
+                Python script. If the filename has a ".scr" at the end, it will
+                produce a VCS script. If neither extensions are give, then by
+                default a .json file containing a JSON serialization of the
+                object's data will be produced.
 
     :Example:
 
@@ -321,10 +322,10 @@ plot_2_1D_input = """
 """  # noqa
 plot_2_1D_options = """
 :param slab2: Data at least 1D, last dimension(s) will be plotted
-:type slab2: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
 :param template: ('default') vcs template to use
-:type template: str/vcs.template.P
 :param gm: (Ex: 'default') graphic method to use
+:type slab2: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type template: str/vcs.template.P
 :type gm: str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.unified1d.G1d/vcsaddons.core.VCSaddon
 """  # noqa
 #############################################################################
