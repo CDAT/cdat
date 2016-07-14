@@ -688,20 +688,15 @@ class VTKVCSBackend(object):
         self.scaleLogo()
 
         # Decide whether to rasterize background in vector outputs
-        # Current criteria to rasterize:
+        # Current limitation to vectorize:
         #       * if fillarea style is either pattern or hatch
-        #       * if fillarea opacity is less than 100 for solid fill
         try:
             if gm.style and all(style != 'solid' for style in gm.style):
-                self._rasterPropsInVectorFormats = True
-            elif gm.opacity and not all(o == 100 for o in gm.opacity):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
         try:
             if gm.fillareastyle in ['pattern', 'hatch']:
-                self._rasterPropsInVectorFormats = True
-            elif not all(o == 100 for o in gm.fillareaopacity):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
@@ -1109,6 +1104,7 @@ class VTKVCSBackend(object):
 
         # Since the patterns are applied as textures on vtkPolyData, enabling
         # background rasterization is required to write them out
+
         if self._rasterPropsInVectorFormats:
             gl.Write3DPropsAsRasterImageOn()
 
@@ -1117,9 +1113,10 @@ class VTKVCSBackend(object):
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
 
         if textAsPaths:
-            gl.TextAsPathOff()
-        else:
             gl.TextAsPathOn()
+        else:
+            gl.TextAsPathOff()
+
         if output_type == "svg":
             gl.SetFileFormatToSVG()
         elif output_type == "ps":
@@ -1252,16 +1249,16 @@ class VTKVCSBackend(object):
             texttable = vcs.gettexttable(texttable)
 
         from vtk_ui.text import text_dimensions
-        
+
         text_property = vtk.vtkTextProperty()
         info = self.canvasinfo()
         win_size = info["width"], info["height"]
         vcs2vtk.prepTextProperty(text_property, win_size, to=textorientation, tt=texttable)
-        
+
         dpi = self.renWin.GetDPI()
-        
+
         length = max(len(texttable.string), len(texttable.x), len(texttable.y))
-        
+
         strings = texttable.string + [texttable.string[-1]] * (length - len(texttable.string))
         xs = texttable.x + [texttable.x[-1]] * (length - len(texttable.x))
         ys = texttable.y + [texttable.y[-1]] * (length - len(texttable.y))
