@@ -129,7 +129,6 @@ def process_src(nm, code):
 class Gfb(object):
 
     """
-        Options:::
         %s
 
         boxfill_type :: (str) ('linear') type of boxfill legend linear/log10
@@ -265,7 +264,7 @@ class Gfb(object):
                     fill.color=241                           # change color
                     fill.index=3                             # change style index
     """
-#% (xmldocs.graphics_method_core) #noq
+    #% xmldocs.graphics_method_core #noq
 
 
     def rename(self, newname):
@@ -1001,6 +1000,7 @@ class Gfb(object):
             vcs.utils.dumpToJson(self, f)
             f.close()
     script.__doc__ = xmldocs.boxfill_script
+#Gfb.__doc__ = Gfb.__doc__ % xmldocs.graphics_method_core
 
 ###############################################################################
 #        END OF FILE							      #
