@@ -129,140 +129,183 @@ def process_src(nm, code):
 class Gfb(object):
 
     """
-        %s
+    The boxfill graphics method (Gfb) displays a two-dimensional data array
+    by surrounding each data value by a colored grid box.
 
-        boxfill_type :: (str) ('linear') type of boxfill legend linear/log10
-          (i.e using color_1/2 and level_1/2 as limits) or
-          custom (similar to isofill method, using levels and colors to set intervals)
-        level_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
-          sets the value of the legend's first level
-        level_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
-          sets the value of the legend's end level
-        color_1 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
-          sets the legend's color range first value
-        color_2 :: (float) (1.E20) used in conjunction with boxfill_type linear/log10,
-          sets the legend's color range lasst value
-        levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) used in
-          conjunction for boxfill_type custom, sets the levels range to use, can be
-          either a list of contiguous levels, or list of tuples indicating, first
-          and last value of the range
-        fillareacolors :: (list) (None) used in conjunction for boxfill_type custom,
-          colors to use for each level
-        legend :: ({float:str}) (None) used in conjunction with boxfill_type
-          linear/log10, replaces the legend values in the dictionary keys with
-          their associated string
-        ext_1 :: (str) ('n') draws an extension arrow on right side
-          (values less than first range value)
-        ext_2 :: (str) ('n') draws an extension arrow on left side
-          (values greater than last range value)
-        missing :: (int) (241) color to use for missing value or values not in defined ranges
-       :::
-     Class:	Gfb                       	# Boxfill
+    This class is used to define a boxfill table entry used in VCS, or it
+    can be used to change some or all of the attributes in an existing
+    boxfill table entry.
 
-     Description of Gfb Class:
-        The boxfill graphics method (Gfb) displays a two-dimensional data array
-        by surrounding each data value by a colored grid box.
 
-        This class is used to define a boxfill table entry used in VCS, or it
-        can be used to change some or all of the attributes in an existing
-        boxfill table entry.
+    :Example:
 
-     Other Useful Functions:
-                   a=vcs.init()             # Constructor
-                   a.show('boxfill')        # Show predefined boxfill graphics methods
-                   a.setcolormap("AMIP")    # Change the VCS color map
-                   a.boxfill(s,b,'default') # Plot data 's' with boxfill 'b' and
-                                                   'default' template
-                   a.update()               # Updates the VCS Canvas at user's request
-                   a.mode=1, or 0           # If 1, then automatic update, else if
-                                              0, then use the update function to
-                                              update the VCS Canvas.
+::
 
-     Example of Use:
+    #To make a boxfill:
+        # Constructor
         a=vcs.init()
-        To Create a new instance of boxfill use:
-         box=a.createboxfill('new','quick') # Copies content of 'quick' to 'new'
-         box=a.createboxfill('new') 	# Copies content of 'default' to 'new'
+        # Show predefined boxfill graphics methods
+        a.show('boxfill')
+        # Change the VCS color map
+        a.setcolormap("AMIP")
+        # Plot data 's' with boxfill 'b' and 'default' template
+        a.boxfill(s,b,'default')
 
-        To Modify an existing boxfill use:
+    #To update a boxfill:
+        # Updates the VCS Canvas at user's request
+        a.update()
+        # Set VCS Canvas to automatic update mode
+        a.mode=1
+        # Use update function to update the VCS Canvas
+        a.mode=0
+
+    #To Create a new instance of boxfill:
+        #  Copies content of 'quick' to 'new'
+        box=a.createboxfill('new','quick')
+        #  Copies content of 'default' to 'new'
+        box=a.createboxfill('new')
+
+    #To Modify an existing boxfill:
          box=a.getboxfill('AMIP_psl')
 
-        box.list()  			# Will list all the boxfill attribute values
+    #Overview of boxfill properties:
+        # Will list all the boxfill attribute values
+        box.list()
         box.projection='linear'
         lon30={-180:'180W',-150:'150W',0:'Eq'}
         box.xticlabels1=lon30
         box.xticlabels2=lon30
-        box.xticlabels(lon30, lon30)  	# Will set them both
+        # Will set them both
+        box.xticlabels(lon30, lon30)
         box.xmtics1=''
         box.xmtics2=''
-        box.xmtics(lon30, lon30)  		# Will set them both
+        # Will set them both
+        box.xmtics(lon30, lon30)
         box.yticlabels1=lat10
         box.yticlabels2=lat10
-        box.yticlabels(lat10, lat10)  	# Will set them both
+        # Will set them both
+        box.yticlabels(lat10, lat10)
         box.ymtics1=''
         box.ymtics2=''
-        box.ymtics(lat10, lat10)  		# Will set them both
+        # Will set them both
+        box.ymtics(lat10, lat10)
         box.datawc_y1=-90.0
         box.datawc_y2=90.0
         box.datawc_x1=-180.0
         box.datawc_x2=180.0
-        box.datawc(-90, 90, -180, 180)  	# Will set them all
+        # Will set them all
+        box.datawc(-90, 90, -180, 180)
         box.xaxisconvert='linear'
         box.yaxisconvert='linear'
-        box.xyscale('linear', 'area_wt')  	# Will set them both
+        # Will set them both
+        box.xyscale('linear', 'area_wt')
         box.level_1=1e20
         box.level_2=1e20
         box.color_1=16
         box.color_2=239
-        box.colors(16, 239 )  		# Will set them both
-        box.boxfill_type='linear'		# 'linear' - compute or specify legend
-                                            # 'log10' - plot using log10,
-                                            # 'custom' - use custom values to display legend evenly
-        box.legend=None                     # Hold the legend values
-        box.ext_1='n'                       # Show left overflow arrow
-        box.ext_2='y'                       # Show right overflow arrow
-        box.exts('n', 'y' )  		# Will set them both
-        box.missing=241                     # Color index value range 0 to 255
+        # Will set them both
+        box.colors(16, 239 )
+        # 'linear' - compute or specify legend
+        box.boxfill_type='linear'
+        # 'log10' - plot using log10
+        box.boxfill_type='log10'
+        # 'custom' - use custom values to display legend evenly
+        box.boxfill_type='custom'
+        # Hold the legend values
+        box.legend=None
+        # Show left overflow arrow
+        box.ext_1='n'
+        # Show right overflow arrow
+        box.ext_2='y'
+        # Will set them both
+        box.exts('n', 'y' )
+        # Color index value range 0 to 255
+        box.missing=241
 
-        There are two possibilities for setting the boxfill levels:
-         A) Levels are all contiguous (Examples):
-                    box.levels=([0,20,25,30,35,40],)
-                    box.levels=([0,20,25,30,35,40,45,50])
-                    box.levels=[0,20,25,30,35,40]
-                    box.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
-         B) Levels are not contiguous (Examples):
-                    box.levels=([0,20],[30,40],[50,60])
-                    box.levels=([0,20,25,30,35,40],[30,40],[50,60])
+    #There are two possibilities for setting the boxfill levels:
+        # 1) Levels are all contiguous (Examples):
+            box.levels=([0,20,25,30,35,40],)
+            box.levels=([0,20,25,30,35,40,45,50])
+            box.levels=[0,20,25,30,35,40]
+            box.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
+        # 2) Levels are not contiguous (Examples):
+            box.levels=([0,20],[30,40],[50,60])
+            box.levels=([0,20,25,30,35,40],[30,40],[50,60])
 
-        There are three possibilities for setting the fillarea color indices (Ex):
-                    box.fillareacolors=([22,33,44,55,66,77])
-                    box.fillareacolors=(16,19,33,44)
-                    box.fillareacolors=None
+    #There are three possibilities for setting the fillarea color indices:
+        box.fillareacolors=([22,33,44,55,66,77])
+        box.fillareacolors=(16,19,33,44)
+        box.fillareacolors=None
 
-        There are three possibilities for setting the fillarea style (Ex):
-                    box.fillareastyle = 'solid'
-                    box.fillareastyle = 'hatch'
-                    box.fillareastyle = 'pattern'
+    #There are three possibilities for setting the fillarea style (Ex):
+        box.fillareastyle = 'solid'
+        box.fillareastyle = 'hatch'
+        box.fillareastyle = 'pattern'
 
-        There are two ways to set the fillarea hatch or pattern indices (Ex):
-                    box.fillareaindices=([1,3,5,6,9,20])
-                    box.fillareaindices=(7,1,4,9,6,15)
-                    See using fillarea objects below!
+    #There are two ways to set the fillarea hatch or pattern indices (Ex):
+        box.fillareaindices=([1,3,5,6,9,20])
+        box.fillareaindices=(7,1,4,9,6,15)
+        #See using fillarea objects below!
 
-        Using the fillarea secondary object (Ex):
-                    f=createfillarea('fill1')
-                    To Create a new instance of fillarea use:
-                       fill=a.createfillarea('new','quick') # Copies 'quick' to 'new'
-                       fill=a.createfillarea('new')  # Copies 'default' to 'new'
+    #Using the fillarea secondary object (Ex):
+        f=createfillarea('fill1')
+        #To Create a new instance of fillarea use:
+        # Copies 'quick' to 'new'
+        fill=a.createfillarea('new','quick')
+        # Copies 'default' to 'new'
+        fill=a.createfillarea('new')
 
-                    To Modify an existing boxfill use:
-                       fill=a.getboxfill('def37')
+    #To Modify an existing boxfill use:
+        fill=a.getboxfill('def37')
 
-                    box.fillareaindices=(7,fill,4,9,fill,15) # Set index using fillarea
-                    fill.list()                              # list fillarea attributes
-                    fill.style='hatch'                       # change style
-                    fill.color=241                           # change color
-                    fill.index=3                             # change style index
+        # Set index using fillarea
+        box.fillareaindices=(7,fill,4,9,fill,15)
+        # list fillarea attributes
+        fill.list()
+        # change style
+        fill.style='hatch'
+        # change color
+        fill.color=241
+        # change style index
+        fill.index=3
+%s
+
+    .. py:attribute:: boxfill_type (str)
+
+    Type of boxfill legend. One of 'linear', 'log10', or 'custom'. See examples above for usage.
+
+    .. py:attribute:: level_1 (float)
+    Used in conjunction with boxfill_type linear/log10. Sets the value of the legend's first level
+
+    .. py:attribute:: level_2 (float)
+    Used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
+
+    .. py:attribute:: color_1 (float)
+    Used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
+
+    .. py:attribute:: color_2 (float)
+    Used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
+
+    .. py:attribute:: levels (list of floats)
+    Used in conjunction for boxfill_type custom, sets the levels range to use, can be
+    either a list of contiguous levels, or list of tuples indicating first
+    and last value of the range.
+
+    .. py:attribte:: fillareacolors (list)
+    Used in conjunction for boxfill_type custom colors to use for each level
+
+    .. py:attribute:: legend ({float:str})
+    Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
+    their associated string.
+
+    .. py:attribute:: ext_1 (str)
+    Draws an extension arrow on right side (values less than first range value)
+
+    .. py:attribute:: ext_2 (str)
+    Draws an extension arrow on left side (values greater than last range value)
+
+    .. py:attribute:: missing (int)
+    Color to use for missing value or values not in defined ranges.
     """
     #% xmldocs.graphics_method_core #noq
 
