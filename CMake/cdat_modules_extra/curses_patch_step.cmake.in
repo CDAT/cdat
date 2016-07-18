@@ -1,6 +1,0 @@
-  execute_process(
-    WORKING_DIRECTORY @curses_source@
-    COMMAND patch -Np1
-    INPUT_FILE @cdat_CMAKE_SOURCE_DIR@/curses_gcc5.patch 
-  )
-

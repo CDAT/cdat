@@ -1,6 +1,4 @@
-
-import sys,os
-import argparse
+import argparse, os, sys, cdms2, MV2, testing.regression as regression, vcs, vtk
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
@@ -15,6 +13,7 @@ p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the r
 p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
 p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
+p.add_argument("--transparent", dest="transparent", action="store_true",help="Add transparency to colors")
 
 dataMods = p.add_mutually_exclusive_group()
 dataMods.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
@@ -24,20 +23,9 @@ args = p.parse_args(sys.argv[1:])
 
 gm_type= args.gm
 src = args.src
-pth = os.path.join(os.path.dirname(__file__),"..")
-sys.path.append(pth)
-import checkimage
-
-import vcs
-import sys
-import cdms2
-import vtk
-import os
-import MV2
-
 bg = not args.show
 
-x=vcs.init()
+x = vcs.init()
 x.setantialiasing(0)
 x.drawlogooff()
 if bg:
@@ -113,6 +101,12 @@ else:
 if args.bigvalues:
     gm.levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 1.e36]
 
+if args.transparent:
+    cmap = x.createcolormap()
+    for i in range(256):  # tweaks all colors
+        cmap.setcolorcell(i,100.,0,0,i/2.55)
+    x.setcolormap(cmap)
+
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
@@ -128,11 +122,15 @@ if args.projtype!="default":
     fnm+="_%s_proj" % args.projtype
 if args.zero:
    fnm+="_zero"
+if args.transparent:
+    fnm+="_transparent"
 fnm+=nm_xtra
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
-ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
+if args.show:
+    raw_input("Press Enter")
+ret = regression.check_result_image(fnm+'.png',src,20., cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)

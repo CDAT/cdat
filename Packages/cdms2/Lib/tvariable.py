@@ -387,8 +387,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if n < 0: n = n + self.rank()
         if not isinstance(axis, AbstractAxis):
             raise CDMSError,"copydimension, other not an axis."
-        b = axis.getBounds()
-        mycopy = createAxis(axis[:], b)
+        isGeneric = [False]
+        b = axis.getBounds(isGeneric)
+        mycopy = createAxis(axis[:], b, genericBounds=isGeneric[0])
         mycopy.id = axis.id
         for k, v in axis.attributes.items():
            setattr(mycopy, k, v)

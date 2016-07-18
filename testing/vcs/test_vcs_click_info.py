@@ -1,36 +1,53 @@
-import cdms2
-import sys
-import vcs
-import os
+import os, sys, cdms2, vcs, testing.regression as regression
 
+testConfig = {'a_boxfill': ('clt.nc', 'clt', (200, 200)),
+              'a_mollweide_boxfill': ('clt.nc', 'clt', (222, 322)),
+              'a_isofill': ('clt.nc', 'clt', (200, 200)),
+              'a_isoline': ('clt.nc', 'clt', (200, 200)),
+              'vector_default': ('clt.nc', ('u', 'v'), (200, 200)),
+              'a_meshfill': ('sampleCurveGrid4.nc', 'sample', (222, 322)),
+              'a_robinson_meshfill': ('sampleCurveGrid4.nc', 'sample', (222, 322))}
+
+# Tests if the info produced when clicking on a map is correct.
 src = sys.argv[1]
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-# Needs to set the size of window so it is consistent accross
-# test platforms
-x.open()
-x.geometry(814, 606)
+plot = sys.argv[2]
+x = regression.init(bg=False, geometry=(800, 600))
 
-f = cdms2.open(vcs.sample_data + "/clt.nc")
-s = f("clt")
+vector = False
+# graphics method
+if (plot.find('boxfill') != -1):
+    gm = x.getboxfill(plot)
+elif (plot.find('meshfill') != -1):
+    gm = x.getmeshfill(plot)
+elif (plot.find('isofill') != -1):
+    gm = x.getisofill(plot)
+elif (plot.find('isoline') != -1):
+    gm = x.getisoline(plot)
+elif (plot.find('vector') != -1):
+    gm = x.getvector(plot[plot.index('_') + 1:])
+    vector = True
+else:
+    print "Invalid plot"
+    sys.exit(13)
 
-# Has to plot in foreground to simulate a click
-x.plot(s)
+# data
+f = cdms2.open(vcs.sample_data + "/" + testConfig[plot][0])
+if (vector):
+    u = f(testConfig[plot][1][0])
+    v = f(testConfig[plot][1][1])
+    x.plot(u, v, gm)
+else:
+    s = f(testConfig[plot][1])
+    x.plot(s, gm)
 
 # Simulate a click -- VTK Specific
+location = testConfig[plot][2]
 i = x.backend.renWin.GetInteractor()
-i.SetEventInformation(200, 200)
+i.SetEventInformation(location[0], location[1])
 i.LeftButtonPressEvent()
 
-fnm = "test_vcs_click_info.png"
+fileName = os.path.basename(src)
+fileName = os.path.splitext(fileName)[0]
+fileName += '.png'
 
-x.png(fnm, width=814, height= 606)
-
-print "fnm:", fnm
-print "src:", src
-ret = checkimage.check_result_image(fnm, src, checkimage.defaultThreshold)
-sys.exit(ret)
+regression.run(x, fileName)

@@ -1116,12 +1116,26 @@ int cdms2_nc_put_att_text(int fileid, int varid, char *name, int len, char *stri
     ret = nc_put_att_text(fileid, varid, name, len, string);
   return ret;
 }
-
 static int
 set_attribute(int fileid, int varid, PyObject *attributes,
 	      char *name, PyObject *value)
 {
   if (value==Py_None) {
+    return 0;
+  }
+  /* Delete attribute */
+  if (value==NULL) {
+    int ret;
+    Py_BEGIN_ALLOW_THREADS;
+    acquire_Cdunif_lock();
+    ret = nc_del_att(fileid, varid, name);
+    release_Cdunif_lock();
+    Py_END_ALLOW_THREADS;
+    if (ret != NC_NOERR) {
+      cdunif_signalerror(ret);
+      return -1;
+    }
+    PyDict_DelItemString(attributes, name);
     return 0;
   }
   if (PyString_Check(value)) {
@@ -1147,6 +1161,10 @@ set_attribute(int fileid, int varid, PyObject *attributes,
     if (array != NULL) {
       int len = (array->nd == 0) ? 1 : array->dimensions[0];
       int type = cdunif_type_from_code(array->descr->type);
+      if (type == 0) {
+        /* 0 means probably going to freak out netcdf */
+        fprintf(stderr,"Attribute %s has a bad type for NetCDF. We will not attempt to write it\n");
+      }
       if (data_types[type] != array->descr->type_num) {
 	PyArrayObject *array2 = (PyArrayObject *)
 	  PyArray_Cast(array, data_types[type]);
@@ -1254,10 +1272,11 @@ int cdms2_nccreate(char *filename, int ncmode) {
     ncmode = ncmode | NC_CLASSIC_MODEL;
   }
 #ifdef PARALLEL
-    nc_set_log_level(3);
-    int ierrnc;
+    nc_set_log_level(0);
+    int ierrnc, old;
     if (nc_flag_on(ncmode,NC_MPIIO)) {
       ierrnc = nc_create_par(filename, ncmode,MPI_COMM_WORLD,MPI_INFO_NULL,&selfncid);
+      ierrnc = nc_set_fill(selfncid, NC_NOFILL, &old);
     }
     else {
       selfncid = nccreate(filename, ncmode);

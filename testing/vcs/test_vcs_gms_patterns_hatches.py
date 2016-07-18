@@ -1,19 +1,8 @@
-# Test the use of patterns/hatches for plots
-
-import argparse
-import cdms2
-import os
-import sys
-import vcs
-
-pth = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(pth)
-import checkimage
-
+import argparse, os, sys, cdms2, vcs, testing.regression as regression
 
 p = argparse.ArgumentParser(description="Patterns/hatches testing code for vcs gms")
 p.add_argument("--source", dest="src", help="source image file")
-p.add_argument("--gm_type", dest="gm", help="gm to test")
+p.add_argument("--gm_type", dest="gm", help="gm to test", default="isofill")
 p.add_argument("--fill_style", dest="fill_style", help="Patterns/hatches fill style",
                default="pattern", type=str)
 p.add_argument("--show", dest="show", action="store_true", help="show plots on screen (no bg)", default=False)
@@ -23,8 +12,9 @@ p.add_argument("--lat2", dest="lat2", default=90, type=float, help="Last latitud
 p.add_argument("--lon1", dest="lon1", default=-180, type=float, help="First Longitude")
 p.add_argument("--lon2", dest="lon2", default=180, type=float, help="Last Longitude")
 p.add_argument("--keep", dest="keep", action="store_true", help="Save image, even if baseline matches.")
-p.add_argument("--threshold", dest="threshold", type=int, default=checkimage.defaultThreshold,
-               help="Threshold value for image differnces")
+p.add_argument("--threshold", dest="threshold", type=int, default=regression.defaultThreshold,
+        help="Default threshold")
+p.add_argument("--non-contiguous", dest="contig", default=True, action="store_false", help="use non contiguous levels")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -47,7 +37,11 @@ if args.projtype != "default":
     p.type = ptype
     gm.projection = p
 
-gm.levels = [220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320]
+if args.contig:
+    gm.levels = [220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320]
+else:
+    gm.levels = [[230,235],[240,245],[250,255],[260,265],[270,275],
+                 [280,285],[290,295],[300,305],[310,315],[320,325]]
 gm.fillareastyle = args.fill_style
 gm.fillareacolors = [242, 244, 237, 248, 250, 252, 44, 243, 139, 247]
 if args.fill_style == "hatch":
@@ -59,6 +53,9 @@ else:
 
 if args.gm == "boxfill":
     gm.boxfill_type = "custom"
+
+if args.gm == "meshfill":
+    gm.mesh = True
 
 nm_xtra = ""
 xtra = {}
@@ -73,6 +70,8 @@ if args.lat1 != args.lat2:
 if args.lon1 != args.lon2:
     xtra["longitude"] = (args.lon1, args.lon2)
     nm_xtra += "_%i_%i" % (args.lon1, args.lon2)
+if not args.contig:
+    nm_xtra += "_non-contig"
 
 xtra["time"] = slice(0, 1)
 xtra["squeeze"] = 1
@@ -80,7 +79,7 @@ xtra["squeeze"] = 1
 f = cdms2.open(os.path.join(vcs.sample_data, 'tas_ccsr-95a_1979.01-1979.12.nc'))
 s = f("tas", **xtra)
 f.close()
-gm.list()
+
 x.plot(s, gm, bg=bg)
 fnm = "test_vcs_%s_%s" % (args.gm.lower(), args.fill_style.lower())
 if args.projtype != "default":
@@ -89,7 +88,7 @@ fnm += nm_xtra
 x.png(fnm)
 print "fnm:", fnm
 print "src:", src
-ret = checkimage.check_result_image(fnm+'.png', src,
+ret = regression.check_result_image(fnm+'.png', src,
                                     args.threshold,
                                     cleanup=not args.keep)
 if args.show:

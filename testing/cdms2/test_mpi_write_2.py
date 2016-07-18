@@ -1,11 +1,6 @@
 import cdms2
 import numpy
-import mpi4py
 import time
-import pdb
-
-sz = mpi4py.MPI.COMM_WORLD.Get_size()
-rk = mpi4py.MPI.COMM_WORLD.Get_rank()
 
 # All flags are set to OFF for parallel writing
 # ----------------------------------------------
@@ -14,6 +9,9 @@ cdms2.setNetcdfClassicFlag(0)
 cdms2.setNetcdfShuffleFlag(0)
 cdms2.setNetcdfDeflateFlag(0)
 cdms2.setNetcdfDeflateLevelFlag(0)
+cdms2.setNetcdfUseParallelFlag(1)
+sz = cdms2.getMpiSize()
+rk = cdms2.getMpiRank()
 
 # Create a 2D array
 # -----------------
@@ -34,8 +32,9 @@ f=cdms2.open("test_mpi_write_2.nc","w")
 # ------------------------------
 var=[]
 for i in range(sz):
-    a.id = "test_mpi_"+str(i)
-    print a.id
+    a.id = "var_test_mpi_"+str(i)
+    if rk == 0:
+	print a.id
     Field=cdms2.MV2.array(a)
     var.append(f.createVariableCopy(Field,axes=grid.getAxisList(), grid=grid))
 

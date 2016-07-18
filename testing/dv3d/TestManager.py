@@ -10,7 +10,7 @@ import vcs, os, sys, shutil, collections, subprocess
 TestingDir=os.path.dirname(__file__)
 pth = os.path.join(TestingDir,"..")
 sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
@@ -106,9 +106,8 @@ class vcsTest:
 
         plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
         self.canvas.setantialiasing(False)
-        self.canvas.plot( *plot_args, **plot_kwargs )
-        self.plot = self.canvas.backend.plotApps[ self.gm ]
-#        self.applyActions()
+        display = self.canvas.plot( *plot_args, **plot_kwargs )
+        self.plot = self.canvas.backend.plotApps[ vcs.elements[display.g_type][display.g_name] ]
 
     def applyActions(self):
         for action in self.actions:
@@ -128,8 +127,8 @@ class vcsTest:
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
         self.canvas.png( test_image, width = 900, height = 600 )
 
-        ret = checkimage.check_result_image( test_image, self.image_name,\
-                checkimage.defaultThreshold+3. )
+        ret = regression.check_result_image( test_image, self.image_name,\
+                regression.defaultThreshold+3. )
 
         if  interactive:
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )."

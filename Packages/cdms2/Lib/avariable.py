@@ -363,6 +363,16 @@ class AbstractVariable(CdmsObj, Slab):
             if axisMatches(self.getAxis(i), axis_spec):
                 return i
         return -1
+    
+    def hasCellData(self):
+        '''
+        If any of the variable's axis has explicit bounds, we have cell data
+        otherwise we have point data.
+        '''
+        for axis in self.getAxisList():
+            if (axis.getExplicitBounds() is not None):
+                return True
+        return False
 
     def getAxisListIndex (self, axes=None, omit=None, order=None):
         """Return a list of indices of axis objects;
@@ -510,7 +520,6 @@ class AbstractVariable(CdmsObj, Slab):
                 result = None
                 
         return result
-
 
     # Get an order string, such as "tzyx"
     def getOrder(self, ids=0):
@@ -915,7 +924,9 @@ class AbstractVariable(CdmsObj, Slab):
                 else:
                     delta_beg_wrap_dimvalue = ncyclesrev*cycle
 
-                axis.setBounds(axis.getBounds() - delta_beg_wrap_dimvalue)
+                isGeneric = [False]
+                b = axis.getBounds(isGeneric) - delta_beg_wrap_dimvalue
+                axis.setBounds(b, isGeneric=isGeneric[0])
                 
                 axis[:]= (axis[:] - delta_beg_wrap_dimvalue).astype(axis.typecode())
 

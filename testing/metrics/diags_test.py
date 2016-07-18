@@ -12,7 +12,7 @@ import sys, os, shutil, tempfile, subprocess
 import cdms2, numpy
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
-import checkimage
+import testing.regression as regression
 import argparse, pdb
 
 class DiagTest(object):
@@ -65,8 +65,19 @@ class DiagTest(object):
         #print '>>>>>>>>>>>>>>>>>>> ', baselinefname
         f = cdms2.open( testfname )
         g = cdms2.open( baselinefname )
-        fvar = f(varname)
-        gvar = g(varname)
+        
+        try:
+            fvar = f(varname)
+        except:
+            print varname, ' is not in file ', testname
+            sys.exit(1)
+        
+        try:
+            gvar = g(varname)
+        except:
+            print varname, ' is not in file ', baselinefname
+            sys.exit(1)     
+                   
         #print '>>>>>>>>>>>>>>>>>>> fvar', fvar.shape
         #print '>>>>>>>>>>>>>>>>>>> gvar', gvar.shape
         close = numpy.ma.allclose( fvar, gvar, rtol=rtol, atol=atol )
@@ -84,7 +95,7 @@ class DiagTest(object):
     def execute(self, test_str, imagefilename, imagethreshold, ncfiles, rtol, atol):
         print test_str
         if imagethreshold is None:  # user didn't specify a value
-     	    imagethreshold = checkimage.defaultThreshold
+	    imagethreshold = regression.defaultThreshold
         # Silence annoying messages about how to set the NetCDF file type.  Anything will do.
         cdms2.setNetcdfShuffleFlag(0)
         cdms2.setNetcdfDeflateFlag(0)
@@ -107,7 +118,7 @@ class DiagTest(object):
             imagebaselinefname = os.path.join( self.baselinepath, imagefilename )
             #pdb.set_trace()
             print "OK THRESHOLD IS:",imagethreshold
-            graphics_result = checkimage.check_result_image( imagefname, imagebaselinefname, imagethreshold )
+            graphics_result = regression.check_result_image( imagefname, imagebaselinefname, imagethreshold )
             print "Graphics file", imagefname, "match difference:", graphics_result
             
             #initialize to successful graphics check
@@ -123,9 +134,9 @@ class DiagTest(object):
                         #print ">>>>>>>>>>>>>", var, ncfilename
                         close = self.closeness( var, ncfilename, rtol, atol )
                         if not close:
-                            print var, ' in ', ncfilename, ' is not close.'
+                          print var, ' in ', os.path.join(self.outpath,ncfilename), ' is not close from the one in:',os.path.join(self.baselinepath,ncfilename)
                     except:
-                        print 'comparison failed for ', var, ' in file: ', ncfilename
+                        print 'NetCDF comparison failed for ', var, ' in file: ', os.path.join(self.outpath,ncfilename),"vs",os.path.join(self.baselinepath,ncfilename)
                         close = False
                     NC_CLOSE = NC_CLOSE and close
             assert(NC_CLOSE), 'NetCDF files are not close'
