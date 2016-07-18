@@ -29,7 +29,18 @@ import warnings
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates boxfill gm from it"""
+    """
+    Takes VCS script code (string) as input and generates boxfill gm from it
+
+:param nm:
+:type nm:
+
+:param code:
+:type code:
+
+:returns:
+:rtype:
+    """
     try:
         gm = Gfb(nm)
     except:
@@ -141,7 +152,7 @@ class Gfb(object):
 
 ::
 
-    #To make a boxfill:
+    #General use of a boxfill:
         # Constructor
         a=vcs.init()
         # Show predefined boxfill graphics methods
@@ -168,7 +179,7 @@ class Gfb(object):
     #To Modify an existing boxfill:
          box=a.getboxfill('AMIP_psl')
 
-    #Overview of boxfill properties:
+    #Overview of boxfill attributes:
         # Will list all the boxfill attribute values
         box.list()
         box.projection='linear'
