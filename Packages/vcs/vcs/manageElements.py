@@ -2267,6 +2267,35 @@ def create3d_scalar(name=None, source='default'):
 :rtype: vcs.dv3d.Gf3Dscalar
 """
 
+        name, source = check_name_source(name, source, '3d_scalar')
+        return dv3d.Gf3Dscalar(name, source)
+
+def get3d_dual_scalar(Gfdv3d_name_src='default'):
+    """
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
+
+    .. note::
+        VCS does not allow the modification of `default' attribute
+        sets. However, a `default' attribute set that has been copied under a
+        different name can be modified. (See the create3Dscalar function.)
+
+    :Example:
+
+::
+
+    # Show all the existing 3Dscalar graphics methods
+    a.show('3d_dual_scalar')
+    # plot instance of 'default' dv3d graphics method
+    plot=vcs.get3d_dual_scalar()
+
+:param Gfdv3d_name_src: String name of an existing 3d_dual_scalar VCS object
+:type Gfdv3d_name_src: str
+
+:returns: A pre-existing 3d_dual_scalar VCS object
+:rtype: vcs.dv3d.Gf3DDualScalar
+"""
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfdv3d_name_src, str):
         raise vcsError('The argument must be a string.')
