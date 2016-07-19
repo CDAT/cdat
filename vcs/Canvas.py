@@ -5251,16 +5251,15 @@ class Canvas(object):
     b.name='MyBoxfill'
 
  # graphic method is now preserved
-"""
-        #% (self._dotdir)
+"""% (self._dotdir)
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
 
-    def canvasraised(self, *args):
+    def raisecanvas(self, *args):
         """
         Raise the VCS Canvas to the top of all open windows.
         """
-        return self.backend.canvasraised(*args)
+        return self.backend.raisecanvas(*args)
 
     def islandscape(self):
         """
