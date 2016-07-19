@@ -1138,10 +1138,26 @@ class Canvas(object):
     getprojection.__doc__ = vcs.manageElements.getprojection.__doc__
 
     def createboxfill(self, name=None, source='default'):
+        """
+        Create a Boxfill Graphics Method
+
+        :param name: The name of the created object
+        :type name: str
+
+        :param source: The object to inherit from
+        :type source: a boxfill, or a string name of a boxfill
+
+        :return: A boxfill graphics method
+        """
         return vcs.createboxfill(name, source)
     createboxfill.__doc__ = vcs.manageElements.createboxfill.__doc__
 
     def getboxfill(self, Gfb_name_src='default'):
+        """
+
+        :param Gfb_name_src:
+        :return:
+        """
         return vcs.getboxfill(Gfb_name_src)
     getboxfill.__doc__ = vcs.manageElements.getboxfill
 
@@ -1155,7 +1171,6 @@ class Canvas(object):
         then the 'default' template is used.
 
         :Example:
-
 ::
 
     a=vcs.init()
@@ -1320,6 +1335,8 @@ class Canvas(object):
         return self.__plot(arglist, parms)
 
     def createisofill(self, name=None, source='default'):
+        """
+        """
         return vcs.createisofill(name, source)
     createisofill.__doc__ = vcs.manageElements.createisofill.__doc__
 
@@ -1905,7 +1922,9 @@ class Canvas(object):
     # Set the fillarea index
     fa.index=4
     # Set the fillarea color
-    fa.color = 'black'
+    fa.color = 242
+    # Set the fillarea type
+    fa.type = 4
     # Set the x value points
     fa.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
     # Set the y value points
@@ -2164,14 +2183,13 @@ class Canvas(object):
     # Show all the existing texttable objects
     a.show('texttable')
     # Create instance of texttable object 'red'
-    tc=a.drawtextcombined(Tc_name = 'red', To_name='7left', mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )
+    tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
+                       color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
+                       worldcoordinate=[0,100, 0,50]
+                       x=[0,20,40,60,80,100],
+                       y=[0,10,20,30,40,50] )
     # Plot using specified texttable object
     a.texttable(tt)
-
 
 :param name: Name of created object
 :type name: str
@@ -2337,7 +2355,6 @@ class Canvas(object):
     'file_comment' is used instead of the file comment in the parent of variable. Similarly,
     if both 'xaxis' and 'grid' keywords are specified, the value of 'xaxis' takes precedence
     over the x-axis of grid.
-
 
 :Example:
 
@@ -4069,7 +4086,7 @@ class Canvas(object):
     third and fourth dimensions.
 
 
- :Example:
+    :Example:
 
 ::
 
@@ -4099,6 +4116,7 @@ class Canvas(object):
         to keep up with the demands of the X client.
 
      :Example:
+
 ::
 
     a=vcs.init()
@@ -4190,12 +4208,6 @@ class Canvas(object):
         """
      .. deprecated:: ?.?
         Use :func:`landscape` or :func:`portrait` instead.
-
-
-::
-
-    a=vcs.init()
-    a.updateorientation()
 """
 
         a = self.canvas.updateorientation(*args)
@@ -4239,7 +4251,8 @@ class Canvas(object):
         """
         Change the VCS Canvas orientation to Portrait.
 
-        If the current orientation of the canvas is already portrait, nothing happens.
+        .. note::
+            If the current orientation of the canvas is already portrait, nothing happens.
 
         :Example:
 
@@ -4335,8 +4348,7 @@ class Canvas(object):
     a.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50)
     # generates movie at 50 frame per sec and 1024k bitrate
     a.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
-
-    NOTE : via the options arg you can add audio file to your movie (see ffmpeg help)
+    #   NOTE: via the options arg you can add audio file to your movie (see ffmpeg help)
 
 :param movie: ???
 :type movie: ???
@@ -5239,7 +5251,8 @@ class Canvas(object):
     b.name='MyBoxfill'
 
  # graphic method is now preserved
-""" % (self._dotdir)
+"""
+        #% (self._dotdir)
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
 
@@ -5333,6 +5346,8 @@ class Canvas(object):
         return display
 
     def createcolormap(self, Cp_name=None, Cp_name_src='default'):
+        """
+        """
         return vcs.createcolormap(Cp_name, Cp_name_src)
     createcolormap.__doc__ = vcs.manageElements.createcolormap.__doc__
 
@@ -5474,8 +5489,6 @@ class Canvas(object):
 
 :param font: Font name or index to use as default
 :type font: str or int
-
-
         """
         if isinstance(font, str):
             font = self.getfont(font)
@@ -5501,10 +5514,8 @@ class Canvas(object):
         return self.backend.orientation(*args, **kargs)
 
     def getcolorcell(self, *args):
-        """
-
-        """
-        """%s""" % vcs.getcolorcell.__doc__
+        """%s"""
+        #% vcs.getcolorcell.__doc__
         return vcs.getcolorcell(args[0], self)
 
     def getcolormapname(self):
