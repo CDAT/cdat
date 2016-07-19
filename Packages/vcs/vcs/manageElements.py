@@ -2266,9 +2266,8 @@ def create3d_scalar(name=None, source='default'):
 :returns: A 3d_scalar graphics method object
 :rtype: vcs.dv3d.Gf3Dscalar
 """
-
-        name, source = check_name_source(name, source, '3d_scalar')
-        return dv3d.Gf3Dscalar(name, source)
+    name, source = check_name_source(name, source, '3d_scalar')
+    return dv3d.Gf3Dscalar(name, source)
 
 def get3d_dual_scalar(Gfdv3d_name_src='default'):
     """
