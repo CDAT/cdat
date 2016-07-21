@@ -240,6 +240,7 @@ isofill_script = scriptdoc %(('isofill',) * 5)
 yxvsx_script = scriptdoc %(('yxvsx',) * 5)
 meshfill_script = scriptdoc %(('meshfill',) * 5)
 fillarea_script = scriptdoc %(('fillarea',) * 5)
+marker_script = scriptdoc % (('marker',) * 5)
 
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a
