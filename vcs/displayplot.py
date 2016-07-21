@@ -49,10 +49,6 @@ class Dp(object):
          a.show('plot')
          # Updates the VCS Canvas at user's request
          a.update()
-         # If mode=1, automatic update
-         a.mode=1
-         # If mode=0, use update function to update the VCS Canvas.
-         a.mode=0
 
     # General display plot usage:
         #Create a VCS Canvas object
