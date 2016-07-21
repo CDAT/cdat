@@ -1700,19 +1700,24 @@ def createtexttable(name=None, source='default', font=None,
         If the name provided already exists, then an error will be returned.
         Secondary method names must be unique.
 
+    .. deprecated:: 1.0
+        expansion parameter is no longer used
+
     :Example:
 
 ::
 
-    a=vcs.init()
+    # Show names of all available texttable objects
     vcs.show('texttable')
     tt=vcs.createtexttable('example1',)
     vcs.show('texttable')
     tt=vcs.createtexttable('example2','black')
     vcs.show('texttable')
+    # Show available fonts
+    vcs.show('font')
     # Create instance of texttable object 'new'
-    tt=vcs.createtexttable(name='new',name_src='red',font=1,spacing=1,expansion=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+    tt=vcs.createtexttable(name='new', source='red',font=1,spacing=1, font='default',
+                  color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                   worldcoordinate=[0,100, 0,50]
                   x=[0,20,40,60,80,100],
                   y=[0,10,20,30,40,50] )
@@ -1726,11 +1731,11 @@ def createtexttable(name=None, source='default', font=None,
 :param source: a texttable, or string name of a texttable
 :type source: str
 
-:param font: ???
-:type font: ???
+:param font: Which font to use (index or name).
+:type font: int or string
 
-:param expansion: ???
-:type expansion: ???
+:param expansion: DEPRECATED
+:type expansion: DEPRECATED
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
               or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
@@ -1959,9 +1964,12 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
     :Example:
 
 ::
-
+    # Show available texttable object
     vcs.show('texttable')
+    # Show available textorientation object
     vcs.show('textorientation')
+    # Show font options
+    vcs.show('font')
     tc=vcs.createtextcombined('example1','std','example1','7left')
     vcs.show('texttable')
     vcs.show('textorientation')
@@ -1969,23 +1977,23 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param Tt_name: Name of created object
 :type Tt_name: str
 
-:param Tt_source: ???
-:type Tt_source: ???
+:param Tt_source: Texttable object to inherit from. Can be a texttable, or a string name of a texttable.
+:type Tt_source: str or vcs.texttable.Tt
 
-:param To_name:
+:param To_name: Name of the textcombined's text orientation  (to be created)
 :type To_name: str
 
-:param To_source: ???
-:type To_source: ???
+:param To_source: Name of the textorientation to inherit. Can be a textorientation, or a string name of a textorientation.
+:type To_source: str or vcs.textorientation.To
 
-:param font: ???
-:type font: ???
+:param font: Which font to use (index or name).
+:type font: int or str
 
-:param spacing: ???
-:type spacing: ???
+:param spacing: DEPRECATED
+:type spacing: DEPRECATED
 
-:param expansion: ???
-:type expansion: ???
+:param expansion: DEPRECATED
+:type expansion: DEPRECATED
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
               or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
@@ -2006,26 +2014,23 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param height: ???
-:type height: ???
+:param height: Size of the font
+:type height: int
 
-:param angle: ???
-:type angle: ???
+:param angle: Angle of the text, in degrees
+:type angle: int
 
-:param path: ???
-:type path: ???
+:param path: DEPRECATED
+:type path: DEPRECATED
 
-:param halign: ???
-:type halign: ???
+:param halign: Horizontal alignment of the text. One of ["left", "center", "right"].
+:type halign: str
 
-:param valign: ???
-:type valign: ???
+:param valign: Vertical alignment of the text. One of ["top", "center", "botom"].
+:type valign: str
 
 :param projection: Specify a geographic projection used to convert x/y from spherical coordinates into 2D coordinates.
 :type projection: str or projection object
-
-:param projection: ???
-:type projection: ???
 
 :returns: A VCS text object
 :rtype: vcs.textcombined.Tc
@@ -2091,15 +2096,19 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
         However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createtextcombined function.)
 
+    .. deprecated:: 1.0
+        path, spacing, and expansion parameters are no longer used.
+
     :Example:
 
 ::
 
-    a=vcs.init()
     # Show all the existing texttable secondary methods
     vcs.show('texttable')
     # Show all the existing textorientation secondary methods
     vcs.show('textorientation')
+    # Show all font names
+    vcs.show('font')
     # Use 'default' for texttable and textorientation
     tc=vcs.gettextcombined()
     # Use 'std' texttable and '7left' textorientation
@@ -2113,20 +2122,20 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 :param Tt_name_src: Name of created object
 :type Tt_name_src: str
 
-:param To_name_src: ???
-:type To_name_src: ???
+:param To_name_src: Name of parent textorientation object
+:type To_name_src: str
 
-:param string: ???
-:param string: ???
+:param string: Text to render
+:param string: list of str
 
-:param font: ???
-:type font: ???
+:param font: Which font to use (index or name)
+:type font: int or str
 
-:param spacing: ???
-:type spacing: ???
+:param spacing: DEPRECATED
+:type spacing: DEPRECATED
 
-:param expansion: ???
-:type expansion: ???
+:param expansion: DEPRECATED
+:type expansion: DEPRECATED
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
               or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
@@ -2147,20 +2156,20 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
 :type y: list of floats
 
-:param height: ???
-:type height: ???
+:param height: Size of the font
+:type height: int
 
-:param angle: ???
-:type angle: ???
+:param angle: Angle of the rendered text, in degrees
+:type angle: list of int
 
-:param path: ???
-:type path: ???
+:param path: DEPRECATED
+:type path: DEPRECATED
 
-:param halign: ???
-:type halign: ???
+:param halign: Horizontal alignment of the text. One of ["left", "center", "right"]
+:type halign: str
 
-:param valign: ???
-:type valign: ???
+:param valign: Vertical alignment of the text. One of ["top", "center", "bottom"]
+:type valign: str
 
 :returns: A textcombined object
 :rtype: vcs.textcombined.Tc

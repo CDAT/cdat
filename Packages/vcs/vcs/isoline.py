@@ -223,10 +223,6 @@ class Gi(object):
         a.isoline(s,a,'default')
         # Updates the VCS Canvas at user's request
         a.update()
-        # If mode=1, then automatic update
-        a.mode=1
-        #If mode=0, then use update function to update the VCS Canvas.
-        a.mode=0
 
     # Before working, always create a canvas object
         a=vcs.init()
