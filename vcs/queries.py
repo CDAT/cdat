@@ -234,25 +234,26 @@ def iscolormap(obj):
 
 def istemplate(gobj):
     """
- Function: istemplate
+    Check to see if this object is a template.
 
- Description of Function:
-    Indicates if the entered argument a template.
-
-    Returns a 1 if the argment true.
-    Otherwise, it will return a 0, indicating false.
-
- :Example:
+     :Example:
 
 ::
 
-
     a=vcs.init()
-    templt=a.gettemplate('quick')  # Modify an existing template named 'quick'
-    ...
+    # Show all available template
+    a.show('template')
+    # To test an existing template object
+    test_obj = a.gettemplate('default')
+    # ...
+    if queries.istemplate(test_obj):
+       test_obj.list()
 
-    if vcs.istemplate(templt):
-       templt.list()               # If it is a template then list its members
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a template (1), or not (0)
+:rtype: int
 """
     if (isinstance(gobj, template.P)):
         return 1
@@ -262,40 +263,42 @@ def istemplate(gobj):
 
 def issecondaryobject(sobj):
     """
- Function: issecondaryobject
+        Check to see if this object is a VCS secondary object
 
- Description of Function:
+        .. note::
+            Secondary objects will be one of the following:
+            1.) colormap: specification of combinations of 256 available
+                       colors
+            2.) fill area: style, style index, and color index
+            3.) format: specifications for converting numbers to display
+                       strings
+            4.) line: line type, width, and color index
+            5.) list: a sequence of pairs of numerical and character values
+            6.) marker: marker type, size, and color index
+            7.) text table: text font type, character spacing, expansion, and
+                       color index
+            8.) text orientation: character height, angle, path, and
+                       horizontal/vertical alignment
+            9.) projections
 
-In addition, detailed specification of the primary elements' (or
-primary class elements'), attributes is provided by eight secondary
-elements or (secondary class elements):
-
- 1.) colormap: specification of combinations of 256 available
-               colors
- 2.) fill area: style, style index, and color index
- 3.) format: specifications for converting numbers to display
-               strings
- 4.) line: line type, width, and color index
- 5.) list: a sequence of pairs of numerical and character values
- 6.) marker: marker type, size, and color index
- 7.) text table: text font type, character spacing, expansion, and
-               color index
- 8.) text orientation: character height, angle, path, and
-               horizontal/vertical alignment
- 9.) projections
-
-
- :Example:
+     :Example:
 
 ::
 
+    a=vcs.init()
+    # Show all available lines
+    a.show('line')
+    # To test an existing line object
+    test_obj = a.getprojection('default')
+    # ...
+    if queries.issecondaryobject(test_obj):
+       test_obj.list()
 
-a=vcs.init()
-line=a.getline('red')  # To Modify an existing line object
-...
+:param obj: A VCS object
+:type obj: VCS Object
 
-if queries.issecondaryobject(line):
-   box.list()
+:returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
+:rtype: int
 """
     if (isinstance(sobj, line.Tl)):
         return 1
