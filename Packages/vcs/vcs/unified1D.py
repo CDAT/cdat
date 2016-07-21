@@ -144,15 +144,6 @@ def process_src(nm, code, typ):
 class G1d(object):
 
     """
-    Options:::
-%s
-%s
-%s
-%s
-:::
- Class:	G1d			# General 1D plots
-
- Description of G1d Class:
     This graphics method displays a line plot from 1D data array (i.e. a
     plot of Y(x), where y represents the 1D coordinate values, and x can be either Y's axis or another 1D arrays).
     The example below
@@ -162,83 +153,174 @@ class G1d(object):
     used to change some or all of the Yxvsx attributes in an existing Yxvsx table
     entry.
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of Yxvsx use:
-     yxx=a.create1D('new','quick')    # Copies content of 'quick' to 'new'
-     yxx=a.create1D('new')            # Copies content of 'default' to 'new'
+    .. describe:: Make a Canvas object:
 
-    To Modify an existing Yxvsx use:
-     yxx=a.get1D('AMIP_psl')
+        You'll need a Canvas object to work with.
 
-    yxx.list()                          # Will list all the Yxvsx attribute values
-    yxx.projection='linear'             # Can only be 'linear'
+        .. code-block:: python
+
+            # VCS Canvas constructor
+            a=vcs.init()
+
+    .. describe:: Create a new instance of Yxvsx:
+
+        .. code-block:: python
+
+            # Copies content of 'quick' to 'new'
+            yxx=a.create1D('new','quick')
+            # Copies content of 'default' to 'new'
+            yxx=a.create1D('new')
+
+    .. describe:: Modify an existing Yxvsx:
+
+        * Get a YXvsX object to work with:
+
+            .. code-block:: python
+
+                yxx=a.get1D('AMIP_psl')
+
+        * Overview of YXvsX attributes:
+
+            * To view YXvsX attributes:
+
+                .. code-block:: python
+
+                    # Will list all the Yxvsx attribute values
+                    yxx.list()
+
+            * To set the projection attribute:
+
+                .. code-block:: python
+
+                    yxx.projection='linear'
+
+                .. note::
+                    YXvsX projection attribute can only be 'linear'
+
     lon30={-180:'180W',-150:'150W',0:'Eq'}
-    yxx.xticlabels1=lon30
-    yxx.xticlabels2=lon30
-    yxx.xticlabels(lon30, lon30)        # Will set them both
-    yxx.xmtics1=''
-    yxx.xmtics2=''
-    yxx.xmtics(lon30, lon30)            # Will set them both
-    yxx.yticlabels1=lat10
-    yxx.yticlabels2=lat10
-    yxx.yticlabels(lat10, lat10)        # Will set them both
-    yxx.ymtics1=''
-    yxx.ymtics2=''
-    yxx.ymtics(lat10, lat10)            # Will set them both
-    yxx.datawc_y1=-90.0
-    yxx.datawc_y2=90.0
-    yxx.datawc_x1=-180.0
-    yxx.datawc_x2=180.0
-    yxx.datawc(-90, 90, -180, 180)      # Will set them all
-    yxx.xaxisconvert='linear'
 
-    Specify the Yxvsx line type:
-     yxx.linetype=0                         # same as yxx.linetype = 'solid'
-     yxx.linetype=1                         # same as yxx.linetype = 'dash'
-     yxx.linetype=2                         # same as yxx.linetype = 'dot'
-     yxx.linetype=3                         # same as yxx.linetype = 'dash-dot'
-     yxx.linetype=4                         # same as yxx.linetype = 'long-dash
+            * To set axis attributes:
 
-    Specify the Yxvsx line color:
-    yxx.linecolor=16    # color range: 16 to 230, default color is black
-    yxx.linewidth=1     # width range: 1 to 100, default color is 1
+                .. code-block:: python
 
-    Specify the Yxvsx marker type:
-     yxx.marker=1                       # Same as yxx.marker='dot'
-     yxx.marker=2                       # Same as yxx.marker='plus'
-     yxx.marker=3                       # Same as yxx.marker='star'
-     yxx.marker=4                       # Same as yxx.marker='circle'
-     yxx.marker=5                       # Same as yxx.marker='cross'
-     yxx.marker=6                       # Same as yxx.marker='diamond'
-     yxx.marker=7                       # Same as yxx.marker='triangle_up'
-     yxx.marker=8                       # Same as yxx.marker='triangle_down'
-     yxx.marker=9                       # Same as yxx.marker='triangle_left'
-     yxx.marker=10                      # Same as yxx.marker='triangle_right'
-     yxx.marker=11                      # Same as yxx.marker='square'
-     yxx.marker=12                      # Same as yxx.marker='diamond_fill'
-     yxx.marker=13                      # Same as yxx.marker='triangle_up_fill'
-     yxx.marker=14                      # Same as yxx.marker='triangle_down_fill'
-     yxx.marker=15                      # Same as yxx.marker='triangle_left_fill'
-     yxx.marker=16                      # Same as yxx.marker='triangle_right_fill'
-     yxx.marker=17                      # Same as yxx.marker='square_fill'
-     yxx.marker=None                    # Draw no markers
+                    yxx.xticlabels1=lon30
+                    yxx.xticlabels2=lon30
+                    # Will set them both
+                    yxx.xticlabels(lon30, lon30)
+                    yxx.xmtics1=''
+                    yxx.xmtics2=''
+                    # Will set them both
+                    yxx.xmtics(lon30, lon30)
+                    yxx.yticlabels1=lat10
+                    yxx.yticlabels2=lat10
+                    # Will set them both
+                    yxx.yticlabels(lat10, lat10)
+                    yxx.ymtics1=''
+                    yxx.ymtics2=''
+                    # Will set them both
+                    yxx.ymtics(lat10, lat10)
+                    yxx.datawc_y1=-90.0
+                    yxx.datawc_y2=90.0
+                    yxx.datawc_x1=-180.0
+                    yxx.datawc_x2=180.0
+                    # Will set them all
+                    yxx.datawc(-90, 90, -180, 180)
+                    yxx.xaxisconvert='linear'
 
-    There are four possibilities for setting the marker color index (Ex):
-     yxx.markercolors=22                # Same as below
-     yxx.markercolors=(22)              # Same as below
-     yxx.markercolors=([22])            # Will set the markers to a specific
-                                          color index
-     yxx.markercolors=None              # Color index defaults to Black
+            * To specify the Yxvsx line type:
 
-    To set the Yxvsx Marker sizie:
-     yxx.markersize=5
-     yxx.markersize=55
-     yxx.markersize=100
-     yxx.markersize=300
-     yxx.markersize=None
+                .. code-block:: python
 
-""" % (xmldocs.graphics_method_core, xmldocs.xaxisconvert, xmldocs.linedoc, xmldocs.markerdoc)
+                    # same as yxx.line = 'solid'
+                    yxx.line=0
+                    # same as yxx.line = 'dash'
+                    yxx.line=1
+                    # same as yxx.line = 'dot'
+                    yxx.line=2
+                    # same as yxx.line = 'dash-dot'
+                    yxx.line=3
+                    # same as yxx.line = 'long-dash
+                    yxx.line=4
+
+            * To specify the Yxvsx line color:
+
+                .. code-block:: python
+
+                    # color range: 16 to 230, default color is black
+                    yxx.linecolor=16
+                    # width range: 1 to 100, default color is 1
+                    yxx.linewidth=1
+
+            * To specify the Yxvsx marker type:
+
+                .. code-block:: python
+
+                    # Same as yxx.marker='dot'
+                    yxx.marker=1
+                    # Same as yxx.marker='plus'
+                    yxx.marker=2
+                    # Same as yxx.marker='star'
+                    yxx.marker=3
+                    # Same as yxx.marker='circle'
+                    yxx.marker=4
+                    # Same as yxx.marker='cross'
+                    yxx.marker=5
+                    # Same as yxx.marker='diamond'
+                    yxx.marker=6
+                    # Same as yxx.marker='triangle_up'
+                    yxx.marker=7
+                    # Same as yxx.marker='triangle_down'
+                    yxx.marker=8
+                    # Same as yxx.marker='triangle_left'
+                    yxx.marker=9
+                    # Same as yxx.marker='triangle_right'
+                    yxx.marker=10
+                    # Same as yxx.marker='square'
+                    yxx.marker=11
+                    # Same as yxx.marker='diamond_fill'
+                    yxx.marker=12
+                    # Same as yxx.marker='triangle_up_fill'
+                    yxx.marker=13
+                    # Same as yxx.marker='triangle_down_fill'
+                    yxx.marker=14
+                    # Same as yxx.marker='triangle_left_fill'
+                    yxx.marker=15
+                    # Same as yxx.marker='triangle_right_fill'
+                    yxx.marker=16
+                    # Same as yxx.marker='square_fill'
+                    yxx.marker=17
+                    # Draw no markers
+                    yxx.marker=None
+
+            * There are four possibilities for setting the marker color index:
+
+                .. code-block:: python
+
+                    # Same as below
+                    yxx.markercolors=22
+                    # Same as below
+                    yxx.markercolors=(22)
+                    # Will set the markers to a specific color index
+                    yxx.markercolors=([22])
+                    # Color index defaults to Black
+                    yxx.markercolors=None
+
+            * To set the Yxvsx Marker size:
+
+                .. code-block:: python
+
+                    yxx.markersize=5
+                    yxx.markersize=55
+                    yxx.markersize=100
+                    yxx.markersize=300
+                    yxx.markersize=None
+
+%s
+%s
+%s
+%s
+"""
+    # % (xmldocs.graphics_method_core, xmldocs.xaxisconvert, xmldocs.linedoc, xmldocs.markerdoc)
     colormap = VCS_validation_functions.colormap
     __slots__ = [
         '__doc__',
