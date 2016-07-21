@@ -456,7 +456,7 @@ def ismarker(obj):
         return 1
     else:
         return 0
-ismarker.__doc__ = xmldocs.ism
+ismarker.__doc__ = xmldocs.ismarker_doc
 
 def isfillarea(obj):
     if (isinstance(obj, fillarea.Tf)):
