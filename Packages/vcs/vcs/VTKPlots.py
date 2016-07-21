@@ -700,6 +700,7 @@ class VTKVCSBackend(object):
                 self._rasterPropsInVectorFormats = True
         except:
             pass
+        self._rasterPropsInVectorFormats = True
 
         if not kargs.get("donotstoredisplay", False) and kargs.get(
                 "render", True):
