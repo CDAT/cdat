@@ -1088,6 +1088,13 @@ cdat_add_test(test_vcs_no_continents
   ${BASELINE_DIR}/test_vcs_no_continents.png
 )
 
+cdat_add_test(test_vcs_textextents
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_textextents.py
+  ${BASELINE_DIR}/test_textextents.png
+)
+
+
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)

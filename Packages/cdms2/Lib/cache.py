@@ -1,16 +1,8 @@
 """
 CDMS cache management and file movement objects
 """
-import cdurllib
-import urlparse
-import tempfile
-import os
-import time
-import cdmsobj
-import sys
-import errno
-import shelve
-from .error import CDMSError
+import cdurllib, urlparse, tempfile, os, time, cdmsobj, sys, errno, shelve
+from error import CDMSError
 MethodNotImplemented = "Method not yet implemented"
 SchemeNotSupported = "Scheme not supported: "
 LockError = "Lock error:"
@@ -21,7 +13,6 @@ RequestManagerNotSupported = "Request manager interface not supported (module re
 _lock_max_tries = 10                    # Number of tries for a lock
 _lock_naptime = 1                       # Seconds between lock tries
 _cache_tempdir = None                   # Default temporary directory
-
 
 def lock(filename):
     """
@@ -41,49 +32,47 @@ def lock(filename):
     while (not success) and (tries < _lock_max_tries):
         try:
             if cdmsobj._debug:
-                print 'Process %d: Trying to acquire lock %s' % (os.getpid(), path)
-            fd = os.open(path, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o666)
+                print 'Process %d: Trying to acquire lock %s'%(os.getpid(),path)
+            fd = os.open(path, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0666)
 
         # If the open failed because the file already exists, keep trying, otherwise
         # reraise the error
         except OSError:
-            if sys.exc_value.errno != errno.EEXIST:
+            if sys.exc_value.errno!=errno.EEXIST:
                 raise
             tries = tries + 1
         else:
             if cdmsobj._debug:
-                print 'Process %d: Acquired lock %s after %d tries' % (os.getpid(), path, tries)
+                print 'Process %d: Acquired lock %s after %d tries'%(os.getpid(),path,tries)
             success = 1
             break
 
         # Sleep until next retry
         if cdmsobj._debug:
-            print 'Process %d: Failed to acquire lock %s, sleeping' % (os.getpid(), path)
+            print 'Process %d: Failed to acquire lock %s, sleeping'%(os.getpid(),path)
         time.sleep(_lock_naptime)
 
     # Error if the lock could not be acquired
     if not success:
-        raise CDMSError(LockError + 'Could not acquire a lock on %s' % path)
+        raise CDMSError, LockError + 'Could not acquire a lock on %s'%path
 
     # The lock succeeded, so just close the file - we don't need to write
     # anything here
     else:
         os.close(fd)
 
-
 def unlock(filename):
     """
     Delete a file-based lock with the given name.
-    Usage:unlock(filename)
+    Usage:unlock(filename) 
     If the function returns, the lock was successfully deleted.
     Note: This function is UNIX-specific.
     """
 
     path = lockpath(filename)
     if cdmsobj._debug:
-        print 'Process %d: Unlocking %s' % (os.getpid(), path)
+        print 'Process %d: Unlocking %s'%(os.getpid(),path)
     os.unlink(path)
-
 
 def lockpath(filename):
     """
@@ -95,19 +84,18 @@ def lockpath(filename):
 
     if not _cache_tempdir:
         tempfile.mktemp()
-        _cache_tempdir = os.path.join(tempfile.tempdir, 'cdms')
+        _cache_tempdir = os.path.join(tempfile.tempdir,'cdms')
         if not os.path.isdir(_cache_tempdir):
             if cdmsobj._debug:
-                print 'Process %d: Creating cache directory %s' % (os.getpid(), _cache_tempdir)
-            os.mkdir(_cache_tempdir, 0o777)
-    return os.path.join(_cache_tempdir, filename)
+                print 'Process %d: Creating cache directory %s'%(os.getpid(),_cache_tempdir)
+            os.mkdir(_cache_tempdir,0777)
+    return os.path.join(_cache_tempdir,filename)
 
 _useWindow = 0                          # If true, use a progress dialog
 _pythonTransfer = 0
 _globusTransfer = 1
 _requestManagerTransfer = 2
 _transferMethod = _pythonTransfer       # Method of transferring files
-
 
 def useWindow():
     """
@@ -117,14 +105,12 @@ def useWindow():
     global _useWindow
     _useWindow = 1
 
-
 def useTTY():
     """
     Informational messages such as FTP status should be sent to the terminal. See useWindow.
     """
     global _useWindow
     _useWindow = 0
-
 
 def useGlobusTransfer():
     """
@@ -133,7 +119,6 @@ def useGlobusTransfer():
     global _transferMethod
     _transferMethod = _globusTransfer
 
-
 def usePythonTransfer():
     """
     Specify that file transfers should use the Python libraries urllib, ftplib. See useGlobusTransfer.
@@ -141,18 +126,15 @@ def usePythonTransfer():
     global _transferMethod
     _transferMethod = _pythonTransfer
 
-
 def useRequestManagerTransfer():
     try:
         import reqm
     except ImportError:
-        raise CDMSError(RequestManagerNotSupported)
+        raise CDMSError, RequestManagerNotSupported
     global _transferMethod
     _transferMethod = _requestManagerTransfer
 
-
-def copyFile(fromURL, toURL, callback=None,
-             lcpath=None, userid=None, useReplica=1):
+def copyFile(fromURL, toURL, callback=None, lcpath=None, userid=None, useReplica=1):
     """
     Copy file <fromURL> to local file <toURL>. For FTP transfers, if cache._useWindow is true,
     display a progress dialog, otherwise just print progress messages.
@@ -163,16 +145,15 @@ def copyFile(fromURL, toURL, callback=None,
     """
     if callback is None:
         if _useWindow:
-            from . import gui
+            import gui
             dialogParent = gui.getProgressParent()
             dialog = gui.CdProgressDialog(dialogParent, fromURL)
             callback = gui.updateProgressGui
         else:
             callback = cdurllib.sampleReportHook
-    (scheme, netloc, path, parameters, query,
-     fragment) = urlparse.urlparse(fromURL)
-    if scheme == 'ftp':
-        if _transferMethod == _pythonTransfer:
+    (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(fromURL)
+    if scheme=='ftp':
+        if _transferMethod==_pythonTransfer:
             urlopener = cdurllib.CDURLopener()
 
             # In window environment, attach the dialog to the opener. This will
@@ -186,57 +167,51 @@ def copyFile(fromURL, toURL, callback=None,
             except:
                 if _useWindow:
                     dialog.Destroy()
-                raise
-        elif _transferMethod == _globusTransfer:  # Transfer via Globus SC-API
+                raise 
+        elif _transferMethod==_globusTransfer: # Transfer via Globus SC-API
             try:
                 import globus.storage
             except ImportError:
-                raise CDMSError(GlobusNotSupported)
+                raise CDMSError, GlobusNotSupported
 
-            globus.storage.transfer(fromURL, "file:" + toURL)
+            globus.storage.transfer(fromURL, "file:"+toURL)
         else:
-            raise CDMSError(SchemeNotSupported + scheme)
+            raise CDMSError, SchemeNotSupported + scheme
         return
-    elif _transferMethod == _requestManagerTransfer:  # Request manager gransfer
-        import reqm
-        import signal
+    elif _transferMethod==_requestManagerTransfer: # Request manager gransfer
+        import reqm, signal
 
         # Define an alarm handler, to poll the request manager
         def handler(signum, frame):
             pass
 
-        # Obtain server reference from environment variable ESG_REQM_REF if
-        # present
+        # Obtain server reference from environment variable ESG_REQM_REF if present
         serverRef = os.environ.get('ESG_REQM_REF', '/tmp/esg_rqm.ref')
         server = reqm.RequestManager(iorFile=serverRef)
-        result, token = server.requestFile(
-            userid, lcpath, path, toURL, useReplica)
+        result, token = server.requestFile(userid, lcpath, path, toURL, useReplica)
         server.execute(token)
 
         # Poll the request manager for completion, signalled by estim<=0.0
-        while True:
+        while 1:
             signal.signal(signal.SIGALRM, handler)
             estim = server.estimate(token)
-            print 'Estimate: ', estim
-            if estim <= 0.0:
-                break
+            print 'Estimate: ',estim
+            if estim<=0.0: break
             signal.alarm(3)             # Number of seconds between polls
             signal.pause()
 
         #!!!! Remove this when gsincftp uses the right target name !!!
-
-# oldpath = os.path.join(os.path.dirname(toURL),path)
-# os.rename(oldpath,toURL)
+            
+##         oldpath = os.path.join(os.path.dirname(toURL),path)
+##         os.rename(oldpath,toURL)
 
         #!!!!
-
+        
         return
     else:
-        raise CDMSError(SchemeNotSupported + scheme)
+        raise CDMSError, SchemeNotSupported + scheme
 
 # A simple data cache
-
-
 class Cache:
 
     indexpath = None                    # Path of data cache index
@@ -252,10 +227,9 @@ class Cache:
             except:
                 pass
             lock("index_lock")
-            self.index = shelve.open(self.indexpath)  # Persistent cache index
+            self.index = shelve.open(self.indexpath) # Persistent cache index
             try:
-                os.chmod(self.indexpath, 0o666)
-                         # Make index file world writeable
+                os.chmod(self.indexpath,0666) # Make index file world writeable
             except:
                 pass
             self.index.close()
@@ -263,7 +237,7 @@ class Cache:
             # Clean up pending read notifications in the cache. This will also
             # mess up tranfers in progress...
             self.clean()
-            self.direc = os.path.dirname(self.indexpath)  # Cache directory
+            self.direc = os.path.dirname(self.indexpath) # Cache directory
 
     def get(self, filekey):
         """
@@ -295,7 +269,7 @@ class Cache:
         lock("index_lock")
         try:
             if cdmsobj._debug:
-                print 'Process %d: Adding cache file %s,\n   key %s' % (os.getpid(), path, filekey)
+                print 'Process %d: Adding cache file %s,\n   key %s'%(os.getpid(),path,filekey)
             self.index = shelve.open(self.indexpath)
             self.index[filekey] = path
         except:
@@ -320,8 +294,7 @@ class Cache:
             pass
         unlock("index_lock")
 
-    def copyFile(self, fromURL, filekey,
-                 lcpath=None, userid=None, useReplica=None):
+    def copyFile(self, fromURL, filekey, lcpath=None, userid=None, useReplica=None):
         """
         Copy the file <fromURL> into the cache. Return the result path.
 
@@ -329,9 +302,9 @@ class Cache:
         <userid> is the string user ID, <useReplica> is true iff the request manager should
         search the replica catalog for the actual file to transfer.
         """
-
+        
         # Put a notification into the cache, that this file is being read.
-        self.put(filekey, "__READ_PENDING__")
+        self.put(filekey,"__READ_PENDING__")
 
         # Get a temporary file in the cache
         tempdir = tempfile.tempdir
@@ -341,29 +314,21 @@ class Cache:
 
         # Copy to the temporary file
         try:
-            copyFile(
-                fromURL,
-                toPath,
-                lcpath=lcpath,
-                userid=userid,
-                useReplica=useReplica)
-            os.chmod(toPath, 0o666)
-                     # Make cache files world writeable
+            copyFile(fromURL, toPath, lcpath=lcpath, userid=userid, useReplica=useReplica)
+            os.chmod(toPath,0666)           # Make cache files world writeable
         except:
-            # Remove the notification on error, and the temp file, then
-            # re-raise
+            # Remove the notification on error, and the temp file, then re-raise
             self.deleteEntry(filekey)
             if os.path.isfile(toPath):
                 os.unlink(toPath)
             raise
 
         # Add to the cache index
-        self.put(filekey, toPath)
+        self.put(filekey,toPath)
 
         return toPath
 
-    def getFile(self, fromURL, filekey, naptime=5,
-                maxtries=60, lcpath=None, userid=None, useReplica=None):
+    def getFile(self, fromURL, filekey, naptime=5, maxtries=60, lcpath=None, userid=None, useReplica=None):
         """
         Get the file with <fileURL>. If the file is in the cache, read it.
         If another process is transferring it into the cache, wait for the
@@ -386,34 +351,23 @@ class Cache:
         """
         # If the file is being read into the cache, just wait for it
         tempname = self.get(filekey)
-        # Note: This is not bulletproof: another process could set the cache at
-        # this point
+        # Note: This is not bulletproof: another process could set the cache at this point
         if tempname is None:
-            fpath = self.copyFile(
-                fromURL,
-                filekey,
-                lcpath=lcpath,
-                userid=userid,
-                useReplica=useReplica)
-        elif tempname == "__READ_PENDING__":
+            fpath = self.copyFile(fromURL,filekey,lcpath=lcpath,userid=userid,useReplica=useReplica)
+        elif tempname=="__READ_PENDING__":
             success = 0
             for i in range(maxtries):
                 if cdmsobj._debug:
-                    print 'Process %d: Waiting for read completion, %s' % (os.getpid(), repr(filekey))
+                    print 'Process %d: Waiting for read completion, %s'%(os.getpid(),`filekey`)
                 time.sleep(naptime)
                 tempname = self.get(filekey)
 
                 # The read failed, or the entry was deleted.
                 if tempname is None:
-                    fpath = self.copyFile(
-                        fromURL,
-                        filekey,
-                        lcpath=lcpath,
-                        userid=userid,
-                        useReplica=useReplica)
+                    fpath = self.copyFile(fromURL,filekey,lcpath=lcpath,userid=userid,useReplica=useReplica)
 
                 # The read is not yet complete
-                elif tempname == "__READ_PENDING__":
+                elif tempname=="__READ_PENDING__":
                     continue
 
                 # The read is finished.
@@ -422,13 +376,13 @@ class Cache:
                     success = 1
                     break
             if not success:
-                raise CDMSError(TimeOutError + repr(filekey))
+                raise CDMSError, TimeOutError +`filekey`
 
         else:
             fpath = tempname
 
         if cdmsobj._debug:
-            print 'Process %d: Got file %s from cache %s' % (os.getpid(), fromURL, fpath)
+            print 'Process %d: Got file %s from cache %s'%(os.getpid(),fromURL,fpath)
         return fpath
 
     def delete(self):
@@ -440,11 +394,10 @@ class Cache:
             self.index = shelve.open(self.indexpath)
             for key in self.index.keys():
                 path = self.index[key]
-                if path == "__READ_PENDING__":
-                    continue  # Don't remove read-pending notifications
+                if path=="__READ_PENDING__": continue # Don't remove read-pending notifications
                 try:
                     if cdmsobj._debug:
-                        print 'Process %d: Deleting cache file %s' % (os.getpid(), path)
+                        print 'Process %d: Deleting cache file %s'%(os.getpid(),path)
                     os.unlink(path)
                 except:
                     pass
@@ -462,7 +415,7 @@ class Cache:
         self.index = shelve.open(self.indexpath)
         for key in self.index.keys():
             path = self.index[key]
-            if path == "__READ_PENDING__":
+            if path=="__READ_PENDING__":
                 del self.index[key]
         self.index.close()
         unlock("index_lock")

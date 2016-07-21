@@ -154,12 +154,24 @@ def dumpToJson(obj, fileout, skipped=[
 
 
 def getfontname(number):
+    """
+    Retrieve a font name for a given font index.
+
+    :param number: Index of the font to get the name of.
+    :type number: int
+    """
     if number not in vcs.elements["fontNumber"]:
         raise Exception("Error font number not existing %i" % number)
     return vcs.elements["fontNumber"][number]
 
 
 def getfontnumber(name):
+    """
+    Retrieve a font index for a given font name.
+
+    :param name: Name of the font to get the index of.
+    :type name: str
+    """
     for i in vcs.elements["fontNumber"]:
         if vcs.elements["fontNumber"][i] == name:
             return i
