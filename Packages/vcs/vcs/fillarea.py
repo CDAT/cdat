@@ -144,7 +144,7 @@ class Tf(object):
 
             fa=a.getfillarea('red')
 
-    .. describe:: Overview of fillarea attributes:
+    * Overview of fillarea attributes:
 
         * List all the fillarea attribute values
 
@@ -181,7 +181,7 @@ class Tf(object):
                 # FloatType [#,#]x[#,#]
                 fa.worldcoordinate=[0,1.0,0,1.0]
 
-        * Setting x and y values
+        * Setting x and y values:
 
             .. code-block:: python
 

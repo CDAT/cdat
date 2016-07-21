@@ -243,6 +243,84 @@ fillarea_script = scriptdoc %(('fillarea',) * 5)
 marker_script = scriptdoc % (('marker',) * 5)
 line_script = scriptdoc % (('line',) * 5)
 
+queries_is_primary_doc = """
+    Check to see if this object is a VCS primary %s graphics method.
+
+     :Example:
+
+::
+
+    a=vcs.init()
+    # Show all available %s
+    a.show('%s')
+    # To  test an existing %s object
+    example = a.get%s('default')
+    # ...
+    if queries.is%s(example):
+       example.list()
+
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a %s graphics method (1), or not (0).
+:rtype: int
+"""
+
+queries_is_secondary_doc = """
+    Check to see if this object is a VCS secondary %s graphics method.
+
+     :Example:
+
+::
+
+    a=vcs.init()
+    # Show all available %s
+    a.show('%s')
+    # To test an existing %s object
+    test_obj = a.get%s('default')
+    # ...
+    if queries.is%s(test_obj):
+       test_obj.list()
+
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a %s graphics method (1), or not (0).
+:rtype: int
+"""
+#queries.is[PRIMARY_OBJECT]
+isvector_doc = queries_is_primary_doc % (('vector',) * 7)
+isscatter_doc = queries_is_primary_doc % (('scatter',) * 7)
+isxyvsy_doc = queries_is_primary_doc % (('xyvsy',) * 7)
+isxvsy_doc = queries_is_primary_doc % (('xvsy',) * 7)
+isyxvsx_doc = queries_is_primary_doc % (('yxvsx',) * 7)
+is1d_doc = queries_is_primary_doc % (('1d',) * 7)
+istaylordiagram_doc = queries_is_primary_doc % (('taylordiagram',) * 7)
+ismeshfill_doc = queries_is_primary_doc % (('meshfill',) * 7)
+isboxfill_doc= queries_is_primary_doc % (('boxfill',) * 7)
+isisofill_doc= queries_is_primary_doc % (('isofill',) * 7)
+isisoline_doc= queries_is_primary_doc % (('isoline',) * 7)
+is3d_scalar_doc= queries_is_primary_doc % (('3d_scalar',) * 7)
+is3d_dual_scalar_doc= queries_is_primary_doc % (('3d_dual_scalar',) * 7)
+is3d_vector_doc= queries_is_primary_doc % (('3d_vector',) * 7)
+
+#queries.is[SECONDARY_OBJECT]
+isline_doc = queries_is_secondary_doc % (('line',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+isfillarea_doc = queries_is_secondary_doc % (('fillarea',) * 7)
+istexttable_doc = queries_is_secondary_doc % (('texttable',) * 7)
+istextorientation_doc = queries_is_secondary_doc % (('textorientation',) * 7)
+istextcombined_doc = queries_is_secondary_doc % (('textcombined',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a
     %s class object from an existing VCS %s secondary method. If
