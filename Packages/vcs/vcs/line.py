@@ -68,19 +68,9 @@ def process_src(nm, code):
         j = code[i:].find(",") + i
         f.projection = code[i + 11:j]
 
-###############################################################################
-#                                                                             #
-# Line (Tl) Class.                                                            #
-#                                                                             #
-###############################################################################
-
-
 class Tl(object):
 
     """
- Class:	Tl				# Line
-
- Description of Tl Class:
     The Line object allows the manipulation of line type, width, color index,
     view port, world coordinates, and (x,y) points.
 
@@ -88,40 +78,83 @@ class Tl(object):
     can be used to change some or all of the line attributes in an
     existing line table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('line')		# Show predefined line objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of line use:
-     ln=a.createline('new','red') 	# Copies content of 'red' to 'new'
-     ln=a.createline('new') 		# Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing line use:
-     ln=a.getline('red')
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined line objects
+            a.show('line')
+            # Will list all the line attribute values
+            ln.list()
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    ln.list()  				# Will list all the line attribute values
-    ln.color=100			# Range from 1 to 256
-    ln.width=100			# Range from 1 to 300
+    .. describe:: Create a new instance of line:
 
-    Specify the line type:
-     ln.type='solid'          		# Same as ln.type=0
-     ln.type='dash'          		# Same as ln.type=1
-     ln.type='dot'          		# Same as ln.type=2
-     ln.type='dash-dot'          	# Same as ln.type=3
-     ln.type='long-dash'          	# Same as ln.type=4
+        .. code-block:: python
 
-    ln.priority=1			# Set the graphics priority on the canvas
-    ln.viewport=[0, 1.0, 0,1.0]		# FloatType [0,1]x[0,1]
-    ln.worldcoordinate=[0,1.0,0,1.0]	# FloatType [#,#]x[#,#]
+            # Copies content of 'red' to 'new'
+            ln=a.createline('new','red')
+            # Copies content of 'default' to 'new'
+            ln=a.createline('new')
 
-    ln.x=[[0,.1,.2], [.3,.4,.5]]	# List of FloatTypes
-    ln.y=[[.5,.4,.3], [.2,.1,0]]	# List of FloatTypes
+    .. describe:: Modify an existing line:
+
+        * Get a line object 'ln' to manipulate:
+
+            .. code-block:: python
+
+                ln=a.getline('red')
+
+        * Set line color:
+
+            .. code-block:: python
+
+                # Range from 1 to 256
+                ln.color=100
+
+        * Set line width:
+
+            .. code-block:: python
+
+                # Range from 1 to 300
+                ln.width=100
+
+        * Specify the line type:
+
+            .. code-block:: python
+
+                # Same as ln.type=0
+                 ln.type='solid'
+                 # Same as ln.type=1
+                 ln.type='dash'
+                 # Same as ln.type=2
+                 ln.type='dot'
+                 # Same as ln.type=3
+                 ln.type='dash-dot'
+                 # Same as ln.type=4
+                 ln.type='long-dash'
+
+        * Set the graphics priority on the canvas:
+
+            .. code-block:: python
+
+                ln.priority=1
+                # FloatType [0,1]x[0,1]
+                ln.viewport=[0, 1.0, 0,1.0]
+                # FloatType [#,#]x[#,#]
+                ln.worldcoordinate=[0,1.0,0,1.0]
+
+        * Set line x and y values:
+
+            .. code-block:: python
+
+                # List of FloatTypes
+                ln.x=[[0,.1,.2], [.3,.4,.5]]
+                # List of FloatTypes
+                ln.y=[[.5,.4,.3], [.2,.1,0]]
 """
     __slots__ = [
         's_name',
