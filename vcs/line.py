@@ -25,6 +25,7 @@
 import VCS_validation_functions
 import vcs
 import genutil
+from xmldocs import line_script
 
 
 def process_src(nm, code):
@@ -405,27 +406,7 @@ class Tl(object):
     ##########################################################################
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTl
-
- Description of Function:
-       Saves out a line graphics method in VCS or Python script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    ln=a.createboxfill('temp')
-    ln.script('filename.py')         # Append to a Python file "filename.py"
-    ln.script('filename.scr')        # Append to a VCS file "filename.scr"
-    ln.script('filename','w')        # Create or overwrite to a Python file "filename.py"
+        docstring moved to xmldocs
 """
         if (script_filename is None):
             raise ValueError(
@@ -495,8 +476,4 @@ class Tl(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+    script.__doc__ = line_script

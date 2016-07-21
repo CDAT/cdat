@@ -207,7 +207,7 @@ scriptdoc = """
     Saves out a copy of the %s graphics method in JSON, or Python format to a designated file.
 
               .. note::
-                If the the filename has a ".py" at the end, it will produce a
+                If the the filename has a '.py' at the end, it will produce a
                 Python script. If no extension is given, then by default a
                 .json file containing a JSON serialization of the object's
                 data will be produced.
@@ -221,7 +221,7 @@ scriptdoc = """
 
     a=vcs.init()
     %s=a.create%s('temp')
-    # Append to a Python script named "filename.py"
+    # Append to a Python script named 'filename.py'
     %s.script('filename.py')
     # Create or overwrite a JSON file 'filename.json'.
     %s.script('filename','w')
@@ -241,6 +241,7 @@ yxvsx_script = scriptdoc %(('yxvsx',) * 5)
 meshfill_script = scriptdoc %(('meshfill',) * 5)
 fillarea_script = scriptdoc %(('fillarea',) * 5)
 marker_script = scriptdoc % (('marker',) * 5)
+line_script = scriptdoc % (('line',) * 5)
 
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a

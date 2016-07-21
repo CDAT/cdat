@@ -113,64 +113,83 @@ class Tf(object):
     existing fillarea table entry.
 
 
-    :Example:
+    .. describe:: Useful Functions:
 
-::
+        .. code-block:: python
 
-    #Useful Functions:
-        # VCS Canvas Constructor
-         a=vcs.init()
-         # Show predefined fillarea objects
-         a.show('fillarea')
-         # Updates the VCS Canvas at user's request
-         a.update()
-         # If 1, then automatic update, else if
-         a.mode=1
-         # If 0, then use update function update the VCS Canvas.
-         a.mode=0
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined fillarea objects
+            a.show('fillarea')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    # Creating a fillarea object:
-        #Create a VCS Canvas object
-        a=vcs.init()
-        # Copies content of 'def37' to 'new'ea:
-        fa=a.createfillarea('new','def37')
-        # Copies content of 'default' to 'new'
-        fa=a.createfillarea('new')
+    .. describe:: Create a fillarea object:
 
-    # To Modify an existing fillarea:
-        fa=a.getfillarea('red')
+        .. code-block:: python
 
-    # Overview of fillarea attributes:
-        # Will list all the fillarea attribute values
-        fa.list()
+            #Create a VCS Canvas object
+            a=vcs.init()
 
-        #There are three possibilities for setting the isofill style:
-        fa.style = 'solid'
-        fa.style = 'hatch'
-        fa.style = 'pattern'
+            # Two ways to create a fillarea:
 
-        # Range from 1 to 20
-        fa.index=1
-        # Range from 1 to 256
-        fa.color=100
-        # Range from 0 to 100
-        fa.opacity=100
+            # Copies content of 'def37' to 'new'ea:
+            fa=a.createfillarea('new','def37')
+            # Copies content of 'default' to 'new'
+            fa=a.createfillarea('new')
 
-        # Specify the fillarea index:
-        #   index can be an integer from 1 through 20
-        fa.index=1
+    .. describe::  Modify an existing fillarea:
 
-        # Set the graphics priority on the canvas
-        fa.priority=1
-        # FloatType [0,1]x[0,1]
-        fa.viewport=[0, 1.0, 0,1.0]
-        # FloatType [#,#]x[#,#]
-        fa.worldcoordinate=[0,1.0,0,1.0]
+        .. code-block:: python
 
-        # List of FloatTypes
-        fa.x=[[0,.1,.2], [.3,.4,.5]]
-        # List of FloatTypes
-        fa.y=[[.5,.4,.3], [.2,.1,0]]
+            fa=a.getfillarea('red')
+
+    .. describe:: Overview of fillarea attributes:
+
+        * List all the fillarea attribute values
+
+            .. code-block:: python
+
+                fa.list()
+
+        * There are three possibilities for setting the isofill style:
+
+            .. code-block:: python
+
+                fa.style = 'solid'
+                fa.style = 'hatch'
+                fa.style = 'pattern'
+
+        * Setting index, color, opacity:
+
+            .. code-block:: python
+
+                # Range from 1 to 20
+                fa.index=1
+                # Range from 1 to 256
+                fa.color=100
+                # Range from 0 to 100
+                fa.opacity=100
+
+        * Setting the graphics priority viewport, worldcoordinate:
+
+            .. code-block:: python
+
+                fa.priority=1
+                # FloatType [0,1]x[0,1]
+                fa.viewport=[0, 1.0, 0,1.0]
+                # FloatType [#,#]x[#,#]
+                fa.worldcoordinate=[0,1.0,0,1.0]
+
+        * Setting x and y values
+
+            .. code-block:: python
+
+                #List of FloatTypes
+                fa.x=[[0,.1,.2], [.3,.4,.5]]
+                # List of FloatTypes
+                fa.y=[[.5,.4,.3], [.2,.1,0]]
+
         """
     __slots__ = [
         'name',
