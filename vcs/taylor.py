@@ -541,8 +541,9 @@ class TDMarker(object):
 
 
 class Gtd(object):
-
-    """ class"""
+    """
+    TODO: Get details on this class from Sam
+    """
     __slots__ = [
         'template',
         'max',
