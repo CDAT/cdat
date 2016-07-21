@@ -24,7 +24,18 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates meshfill gm from it"""
+    """
+    Takes VCS script code (string) as input and generates meshfill gm from it
+
+:param nm: Name of the ouput file
+:type nm: str
+
+:param code: String containing a VCS script
+:type code: str
+
+:returns:
+:rtype:
+    """
     try:
         g = Gfm(nm)
     except:
