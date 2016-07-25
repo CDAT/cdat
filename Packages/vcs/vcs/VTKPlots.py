@@ -1273,7 +1273,6 @@ class VTKVCSBackend(object):
 
         return extents
 
-
     def getantialiasing(self):
         if self.renWin is None:
             return self.antialiasing
