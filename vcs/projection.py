@@ -66,46 +66,77 @@ class Proj(object):
 
           Projection Transformation Package Projection Parameters
 
-  -----------------------------------------------------------------------------
-                          |       		Array Element		      |
-   Code & Projection Id   |----------------------------------------------------
-                          |   1  |   2  |  3   |  4   |   5   |    6    |7 | 8|
-  -----------------------------------------------------------------------------
-   0 Geographic           |      |      |      |      |       |         |  |  |
-   1 U T M                |Lon/Z |Lat/Z |      |      |       |         |  |  |
-   2 State Plane          |      |      |      |      |       |         |  |  |
-   3 Albers Equal Area    |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
-   4 Lambert Conformal C  |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
-   5 Mercator             |SMajor|SMinor|      |      |CentMer|TrueScale|FE|FN|
-   6 Polar Stereographic  |SMajor|SMinor|      |      |LongPol|TrueScale|FE|FN|
-   7 Polyconic            |SMajor|SMinor|      |      |CentMer|OriginLat|FE|FN|
-   8 Equid. Conic A       |SMajor|SMinor|STDPAR|      |CentMer|OriginLat|FE|FN|
-     Equid. Conic B       |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
-   9 Transverse Mercator  |SMajor|SMinor|Factor|      |CentMer|OriginLat|FE|FN|
-  10 Stereographic        |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
-  11 Lambert Azimuthal    |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
-  12 Azimuthal            |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
-  13 Gnomonic             |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
-  14 Orthographic         |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
-  15 Gen. Vert. Near Per  |Sphere|      |Height|      |CentLon|CenterLat|FE|FN|
-  16 Sinusoidal           |Sphere|      |      |      |CentMer|         |FE|FN|
-  17 Equirectangular      |Sphere|      |      |      |CentMer|TrueScale|FE|FN|
-  18 Miller Cylindrical   |Sphere|      |      |      |CentMer|         |FE|FN|
-  19 Van der Grinten      |Sphere|      |      |      |CentMer|OriginLat|FE|FN|
-  20 Hotin Oblique Merc A |SMajor|SMinor|Factor|      |       |OriginLat|FE|FN|
-     Hotin Oblique Merc B |SMajor|SMinor|Factor|AziAng|AzmthPt|OriginLat|FE|FN|
-  21 Robinson             |Sphere|      |      |      |CentMer|         |FE|FN|
-  22 Space Oblique Merc A |SMajor|SMinor|      |IncAng|AscLong|         |FE|FN|
-     Space Oblique Merc B |SMajor|SMinor|Satnum|Path  |       |         |FE|FN|
-  23 Alaska Conformal     |SMajor|SMinor|      |      |       |         |FE|FN|
-  24 Interrupted Goode    |Sphere|      |      |      |       |         |  |  |
-  25 Mollweide            |Sphere|      |      |      |CentMer|         |FE|FN|
-  26 Interrupt Mollweide  |Sphere|      |      |      |       |         |  |  |
-  27 Hammer               |Sphere|      |      |      |CentMer|         |FE|FN|
-  28 Wagner IV            |Sphere|      |      |      |CentMer|         |FE|FN|
-  29 Wagner VII           |Sphere|      |      |      |CentMer|         |FE|FN|
-  30 Oblated Equal Area   |Sphere|      |Shapem|Shapen|CentLon|CenterLat|FE|FN|
-  -----------------------------------------------------------------------------
+
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |  Code & Projection Id |   1  |   2  |  3   |  4   |   5   |    6    |7 | 8|
+  +=======================+======+======+======+======+=======+=========+==+==+
+  |0 Geographic           |      |      |      |      |       |         |  |  |
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |1 U T M                |Lon/Z |Lat/Z |      |      |       |         |  |  |
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |2 State Plane          |      |      |      |      |       |         |  |  |
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |3 Albers Equal Area    |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |4 Lambert Conformal C  |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |5 Mercator             |SMajor|SMinor|      |      |CentMer|TrueScale|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |6 Polar Stereographic  |SMajor|SMinor|      |      |LongPol|TrueScale|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |7 Polyconic            |SMajor|SMinor|      |      |CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |8 Equid. Conic A       |SMajor|SMinor|STDPAR|      |CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |  Equid. Conic B       |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |9 Transverse Mercator  |SMajor|SMinor|Factor|      |CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |10 Stereographic       |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |11 Lambert Azimuthal   |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |12 Azimuthal           |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |13 Gnomonic            |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |14 Orthographic        |Sphere|      |      |      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |15 Gen. Vert. Near Per |Sphere|      |Height|      |CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |16 Sinusoidal          |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |17 Equirectangular     |Sphere|      |      |      |CentMer|TrueScale|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |18 Miller Cylindrical  |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |19 Van der Grinten     |Sphere|      |      |      |CentMer|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |20 Hotin Oblique Merc A|SMajor|SMinor|Factor|      |       |OriginLat|FE|FN|
+  |   Hotin Oblique Merc B|SMajor|SMinor|Factor|AziAng|AzmthPt|OriginLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |21 Robinson            |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |22 Space Oblique Merc A|SMajor|SMinor|      |IncAng|AscLong|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |   Space Oblique Merc B|SMajor|SMinor|Satnum|Path  |       |         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |23 Alaska Conformal    |SMajor|SMinor|      |      |       |         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |24 Interrupted Goode   |Sphere|      |      |      |       |         |  |  |
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |25 Mollweide           |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |26 Interrupt Mollweide |Sphere|      |      |      |       |         |  |  |
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |27 Hammer              |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |28 Wagner IV           |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |29 Wagner VII          |Sphere|      |      |      |CentMer|         |FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
+  |30 Oblated Equal Area  |Sphere|      |Shapem|Shapen|CentLon|CenterLat|FE|FN|
+  +-----------------------+------+------+------+------+-------+---------+--+--+
 
     Projection Transformation Package Projection Parameters elements 9-15
     continued
