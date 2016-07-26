@@ -25,6 +25,7 @@
 import VCS_validation_functions
 import vcs
 import genutil
+from xmldocs import texttable_script
 
 
 def process_src(nm, code):
@@ -558,8 +559,4 @@ class Tt(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+    script.__doc__ = texttable_script

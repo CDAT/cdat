@@ -24,6 +24,7 @@
 import vcs
 import VCS_validation_functions
 import cdtime
+from xmldocs import vector_script
 
 
 def load(nm, json_dict={}):
@@ -852,8 +853,4 @@ class Gv(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-###############################################################################
-#        END OF FILE                                  #
-###############################################################################
+    script.__doc__ = vector_script
