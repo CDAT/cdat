@@ -36,8 +36,7 @@ from Plegend import *  # noqa
 from Pdata import *  # noqa
 import inspect
 import cdutil
-from projection import round_projections
-from projection import elliptical_projections
+from projection import round_projections, elliptical_projections
 
 # Following for class properties
 
