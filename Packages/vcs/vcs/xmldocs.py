@@ -1,71 +1,128 @@
 plot_keywords_doc = """
-xaxis :: (cdms2.axis.TransientAxis) () Axis object to replace the slab -1 dim axis
-yaxis :: (cdms2.axis.TransientAxis) () Axis object to replace the slab -2 dim axis, only if slab has more than 1D
-zaxis :: (cdms2.axis.TransientAxis) () Axis object to replace the slab -3 dim axis, only if slab has more than 2D
-taxis :: (cdms2.axis.TransientAxis) () Axis object to replace the slab -4 dim axis, only if slab has more than 3D
-waxis :: (cdms2.axis.TransientAxis) () Axis object to replace the slab -5 dim axis, only if slab has more than 4D
-xrev :: (bool) () reverse x axis
-yrev :: (bool) () reverse y axis, only if slab has more than 1D
-xarray :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of x axis
-yarray :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of y axis, only if var has more than 1D
-zarray :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of z axis, only if var has more than 2D
-tarray :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of t axis, only if var has more than 3D
-warray :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of w axis, only if var has more than 4D
-continents :: (int) () continents type number
-name :: (str) () replaces variable name on plot
-time "" (cdtime.comptime/cdtime.reltime/cdtime.abstime) () replaces time name on plot
-units :: (str) () replaces units value on plot
-ymd :: (str) () replaces year/month/day on plot
-hms :: (str) () replaces hh/mm/ss on plot
-file_comment :: (str) () replaces file_comment on plot
-xbounds :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of x axis bounds values
-ybounds :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () Values to use instead of y axis bounds values (if exist)
-xname :: (str) () replace xaxis name on plot
-yname :: (str) () replace yaxis name on plot (if exists)
-zname :: (str) () replace zaxis name on plot (if exists)
-tname :: (str) () replace taxis name on plot (if exists)
-wname :: (str) () replace waxis name on plot (if exists)
-xunits :: (str) () replace xaxis units on plot
-yunits :: (str) () replace yaxis units on plot (if exists)
-zunits :: (str) () replace zaxis units on plot (if exists)
-tunits :: (str) () replace taxis units on plot (if exists)
-wunits :: (str) () replace waxis units on plot (if exists)
-xweights :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () replace xaxis weights used for computing mean
-yweights :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) () replace xaxis weights used for computing mean
-comment1 :: (str) () replaces comment1 on plot
-comment2 :: (str) () replaces comment2 on plot
-comment3 :: (str) () replaces comment3 on plot
-comment4 :: (str) () replaces comment4 on plot
-long_name :: (str) () replaces long_name on plot
-grid :: (cdms2.grid.TransientRectGrid) () replaces array grid (if exists)
-bg :: (bool/int) () plots in background mode
-ratio :: (int/str) () sets the y/x ratio ,if passed as a string with 't' at the end, will aslo moves the ticks
+:param xaxis: Axis object to replace the slab -1 dim axis
+:param yaxis: Axis object to replace the slab -2 dim axis, only if slab has more than 1D
+:param zaxis: Axis object to replace the slab -3 dim axis, only if slab has more than 2D
+:param taxis: Axis object to replace the slab -4 dim axis, only if slab has more than 3D
+:param waxis: Axis object to replace the slab -5 dim axis, only if slab has more than 4D
+:param xrev: reverse x axis
+:param yrev: reverse y axis, only if slab has more than 1D
+:param xarray: Values to use instead of x axis
+:param yarray: Values to use instead of y axis, only if var has more than 1D
+:param zarray: Values to use instead of z axis, only if var has more than 2D
+:param tarray: Values to use instead of t axis, only if var has more than 3D
+:param warray: Values to use instead of w axis, only if var has more than 4D
+:param continents: continents type number
+:param name: replaces variable name on plot
+:param time: replaces time name on plot
+:param units: replaces units value on plot
+:param ymd: replaces year/month/day on plot
+:param hms: replaces hh/mm/ss on plot
+:param file_comment: replaces file_comment on plot
+:param xbounds: Values to use instead of x axis bounds values
+:param ybounds: Values to use instead of y axis bounds values (if exist)
+:param xname: replace xaxis name on plot
+:param yname: replace yaxis name on plot (if exists)
+:param zname: replace zaxis name on plot (if exists)
+:param tname: replace taxis name on plot (if exists)
+:param wname: replace waxis name on plot (if exists)
+:param xunits: replace xaxis units on plot
+:param yunits: replace yaxis units on plot (if exists)
+:param zunits: replace zaxis units on plot (if exists)
+:param tunits: replace taxis units on plot (if exists)
+:param wunits: replace waxis units on plot (if exists)
+:param xweights: replace xaxis weights used for computing mean
+:param yweights: replace xaxis weights used for computing mean
+:param comment1: replaces comment1 on plot
+:param comment2: replaces comment2 on plot
+:param comment3: replaces comment3 on plot
+:param comment4: replaces comment4 on plot
+:param long_name: replaces long_name on plot
+:param grid: replaces array grid (if exists)
+:param bg: plots in background mode
+:param ratio: sets the y/x ratio ,if passed as a string with 't' at the end, will aslo moves the ticks
+:type xaxis: cdms2.axis.TransientAxis
+:type yaxis: cdms2.axis.TransientAxis
+:type zaxis: cdms2.axis.TransientAxis
+:type taxis: cdms2.axis.TransientAxis
+:type waxis: cdms2.axis.TransientAxis
+:type xrev: bool
+:type yrev: bool
+:type xarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type yarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type zarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type tarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type warray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type continents: int
+:type name: str
+:type time: cdtime.comptime/cdtime.reltime/cdtime.abstime
+:type units: str
+:type ymd: str
+:type hms: str
+:type file_comment: str
+:type xbounds: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type ybounds: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type xname: str
+:type yname: str
+:type zname: str
+:type tname: str
+:type wname: str
+:type xunits: str
+:type yunits: str
+:type zunits: str
+:type tunits: str
+:type wunits: str
+:type xweights: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type yweights: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type comment1: str
+:type comment2: str
+:type comment3: str
+:type comment4: str
+:type long_name: str
+:type grid: cdms2.grid.TransientRectGrid
+:type bg: bool/int
+:type ratio: int/str
 """  # noqa
 
 data_time = """
-    datawc_timeunits :: (str) ('days since 2000') units to use when disaplaying time dimension auto tick
-    datawc_calendar:: (int) (135441) calendar to use when displaying time dimension auto tick, default is proleptic gregorian calendar
+:param datawc_timeunits: (Ex: 'days since 2000') units to use when disaplaying time dimension auto tick
+:type datawc_timeunits: str
+:param datawc_calendar: (Ex: 135441) calendar to use when displaying time dimension auto tick, default is proleptic gregorian calendar
+:type datawc_calendar: int
 """  # noqa
 graphics_method_core_notime = """
-    xmtics1 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 1st side of y axis
-    xmtics2 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 2nd side of y axis
-    ymtics1 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 1st side of y axis
-    ymtics2 :: (str/{float:str}) ('') dictionary with location of intermediate tics as keys for 2nd side of y axis
-    xticlabels1 :: (str/{float:str}) ('*') values for labels on 1st side of x axis
-    xticlabels2 :: (str/{float:str}) ('*') values for labels on 2nd side of x axis
-    yticlabels1 :: (str/{float:str}) ('*') values for labels on 1st side of y axis
-    yticlabels2 :: (str/{float:str}) ('*') values for labels on 2nd side of y axis
-    projection :: (str/vcs.projection.Proj) ('default') projection to use, name or object
-    datawc_x1 :: (float) (1.E20) first value of xaxis on plot
-    datawc_x2 :: (float) (1.E20) second value of xaxis on plot
-    datawc_y1 :: (float) (1.E20) first value of yaxis on plot
-    datawc_y2 :: (float) (1.E20) second value of yaxis on plot
+:param xmtics1: (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
+:type xmtics1: str/{float:str}
+:param xmtics2: (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
+:type xmtics2: str/{float:str}
+:param ymtics1: (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
+:type ymtics1: str/{float:str}
+:param ymtics2: (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
+:type ymtics2: str/{float:str}
+:param xticlabels1: (Ex: '*') values for labels on 1st side of x axis
+:type xticlabels1: str/{float:str}
+:param xticlabels2: (Ex: '*') values for labels on 2nd side of x axis
+:type xticlabels2: str/{float:str}
+:param yticlabels1: (Ex: '*') values for labels on 1st side of y axis
+:type yticlabels1: str/{float:str}
+:param yticlabels2: (Ex: '*') values for labels on 2nd side of y axis
+:type yticlabels2: str/{float:str}
+:param projection: (Ex: 'default') projection to use, name or object
+:type projection: str/vcs.projection.Proj
+:param datawc_x1: (Ex: 1.E20) first value of xaxis on plot
+:type datawc_x1: float
+:param datawc_x2: (Ex: 1.E20) second value of xaxis on plot
+:type datawc_x2: float
+:param datawc_y1: (Ex: 1.E20) first value of yaxis on plot
+:type datawc_y1: float
+:param datawc_y2: (Ex: 1.E20) second value of yaxis on plot
+:type datawc_y2: float
 """  # noqa
 graphics_method_core = """%s
 %s""" % (graphics_method_core_notime, data_time)
-axisconvert = """    %saxisconvert :: (str) ('linear') converting %saxis linear/log/log10/ln/exp/area_wt\n """
-xaxisconvert = axisconvert % ("x", "x")
-yaxisconvert = axisconvert % ("y", "y")
+axisconvert = """:param {axis}axisconvert: (Ex: 'linear') converting {axis}axis linear/log/log10/ln/exp/area_wt
+:type {axis}axisconvert: str\n"""
+xaxisconvert = axisconvert.format(axis="x")
+yaxisconvert = axisconvert.format(axis="y")
 axesconvert = xaxisconvert + yaxisconvert
 colorsdoc = """Options:::
            color1 :: (int) (16) value for color_1
@@ -176,29 +233,38 @@ markerdoc = """
 #############################################################################
 
 create_GM_input = """
-    new_GM_name :: (str) (0) name of the new graphics method object. If no name is given, then one will be created for use.
-    source_GM_name :: (str) (1) copy the contents of the source object to the newly created one. If no name is given, then the 'default' graphics methond contents is copied over to the new object.
+:param new_GM_name: (Ex: 'my_awesome_gm') name of the new graphics method object. If no name is given, then one will be created for use.
+:type new_GM_name: str
+:param source_GM_name: (Ex: 'default') copy the contents of the source object to the newly created one. If no name is given, then the 'default' graphics methond contents is copied over to the new object.
+:type source_GM_name: str
 """  # noqa
 
 get_GM_input = """
-    GM_name :: (str) (0) retrieve the graphics method object of the given name. If no name is given, then retrieve the 'default' graphics method.
+:param GM_name: (Ex: 'default') retrieve the graphics method object of the given name. If no name is given, then retrieve the 'default' graphics method.
+:type GM_name: str
 """  # noqa
 
 plot_1D_input = """
-       slab :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 1D, last dimension will be plotted
+:param slab: (Ex: [1, 2]) Data at least 1D, last dimension will be plotted
+:type slab: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
 """  # noqa
 
 plot_2D_input = """
-       slab :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 2D, last 2 dimensions will be plotted
+:param slab: (Ex: [[0, 1]]) Data at least 2D, last 2 dimensions will be plotted
+:type slab: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
 """  # noqa
 
 plot_2_1D_input = """
-       slab_or_primary_object :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc) (None) Data at least 1D, last dimension(s) will be plotted, or primary vcs object
+:param slab_or_primary_object: Data at least 1D, last dimension(s) will be plotted, or secondary vcs object
+:type slab_or_primary_object: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc
 """  # noqa
 plot_2_1D_options = """
-       slab2 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (None) Data at least 1D, last dimension(s) will be plotted
-       template :: (str/vcs.template.P) ('default') vcs template
-       gm :: (str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.xvsy.GXY/vcs.xyvsy.GXy/vcs.yxvsx.GYx/vcsaddons.core.VCSaddon/vcs.continents.Gcon) ('default') graphic method to use
+:param slab2: Data at least 1D, last dimension(s) will be plotted
+:type slab2: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:param template: ('default') vcs template to use
+:type template: str/vcs.template.P
+:param gm: (Ex: 'default') graphic method to use
+:type gm: str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.unified1d.G1d/vcsaddons.core.VCSaddon
 """  # noqa
 #############################################################################
 #                                                                           #
@@ -206,41 +272,42 @@ plot_2_1D_options = """
 #                                                                           #
 #############################################################################
 plot_output = """
-       display ::  (vcs.displayplot.Dp) (0) no default
+:return: Display Plot object representing the plot.
+:rtype: vcs.displayplot.Dp
 """
 
 boxfill_output = """
-       boxfill ::  (vcs.boxfill.Gfb) (0) no default
+       boxfill :: (Ex: 0) no default
 """
 
 isofill_output = """
-       isofill ::  (vcs.isofill.Gfi) (0) no default
+       isofill :: (Ex: 0) no default
 """
 
 isoline_output = """
-       isoline ::  (vcs.isoline.Gi) (0) no default
+       isoline :: (Ex: 0) no default
 """
 
 yxvsx_output = """
-       yxvsx ::  (vcs.yxvsx.GYx) (0) no default
+       yxvsx :: (Ex: 0) no default
 """
 
 xyvsy_output = """
-       xyvsy ::  (vcs.xyvsy.GXy) (0) no default
+       xyvsy :: (Ex: 0) no default
 """
 
 xvsy_output = """
-       xvsy ::  (vcs.xvsy.GXY) (0) no default
+       xvsy :: (Ex: 0) no default
 """
 
 scatter_output = """
-       scatter ::  (vcs.scatter.GSp) (0) no default
+       scatter :: (Ex: 0) no default
 """
 
 outfill_output = """
-       outfill ::  (vcs.outfill.Gfo) (0) no default
+       outfill :: (Ex: 0) no default
 """
 
 outline_output = """
-       outline ::  (vcs.outline.Go) (0) no default
+       outline :: (Ex: 0) no default
 """
