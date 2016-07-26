@@ -54,7 +54,8 @@ def get_att_from_sub(code, att):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates isoline gm from it"""
+
+    # Takes VCS script code (string) as input and generates isoline gm from it
     try:
         g = Gi(nm)
     except:

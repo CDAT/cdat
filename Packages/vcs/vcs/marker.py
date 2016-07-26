@@ -28,18 +28,8 @@ from xmldocs import gm_scriptdoc, marker_script
 
 
 def process_src(nm, code):
-    """
-    Takes VCS script code (string) as input and generates oneD gm from it
 
-:param nm: Name of the ouput file
-:type nm: str
-
-:param code: String containing a VCS script
-:type code: str
-
-:returns:
-:rtype:
-    """
+    # Takes VCS script code (string) as input and generates oneD gm from it
     try:
         gm = Tm(nm)
     except:

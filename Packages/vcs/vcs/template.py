@@ -71,7 +71,8 @@ def epsilon_lte(a, b):
 
 # read .scr file
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates boxfill gm from it"""
+
+    # Takes VCS script code (string) as input and generates boxfill gm from it
     try:
         t = P(nm)
     except:

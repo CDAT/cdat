@@ -31,7 +31,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates vector gm from it"""
+
+    # Takes VCS script code (string) as input and generates vector gm from it
     try:
         gm = Gv(nm)
     except:
