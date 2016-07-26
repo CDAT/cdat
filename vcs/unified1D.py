@@ -32,7 +32,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code, typ):
-    """Takes VCS script code (string) as input and generates oneD gm from it"""
+
+    # Takes VCS script code (string) as input and generates oneD gm from it
     onm = nm + ""
     try:
         gm = G1d(nm)

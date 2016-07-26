@@ -29,18 +29,9 @@ import warnings
 
 
 def process_src(nm, code):
-    """
-    Takes VCS script code (string) as input and generates boxfill gm from it
 
-:param nm:
-:type nm:
+    # Takes VCS script code (string) as input and generates boxfill gm from it
 
-:param code:
-:type code:
-
-:returns:
-:rtype:
-    """
     try:
         gm = Gfb(nm)
     except:

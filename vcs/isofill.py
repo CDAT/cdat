@@ -37,7 +37,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates isofill gm from it"""
+
+    # Takes VCS script code (string) as input and generates isofill gm from it
     try:
         g = Gfi(nm)
     except:
