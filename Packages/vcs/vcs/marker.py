@@ -24,7 +24,7 @@
 import VCS_validation_functions
 import vcs
 import genutil
-from xmldocs import gm_scriptdoc, marker_script
+from xmldocs import scriptdoc, marker_script
 
 
 def process_src(nm, code):

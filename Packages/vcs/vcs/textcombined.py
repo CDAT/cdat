@@ -1,4 +1,5 @@
 import vcs
+from xmldocs import textcombined_script
 
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 """
@@ -365,29 +366,6 @@ class Tc(object):
     #                                                                           #
     ##########################################################################
     def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scripTo
-
- Description of Function:
-       Saves out a text table and text orientation graphics method in Python or
-       VCS script form to a designated file.
-
- Example of Use:
-    script(scriptfile_name,mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    tc=a.createtextcombined('new_tt','std','new_to','7left')
-    tc.script('filename.py')	     # Append to a Python file "filename.py"
-    tc.script('filename.scr')	     # Append to a VCS file "filename.scr"
-    tc.script('filename','w')	     # Create or overwrite to a Python file "filename.py"
-'''
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -482,7 +460,7 @@ class Tc(object):
             f = open(script_filename, 'a+')
             vcs.utils.dumpToJson(self.Tt, f)
             f.close()
-
+    script.__doc__ = textcombined_script
 ##########################################################################
 #        END OF FILE                                                            #
 ##########################################################################

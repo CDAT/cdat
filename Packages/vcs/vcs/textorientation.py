@@ -24,7 +24,7 @@
 #
 import VCS_validation_functions
 import vcs
-
+from xmldocs import textorientation_script
 
 def process_src(nm, code):
 
@@ -251,29 +251,6 @@ class To(object):
     #                                                                           #
     ##########################################################################
     def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scripTo
-
- Description of Function:
-       Saves out a text orientation graphics method in Python or VCS script form
-       to a designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    to=a.createtextorientation('temp')
-    to.script('filename.py')         # Append to a Python file "filename.py"
-    to.script('filename.scr')        # Append to a VCS file "filename.scr"
-    to.script('filename','w')        # Create or overwrite to a Python file "filename.py"
-'''
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -337,8 +314,4 @@ class To(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+    script.__doc__ = textorientation_script
