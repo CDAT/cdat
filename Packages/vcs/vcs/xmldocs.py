@@ -205,14 +205,13 @@ listdoc = """ Lists the current values of object attributes"""
 
 # Scriptdocs section
 
-# variables to use for string replacement
-name = 'REPLACE_ME'
-type = 'REPLACE_ME'
-inst = 'REPLACE_ME'
-call = 'REPLACE_ME'
+# Use this dictionary for string replacements
+dict = {}
+dict['name'] = dict['type'] = dict['inst'] = dict['call'] = 'REPLACE_ME'
+
 
 scriptdoc = """
-    Saves out a copy of the %(obj_name)s %(obj_type)s in JSON, or Python format to a designated file.
+    Saves out a copy of the %(name)s %(type)s in JSON, or Python format to a designated file.
 
         .. note::
             If the the filename has a '.py' at the end, it will produce a
@@ -229,12 +228,12 @@ scriptdoc = """
 ::
 
     a=vcs.init()
-    # Create %(func_call)s 'temp' that inherits from 'default'
-    %(inst_name)s=a.create%(func_call)s('temp')
+    # Create %(call)s 'temp' that inherits from 'default'
+    %(inst)s=a.create%(call)s('temp')
     # Append to a Python script named 'filename.py'
-    %(inst_name)s.script('filename.py')
+    %(inst)s.script('filename.py')
     # Create or overwrite a JSON file 'filename.json'.
-    %(inst_name)s.script('filename','w')
+    %(inst)s.script('filename','w')
 
 :param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
 :type script_filename: str
@@ -245,72 +244,71 @@ scriptdoc = """
 
 
 # Graphics Method scriptdocs
-type = 'graphics method'
-call = 'colormap'
-name = call
-inst = 'cp'
-colormap_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['type'] = 'graphics method'
+dict['name'] = dict['call'] = 'colormap'
+dict['inst'] = 'cp'
+colormap_script = scriptdoc % dict
 
-name = call = 'boxfill'
-inst = 'gfb'
-boxfill_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'boxfill'
+dict['inst'] = 'gfb'
+boxfill_script = scriptdoc % dict
 
-name = call = 'isoline'
-inst = 'gi'
-isoline_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'isoline'
+dict['inst'] = 'gi'
+isoline_script = scriptdoc % dict
 
-name = call = 'isofill'
-inst = 'gfi'
-isofill_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'isofill'
+dict['inst'] = 'gfi'
+isofill_script = scriptdoc % dict
 
-name = call = 'yxvsx'
-inst = 'g1d'
-yxvsx_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'yxvsx'
+dict['inst'] = 'g1d'
+yxvsx_script = scriptdoc % dict
 
-name = call = 'meshfill'
-inst = 'gfm'
-meshfill_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'meshfill'
+dict['inst'] = 'gfm'
+meshfill_script = scriptdoc % dict
 
-name = call = 'fillarea'
-inst = 'tf'
-fillarea_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'fillarea'
+dict['inst'] = 'tf'
+fillarea_script = scriptdoc % dict
 
-name = call = 'marker'
-inst = 'tm'
-marker_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'marker'
+dict['inst'] = 'tm'
+marker_script = scriptdoc % dict
 
-name = call = 'line'
-inst = 'tl'
-line_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'line'
+dict['inst'] = 'tl'
+line_script = scriptdoc % dict
 
-name = 'text table and text orientation'
-call = 'textcombined'
-inst = 'tc'
-textcombined_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = 'text table and text orientation'
+dict['call'] = 'textcombined'
+dict['inst'] = 'tc'
+textcombined_script = scriptdoc % dict
 
-name = call = 'textorientation'
-inst = 'to'
-textorientation_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'textorientation'
+dict['inst'] = 'to'
+textorientation_script = scriptdoc % dict
 
-name = call = 'texttable'
-inst = 'tt'
-texttable_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'texttable'
+dict['inst'] = 'tt'
+texttable_script = scriptdoc % dict
 
-name = call = 'vector'
-inst = 'gv'
-vector_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['name'] = dict['call'] = 'vector'
+dict['inst'] = 'gv'
+vector_script = scriptdoc % dict
 
 # Object scriptdocs
-type = 'object'
-name = call = 'template'
-inst = 'p'
-template_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['type'] = 'object'
+dict['name'] = dict['call'] = 'template'
+dict['inst'] = 'p'
+template_script = scriptdoc % dict
 
 # Secondary Method scriptdocs
-type = 'secondary method'
-name = call = 'projection'
-inst = 'proj'
-projection_script = scriptdoc % {'obj_type' : type, 'obj_name' : name, 'func_call' : call, 'inst_name' : inst}
+dict['type'] = 'secondary method'
+dict['name'] = dict['call'] = 'projection'
+dict['inst'] = 'proj'
+projection_script = scriptdoc % dict
 
 queries_is_primary_doc = """
     Check to see if this object is a VCS primary %s graphics method.
