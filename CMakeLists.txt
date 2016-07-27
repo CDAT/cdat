@@ -141,6 +141,7 @@ if (CDAT_BUILD_OFFSCREEN)
     message("[INFO] will build against -nox version of conda packages")
     set(CONDA_NOX "-nox")
 else()
+    message("[INFO] will build against regular X version of conda packages")
     set(CONDA_NOX "")
 endif()
 

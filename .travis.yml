@@ -24,6 +24,7 @@ script:
   - cd ..
   - mkdir _build
   - cd _build
-  - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=${NOX}
+  - echo "OFFSCREEN IS:"$NOX
+  - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX
   - make
   - ctest -j8 -D Experimental
