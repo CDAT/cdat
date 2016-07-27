@@ -2468,13 +2468,14 @@ def getcolormap(Cp_name_src='default'):
     colormap class object from an existing VCS colormap secondary method. If
     no colormap name is given, then colormap 'default' will be used.
 
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createcolormap function.)
+    .. note::
+        VCS does not allow the modification of `default' attribute sets.
+        However, a `default' attribute set that has been copied under a
+        different name can be modified. (See the createcolormap function.)
 
     :Example:
 
-::
+    ::
 
     a=vcs.init()
     # Show all the existing colormap secondary methods
@@ -2484,11 +2485,12 @@ def getcolormap(Cp_name_src='default'):
     # cp2 instance of existing 'quick' colormap secondary method
     cp2=a.getcolormap('quick')
 
-:param Cp_name_src: String name of an existing colormap VCS object
-:type Cp_name_src: str
 
-:returns: A pre-existing VCS colormap object
-:rtype: vcs.colormap.Cp
+    :param Cp_name_src: String name of an existing colormap VCS object
+    :type Cp_name_src: str
+
+    :returns: A pre-existing VCS colormap object
+    :rtype: vcs.colormap.Cp
 
 """
     # Check to make sure the argument passed in is a STRING
