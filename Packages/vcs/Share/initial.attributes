@@ -2572,7 +2572,7 @@
     }
    }
   },
-  "bl_to_darkred": {
+  "blue2darkred": {
    "index": {
     "data": {
      "0": [
@@ -3858,7 +3858,7 @@
     }
    }
   },
-  "bl_to_drkorang": {
+  "blue2darkorange": {
    "index": {
     "data": {
      "0": [
@@ -6430,7 +6430,7 @@
     }
    }
   },
-  "blue_to_grey": {
+  "blue2grey": {
    "index": {
     "data": {
      "0": [
@@ -7716,7 +7716,7 @@
     }
    }
   },
-  "blue_to_grn": {
+  "blue2green": {
    "index": {
     "data": {
      "0": [
@@ -9002,7 +9002,7 @@
     }
    }
   },
-  "blue_to_orange": {
+  "blue2orange": {
    "index": {
     "data": {
      "0": [
@@ -10288,7 +10288,7 @@
     }
    }
   },
-  "blue_to_orgred": {
+  "blue2orange2red": {
    "index": {
     "data": {
      "0": [
@@ -11574,7 +11574,7 @@
     }
    }
   },
-  "brown_to_blue": {
+  "brown2blue": {
    "index": {
     "data": {
      "0": [
@@ -14146,7 +14146,7 @@
     }
    }
   },
-  "grn_to_magenta": {
+  "green2magenta": {
    "index": {
     "data": {
      "0": [
@@ -15432,7 +15432,7 @@
     }
    }
   },
-  "ltbl_to_drkbl": {
+  "lightblue2darkblue": {
    "index": {
     "data": {
      "0": [
@@ -18004,7 +18004,7 @@
     }
    }
   },
-  "rainbow_no_grn": {
+  "rainbownogreen": {
    "index": {
     "data": {
      "0": [
@@ -20576,7 +20576,7 @@
     }
    }
   },
-  "white_to_blue": {
+  "white2blue": {
    "index": {
     "data": {
      "0": [
@@ -21862,7 +21862,7 @@
     }
    }
   },
-  "white_to_green": {
+  "white2green": {
    "index": {
     "data": {
      "0": [
@@ -23148,7 +23148,7 @@
     }
    }
   },
-  "white_to_magenta": {
+  "white2magenta": {
    "index": {
     "data": {
      "0": [
@@ -24434,7 +24434,7 @@
     }
    }
   },
-  "white_to_red": {
+  "white2red": {
    "index": {
     "data": {
      "0": [
@@ -25720,7 +25720,7 @@
     }
    }
   },
-  "white_to_yellow": {
+  "white2yellow": {
    "index": {
     "data": {
      "0": [
