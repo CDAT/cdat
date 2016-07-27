@@ -2,6 +2,8 @@ os:
   - linux
   - osx
 
+osx_image: xcode7.2
+
 language: python
     - "2.7"
 
