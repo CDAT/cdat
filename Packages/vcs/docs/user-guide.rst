@@ -456,17 +456,17 @@ Mapping data to colors is one of the fundamental step in creating a effective
 visualization and thus vcs provides an easy-to-use API to control how the data,
 for example scarlars (single valud data items) can be mapped to color.
 
-.. code-block::python
+.. code-block:: python
 
   import cdms2
   import os
   import sys
   import vcs
 
-  data = cdms2.open(os.path.join(vcs.prefix,"sample_data","clt.nc"))
-  clt = cdmsfile('clt')
+  data = cdms2.open(os.path.join(vcs.prefix,"share/uvcdat/sample_data","clt.nc"))
+  clt = data('clt')
 
-  x = vcs.init()
+  x = vcs.init(geometry=[1200, 800])
   t = x.gettemplate('default')
 
   # Find out the available short-hands for color tables
@@ -474,10 +474,17 @@ for example scarlars (single valud data items) can be mapped to color.
 
   # Should print a list something like this:
   # ['AMIP', 'NCAR', 'bl_to_darkred', 'bl_to_drkorang',
-     'blends', 'blue_to_grey', 'blue_to_grn',
-     'blue_to_orange', 'blue_to_orgred', 'brown_to_blue', ...]
+  #  'blends', 'blue_to_grey', 'blue_to_grn',
+  #  'blue_to_orange', 'blue_to_orgred', 'brown_to_blue', ...]
 
   # This should force the image to update
   x.setcolormap('white_to_red')
 
   x.plot(clt, t)
+
+The script should produce a plot as shown below:
+
+.. image:: static/colormap.png
+   :width: 1397px
+   :height: 1079px
+   :align: center
