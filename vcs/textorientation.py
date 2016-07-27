@@ -50,9 +50,6 @@ def process_src(nm, code):
 class To(object):
 
     """
- Class:	To				# Text Orientation
-
- Description of To Class:
     The (To) Text Orientation lists text attribute set names that define the font, spacing,
     expansion, and color index.
 
@@ -60,49 +57,100 @@ class To(object):
     can be used to change some or all of the text orientation attributes in an
     existing text orientation table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('textorientation')	# Show predefined text orientation objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of text orientation use:
-     to=a.createtextorientation('new','7left')	# Copies content of '7left' to 'new'
-     to=a.createtextorientation('new') 	# Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing textorientation use:
-     to=a.gettextorientation('7left')
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined text orientation objects
+            a.show('textorientation')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    to.list()  				# Will list all the textorientation attribute values
+    .. describe:: Make a canvas object to work with:
 
-    Specify the text height:
-     to.height=20			# The height value must be an integer
+        .. code-block:: python
 
-    Specify the text angle:
-     to.angle=0				# The angle value must be in the range 0 to 360
+            a=vcs.init()
 
-    Specify the text path:
-     to.path='right'			# Same as to.path=0
-     to.path='left'			# Same as to.path=1
-     to.path='up'			# Same as to.path=2
-     to.path='down'			# Same as to.path=3
+    .. describe:: Create a new instance of text orientation:
 
-    Specify the text horizontal alignment:
-     to.halign='right'			# Same as to.halign=0
-     to.halign='center'			# Same as to.halign=1
-     to.halign='right'			# Same as to.halign=2
+        .. code-block:: python
 
-    Specify the text vertical alignment:
-     to.valign='top'			# Same as tovalign=0
-     to.valign='cap'			# Same as tovalign=1
-     to.valign='half'			# Same as tovalign=2
-     to.valign='base'			# Same as tovalign=3
-     to.valign='bottom'			# Same as tovalign=4
-     """
+            # Copies content of '7left' to 'new'
+            to=a.createtextorientation('new','7left')
+            # Copies content of 'default' to 'new'
+            to=a.createtextorientation('new')
+
+    .. describe:: Modify an existing textorientation:
+
+        .. code-block:: python
+
+            to=a.gettextorientation('7left')
+
+    .. describe:: Overview of textorientation attributes:
+
+        * Listing the attributes:
+
+            .. code-block:: python
+
+                # Will list all the textorientation attribute values
+                to.list()
+
+        * Specify the text height:
+
+            .. code-block:: python
+
+                # The height value must be an integer
+                to.height=20
+
+        * Specify the text angle:
+
+            .. code-block:: python
+
+                # The angle value must be in the range 0 to 360
+                to.angle=0
+
+        * Specify the text path:
+
+            .. code-block:: python
+
+                # Same as to.path=0
+                to.path='right'
+                # Same as to.path=1
+                to.path='left'
+                # Same as to.path=2
+                to.path='up'
+                # Same as to.path=3
+                to.path='down'
+
+        * Specify the text horizontal alignment:
+
+            .. code-block:: python
+
+                # Same as to.halign=0
+                to.halign='right'
+                # Same as to.halign=1
+                to.halign='center'
+                # Same as to.halign=2
+                to.halign='right'
+
+        * Specify the text vertical alignment:
+
+            .. code-block:: python
+
+                # Same as tovalign=0
+                to.valign='top'
+                # Same as tovalign=1
+                to.valign='cap'
+                # Same as tovalign=2
+                to.valign='half'
+                # Same as tovalign=3
+                to.valign='base'
+                # Same as tovalign=4
+                to.valign='bottom'
+    """
     __slots__ = [
         's_name',
         'name',
