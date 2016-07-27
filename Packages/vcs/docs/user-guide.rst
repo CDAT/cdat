@@ -17,7 +17,7 @@ Installation
 While there are many ways a user can install vcs, installation using conda is
 preferred for the end user. To install just vcs or uvcdat, make sure that anaconda
 or miniconda is installed and in path of your shell. Information on how to install conda
-can be found `here <https://www.continuum.io>`_. Very conda is available on the shell using
+can be found `here <https://www.continuum.io>`_. Verify conda is available on the shell using
 the following command ::
 
     conda --help
