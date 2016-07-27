@@ -19,9 +19,11 @@ before_install:
   - conda install openssl=1.0.2d
 
 script:
-    - cd ..
-    - mkdir _build
-    - cd _build
-    - cmake -DGIT_PROTOCOL=git:// ../uvcdat
-    - make
-    - ctest -j8 -D Experimental
+  - export NOX=""
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="-DCDAT_BUILD_OFFSCREEN=ON"; fi
+  - cd ..
+  - mkdir _build
+  - cd _build
+  - cmake -DGIT_PROTOCOL=git:// ../uvcdat ${NOX}
+  - make
+  - ctest -j8 -D Experimental
