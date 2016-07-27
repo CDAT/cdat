@@ -137,6 +137,12 @@ option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 include(CMakeDependentOption)
 cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
   "NOT APPLE" OFF)
+if (CDAT_BUILD_OFFSCREEN)
+    message("[INFO] will build against -nox version of conda packages")
+    set(CONDA_NOX "-nox")
+else()
+    set(CONDA_NOX "")
+endif()
 
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
