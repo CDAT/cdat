@@ -1738,39 +1738,39 @@ class P(object):
             startLength = min(self.legend.y1, self.legend.y2)
             startThick = min(self.legend.x1, self.legend.x2)
         # initialize the fillarea coordinates
-        L = [] # length 
-        T = [] # thickness
+        L = []  # length
+        T = []  # thickness
         # computes the fillarea coordinates
         iext = 0  # To know if we changed the dims
-        if (ext_1 == 'y' or ext_2 == 'y'): # and boxLength < self.legend.arrow * length:
+        if (ext_1 == 'y' or ext_2 == 'y'):  # and boxLength < self.legend.arrow * length:
             iext = 1  # one mins changed ext_1
-            arrowLength = self.legend.arrow*length
+            arrowLength = self.legend.arrow * length
             if ext_1 == 'y' and ext_2 == 'y':
                 boxLength = (length - 2. * arrowLength) / (nbox - 2.)
                 iext = 3  # changed both side
             else:
-                boxLength = (length  - arrowLength) / (nbox - 1.)
+                boxLength = (length - arrowLength) / (nbox - 1.)
                 if ext_2 == 'y':
                     iext = 2
 
         # Loops thru the boxes (i.e colors NOT actual boxes drawn)
-        adjust=0
+        adjust = 0
         for i in range(nbox):
             if ext_1 == 'y' and i == 0:
                 # Draws the little arrow at the begining
                 # Make sure the triangle goes back to first point
                 # Because used to close the extension
-                L.append( [
+                L.append([
                     startLength + arrowLength,
-                    startLength, 
+                    startLength,
                     startLength + arrowLength,
-                    ])
+                ])
                 T.append(
                     [
-                        startThick, 
+                        startThick,
                         startThick + thick / 2.,
-                        startThick + thick, 
-                        ])
+                        startThick + thick,
+                    ])
                 # Now readjust startLength if necessary
                 if iext == 1 or iext == 3:
                     startLength = startLength + arrowLength
@@ -1778,23 +1778,23 @@ class P(object):
             elif ext_2 == 'y' and i == nbox - 1:
                 # Draws the little arrow at the end
                 L.append([
-                    startLength + boxLength * (i+adjust),
-                    startLength + boxLength * (i+adjust) + arrowLength,
-                    startLength + boxLength * (i+adjust),
-                    ])
+                    startLength + boxLength * (i + adjust),
+                    startLength + boxLength * (i + adjust) + arrowLength,
+                    startLength + boxLength * (i + adjust),
+                ])
                 T.append(
                     [
                         startThick,
                         startThick + thick / 2.,
                         startThick + thick,
-                        ])
+                    ])
             else:
                 # Draws a normal box
                 # print i,boxLength,thick,startLength,startThick
-                L.append([startLength + boxLength * (i+adjust),
-                          startLength + boxLength * (i+adjust + 1),
-                          startLength + boxLength * (i+adjust + 1),
-                          startLength + boxLength * (i+adjust)])
+                L.append([startLength + boxLength * (i + adjust),
+                          startLength + boxLength * (i + adjust + 1),
+                          startLength + boxLength * (i + adjust + 1),
+                          startLength + boxLength * (i + adjust)])
                 T.append([startThick,
                           startThick,
                           startThick + thick,
@@ -1804,7 +1804,7 @@ class P(object):
         fa.color = colors
         fa.style = style
         fa.index = index
-        fa.priority=self.legend.priority
+        fa.priority = self.legend.priority
         # Boxfill default comes in here with [] we need to fix this
         if opacity == []:
             opacity = [None, ] * len(colors)
@@ -1823,14 +1823,13 @@ class P(object):
         del(vcs.elements["fillarea"][fa.name])
         # Now draws the box around the legend
         # First of all make sure we draw the arrows
-        Tl = [] # Thickness labels location
-        Ll = [] # Length labels location
-        Tt = [] # Thickness ticks location
-        Lt = [] # Length ticks location
-        St = [] # String location
+        Tl = []  # Thickness labels location
+        Ll = []  # Length labels location
+        Tt = []  # Thickness ticks location
+        Lt = []  # Length ticks location
+        St = []  # String location
         levelsLength = length  # length of the levels area
         if ext_1 == 'y':
-            #startLength = startLength + boxLength
             Tl.append(T[0])
             Ll.append(L[0])
             levels.pop(0)
@@ -1891,9 +1890,9 @@ class P(object):
 
             boxLength = levelsLength / (len(levels) - 1.)
 
-            for il,l in enumerate(sorted(legend.keys())):
+            for il, l in enumerate(sorted(legend.keys())):
                 if in_bounds(l):
-                    for i in range(len(levels)- 1):
+                    for i in range(len(levels) - 1):
                         # if legend key is (inclusive) between levels[i] and levels[i+1]
                         if comparison(levels[i], l) and comparison(l, levels[i + 1]):
                             # first let's figure out where to put the legend label
@@ -1902,7 +1901,7 @@ class P(object):
                             location += (l - levels[i]) / (levels[i + 1] - levels[i]) * boxLength
                             location += startLength  # Figures out the beginning
 
-                            if not (numpy.allclose(l,levels[0]) or numpy.allclose(l,levels[-1])):
+                            if not (numpy.allclose(l, levels[0]) or numpy.allclose(l, levels[-1])):
                                 Ll.append([location, location])
                                 Tl.append([startThick, startThick + thick])
                             Lt.append(location)

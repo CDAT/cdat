@@ -98,7 +98,7 @@ class Pls(object):
         "_offset",
         "arrow",
         "_arrow",
-        ]
+    ]
 
     def __init__(self, member):
         #    def __init__(self, template, member=None):
