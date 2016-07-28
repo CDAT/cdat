@@ -1745,22 +1745,32 @@ def _setpriority(self, value):
 priority = property(_getpriority, _setpriority)
 
 
-def _getOffset(self):
-    return self._x1
+@property
+def arrow(self):
+    """length of extension arrows"""
+    return self._arrow
 
+@arrow.setter
+def arrow(self, value):
+    self._arrow = checkNumber(self, "arrow", value, 0., None)
 
-def _setOffset(self, value):
+@property
+def offset(self):
+    """offset position in % of page (can be negative)"""
+    return self._offset
+
+@offset.setter
+def offset(self, value):
     self._offset = checkNumber(self, "offset", value, -1., 1.)
-offset = property(_getOffset, _setOffset, "offset position in % of page (can be negative)")
 
-
-def _getX1(self):
+@property
+def x1(self):
+    """x1 position in % of page"""
     return self._x1
 
-
-def _setX1(self, value):
+@x1.setter
+def x1(self, value):
     self._x1 = checkNumber(self, "x1", value, 0., 1.)
-x1 = property(_getX1, _setX1, "x1 position in % of page")
 
 
 def _getX2(self):
