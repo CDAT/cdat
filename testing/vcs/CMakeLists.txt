@@ -56,12 +56,12 @@ cdat_add_test(test_vcs_import
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
 foreach(orientation h v)
-    foreach(offset -0.05 -0.115 .015)
+    foreach(offset -0.05 0.015)
         foreach(extension 0 1 2 3)
-            foreach(arrow .05 .1 .25)
-                cdat_add_test(test_vcs_legend_${orientation}_${offset}_${extension}_${arrow}
+            foreach(arrow 0.05 0.25)
+                cdat_add_test(test_vcs_legend_2_${orientation}_${offset}_${extension}_${arrow}
                               "${PYTHON_EXECUTABLE}"
-                              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend.py -o ${orientation} --offset=${offset} -e ${extension} -a ${arrow} -b "${BASELINE_DIR}/test_vcs_legend_${orientation}_${offset}_${extension}_${arrow}.png"
+                              ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_legend_2.py -o ${orientation} --offset=${offset} -e ${extension} -a ${arrow} -b "${BASELINE_DIR}/test_vcs_legend_${orientation}_${offset}_${extension}_${arrow}.png"
                               )
             endforeach()
         endforeach()
