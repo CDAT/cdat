@@ -97,7 +97,8 @@ class Pls(object):
         "offset",
         "_offset",
         "arrow",
-        "_arrow"]
+        "_arrow",
+        ]
 
     def __init__(self, member):
         #    def __init__(self, template, member=None):
@@ -119,8 +120,8 @@ class Pls(object):
         self.y1 = 0.129999995232
         self.x2 = 0.949999988079
         self.y2 = 0.159999996424
-        self.offset = .01
-        self.arrow = .8
+        self.offset = .015
+        self.arrow = .05
 
     ##########################################################################
     #                                                                           #

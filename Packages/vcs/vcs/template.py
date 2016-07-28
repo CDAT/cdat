@@ -1749,43 +1749,44 @@ class P(object):
                 boxLength = (length - 2. * arrowLength) / (nbox - 2.)
                 iext = 3  # changed both side
             else:
-                boxlength = (length  - arrowLength) / (nbox - 1.)
+                boxLength = (length  - arrowLength) / (nbox - 1.)
                 if ext_2 == 'y':
                     iext = 2
 
         # Loops thru the boxes (i.e colors NOT actual boxes drawn)
+        adjust=0
         for i in range(nbox):
             if ext_1 == 'y' and i == 0:
                 # Draws the little arrow at the begining
                 # Make sure the triangle goes back to first point
                 # Because used to close the extension
-                L.append(
-                    [startLength, startLength + arrowLength,
-                     startLength + arrowLength, startLength])
+                L.append( [
+                    startLength + arrowLength,
+                    startLength, 
+                    startLength + arrowLength,
+                    ])
                 T.append(
-                    [startThick + thick / 2., startThick + thick, startThick, startThick + thick / 2.,])
+                    [
+                        startThick, 
+                        startThick + thick / 2.,
+                        startThick + thick, 
+                        ])
                 # Now readjust startLength if necessary
                 if iext == 1 or iext == 3:
                     startLength = startLength + arrowLength
                     adjust = -1
-                else:
-                    adjust = 0
-                print "EXT Thick:",arrowLength
-                print "EXT1:",L,"and",T
             elif ext_2 == 'y' and i == nbox - 1:
                 # Draws the little arrow at the end
                 L.append([
-                    startLength + boxLength * (i+adjust) + arrowLength,
-                    startLength + boxLength * (i+adjust),
                     startLength + boxLength * (i+adjust),
                     startLength + boxLength * (i+adjust) + arrowLength,
+                    startLength + boxLength * (i+adjust),
                     ])
                 T.append(
                     [
-                        startThick + thick / 2.,
-                        startThick + thick,
                         startThick,
                         startThick + thick / 2.,
+                        startThick + thick,
                         ])
             else:
                 # Draws a normal box
@@ -1818,7 +1819,6 @@ class P(object):
         else:
             fa._x = T
             fa._y = L
-# fa.list()
         displays.append(x.plot(fa, bg=bg, **kargs))
         del(vcs.elements["fillarea"][fa.name])
         # Now draws the box around the legend
@@ -1833,18 +1833,12 @@ class P(object):
             #startLength = startLength + boxLength
             Tl.append(T[0])
             Ll.append(L[0])
-            # we need to close the arrow
-            Tl[0].append(Tl[0][0])
-            Ll[0].append(Ll[0][0])
             levels.pop(0)
             if iext == 1 or iext == 3:
                 levelsLength = levelsLength - arrowLength
         if ext_2 == 'y':
             Tl.append(T[-1])
             Ll.append(L[-1])
-            # we need to close the arrow
-            Tl[0].append(Tl[0][0])
-            Ll[0].append(Ll[0][0])
             levels.pop(-1)
             if iext > 1:
                 levelsLength = levelsLength - arrowLength
@@ -1895,11 +1889,11 @@ class P(object):
             def in_bounds(x):
                 return comparison(levels[0], x) and comparison(x, levels[-1])
 
-            boxLength = levelsLength / (len(levels) - 1)
+            boxLength = levelsLength / (len(levels) - 1.)
 
-            for l in legend.keys():
+            for il,l in enumerate(sorted(legend.keys())):
                 if in_bounds(l):
-                    for i in range(len(levels) - 1):
+                    for i in range(len(levels)- 1):
                         # if legend key is (inclusive) between levels[i] and levels[i+1]
                         if comparison(levels[i], l) and comparison(l, levels[i + 1]):
                             # first let's figure out where to put the legend label
@@ -1908,8 +1902,9 @@ class P(object):
                             location += (l - levels[i]) / (levels[i + 1] - levels[i]) * boxLength
                             location += startLength  # Figures out the beginning
 
-                            Ll.append([location, location])
-                            Tl.append([startThick, startThick + thick])
+                            if not (numpy.allclose(l,levels[0]) or numpy.allclose(l,levels[-1])):
+                                Ll.append([location, location])
+                                Tl.append([startThick, startThick + thick])
                             Lt.append(location)
                             Tt.append(startThick + thick + self.legend.offset)
                             St.append(legend[l])
@@ -1939,9 +1934,6 @@ class P(object):
             txt.y = Lt
 
         # Now reset the viewport and worldcoordiantes
-        ln.list()
-        print "______________________________________________________________________________________________________"
-        txt.list()
         displays.append(x.plot(ln, bg=bg, **kargs))
         displays.append(x.plot(txt, bg=bg, **kargs))
         del(vcs.elements["line"][ln.name])

@@ -1,76 +1,55 @@
-import os, sys, argparse, cdms2, MV2, vcs, testing.regression as regression
+import vcs
+import argparse
+import sys
+import testing.regression as regression
 
-p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
-p.add_argument("--source", dest="src", help="source image file")
-p.add_argument("--gm_type", dest="gm", help="gm to test",choices=["boxfill","meshfill","isofill"])
-p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
-p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
-p.add_argument("--orientation",dest="orientation",choices=["horizontal","vertical"],default="horizontal")
-p.add_argument("--ext1", dest="ext1", choices=["y","n"], default="n", help="turn on extension 1")
-p.add_argument("--ext2", dest="ext2", choices=["y","n"], default="n", help="turn on extension 2")
+parser = argparse.ArgumentParser()
+parser.add_argument("-e","--extensions",default=0,type=int,choices=[0,1,2,3])
+parser.add_argument("-o","--orientation",default="v",choices=["v","h"])
+parser.add_argument("-a","--arrow",type=float,default=None)
+parser.add_argument("-O","--offset",type=float,default=None)
+parser.add_argument("-b","--baseline")
 
-args = p.parse_args(sys.argv[1:])
+args=parser.parse_args(sys.argv[1:])
 
-gm_type= args.gm
-src = args.src
+x=regression.init()
 
-bg = not args.show
-
-x = vcs.init()
-x.setantialiasing(0)
-x.drawlogooff()
-if bg:
-  x.setbgoutputdimensions(1200,1091,units="pixels")
-x.setcolormap("rainbow")
-exec("gm=vcs.create%s()" % gm_type)
-nm_xtra=""
-xtra = {'time':slice(0,1),'squeeze':1}
-if gm_type=="meshfill":
-    f=cdms2.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
+import cdms2, os
+f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
+s=f("clt",slice(0,1))+210.
+iso = x.createisofill()
+iso.levels=[210,220,230,240,250,260,270,275,280,285,290,295,300,305,310]
+if args.extensions in [1,3]:
+    iso.ext_1 = True
+if args.extensions in [2,3]:
+    iso.ext_2 = True
+t=x.createtemplate()
+if args.orientation == "v":
+    t.scale(.7,'x')
+    t.legend.x1=t.data.x2+.03
+    t.legend.x2=t.legend.x1+.1
+    t.legend.y1=t.data.y1
+    t.legend.y2=t.data.y2
 else:
-    f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
-if gm_type=="meshfill":
-    s=f("sample")
-else:
-    s=f("clt",**xtra)
-
-
-if gm_type=="boxfill":
-    gm.level_1=20
-    gm.level_2=80
-    if args.ext1=="y":
-        gm.ext_1="y"
-    if args.ext2=="y":
-        gm.ext_2="y"
-else:
-    if gm_type=="isofill":
-        levels = [20, 30, 40, 50, 60, 70, 80]
-    else:
-        levels = [300,500,800,1000,1200]
-    gm.levels=levels
-    if args.ext1=="y":
-        gm.ext_1="y"
-    if args.ext2=="y":
-        gm.ext_2="y"
-    gm.fillareacolors = vcs.getcolors(gm.levels)
-tmpl = x.createtemplate()
-if args.orientation=="vertical":
-    tmpl.data.x2=.8
-    tmpl.box1.x2=.8
-    tmpl.ytic2.x1=.8
-    tmpl.ytic2.x2=.815
-    tmpl.legend.x1=.86
-    tmpl.legend.x2=.9
-    tmpl.legend.y1=.3
-    tmpl.legend.y2=.8
-
-x.plot(s,gm,tmpl,bg=bg)
-
-fnm = "test_vcs_legend_%s_%s_ext1_%s_ext2_%s" % (gm_type.lower(),args.orientation,args.ext1,args.ext2)
+    t.legend.y1=.05
+    t.legend.y2=.15
+    t.legend.x1=t.data.x1
+    t.legend.x2=t.data.x2
+if args.offset is not None:
+    t.legend.offset= args.offset
+if args.arrow is not None:
+    t.legend.arrow = args.arrow
+line = x.createline()
+line.color=["red"]
+line.type=["dash"]
+line.width=[4]
+t.legend.line=line
+x.plot(s,t,iso,bg=1)
+fnm = "test_vcs_legend_%s_%s_%s_%s.png" % (args.orientation,args.offset,args.extensions,args.arrow)
 x.png(fnm)
-print "fnm:",fnm
-print "src:",src
-ret = regression.check_result_image(fnm+'.png', src,regression.defaultThreshold, cleanup=not args.keep)
-if args.show:
-    raw_input("Press Enter")
-sys.exit(ret)
+if args.baseline is None:
+    src = "./"+fnm
+else:
+    src = args.baseline
+regression.run(x, fnm,src)
+
