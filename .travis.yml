@@ -17,6 +17,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -y -q conda
   - conda install openssl=1.0.2d
+  - conda install cmake
 
 script:
   - export NOX="OFF"
