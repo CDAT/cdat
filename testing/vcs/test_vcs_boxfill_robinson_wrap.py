@@ -5,7 +5,7 @@ import os, sys, cdms2, cdutil, genutil, vcs, testing.regression as regression
 cdmsfile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 clt2 = cdmsfile('clt')
 clt3 = clt2(latitude=(-90.0, 90.0),squeeze=1,longitude=(-180, 200.0),time=('1979-01', '1988-12'),)
-canvas = vcs.init()
+canvas = regression.init()
 gmBoxfill = vcs.getboxfill('a_robinson_boxfill')
 kwargs = {}
 kwargs[ 'cdmsfile' ] = cdmsfile.id
