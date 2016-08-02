@@ -23,4 +23,4 @@ isoline.linecolors = colors
 
 # Next plot the isolines with labels
 canvas.plot(data, isoline, bg=1)
-regression.run(canvas, "test_isoline_labelskipdistance.png")
+regression.run(canvas, "test_vcs_isoline_labelskipdistance.png")
