@@ -1382,7 +1382,10 @@ class VTKVCSBackend(object):
             yd = yScale * float(Yrg[1] - Yrg[0]) / 2.
             cam = Renderer.GetActiveCamera()
             cam.ParallelProjectionOn()
-            cam.SetParallelScale(yd)
+            # We increase the parallel projection parallelepiped with 1/1000 so that
+            # it does not overlap with the outline of the dataset. This resulted in
+            # system dependent display of the outline.
+            cam.SetParallelScale(yd * 1.001)
             cd = cam.GetDistance()
             cam.SetPosition(xc, yc, cd)
             cam.SetFocalPoint(xc, yc, 0.)
