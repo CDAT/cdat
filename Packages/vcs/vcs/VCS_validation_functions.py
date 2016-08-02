@@ -1758,7 +1758,7 @@ def arrow(self, value):
 
 @property
 def offset(self):
-    """offset position in % of page (can be negative)"""
+    """offset position of legend labels from legend colorbar, in % of page (can be negative)"""
     return self._offset
 
 
