@@ -1886,10 +1886,9 @@ def levels(self):
 def levels(self, value):
     value = list(checkListTuple(self, 'levels', value))
 
-    if len(value)==2 and numpy.allclose(value,1.e20):
+    if len(value) == 2 and numpy.allclose(value, 1.e20):
         self._levels = value
         return
-
 
     # Now make sure the items are either number or list of numbers
     for v in value:
@@ -1921,7 +1920,7 @@ def levels(self, value):
 
     # We need to check for extensions
     v = value[0]
-    if isinstance(v, (list,tuple)):
+    if isinstance(v, (list, tuple)):
         v = v[0]
     if v < -9.9E19:
         self._ext_1 = True
@@ -1929,7 +1928,7 @@ def levels(self, value):
         self._ext_1 = False
 
     v = value[-1]
-    if isinstance(v, (list,tuple)):
+    if isinstance(v, (list, tuple)):
         v = v[-1]
     if v > 9.9E19:
         self._ext_2 = True
@@ -2003,7 +2002,6 @@ def add_level_ext_1(self, ext_value):
         if isinstance(self.levels, tuple):
             self.levels = list(self.levels)
         if isinstance(self.levels[0], list):  # add to tuple of lists
-            print "WE do come here:",self.ext_1,self.ext_2
             if self.levels[0][0] > -9.E19:  # ok need to add this level
                 self.levels.insert(0, [-1e20, self.levels[0][0]])
             return self.levels
@@ -2068,10 +2066,12 @@ def add_level_ext_2(self, ext_value):
                 self.levels.append(1.e20)
         return self.levels
 
+
 @property
 def ext_1(self):
     """Turns on extensions arrows for values before the first level"""
     return self._ext_1
+
 
 @ext_1.setter
 def ext_1(self, value):
@@ -2087,6 +2087,7 @@ def ext_1(self, value):
 def ext_2(self):
     """Turns on extensions arrows for values after the last level"""
     return self._ext_2
+
 
 @ext_2.setter
 def ext_2(self, value):
