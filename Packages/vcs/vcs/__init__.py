@@ -41,6 +41,7 @@ model for defining a plot, that is decomposed into three parts:
    control of your plot that is needed for the truly perfect plot. Once you've
    customized them, you can also save them out for later use, and distribute
    them to other users.
+
 """
 
 _doValidation = True
