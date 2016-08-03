@@ -1,3 +1,10 @@
+"""
+Canvas
+    The object onto which all plots are drawn.
+
+    Usually created using `vcs.init`, this object provides easy access
+    to the functionality of the entire VCS module.
+"""
 import warnings
 import numpy.ma
 import MV2
@@ -781,13 +788,13 @@ class Canvas(object):
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    # Get a VCS line object
-    ln=a.getline('red')
-    # This will print out information on how to use ln
-    a.objecthelp(ln)
+        a=vcs.init()
+        # Get a VCS line object
+        ln=a.getline('red')
+        # This will print out information on how to use ln
+        a.objecthelp(ln)
     """
         for x in arg:
             print getattr(x, "__doc__", "")
@@ -952,20 +959,20 @@ class Canvas(object):
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    a.plot(s,'default','boxfill','quick')
-    # Go to manual mode
-    a.mode = 0
-    box=x.getboxfill('quick')
-    box.color_1=100
-    box.xticlabels('lon30','lon30')
-    box.xticlabels('','')
-    box.datawc(1e20,1e20,1e20,1e20)
-    box.datawc(-45.0, 45.0, -90.0, 90.0)
-
-    a.update()                             # Update the changes manually
+        a=vcs.init()
+        a.plot(s,'default','boxfill','quick')
+        # Go to manual mode
+        a.mode = 0
+        box=x.getboxfill('quick')
+        box.color_1=100
+        box.xticlabels('lon30','lon30')
+        box.xticlabels('','')
+        box.datawc(1e20,1e20,1e20,1e20)
+        box.datawc(-45.0, 45.0, -90.0, 90.0)
+        # Update the changes manually
+        a.update()
 """
 
         return self.backend.update(*args, **kargs)
@@ -998,18 +1005,18 @@ class Canvas(object):
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    # To Modify an existing line object
-    l=a.getline('red')
-    # Create an instance of default isoline object
-    i=a.createisoline('dean')
-    #...
-    # Save isoline object as a Python file 'isoline.py'
-    a.scriptobject(i,'ex_isoline.py')
-    # Save isoline object as a JSON object 'isoline2.json'
-    a.scriptobject(i,'ex_isoline2')
+        a=vcs.init()
+        # To Modify an existing line object
+        l=a.getline('red')
+        # Create an instance of default isoline object
+        i=a.createisoline('dean')
+        #...
+        # Save isoline object as a Python file 'isoline.py'
+        a.scriptobject(i,'ex_isoline.py')
+        # Save isoline object as a JSON object 'isoline2.json'
+        a.scriptobject(i,'ex_isoline2')
 
 :param script_filename: Name of the output script file.
 :type script_filename: str
@@ -1178,33 +1185,34 @@ class Canvas(object):
         then the 'default' template is used.
 
         :Example:
-::
 
-    a=vcs.init()
-    # Show all the existing boxfill graphics methods
-    a.show('boxfill')
-    # Create instance of 'quick'
-    box=a.getboxfill('quick')
-    # Plot array using specified box and default template
-    a.boxfill(array,box)
-    # Create an instance of template 'AMIP'
-    templt=a.gettemplate('AMIP')
-    # Clear VCS canvas
-    a.clear()
-    # Plot array using specified box and template
-    a.boxfill(array,box,template)
-    # Plot array using specified box and template
-    a.boxfill(box,array,template)
-    # Plot array using specified box and template
-    a.boxfill(template,array,box)
-    # Plot array using specified box and template
-    a.boxfill(template,array,box)
-    # Use 'AMIP' template and 'quick' boxfill
-    a.boxfill(array,'AMIP','quick')
-    # Use 'AMIP' template and 'quick' boxfill
-    a.boxfill('AMIP',array,'quick')
-    # Use 'AMIP' template and 'quick' boxfill
-    a.boxfill('AMIP','quick',array)
+        ::
+
+            a=vcs.init()
+            # Show all the existing boxfill graphics methods
+            a.show('boxfill')
+            # Create instance of 'quick'
+            box=a.getboxfill('quick')
+            # Plot array using specified box and default template
+            a.boxfill(array,box)
+            # Create an instance of template 'AMIP'
+            templt=a.gettemplate('AMIP')
+            # Clear VCS canvas
+            a.clear()
+            # Plot array using specified box and template
+            a.boxfill(array,box,template)
+            # Plot array using specified box and template
+            a.boxfill(box,array,template)
+            # Plot array using specified box and template
+            a.boxfill(template,array,box)
+            # Plot array using specified box and template
+            a.boxfill(template,array,box)
+            # Use 'AMIP' template and 'quick' boxfill
+            a.boxfill(array,'AMIP','quick')
+            # Use 'AMIP' template and 'quick' boxfill
+            a.boxfill('AMIP',array,'quick')
+            # Use 'AMIP' template and 'quick' boxfill
+            a.boxfill('AMIP','quick',array)
 
 %s
 %s
@@ -1234,7 +1242,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing taylordiagram graphics methods
@@ -1282,7 +1290,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing meshfill graphics methods
@@ -1360,7 +1368,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
      # Show all the existing isofill graphics methods
@@ -1402,7 +1410,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing isoline graphics methods
@@ -1452,7 +1460,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing Xyvsy graphics methods
@@ -1494,7 +1502,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing Yxvsx graphics methods
@@ -1536,7 +1544,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing XvsY graphics methods
@@ -1581,7 +1589,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing vector graphics methods
@@ -1615,7 +1623,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing scatter graphics methods
@@ -1664,7 +1672,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing line objects
@@ -1825,7 +1833,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing marker objects
@@ -1917,7 +1925,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing fillarea objects
@@ -2081,7 +2089,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
         a=vcs.init()
         # Show all the existing texttable objects
@@ -2146,7 +2154,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
         a=vcs.init()
         t=a.createtext()
@@ -2184,7 +2192,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing texttable objects
@@ -2442,7 +2450,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     # x is an instance of the VCS class object (constructor)
     x=vcs.init()
@@ -3931,7 +3939,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -3975,7 +3983,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -3996,7 +4004,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -4044,7 +4052,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -4059,7 +4067,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -4093,7 +4101,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
      a=vcs.init()
      # Get the continents type
@@ -4114,7 +4122,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
      a=vcs.init()
      a.plot(array)
@@ -4171,7 +4179,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.grid(12,12,0,71,0,45)
@@ -4200,7 +4208,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -4273,7 +4281,7 @@ class Canvas(object):
 
          :Example:
 
-::
+        ::
 
         a=vcs.init()
         a.listelements()
@@ -4304,7 +4312,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.open()
@@ -4339,7 +4347,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -4410,7 +4418,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     #... code to generate png files ...
@@ -4542,7 +4550,7 @@ class Canvas(object):
 
          :Example:
 
-::
+        ::
 
             a=vcs.init()
             # US Legal
@@ -4591,7 +4599,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -4637,7 +4645,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -4688,7 +4696,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -4925,7 +4933,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array)
@@ -5011,7 +5019,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -5048,7 +5056,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     a.plot(array,'default','isofill','quick')
@@ -5072,7 +5080,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
         a = vcs.init()
         line = vcs.createline()
@@ -5119,7 +5127,7 @@ class Canvas(object):
 
       :Example:
 
-::
+        ::
 
       a=vcs.init()
       a.setcontinentstype(3)
@@ -5214,7 +5222,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
         a=vcs.init()
         a.plot(array)
@@ -5356,7 +5364,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     # ...
@@ -5379,7 +5387,7 @@ class Canvas(object):
 
     :Example:
 
-::
+        ::
 
     a=vcs.init()
     #...
@@ -5407,7 +5415,7 @@ class Canvas(object):
 
      :Example:
 
-::
+        ::
 
     a=vcs.init()
     # Show all the existing templates
@@ -5590,7 +5598,7 @@ class Canvas(object):
 
         :Example:
 
-::
+        ::
 
         a = vcs.init()
         # Show current orientation of the canvas
