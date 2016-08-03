@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+cd ${CMAKE_BINARY_DIR}
+rm -rf CMake* CTestTestfile.cmake  DartConfiguration.tcl  Makefile Testing/ cmake_install.cmake version CDAT-prefix
