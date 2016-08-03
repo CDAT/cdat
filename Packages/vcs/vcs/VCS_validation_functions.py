@@ -716,7 +716,7 @@ def checkListTuple(self, name, value):
     # Now make sure the items are either number or listofnumbers
     # for v in value:
     checkName(self, name, value)
-    if isinstance(value, list) or isinstance(value, tuple):
+    if isinstance(value, (list, tuple)):
         return list(value)
     else:
         checkedRaise(
@@ -1876,18 +1876,22 @@ def _setcolormap(self, value):
 colormap = property(_getcolormap, _setcolormap)
 
 
-def _getlevels(self):
+@property
+def levels(self):
+    """Sets the levels on a graphic method, optionally turns on/off extensions arrows"""
     return self._levels
 
 
-def _setlevels(self, value):
-    if value == ([1.0000000200408773e+20, 1.0000000200408773e+20],):
+@levels.setter
+def levels(self, value):
+    value = list(checkListTuple(self, 'levels', value))
+
+    if len(value)==2 and numpy.allclose(value,1.e20):
         self._levels = value
         return
 
-    value = list(checkListTuple(self, 'levels', value))
 
-    # Now make sure the items are either number or listofnumbers
+    # Now make sure the items are either number or list of numbers
     for v in value:
         if isNumber(v):
             continue
@@ -1915,17 +1919,23 @@ def _setlevels(self, value):
             value[0], (list, tuple)) and len(value[0]) > 2:
         value = list(value[0])
 
-    if (value[0] < -9.9E19):
+    # We need to check for extensions
+    v = value[0]
+    if isinstance(v, (list,tuple)):
+        v = v[0]
+    if v < -9.9E19:
         self._ext_1 = True
     else:
         self._ext_1 = False
 
-    if (value[-1] > 9.9E19):
+    v = value[-1]
+    if isinstance(v, (list,tuple)):
+        v = v[-1]
+    if v > 9.9E19:
         self._ext_2 = True
     else:
         self._ext_2 = False
     self._levels = list(value)
-levels = property(_getlevels, _setlevels)
 
 
 def _getlegend(self):
@@ -1988,11 +1998,12 @@ def add_level_ext_1(self, ext_value):
     if ext_value == "n":
         return self.levels
 
-    # We may need to add extnsion
+    # We may need to add extension
     if isinstance(self.levels, (list, tuple)):
         if isinstance(self.levels, tuple):
             self.levels = list(self.levels)
         if isinstance(self.levels[0], list):  # add to tuple of lists
+            print "WE do come here:",self.ext_1,self.ext_2
             if self.levels[0][0] > -9.E19:  # ok need to add this level
                 self.levels.insert(0, [-1e20, self.levels[0][0]])
             return self.levels
@@ -2028,9 +2039,10 @@ def add_level_ext_2(self, ext_value):
     if self.levels == [] or numpy.allclose(self.levels, 1.e20):
         return self.levels  # nothing to do
     if ((ext_value == 'n') and self.ext_2):  # remove extension
-        if isinstance(self.levels[0], list):  # remove from tuple of lists
+        if isinstance(self.levels[-1], list):  # remove from tuple of lists
             if self.levels[-1][1] > 9.e19:
                 self.levels.pop(-1)
+                return
         if isinstance(self.levels, (tuple, list)):       # remove from list
             ret_tup = []
             for i in range(len(self.levels) - 1):
@@ -2056,33 +2068,34 @@ def add_level_ext_2(self, ext_value):
                 self.levels.append(1.e20)
         return self.levels
 
-
-def _getext_1(self):
+@property
+def ext_1(self):
+    """Turns on extensions arrows for values before the first level"""
     return self._ext_1
 
-
-def _setext_1(self, value):
+@ext_1.setter
+def ext_1(self, value):
     do = checkExt(self, 'ext_1', value)
     if do:
         add_level_ext_1(self, 'y')
     else:
         add_level_ext_1(self, 'n')
     self._ext_1 = do
-ext_1 = property(_getext_1, _setext_1)
 
 
-def _getext_2(self):
+@property
+def ext_2(self):
+    """Turns on extensions arrows for values after the last level"""
     return self._ext_2
 
-
-def _setext_2(self, value):
+@ext_2.setter
+def ext_2(self, value):
     do = checkExt(self, 'ext_2', value)
     if do:
         add_level_ext_2(self, 'y')
     else:
         add_level_ext_2(self, 'n')
     self._ext_2 = do
-ext_2 = property(_getext_2, _setext_2)
 
 
 def _getwc(self):
