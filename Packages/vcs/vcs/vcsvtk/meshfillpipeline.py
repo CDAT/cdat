@@ -207,6 +207,11 @@ class MeshfillPipeline(Pipeline2D):
                     create_renderer=True)
                 actors.append([act, plotting_dataset_bounds])
 
+        t = self._originalData1.getTime()
+        if self._originalData1.ndim > 2:
+            z = self._originalData1.getAxis(-3)
+        else:
+            z = None
         self._resultDict["vtk_backend_actors"] = actors
         kwargs = {"vtk_backend_grid": self._vtkDataSet,
                   "dataset_bounds": self._vtkDataSetBounds,
@@ -214,14 +219,14 @@ class MeshfillPipeline(Pipeline2D):
                   "vtk_backend_geo": self._vtkGeoTransform}
         if ("ratio_autot_viewport" in self._resultDict):
             kwargs["ratio_autot_viewport"] = vp
-        self._template.plot(self._context().canvas, self._data1, self._gm,
-                            bg=self._context().bg,
-                            X=numpy.arange(min(x1, x2),
-                                           max(x1, x2) * 1.1,
-                                           abs(x2 - x1) / 10.),
-                            Y=numpy.arange(min(y1, y2),
-                                           max(y1, y2) * 1.1,
-                                           abs(y2 - y1) / 10.), **kwargs)
+        self._resultDict.update(self._context().renderTemplate(self._template, self._data1, self._gm,
+                                t, z,
+                                X=numpy.arange(min(x1, x2),
+                                               max(x1, x2) * 1.1,
+                                               abs(x2 - x1) / 10.),
+                                Y=numpy.arange(min(y1, y2),
+                                               max(y1, y2) * 1.1,
+                                               abs(y2 - y1) / 10.), **kwargs))
 
         legend = getattr(self._gm, "legend", None)
 

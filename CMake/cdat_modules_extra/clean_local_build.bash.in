@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "Clean build directory:"@CMAKE_BINARY_DIR@
+cd @CMAKE_BINARY_DIR@
+rm -rf CMake* CTestTestfile.cmake  DartConfiguration.tcl  Makefile Testing/ cmake_install.cmake version CDAT-prefix

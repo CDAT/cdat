@@ -36,8 +36,7 @@ from Plegend import *  # noqa
 from Pdata import *  # noqa
 import inspect
 import cdutil
-from projection import round_projections
-from projection import elliptical_projections
+from projection import round_projections, elliptical_projections
 
 # Following for class properties
 
@@ -1709,8 +1708,8 @@ class P(object):
         x.worldcoordinate = [0., 1., 0., 1.]
         # Ok first determine the orientation of the legend (bottom to top  or
         # left to right)
-        dX = self.legend.x2 - self.legend.x1
-        dY = self.legend.y2 - self.legend.y1
+        dX = abs(self.legend.x2 - self.legend.x1)
+        dY = abs(self.legend.y2 - self.legend.y1)
         nbox = len(colors)
         if isinstance(levels[0], list):
             l0 = levels[0][0]
@@ -1724,84 +1723,88 @@ class P(object):
             ext_2 = 'y'
         levels = list(levels)
         # Now figure out the typical length of a box
-        if abs(dX) >= abs(dY):
-            isH = 1
-            dLong = dX
-            dlong = dX / nbox
-            dshrt = dY
-            startlong = self.legend.x1
-            startshrt = self.legend.y1
+        if dX > dY:
+            isHorizontal = True
+            length = dX
+            boxLength = dX / nbox
+            thick = dY
+            startLength = min(self.legend.x1, self.legend.x2)
+            startThick = min(self.legend.y1, self.legend.y2)
         else:
-            isH = 0
-            dLong = dY
-            dlong = dY / nbox
-            dshrt = dX
-            startlong = self.legend.y1
-            startshrt = self.legend.x1
+            isHorizontal = False
+            length = dY
+            boxLength = dY / nbox
+            thick = dX
+            startLength = min(self.legend.y1, self.legend.y2)
+            startThick = min(self.legend.x1, self.legend.x2)
         # initialize the fillarea coordinates
-        L = []
-        S = []
+        L = []  # length
+        T = []  # thickness
         # computes the fillarea coordinates
         iext = 0  # To know if we changed the dims
-        minarrow = .02  # % of the legend that the arrow must use (at least)
-        if (ext_1 == 'y' or ext_2 == 'y') and dlong < minarrow * dLong:
+        if (ext_1 == 'y' or ext_2 == 'y'):  # and boxLength < self.legend.arrow * length:
             iext = 1  # one mins changed ext_1
+            arrowLength = self.legend.arrow * length
             if ext_1 == 'y' and ext_2 == 'y':
-                dlong = dLong * (1. - 2. * minarrow) / (nbox - 2.)
+                boxLength = (length - 2. * arrowLength) / (nbox - 2.)
                 iext = 3  # changed both side
             else:
-                dlong = dLong * (1. - minarrow) / (nbox - 1.)
+                boxLength = (length - arrowLength) / (nbox - 1.)
                 if ext_2 == 'y':
                     iext = 2
 
+        # Loops thru the boxes (i.e colors NOT actual boxes drawn)
+        adjust = 0
         for i in range(nbox):
             if ext_1 == 'y' and i == 0:
-                # did the chage the size of the arrow
-                if iext == 1 or iext == 3:
-                    dlongarrow = minarrow * dLong
-                else:
-                    dlongarrow = dlong
                 # Draws the little arrow at the begining
-                L.append(
-                    [startlong, startlong + dlongarrow,
-                     startlong + dlongarrow])
-                S.append(
-                    [startshrt + dshrt / 2., startshrt + dshrt, startshrt])
-                # Now readjust startlong if necessary
+                # Make sure the triangle goes back to first point
+                # Because used to close the extension
+                L.append([
+                    startLength + arrowLength,
+                    startLength,
+                    startLength + arrowLength,
+                ])
+                T.append(
+                    [
+                        startThick,
+                        startThick + thick / 2.,
+                        startThick + thick,
+                    ])
+                # Now readjust startLength if necessary
                 if iext == 1 or iext == 3:
-                    startlong = startlong - dlong + minarrow * dLong
+                    startLength = startLength + arrowLength
+                    adjust = -1
             elif ext_2 == 'y' and i == nbox - 1:
-                if iext > 1:  # we changed the size of the arrow at the end
-                    dlongarrow = dLong * minarrow
-                else:
-                    dlongarrow = dlong
                 # Draws the little arrow at the end
-                L.append([startlong +
-                          dlong *
-                          i +
-                          dlongarrow, startlong +
-                          dlong *
-                          i, startlong +
-                          dlong *
-                          i])
-                S.append(
-                    [startshrt + dshrt / 2., startshrt + dshrt, startshrt])
+                L.append([
+                    startLength + boxLength * (i + adjust),
+                    startLength + boxLength * (i + adjust) + arrowLength,
+                    startLength + boxLength * (i + adjust),
+                ])
+                T.append(
+                    [
+                        startThick,
+                        startThick + thick / 2.,
+                        startThick + thick,
+                    ])
             else:
                 # Draws a normal box
-                # print i,dlong,dshrt,startlong,startshrt
-                L.append([startlong + dlong * i,
-                          startlong + dlong * (i + 1),
-                          startlong + dlong * (i + 1),
-                          startlong + dlong * i])
-                S.append([startshrt,
-                          startshrt,
-                          startshrt + dshrt,
-                          startshrt + dshrt])
+                # print i,boxLength,thick,startLength,startThick
+                L.append([startLength + boxLength * (i + adjust),
+                          startLength + boxLength * (i + adjust + 1),
+                          startLength + boxLength * (i + adjust + 1),
+                          startLength + boxLength * (i + adjust)])
+                T.append([startThick,
+                          startThick,
+                          startThick + thick,
+                          startThick + thick])
 
         fa = x.createfillarea()
         fa.color = colors
         fa.style = style
         fa.index = index
+        fa.priority = self.legend.priority
         # Boxfill default comes in here with [] we need to fix this
         if opacity == []:
             opacity = [None, ] * len(colors)
@@ -1810,57 +1813,45 @@ class P(object):
         if cmap is not None:
             fa.colormap = cmap
         # assigning directly since we gen it we know it's good
-        if isH:
+        if isHorizontal:
             fa._x = L
-            fa._y = S
+            fa._y = T
         else:
-            fa._x = S
+            fa._x = T
             fa._y = L
-# fa.list()
-        displays.append(x.fillarea(fa, bg=bg, **kargs))
+        displays.append(x.plot(fa, bg=bg, **kargs))
         del(vcs.elements["fillarea"][fa.name])
-        # Now draws the legend
-        # Fisrt of all make sure we draw the arrows
-        Sl = []
-        Ll = []
-        St = []
-        Lt = []
-        Tt = []
-        dD = dLong  # length of the levels area
+        # Now draws the box around the legend
+        # First of all make sure we draw the arrows
+        Tl = []  # Thickness labels location
+        Ll = []  # Length labels location
+        Tt = []  # Thickness ticks location
+        Lt = []  # Length ticks location
+        St = []  # String location
+        levelsLength = length  # length of the levels area
         if ext_1 == 'y':
-            startlong = startlong + dlong
-            Sl.append(S[0])
+            Tl.append(T[0])
             Ll.append(L[0])
-            # we need to close the arrow
-            Sl[0].append(Sl[0][0])
-            Ll[0].append(Ll[0][0])
             levels.pop(0)
             if iext == 1 or iext == 3:
-                dD = dD - dLong * minarrow
-            else:
-                dD = dD - dlong
+                levelsLength = levelsLength - arrowLength
         if ext_2 == 'y':
-            Sl.append(S[-1])
+            Tl.append(T[-1])
             Ll.append(L[-1])
-            # we need to close the arrow
-            Sl[0].append(Sl[0][0])
-            Ll[0].append(Ll[0][0])
             levels.pop(-1)
             if iext > 1:
-                dD = dD - dLong * minarrow
-            else:
-                dD = dD - dlong
+                levelsLength = levelsLength - arrowLength
         # adds the coordinate for the box around the legend
-        Sl.append([startshrt,
-                   startshrt,
-                   startshrt + dshrt,
-                   startshrt + dshrt,
-                   startshrt])
-        Ll.append([startlong,
-                   startlong + dD,
-                   startlong + dD,
-                   startlong,
-                   startlong])
+        Tl.append([startThick,
+                   startThick,
+                   startThick + thick,
+                   startThick + thick,
+                   startThick])
+        Ll.append([startLength,
+                   startLength + levelsLength,
+                   startLength + levelsLength,
+                   startLength,
+                   startLength])
         # Now make sure we have a legend
         if isinstance(levels[0], list):
             # Ok these are non-contiguous levels, we will use legend only if
@@ -1868,22 +1859,22 @@ class P(object):
             for i, l in enumerate(levels):
                 lt = l[0]
                 lb = l[1]
-                loc = i * dlong + startlong
+                loc = i * boxLength + startLength
                 Ll.append([loc, loc])
-                Sl.append([startshrt, startshrt + dshrt])
+                Tl.append([startThick, startThick + thick])
                 if legend is not None:
                     lt = legend.get(lt, None)
                     lb = legend.get(lb, None)
                 if lt is not None:
-                    loct = startlong + (i + .5) * dlong
-                    Tt.append(str(lt))
+                    loct = startLength + (i + .5) * boxLength
+                    St.append(str(lt))
                     Lt.append(loct)
-                    St.append(startshrt + dshrt * 1.4)
+                    Tt.append(startThick + thick * 1.4)
                 if lb is not None:
-                    loct = startlong + (i + .5) * dlong
-                    Tt.append(str(lb))
+                    loct = startLength + (i + .5) * boxLength
+                    St.append(str(lb))
                     Lt.append(loct)
-                    St.append(startshrt - dshrt * .6)
+                    Tt.append(startThick - thick * .6)
 
         else:
             if legend is None:
@@ -1897,24 +1888,25 @@ class P(object):
             def in_bounds(x):
                 return comparison(levels[0], x) and comparison(x, levels[-1])
 
-            dlong = dD / (len(levels) - 1)
+            boxLength = levelsLength / (len(levels) - 1.)
 
-            for l in legend.keys():
+            for il, l in enumerate(sorted(legend.keys())):
                 if in_bounds(l):
                     for i in range(len(levels) - 1):
                         # if legend key is (inclusive) between levels[i] and levels[i+1]
                         if comparison(levels[i], l) and comparison(l, levels[i + 1]):
                             # first let's figure out where to put the legend label
-                            location = i * dlong  # position at beginning of level
+                            location = i * boxLength  # position at beginning of level
                             # Adds the distance from beginning of level box
-                            location += (l - levels[i]) / (levels[i + 1] - levels[i]) * dlong
-                            location += startlong  # Figures out the beginning
+                            location += (l - levels[i]) / (levels[i + 1] - levels[i]) * boxLength
+                            location += startLength  # Figures out the beginning
 
-                            Ll.append([location, location])
-                            Sl.append([startshrt, startshrt + dshrt])
+                            if not (numpy.allclose(l, levels[0]) or numpy.allclose(l, levels[-1])):
+                                Ll.append([location, location])
+                                Tl.append([startThick, startThick + thick])
                             Lt.append(location)
-                            St.append(startshrt + dshrt * 1.4)
-                            Tt.append(legend[l])
+                            Tt.append(startThick + thick + self.legend.offset)
+                            St.append(legend[l])
                             break
         # ok now creates the line object and text object
         ln = x.createline(source=self.legend.line)
@@ -1923,26 +1915,26 @@ class P(object):
             Tt_source=self.legend.texttable)
         ln._priority = priority + 1
         txt.priority = priority + 1
-        txt.string = Tt
+        txt.string = St
         if isinstance(legend, list):
-            if isH:
-                txt._halign = "center"
+            if isHorizontal:
+                txt.halign = "center"
             else:
-                txt._valign = "half"
-        if isH:
+                txt.valign = "half"
+        if isHorizontal:
             ln._x = Ll
-            ln._y = Sl
+            ln._y = Tl
             txt.x = Lt
-            txt.y = St
+            txt.y = Tt
         else:
-            ln._x = Sl
+            ln._x = Tl
             ln._y = Ll
-            txt.x = St
+            txt.x = Tt
             txt.y = Lt
 
         # Now reset the viewport and worldcoordiantes
-        displays.append(x.line(ln, bg=bg, **kargs))
-        displays.append(x.text(txt, bg=bg, **kargs))
+        displays.append(x.plot(ln, bg=bg, **kargs))
+        displays.append(x.plot(txt, bg=bg, **kargs))
         del(vcs.elements["line"][ln.name])
         sp = txt.name.split(":::")
         del(vcs.elements["texttable"][sp[0]])

@@ -810,10 +810,10 @@ class VTKVCSBackend(object):
                                   priority=priority,
                                   create_renderer=True)
 
-    def renderTemplate(self, tmpl, data, gm, taxis, zaxis, **kargs):
+    def renderTemplate(self, tmpl, data, gm, taxis, zaxis, X=None, Y=None, **kargs):
         # ok first basic template stuff, let's store the displays
         # because we need to return actors for min/max/mean
-        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg, **kargs)
+        displays = tmpl.plot(self.canvas, data, gm, bg=self.bg, X=X, Y=Y, **kargs)
         returned = {}
         for d in displays:
             if d is None:
@@ -1273,7 +1273,6 @@ class VTKVCSBackend(object):
 
         return extents
 
-
     def getantialiasing(self):
         if self.renWin is None:
             return self.antialiasing
@@ -1383,7 +1382,10 @@ class VTKVCSBackend(object):
             yd = yScale * float(Yrg[1] - Yrg[0]) / 2.
             cam = Renderer.GetActiveCamera()
             cam.ParallelProjectionOn()
-            cam.SetParallelScale(yd)
+            # We increase the parallel projection parallelepiped with 1/1000 so that
+            # it does not overlap with the outline of the dataset. This resulted in
+            # system dependent display of the outline.
+            cam.SetParallelScale(yd * 1.001)
             cd = cam.GetDistance()
             cam.SetPosition(xc, yc, cd)
             cam.SetFocalPoint(xc, yc, 0.)

@@ -16,4 +16,6 @@ if os.path.exists(fnm):
 
 t.script(fnm)
 
+print "Comparing:",os.path.realpath(fnm),good
 assert filecmp.cmp(fnm,good)
+os.remove(fnm)
