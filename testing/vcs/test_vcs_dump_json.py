@@ -30,6 +30,8 @@ b.script("test_vcs_dump_json","a")
 b = vcs.createprojection("vcs_instance")
 b.script("test_vcs_dump_json","a")
 
+print "Comparing:",os.path.realpath("test_vcs_dump_json.json"),src
 assert(filecmp.cmp("test_vcs_dump_json.json", src))
+os.remove("test_vcs_dump_json.json")
 
 

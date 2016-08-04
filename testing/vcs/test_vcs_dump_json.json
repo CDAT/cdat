@@ -358,7 +358,9 @@
     "y": 0.0130000002682
    }, 
    "legend": {
+    "arrow": 0.05, 
     "line": "default", 
+    "offset": 0.01, 
     "priority": 1, 
     "textorientation": "defcenter", 
     "texttable": "default", 

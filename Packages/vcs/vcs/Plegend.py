@@ -93,7 +93,12 @@ class Pls(object):
         "_texttable",
         "_textorientation",
         "texttable",
-        "textorientation"]
+        "textorientation",
+        "offset",
+        "_offset",
+        "arrow",
+        "_arrow",
+    ]
 
     def __init__(self, member):
         #    def __init__(self, template, member=None):
@@ -115,6 +120,8 @@ class Pls(object):
         self.y1 = 0.129999995232
         self.x2 = 0.949999988079
         self.y2 = 0.159999996424
+        self.offset = .01
+        self.arrow = .05
 
     ##########################################################################
     #                                                                           #
@@ -129,6 +136,8 @@ class Pls(object):
     line = VCS_validation_functions.line
     texttable = VCS_validation_functions.texttable
     textorientation = VCS_validation_functions.textorientation
+    offset = VCS_validation_functions.offset
+    arrow = VCS_validation_functions.arrow
 
     ##########################################################################
     #                                                                           #
@@ -145,6 +154,7 @@ class Pls(object):
         print "     line =", self.line
         print "     texttable =", self.texttable
         print "     textorientation =", self.textorientation
+        print "     offset =", self.offset
 
 
 ##########################################################################

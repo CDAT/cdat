@@ -292,9 +292,19 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/clean_cdat_from_conda
     ${cdat_CMAKE_BINARY_DIR}/clean_cdat_from_conda.bash
     @ONLY
     )
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/clean_local_build.bash.in
+    ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
+    @ONLY
+    )
 add_subdirectory(testing)
 
 # Clean conda env
 add_custom_target(clean-conda
     COMMAND ${cdat_CMAKE_BINARY_DIR}/clean_cdat_from_conda.bash
+    )
+
+# Clean local env
+add_custom_target(clean-local
+    COMMAND ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
     )
