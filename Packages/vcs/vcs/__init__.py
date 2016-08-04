@@ -254,25 +254,25 @@ def init(mode=1, pause_time=0, call_from_gui=0, size=None,
 
     :Example:
 
-::
+    ::
 
-    import vcs
+        import vcs
 
-    # Portrait orientation of 1 width per 2 height
-    portrait = vcs.init(size=.5)
-    # also accepts "usletter"
-    letter = vcs.init(size="letter")
-    a4 = vcs.init(size="a4")
+        # Portrait orientation of 1 width per 2 height
+        portrait = vcs.init(size=.5)
+        # also accepts "usletter"
+        letter = vcs.init(size="letter")
+        a4 = vcs.init(size="a4")
 
-    import vtk
-    # Useful for embedding VCS inside another application
-    my_win = vtk.vtkRenderWindow()
-    embedded = vcs.init(backend=my_win)
+        import vtk
+        # Useful for embedding VCS inside another application
+        my_win = vtk.vtkRenderWindow()
+        embedded = vcs.init(backend=my_win)
 
-    dict_init = vcs.init(geometry={"width": 1200, "height": 600})
-    tuple_init = vcs.init(geometry=(1200, 600))
+        dict_init = vcs.init(geometry={"width": 1200, "height": 600})
+        tuple_init = vcs.init(geometry=(1200, 600))
 
-    bg_canvas = vcs.init(bg=True)
+        bg_canvas = vcs.init(bg=True)
 
 :param size: Aspect ratio for canvas (width / height)
 :param backend: Which VCS backend to use
@@ -283,7 +283,7 @@ def init(mode=1, pause_time=0, call_from_gui=0, size=None,
 :type geometry: dict or tuple
 :type bg: bool
 :return: an initialized canvas
-:rtype: `vcs.Canvas.Canvas`
+:rtype: vcs.Canvas.Canvas
 '''
     canvas = Canvas.Canvas(
         mode=mode,

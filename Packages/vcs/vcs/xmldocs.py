@@ -206,6 +206,12 @@ listdoc = """ Lists the current values of object attributes"""
 # Scriptdocs section
 
 # Use this dictionary for string replacements
+#   dict keys are 'inst', 'type', 'name', and 'call'
+#       'inst' : The name of the instance of a VCS object.
+#       'type' : The type of VCS object it is (i.e. Graphics method, secondary method, etc.
+#       'name' : The name of the VCS object (i.e. boxfill, isofill, etc.)
+#       'call' : The function call for the object. Mostly, this is == name.
+#                   Some rare cases, like textcombined, require adjustment of this value.
 dict = {}
 dict['name'] = dict['type'] = dict['inst'] = dict['call'] = 'REPLACE_ME'
 
@@ -225,15 +231,26 @@ scriptdoc = """
 
     :Example:
 
-::
+        .. doctest::
 
-    a=vcs.init()
-    # Create %(call)s 'temp' that inherits from 'default'
-    %(inst)s=a.create%(call)s('temp')
-    # Append to a Python script named 'filename.py'
-    %(inst)s.script('filename.py')
-    # Create or overwrite a JSON file 'filename.json'.
-    %(inst)s.script('filename','w')
+            # Make a Canvas object to work with:
+            >>> a=vcs.init()
+            ...
+
+            # Create %(call)s 'temp' that inherits from 'default'
+            >>> %(inst)s=a.create%(call)s('temp')
+            ...
+
+            # Append to a Python script named 'filename.py'
+            >>> %(inst)s.script('filename.py')
+            ...
+
+            # Create or overwrite a JSON file 'filename.json'.
+            >>> %(inst)s.script('filename','w')
+            ...
+
+            >>> target = %(inst)s
+            >>> type = "%(inst)s"
 
 :param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
 :type script_filename: str
