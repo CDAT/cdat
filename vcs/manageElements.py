@@ -2459,7 +2459,7 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 """
 
     Cp_name, Cp_name_src = check_name_source(Cp_name, Cp_name_src, 'colormap')
-    return colormap.Cp(Cp_name, Cp_name_srcvcs.colormap.Cp )
+    return colormap.Cp(Cp_name, Cp_name_src)
 
 
 def getcolormap(Cp_name_src='default'):
