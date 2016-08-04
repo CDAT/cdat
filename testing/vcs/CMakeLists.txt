@@ -783,11 +783,15 @@ cdat_add_test(test_vcs_settings_color_name_rgba
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  )
-  cdat_add_test(test_vcs_polar_set_opt_param_polar
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
-    "${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
-    )
+
+  foreach(z none subset datawc)
+    cdat_add_test(test_vcs_polar_zoom_${z}
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_zoom.py
+      "${BASELINE_DIR}/test_vcs_polar_zoom_${z}.png"
+      ${z})
+  endforeach()
+
   cdat_add_test(test_vcs_boxfill_lev1_lev2
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py
