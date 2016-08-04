@@ -1757,10 +1757,7 @@ def getworldcoordinates(gm, X, Y):
         return wc
     if (((not isinstance(X, cdms2.axis.TransientAxis) and
           isinstance(Y, cdms2.axis.TransientAxis)) or
-         not vcs.utils.monotonic(X[:])) and
-        numpy.allclose([datawc[0], datawc[1]], 1.e20))\
-            or (hasattr(gm, "projection") and
-                vcs.elements["projection"][gm.projection].type != "linear"):
+         not vcs.utils.monotonic(X[:])) and numpy.allclose([datawc[0], datawc[1]], 1.e20)):
         wc[0] = X[:].min()
         wc[1] = X[:].max()
     if numpy.isclose(datawc[2], 1.e20):

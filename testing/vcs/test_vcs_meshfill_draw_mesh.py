@@ -8,4 +8,4 @@ m = x.createmeshfill()
 m.mesh = True
 
 x.plot(s,m,bg=1)
-regression.run(x, "test_meshfill_draw_mesh.png")
+regression.run(x, "test_vcs_meshfill_draw_mesh.png")
