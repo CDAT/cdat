@@ -13,9 +13,10 @@ for k in vcs.elements.keys():
 if sys.argv[1][-7:]=="old.scr":
     diffs = {'projection': 0, 'colormap': 53, 'isofill': 187, 'marker': 0, '3d_dual_scalar': 0, 'texttable': 4, '3d_scalar': 0, 'fillarea': 234, 'font': 0, '3d_vector': 0, '1d': 9, 'template': 43, 'textcombined': 0, 'textorientation': 3, 'xvsy': 0, 'xyvsy': 0, 'isoline': 113, 'boxfill': 239, 'fontNumber': 0, 'line': 21, 'meshfill': 0, 'yxvsx': 9, 'taylordiagram': 0, 'list': 26, 'display': 0, 'vector': 55, 'scatter': 0}
 else:
-    diffs = {'projection': 0, 'colormap': 4, 'isofill': 102, 'marker': 15, '3d_dual_scalar': 0, 'texttable': 1, '3d_scalar': 0, 'fillarea': 404, 'font': 0, '3d_vector': 0, '1d': 19, 'template': 128, 'textcombined': 0, 'textorientation': 0, 'xvsy': 0, 'xyvsy': 15, 'isoline': 3, 'boxfill': 3, 'fontNumber': 0, 'line': 16, 'meshfill': 0, 'yxvsx': 17, 'taylordiagram': 1, 'list': 68, 'display': 0, 'vector': 5, 'scatter': 2}
+    diffs = {'projection': 0, 'colormap': 4, 'isofill': 102, 'marker': 15, '3d_dual_scalar': 0, 'texttable': 1, '3d_scalar': 0, 'fillarea': 404, 'font': 0, '3d_vector': 0, '1d': 19, 'template': 127, 'textcombined': 0, 'textorientation': 0, 'xvsy': 0, 'xyvsy': 15, 'isoline': 3, 'boxfill': 3, 'fontNumber': 0, 'line': 16, 'meshfill': 0, 'yxvsx': 17, 'taylordiagram': 1, 'list': 68, 'display': 0, 'vector': 5, 'scatter': 2}
 for k in vcs.elements.keys():
-    assert(diffs[k] == Ns2[k]-Ns[k])
+    if (diffs[k] != Ns2[k]-Ns[k]):
+        print("Assert failed %s: %d expected %d" % (k, Ns2[k]-Ns[k], diffs[k]))
 
 if sys.argv[1][-7:]=="old.scr":
     gm = x.getisofill("pr_time_lat_1")
