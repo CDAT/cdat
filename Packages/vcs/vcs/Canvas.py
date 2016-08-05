@@ -47,6 +47,24 @@ from projection import no_deformation_projections  # noqa
 # Python < 3 DeprecationWarning ignored by default
 warnings.simplefilter('default')
 
+# Deprecated color map names mapping
+vcs_deprecated_colormap_names = {
+    "bl_to_darkred": "blue2darkred",
+    "bl_to_drkorang": "blue2darkorange",
+    "blue_to_grey": "blue2grey",
+    "blue_to_grn": "blue2green",
+    "blue_to_orange": "blue2orange",
+    "blue_to_orgred": "blue2orange2red",
+    "brown_to_blue": "brown2blue",
+    "grn_to_magenta": "green2magenta",
+    "ltbl_to_drkbl": "lightblue2darkblue",
+    "rainbow_no_grn": "rainbownogreen",
+    "white_to_blue": "white2blue",
+    "white_to_green": "white2green",
+    "white_to_magenta": "white2magenta",
+    "white_to_red": "white2red",
+    "white_to_yellow": "white2yellow"
+}
 
 class SIGNAL(object):
 
@@ -4961,6 +4979,15 @@ Options:::
         #   updateVCSsegments_flag = args[1]
         # except:
         #   updateVCSsegments_flag = 1
+        # Python < 3 DeprecationWarning ignored by default
+        warnings.simplefilter('default')
+
+        if name in vcs_deprecated_colormap_names:
+            warnMessage = name + " is deprecated, use " +\
+                          vcs_deprecated_colormap_names[name] +\
+                          " instead";
+            warnings.warn(warnMessage, DeprecationWarning)
+
         self.colormap = name
         self.update()
         return
