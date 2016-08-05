@@ -145,10 +145,10 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def __init__(self,data, typecode=None, copy=1, savespace=0, 
                  mask=numpy.ma.nomask, fill_value=None, grid=None,
                  axes=None, attributes=None, id=None, copyaxes=1, dtype=None, 
-                 order=False, no_update_from=False,**kargs):
+                 order='C', no_update_from=False,**kargs):
         """createVariable (self, data, typecode=None, copy=0, savespace=0, 
                  mask=None, fill_value=None, grid=None,
-                 axes=None, attributes=None, id=None, dtype=None, order=False)
+                 axes=None, attributes=None, id=None, dtype=None, order='C')
            The savespace argument is ignored, for backward compatibility only.
         """
         try:
@@ -245,10 +245,10 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     def __new__(cls, data, typecode=None, copy=0, savespace=0, 
                  mask=numpy.ma.nomask, fill_value=None, grid=None,
-                 axes=None, attributes=None, id=None, copyaxes=1, dtype=None, order=False,**kargs):
+                 axes=None, attributes=None, id=None, copyaxes=1, dtype=None, order='C',**kargs):
         """createVariable (self, data, typecode=None, copy=0, savespace=0, 
                  mask=None, fill_value=None, grid=None,
-                 axes=None, attributes=None, id=None, dtype=None, order=False)
+                 axes=None, attributes=None, id=None, dtype=None, order='C')
            The savespace argument is ignored, for backward compatibility only.
         """
         # Compatibility: assuming old typecode, map to new
