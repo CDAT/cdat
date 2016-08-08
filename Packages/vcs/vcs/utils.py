@@ -1257,7 +1257,7 @@ def generate_time_labels(d1, d2, units, calendar=cdtime.DefaultCalendar):
     elif u in ['minute', 'minutes']:
         delta = (d2 - d1) / 24. / 60.
     elif u in ['second', 'seconds']:
-        delta = (d2 - d1) / 24. / 60.
+        delta = (d2 - d1) / 24. / 60. / 60.
     else:
         delta = d2 - d1
     if delta < .042:  # less than 1 hour
