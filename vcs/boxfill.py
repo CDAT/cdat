@@ -139,176 +139,215 @@ class Gfb(object):
     boxfill table entry.
 
 
-    :Example:
+    .. describe:: General use of a boxfill:
 
-::
+            .. code-block:: python
 
-    #General use of a boxfill:
-        # Constructor
-        a=vcs.init()
-        # Show predefined boxfill graphics methods
-        a.show('boxfill')
-        # Change the VCS color map
-        a.setcolormap("AMIP")
-        # Plot data 's' with boxfill 'b' and 'default' template
-        a.boxfill(s,b,'default')
+                # Constructor
+                a=vcs.init()
+                # Show predefined boxfill graphics methods
+                a.show('boxfill')
+                # Change the VCS color map
+                a.setcolormap("AMIP")
+                # Plot data 's' with boxfill 'b' and 'default' template
+                a.boxfill(s,b,'default')
 
-    #To update a boxfill:
-        # Updates the VCS Canvas at user's request
-        a.update()
-        # Set VCS Canvas to automatic update mode
-        a.mode=1
-        # Use update function to update the VCS Canvas
-        a.mode=0
+    .. describe:: Updating a boxfill:
 
-    #To Create a new instance of boxfill:
-        #  Copies content of 'quick' to 'new'
-        box=a.createboxfill('new','quick')
-        #  Copies content of 'default' to 'new'
-        box=a.createboxfill('new')
+        .. code-block:: python
 
-    #To Modify an existing boxfill:
-         box=a.getboxfill('AMIP_psl')
+            # Updates the VCS Canvas at user's request
+            a.update()
+            # Set VCS Canvas to automatic update mode
+            a.mode=1
+            # Use update function to update the VCS Canvas
+            a.mode=0
 
-    #Overview of boxfill attributes:
-        # Will list all the boxfill attribute values
-        box.list()
-        box.projection='linear'
-        lon30={-180:'180W',-150:'150W',0:'Eq'}
-        box.xticlabels1=lon30
-        box.xticlabels2=lon30
-        # Will set them both
-        box.xticlabels(lon30, lon30)
-        box.xmtics1=''
-        box.xmtics2=''
-        # Will set them both
-        box.xmtics(lon30, lon30)
-        box.yticlabels1=lat10
-        box.yticlabels2=lat10
-        # Will set them both
-        box.yticlabels(lat10, lat10)
-        box.ymtics1=''
-        box.ymtics2=''
-        # Will set them both
-        box.ymtics(lat10, lat10)
-        box.datawc_y1=-90.0
-        box.datawc_y2=90.0
-        box.datawc_x1=-180.0
-        box.datawc_x2=180.0
-        # Will set them all
-        box.datawc(-90, 90, -180, 180)
-        box.xaxisconvert='linear'
-        box.yaxisconvert='linear'
-        # Will set them both
-        box.xyscale('linear', 'area_wt')
-        box.level_1=1e20
-        box.level_2=1e20
-        box.color_1=16
-        box.color_2=239
-        # Will set them both
-        box.colors(16, 239 )
-        # 'linear' - compute or specify legend
-        box.boxfill_type='linear'
-        # 'log10' - plot using log10
-        box.boxfill_type='log10'
-        # 'custom' - use custom values to display legend evenly
-        box.boxfill_type='custom'
-        # Hold the legend values
-        box.legend=None
-        # Show left overflow arrow
-        box.ext_1='n'
-        # Show right overflow arrow
-        box.ext_2='y'
-        # Will set them both
-        box.exts('n', 'y' )
-        # Color index value range 0 to 255
-        box.missing=241
+    .. describe:: Create a new instance of boxfill:
 
-    #There are two possibilities for setting the boxfill levels:
-        # 1) Levels are all contiguous (Examples):
-            box.levels=([0,20,25,30,35,40],)
-            box.levels=([0,20,25,30,35,40,45,50])
-            box.levels=[0,20,25,30,35,40]
-            box.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
-        # 2) Levels are not contiguous (Examples):
-            box.levels=([0,20],[30,40],[50,60])
-            box.levels=([0,20,25,30,35,40],[30,40],[50,60])
+        .. code-block:: python
 
-    #There are three possibilities for setting the fillarea color indices:
-        box.fillareacolors=([22,33,44,55,66,77])
-        box.fillareacolors=(16,19,33,44)
-        box.fillareacolors=None
+            #  Copies content of 'quick' to 'new'
+            box=a.createboxfill('new','quick')
+            #  Copies content of 'default' to 'new'
+            box=a.createboxfill('new')
 
-    #There are three possibilities for setting the fillarea style (Ex):
-        box.fillareastyle = 'solid'
-        box.fillareastyle = 'hatch'
-        box.fillareastyle = 'pattern'
+    .. describe:: Modifying an existing boxfill:
 
-    #There are two ways to set the fillarea hatch or pattern indices (Ex):
-        box.fillareaindices=([1,3,5,6,9,20])
-        box.fillareaindices=(7,1,4,9,6,15)
-        #See using fillarea objects below!
+        .. code-block:: python
 
-    #Using the fillarea secondary object (Ex):
-        f=createfillarea('fill1')
-        #To Create a new instance of fillarea use:
-        # Copies 'quick' to 'new'
-        fill=a.createfillarea('new','quick')
-        # Copies 'default' to 'new'
-        fill=a.createfillarea('new')
+            fill=a.getboxfill('quick')
 
-    #To Modify an existing boxfill use:
-        fill=a.getboxfill('def37')
+            # Set index using fillarea
+            box.fillareaindices=(7,fill,4,9,fill,15)
+            # list fillarea attributes
+            fill.list()
+            # change style
+            fill.style='hatch'
+            # change color
+            fill.color=241
+            # change style index
+            fill.index=3
 
-        # Set index using fillarea
-        box.fillareaindices=(7,fill,4,9,fill,15)
-        # list fillarea attributes
-        fill.list()
-        # change style
-        fill.style='hatch'
-        # change color
-        fill.color=241
-        # change style index
-        fill.index=3
-%s
+    .. _boxfill-attributes:
 
-    .. py:attribute:: boxfill_type (str)
+    .. describe:: Overview of boxfill attributes:
 
-    Type of boxfill legend. One of 'linear', 'log10', or 'custom'. See examples above for usage.
+        .. code-block:: python
 
-    .. py:attribute:: level_1 (float)
-    Used in conjunction with boxfill_type linear/log10. Sets the value of the legend's first level
+        * Listing all the boxfill attribute values:
 
-    .. py:attribute:: level_2 (float)
-    Used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
+            .. code-block:: python
 
-    .. py:attribute:: color_1 (float)
-    Used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
+                box.list()
 
-    .. py:attribute:: color_2 (float)
-    Used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
+        * Setting boxfill attribute values:
 
-    .. py:attribute:: levels (list of floats)
-    Used in conjunction for boxfill_type custom, sets the levels range to use, can be
-    either a list of contiguous levels, or list of tuples indicating first
-    and last value of the range.
+            .. code-block:: python
 
-    .. py:attribte:: fillareacolors (list)
-    Used in conjunction for boxfill_type custom colors to use for each level
+                box.projection='linear'
+                lon30={-180:'180W',-150:'150W',0:'Eq'}
+                box.xticlabels1=lon30
+                box.xticlabels2=lon30
+                # Will set them both
+                box.xticlabels(lon30, lon30)
+                box.xmtics1=''
+                box.xmtics2=''
+                # Will set them both
+                box.xmtics(lon30, lon30)
+                box.yticlabels1=lat10
+                box.yticlabels2=lat10
+                # Will set them both
+                box.yticlabels(lat10, lat10)
+                box.ymtics1=''
+                box.ymtics2=''
+                # Will set them both
+                box.ymtics(lat10, lat10)
+                box.datawc_y1=-90.0
+                box.datawc_y2=90.0
+                box.datawc_x1=-180.0
+                box.datawc_x2=180.0
+                # Will set them all
+                box.datawc(-90, 90, -180, 180)
+                box.xaxisconvert='linear'
+                box.yaxisconvert='linear'
+                # Will set them both
+                box.xyscale('linear', 'area_wt')
+                box.level_1=1e20
+                box.level_2=1e20
+                box.color_1=16
+                box.color_2=239
+                # Will set them both
+                box.colors(16, 239 )
+                # 'linear' - compute or specify legend
+                box.boxfill_type='linear'
+                # 'log10' - plot using log10
+                box.boxfill_type='log10'
+                # 'custom' - use custom values to display legend evenly
+                box.boxfill_type='custom'
+                # Hold the legend values
+                box.legend=None
+                # Show left overflow arrow
+                box.ext_1='n'
+                # Show right overflow arrow
+                box.ext_2='y'
+                # Will set them both
+                box.exts('n', 'y' )
+                # Color index value range 0 to 255
+                box.missing=241
 
-    .. py:attribute:: legend ({float:str})
-    Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
-    their associated string.
+        * Setting the boxfill levels:
 
-    .. py:attribute:: ext_1 (str)
-    Draws an extension arrow on right side (values less than first range value)
+            .. code-block:: python
 
-    .. py:attribute:: ext_2 (str)
-    Draws an extension arrow on left side (values greater than last range value)
+                # Case 1: Levels are all contiguous:
+                box.levels=([0,20,25,30,35,40],)
+                box.levels=([0,20,25,30,35,40,45,50])
+                box.levels=[0,20,25,30,35,40]
+                box.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
 
-    .. py:attribute:: missing (int)
-    Color to use for missing value or values not in defined ranges.
-    """
+                # Case 2: Levels are not contiguous:
+                box.levels=([0,20],[30,40],[50,60])
+                box.levels=([0,20,25,30,35,40],[30,40],[50,60])
+
+        * Setting the fillarea color indices:
+
+            .. code-block:: python
+
+                # Three different methods for setting color indices:
+                box.fillareacolors=([22,33,44,55,66,77])
+                box.fillareacolors=(16,19,33,44)
+                box.fillareacolors=None
+
+        * Setting the fillarea style:
+
+            .. code-block:: python
+
+                box.fillareastyle = 'solid'
+                box.fillareastyle = 'hatch'
+                box.fillareastyle = 'pattern'
+
+        * Setting the fillarea hatch or pattern indices:
+
+            .. code-block:: python
+
+                box.fillareaindices=([1,3,5,6,9,20])
+                box.fillareaindices=(7,1,4,9,6,15)
+
+        * Using the fillarea secondary object (Ex):
+
+            .. code-block:: python
+
+                f=createfillarea('fill1')
+                #To Create a new instance of fillarea use:
+                # Copies 'quick' to 'new'
+                fill=a.createfillarea('new','quick')
+                # Copies 'default' to 'new'
+                fill=a.createfillarea('new')
+
+        .. _boxfill-attribute-descriptions:
+
+        * Attribute descriptions:
+
+            %s
+
+            .. py:attribute:: boxfill_type (str)
+
+            Type of boxfill legend. One of 'linear', 'log10', or 'custom'. See examples above for usage.
+
+            .. py:attribute:: level_1 (float)
+            Used in conjunction with boxfill_type linear/log10. Sets the value of the legend's first level
+
+            .. py:attribute:: level_2 (float)
+            Used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
+
+            .. py:attribute:: color_1 (float)
+            Used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
+
+            .. py:attribute:: color_2 (float)
+            Used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
+
+            .. py:attribute:: levels (list of floats)
+            Used in conjunction for boxfill_type custom, sets the levels range to use, can be
+            either a list of contiguous levels, or list of tuples indicating first
+            and last value of the range.
+
+            .. py:attribte:: fillareacolors (list)
+            Used in conjunction for boxfill_type custom colors to use for each level
+
+            .. py:attribute:: legend ({float:str})
+            Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
+            their associated string.
+
+            .. py:attribute:: ext_1 (str)
+            Draws an extension arrow on right side (values less than first range value)
+
+            .. py:attribute:: ext_2 (str)
+            Draws an extension arrow on left side (values greater than last range value)
+
+            .. py:attribute:: missing (int)
+            Color to use for missing value or values not in defined ranges.
+            """
     #% xmldocs.graphics_method_core #noq
 
 
