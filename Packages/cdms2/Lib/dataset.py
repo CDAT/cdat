@@ -10,9 +10,7 @@ import os
 import sys
 import string
 import urllib
-import cdmsURLopener                    # Import after urllib, to handle errors
 import urlparse
-## import internattr
 import cdmsobj
 import re
 from CDMLParser import CDMLParser
@@ -49,10 +47,10 @@ try:
 except:
     libcf = None
 
-try:
-    import cache
-except ImportError:
-    pass
+# try:
+#    import cache
+# except ImportError:
+#    pass
 
 DuplicateAxis = "Axis already defined: "
 
@@ -165,7 +163,6 @@ def setNetcdfUseParallelFlag(value):
         CdMpi = True
         if not MPI.Is_initialized():
             MPI.Init()
-        rk = MPI.COMM_WORLD.Get_rank()
 
 
 def getMpiRank():
@@ -268,7 +265,7 @@ def getNetcdfDeflateLevelFlag():
 
 
 def useNetcdf3():
-    """ Turns off (0) NetCDF flags for shuffle/defalte/defaltelevel
+    """ Turns off (0) NetCDF flags for shuffle/cuDa/deflatelevel
     Output files are generated as NetCDF3 Classic after that
     """
     setNetcdfShuffleFlag(0)
@@ -388,7 +385,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             try:
                 file = CdmsFile(uri, mode)
                 return file
-            except Exception as err:
+            except Exception:
                 msg = "Error in DODS open of: " + uri
                 if os.path.exists(os.path.join(os.path.expanduser("~"), ".dodsrc")):
                     msg += "\nYou have a .dodsrc in your HOME directory, try to remove it"
@@ -526,7 +523,6 @@ def parseFileMap(text):
         raise CDMSError("Parsing cdms_filemap near " + text[n:n + _NPRINT])
     return result
 
-
 # A CDMS dataset consists of a CDML/XML file and one or more data files
 from cudsinterface import cuDataset
 
@@ -547,7 +543,7 @@ class Dataset(CdmsObj, cuDataset):
                    'parent',
                    'uri',
                    'mode']:
-            if not v in self.__cdms_internals__:
+            if v not in self.__cdms_internals__:
                 val = self.__cdms_internals__ + [v, ]
                 self.___cdms_internals__ = val
 
@@ -1084,12 +1080,12 @@ class CdmsFile(CdmsObj, cuDataset):
 
             # A mosaic variable with coordinates attached, but the coordinate variables reside in a
             # different file. Add the coordinate variables to the mosaic variables list.
-            if not hostObj is None:
+            if hostObj is not None:
                 for name in self._file_.variables.keys():
                     if 'coordinates' in dir(self._file_.variables[name]):
                         coords = self._file_.variables[name].coordinates.split()
                         for coord in coords:
-                            if not coord in self._file_.variables.keys():
+                            if coord not in self._file_.variables.keys():
                                 cdunifvar = Cdunif.CdunifFile(hostObj.gridVars[coord][0], mode)
                                 self._file_.variables[coord] = cdunifvar.variables[coord]
 
@@ -1212,13 +1208,8 @@ class CdmsFile(CdmsObj, cuDataset):
 
     # setattr writes external global attributes to the file
     def __setattr__(self, name, value):
-        ##         s = self.get_property_s(name)
-        # if s is not None:
-        # print '....handler'
-        ##             s(self, name, value)
-        # return
         self.__dict__[name] = value  # attributes kept in sync w/file
-        if not name in self.__cdms_internals__ and name[0] != '_':
+        if name not in self.__cdms_internals__ and name[0] != '_':
             setattr(self._file_, name, value)
             self.attributes[name] = value
 
@@ -1238,16 +1229,12 @@ class CdmsFile(CdmsObj, cuDataset):
 
     # delattr deletes external global attributes in the file
     def __delattr__(self, name):
-        ##         d = self.get_property_d(name)
-        # if d is not None:
-        ##             d(self, name)
-        # return
         try:
             del self.__dict__[name]
         except KeyError:
             raise AttributeError("%s instance has no attribute %s." %
                                  (self.__class__.__name__, name))
-        if not name in self.__cdms_internals__:
+        if name not in self.__cdms_internals__:
             delattr(self._file_, name)
             if(name in self.attributes.keys()):
                 del(self.attributes[name])
@@ -1546,7 +1533,6 @@ class CdmsFile(CdmsObj, cuDataset):
         else:
             numericType = datatype
 
-        #dimensions = map(lambda x: x.id, axes)
         # Make a list of names of axes for _Cdunif
         dimensions = []
         for obj in axesOrGrids:
@@ -1571,53 +1557,14 @@ class CdmsFile(CdmsObj, cuDataset):
             var.setMissing(fill_value)
         return var
 
-    # Create a variable from an existing variable, and copy the metadata
-# def createVariableCopy(self, var, newname=None):
-
-##         if newname is None: newname=var.id
-# if self.variables.has_key(newname):
-##             raise DuplicateVariable(newname)
-
-
-# Create axes if necessary
-##         axislist = []
-# for (axis,start,length,true_length) in var.getDomain():
-# try:
-##                 newaxis = self.copyAxis(axis)
-# except DuplicateAxisError:
-
-# Create a unique axis name
-##                 setit = 0
-# for i in range(97,123): # Lower-case letters
-# try:
-##                         newaxis = self.copyAxis(axis,axis.id+'_'+chr(i))
-##                         setit = 1
-# break
-# except DuplicateAxisError:
-# continue
-
-##                 if setit==0: raise DuplicateAxisError(DuplicateAxis+axis.id)
-
-# axislist.append(newaxis)
-
-# Create the new variable
-##         datatype = cdmsNode.NumericToCdType.get(var.dtype.char)
-##         newvar = self.createVariable(newname, datatype, axislist)
-
-# Copy variable metadata
-# for attname in var.attributes.keys():
-# if attname not in ["id", "datatype"]:
-##                 setattr(newvar, attname, getattr(var, attname))
-
-# return newvar
-
     # Search for a pattern in a string-valued attribute. If attribute is None,
     # search all string attributes. If tag is 'cdmsFile', just check the dataset,
     # else check all nodes in the dataset of class type matching the tag. If tag
     # is None, search the dataset and all objects contained in it.
     def searchPattern(self, pattern, attribute, tag):
         """
-        Search for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        Search for a pattern in a string-valued attribute. If attribute is None,
+        search all string attributes. If tag is not None, it must match the internal node tag.
         :::
         Input:::
         pattern :: (str) (0) pattern
@@ -1654,7 +1601,8 @@ class CdmsFile(CdmsObj, cuDataset):
     # is None, search the dataset and all objects contained in it.
     def matchPattern(self, pattern, attribute, tag):
         """
-        Match for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        Match for a pattern in a string-valued attribute. If attribute is None,
+        search all string attributes. If tag is not None, it must match the internal node tag.
         :::
         Input:::
         pattern :: (str) (0) pattern
@@ -1694,7 +1642,9 @@ class CdmsFile(CdmsObj, cuDataset):
     # the dataset itself.
     def searchPredicate(self, predicate, tag):
         """
-        Apply a truth-valued predicate. Return a list containing a single instance: [self] if the predicate is true and either tag is None or matches the object node tag. If the predicate returns false, return an empty list
+        Apply a truth-valued predicate. Return a list containing a single instance:
+            [self] if the predicate is true and either tag is None or matches the object node tag.
+            If the predicate returns false, return an empty list
         :::
         Input:::
         predicate :: (function) (0) predicate
@@ -1756,9 +1706,12 @@ class CdmsFile(CdmsObj, cuDataset):
         attributes :: (None/dict) (None) use these attributes instead of the original var ones
         axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
         extbounds :: (None/numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
-        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
+        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension.
+                   If 0, do not define an unlimited dimension. The default is the define the
+                   first dimension as unlimited only if it is a time dimension.
         fill_value :: (None/float) (None) the missing value flag
-        index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
+        index :: (None/int) the extended dimension index to write to. The default index is determined
+                 by lookup relative to the existing extended dimension
         newname :: (str/None) id/newname of new variable
         grid :: (None/cdms2.grid.AbstractGrid) grid to use
         :::
@@ -1897,9 +1850,12 @@ class CdmsFile(CdmsObj, cuDataset):
         axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
         extbounds :: (None/numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
         id :: (str/None) (None) id of copied variable
-        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
+        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension.
+                  If 0, do not define an unlimited dimension.
+                  The default is the define the first dimension as unlimited only if it is a time dimension.
         fill_value :: (None/float) (None) the missing value flag
-        index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
+        index :: (None/int) the extended dimension index to write to.
+                  The default index is determined by lookup relative to the existing extended dimension
         typecode :: (None/str) (None) typdecode to write the variable as
         dtype :: (None/numpy.dtype) type to write the variable as; overwrites typecode
         pack :: (False/True/numpy/numpy.int8/numpy.int16/numpy.int32/numpy.int64) pack the data to save up space
@@ -1912,7 +1868,21 @@ class CdmsFile(CdmsObj, cuDataset):
             if (Cdunif.CdunifGetNCFLAGS("shuffle") != 0) or (Cdunif.CdunifGetNCFLAGS(
                     "deflate") != 0) or (Cdunif.CdunifGetNCFLAGS("deflate_level") != 0):
                 import warnings
-                warnings.warn("Files are written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\nvalue = 0\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\nTo Force NetCDF4 output with classic format and no compressing use:\ncdms2.setNetcdf4Flag(1)\nNetCDF4 file with no shuffling or defalte and noclassic will be open for parallel i/o", Warning)
+                warnings.warn("Files are written with compression and shuffling\n" +
+                              "You can query different values of compression using the functions:\n" +
+                              "cdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, " +
+                              "0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, " +
+                              "0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() " +
+                              "returning the level of compression for the deflate method\n\n" +
+                              "If you want to turn that off or set different values of compression " +
+                              "use the functions:\nvalue = 0\ncdms2.setNetcdfShuffleFlag(value) " +
+                              "## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) " +
+                              "## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) " +
+                              "## where value is a integer between 0 and 9 included\n\nTurning all values " +
+                              "to 0 will produce NetCDF3 Classic files\nTo Force NetCDF4 output with " +
+                              "classic format and no compressing use:\ncdms2.setNetcdf4Flag(1)\n" +
+                              "NetCDF4 file with no shuffling or deflate and noclassic will be open " +
+                              "for parallel i/o", Warning)
 
         # Make var an AbstractVariable
         if dtype is None and typecode is not None:
@@ -1984,7 +1954,8 @@ class CdmsFile(CdmsObj, cuDataset):
                     vec2.setBounds(bounds1, persistent=1, index=index)
             else:
                 raise CDMSError(
-                    'Cannot write variable %s: the values of dimension %s=%s, do not overlap the extended dimension %s values: %s' %
+                    'Cannot write variable %s: the values of dimension %s=%s, do not overlap the ' +
+                    'extended dimension %s values: %s' %
                     (varid, vec1.id, repr(
                         vec1[:]), vec2.id, repr(
                         vec2[:])))
@@ -1995,7 +1966,6 @@ class CdmsFile(CdmsObj, cuDataset):
             m = var.min()
             scale_factor = (M - m) / (pow(2, n) - 2)
             add_offset = (M + m) / 2.
-            missing = -pow(2, n - 1)
             v.setMissing(-pow(2, n - 1))
             scale_factor = scale_factor.astype(var.dtype)
             add_offset = add_offset.astype(var.dtype)
@@ -2043,7 +2013,8 @@ class CdmsFile(CdmsObj, cuDataset):
         axes defined on latitude or longitude, excluding weights and bounds.
         :::
         Options:::
-        spatial :: (int/True/False) (0) If spatial=1, only return those axes defined on latitude or longitude, excluding weights and bounds
+        spatial :: (int/True/False) (0) If spatial=1, only return those axes defined on latitude or
+ longitude, excluding weights and bounds
         :::
         Output:::
         variables :: ([cdms2.fvariable.FileVariable]) (0) file variables

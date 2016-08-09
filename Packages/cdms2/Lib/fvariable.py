@@ -1,22 +1,20 @@
-## Automatically adapted for numpy.oldnumeric Aug 01, 2007 by 
-## Further modified to be pure new numpy June 24th 2008
+# Automatically adapted for numpy.oldnumeric Aug 01, 2007 by
+# Further modified to be pure new numpy June 24th 2008
 
 "CDMS File-based variables."
 import numpy
 import typeconv
-import types
-import re
+
 
 from cdmsobj import Max32int
 from variable import DatasetVariable
 from error import CDMSError
 from sliceut import reverseSlice
-from avariable import AbstractVariable
-from cdms2 import Cdunif
 from Cdunif import CdunifError
 
 FileClosed = "Cannot read from closed file, variable: "
 FileClosedWrite = "Cannot write to a closed file, variable: "
+
 
 class FileVariable(DatasetVariable):
     "A variable in a single file."
@@ -115,7 +113,7 @@ class FileVariable(DatasetVariable):
         high = min(Max32int, high)
         if high == Max32int and self.rank()==0:
           high=1
-        
+
         if numpy.ma.isMaskedArray(value):
           if value.mask is not numpy.ma.nomask and not numpy.ma.allclose(value.mask,0):
             saveFill = value.fill_value
@@ -169,7 +167,7 @@ class FileVariable(DatasetVariable):
             return self.getSlice(Ellipsis, squeeze=squeeze)
         else:
             return self._obj_.getValue()
-    
+
     def __len__(self):
         " Length of first dimension. "
         if self.parent is None:
