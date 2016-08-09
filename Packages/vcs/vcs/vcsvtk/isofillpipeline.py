@@ -124,12 +124,6 @@ class IsofillPipeline(Pipeline2D):
             act = vtk.vtkActor()
             act.SetMapper(mapper)
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
-                                     self._dataWrapModulo)
-
             patact = None
             # TODO see comment in boxfill.
             if mapper is self._maskedDataMapper:
