@@ -904,16 +904,20 @@ class Gtd(object):
 
     def defaultSkillFunction(self, s, R):
         """
-        Default skillfunction
+        Provides a default function for determining the `skill`_ with which a model predicts observations.
+        This function may be used in the function parameter of :py:func:`drawSkill`, although it may be preferable
+        to provide a custom function for determining `skill`_, depending on the application.
 
-        :param s:
-        :type s:
+        :param s: A float representing the standard deviation of a model.
+        :type s: float
 
-        :param R:
-        :type R:
+        :param R: A float representing the correlation of a model.
+        :type R: float
 
-        :returns:
+        :returns: The `skill`_ of a model, computed using this function.
         :rtype: float
+
+        .. _`skill`: https://en.wikipedia.org/wiki/Forecast_skill
         """
         alpha = self.skillCoefficient[0]  # default is 1.
         beta = self.skillCoefficient[1]  # default is 1.
@@ -932,24 +936,27 @@ class Gtd(object):
 
     def drawSkill(self, canvas, values, function=None):
         """
-        Draw a skill score, default skill score provided in defaultSkill
-        from Karl taylor, see PCMDI report series 55
+        Draw a skill score. Default skill score provided in :py:func:`defaultSkillFunction`
+        from Karl taylor, see `PCMDI report series 55`_ for more information on `Taylor diagrams`_ and `skill`_s.
+
+        .. _PCMDI report series 55 : http://www-pcmdi.llnl.gov/publications/pdf/55.pdf
 
         .. note::
             The function parameter must be provided for drawSkill to work.
+            The :py:func:`defaultSkillFunction` provided in this module can be used to provide a default skill score.
+            Be aware that, as stated in `PCMDI report series 55`_ section 5, it is not possible to define
+            a single skill score that is appropriate for all models.
+            It may be more suitable to create a custom function for determining the skill score of your model.
 
-        :param canvas: A VCS Canvas object.
+        :param canvas: A VCS Canvas object on which to draw the skill score.
         :type canvas: vcs.Canvas.Canvas
 
         :param values: A list/tuple used to specify the :py:attr:`levels <vcs.isoline.Gi.level>`
                         of an :py:class:`isoline <vcs.isoline.Gi>` object.
         :type values: list/tuple
 
-        :param function:
+        :param function: A function for determining the skill score of a model.
         :type function:
-
-        :returns:
-        :rtype:
         """
         if function is None:
             return
@@ -1376,7 +1383,7 @@ class Gtd(object):
         Return coordinates to draw an arc from 0 to 90 degrees
 
         .. note::
-            val1 and val2 are used to limit the arc (in degrees).
+            val1 and val2 can be used to limit the arc (in degrees).
 
         :param value: The radius of the arc to be calculated.
         :type value: float
