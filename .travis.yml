@@ -22,4 +22,4 @@ script:
     - cd _build
     - cmake -DGIT_PROTOCOL=git:// ../uvcdat
     - make
-    - ctest -j8 -D Experimental
+    - travis_wait ctest -j8 -D Experimental
