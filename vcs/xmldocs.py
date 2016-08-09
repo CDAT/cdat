@@ -84,39 +84,68 @@ plot_keywords_doc = """
 """  # noqa
 
 data_time = """
-:param datawc_timeunits: (Ex: 'days since 2000') units to use when disaplaying time dimension auto tick
-:type datawc_timeunits: str
-:param datawc_calendar: (Ex: 135441) calendar to use when displaying time dimension auto tick, default is proleptic gregorian calendar
-:type datawc_calendar: int
+            .. py:attribute:: datawc_timeunits (str)
+
+                (Ex: 'days since 2000') units to use when displaying time dimension auto tick
+
+            .. py:attribute:: datawc_calendar (int)
+
+                (Ex: 135441) calendar to use when displaying time dimension auto tick, default is proleptic gregorian calendar
+
 """  # noqa
 graphics_method_core_notime = """
-:param xmtics1: (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
-:type xmtics1: str/{float:str}
-:param xmtics2: (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
-:type xmtics2: str/{float:str}
-:param ymtics1: (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
-:type ymtics1: str/{float:str}
-:param ymtics2: (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
-:type ymtics2: str/{float:str}
-:param xticlabels1: (Ex: '*') values for labels on 1st side of x axis
-:type xticlabels1: str/{float:str}
-:param xticlabels2: (Ex: '*') values for labels on 2nd side of x axis
-:type xticlabels2: str/{float:str}
-:param yticlabels1: (Ex: '*') values for labels on 1st side of y axis
-:type yticlabels1: str/{float:str}
-:param yticlabels2: (Ex: '*') values for labels on 2nd side of y axis
-:type yticlabels2: str/{float:str}
-:param projection: (Ex: 'default') projection to use, name or object
-:type projection: str/vcs.projection.Proj
-:param datawc_x1: (Ex: 1.E20) first value of xaxis on plot
-:type datawc_x1: float
-:param datawc_x2: (Ex: 1.E20) second value of xaxis on plot
-:type datawc_x2: float
-:param datawc_y1: (Ex: 1.E20) first value of yaxis on plot
-:type datawc_y1: float
-:param datawc_y2: (Ex: 1.E20) second value of yaxis on plot
-:type datawc_y2: float
-"""  # noqa
+            .. py:attribute:: xmtics1 (str/{float:str})
+
+                (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
+
+            .. py:attribute:: xmtics2 (str/{float:str})
+
+                (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
+
+            .. py:attribute:: ymtics1 (str/{float:str})
+
+                (Ex: '') dictionary with location of intermediate tics as keys for 1st side of y axis
+
+            .. py:attribute:: ymtics2 (str/{float:str})
+
+                (Ex: '') dictionary with location of intermediate tics as keys for 2nd side of y axis
+
+            .. py:attribute:: xticlabels1 (str/{float:str})
+
+                (Ex: '*') values for labels on 1st side of x axis
+
+            .. py:attribute:: xticlabels2 (str/{float:str})
+
+                (Ex: '*') values for labels on 2nd side of x axis
+
+            .. py:attribute:: yticlabels1 (str/{float:str})
+
+                (Ex: '*') values for labels on 1st side of y axis
+
+            .. py:attribute:: yticlabels2 (str/{float:str})
+
+                (Ex: '*') values for labels on 2nd side of y axis
+
+            .. py:attribute:: projection (str/vcs.projection.Proj)
+
+                (Ex: 'default') projection to use, name or object
+
+            .. py:attribute:: datawc_x1 (float)
+
+                (Ex: 1.E20) first value of xaxis on plot
+
+            .. py:attribute:: datawc_x2 (float)
+
+                (Ex: 1.E20) second value of xaxis on plot
+
+            .. py:attribute:: datawc_y1 (float)
+
+                (Ex: 1.E20) first value of yaxis on plot
+
+            .. py:attribute:: datawc_y2 (float)
+
+                (Ex: 1.E20) second value of yaxis on plot
+            """  # noqa
 graphics_method_core = """%s
 %s""" % (graphics_method_core_notime, data_time)
 axisconvert = """
@@ -138,19 +167,19 @@ colorsdoc = """
 extsdoc = """
         Sets the ext_1 and ext_2 values on the object.
 
-:param ext1: Sets the ext_1 value on the object. 'y' sets it to True, 'n' sets it to False.
+:param ext1: Sets the :py:attr:`ext_1` value on the object. 'y' sets it to True, 'n' sets it to False.
 :type ext1: str
 
-:param ext2: Sets the ext_2 value on the object. 'y' sets it to True, 'n' sets it to False.
+:param ext2: Sets the :py:attr:`ext_2` value on the object. 'y' sets it to True, 'n' sets it to False.
 :type ext2: str
            """
 ticlabeldoc = """
         Sets the %sticlabels1 and %sticlabels2 values on the object
 
-:param %stl1: Sets the object's value for %sticlabels1. Must be  a str, or a dictionary object with float:str mappings.
+:param %stl1: Sets the object's value for :py:attr:`%sticlabels1`. Must be  a str, or a dictionary object with float:str mappings.
 :type %stl1: {float:str} or str
 
-:param %stl2: Sets the object's value for %sticlabels2. Must be a str, or a dictionary object with float:str mappings.
+:param %stl2: Sets the object's value for :py:attr:`%sticlabels2`. Must be a str, or a dictionary object with float:str mappings.
 :type %stl2: {float:str} or str
            """
 xticlabelsdoc = ticlabeldoc % (('x',) * 8)
@@ -159,10 +188,10 @@ yticlabelsdoc = ticlabeldoc % (('y',) * 8)
 mticsdoc = """
         Sets the %smtics1 and %smtics2 values on the object
 
-:param %smt1: Value for %smtics1. Must be a str, or a dictionary object with float:str mappings.
+:param %smt1: Value for :py:attr:`%smtics1`. Must be a str, or a dictionary object with float:str mappings.
 :type %smt1: {float:str} or str
 
-:param %smt2: Value for %smtics2. Must be a str, or a dictionary object with float:str mappings.
+:param %smt2: Value for :py:attr:`%smtics2`. Must be a str, or a dictionary object with float:str mappings.
 :type %smt2: {float:str} or str
 """
 xmticsdoc = mticsdoc % (('x',) * 8)
@@ -398,6 +427,7 @@ istextcombined_doc = queries_is_doc % dict
 dict['name'] = 'marker'
 ismarker_doc = queries_is_doc % dict
 
+# TODO: revise this to use dict key references
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a
     %s class object from an existing VCS %s secondary method. If
