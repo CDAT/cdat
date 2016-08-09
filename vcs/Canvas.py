@@ -2,7 +2,7 @@
 Canvas
     The object onto which all plots are drawn.
 
-    Usually created using `vcs.init`, this object provides easy access
+    Usually created using :py:func:`vcs.init`, this object provides easy access
     to the functionality of the entire VCS module.
 """
 import warnings
@@ -291,7 +291,7 @@ class Canvas(object):
     """
     The object onto which all plots are drawn.
 
-    Usually created using `vcs.init`, this object provides easy access
+    Usually created using :py:func:`vcs.init`, this object provides easy access
     to the functionality of the entire VCS module.
     """
     __slots__ = [

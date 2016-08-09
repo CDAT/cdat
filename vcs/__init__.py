@@ -7,9 +7,9 @@ VCS: Visualization and Control System
 Authors
 -------
 
-Creator: Dean Williams (LLNL, AIMS Team)
+Creator: `Dean Williams`_ (LLNL, AIMS Team)
 
-Lead Developer: Charles Doutriaux (LLNL, AIMS Team)
+Lead Developer: `Charles Doutriaux`_ (LLNL, AIMS Team)
 
 Contributors: https://github.com/UV-CDAT/uvcdat/graphs/contributors
 
@@ -18,6 +18,10 @@ Support Email: uvcdat-support@llnl.gov
 Project Site: http://uvcdat.llnl.gov/
 
 Project Repo: https://github.com/UV-CDAT/uvcdat/graphs/contributors
+
+.. _Dean Williams: http://computation.llnl.gov/about/our-people/highlights/dean-williams
+
+.. _Charles Doutriaux: https://github.com/doutriaux1
 
 -----------
 Description
