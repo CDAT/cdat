@@ -196,7 +196,7 @@ def process_src(nm, code):
 class Gi(object):
 
     """
-    The Isoline graphics method draws lines of constant value at specified
+    The Isoline graphics method (Gi) draws lines of constant value at specified
     levels in order to graphically represent a two-dimensional array. It
     also labels the values of these isolines on the VCS Canvas. The example
     below shows how to plot isolines of different types at specified levels
