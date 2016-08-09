@@ -1196,7 +1196,7 @@ class Canvas(object):
             # Plot array using specified box and default template
             a.boxfill(array,box)
             # Create an instance of template 'AMIP'
-            templt=a.gettemplate('AMIP')
+            template=a.gettemplate('AMIP')
             # Clear VCS canvas
             a.clear()
             # Plot array using specified box and template
