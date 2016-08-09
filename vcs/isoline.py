@@ -207,172 +207,220 @@ class Gi(object):
     be used to change some or all of the isoline attributes in an existing isoline
     table entry.
 
-    :Example:
+    .. describe:: Useful Functions:
 
-::
+        .. code-block:: python
 
-    # Useful Functions:
-        # VCS Canvas Constructor
-        a=vcs.init()
-        # Show predefined isoline graphics methods
-        a.show('isoline')
-        # Show predefined VCS line objects
-        a.show('line')
-        # Change the VCS color map
-        a.setcolormap("AMIP")
-        # Plot data 's' with isoline 'i' and 'default' template
-        a.isoline(s,a,'default')
-        # Updates the VCS Canvas at user's request
-        a.update()
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined isoline graphics methods
+            a.show('isoline')
+            # Show predefined VCS line objects
+            a.show('line')
+            # Change the VCS color map
+            a.setcolormap("AMIP")
+            # Plot data 's' with isoline 'i' and 'default' template
+            a.isoline(s,a,'default')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    # Before working, always create a canvas object
-        a=vcs.init()
+    .. describe::  Create a canvas object:
 
-    #To Create a new instance of isoline use:
-        # Copies content of 'quick' to 'new'
-        iso=a.createisoline('new','quick')
-        # Copies content of 'default' to 'new'
-        iso=a.createisoline('new')
+        .. code-block:: python
 
-    #To Modify an existing isoline use:
-        iso=a.getisoline('AMIP_psl')
+            a=vcs.init()
 
-    # Overview of isoline attributes:
-        # Will list all the isoline attribute values
-        iso.list()
-        iso.projection='linear'
-        lon30={-180:'180W',-150:'150W',0:'Eq'}
-        iso.xticlabels1=lon30
-        iso.xticlabels2=lon30
-        # Will set them both
-        iso.xticlabels(lon30, lon30)
-        iso.xmtics1=''
-        iso.xmtics2=''
-        # Will set them both
-        iso.xmtics(lon30, lon30)
-        iso.yticlabels1=lat10
-        iso.yticlabels2=lat10
-        # Will set them both
-        iso.yticlabels(lat10, lat10)
-        iso.ymtics1=''
-        iso.ymtics2=''
-        # Will set them both
-        iso.ymtics(lat10, lat10)
-        iso.datawc_y1=-90.0
-        iso.datawc_y2=90.0
-        iso.datawc_x1=-180.0
-        iso.datawc_x2=180.0
-        # Will set them all
-        iso.datawc(-90, 90, -180, 180)
-        xaxisconvert='linear'
-        yaxisconvert='linear'
-        # Will set them both
-        iso.xyscale('linear', 'area_wt')
+    .. describe:: Create a new instance of isoline:
 
-        #There are many possible ways to set the isoline values:
-            #1) As a list of tuples (Examples):
-                iso.level=[(23,32,45,50,76),]
-                iso.level=[(22,33,44,55,66)]
-                iso.level=[(20,0.0),(30,0),(50,0)]
-                iso.level=[(23,32,45,50,76), (35, 45, 55)]
-            #2) As a tuple of lists (Examples):
-                iso.level=([23,32,45,50,76],)
-                iso.level=([22,33,44,55,66])
-                iso.level=([23,32,45,50,76],)
-                iso.level=([0,20,25,30,35,40],[30,40],[50,60])
-            #3) As a list of lists (Examples):
-                iso.level=[[20,0.0],[30,0],[50,0]]
-            #4) As a tuple of tuples (Examples):
-                iso.level=((20,0.0),(30,0),(50,0),(60,0),(70,0))
+        .. code-block:: python
 
-            # Note:
-            #   A combination of a pairs (i.e., (30,0) or [30,0])
-            #   represents the isoline value plus its increment value.
-            #   Thus, to let VCS generate "default" isolines:
-                # Same as iso.level=((0,1e20),)
-                iso.level=[[0,1e20]]
+            # Copies content of 'quick' to 'new'
+            iso=a.createisoline('new','quick')
+            # Copies content of 'default' to 'new'
+            iso=a.createisoline('new')
 
-        #Displaying isoline labels:
-            # Same as iso.label=1, will display isoline labels
-            iso.label='y'
-            # Same as iso.label=0, will turn isoline labels off
-            iso.label='n'
+    .. describe:: Modify an existing isoline:
 
-        #Specify the isoline line style (or type):
-            # The following two lines of code are equivalent.
-            iso.line=([0,1,2,3,4])
-            # Both specify the isoline style
-            iso.line=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash'])
+        .. code-block:: python
 
-        #There are three possibilities for setting the line color indices:
-            # The following two lines of code are equivalent
-            iso.linecolors=(22,33,44,55,66,77)
-            # Both will set the isoline to a specific color index
-            iso.linecolors=([22,33,44,55,66,77])
-            # Turns off the line color index
-            iso.linecolors=None
+            iso=a.getisoline('AMIP_psl')
 
-        #There are three possibilities for setting the line widths:
-            # The following two lines of code are equivalent
-            iso.linewidths=(1,10,3,4,5,6,7,8)
-            # Both will set the isoline to a specific width size
-            iso.linewidths=([1,2,3,4,5,6,7,8])
-            # Turns off the line width size
-            iso.linewidths=None
+    .. _isoline-attributes:
 
-            # Note:
-            #   If the number of line styles, colors or widths are less
-            #   than the number of levels, we extend the attribute list
-            #   using the last attribute value in the attribute list.
+    .. describe:: Overview of isoline attributes:
 
-        #There are three ways to specify the text or font number:
-            # Font numbers are between 1 and 9
-            iso.text=(1,2,3,4,5,6,7,8,9)
-            iso.text=[9,8,7,6,5,4,3,2,1]
-            iso.text=([1,3,5,6,9,2])
-            # Removes the text settings
-            iso.text=None
+        * List all the isoline attribute values
 
-        #There are three possibilities for setting the text color indices:
-            iso.textcolors=([22,33,44,55,66,77])
-            iso.textcolors=(16,19,33,44)
-            # Turns off the text color index
-            iso.textcolors=None
+            .. code-block:: python
 
-.. py:attribute:: label (str)
-Turn on/off labels on isolines
+                iso.list()
 
-.. py:attribute:: labelskipdistance (float)
-Minimum distance between isoline labels
+        * Set isoline attribute values:
 
-.. py:attribute:: labelbackgroundcolors ([float])
-Background color for isoline labels
+            .. code-block:: python
 
-.. py:attribute:: labelbackgroundopacities ([float])
-Background opacity for isoline labels
+                iso.projection='linear'
+                lon30={-180:'180W',-150:'150W',0:'Eq'}
+                iso.xticlabels1=lon30
+                iso.xticlabels2=lon30
+                # Will set them both
+                iso.xticlabels(lon30, lon30)
+                iso.xmtics1=''
+                iso.xmtics2=''
+                # Will set them both
+                iso.xmtics(lon30, lon30)
+                iso.yticlabels1=lat10
+                iso.yticlabels2=lat10
+                # Will set them both
+                iso.yticlabels(lat10, lat10)
+                iso.ymtics1=''
+                iso.ymtics2=''
+                # Will set them both
+                iso.ymtics(lat10, lat10)
+                iso.datawc_y1=-90.0
+                iso.datawc_y2=90.0
+                iso.datawc_x1=-180.0
+                iso.datawc_x2=180.0
+                # Will set them all
+                iso.datawc(-90, 90, -180, 180)
+                xaxisconvert='linear'
+                yaxisconvert='linear'
+                # Will set them both
+                iso.xyscale('linear', 'area_wt')
 
-.. py:attribute:: level ([float,...])
-Isocountours to display
+        * Setting isoline :py:attr:`level` values:
 
-.. py:attribute:: clockwise ([int,...])
-Draw directional arrows
-+-(0,1,2) Indicate none/clockwise/clokwise on y axis >0.
-Clockwise on x axis positive negative value invert behaviour
+            .. code-block:: python
 
-.. py:attribute:: scale ([float,...])
-Scales the directional arrow lengths
+                #1) As a list of tuples (Examples):
+                    iso.level=[(23,32,45,50,76),]
+                    iso.level=[(22,33,44,55,66)]
+                    iso.level=[(20,0.0),(30,0),(50,0)]
+                    iso.level=[(23,32,45,50,76), (35, 45, 55)]
+                #2) As a tuple of lists (Examples):
+                    iso.level=([23,32,45,50,76],)
+                    iso.level=([22,33,44,55,66])
+                    iso.level=([23,32,45,50,76],)
+                    iso.level=([0,20,25,30,35,40],[30,40],[50,60])
+                #3) As a list of lists (Examples):
+                    iso.level=[[20,0.0],[30,0],[50,0]]
+                #4) As a tuple of tuples (Examples):
+                    iso.level=((20,0.0),(30,0),(50,0),(60,0),(70,0))
 
-.. py:attribute:: angle ([float,...])
-Directional arrows head angle
 
-.. py:attribute:: spacing ([float,...])
-Scales spacing between directional arrows
+            .. note::
+                A combination of a pairs (i.e., (30,0) or [30,0])
+                represents the isoline value plus its increment value.
+                Thus, to let VCS generate "default" isolines:
 
-%s
-%s
-%s
-"""
-    # % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
+                .. code-block:: python
+
+                    # Same as iso.level=((0,1e20),)
+                    iso.level=[[0,1e20]]
+
+        * Displaying isoline labels:
+
+            .. code-block:: python
+
+                # Same as iso.label=1, will display isoline labels
+                iso.label='y'
+                # Same as iso.label=0, will turn isoline labels off
+                iso.label='n'
+
+        * Specify the isoline line style (or type):
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent.
+                iso.line=([0,1,2,3,4])
+                # Both specify the isoline style
+                iso.line=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash'])
+
+        * There are three possibilities for setting the line color indices:
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent
+                # Both will set the isoline to a specific color index
+                iso.linecolors=(22,33,44,55,66,77)
+                iso.linecolors=([22,33,44,55,66,77])
+                # Turns off the line color index
+                iso.linecolors=None
+
+        * There are three possibilities for setting the line widths:
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent
+                iso.linewidths=(1,10,3,4,5,6,7,8)
+                # Both will set the isoline to a specific width size
+                iso.linewidths=([1,2,3,4,5,6,7,8])
+                # Turns off the line width size
+                iso.linewidths=None
+
+            .. note::
+                If the number of line styles, colors or widths are less
+                than the number of levels, we extend the attribute list
+                using the last attribute value in the attribute list.
+
+        * There are three ways to specify the text or font number:
+
+            .. code-block:: python
+
+                # Font numbers are between 1 and 9
+                iso.text=(1,2,3,4,5,6,7,8,9)
+                iso.text=[9,8,7,6,5,4,3,2,1]
+                iso.text=([1,3,5,6,9,2])
+                # Removes the text settings
+                iso.text=None
+
+        * There are three possibilities for setting the text color indices:
+
+            .. code-block:: python
+
+                iso.textcolors=([22,33,44,55,66,77])
+                iso.textcolors=(16,19,33,44)
+                # Turns off the text color index
+                iso.textcolors=None
+
+        .. _isoline-attribute-descriptions:
+
+        * Attribute descriptions:
+
+            .. py:attribute:: label (str)
+            Turn on/off labels on isolines
+
+            .. py:attribute:: labelskipdistance (float)
+            Minimum distance between isoline labels
+
+            .. py:attribute:: labelbackgroundcolors ([float])
+            Background color for isoline labels
+
+            .. py:attribute:: labelbackgroundopacities ([float])
+            Background opacity for isoline labels
+
+            .. py:attribute:: level ([float,...])
+            Isocountours to display
+
+            .. py:attribute:: clockwise ([int,...])
+            Draw directional arrows
+            +-(0,1,2) Indicate none/clockwise/clokwise on y axis >0.
+            Clockwise on x axis positive negative value invert behaviour
+
+            .. py:attribute:: scale ([float,...])
+            Scales the directional arrow lengths
+
+            .. py:attribute:: angle ([float,...])
+            Directional arrows head angle
+
+            .. py:attribute:: spacing ([float,...])
+            Scales spacing between directional arrows
+
+            %s
+            %s
+            %s
+            """
+        # % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
 
     colormap = VCS_validation_functions.colormap
     __slots__ = [
