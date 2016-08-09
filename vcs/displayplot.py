@@ -37,43 +37,47 @@ class Dp(object):
     can be used to change some or all of the display plot attributes in an
     existing display plot table entry.
 
+    .. describe:: Useful Functions:
 
-    :Example:
+        .. code-block:: python
 
-::
+            # Canvas constructor
+            a=vcs.init()
+            # Show display plot objects
+            a.show('plot')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    # Useful Functions:
-        # Canvas constructor
-         a=vcs.init()
-         # Show display plot objects
-         a.show('plot')
-         # Updates the VCS Canvas at user's request
-         a.update()
+    .. describe:: General display plot usage:
 
-    # General display plot usage:
-        #Create a VCS Canvas object
-        a=vcs.init()
-        #To Create a new instance of plot:
-        # Create a plot object
-        p1=a.plot(s)
-        #To Modify an existing plot in use:
-        p1=a.getplot('dpy_plot_1')
+            .. code-block:: python
 
-    # Display plot object attributes:
-        # Will list all the display plot attributes
-        p1.list()
-        # "On" or "Off" status, 1=on, 0=off
-        p1.off=1
-        # Priority to place plot in front of other objects
-        p1.priority=1
-        # Name of template object
-        p1.template='quick'
-        # Graphics method type
-        p1.g_type='boxfill'
-        # Graphics method name
-        p1.g_name='quick'
-        # List of all the array names
-        p1.array=['a1']
+                #Create a VCS Canvas object
+                a=vcs.init()
+                #To Create a new instance of plot:
+                # Create a plot object
+                p1=a.plot(s)
+                #To Modify an existing plot in use:
+                p1=a.getplot('dpy_plot_1')
+
+    .. describe:: Display plot object attributes:
+
+        .. code-block:: python
+
+            # Will list all the display plot attributes
+            p1.list()
+            # "On" or "Off" status, 1=on, 0=off
+            p1.off=1
+            # Priority to place plot in front of other objects
+            p1.priority=1
+            # Name of template object
+            p1.template='quick'
+            # Graphics method type
+            p1.g_type='boxfill'
+            # Graphics method name
+            p1.g_name='quick'
+            # List of all the array names
+            p1.array=['a1']
     """
     __slots__ = ["name",
                  "_name",
