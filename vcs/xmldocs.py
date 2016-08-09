@@ -206,14 +206,13 @@ listdoc = """ Lists the current values of object attributes"""
 # Scriptdocs section
 
 # Use this dictionary for string replacements
-#   dict keys are 'inst', 'type', 'name', and 'call'
-#       'inst' : The name of the instance of a VCS object.
+#   dict keys are 'type', 'name', and 'call'
 #       'type' : The type of VCS object it is (i.e. Graphics method, secondary method, etc.
 #       'name' : The name of the VCS object (i.e. boxfill, isofill, etc.)
 #       'call' : The function call for the object. Mostly, this is == name.
 #                   Some rare cases, like textcombined, require adjustment of this value.
 dict = {}
-dict['name'] = dict['type'] = dict['inst'] = dict['call'] = 'REPLACE_ME'
+dict['name'] = dict['type'] = dict['call'] = 'REPLACE_ME'
 
 
 scriptdoc = """
@@ -231,26 +230,24 @@ scriptdoc = """
 
     :Example:
 
-        .. doctest::
+        .. doctest:: script_examples
 
             # Make a Canvas object to work with:
             >>> a=vcs.init()
             ...
 
             # Create %(call)s 'temp' that inherits from 'default'
-            >>> %(inst)s=a.create%(call)s('temp')
+            >>> ex=a.create%(call)s('temp')
             ...
 
             # Append to a Python script named 'filename.py'
-            >>> %(inst)s.script('filename.py')
+            >>> ex.script('filename.py')
             ...
 
             # Create or overwrite a JSON file 'filename.json'.
-            >>> %(inst)s.script('filename','w')
+            >>> ex.script('filename','w')
             ...
 
-            >>> target = %(inst)s
-            >>> type = "%(inst)s"
 
 :param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
 :type script_filename: str
@@ -263,147 +260,142 @@ scriptdoc = """
 # Graphics Method scriptdocs
 dict['type'] = 'graphics method'
 dict['name'] = dict['call'] = 'colormap'
-dict['inst'] = 'cp'
 colormap_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'boxfill'
-dict['inst'] = 'gfb'
 boxfill_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'isoline'
-dict['inst'] = 'gi'
 isoline_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'isofill'
-dict['inst'] = 'gfi'
 isofill_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'yxvsx'
-dict['inst'] = 'g1d'
 yxvsx_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'meshfill'
-dict['inst'] = 'gfm'
 meshfill_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'fillarea'
-dict['inst'] = 'tf'
 fillarea_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'marker'
-dict['inst'] = 'tm'
 marker_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'line'
-dict['inst'] = 'tl'
 line_script = scriptdoc % dict
 
 dict['name'] = 'text table and text orientation'
 dict['call'] = 'textcombined'
-dict['inst'] = 'tc'
 textcombined_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'textorientation'
-dict['inst'] = 'to'
 textorientation_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'texttable'
-dict['inst'] = 'tt'
 texttable_script = scriptdoc % dict
 
 dict['name'] = dict['call'] = 'vector'
-dict['inst'] = 'gv'
 vector_script = scriptdoc % dict
 
 # Object scriptdocs
 dict['type'] = 'object'
 dict['name'] = dict['call'] = 'template'
-dict['inst'] = 'p'
 template_script = scriptdoc % dict
 
 # Secondary Method scriptdocs
 dict['type'] = 'secondary method'
 dict['name'] = dict['call'] = 'projection'
-dict['inst'] = 'proj'
 projection_script = scriptdoc % dict
 
-queries_is_primary_doc = """
-    Check to see if this object is a VCS primary %s graphics method.
+# dict['parent'] is for rare cases where there is no 'default' object to inherit from.
+dict['parent'] = 'REPLACE_ME'
+queries_is_doc= """
+    Check to see if this object is a VCS %(type)s %(name)s graphics method.
 
     :Example:
 
-    ::
+    .. doctest:: queries_is
 
-    a=vcs.init()
-    # Show all available %s
-    a.show('%s')
-    # To  test an existing %s object
-    example = a.get%s('default')
-    # ...
-    if queries.is%s(example):
-       example.list()
+        # Make a VCS Canvas object to work with:
+        >>> a=vcs.init()
+        ...
 
-:param obj: A VCS object
-:type obj: VCS Object
 
-:returns: An integer indicating whether the object is a %s graphics method (1), or not (0).
-:rtype: int
-"""
+        # Show all available %(name)s
+        >>> a.show('%(name)s')
+        *...
 
-queries_is_secondary_doc = """
-    Check to see if this object is a VCS secondary %s graphics method.
+        # To  test an existing %(name)s object
+        >>> ex = a.get%(name)s(%(parent)s)
+        ...
 
-     :Example:
 
-::
-
-    a=vcs.init()
-    # Show all available %s
-    a.show('%s')
-    # To test an existing %s object
-    test_obj = a.get%s('default')
-    # ...
-    if queries.is%s(test_obj):
-       test_obj.list()
+        >>> print(vcs.queries.is%(name)s(ex))
+        1
 
 :param obj: A VCS object
 :type obj: VCS Object
 
-:returns: An integer indicating whether the object is a %s graphics method (1), or not (0).
+:returns: An integer indicating whether the object is a %(name)s graphics method (1), or not (0).
 :rtype: int
 """
-#queries.is[PRIMARY_OBJECT]
-isvector_doc = queries_is_primary_doc % (('vector',) * 7)
-isscatter_doc = queries_is_primary_doc % (('scatter',) * 7)
-isxyvsy_doc = queries_is_primary_doc % (('xyvsy',) * 7)
-isxvsy_doc = queries_is_primary_doc % (('xvsy',) * 7)
-isyxvsx_doc = queries_is_primary_doc % (('yxvsx',) * 7)
-is1d_doc = queries_is_primary_doc % (('1d',) * 7)
-istaylordiagram_doc = queries_is_primary_doc % (('taylordiagram',) * 7)
-ismeshfill_doc = queries_is_primary_doc % (('meshfill',) * 7)
-isboxfill_doc= queries_is_primary_doc % (('boxfill',) * 7)
-isisofill_doc= queries_is_primary_doc % (('isofill',) * 7)
-isisoline_doc= queries_is_primary_doc % (('isoline',) * 7)
-is3d_scalar_doc= queries_is_primary_doc % (('3d_scalar',) * 7)
-is3d_dual_scalar_doc= queries_is_primary_doc % (('3d_dual_scalar',) * 7)
-is3d_vector_doc= queries_is_primary_doc % (('3d_vector',) * 7)
+# queries.is[PRIMARY_OBJECT]
+dict['type'] = 'primary'
+dict['parent'] = "'default'"
 
-#queries.is[SECONDARY_OBJECT]
-isline_doc = queries_is_secondary_doc % (('line',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-isfillarea_doc = queries_is_secondary_doc % (('fillarea',) * 7)
-istexttable_doc = queries_is_secondary_doc % (('texttable',) * 7)
-istextorientation_doc = queries_is_secondary_doc % (('textorientation',) * 7)
-istextcombined_doc = queries_is_secondary_doc % (('textcombined',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
-ismarker_doc = queries_is_secondary_doc % (('marker',) * 7)
+dict['name'] = 'vector'
+isvector_doc = queries_is_doc % dict
+dict['name'] = 'taylordiagram'
+istaylordiagram_doc = queries_is_doc % dict
+dict['name'] = 'meshfill'
+ismeshfill_doc = queries_is_doc % dict
+dict['name'] = 'boxfill'
+isboxfill_doc= queries_is_doc % dict
+dict['name'] = 'isofill'
+isisofill_doc= queries_is_doc % dict
+dict['name'] = 'isoline'
+isisoline_doc= queries_is_doc % dict
+dict['name'] = '3d_scalar'
+is3d_scalar_doc= queries_is_doc % dict
+dict['name'] = '3d_dual_scalar'
+is3d_dual_scalar_doc= queries_is_doc % dict
+dict['name'] = '3d_vector'
+is3d_vector_doc= queries_is_doc % dict
+dict['name'] = 'xvsy'
+isxvsy_doc = queries_is_doc % dict
+
+# special inheritance cases
+dict['name'] = 'scatter'
+dict['parent'] = "'default_scatter_'"
+isscatter_doc = queries_is_doc % dict
+dict['name'] = 'xyvsy'
+dict['parent'] = "'default_xyvsy_'"
+isxyvsy_doc = queries_is_doc % dict
+dict['name'] = 'yxvsx'
+isyxvsx_doc = queries_is_doc % dict
+dict['name'] = '1d'
+is1d_doc = queries_is_doc % dict
+
+# queries.is[SECONDARY_OBJECT]
+dict['type'] = 'secondary'
+dict['parent'] = 'default'
+
+dict['name'] = 'line'
+isline_doc = queries_is_doc % dict
+dict['name'] = 'marker'
+ismarker_doc = queries_is_doc % dict
+dict['name'] = 'fillarea'
+isfillarea_doc = queries_is_doc % dict
+dict['name'] = 'texttable'
+istexttable_doc = queries_is_doc % dict
+dict['name'] = 'textorientation'
+istextorientation_doc = queries_is_doc % dict
+dict['name'] = 'textcombined'
+istextcombined_doc = queries_is_doc % dict
+dict['name'] = 'marker'
+ismarker_doc = queries_is_doc % dict
 
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a

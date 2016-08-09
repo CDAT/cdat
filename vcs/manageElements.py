@@ -2171,7 +2171,7 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
         (Tt_name_src, To_name_src), None)
     if tc is None:
         raise Exception(
-            "No usch text combined: %s:::%s" %
+            "No such text combined: %s:::%s" %
             (Tt_name_src, To_name_src))
 
     if (string is not None) and (tc.Tt_name != "default"):

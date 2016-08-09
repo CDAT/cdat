@@ -519,7 +519,8 @@ class TDMarker(object):
             setattr(self, attr, tmp)
 
     def equalize(self):
-        """ Make sure that we have the same amount of everything
+        """
+        Make sure that we have the same amount of everything
         usage self.equalize()
         Also updates self.number
         """
@@ -542,7 +543,10 @@ class TDMarker(object):
 
 class Gtd(object):
     """
-    TODO: Get details on this class from Sam
+    The Taylor Diagram graphics method (Gtd) is used to plot `Taylor diagrams`_ on a VCS Canvas.
+    `Taylor diagrams`_ provide a way of graphically summarizing how closely a pattern matches observations.
+
+    .. _Taylor diagrams: http://www-pcmdi.llnl.gov/about/staff/Taylor/CV/Taylor_diagram_primer.pdf
     """
     __slots__ = [
         'template',
@@ -899,7 +903,18 @@ class Gtd(object):
     cmtics1 = property(_getcmtics1, _setcmtics1)
 
     def defaultSkillFunction(self, s, R):
-        """ Default skillfunction"""
+        """
+        Default skillfunction
+
+        :param s:
+        :type s:
+
+        :param R:
+        :type R:
+
+        :returns:
+        :rtype: float
+        """
         alpha = self.skillCoefficient[0]  # default is 1.
         beta = self.skillCoefficient[1]  # default is 1.
         R2 = self.skillCoefficient[2]  # default is 1.
@@ -917,8 +932,24 @@ class Gtd(object):
 
     def drawSkill(self, canvas, values, function=None):
         """
-        Draw a skill score, default skill score provide in defaultSkill
+        Draw a skill score, default skill score provided in defaultSkill
         from Karl taylor, see PCMDI report series 55
+
+        .. note::
+            The function parameter must be provided for drawSkill to work.
+
+        :param canvas: A VCS Canvas object.
+        :type canvas: vcs.Canvas.Canvas
+
+        :param values: A list/tuple used to specify the :py:attr:`levels <vcs.isoline.Gi.level>`
+                        of an :py:class:`isoline <vcs.isoline.Gi>` object.
+        :type values: list/tuple
+
+        :param function:
+        :type function:
+
+        :returns:
+        :rtype:
         """
         if function is None:
             return
@@ -1341,8 +1372,26 @@ class Gtd(object):
         self.displays.append(canvas.plot(f, bg=self.bg))
 
     def getArc(self, value, val1=0., val2=90., convert=True):
-        """ Return coordinates to draw an arc from 0 to 90 degrees
-        val1 and val2 can limit the arc (in angles)
+        """
+        Return coordinates to draw an arc from 0 to 90 degrees
+
+        .. note::
+            val1 and val2 are used to limit the arc (in degrees).
+
+        :param value: The radius of the arc to be calculated.
+        :type value: float
+
+        :param val1: Lower limit of the arc to compute.
+        :type val1: float
+
+        :param val2: Upper limit of the arc to compute.
+        :type val2: float
+
+        :param convert: Boolean flag indicating whether
+        :type convert: bool
+
+        :returns: The coordinates for the calculated arc.
+        :rtype: tuple
         """
         xs = []
         ys = []
@@ -1851,7 +1900,24 @@ class Gtd(object):
         return out
 
     def plot(self, data, template='deftaylor', skill=None, bg=0, canvas=None):
-        """plots"""
+        """
+        Plots an instance of a :py:class:`Taylor diagram <vcs.taylor.Gtd>` on the provided VCS Canvas.
+
+        :param data:
+        :type data:
+
+        :param template: A :py:class:`VCS template <vcs.template.P>` or a string name of a VCS template.
+        :type template: str/vcs.template.P
+
+        :param skill:
+        :type skill:
+
+        :param bg: A boolean/integer flag indicating whether to plot this object in the background.
+        :type bg: bool/int
+
+        :param canvas: A VCS Canvas object on which the diagram will be plotted.
+        :type canvas: vcs.Canvas.Canvas
+        """
         self.bg = bg
         self.displays = []
         if canvas is None:
@@ -1868,7 +1934,7 @@ class Gtd(object):
 
         canvas.pause_time = 0
         # canvas.open()
-# canvas.clear()
+        # canvas.clear()
         savedstdmax = getattr(self, '_stdmax', None)
         if self.max is None:
             self._stdmax = float(1.2 * numpy.ma.maximum(data[..., 0]))
@@ -1910,7 +1976,7 @@ class Gtd(object):
             "taylordiagram"][self.name]
         if self.name == "default":
             warnings.warn(
-                "You were trying to rename the 'deafult' taylordiagram method, it was merely copied not renamed")
+                "You were trying to rename the 'default' taylordiagram method, it was merely copied not renamed")
         else:
             del(vcs.elements["taylordiagram"][self.name])
         self = vcs.elements["taylordiagram"][newname]
