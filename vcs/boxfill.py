@@ -127,10 +127,9 @@ def process_src(nm, code):
 #############################################################################
 # class Gfb(graphics_method_core):
 
-
 class Gfb(object):
 
-    """
+    __doc__ = """
     The boxfill graphics method (Gfb) displays a two-dimensional data array
     by surrounding each data value by a colored grid box.
 
@@ -189,11 +188,7 @@ class Gfb(object):
             # change style index
             fill.index=3
 
-    .. _boxfill-attributes:
-
     .. describe:: Overview of boxfill attributes:
-
-        .. code-block:: python
 
         * Listing all the boxfill attribute values:
 
@@ -309,47 +304,56 @@ class Gfb(object):
 
         * Attribute descriptions:
 
-            %s
 
             .. py:attribute:: boxfill_type (str)
 
-            Type of boxfill legend. One of 'linear', 'log10', or 'custom'. See examples above for usage.
+                Type of boxfill legend. One of 'linear', 'log10', or 'custom'. See examples above for usage.
 
             .. py:attribute:: level_1 (float)
-            Used in conjunction with boxfill_type linear/log10. Sets the value of the legend's first level
+
+                Used in conjunction with boxfill_type linear/log10. Sets the value of the legend's first level
 
             .. py:attribute:: level_2 (float)
-            Used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
+
+                Used in conjunction with boxfill_type linear/log10, sets the value of the legend's end level
 
             .. py:attribute:: color_1 (float)
-            Used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
+
+                Used in conjunction with boxfill_type linear/log10, sets the legend's color range first value
 
             .. py:attribute:: color_2 (float)
-            Used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
+
+                Used in conjunction with boxfill_type linear/log10, sets the legend's color range lasst value
 
             .. py:attribute:: levels (list of floats)
-            Used in conjunction for boxfill_type custom, sets the levels range to use, can be
-            either a list of contiguous levels, or list of tuples indicating first
-            and last value of the range.
+
+                Used in conjunction for boxfill_type custom, sets the levels range to use, can be
+                either a list of contiguous levels, or list of tuples indicating first
+                and last value of the range.
 
             .. py:attribte:: fillareacolors (list)
-            Used in conjunction for boxfill_type custom colors to use for each level
+
+                Used in conjunction for boxfill_type custom colors to use for each level
 
             .. py:attribute:: legend ({float:str})
-            Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
-            their associated string.
+
+                Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
+                their associated string.
 
             .. py:attribute:: ext_1 (str)
-            Draws an extension arrow on right side (values less than first range value)
+
+                Draws an extension arrow on right side (values less than first range value)
 
             .. py:attribute:: ext_2 (str)
-            Draws an extension arrow on left side (values greater than last range value)
+
+                Draws an extension arrow on left side (values greater than last range value)
 
             .. py:attribute:: missing (int)
-            Color to use for missing value or values not in defined ranges.
-            """
-    #% xmldocs.graphics_method_core #noq
 
+                Color to use for missing value or values not in defined ranges.
+
+            %s
+            """% xmldocs.graphics_method_core #noq
 
     def rename(self, newname):
         if newname == "default":
@@ -450,8 +454,6 @@ class Gfb(object):
     #                                                                         #
     ###########################################################################
     def __init__(self, Gfb_name=None, Gfb_name_src='default'):
-
-            #                                                         #
         if isinstance(Gfb_name_src, Gfb):
             Gfb_name_src = Gfb_name_src.name
         if Gfb_name == "default" and Gfb_name_src != "default":
@@ -1084,7 +1086,6 @@ class Gfb(object):
             vcs.utils.dumpToJson(self, f)
             f.close()
     script.__doc__ = xmldocs.boxfill_script
-#Gfb.__doc__ = Gfb.__doc__ % xmldocs.graphics_method_core
 
 ###############################################################################
 #        END OF FILE							      #

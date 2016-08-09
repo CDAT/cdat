@@ -119,20 +119,21 @@ graphics_method_core_notime = """
 """  # noqa
 graphics_method_core = """%s
 %s""" % (graphics_method_core_notime, data_time)
-axisconvert = """:param {axis}axisconvert: (Ex: 'linear') converting {axis}axis linear/log/log10/ln/exp/area_wt
-:type {axis}axisconvert: str\n"""
+axisconvert = """
+    :param {axis}axisconvert: (Ex: 'linear') converting {axis}axis linear/log/log10/ln/exp/area_wt
+    :type {axis}axisconvert: str\n"""
 xaxisconvert = axisconvert.format(axis="x")
 yaxisconvert = axisconvert.format(axis="y")
 axesconvert = xaxisconvert + yaxisconvert
 colorsdoc = """
-        Sets the color_1 and color_2 properties of the object.
+    Sets the color_1 and color_2 properties of the object.
 
-:param color1: Sets the color_1 value on the object
-:type color1: int
+    :param color1: Sets the :py:attr:`color_1` value on the object
+    :type color1: int
 
-:param color2: Sets the color_2 value on the object
-:type color2: int
-           """
+    :param color2: Sets the :py:attr:`color_2` value on the object
+    :type color2: int
+    """
 
 extsdoc = """
         Sets the ext_1 and ext_2 values on the object.
@@ -168,20 +169,21 @@ xmticsdoc = mticsdoc % (('x',) * 8)
 ymticsdoc = mticsdoc % (('y',) * 8)
 
 datawcdoc = """
-        Sets the data world coordinates for object
+    Sets the data world coordinates for object
 
-:param dsp1: Sets the datawc_y1 property of the object.
-:type dsp1: float
+    :param dsp1: Sets the :py:attr:`datawc_y1` property of the object.
+    :type dsp1: float
 
-:param dsp2: Sets the datawc_y2 property of the object.
-:type dsp2: float
+    :param dsp2: Sets the :py:attr:`datawc_y2` property of the object.
+    :type dsp2: float
 
-:param dsp3: Sets the datawc_x1 property of the object.
-:type dsp3: float
+    :param dsp3: Sets the :py:attr:`datawc_x1` property of the object.
+    :type dsp3: float
 
-:param dsp4: Sets the datawc_x2 property of the object.
-:type dsp4: float
-           """
+    :param dsp4: Sets the :py:attr:`datawc_x2` property of the object.
+    :type dsp4: float
+
+    """
 xyscaledoc = """
         Sets xaxisconvert and yaxisconvert values for the object.
 
@@ -195,11 +197,11 @@ xyscaledoc = """
         # set xaxisconvert and yaxisconvert to 'linear'
         box.xyscale(xat='linear', yat='linear')
 
-:param xat: Set value for x axis conversion.
-:type xat: str
+    :param xat: Set value for x axis conversion.
+    :type xat: str
 
-:param yat: Set value for y axis conversion.
-:type yat: str
+    :param yat: Set value for y axis conversion.
+    :type yat: str
            """
 listdoc = """ Lists the current values of object attributes"""
 
@@ -248,12 +250,11 @@ scriptdoc = """
             >>> ex.script('filename','w')
             ...
 
+    :param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
+    :type script_filename: str
 
-:param script_filename: Output name of the script file. If no extension is specified, a .json object is created.
-:type script_filename: str
-
-:param mode: Either 'w' for replace, or 'a' for append. Defaults to 'a', if not specified.
-:type mode: str
+    :param mode: Either 'w' for replace, or 'a' for append. Defaults to 'a', if not specified.
+    :type mode: str
 """
 
 
@@ -429,7 +430,8 @@ get_methods_doc = """
 
 get_fillarea_doc = get_methods_doc % (('fillarea',) * 20)
 
-meshfill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
+meshfill_doc = """
+    levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
     fillareacolors :: ([int,...]) ([241]) colors to use for each level
     fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
     fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
