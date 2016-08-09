@@ -365,6 +365,10 @@ dict['name'] = '3d_vector'
 is3d_vector_doc= queries_is_doc % dict
 dict['name'] = 'xvsy'
 isxvsy_doc = queries_is_doc % dict
+dict['name'] = 'yxvsx'
+isyxvsx_doc = queries_is_doc % dict
+dict['name'] = '1d'
+is1d_doc = queries_is_doc % dict
 
 # special inheritance cases
 dict['name'] = 'scatter'
@@ -373,14 +377,10 @@ isscatter_doc = queries_is_doc % dict
 dict['name'] = 'xyvsy'
 dict['parent'] = "'default_xyvsy_'"
 isxyvsy_doc = queries_is_doc % dict
-dict['name'] = 'yxvsx'
-isyxvsx_doc = queries_is_doc % dict
-dict['name'] = '1d'
-is1d_doc = queries_is_doc % dict
 
 # queries.is[SECONDARY_OBJECT]
 dict['type'] = 'secondary'
-dict['parent'] = 'default'
+dict['parent'] = "'default'"
 
 dict['name'] = 'line'
 isline_doc = queries_is_doc % dict
