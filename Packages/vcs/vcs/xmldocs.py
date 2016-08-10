@@ -460,28 +460,72 @@ get_methods_doc = """
 
 get_fillarea_doc = get_methods_doc % (('fillarea',) * 20)
 
-meshfill_doc = """
-    levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
-    fillareacolors :: ([int,...]) ([241]) colors to use for each level
-    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
-    fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
-    legend :: ({float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-    ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
-    ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
-    missing :: (int) (241) color to use for missing value or values not in defined ranges
-    legend :: (None/{float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-"""  # noqa
+exts_attrs= """
+            .. py:attribute:: ext_1 (str)
 
-isofill_doc = """levels :: ([float,...]/[[float,float],...]) (([1.E20,1.E20],)) sets the levels range to use, can be either a list of contiguous levels, or list of tuples indicating, first and last value of the range
-    fillareacolors :: ([int,...]) ([241]) colors to use for each level
-    fillareastyle :: (str) ('solid') style to use for levels filling: solid/pattenr/hatch
-    fillareaindices :: ([int,...]) (None) list of patterns to use when filling a level and using pattern/hatch
-    legend :: ({float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-    ext_1 :: (str) ('n') draws an extension arrow on right side (values less than first range value)
-    ext_2 :: (str) ('n') draws an extension arrow on left side (values greater than last range value)
-    missing :: (int) (241) color to use for missing value or values not in defined ranges
-    legend :: (None/{float:str}) (None) replaces the legend values in the dictionary keys with their associated string
-"""  # noqa
+                Draws an extension arrow on right side (values less than first range value)
+
+            .. py:attribute:: ext_2 (str)
+
+                Draws an extension arrow on left side (values greater than last range value)
+    """
+
+fillarea_colors_attr= """
+            .. py:attribute:: fillareacolors ([int,...])
+
+                Colors to use for each level
+"""
+
+fillarea_attrs = """
+            .. py:attribute:: fillareastyle (str)
+
+                Style to use for levels filling: solid/pattern/hatch
+
+            .. py:attribute:: fillareaindices ([int,...])
+
+                List of patterns to use when filling a level and using pattern/hatch
+"""
+
+legend_attr = """
+            .. py:attribute:: legend (None/{float:str})
+
+                Replaces the legend values in the dictionary keys with their associated string
+"""
+
+level_attrs = """
+            .. py:attribute:: level_1 (float)
+
+                Sets the value of the legend's first level
+
+            .. py:attribute:: level_2 (float)
+
+                Sets the value of the legend's end level
+"""
+
+levels_attr= """
+            .. py:attribute:: levels ([float,...]/[[float,float],...])
+
+                Sets the levels range to use, can be either a list of contiguous levels, or list of tuples
+                indicating first and last value of the range.
+"""
+
+missing_attr = """
+            .. py:attribute:: missing (int)
+
+                Color to use for missing value or values not in defined ranges
+"""
+
+meshfill_doc = """
+    %s
+    %s
+    %s
+    %s
+    %s
+    %s
+""" % (levels_attr,fillarea_colors_attr, fillarea_attrs, legend_attr, exts_attrs, missing_attr)
+
+
+isofill_doc = meshfill_doc
 
 fillareadoc = """
     fillareacolor :: (int) (None) color to use for outfilling
