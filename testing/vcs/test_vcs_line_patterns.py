@@ -14,7 +14,7 @@ f = cdms2.open(vcs.sample_data + "/clt.nc")
 s = f('clt')
 iso = x.createisoline()
 iso.level=[5, 50, 70, 95]
-iso.line = ['dot', 'dash', 'dash-dot', 'long-dash']
+iso.linetypes = ['dot', 'dash', 'dash-dot', 'long-dash']
 x.plot(s,iso,continents=0)
 name = "test_vcs_line_patterns.png"
 regression.run(x, name)

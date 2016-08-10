@@ -952,7 +952,7 @@ class Gtd(object):
         ttt.color = c
         iso.text = [ttt, ] * len(cols)
         iso.level = values
-        iso.line = ['solid']
+        iso.linetypes = ['solid']
         iso.label = self.skillDrawLabels
         iso.linecolors = cols
         wc = self.worldcoordinate

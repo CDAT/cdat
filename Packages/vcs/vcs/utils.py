@@ -319,7 +319,10 @@ def _scriptrun(script, canvas=None):
             continue
         for att in ["line", "textcolors", "text"]:
             try:
-                setattr(g, att, getattr(g, att))
+                if (att == "line"):
+                    setattr(g, "linetypes", getattr(g, "linetypes"))
+                else:
+                    setattr(g, att, getattr(g, att))
             except:
                 lst = []
                 if att == "line":
@@ -329,25 +332,31 @@ def _scriptrun(script, canvas=None):
                         else:
                             lst.append(e)
                 elif att == "text":
-                    for e in g.line:
+                    for e in g.text:
                         if e in vcs.elements["textorientation"]:
-                            lst.append(vcs.elements["line"][e])
+                            lst.append(vcs.elements["textorientation"][e])
                         elif e in vcs.elements["textcombined"]:
-                            lst.append(vcs.elements["line"][e])
+                            lst.append(vcs.elements["textcombined"][e])
                         else:
                             lst.append(e)
                 elif att == "textcolors":
-                    for e in g.line:
+                    for e in g.textcolors:
                         if e in vcs.elements["texttable"]:
-                            lst.append(vcs.elements["line"][e])
+                            lst.append(vcs.elements["texttable"][e])
                         elif e in vcs.elements["textcombined"]:
-                            lst.append(vcs.elements["line"][e])
+                            lst.append(vcs.elements["textcombined"][e])
                         else:
                             lst.append(e)
                 try:
-                    setattr(g, att, lst)
+                    if (att == "line"):
+                        g.setLineAttributes(lst)
+                    else:
+                        setattr(g, att, lst)
                 except:
-                    setattr(g, att, getattr(gd, att))
+                    if (att == "line"):
+                        setattr(g, "linetypes", getattr(gd, "linetypes"))
+                    else:
+                        setattr(g, att, getattr(gd, att))
 
 #
 #
