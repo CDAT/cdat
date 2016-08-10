@@ -165,9 +165,9 @@ def process_src(nm, code):
             iid = scode.find("(id=")
     g.level = levs
     try:
-        g.line = tl
-    except:
-        g._line = tl
+        g.setLineAttributes(tl)
+    except ValueError:
+        pass
     try:
         g.text = to
     except:
@@ -295,8 +295,8 @@ class Gi(object):
         iso.label='n'  			# Same as iso.label=0, will turn isoline labels off
 
     Specify the isoline line style (or type):
-        iso.line=([0,1,2,3,4])   	# Same as
-        iso.line=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash']), will
+        iso.linetypes=([0,1,2,3,4])   	# Same as
+        iso.linetypes=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash']), will
                 specify the isoline style
 
     There are three possibilities for setting the line color indices (Ex):
@@ -310,7 +310,7 @@ class Gi(object):
         iso.linewidths=([1,2,3,4,5,6,7,8])	# Will set the isoline to a specific
                                                 #     width size
         iso.linewidths=None			# Turns off the line width size
-    If the number of line styles, colors or widths are less than the number of levels
+    If the number of line types, colors or widths are less than the number of levels
     we extend the attribute list using the last attribute value in the attribute list.
 
     There are three ways to specify the text or font number:
@@ -340,7 +340,7 @@ class Gi(object):
         'labelbackgroundcolors',
         'labelbackgroundopacities',
         'linecolors',
-        'line',
+        'linetypes',
         'linewidths',
         'text',
         'textcolors',
@@ -372,7 +372,7 @@ class Gi(object):
         '_labelbackgroundcolors',
         '_labelbackgroundopacities',
         '_linecolors',
-        '_line',
+        '_linetypes',
         '_linewidths',
         '_text',
         '_textcolors',
@@ -619,28 +619,70 @@ class Gi(object):
         self._linecolors = value
     linecolors = property(_getlinecolors, _setlinecolors)
 
+    def _getlinetypes(self):
+        return self._linetypes
+
+    def _setlinetypes(self, value):
+        if value is not None:
+            value = VCS_validation_functions.checkLineTypeList(
+                self,
+                'linetypes',
+                value)
+        self._linetypes = value
+
+    linetypes = property(_getlinetypes, _setlinetypes)
+
     def _getline(self):
-        return self._line
+        print 'DEPRECATED: Use linetypes or setLineAttributes instead.'
+        return self._linetypes
 
     def _setline(self, value):
-        if value is not None:
-            value, cvalue, wvalue = VCS_validation_functions.checkLinesList(
-                self,
-                'line',
-                value)
-        self._line = value
-        try:
-            if self.linecolors is None or len(self.linecolors) < len(cvalue):
-                self.linecolors = cvalue
-        except:
-            pass
-        try:
-            if self.linewidths is None or len(self.linewidths) < len(wvalue):
-                self.linewidths = wvalue
-        except:
-            pass
+        print 'DEPRECATED: Use linetypes or setLineAttributes instead.'
+        self.setLineAttributes(value)
 
     line = property(_getline, _setline)
+
+    def setLineAttributes(self, mixed):
+        '''
+        Add either a (linetype, 1, 1) or (linetype, linecolor, linewidth)
+        based on if mixed[i] is a linetype or a line object name.
+        '''
+        import queries
+        types = []
+        colors = []
+        widths = []
+        for i, l in enumerate(mixed):
+            # first try a line type
+            try:
+                lineType = VCS_validation_functions.checkLineType(
+                    self, 'invalid', l)
+                types.append(lineType)
+                if (len(self.linecolors) > i):
+                    colors.append(self.linecolors[i])
+                else:
+                    colors.append(1)
+                if (len(self.linewidths) > i):
+                    widths.append(self.linewidths[i])
+                else:
+                    widths.append(1)
+                continue
+            except ValueError:
+                pass
+            # then try a line object or a line object name
+            if (queries.isline(l)):
+                line = l
+            elif (isinstance(l, basestring) and l in vcs.elements["line"]):
+                line = vcs.elements["line"][l]
+            else:
+                raise ValueError("Expecting a line object or " +
+                                 "a line name defined in in " +
+                                 "vcs.elements, got type %s" % type(l).__name__)
+            types.append(line.type[0])
+            colors.append(line.color[0])
+            widths.append(line.width[0])
+        self.linetypes = types
+        self.linecolors = colors
+        self.linewidths = widths
 
     def _gettext(self):
         return self._text
@@ -800,7 +842,7 @@ class Gi(object):
             self._datawc_x2 = 1.e20
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
-            self._line = ['solid', ]
+            self._linetypes = ['solid', ]
             self._linecolors = [1, ]
             self._linewidths = [1., ]
             self._text = None
@@ -828,7 +870,7 @@ class Gi(object):
             for att in ['label', 'colormap', 'projection', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
                         'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'level', 'datawc_timeunits',
-                        'datawc_calendar', "line", "linecolors", "linewidths", "text", "textcolors",
+                        'datawc_calendar', "linetypes", "linecolors", "linewidths", "text", "textcolors",
                         "clockwise", "scale", "angle", "spacing", "labelskipdistance", "labelbackgroundcolors",
                         "labelbackgroundopacities"]:
                 setattr(self, att, getattr(src, att))
@@ -898,7 +940,7 @@ class Gi(object):
         print "labelskipdistance = ", self.labelskipdistance
         print "labelbackgroundcolors = ", self.labelbackgroundcolors
         print "labelbackgroundopacities = ", self.labelbackgroundopacities
-        print "line = ", self.line
+        print "linetypes = ", self.linetypes
         print "linecolors = ", self.linecolors
         print "linewidths = ", self.linewidths
         print "text = ", self.text
@@ -1051,7 +1093,7 @@ class Gi(object):
                      (unique_name, self.labelbackgroundcolors))
             fp.write("%s.labelbackgroundopacities = '%s'\n" %
                      (unique_name, self.labelbackgroundopacities))
-            fp.write("%s.line = %s\n" % (unique_name, self.line))
+            fp.write("%s.linetypes = %s\n" % (unique_name, self.linetypes))
             fp.write("%s.linecolors = %s\n" % (unique_name, self.linecolors))
             fp.write("%s.linewidths = %s\n" % (unique_name, self.linewidths))
             fp.write("%s.text = %s\n" % (unique_name, self.text))

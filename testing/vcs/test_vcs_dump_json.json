@@ -10,6 +10,7 @@
    "datawc_y2": 1e+20, 
    "flip": false, 
    "linecolor": 241, 
+   "linetype": "solid", 
    "linewidth": 1, 
    "marker": "dot", 
    "markercolor": 241, 
@@ -186,6 +187,9 @@
    "linecolors": [
     1
    ], 
+   "linetypes": [
+    "solid"
+   ], 
    "linewidths": [
     1.0
    ], 
@@ -220,8 +224,8 @@
    "datawc_x2": 1e+20, 
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
-   "line": null, 
    "linecolor": null, 
+   "linetype": null, 
    "linewidth": null, 
    "projection": "linear", 
    "reference": 1e+20, 
