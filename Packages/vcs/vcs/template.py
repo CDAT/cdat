@@ -1471,24 +1471,34 @@ class P(object):
 
                 # Now for the min/max/mean add the name in front
                 kargs["donotstoredisplay"] = False
-                if s == 'min':
-                    tt.string = 'Min %g' % (smn)
-                elif s == 'max':
-                    tt.string = 'Max %g' % smx
-                elif s == 'mean':
-                    if not inspect.ismethod(getattr(slab, 'mean')):
-                        meanstring = 'Mean ' + str(getattr(slab, s))
+                if s in ["min","max","mean"]:
+                    if s == 'min':
+                        ttstring = 'Min'
+                    elif s == 'max':
+                        ttstring = 'Max'
+                    elif s == 'mean':
+                        ttstring="Mean"
+                    if isinstance(getattr(slab,s),numpy.ndarray):
+                        meanstring = "%s %.4g" % (ttstring, float(getattr(slab,s)))
+                    elif not inspect.ismethod(getattr(slab, s)):
+                        meanstring = '%s %s' (ttstring, str(getattr(slab, s)))
                     else:
-                        try:
-                            meanstring = 'Mean %.4g' % \
-                                float(cdutil.averager(slab,
-                                                      axis=" ".join(["(%s)" %
-                                                                     S for S in slab.getAxisIds()])))
-                        except:
+                        if s=="mean":
                             try:
-                                meanstring = 'Mean %.4g' % slab.mean()
+                                meanstring = 'Mean %.4g' % \
+                                    float(cdutil.averager(slab,
+                                                          axis=" ".join(["(%s)" %
+                                                                         S for S in slab.getAxisIds()])))
                             except:
-                                meanstring = 'Mean %.4g' % numpy.mean(slab.filled())
+                                try:
+                                    meanstring = 'Mean %.4g' % slab.mean()
+                                except:
+                                    meanstring = 'Mean %.4g' % numpy.mean(slab.filled())
+                        else: # min/max
+                            try:
+                                meanstring = "%s %.4g" % (ttstring,getattr(slab,s)())
+                            except:
+                                meanstring = "%s %.4g" % (ttstring,getattr(numpy,s)(slab.filled()))
                     tt.string = meanstring
                 else:
                     tt.string = str(getattr(slab, s))
