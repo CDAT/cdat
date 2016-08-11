@@ -5369,41 +5369,51 @@ Options:::
         return vcs.getcolormap(Cp_name_src)
     getcolormap.__doc__ = vcs.manageElements.getcolormap.__doc__
 
-    def addfont(self, path, name=""):
+    def addfont(self, path, name=None, recursive=False):
         """
         Add a font to VCS.
 
-    :param path: Path to the font file you wish to add (must be .ttf)
+    :param path: Path to the font file you wish to add (must be .ttf) or directory you want to search through.
     :type path: str
 
     :param name: Name to use to represent the font.
     :type name: str
+
+    :param recursive: If path is a directory, whether to search it recursively or not.
+    :type recursive: bool
 """
         if not os.path.exists(path):
             raise ValueError('Error -  The font path does not exists')
         if os.path.isdir(path):
+            if name == 'r':
+                warnings.warn("Recursive font addition via the name property has been deprecated. Please use the recursive keyword argument instead.")
+                recursive = True
+                name = None
             dir_files = []
             files = []
-            if name == "":
+            if not recursive:
                 subfiles = os.listdir(path)
                 for file in subfiles:
                     dir_files.append(os.path.join(path, file))
-            elif name == 'r':
+            elif recursive:
                 for root, dirs, subfiles in os.walk(path):
                     for file in subfiles:
                         dir_files.append(os.path.join(root, file))
             for f in dir_files:
                 if f.lower()[-3:]in ['ttf', 'pfa', 'pfb']:
-                    files.append([f, ""])
+                    files.append([f, None])
         else:
             files = [[path, name], ]
 
         nms = []
         for f in files:
             fnm, name = f
+            if name is None:
+                name = os.path.splitext(os.path.basename(fnm))[0]
             i = max(vcs.elements["fontNumber"].keys()) + 1
             vcs.elements["font"][name] = fnm
             vcs.elements["fontNumber"][i] = name
+            nms.append(name)
         if len(nms) == 0:
             raise vcsError('No font Loaded')
         elif len(nms) > 1:
