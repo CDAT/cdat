@@ -740,8 +740,8 @@ class _maximum_operation:
         d = numpy.maximum.outer(filled(a), filled(b))
         return TransientVariable(d, mask=m)
 
-maximum = _maximum_operation () 
-    
+maximum = _maximum_operation()
+
 def asarray(data, typecode=None, dtype=None):
     """asarray(data, typecode=None, dtype=None) is equivalent to array(data, dtype=None, copy=0)
        Returns data if dtype is None or data is a MaskedArray of the same dtype.
