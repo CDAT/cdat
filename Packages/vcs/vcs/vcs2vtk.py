@@ -601,7 +601,7 @@ def apply_proj_parameters(pd, projection, x1, x2, y1, y2):
                 centerlongitude = float(x1 + x2) / 2.0
             else:
                 centerlongitude = projection.centerlongitude
-            pd.SetOptionalParameter("lon_0", str(centerlongitude))
+            pd.SetCentralMeridian(centerlongitude)
         if (hasattr(projection, 'originlatitude')):
             if (numpy.allclose(projection.originlatitude, 1e+20)):
                 originlatitude = float(y1 + y2) / 2.0
