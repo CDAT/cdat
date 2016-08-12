@@ -264,10 +264,10 @@ class Multi(object):
         #nm = '%i_x_%i_%i' % (column,row,self.id)
         nm = None
         if tname is not None:
-            nm = '%i_x_%i_%i_%s' % (column,row,self.id,tname)
+             nm = '%i_x_%i_%i_%s' % (column,row,self.id,tname)
         else:
-            nm = '%i_x_%i_%i' % (column,row,self.id)
-             
+             nm = '%i_x_%i_%i' % (column,row,self.id)
+
         try:
             t=self.x.createtemplate(nm,source=self.template)
             self.template_names.append(t.name)
