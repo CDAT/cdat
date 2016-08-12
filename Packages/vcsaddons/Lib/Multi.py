@@ -229,7 +229,7 @@ class Multi(object):
             self.x.removeP(t)
         self.template_names=[]
         
-    def get(self,column=None,row=None,legend=None,font=True,fontlimit=0.8):
+    def get(self,column=None,row=None,legend=None,font=True,fontlimit=0.8,tname=None):
         """
         Returns a template to use in vcs
         Usage:
@@ -261,7 +261,13 @@ class Multi(object):
         
         xl=0 # offset for legend in x
         yl=0 # offset for legend in y
-        nm = '%i_x_%i_%i' % (column,row,self.id)
+        #nm = '%i_x_%i_%i' % (column,row,self.id)
+        nm = None
+        if tname is not None:
+             nm = '%i_x_%i_%i_%s' % (column,row,self.id,tname)
+        else:             
+             nm = '%i_x_%i_%i' % (column,row,self.id)
+             
         try:
             t=self.x.createtemplate(nm,source=self.template)
             self.template_names.append(t.name)
