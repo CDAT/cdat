@@ -388,8 +388,8 @@ class Tt(object):
             self._font = 1
             self._spacing = 2
             self._expansion = 100
-            self._color = 1
-            self._backgroundcolor = 0
+            self._color = (0., 0., 0., 100.)
+            self._backgroundcolor = (100., 100., 100., 0.)
             self._backgroundopacity = 0
             self._fillincolor = 0
             self._priority = 1

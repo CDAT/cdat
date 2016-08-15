@@ -84,7 +84,7 @@ class Tc(object):
      tc.expansion=100                   # The expansion value ranges from 50 to 150
 
     Specify the text color:
-     tc.color=241                       # The text color value ranges from 1 to 257
+     tc.color="black"                       # The text color value ranges from 1 to 257
 
     Specify the graphics text priority on the VCS Canvas:
      tt.priority = 1

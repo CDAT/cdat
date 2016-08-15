@@ -221,7 +221,7 @@ class Pipeline2D(IPipeline2D):
             if i == 0:
                 C = [self._contourColors[i]]
                 if style == "pattern":
-                    C = [241]
+                    C = [(0., 0., 0., 100.)]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
                     # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]

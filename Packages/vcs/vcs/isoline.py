@@ -843,7 +843,7 @@ class Gi(object):
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
             self._linetypes = ['solid', ]
-            self._linecolors = [1, ]
+            self._linecolors = [(0.0, 0.0, 0.0, 100.0), ]
             self._linewidths = [1., ]
             self._text = None
             self._textcolors = None

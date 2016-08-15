@@ -395,7 +395,7 @@ class Gfb(object):
             self._yaxisconvert = "linear"
             self._ext_1 = False
             self._ext_2 = False
-            self._missing = 1
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._fillareastyle = 'solid'
             self._fillareaindices = [1, ]
             self._fillareaopacity = []

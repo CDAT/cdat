@@ -223,7 +223,7 @@ class Tf(object):
                 'color',
                 value)
         else:
-            value = [241]
+            value = [(0.0, 0.0, 0.0, 100.0)]
         self._color = value
     color = property(_getfillareacolors, _setfillareacolors)
 
