@@ -11,16 +11,16 @@ x = regression.init()
 exec("gm = x.create%s()" % args.gm)
 
 if args.src == "vcs":
-  vcs._colorMap = "blue_to_grn"
+  vcs._colorMap = "blue2green"
 elif args.src == "canvas":
   ## Still setting vcs to make sure it is not used
-  vcs._colorMap = "blue_to_grn"
-  x.setcolormap("blue_to_grey")
+  vcs._colorMap = "blue2green"
+  x.setcolormap("blue2grey")
 else:
   ## Still setting vcs and canvas to make sure it is not used
-  vcs._colorMap = "blue_to_grn"
-  x.setcolormap("blue_to_grey")
-  gm.colormap = "blue_to_orange"
+  vcs._colorMap = "blue2green"
+  x.setcolormap("blue2grey")
+  gm.colormap = "blue2orange"
 
 if args.gm != "meshfill":
   f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))

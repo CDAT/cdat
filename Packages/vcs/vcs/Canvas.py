@@ -47,7 +47,6 @@ from projection import no_deformation_projections  # noqa
 # Python < 3 DeprecationWarning ignored by default
 warnings.simplefilter('default')
 
-
 class SIGNAL(object):
 
     def __init__(self, name=None):
@@ -4961,6 +4960,7 @@ Options:::
         #   updateVCSsegments_flag = args[1]
         # except:
         #   updateVCSsegments_flag = 1
+
         self.colormap = name
         self.update()
         return
