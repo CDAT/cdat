@@ -64,7 +64,7 @@ class VectorPipeline(Pipeline2D):
             scale = 1.0
 
         # Vector attempt
-        l = self._gm.line
+        l = self._gm.linetype
         if l is None:
             l = "default"
         try:

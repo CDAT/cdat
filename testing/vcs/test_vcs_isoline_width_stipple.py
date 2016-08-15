@@ -22,7 +22,7 @@ isoline.levels = levels
 isoline.text = texts
 isoline.linecolors = colors
 isoline.linewidths = (1, 2, 3, 4, 1)
-isoline.line = ('dot', 'dash', 'solid', 'dash-dot', 'long-dash', 'dot', 'dash')
+isoline.linetypes = ('dot', 'dash', 'solid', 'dash-dot', 'long-dash', 'dot', 'dash')
 # Next plot the isolines with labels
 canvas.plot(data, isoline, bg=1)
 regression.run(canvas, "test_vcs_isoline_width_stipple.png")
