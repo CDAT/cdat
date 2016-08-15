@@ -59,7 +59,7 @@ import os  # noqa
 from manageElements import *  # noqa
 import collections  # noqa
 
-_colorMap = "default"
+_colorMap = "viridis"
 
 _default_time_units = 'days since 2000'
 
