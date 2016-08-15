@@ -36,7 +36,7 @@ cf_asd.fillareacolors=( [22,44,66,88,110,132,152,174])
 cf_asd.levels = ( [1e20 ], )
 
 # Change the colormap from rainbow to green to magenta.
-v.setcolormap('grn_to_magenta')
+v.setcolormap('green2magenta')
 
 # Change the colormap back to rainbow.
 v.setcolormap('rainbow')

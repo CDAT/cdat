@@ -28,6 +28,25 @@ from colors import rgb2str, str2rgb, matplotlib2vcs  # noqa
 
 indent = 1
 sort_keys = True
+# Deprecated color map names mapping
+vcs_deprecated_colormap_names = {
+    "blue2darkred":         "bl_to_darkred",
+    "blue2darkorange":      "bl_to_drkorang",
+    "blue2grey":            "blue_to_grey",
+    "blue2green":           "blue_to_grn",
+    "blue2orange":          "blue_to_orange",
+    "blue2orange2red":      "blue_to_orgred",
+    "brown2blue":           "brown_to_blue",
+    "green2magenta":        "grn_to_magenta",
+    "lightblue2darkblue":   "ltbl_to_drkbl",
+    "rainbownogreen":       "rainbow_no_grn",
+    "white2blue":           "white_to_blue",
+    "white2green":          "white_to_green",
+    "white2magenta":        "white_to_magenta",
+    "white2red":            "white_to_red",
+    "white2yellow":         "white_to_yellow",
+}
+
 
 
 def process_range_from_old_scr(code, g):
@@ -751,6 +770,12 @@ def loadVCSItem(typ, nm, json_dict={}):
             v = str(v)
         if not(a == "Marker" and tp == "taylordiagram"):
             setattr(gm, a, v)
+
+            if nm in vcs_deprecated_colormap_names:
+                cmd = "gm = vcs.create%s('%s')" % (typ, vcs_deprecated_colormap_names[nm])
+                exec(cmd)
+                setattr(gm, a, v)
+
     return gm
 
 
