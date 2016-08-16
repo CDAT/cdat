@@ -46,7 +46,6 @@ def process_src(nm, code, typ):
                 "ymtics#1", "ymtics#2",
                 "xaxisconvert", "yaxisconvert",
                 "datawc_tunits",
-                "Tl",
                 "Tm",
                 "datawc_tunits",
                 "datawc_calendar"]:
@@ -60,9 +59,7 @@ def process_src(nm, code, typ):
         sp = scode.split("=")
         nm = sp[0].strip()
         nm = nm.replace("#", "")
-        if nm == "Tl":
-            nm = "line"
-        elif nm == "Tm":
+        if nm == "Tm":
             nm = "marker"
         elif nm == "datawc_tunits":
             nm = "datawc_timeunits"
@@ -79,6 +76,23 @@ def process_src(nm, code, typ):
                     setattr(gm, nm, sp[1])
                 except:
                     pass  # oh well we stick to default value
+    # Tl
+    i = code.find("Tl")
+    if (i > -1):
+        j = code[i:].find(",")
+        if (j == -1):
+            j = code[i:].find(")")
+        if (j > -1):
+            scode = code[i:(i + j)]
+            sp = scode.split("=")
+            tlValue = sp[1].strip()
+            try:
+                gm.linetype = tlValue
+            except ValueError:
+                try:
+                    gm.setLineAttributes(tlValue)
+                except:
+                    pass
     # Datawc
     idwc = code.find("datawc(")
     if idwc > -1:
@@ -180,11 +194,11 @@ class G1d(object):
     yxx.xaxisconvert='linear'
 
     Specify the Yxvsx line type:
-     yxx.line=0                         # same as yxx.line = 'solid'
-     yxx.line=1                         # same as yxx.line = 'dash'
-     yxx.line=2                         # same as yxx.line = 'dot'
-     yxx.line=3                         # same as yxx.line = 'dash-dot'
-     yxx.line=4                         # same as yxx.line = 'long-dash
+     yxx.linetype=0                         # same as yxx.linetype = 'solid'
+     yxx.linetype=1                         # same as yxx.linetype = 'dash'
+     yxx.linetype=2                         # same as yxx.linetype = 'dot'
+     yxx.linetype=3                         # same as yxx.linetype = 'dash-dot'
+     yxx.linetype=4                         # same as yxx.linetype = 'long-dash
 
     Specify the Yxvsx line color:
     yxx.linecolor=16    # color range: 16 to 230, default color is black
@@ -236,7 +250,7 @@ class G1d(object):
         'xaxisconvert',
         'yaxisconvert',
         'linecolor',
-        'line',
+        'linetype',
         'linewidth',
         'marker',
         'markersize',
@@ -262,7 +276,7 @@ class G1d(object):
         '_xaxisconvert',
         '_yaxisconvert',
         '_linecolor',
-        '_line',
+        '_linetype',
         '_linewidth',
         '_marker',
         '_markersize',
@@ -496,16 +510,37 @@ class G1d(object):
         self._linecolor = value
     linecolor = property(_getlinecolor, _setlinecolor)
 
-    def _getline(self):
-        return self._line
+    def _getlinetype(self):
+        return self._linetype
 
-    def _setline(self, value):
+    def _setlinetype(self, value):
         if value is not None:
-            if vcs.queries.isline(value):
-                value = value.name
-            value = VCS_validation_functions.checkLineType(self, 'line', value)
-        self._line = value
+            value = VCS_validation_functions.checkLineType(self, 'linetype', value)
+        self._linetype = value
+    linetype = property(_getlinetype, _setlinetype)
+
+    def _getline(self):
+        print 'DEPRECATED: Use linetype or setLineAttributes instead.'
+        return self._linetype
+
+    def _setline(self, l):
+        import queries
+        print 'DEPRECATED: Use linetype or setLineAttributes instead.'
+        if (queries.isline(l) or
+                (isinstance(l, basestring) and l in vcs.elements["line"])):
+            l = vcs.elements["line"][l]
+            self.setLineAttributes(l)
+        else:
+            self._linetype = l
+
     line = property(_getline, _setline)
+
+    def setLineAttributes(self, line):
+        '''
+        Set attributes linecolor, linewidth and linetype from line l.
+        l can be a line name defined in vcs.elements or a line object
+        '''
+        vcs.setLineAttributes(self, line)
 
     def _getmarker(self):
         return self._marker
@@ -603,7 +638,7 @@ class G1d(object):
             self._datawc_x2 = 1.e20
             self._xaxisconvert = "linear"
             self._yaxisconvert = "linear"
-            self._line = 'solid'
+            self._linetype = 'solid'
             self._linecolor = 241
             self._linewidth = 1
             self._marker = 'dot'
@@ -622,7 +657,7 @@ class G1d(object):
             src = vcs.elements["1d"][name_src]
             for att in ['projection', 'colormap', 'xticlabels1', 'xticlabels2', 'xmtics1', 'xmtics2',
                         'yticlabels1', 'yticlabels2', 'ymtics1', 'ymtics2', 'datawc_y1', 'datawc_y2', 'datawc_x1',
-                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'line', 'linecolor', 'linewidth', 'marker',
+                        'datawc_x2', 'xaxisconvert', 'yaxisconvert', 'linetype', 'linecolor', 'linewidth', 'marker',
                         'markercolor', 'markersize', 'datawc_timeunits', 'datawc_calendar', 'smooth', 'flip']:
                 setattr(self, att, getattr(src, att))
         # Ok now we need to stick in the elements
@@ -689,7 +724,7 @@ class G1d(object):
         print "datawc_calendar = ", self.datawc_calendar
         print "xaxisconvert = ", self.xaxisconvert
         print "yaxisconvert = ", self.yaxisconvert
-        print "line = ", self.line
+        print "linetype = ", self.linetype
         print "linecolor = ", self.linecolor
         print "linewidth = ", self.linewidth
         print "marker = ", self.marker
@@ -830,7 +865,7 @@ class G1d(object):
                 "%s.yaxisconvert = '%s'\n" %
                 (unique_name, self.yaxisconvert))
             # Unique attribute for yxvsx
-            fp.write("%s.line = %s\n" % (unique_name, self.line))
+            fp.write("%s.linetype = %s\n" % (unique_name, self.linetype))
             fp.write("%s.linecolor = %s\n" % (unique_name, self.linecolor))
             fp.write("%s.linewidth = %s\n" % (unique_name, self.linewidth))
             fp.write("%s.marker = %s\n" % (unique_name, self.marker))

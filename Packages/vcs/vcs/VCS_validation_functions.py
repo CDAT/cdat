@@ -888,7 +888,6 @@ def checkVectorAlignment(self, name, value):
 
 
 def checkLineType(self, name, value):
-    import queries
     checkName(self, name, value)
     if value in ('default', 'solid', 0):
         hvalue = 'solid'
@@ -900,51 +899,24 @@ def checkLineType(self, name, value):
         hvalue = 'dash-dot'
     elif value in ('long-dash', 4):
         hvalue = 'long-dash'
-    elif (queries.isline(value) == 1):
-        hvalue = value.name
-    elif value in vcs.elements["line"]:
-        self.linecolor = vcs.elements["line"][value].color[0]
-        self.linewidth = vcs.elements["line"][value].width[0]
-        hvalue = vcs.elements["line"][value].type[0]
     else:
         checkedRaise(
             self,
             value,
             ValueError,
-            'The ' +
-            name +
-            ' can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), (0, 1, 2, 3, 4), or a line object.')
+            'Expecting ("solid", "dash", "dot", "dash-dot", "long-dash") or (0, 1, 2, 3, 4)')
     return hvalue
 
 
-def checkLinesList(self, name, value):
+def checkLineTypeList(self, name, value):
     checkName(self, name, value)
     if isinstance(value, int):
         value = list(value)
     value = checkListTuple(self, name, value)
     hvalue = []
-    cvalues = []
-    wvalues = []
     for i, v in enumerate(value):
-        if v not in ["solid", "dash", "dot", "dash-dot",
-                     "long-dash"] and v in vcs.elements["line"]:
-            l = vcs.elements["line"][v]
-            hvalue.append(l.type[0])
-            cvalues.append(l.color[0])
-            wvalues.append(l.width[0])
-        else:
-            hvalue.append(checkLineType(self, name, v))
-            if hasattr(self, "linewidths"):
-                if len(self.linewidths) > i:
-                    wvalues.append(self.linewidths[i])
-                else:
-                    wvalues.append(1.)
-            if hasattr(self, "linecolors"):
-                if len(self.linecolors) > i:
-                    cvalues.append(self.linecolors[i])
-                else:
-                    cvalues.append(1)
-    return hvalue, cvalues, wvalues
+        hvalue.append(checkLineType(self, name, v))
+    return hvalue
 
 
 def checkTextTable(self, name, value):
