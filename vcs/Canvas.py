@@ -1368,25 +1368,25 @@ class Canvas(object):
 
     :Example:
 
-        ::
+    ::
 
-    a=vcs.init()
-     # Show all the existing isofill graphics methods
-    a.show('isofill')
-    # Create instance of 'quick'
-    iso=a.getisofill('quick')
-    # Plot array using specified iso and default template
-    a.isofill(array,iso)
-    # Clear VCS canvas
-    a.clear()
-    # Plot array using specified iso and template
-    a.isofill(array,iso,template)
+        a=vcs.init()
+         # Show all the existing isofill graphics methods
+        a.show('isofill')
+        # Create instance of 'quick'
+        iso=a.getisofill('quick')
+        # Plot array using specified iso and default template
+        a.isofill(array,iso)
+        # Clear VCS canvas
+        a.clear()
+        # Plot array using specified iso and template
+        a.isofill(array,iso,template)
 
-%s
-%s
-%s
-%s
-%s
+    %s
+    %s
+    %s
+    %s
+    %s
 """
         arglist = _determine_arg_list('isofill', args)
         return self.__plot(arglist, parms)

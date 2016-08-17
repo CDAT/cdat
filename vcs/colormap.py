@@ -193,45 +193,60 @@ class Cp(object):
     can be used to change some or all of the colormap R,G,B attributes in an
     existing colormap table entry.
 
-    :Example:
+    .. describe:: Some Useful Functions:
 
-::
+        .. code-block:: python
 
-    # Some Useful Functions:
-        # Constructor
-        a=vcs.init()
-        # Show predefined colormap objects
-        a.show('colormap')
-        # Updates the VCS Canvas at user's request
-        a.update()
-        # If mode=1, automatic update
-        a.mode=1
-        #If mode=0, use update function to update the VCS Canvas.
-        a.mode=0
-
+            # Constructor
+            a=vcs.init()
+            # Show predefined colormap objects
+            a.show('colormap')
+            # Updates the VCS Canvas at user's request
+            a.update()
+            # If mode=1, automatic update
+            a.mode=1
+            #If mode=0, use update function to update the VCS Canvas.
+            a.mode=0
 
 
-    #General use of a colormap:
-        # Create a VCS Canvas object
-        a=vcs.init()
-        #To Create a new instance of colormap use:
-        # Copies content of 'red' to 'new'
-        cp=a.createcolormap('new','quick')
-        # Copies content of 'default' to 'new'
-        cp=a.createcolormap('new')
 
-    #To Modify an existing colormap:
-        cp=a.getcolormap('quick')
+    .. describe:: General use of a colormap:
 
-    # Overview of colormap attributes:
-        # Will list all the colormap indices and R,G,B attribute values
-        cp.list()
-        # Index, R, G, B
-        cp.color=16,100,0,0
-        # Index range from 0 to 255, but can only modify from 0 to 239
-        cp.color=16,0,100,0
-        # R, G, B values range from 0 to 100, where 0 is low intensity and 100 is highest intensity
-        cp.color=17,0,0,100
+        .. code-block:: python
+
+            # Create a VCS Canvas object
+            a=vcs.init()
+            #To Create a new instance of colormap use:
+            # Copies content of 'red' to 'new'
+            cp=a.createcolormap('new','quick')
+            # Copies content of 'default' to 'new'
+            cp=a.createcolormap('new')
+
+    .. describe:: Modifying an existing colormap:
+
+        .. code-block:: python
+
+            cp=a.getcolormap('quick')
+
+    .. describe:: Overview of colormap attributes:
+
+        * List all the colormap indices and R,G,B attribute values
+
+            .. code-block:: python
+
+                cp.list()
+
+        * Setting colormap attribute values:
+
+            .. code-block:: python
+
+                # Index, R, G, B
+                cp.color=16,100,0,0
+                # Index range from 0 to 255, but can only modify from 0 to 239
+                cp.color=16,0,100,0
+                # R, G, B values range from 0 to 100, where 0 is low intensity and 100 is highest intensity
+                cp.color=17,0,0,100
+
     """
     __slots__ = ["s_name", "name", "_name", "index", "_index"]
 

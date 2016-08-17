@@ -352,7 +352,6 @@ queries_is_doc= """
         >>> a=vcs.init()
         ...
 
-
         # Show all available %(name)s
         >>> a.show('%(name)s')
         *...
@@ -360,7 +359,6 @@ queries_is_doc= """
         # To  test an existing %(name)s object
         >>> ex = a.get%(name)s(%(parent)s)
         ...
-
 
         >>> print(vcs.queries.is%(name)s(ex))
         1
