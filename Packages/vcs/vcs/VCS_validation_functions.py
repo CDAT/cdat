@@ -307,6 +307,7 @@ def checkMarker(self, name, value):
         oks.append(i)
     for i in range(100, 203):
         oks.append(i)
+    print "MARKERS SETTING:",value, queries.ismarker(value),vcs.elements["marker"].keys()
     if ((value in oks) or (queries.ismarker(value) == 1)):
         if value in (None, 0):
             value = None
@@ -351,7 +352,15 @@ def checkMarker(self, name, value):
         elif value in range(100, 203):
             value = "w%.2i" % (value - 100)
         elif (queries.ismarker(value) == 1):
-            value = value.name
+            if not isinstance(value,basestring):
+                return value.name
+            else:
+                m = x.getmarker(value)
+                self.markercolor = m.color[0]
+                self.markersize = m.size[0]
+                print "SELF:",self,type(self)
+                return value.type
+
     else:
         checkedRaise(
             self,
