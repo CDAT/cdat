@@ -17,7 +17,7 @@ Installation
 While there are many ways a user can install vcs, installation using conda is
 preferred for the end user. To install just vcs or uvcdat, make sure that anaconda
 or miniconda is installed and in path of your shell. Information on how to install conda
-can be found `here <https://www.continuum.io>`_. Very conda is available on the shell using
+can be found `here <https://www.continuum.io>`_. Verify conda is available on the shell using
 the following command ::
 
     conda --help
@@ -88,7 +88,7 @@ VCS Secondary Objects (or Secondary Elements)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 A description of each secondary object is warranted before showing their use and usefulness in VCS. It is these secondary objects that defines the detailed specification of the primary objects’ attributes. Currently, there are five secondary objects with more to follow.
 
-
+.. _vcs_colormap_object:
 **Colormap Object**
 
 The colormap object is used to specify, create, and modify colormaps. There are 256 colors and color indices, but only the first 240 color indices can be modified (indices 240 through 255 are reserved for VCS internal use). The description of the colormap object is as follows:
@@ -441,3 +441,50 @@ The show function is used to list the VCS objects in memory:
 +=================+==========================================================+
 | ``show()``      | list VCS primary and secondary class objects in memory   |
 +-----------------+----------------------------------------------------------+
+
+Deep Dive with VCS
+------------------------
+
+Earlier, we provided a overall view of vcs objects and basics of vcs API. In this
+document, we will cover the API in detail, speficially providing information on
+VCS secondary object to customize a particular visualization.
+
+Map data to colors
+^^^^^^^^^^^^^^^^^^^^
+
+Mapping data to colors is one of the fundamental step in creating a effective
+visualization and thus vcs provides an easy-to-use API to control how the data,
+for example scarlars (single valud data items) can be mapped to color.
+
+.. code-block:: python
+
+  import cdms2
+  import os
+  import sys
+  import vcs
+
+  data = cdms2.open(os.path.join(vcs.prefix,"share/uvcdat/sample_data","clt.nc"))
+  clt = data('clt')
+
+  x = vcs.init(geometry=[1200, 800])
+  t = x.gettemplate('default')
+
+  # Find out the available short-hands for color tables
+  print vcs.listelements('colormap')
+
+  # Should print a list something like this:
+  # ['AMIP', 'NCAR', 'bl_to_darkred', 'bl_to_drkorang',
+  #  'blends', 'blue_to_grey', 'blue_to_grn',
+  #  'blue_to_orange', 'blue_to_orgred', 'brown_to_blue', ...]
+
+  # This should force the image to update
+  x.setcolormap('white_to_red')
+
+  x.plot(clt, t)
+
+The script should produce a plot as shown below:
+
+.. image:: static/colormap.png
+   :width: 1397px
+   :height: 1079px
+   :align: center
