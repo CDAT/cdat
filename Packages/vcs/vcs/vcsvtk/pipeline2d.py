@@ -133,7 +133,7 @@ class IPipeline2D(Pipeline):
 
         # Figure out colors
         self._contourColors = self._gm.fillareacolors
-        if self._contourColors == [1] or self._contourColors is None:
+        if self._contourColors in [[1], None, [[0.0, 0.0, 0.0, 100.0]]]:
             # TODO BUG It's possible that levs2 may not exist here...
             self._contourColors = vcs.getcolors(levs2, split=0)
             if isinstance(self._contourColors, (int, float)):
