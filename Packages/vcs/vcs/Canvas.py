@@ -1983,11 +1983,13 @@ class Canvas(object):
 :type style: str
 
 :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_
-              to fill the fillarea with. Accepts ints from 1-20.
+to fill the fillarea with. Accepts ints from 1-20.
+
 :type index: int
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
-              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+
 :type color: str or int
 
 :param priority: The layer on which the fillarea will be drawn.
@@ -5010,6 +5012,7 @@ class Canvas(object):
 
     def setcolormap(self, name):
         """
+
         It is necessary to change the colormap. This routine will change the VCS
         color map.
 
@@ -5617,7 +5620,7 @@ class Canvas(object):
         """
         Returns the name of the colormap this canvas is set to use by default.
 
-        To set that colormap, use :ref:`vcs.Canvas.Canvas.setcolormap`.
+        To set that colormap, use :ref:`setcolormap`_.
         """
         if self.colormap is None:
             return vcs._colorMap
