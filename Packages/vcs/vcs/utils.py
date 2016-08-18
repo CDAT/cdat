@@ -693,7 +693,6 @@ def scriptrun(script):
                 if k not in keys:
                     keys.append(k)
             for typ in keys:
-                print "KEY:",typ
                 for nm, v in jsn[typ].iteritems():
                     if typ == "P":
                         try:
@@ -707,7 +706,6 @@ def scriptrun(script):
                             print "failed", typ, nm, err
         # ok could not read json file maybe it is an old initial.attributes
         except Exception as err:
-            print "ERROR LOADING:",err,script
             if os.path.split(script)[-1] == "initial.attributes":
                 _scriptrun(script)
             else:

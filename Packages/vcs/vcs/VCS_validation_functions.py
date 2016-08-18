@@ -307,7 +307,6 @@ def checkMarker(self, name, value):
         oks.append(i)
     for i in range(100, 203):
         oks.append(i)
-    print "MARKERS SETTING:",value, queries.ismarker(value),vcs.elements["marker"].keys()
     if ((value in oks) or (queries.ismarker(value) == 1)):
         if value in (None, 0):
             value = None
