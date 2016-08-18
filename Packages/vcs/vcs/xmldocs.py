@@ -238,7 +238,7 @@ listdoc = """ Lists the current values of object attributes"""
 
 # Use this dictionary for string replacements
 #   dict keys are 'type', 'name', and 'call'
-#       'type' : The type of VCS object it is (i.e. Graphics method, secondary method, etc.
+#       'type' : The type of VCS object it is (i.e. Graphics method, secondary method, etc.)
 #       'name' : The name of the VCS object (i.e. boxfill, isofill, etc.)
 #       'call' : The function call for the object. Mostly, this is == name.
 #                   Some rare cases, like textcombined, require adjustment of this value.
@@ -428,35 +428,88 @@ ismarker_doc = queries_is_doc % dict
 # TODO: revise this to use dict key references
 get_methods_doc = """
     VCS contains a list of secondary methods. This function will create a
-    %s class object from an existing VCS %s secondary method. If
-    no %s name is given, then %s 'default' will be used.
+    %(name)s class object from an existing VCS %(name)s %(type)s. If
+    no %(name)s name is given, then %(name)s '%(parent)s' will be used.
 
     .. note::
-        VCS does not allow the modification of `default' attribute sets.
-        However, a `default' attribute set that has been copied under a
-        different name can be modified. (See the createfillarea function.)
+
+        VCS does not allow the modification of 'default' attribute sets.
+        However, a 'default' attribute set that has been copied under a
+        different name can be modified. (See the :ref:`vcs.manageElements.createfillarea` function.)
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing %s secondary methods
-    vcs.show('%s')
-    # %s instance of 'default' %s secondary method
-    %s=vcs.get%s()
-    # %s2 instance of existing 'quick' %s secondary method
-    %s2=vcs.get%s('quick')
-    # Create instance of %s object 'red'
-    %s3=vcs.create%s(name='new', name='red',style=1, index=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )
-    # Plot using specified %s object
-    vcs.%s(%s3)
- """
+        # Show all the existing %(name)s %(type)s
+        vcs.show('%(name)s')
+        # instance of '%(parent)s' %(name)s %(type)s
+        ex=vcs.get%(call)s()
+        # instance of existing 'quick' %(name)s %(type)s
+        ex2=vcs.get%(call)s('quick')
+        # Create instance of %(name)s object 'red'
+        ex3=vcs.create%(call)s(name='new', name='red',style=1, index=1,
+                      color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
+                      worldcoordinate=[0,100, 0,50]
+                      x=[0,20,40,60,80,100],
+                      y=[0,10,20,30,40,50] )
+        # Plot using specified %(call)s object
+        vcs.%(name)s(ex3)
+    """
+# Get for secondary methods with a 'default' available
+dict['parent'] = 'default'
+dict['type'] = 'secondary method'
 
-get_fillarea_doc = get_methods_doc % (('fillarea',) * 20)
+dict['name'] = dict['call'] = 'fillarea'
+get_fillarea_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_texttable_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_template_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_projection_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_boxfill_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_taylor_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_meshfill_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_isofill_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_isoline_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_1d_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_xyvsy_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_yxvsx_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_xvsy_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_vector_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_scatter_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_line_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_marker_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_textorientation_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_textcombined_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_3d_scalar_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_3d_dual_scalar_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_3d_vector_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'texttable'
+get_colormap_doc = get_methods_doc % dict
+
+
+
+
 
 exts_attrs= """
             .. py:attribute:: ext_1 (str)
