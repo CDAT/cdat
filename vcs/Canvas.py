@@ -4917,8 +4917,7 @@ class Canvas(object):
         return W, H
 
 
-    def postscript(self, file, mode='r', orientation=None, width=None, height=None,
-                   units='inches', textAsPaths=True):
+    def postscript(self, file, mode='r', orientation=None, width=None, height=None, units='inches', textAsPaths=True):
         """
     Postscript output is another form of vector graphics. It is larger than its CGM output
     counter part, because it is stored out in ASCII format.
@@ -5011,26 +5010,26 @@ class Canvas(object):
 
     def setcolormap(self, name):
         """
-    It is necessary to change the colormap. This routine will change the VCS
-    color map.
+        It is necessary to change the colormap. This routine will change the VCS
+        color map.
 
-    If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
-    of the VCS Canvas is made evertime the colormap is changed.
+        If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
+        of the VCS Canvas is made evertime the colormap is changed.
 
-    :Example:
+        :Example:
 
         ::
 
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.setcolormap("AMIP")
+            a=vcs.init()
+            a.plot(array,'default','isofill','quick')
+            a.setcolormap("AMIP")
 
-:param name: Name of the coormap to use
-:type name: str
+        :param name: Name of the coormap to use
+        :type name: str
 
-:returns: ???
-:rtype: ???
-"""
+        :returns: ???
+        :rtype: ???
+        """
         # Don't update the VCS segment if there is no Canvas. This condition
         # happens in the initalize function for VCDAT only. This will cause a
         # core dump is not checked.
@@ -5211,8 +5210,7 @@ class Canvas(object):
 
         warnings.warn("Export to GhostScript is no longer supported", DeprecationWarning)
 
-    def eps(self, file, mode='r', orientation=None, width=None, height=None,
-            units='inches', textAsPaths=True):
+    def eps(self, file, mode='r', orientation=None, width=None, height=None, units='inches', textAsPaths=True):
         """
         In some cases, the user may want to save the plot out as an Encapsulated
         PostScript image. This routine allows the user to save the VCS canvas output
