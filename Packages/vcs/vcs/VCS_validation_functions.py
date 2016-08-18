@@ -352,14 +352,7 @@ def checkMarker(self, name, value):
         elif value in range(100, 203):
             value = "w%.2i" % (value - 100)
         elif (queries.ismarker(value) == 1):
-            if not isinstance(value,basestring):
-                return value.name
-            else:
-                m = x.getmarker(value)
-                self.markercolor = m.color[0]
-                self.markersize = m.size[0]
-                print "SELF:",self,type(self)
-                return value.type
+                value = value.name
 
     else:
         checkedRaise(
