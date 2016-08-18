@@ -22,7 +22,7 @@ import vector
 from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert,\
     create_GM_input, get_GM_input, boxfill_output, \
     isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output,\
-    scatter_output, get_methods_doc, get_fillarea_doc
+    scatter_output, get_fillarea_doc, get_texttable_doc
 import random
 from error import vcsError
 import warnings
@@ -77,26 +77,26 @@ def createtemplate(name=None, source='default'):
 
     :Example:
 
-::
+    ::
 
-    # create 'example1' template from 'default' template
-    con=vcs.createtemplate('example1')
-    # Show all the existing templates
-    vcs.listelements('template')
-    # create 'example2' from 'quick' template
-    con=vcs.createtemplate('example2','quick')
+        # create 'example1' template from 'default' template
+        con=vcs.createtemplate('example1')
+        # Show all the existing templates
+        vcs.listelements('template')
+        # create 'example2' from 'quick' template
+        con=vcs.createtemplate('example2','quick')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a template or a string name of a template
+    :param source: The object to inherit from
+    :type source: a template or a string name of a template
 
-:returns: A template
-:rtype: vcs.template.P
+    :returns: A template
+    :rtype: vcs.template.P
 
-"""
+    """
     name, source = check_name_source(name, source, 'template')
 
     return template.P(name, source)
@@ -114,20 +114,20 @@ def gettemplate(Pt_name_src='default'):
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing templates
-    vcs.listelements('template')
-    # templt instance of 'default' template
-    templt=vcs.gettemplate()
-    # templt2 contains 'quick' template
-    templt2=vcs.gettemplate('quick')
+        # Show all the existing templates
+        vcs.listelements('template')
+        # templt instance of 'default' template
+        templt=vcs.gettemplate()
+        # templt2 contains 'quick' template
+        templt2=vcs.gettemplate('quick')
 
-:param Pt_name_src: String name of an existing template VCS object
-:type Pt_name_src:
+    :param Pt_name_src: String name of an existing template VCS object
+    :type Pt_name_src:
 
-:returns: A VCS template object
-:rtype: vcs.template.P
+    :returns: A VCS template object
+    :rtype: vcs.template.P
     """
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Pt_name_src, str):
@@ -151,24 +151,23 @@ def createprojection(name=None, source='default'):
 
     :Example:
 
-::
+    ::
 
-    vcs.show('projection')
-    p=vcs.createprojection('example1',)
-    vcs.show('projection')
-    p=vcs.createprojection('example2','quick')
-    vcs.show('projection')
+        vcs.show('projection')
+        p=vcs.createprojection('example1',)
+        vcs.show('projection')
+        p=vcs.createprojection('example2','quick')
+        vcs.show('projection')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a projection or a string name of a projection
+    :param source: The object to inherit from
+    :type source: a projection or a string name of a projection
 
-:returns: A projection graphics method object
-:rtype: vcs.projection.Proj
-
-"""
+    :returns: A projection graphics method object
+    :rtype: vcs.projection.Proj
+    """
 
     name, source = check_name_source(name, source, 'projection')
     return projection.Proj(name, source)
@@ -186,20 +185,20 @@ def getprojection(Proj_name_src='default'):
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing projection methods
-    vcs.show('projection')
-    # box instance of 'default' projection method
-    p=vcs.getprojection()
-    # box2 instance of existing 'quick' projection graphics method
-    p2=vcs.getprojection('quick')
+        # Show all the existing projection methods
+        vcs.show('projection')
+        # box instance of 'default' projection method
+        p=vcs.getprojection()
+        # box2 instance of existing 'quick' projection graphics method
+        p2=vcs.getprojection('quick')
 
-:param Proj_name_src: String name of an existing VCS projection object
-:type Proj_name_src: str
+    :param Proj_name_src: String name of an existing VCS projection object
+    :type Proj_name_src: str
 
-:returns: A VCS projection object
-:rtype: vcs.projection.Proj
+    :returns: A VCS projection object
+    :rtype: vcs.projection.Proj
     """
 
     # Check to make sure the argument passed in is a STRING
@@ -221,33 +220,35 @@ def createboxfill(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    vcs.show('boxfill')
-    box=vcs.createboxfill('example1',)
-    vcs.show('boxfill')
-    box=vcs.createboxfill('example2','quick')
-    vcs.show('boxfill')
+        vcs.show('boxfill')
+        box=vcs.createboxfill('example1',)
+        vcs.show('boxfill')
+        box=vcs.createboxfill('example2','quick')
+        vcs.show('boxfill')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a boxfill or a string name of a boxfill
+    :param source: The object to inherit from
+    :type source: a boxfill or a string name of a boxfill
 
-:return: A boxfill graphics method object
-:rtype: vcs.boxfill.Gfb
-%s
-%s
-%s
-%s
-%s
-"""
+    :return: A boxfill graphics method object
+    :rtype: vcs.boxfill.Gfb
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
 
     name, source = check_name_source(name, source, 'boxfill')
     return boxfill.Gfb(name, source)
@@ -266,24 +267,28 @@ def getboxfill(Gfb_name_src='default'):
     different name can be modified. (See the createboxfill function.)
 
     :Example:
-    # Show all the existing boxfill graphics methods
-    vcs.show('boxfill')
-    # box instance of 'default' boxfill graphics method
-    box=vcs.getboxfill()
-    # box2 instance of existing 'quick' boxfill graphics method
-    box2=vcs.getboxfill('quick')
 
-:param Gfb_name_src: String name of an existing boxfill VCS object
-:type Gfb_name_src: str
+    ::
 
-:return: A pre-existing boxfill graphics method
-:rtype: vcs.boxfill.Gfb
-%s
-%s
-%s
-%s
-%s
-"""
+        # Show all the existing boxfill graphics methods
+        vcs.show('boxfill')
+        # box instance of 'default' boxfill graphics method
+        box=vcs.getboxfill()
+        # box2 instance of existing 'quick' boxfill graphics method
+        box2=vcs.getboxfill('quick')
+
+    :param Gfb_name_src: String name of an existing boxfill VCS object
+    :type Gfb_name_src: str
+
+    :return: A pre-existing boxfill graphics method
+    :rtype: vcs.boxfill.Gfb
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfb_name_src, str):
         raise vcsError('The argument must be a string.')
@@ -308,24 +313,23 @@ def createtaylordiagram(name=None, source='default'):
 
     :Example:
 
-::
+    ::
 
-    vcs.show('taylordiagram')
-    td=vcs.createtaylordiagram('example1',)
-    vcs.show('taylordiagram')
-    td=vcs.createtaylordiagram('example2','quick')
-    vcs.show('taylordiagram')
+        vcs.show('taylordiagram')
+        td=vcs.createtaylordiagram('example1',)
+        vcs.show('taylordiagram')
+        td=vcs.createtaylordiagram('example2','quick')
+        vcs.show('taylordiagram')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a taylordiagram or a string name of a
+    :param source: The object to inherit from
+    :type source: a taylordiagram or a string name of a
 
-:returns: A taylordiagram graphics method object
-:rtype: vcs.taylor.Gtd
-
-"""
+    :returns: A taylordiagram graphics method object
+    :rtype: vcs.taylor.Gtd
+    """
 
     name, source = check_name_source(name, source, 'taylordiagram')
     if name in vcs.elements["taylordiagram"].keys():
@@ -354,21 +358,21 @@ def gettaylordiagram(Gtd_name_src='default'):
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing taylordiagram graphics methods
-    vcs.show('taylordiagram')
-    # td instance of 'default' taylordiagram graphics method
-    td=vcs.gettaylordiagram()
-    # td2 instance of existing 'default' taylordiagram graphics method
-    td2=vcs.gettaylordiagram('default')
+        # Show all the existing taylordiagram graphics methods
+        vcs.show('taylordiagram')
+        # td instance of 'default' taylordiagram graphics method
+        td=vcs.gettaylordiagram()
+        # td2 instance of existing 'default' taylordiagram graphics method
+        td2=vcs.gettaylordiagram('default')
 
-:param Gtd_name_src: String name of an existing taylordiagram VCS object
-:type Gtd_name_src: str
+    :param Gtd_name_src: String name of an existing taylordiagram VCS object
+    :type Gtd_name_src: str
 
-:returns: A taylordiagram VCS object
-:rtype: vcs.taylor.Gtd
-                                        """
+    :returns: A taylordiagram VCS object
+    :rtype: vcs.taylor.Gtd
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gtd_name_src, str):
@@ -391,29 +395,29 @@ def createmeshfill(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    vcs.show('meshfill')
-    mesh=vcs.createmeshfill('example1')
-    vcs.show('meshfill')
-    mesh=vcs.createmeshfill('example2','quick')
-    vcs.show('meshfill')
+        vcs.show('meshfill')
+        mesh=vcs.createmeshfill('example1')
+        vcs.show('meshfill')
+        mesh=vcs.createmeshfill('example2','quick')
+        vcs.show('meshfill')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a meshfill or a string name of a meshfill
+    :param source: The object to inherit from
+    :type source: a meshfill or a string name of a meshfill
 
-:returns: A meshfill graphics method object
-:rtype: vcs.meshfill.Gfm
-
-"""
+    :returns: A meshfill graphics method object
+    :rtype: vcs.meshfill.Gfm
+    """
     name, source = check_name_source(name, source, 'meshfill')
     return meshfill.Gfm(name, source)
 
@@ -425,27 +429,28 @@ def getmeshfill(Gfm_name_src='default'):
     no meshfill name is given, then meshfill 'default' will be used.
 
     .. note::
+
         VCS does not allow the modification of `default' attribute
         sets. However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createmeshfill function.)
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    # Show all the existing meshfill graphics methods
-    a.show('meshfill')
-    # mesh instance of 'default' meshfill graphics method
-    mesh=a.getmeshfill()
-    # mesh2 instance of existing 'quick' meshfill graphics method
-    mesh2=a.getmeshfill('quick')
+        a=vcs.init()
+        # Show all the existing meshfill graphics methods
+        a.show('meshfill')
+        # mesh instance of 'default' meshfill graphics method
+        mesh=a.getmeshfill()
+        # mesh2 instance of existing 'quick' meshfill graphics method
+        mesh2=a.getmeshfill('quick')
 
-:param Gfm_name_src: String name of an existing meshfill VCS object
-:type Gfm_name_src: str
+    :param Gfm_name_src: String name of an existing meshfill VCS object
+    :type Gfm_name_src: str
 
-:returns: A meshfill VCS object
-:rtype: vcs.meshfill.Gfm
+    :returns: A meshfill VCS object
+    :rtype: vcs.meshfill.Gfm
     """
 
     # Check to make sure the argument passed in is a STRING
@@ -468,34 +473,35 @@ def createisofill(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    vcs.show('isofill')
-    iso=vcs.createisofill('example1')
-    vcs.show('isofill')
-    iso=vcs.createisofill('example2','quick')
-    vcs.show('isofill')
+        vcs.show('isofill')
+        iso=vcs.createisofill('example1')
+        vcs.show('isofill')
+        iso=vcs.createisofill('example2','quick')
+        vcs.show('isofill')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: an isofill object, or string name of an isofill object
+    :param source: The object to inherit from
+    :type source: an isofill object, or string name of an isofill object
 
-:returns: An isofill graphics method
-:rtype: vcs.isofill.Gfi
-%s
-%s
-%s
-%s
-%s
+    :returns: An isofill graphics method
+    :rtype: vcs.isofill.Gfi
 
-"""
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
 
     name, source = check_name_source(name, source, 'isofill')
     return isofill.Gfi(name, source)
@@ -510,32 +516,35 @@ def getisofill(Gfi_name_src='default'):
     isofill class object from an existing VCS isofill graphics method. If
     no isofill name is given, then isofill 'default' will be used.
 
-    note:: VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createisofill function.)
+    .. note::
+
+        VCS does not allow the modification of `default' attribute
+        sets. However, a `default' attribute set that has been copied under a
+        different name can be modified. (See the createisofill function.)
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing isofill graphics methods
-    vcs.show('isofill')
-    # iso instance of 'default' isofill graphics method
-    iso=vcs.getisofill()
-    # iso2 instance of existing 'quick' isofill graphics method
-    iso2=vcs.getisofill('quick')
+        # Show all the existing isofill graphics methods
+        vcs.show('isofill')
+        # iso instance of 'default' isofill graphics method
+        iso=vcs.getisofill()
+        # iso2 instance of existing 'quick' isofill graphics method
+        iso2=vcs.getisofill('quick')
 
-:param Gfi_name_src: String name of an existing isofill VCS object
-:type Gfi_name_src: str
+    :param Gfi_name_src: String name of an existing isofill VCS object
+    :type Gfi_name_src: str
 
-:returns: The specified isofill VCS object
-:rtype: vcs.isofill.Gfi
-%s
-%s
-%s
-%s
-%s
-"""
+    :returns: The specified isofill VCS object
+    :rtype: vcs.isofill.Gfi
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfi_name_src, str):
@@ -558,31 +567,35 @@ def createisoline(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-    vcs.show('isoline')
-    iso=vcs.createisoline('example1')
-    vcs.show('isoline')
-    iso=vcs.createisoline('example2','quick')
-    vcs.show('isoline')
+    ::
 
-:param name: The name of the created object
-:type name: str
+        vcs.show('isoline')
+        iso=vcs.createisoline('example1')
+        vcs.show('isoline')
+        iso=vcs.createisoline('example2','quick')
+        vcs.show('isoline')
 
-:param source: The object to inherit from
-:type source: an isoline object, or string name of an isoline object
+    :param name: The name of the created object
+    :type name: str
 
-:returns: An isoline graphics method object
-:rtype: vcs.isoline.Gi
-%s
-%s
-%s
-%s
-%s
-"""
+    :param source: The object to inherit from
+    :type source: an isoline object, or string name of an isoline object
+
+    :returns: An isoline graphics method object
+    :rtype: vcs.isoline.Gi
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
 
     name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
@@ -597,35 +610,35 @@ def getisoline(Gi_name_src='default'):
     no isoline name is given, then isoline 'default' will be used.
 
     .. note::
+
         VCS does not allow the modification of `default' attribute
         sets. However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createisoline function.)
 
     :Example:
 
-::
+    ::
 
-    # Show all the existing isoline graphics methods
-    vcs.show('isoline')
-    # iso instance of 'default' isoline graphics method
-    iso=vcs.getisoline()
-    # iso2 instance of existing 'quick' isoline graphics method
-    iso2=vcs.getisoline('quick')
-    gm.linewidth=0
+        # Show all the existing isoline graphics methods
+        vcs.show('isoline')
+        # iso instance of 'default' isoline graphics method
+        iso=vcs.getisoline()
+        # iso2 instance of existing 'quick' isoline graphics method
+        iso2=vcs.getisoline('quick')
+        gm.linewidth=0
 
-:param Gi_name_src: String name of an existing isoline VCS object
-:type Gi_name_src: str
+    :param Gi_name_src: String name of an existing isoline VCS object
+    :type Gi_name_src: str
 
-:returns: The requested isoline VCS object
-:rtype: vcs.isoline.Gi
+    :returns: The requested isoline VCS object
+    :rtype: vcs.isoline.Gi
 
-%s
-%s
-%s
-%s
-%s
-
-"""
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gi_name_src, str):
@@ -661,37 +674,38 @@ def createxyvsy(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    vcs.show('xyvsy')
-    xyy=vcs.createxyvsy('example1',)
-    vcs.show('xyvsy')
-    xyy=vcs.createxyvsy('example2','quick')
-    vcs.show('xyvsy')
-
-
-:param name: The name of the created object
-:type name: str
+        a=vcs.init()
+        vcs.show('xyvsy')
+        xyy=vcs.createxyvsy('example1',)
+        vcs.show('xyvsy')
+        xyy=vcs.createxyvsy('example2','quick')
+        vcs.show('xyvsy')
 
 
-:param source: The object to inherit from
-:type source: a xyvsy or a string name of a xyvsy
+    :param name: The name of the created object
+    :type name: str
 
-:returns: A XYvsY graphics method object
-:rtype: vcs.unified1D.G1d
 
-%s
-%s
-%s
-%s
-%s
-"""
+    :param source: The object to inherit from
+    :type source: a xyvsy or a string name of a xyvsy
+
+    :returns: A XYvsY graphics method object
+    :rtype: vcs.unified1D.G1d
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     try:
         gm = vcs.create1d(name, source)
     except vcsError as ve:
@@ -716,34 +730,35 @@ def getxyvsy(GXy_name_src='default'):
     no Xyvsy name is given, then Xyvsy 'default' will be used.
 
     .. note::
+
         VCS does not allow the modification of `default' attribute
         sets. However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createxyvsy function.)
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    # Show all the existing Xyvsy graphics methods
-    vcs.show('xyvsy')
-    # xyy instance of 'default' Xyvsy graphics method
-    xyy=vcs.getxyvsy('default_xyvsy_')
-     # xyy2 instance of existing 'quick' Xyvsy graphics method
-    xyy2=vcs.getxyvsy('quick')
+        a=vcs.init()
+        # Show all the existing Xyvsy graphics methods
+        vcs.show('xyvsy')
+        # xyy instance of 'default' Xyvsy graphics method
+        xyy=vcs.getxyvsy('default_xyvsy_')
+         # xyy2 instance of existing 'quick' Xyvsy graphics method
+        xyy2=vcs.getxyvsy('quick')
 
-:param GXy_name_src: String name of an existing Xyvsy graphics method
-:type GXy_name_src: str
+    :param GXy_name_src: String name of an existing Xyvsy graphics method
+    :type GXy_name_src: str
 
-:returns: An XYvsY graphics method object
-:rtype: vcs.unified1D.G1d
+    :returns: An XYvsY graphics method object
+    :rtype: vcs.unified1D.G1d
 
-%s
-%s
-%s
-%s
-%s
-"""
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     gm = vcs.get1d(GXy_name_src)
     if gm.g_type != "xyvsy":
         # Already existed when name_src was created, most likely
@@ -762,36 +777,37 @@ def createyxvsx(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    vcs.show('yxvsx')
-    yxx=vcs.createyxvsx('example1',)
-    vcs.show('yxvsx')
-    yxx=vcs.createyxvsx('example2','quick')
-    vcs.show('yxvsx')
+        a=vcs.init()
+        vcs.show('yxvsx')
+        yxx=vcs.createyxvsx('example1',)
+        vcs.show('yxvsx')
+        yxx=vcs.createyxvsx('example2','quick')
+        vcs.show('yxvsx')
 
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a yxvsy or a string name of a yxvsy
+    :param source: The object to inherit from
+    :type source: a yxvsy or a string name of a yxvsy
 
-:returns: A YXvsX graphics method object
-:rtype: vcs.unified1D.G1d
+    :returns: A YXvsX graphics method object
+    :rtype: vcs.unified1D.G1d
 
-%s
-%s
-%s
-%s
-%s
-"""
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     try:
         gm = vcs.create1d(name, source)
     except vcsError as ve:
@@ -815,33 +831,35 @@ def getyxvsx(GYx_name_src='default'):
     no Yxvsx name is given, then Yxvsx 'default' will be used.
 
     .. note::
+
         VCS does not allow the modification of `default' attribute
         sets. However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createyxvsx function.)
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    # Show all the existing Yxvsx graphics methods
-    vcs.show('yxvsx')
-    # yxx instance of 'default' Yxvsx graphics method
-    yxx=vcs.getyxvsx()
-    # yxx2 instance of existing 'quick' Yxvsx graphics method
-    yxx2=vcs.getyxvsx('quick')
+        a=vcs.init()
+        # Show all the existing Yxvsx graphics methods
+        vcs.show('yxvsx')
+        # yxx instance of 'default' Yxvsx graphics method
+        yxx=vcs.getyxvsx()
+        # yxx2 instance of existing 'quick' Yxvsx graphics method
+        yxx2=vcs.getyxvsx('quick')
 
-:param GYx_name_src: String name of an existing Yxvsx graphics method
-:type GYx_name_src: str
+    :param GYx_name_src: String name of an existing Yxvsx graphics method
+    :type GYx_name_src: str
 
-:return: A Yxvsx graphics method object
-:rtype: vcs.unified1D.G1d
-%s
-%s
-%s
-%s
-%s
-"""
+    :return: A Yxvsx graphics method object
+    :rtype: vcs.unified1D.G1d
+
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     gm = vcs.get1d(GYx_name_src)
     if gm.g_type != "yxvsx":
         return vcs.get1d(GYx_name_src + "_yxvsx")
@@ -852,7 +870,6 @@ getyxvsx.__doc__ = getyxvsx.__doc__ % (
 
 def createxvsy(name=None, source='default'):
     """
-
     Create a new XvsY graphics method given the the name and the existing
     XvsY graphics method to copy the attributes from. If no existing
     XvsY graphics method name is given, then the default XvsY graphics
@@ -860,35 +877,36 @@ def createxvsy(name=None, source='default'):
     be copied from.
 
     .. note::
+
         If the name provided already exists, then an error will be returned. Graphics
         method names must be unique.
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    vcs.show('xvsy')
-    xy=vcs.createxvsy('example1',)
-    vcs.show('xvsy')
-    xy=vcs.createxvsy('example2','quick')
-    vcs.show('xvsy')
+        a=vcs.init()
+        vcs.show('xvsy')
+        xy=vcs.createxvsy('example1',)
+        vcs.show('xvsy')
+        xy=vcs.createxvsy('example2','quick')
+        vcs.show('xvsy')
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a xvsy or a string name of a xvsy
+    :param source: The object to inherit from
+    :type source: a xvsy or a string name of a xvsy
 
-:returns: A XvsY graphics method object
-:rtype: vcs.unified1D.G1d
+    :returns: A XvsY graphics method object
+    :rtype: vcs.unified1D.G1d
 
-%s
-%s
-%s
-%s
-%s
-"""
+    %s
+    %s
+    %s
+    %s
+    %s
+    """
     try:
         gm = vcs.create1d(name, source)
     except vcsError as ve:
@@ -906,12 +924,12 @@ createxvsy.__doc__ = createxvsy.__doc__ % (
 
 def getxvsy(GXY_name_src='default'):
     """
-
     VCS contains a list of graphics methods. This function will create a
     XvsY class object from an existing VCS XvsY graphics method. If
     no XvsY name is given, then XvsY 'default' will be used.
 
     .. note::
+
         VCS does not allow the modification of `default' attribute
         sets. However, a `default' attribute set that has been copied under a
         different name can be modified. (See the createxvsy function.)
@@ -1549,11 +1567,13 @@ def createfillarea(name=None, source='default', style=None,
 :type style: str
 
 :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill with.
-              Accepts ints from 1-20.
+Accepts ints from 1-20.
+
 :type index: int
 
 :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
-              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+
 :type color: str or int
 
 :param priority: The layer on which the fillarea will be drawn.
@@ -1774,67 +1794,39 @@ def gettexttable(name='default', font=None,
                  worldcoordinate=None,
                  x=None, y=None):
     """
-    VCS contains a list of secondary methods. This function will create a
-    texttable class object from an existing VCS texttable secondary method. If
-    no texttable name is given, then texttable 'default' will be used.
+    %s
 
-    .. note::
-        VCS does not allow the modification of `default' attribute sets.
-        However, a `default' attribute set that has been copied under a
-        different name can be modified. (See the createtexttable function.)
+    :param name: String name of an existing VCS texttable object
+    :type name: str
 
-    :Example:
+    :param font: ???
+    :type font: ???
 
-::
+    :param expansion: ???
+    :type expansion: ???
 
-    a=vcs.init()
-    # Show all the existing texttable secondary methods
-    vcs.show('texttable')
-    # tt instance of 'default' texttable secondary method
-    tt=vcs.gettexttable()
-    # tt2 instance of existing 'quick' texttable secondary method
-    tt2=vcs.gettexttable('quick')
-    # Create instance of texttable object 'red'
-    tt3=vcs.gettexttable(name='red', font=1, spacing=1,expansion=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )
-    # Plot using specified texttable object
-    vcs.texttable(tt3)
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+                  or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param name: String name of an existing VCS texttable object
-:type name: str
+    :param priority: The layer on which the texttable will be drawn.
+    :type priority: int
 
-:param font: ???
-:type font: ???
+    :param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
+    :type viewport: list of floats
 
-:param expansion: ???
-:type expansion: ???
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
-              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param priority: The layer on which the texttable will be drawn.
-:type priority: int
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
-:type viewport: list of floats
-
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
-
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
-
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
-
-:returns: A texttable graphics method object
-:rtype: vcs.texttable.Tt
-
-    """
+    :returns: A texttable graphics method object
+    :rtype: vcs.texttable.Tt
+    """ % get_texttable_doc
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
@@ -2328,21 +2320,21 @@ def create3d_dual_scalar(name=None, source='default'):
 
     :Example:
 
-::
+    ::
 
-    a=vcs.init()
-    a.show('3d_dual_scalar')
-    plot=a.create3d_dual_scalar()
+        a=vcs.init()
+        a.show('3d_dual_scalar')
+        plot=a.create3d_dual_scalar()
 
-:param name: The name of the created object
-:type name: str
+    :param name: The name of the created object
+    :type name: str
 
-:param source: The object to inherit from
-:type source: a 3d_dual_scalar or a string name of a 3d_dual_scalar
+    :param source: The object to inherit from
+    :type source: a 3d_dual_scalar or a string name of a 3d_dual_scalar
 
-:returns: A 3d_dual_scalar graphics method object
-:rtype: vcs.dv3d.Gf3DDualScalar
-"""
+    :returns: A 3d_dual_scalar graphics method object
+    :rtype: vcs.dv3d.Gf3DDualScalar
+    """
 
     name, source = check_name_source(name, source, '3d_dual_scalar')
     return dv3d.Gf3DDualScalar(name, source)
