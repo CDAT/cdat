@@ -47,20 +47,20 @@ plot_keywords_doc = """
 :type waxis: cdms2.axis.TransientAxis
 :type xrev: bool
 :type yrev: bool
-:type xarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type yarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type zarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type tarray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type warray: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type xarray: array
+:type yarray: array
+:type zarray: array
+:type tarray: array
+:type warray: array
 :type continents: int
 :type name: str
-:type time: cdtime.comptime/cdtime.reltime/cdtime.abstime
+:type time: A cdtime object
 :type units: str
 :type ymd: str
 :type hms: str
 :type file_comment: str
-:type xbounds: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type ybounds: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type xbounds: array
+:type ybounds: array
 :type xname: str
 :type yname: str
 :type zname: str
@@ -71,8 +71,8 @@ plot_keywords_doc = """
 :type zunits: str
 :type tunits: str
 :type wunits: str
-:type xweights: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
-:type yweights: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type xweights: array
+:type yweights: array
 :type comment1: str
 :type comment2: str
 :type comment3: str
@@ -571,25 +571,25 @@ get_GM_input = """
 
 plot_1D_input = """
 :param slab: (Ex: [1, 2]) Data at least 1D, last dimension will be plotted
-:type slab: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type slab: array
 """  # noqa
 
 plot_2D_input = """
 :param slab: (Ex: [[0, 1]]) Data at least 2D, last 2 dimensions will be plotted
-:type slab: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type slab: array
 """  # noqa
 
 plot_2_1D_input = """
 :param slab_or_primary_object: Data at least 1D, last dimension(s) will be plotted, or secondary vcs object
-:type slab_or_primary_object: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc
+:type slab_or_primary_object: array
 """  # noqa
 plot_2_1D_options = """
 :param slab2: Data at least 1D, last dimension(s) will be plotted
 :param template: ('default') vcs template to use
 :param gm: (Ex: 'default') graphic method to use
-:type slab2: cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list
+:type slab2: array
 :type template: str/vcs.template.P
-:type gm: str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.unified1d.G1d/vcsaddons.core.VCSaddon
+:type gm: VCS graphics method object
 """  # noqa
 #############################################################################
 #                                                                           #
