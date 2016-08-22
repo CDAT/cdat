@@ -47,6 +47,7 @@ from projection import no_deformation_projections  # noqa
 # Python < 3 DeprecationWarning ignored by default
 warnings.simplefilter('default')
 
+
 class SIGNAL(object):
 
     def __init__(self, name=None):
