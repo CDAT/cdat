@@ -328,6 +328,7 @@ class Gfb(object):
         '_fillareastyle',
         '_fillareaindices',
         '_fillareaopacity',
+        '_fillareascaling',
         '_ext_1',
         '_ext_2',
         '_missing',
@@ -400,6 +401,7 @@ class Gfb(object):
             self._fillareaindices = [1, ]
             self._fillareaopacity = []
             self._fillareacolors = None
+            self._fillareascaling = 1.
             self._levels = ([1.e20, 1.e20])
             self._level_1 = 1.e20
             self._level_2 = 1.e20
@@ -435,6 +437,7 @@ class Gfb(object):
             self._fillareaindices = src.fillareaindices
             self._fillareacolors = src.fillareacolors
             self._fillareaopacity = src.fillareaopacity
+            self._fillareascaling = src._fillareascaling
             self._levels = src.levels
             self._level_1 = src.level_1
             self._level_2 = src.level_2

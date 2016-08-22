@@ -131,19 +131,19 @@ class VertDash(Pattern):
                                       y, y + self.num_pixels * 3 / 4)
 
 
-class XDash(Pattern):
-
+class RotatedPattern(Pattern):
+    """Helps avoid costly FillTube calls."""
+    angle = 45.
     def render(self):
         """
         Returns vtkImageData for pattern
         """
-        # XDash is drawn and then rotated (for the sake of performance)
         rot_square = int(((self.width + self.height) * 2 ** .5) / 2)
 
         o_width, o_height = self.width, self.height
         self.width, self.height = rot_square, rot_square
 
-        image = super(XDash, self).render()
+        image = super(RotatedPattern, self).render()
 
         slicer = vtk.vtkImageReslice()
         slicer.SetInputData(image)
@@ -155,11 +155,11 @@ class XDash(Pattern):
 
         transform = vtk.vtkTransform()
         transform.Translate(*raw_center)
-        transform.RotateWXYZ(45., 0, 0, 1)
+        transform.RotateWXYZ(self.angle, 0, 0, 1)
         transform.Translate(*[-1 * p for p in raw_center])
 
         slicer.SetResliceTransform(transform)
-        slicer.SetInterpolationModeToCubic()
+        slicer.SetInterpolationModeToNearestNeighbor()
         slicer.SetOutputSpacing(image.GetSpacing())
         slicer.SetOutputExtent(0, o_width, 0, o_height, 0, 0)
 
@@ -171,6 +171,8 @@ class XDash(Pattern):
 
         self.width, self.height = o_width, o_height
         return slicer.GetOutput()
+
+class XDash(RotatedPattern):
 
     def paint(self, patternSource):
         if patternSource is None:
@@ -188,45 +190,30 @@ class XDash(Pattern):
             patternSource.SetDrawColor(self.colors[0], self.colors[1], self.colors[2], self.opacity)
 
 
-class ThinDiagDownRight(Pattern):
-
+class ThinDiagDownRight(RotatedPattern):
     def paint(self, patternSource):
         if patternSource is None:
             return None
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), self.num_pixels)
+        patternLevels = range(0, self.height, self.num_pixels)
         for lev in patternLevels:
-            patternSource.FillTube(0, lev, lev, 0, self.num_pixels / 8)
+            patternSource.FillBox(0, self.width, lev + self.num_pixels / 4, int(lev + self.num_pixels * .5))
 
 
-class ThickDiagRownRight(Pattern):
-
+class ThickDiagDownRight(RotatedPattern):
     def paint(self, patternSource):
         if patternSource is None:
             return None
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), self.num_pixels)
+        patternLevels = range(0, self.height, self.num_pixels)
         for lev in patternLevels:
-            patternSource.FillTube(0, lev, lev, 0, self.num_pixels / 4)
+            patternSource.FillBox(0, self.width, lev + self.num_pixels / 4, int(lev + self.num_pixels * .75))
 
 
-class ThinDiagUpRight(Pattern):
-
-    def paint(self, patternSource):
-        if patternSource is None:
-            return None
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), self.num_pixels)
-        for lev in patternLevels:
-            patternSource.FillTube(lev, self.height, 0, self.height - lev, self.num_pixels / 8)
+class ThinDiagUpRight(ThinDiagDownRight):
+    angle = 135.
 
 
-class ThickDiagUpRight(Pattern):
-
-    def paint(self, patternSource):
-        if patternSource is None:
-            return None
-        patternLevels = range(0, max(self.width, self.height) + min(self.width, self.height), self.num_pixels)
-        for lev in patternLevels:
-            patternSource.FillTube(lev, self.height, 0, self.height - lev, self.num_pixels / 4)
-
+class ThickDiagUpRight(ThickDiagDownRight):
+    angle = 135.
 
 class ThickThinVertStripe(Pattern):
 
@@ -341,5 +328,5 @@ class EmptyCircle(Pattern):
 # Patterns are 1-indexed, so we always skip the 0th element in this list
 pattern_list = [Pattern, BottomLeftTri, TopRightTri, SmallRectDot, CheckerBoard,
                 HorizStripe, VertStripe, HorizDash, VertDash, XDash, ThinDiagDownRight,
-                ThickDiagRownRight, ThinDiagUpRight, ThickDiagUpRight, ThickThinVertStripe,
+                ThickDiagDownRight, ThinDiagUpRight, ThickDiagUpRight, ThickThinVertStripe,
                 ThickThinHorizStripe, LargeRectDot, Diamond, Bubble, Snake, EmptyCircle]
