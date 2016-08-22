@@ -739,30 +739,6 @@ class G1d(object):
     #                                                                         #
     ###########################################################################
     def script(self, script_filename, mode='a'):
-        """
- %s
- Function:     script                           # Calls _vcs.scriptGYx
-
- Description of Function:
-       Saves out a boxfill graphics method in Python or VCS script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    Yx=a.createboxfill('temp')
-    Yx.script('filename.py')         # Append to a Python file "filename.py"
-    Yx.script('filename.scr')        # Append to a VCS file "filename.scr"
-    Yx.script('filename','w')
-"""
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -882,7 +858,7 @@ class G1d(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-    script.__doc__ = script.__doc__ % xmldocs.scriptdoc
+    script.__doc__ = xmldocs.yxvsx_script
 
 
 ###############################################################################
