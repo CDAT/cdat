@@ -33,7 +33,7 @@ assert(b.fillareacolors ==  None)
 assert(b.legend ==  None)
 assert(b.ext_1 ==  False)
 assert(b.ext_2 == False )
-assert(b.missing ==  1)
+assert(b.missing ==  (0.0, 0.0, 0.0, 100.0))
 
 ## Now test setting attributes correctly and incorrectly
 b.projection = 'linear'
