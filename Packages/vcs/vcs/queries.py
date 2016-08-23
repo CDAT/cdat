@@ -175,6 +175,7 @@ def graphicsmethodtype(gobj):
     else:
         raise vcsError('The object passed is not a graphics method object.')
 
+
 def isplot(pobj):
     """
     Check to see if this object is a VCS secondary display plot.
@@ -202,6 +203,7 @@ def isplot(pobj):
         return 1
     else:
         return 0
+
 
 def iscolormap(obj):
     """
@@ -321,6 +323,7 @@ def issecondaryobject(sobj):
     else:
         return 0
 
+
 def isprojection(obj):
     """
     Check to see if this object is a VCS secondary projection graphics object.
@@ -349,12 +352,14 @@ def isprojection(obj):
     else:
         return 0
 
+
 def istaylordiagram(obj):
     if (isinstance(obj, taylor.Gtd)):
         return 1
     else:
         return 0
 istaylordiagram.__doc__ = xmldocs.istaylordiagram_doc
+
 
 def ismeshfill(obj):
     if (isinstance(obj, meshfill.Gfm)):
@@ -363,12 +368,14 @@ def ismeshfill(obj):
         return 0
 ismeshfill.__doc__ = xmldocs.ismeshfill_doc
 
+
 def isboxfill(obj):
     if (isinstance(obj, boxfill.Gfb)):
         return 1
     else:
         return 0
 isboxfill.__doc__ = xmldocs.isboxfill_doc
+
 
 def is3d_scalar(obj):
     if (isinstance(obj, dv3d.Gf3Dscalar) or isinstance(obj, dv3d.Gf3DDualScalar)):
@@ -377,12 +384,14 @@ def is3d_scalar(obj):
         return 0
 is3d_scalar.__doc__ = xmldocs.is3d_scalar_doc
 
+
 def is3d_dual_scalar(obj):
     if isinstance(obj, dv3d.Gf3DDualScalar):
         return 1
     else:
         return 0
 is3d_dual_scalar.__doc__ = xmldocs.is3d_dual_scalar_doc
+
 
 def is3d_vector(obj):
     if (isinstance(obj, dv3d.Gf3Dvector)):
@@ -391,12 +400,14 @@ def is3d_vector(obj):
         return 0
 is3d_vector.__doc__ = xmldocs.is3d_vector_doc
 
+
 def isisofill(obj):
     if (isinstance(obj, isofill.Gfi)):
         return 1
     else:
         return 0
 isisofill.__doc__ = xmldocs.isisofill_doc
+
 
 def isisoline(obj):
     if (isinstance(obj, isoline.Gi)):
@@ -405,12 +416,14 @@ def isisoline(obj):
         return 0
 isisoline.__doc__ = xmldocs.isisoline_doc
 
+
 def isscatter(obj):
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "scatter":
         return 1
     else:
         return 0
 isscatter.__doc__ = xmldocs.isscatter_doc
+
 
 def isxyvsy(obj):
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "xyvsy":
@@ -419,12 +432,14 @@ def isxyvsy(obj):
         return 0
 isxyvsy.__doc__ = xmldocs.isxyvsy_doc
 
+
 def isyxvsx(obj):
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
         return 1
     else:
         return 0
 isyxvsx.__doc__ = xmldocs.isyxvsx_doc
+
 
 def isxvsy(obj):
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
@@ -433,12 +448,14 @@ def isxvsy(obj):
         return 0
 isxvsy.__doc__ = xmldocs.isxvsy_doc
 
+
 def is1d(obj):
     if (isinstance(obj, unified1D.G1d)):
         return 1
     else:
         return 0
 is1d.__doc__ = xmldocs.is1d_doc
+
 
 def isvector(obj):
     if (isinstance(obj, vector.Gv)):
@@ -447,12 +464,14 @@ def isvector(obj):
         return 0
 isvector.__doc__ = xmldocs.isvector_doc
 
+
 def isline(obj):
     if (isinstance(obj, line.Tl)):
         return 1
     else:
         return 0
 isline.__doc__ = xmldocs.isline_doc
+
 
 def ismarker(obj):
     if (isinstance(obj, marker.Tm)):
@@ -461,12 +480,14 @@ def ismarker(obj):
         return 0
 ismarker.__doc__ = xmldocs.ismarker_doc
 
+
 def isfillarea(obj):
     if (isinstance(obj, fillarea.Tf)):
         return 1
     else:
         return 0
 isfillarea.__doc__ = xmldocs.isfillarea_doc
+
 
 def istexttable(obj):
     if (isinstance(obj, texttable.Tt)):
@@ -475,12 +496,14 @@ def istexttable(obj):
         return 0
 istexttable.__doc__ = xmldocs.istexttable_doc
 
+
 def istextorientation(obj):
     if (isinstance(obj, textorientation.To)):
         return 1
     else:
         return 0
 istextorientation.__doc__ = xmldocs.istextorientation_doc
+
 
 def istextcombined(obj):
     if (isinstance(obj, textcombined.Tc)):

@@ -1705,6 +1705,7 @@ def getfillarea(name='default', style=None,
     return fa
 getfillarea.__doc__ = getfillarea.__doc__ % get_fillarea_doc
 
+
 def createtexttable(name=None, source='default', font=None,
                     spacing=None, expansion=None, color=None, priority=None,
                     viewport=None, worldcoordinate=None,
@@ -1832,7 +1833,8 @@ def gettexttable(name='default', font=None,
     :param priority: The layer on which the texttable will be drawn.
     :type priority: int
 
-    :param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
+    :param viewport: 4 floats between 0 and 1.
+                     These specify the area that the X/Y values are mapped to inside of the canvas
     :type viewport: list of floats
 
     :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
@@ -1975,7 +1977,8 @@ def createtextcombined(Tt_name=None, Tt_source='default', To_name=None, To_sourc
 :param To_name: Name of the textcombined's text orientation  (to be created)
 :type To_name: str
 
-:param To_source: Name of the textorientation to inherit. Can be a textorientation, or a string name of a textorientation.
+:param To_source: Name of the textorientation to inherit.
+                  Can be a textorientation, or a string name of a textorientation.
 :type To_source: str or vcs.textorientation.To
 
 :param font: Which font to use (index or name).
@@ -2289,6 +2292,7 @@ def create3d_scalar(name=None, source='default'):
 """
     name, source = check_name_source(name, source, '3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
+
 
 def get3d_dual_scalar(Gfdv3d_name_src='default'):
     """

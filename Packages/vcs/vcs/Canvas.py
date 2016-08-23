@@ -4918,7 +4918,6 @@ or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,
             H = tmp
         return W, H
 
-
     def postscript(self, file, mode='r', orientation=None, width=None, height=None, units='inches', textAsPaths=True):
         """
     Postscript output is another form of vector graphics. It is larger than its CGM output
@@ -5347,7 +5346,7 @@ or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,
     b.name='MyBoxfill'
 
  # graphic method is now preserved
-"""% (self._dotdir)
+""" % (self._dotdir)
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
 
@@ -5612,8 +5611,7 @@ or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,
         return self.backend.orientation(*args, **kargs)
 
     def getcolorcell(self, *args):
-        """%s"""
-        #% vcs.getcolorcell.__doc__
+        """%s""" % vcs.getcolorcell.__doc__
         return vcs.getcolorcell(args[0], self)
 
     def getcolormapname(self):

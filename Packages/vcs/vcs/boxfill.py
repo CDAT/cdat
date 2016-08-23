@@ -127,6 +127,7 @@ def process_src(nm, code):
 #############################################################################
 # class Gfb(graphics_method_core):
 
+
 class Gfb(object):
 
     __doc__ = """
@@ -337,8 +338,8 @@ class Gfb(object):
 
             .. py:attribute:: legend ({float:str})
 
-                Used in conjunction with boxfill_type linear/log10, replaces the legend values in the dictionary keys with
-                their associated string.
+                Used in conjunction with boxfill_type linear/log10, replaces the
+                legend values in the dictionary keys with their associated string.
 
             .. py:attribute:: ext_1 (str)
 
@@ -353,7 +354,7 @@ class Gfb(object):
                 Color to use for missing value or values not in defined ranges.
 
             %s
-            """% xmldocs.graphics_method_core #noq
+            """ % xmldocs.graphics_method_core  # noqa
 
     def rename(self, newname):
         if newname == "default":

@@ -176,10 +176,12 @@ extsdoc = """
 ticlabeldoc = """
         Sets the %sticlabels1 and %sticlabels2 values on the object
 
-:param %stl1: Sets the object's value for :py:attr:`%sticlabels1`. Must be  a str, or a dictionary object with float:str mappings.
+:param %stl1: Sets the object's value for :py:attr:`%sticlabels1`.
+              Must be  a str, or a dictionary object with float:str mappings.
 :type %stl1: {float:str} or str
 
-:param %stl2: Sets the object's value for :py:attr:`%sticlabels2`. Must be a str, or a dictionary object with float:str mappings.
+:param %stl2: Sets the object's value for :py:attr:`%sticlabels2`.
+              Must be a str, or a dictionary object with float:str mappings.
 :type %stl2: {float:str} or str
            """
 xticlabelsdoc = ticlabeldoc % (('x',) * 8)
@@ -341,7 +343,7 @@ projection_script = scriptdoc % dict
 
 # dict['parent'] is for rare cases where there is no 'default' object to inherit from.
 dict['parent'] = 'REPLACE_ME'
-queries_is_doc= """
+queries_is_doc = """
     Check to see if this object is a VCS %(type)s %(name)s graphics method.
 
     :Example:
@@ -380,17 +382,17 @@ istaylordiagram_doc = queries_is_doc % dict
 dict['name'] = 'meshfill'
 ismeshfill_doc = queries_is_doc % dict
 dict['name'] = 'boxfill'
-isboxfill_doc= queries_is_doc % dict
+isboxfill_doc = queries_is_doc % dict
 dict['name'] = 'isofill'
-isisofill_doc= queries_is_doc % dict
+isisofill_doc = queries_is_doc % dict
 dict['name'] = 'isoline'
-isisoline_doc= queries_is_doc % dict
+isisoline_doc = queries_is_doc % dict
 dict['name'] = '3d_scalar'
-is3d_scalar_doc= queries_is_doc % dict
+is3d_scalar_doc = queries_is_doc % dict
 dict['name'] = '3d_dual_scalar'
-is3d_dual_scalar_doc= queries_is_doc % dict
+is3d_dual_scalar_doc = queries_is_doc % dict
 dict['name'] = '3d_vector'
-is3d_vector_doc= queries_is_doc % dict
+is3d_vector_doc = queries_is_doc % dict
 dict['name'] = 'xvsy'
 isxvsy_doc = queries_is_doc % dict
 dict['name'] = 'yxvsx'
@@ -507,11 +509,7 @@ get_3d_vector_doc = get_methods_doc % dict
 dict['name'] = dict['call'] = 'texttable'
 get_colormap_doc = get_methods_doc % dict
 
-
-
-
-
-exts_attrs= """
+exts_attrs = """
             .. py:attribute:: ext_1 (str)
 
                 Draws an extension arrow on right side (values less than first range value)
@@ -521,7 +519,7 @@ exts_attrs= """
                 Draws an extension arrow on left side (values greater than last range value)
     """
 
-fillarea_colors_attr= """
+fillarea_colors_attr = """
             .. py:attribute:: fillareacolors ([int,...])
 
                 Colors to use for each level
@@ -553,7 +551,7 @@ level_attrs = """
                 Sets the value of the legend's end level
 """
 
-levels_attr= """
+levels_attr = """
             .. py:attribute:: levels ([float,...]/[[float,float],...])
 
                 Sets the levels range to use, can be either a list of contiguous levels, or list of tuples
@@ -573,7 +571,7 @@ meshfill_doc = """
     %s
     %s
     %s
-""" % (levels_attr,fillarea_colors_attr, fillarea_attrs, legend_attr, exts_attrs, missing_attr)
+""" % (levels_attr, fillarea_colors_attr, fillarea_attrs, legend_attr, exts_attrs, missing_attr)
 
 
 isofill_doc = meshfill_doc

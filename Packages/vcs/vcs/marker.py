@@ -24,7 +24,7 @@
 import VCS_validation_functions
 import vcs
 import genutil
-from xmldocs import scriptdoc, marker_script
+from xmldocs import marker_script
 
 
 def process_src(nm, code):
@@ -499,4 +499,3 @@ class Tm(object):
             vcs.utils.dumpToJson(self, f)
             f.close()
     script.__doc__ = marker_script
-

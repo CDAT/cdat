@@ -26,6 +26,7 @@ import VCS_validation_functions
 import vcs
 from xmldocs import textorientation_script
 
+
 def process_src(nm, code):
 
     # Takes VCS script code (string) as input and generates boxfill gm from it

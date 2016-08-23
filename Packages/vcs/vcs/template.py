@@ -1003,10 +1003,12 @@ class P(object):
     # Canvas
     def drawTicks(self, slab, gm, x, axis, number,
                   vp, wc, bg=0, X=None, Y=None, **kargs):
-        # Draws the ticks for the axis x number number
-        # using the label passed by the graphic  method
-        # vp and wc are from the actual canvas, they have
-        # been reset when they get here...
+        """
+        Draws the ticks for the axis x number number
+        using the label passed by the graphic  method
+        vp and wc are from the actual canvas, they have
+        been reset when they get here...
+        """
 
         kargs["donotstoredisplay"] = True
         if X is None:
@@ -1243,39 +1245,42 @@ class P(object):
                 pass
 
     def reset(self, sub_name, v1, v2, ov1=None, ov2=None):
-        # This function resets all the attributes having a
-        # sub-attribute with the specified name.
+        """
+        This function resets all the attributes having a
+        sub-attribute with the specified name.
 
-        # .. note::
-            # Respect how far from original position you are
-            # i.e. you move to x1,x2 from old_x1, old_x2
-            # if your current x1 value is not == to old_x1_value,
-            # then respect how far from it you  were
+        .. note::
+            Respect how far from original position you are
+            i.e. you move to x1,x2 from old_x1, old_x2
+            if your current x1 value is not == to old_x1_value,
+            then respect how far from it you  were
 
-        # Example:
+        Example:
 
-            # Create template 'example1' which inherits from 'default' template
-            # t = vcs.createtemplate('example1', 'default')
-            # Set x1 value to 0.15 and x2 value to 0.5
-            # t.reset('x',0.15,0.5,t.data.x1,t.data.x2)
+            Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            Set x1 value to 0.15 and x2 value to 0.5
+            t.reset('x',0.15,0.5,t.data.x1,t.data.x2)
 
-        # :param sub_name: String indicating the name of the sub-attribute to be reset.
-                         # For example, sub-name='x' would cause the x1 ans x2 attributes to be set.
-        # :type sub_name: str
+        :param sub_name: String indicating the name of the sub-attribute to be reset.
+                         For example, sub-name='x' would cause the x1 ans x2 attributes to be set.
+        :type sub_name: str
 
-        # :param v1: Float value to used to set the sub_name1 attribute.
-        # :type v1: float
+        :param v1: Float value to used to set the sub_name1 attribute.
+        :type v1: float
 
-        # :param v2: Float value used to set the sub_name2 attribute.
-        # :type v2: float
+        :param v2: Float value used to set the sub_name2 attribute.
+        :type v2: float
 
-        # :param ov1: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
-        # :type ov1: float
+        :param ov1: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
+        :type ov1: float
 
-        # :param ov2: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
-        # :type ov2: float
+        :param ov2: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
+        :type ov2: float
+        """
 
-        # attr=vars(self).keys()
+        attr = vars(self).keys()
+
         Attr = dir(self)
         attr = []
         for a in Attr:
@@ -1434,18 +1439,19 @@ class P(object):
             self.scalefont(scale)
 
     def scalefont(self, scale):
-        # Scales the template font by scale.
+        """
+        Scales the template font by scale.
 
-        # Example:
+        Example:
 
-            # Create template 'example1' which inherits from 'default' template
-            # t = vcs.createtemplate('example1', 'default')
-            # reduces the fonts size by 2
-            # t.scalefont(0.5)
+            Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            reduces the fonts size by 2
+            t.scalefont(0.5)
 
-        # :param scale: Float representing the factor by which to scale the template's font size.
-        # :type scale: float
-
+        :param scale: Float representing the factor by which to scale the template's font size.
+        :type scale: float
+        """
         try:
             attr = vars(self).keys()
         except:
@@ -1463,13 +1469,13 @@ class P(object):
 
     def plot(self, x, slab, gm, bg=0, min=None,
              max=None, X=None, Y=None, **kargs):
-        # This plots the template stuff on the Canvas.
-        # It needs a slab and a graphic method.
+        """
+        This plots the template stuff on the Canvas.
+        It needs a slab and a graphic method.
 
-
-        # :returns: A list containing all the displays used
-        # :rtype: list
-
+        :returns: A list containing all the displays used
+        :rtype: list
+        """
 
         displays = []
         kargs["donotstoredisplay"] = True
@@ -1706,15 +1712,17 @@ class P(object):
                      ext_2='n', x=None, bg=0, priority=None,
                      cmap=None, style=['solid'], index=[1],
                      opacity=[], **kargs):
-        # This function, draws the colorbar, it needs:
-        # colors : The colors to be plotted
-        # levels : The levels that each color represent
-        # legend : To overwrite, saying just draw box at
-        # certain values and display some specific text instead of the value
-        # ext_1 and ext_2: to draw the arrows
-        # x : the canvas where to plot it
-        # bg: background mode ?
-        # returns a list of displays used
+        """
+        This function, draws the colorbar, it needs:
+        colors : The colors to be plotted
+        levels : The levels that each color represent
+        legend : To overwrite, saying just draw box at
+        certain values and display some specific text instead of the value
+        ext_1 and ext_2: to draw the arrows
+        x : the canvas where to plot it
+        bg: background mode ?
+        returns a list of displays used
+        """
 
         kargs["donotstoredisplay"] = True
         displays = []
@@ -1986,29 +1994,31 @@ class P(object):
     def ratio_linear_projection(self, lon1, lon2, lat1, lat2,
                                 Rwished=None, Rout=None,
                                 box_and_ticks=0, x=None):
-        # Computes ratio to shrink the data area of a template in order
-        # that the overall area
-        # has the least possible deformation in linear projection
+        """
+        Computes ratio to shrink the data area of a template in order
+        that the overall area
+        has the least possible deformation in linear projection
 
-        # Version: 1.1
-        # Notes: Thanks to Karl Taylor for the equation of "optimal" ratio
+        Version: 1.1
+        Notes: Thanks to Karl Taylor for the equation of "optimal" ratio
 
-        # Necessary arguments:
-          # lon1, lon2: in degrees_east  : Longitude spanned by plot
-          # lat1, lat2: in degrees_north : Latitude  spanned by plot
+        Necessary arguments:
+          lon1, lon2: in degrees_east  : Longitude spanned by plot
+          lat1, lat2: in degrees_north : Latitude  spanned by plot
 
-        # Optional arguments:
-          # Rwished: Ratio y/x wished, None=automagic
-          # Rout: Ratio of output (default is US Letter=11./8.5)
-                # Also you can pass a string: "A4","US LETTER", "X"/"SCREEN",
-                # the latest uses the window information
-          # box_and_ticks: Also redefine box and ticks to the new region
-        # Returned:
-          # vcs template object
+        Optional arguments:
+          Rwished: Ratio y/x wished, None=automagic
+          Rout: Ratio of output (default is US Letter=11./8.5)
+                Also you can pass a string: "A4","US LETTER", "X"/"SCREEN",
+                the latest uses the window information
+          box_and_ticks: Also redefine box and ticks to the new region
+        Returned:
+          vcs template object
 
-        # Usage example:
-          ## USA
-          # t.ratio_linear_projection(-135,-50,20,50)
+        Usage example:
+          #USA
+          t.ratio_linear_projection(-135,-50,20,50)
+        """
 
         # Converts lat/lon to rad
         Lat1 = lat1 / 180. * numpy.pi
@@ -2037,26 +2047,27 @@ class P(object):
         return
 
     def ratio(self, Rwished, Rout=None, box_and_ticks=0, x=None):
-        # Computes ratio to shrink the data area of a template
-        # to have an y/x ratio of Rwished
-        # has the least possible deformation in linear projection
+        """
+        Computes ratio to shrink the data area of a template
+        to have an y/x ratio of Rwished
+        has the least possible deformation in linear projection
 
-        # Version: 1.1
+        Version: 1.1
 
-        # Necessary arguments:
-         #  Rwished: Ratio y/x wished
-        # Optional arguments:
-          # Rout: Ratio of output (default is US Letter=11./8.5)
-                # Also you can pass a string: "A4","US LETTER",
-                # "X"/"SCREEN", the latest uses the window information
-          # box_and_ticks: Also redefine box and ticks to the new region
-        # Returned:
-          # vcs template object
+        Necessary arguments:
+          Rwished: Ratio y/x wished
+        Optional arguments:
+          Rout: Ratio of output (default is US Letter=11./8.5)
+                Also you can pass a string: "A4","US LETTER",
+                "X"/"SCREEN", the latest uses the window information
+          box_and_ticks: Also redefine box and ticks to the new region
+        Returned:
+          vcs template object
 
-        # Usage example:
-          ## y is twice x
-          # t.ratio(2)
-
+        Usage example:
+          # y is twice x
+          t.ratio(2)
+        """
         if x is None:
             x = vcs.init()
         if isinstance(Rout, str):

@@ -308,7 +308,7 @@ class Gfi(object):
 
         %s
         %s
-"""% (xmldocs.graphics_method_core, xmldocs.isofill_doc)
+""" % (xmldocs.graphics_method_core, xmldocs.isofill_doc)
     colormap = VCS_validation_functions.colormap
     __slots__ = [
         '__doc__',
@@ -417,10 +417,7 @@ class Gfi(object):
         return self._yaxisconvert
 
     def _setyaxisconvert(self, value):
-        value = VCS_validation_functions.checkAxisConvert(
-            self,
-            'yaxisconvert',
-            value)
+        value = VCS_validation_functions.checkAxisConvert(self, 'yaxisconvert', value)
         self._yaxisconvert = value
     yaxisconvert = property(_getyaxisconvert, _setyaxisconvert)
 

@@ -195,7 +195,7 @@ def process_src(nm, code):
 
 class Gi(object):
 
-    """
+    __doc__ = """
     The Isoline graphics method (Gi) draws lines of constant value at specified
     levels in order to graphically represent a two-dimensional array. It
     also labels the values of these isolines on the VCS Canvas. The example
@@ -419,8 +419,7 @@ class Gi(object):
             %s
             %s
             %s
-            """
-        # % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
+            """ % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
 
     colormap = VCS_validation_functions.colormap
     __slots__ = [
