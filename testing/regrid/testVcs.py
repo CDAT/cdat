@@ -17,7 +17,7 @@ class TestVcs(unittest.TestCase):
         w.plot(u)
         w.png("u")
 
-        
+
 if __name__ == '__main__':
     print "" # Spacer
     suite = unittest.TestLoader().loadTestsFromTestCase(TestVcs)
