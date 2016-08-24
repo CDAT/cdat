@@ -1073,7 +1073,7 @@ class Canvas(object):
 
     def removeobject(self, obj):
         return vcs.removeobject(obj)
-    removeobject.__doc__ = vcs.removeobject.__doc__  # noqa
+    removeobject.__doc__ = vcs.manageElements.removeobject.__doc__  # noqa
 
     def removeP(self, *args):
         return vcs.removeP(*args)
@@ -5568,9 +5568,9 @@ class Canvas(object):
 
         ::
 
-        a = vcs.init()
-        # Show current orientation of the canvas
-        a.orientation()
+            a = vcs.init()
+            # Show current orientation of the canvas
+            a.orientation()
 
         :returns: A string indicating the orientation of the canvas, i.e. 'landscape' or 'portrait'
         :rtype: str

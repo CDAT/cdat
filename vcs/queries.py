@@ -57,21 +57,25 @@ def isgraphicsmethod(gobj):
 
     :Example:
 
-::
+        .. doctest:: queries_isgraphicsmethod
 
-    a=vcs.init()
-    # To Modify an existing boxfill use:
-    box=a.getboxfill('quick')
-    #...
-    if vcs.isgraphicsmethod(box):
-       box.list()
+            >>> a=vcs.init()
+            ...
 
-:param gobj: A graphics object
-:type gobj: A VCS graphics object
+            # To Modify an existing boxfill use:
+            >>> box=a.getboxfill('quick')
+            ...
 
-:returns: Integer reperesenting whether gobj is one of the above graphics methods. 1 indicates true, 0 indicates false.
-:rtype:
-"""
+            >>> vcs.isgraphicsmethod(box)
+            1
+
+    :param gobj: A graphics object
+    :type gobj: A VCS graphics object
+
+    :returns: Integer reperesenting whether gobj is one of the above graphics methods.
+                1 indicates true, 0 indicates false.
+    :rtype:
+    """
     import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
         return 1
@@ -105,16 +109,18 @@ def graphicsmethodlist():
 
     :Example:
 
-::
+        .. doctest:: queries_gmlist
 
-    a=vcs.init()
-    # Return graphics method list
-    gm_list=a.graphicsmethodlist()
+            >>> a=vcs.init()
+            ...
 
-:returns: A list of available grapics methods (i.e., boxfill, isofill, isoline, outfill,
-          scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
-:rtype: list
-"""
+            >>> vcs.graphicsmethodlist() # Return graphics method list
+            ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', ...]
+
+    :returns: A list of available grapics methods (i.e., boxfill, isofill, isoline, outfill,
+              scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
+    :rtype: list
+    """
     return ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter',
             'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector']
 
@@ -123,31 +129,42 @@ def graphicsmethodtype(gobj):
     """
     Check the type of a graphics object.
 
-    Returns a None if the object is not a graphics method.
+    Returns None if the object is not a graphics method.
 
     :Example:
 
-::
+        .. doctest:: queries_gmtype
 
-    a=vcs.init()
-    # Get an existing boxfill graphics method in VCS
-    box=a.getboxfill('quick')
-    # Get an existing isofill graphics method in VCS
-    iso=a.getisofill('quick')
-    # Get an existing line element in VCS
-    ln=a.getline('quick')
-    #...
-    # Will print 'boxfill'
-    print vcs.graphicsmethodtype(box)
-    # Will print 'isofill'
-    print vcs.graphicsmethodtype(iso)
-    # Will print None, because ln is not a graphics method
-    print vcs.graphicsmethodtype(ln)
+            >>> a=vcs.init()
+            ...
 
-:returns: If gobj is a graphics method object, returns its type: 'boxfill', 'isofill', 'isoline',
-          'scatter', 'vector', 'xvsy', 'xyvsy', or 'yxvsx', 'taylordiagram'.
-          If gobj is not a graphics method object, returns None.
-:rtype: str or None
+            >>> # Get an existing boxfill graphics method in VCS:
+            >>> box=a.getboxfill('quick')
+            ...
+
+            >>> # Get an existing isofill graphics method in VCS
+            >>> iso=a.getisofill('quick')
+            ...
+
+            >>> # Get an existing line element in VCS
+            >>> ln=a.getline('red')
+            ...
+
+            >>> print vcs.graphicsmethodtype(box)
+            boxfill
+
+            >>> print vcs.graphicsmethodtype(iso)
+            isofill
+
+            >>> print vcs.graphicsmethodtype(ln)
+            Traceback (most recent call last):
+            ...
+            vcsError: The object passed is not a graphics method object.
+
+        :returns: If gobj is a graphics method object, returns its type: 'boxfill', 'isofill', 'isoline',
+                  'scatter', 'vector', 'xvsy', 'xyvsy', or 'yxvsx', 'taylordiagram'.
+                  If gobj is not a graphics method object, raises an exception and prints a vcsError message.
+        :rtype: str or None
     """
     import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
@@ -179,25 +196,29 @@ def isplot(pobj):
     """
     Check to see if this object is a VCS secondary display plot.
 
-     :Example:
+    :Example:
 
-::
+        .. doctest:: queries_isplot
 
-    a=vcs.init()
-    # Show all available display
-    a.show('display')
-    # To test an existing display object
-    test_obj = a.getdisplay('default')
-    # ...
-    if queries.isdisplay(test_obj):
-       test_obj.list()
+            >>> a=vcs.init()
 
-:param obj: A VCS object
-:type obj: VCS Object
+            >>> a.show('display') # Show all available displays
+            *******************Display Names List**********************
+            ...
+            *******************End Display Names List**********************
 
-:returns: An integer indicating whether the object is a display plot (1), or not (0).
-:rtype: int
-"""
+            >>> ex = a.getplot('default') # To test an existing display object
+            ...
+
+            >>> vcs.queries.isplot(ex)
+            1
+
+    :param obj: A VCS object
+    :type obj: VCS Object
+
+    :returns: An integer indicating whether the object is a display plot (1), or not (0).
+    :rtype: int
+    """
     if (isinstance(pobj, displayplot.Dp)):
         return 1
     else:
@@ -207,24 +228,28 @@ def iscolormap(obj):
     """
     Check to see if this object is a VCS secondary colormap.
 
-     :Example:
+    :Example:
 
-::
+    .. doctest:: queries_iscolormap
 
-    a=vcs.init()
-    # Show all available colormap
-    a.show('colormap')
-    # To test an existing colormap object
-    test_obj = a.getcolormap('default')
-    # ...
-    if queries.iscolormap(test_obj):
-       test_obj.list()
+        >>> a=vcs.init()
+        ...
 
-:param obj: A VCS object
-:type obj: VCS Object
+        >>> a.show('colormap') # Show all available colormap objects
+        *******************Colormap Names List**********************
+        ...
+        *******************End Colormap Names List**********************
+        >>> ex = a.getcolormap('default') # To test an existing colormap object
+        ...
 
-:returns: An integer indicating whether the object is a colormap (1), or not (0).
-:rtype: int
+        >>> vcs.iscolormap(ex)
+        1
+
+    :param obj: A VCS object
+    :type obj: VCS Object
+
+    :returns: An integer indicating whether the object is a colormap (1), or not (0).
+    :rtype: int
 """
     if (isinstance(obj, vcs.colormap.Cp)):
         return 1
@@ -238,16 +263,20 @@ def istemplate(gobj):
 
      :Example:
 
-::
+        .. doctest:: queries_istemplate
 
-    a=vcs.init()
-    # Show all available template
-    a.show('template')
-    # To test an existing template object
-    test_obj = a.gettemplate('default')
-    # ...
-    if queries.istemplate(test_obj):
-       test_obj.list()
+            >>> a=vcs.init()
+
+            >>> a.show('template') # Show all available template
+            *******************Template Names List**********************
+            ...     
+            *******************End Template Names List**********************
+                        
+            >>> ex = a.gettemplate('default') # To test an existing template object
+            ...
+            
+            >>> vcs.istemplate(ex)
+            1
 
 :param obj: A VCS object
 :type obj: VCS Object
@@ -263,9 +292,10 @@ def istemplate(gobj):
 
 def issecondaryobject(sobj):
     """
-        Check to see if this object is a VCS secondary object
+    Check to see if this object is a VCS secondary object
 
         .. note::
+
             Secondary objects will be one of the following:
             1.) colormap: specification of combinations of 256 available
                        colors
@@ -281,25 +311,30 @@ def issecondaryobject(sobj):
                        horizontal/vertical alignment
             9.) projections
 
-     :Example:
+    :Example:
 
-::
+        .. doctest:: queries_issecondary
 
-    a=vcs.init()
-    # Show all available lines
-    a.show('line')
-    # To test an existing line object
-    test_obj = a.getprojection('default')
-    # ...
-    if queries.issecondaryobject(test_obj):
-       test_obj.list()
+            >>> a=vcs.init()
+            ...
 
-:param obj: A VCS object
-:type obj: VCS Object
+            >>> a.show('line') # Show all available lines
+            *******************Line Names List**********************
+            ...
+            *******************End Line Names List**********************
 
-:returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
-:rtype: int
-"""
+            >>> ex = a.getprojection('default') # To test an existing line object
+            ...
+
+            >>> vcs.issecondaryobject(ex)
+            1
+
+    :param obj: A VCS object
+    :type obj: VCS Object
+
+    :returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
+    :rtype: int
+    """
     if (isinstance(sobj, line.Tl)):
         return 1
     elif (isinstance(sobj, marker.Tm)):
@@ -325,25 +360,30 @@ def isprojection(obj):
     """
     Check to see if this object is a VCS secondary projection graphics object.
 
-     :Example:
+    :Example:
 
-::
+        .. doctest:: queries_isprojection
 
-    a=vcs.init()
-    # Show all available projection
-    a.show('projection')
-    # To test an existing projection object
-    test_obj = a.getprojection('default')
-    # ...
-    if queries.isprojection(test_obj):
-       test_obj.list()
+            >>> a=vcs.init()
+            ...
 
-:param obj: A VCS object
-:type obj: VCS Object
+            >>> a.show('projection') # Show all available projection
+            *******************Projection Names List**********************
+            ...
+            *******************End Projection Names List**********************
 
-:returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
-:rtype: int
-"""
+            >>> ex = a.getprojection('default') # To test an existing projection object
+            ...
+
+            >>> vcs.isprojection(ex)
+            1
+
+    :param obj: A VCS object
+    :type obj: VCS Object
+
+    :returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
+    :rtype: int
+    """
     if (isinstance(obj, projection.Proj)):
         return 1
     else:
