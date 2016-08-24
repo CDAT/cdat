@@ -2,8 +2,7 @@ import os, sys, cdms2, vcs, testing.regression as regression
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
-clt = dataFile("clt")
-clt = clt[0]
+clt = dataFile("clt",slice(0,1),squeeze=1)
 height, width = clt.shape
 clt.mask = [[True if i % 2 else False for i in range(width)] for _ in range(height)]
 
@@ -16,7 +15,7 @@ canvas = regression.init()
 boxfill = canvas.createboxfill()
 
 # Change the missing color to a colorname
-boxfill.missing = "Medium Aquamarine"
+boxfill.missing = "lightgrey"
 
 canvas.plot(clt, boxfill, bg=1)
 regression.run(canvas, "test_vcs_missing_colorname.png")
