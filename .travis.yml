@@ -23,6 +23,9 @@ before_install:
 script:
   - export NOX="OFF"
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; fi
+  - echo "TRAVIS BRACNH: "${TRAVIS_BRANCH}
+  - echo "TRAVISE TYPE: "${TRAVIS_EVENT_TYPE}
+  - echo "TRAVIS PR: "${TRAVIS_PULL_REQUEST}
   - git checkout $(git branch | tail -n1)
   - cd ..
   - mkdir _build

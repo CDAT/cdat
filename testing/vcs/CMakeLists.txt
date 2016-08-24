@@ -1101,11 +1101,11 @@ cdat_add_test(test_vcs_no_continents
   ${BASELINE_DIR}/test_vcs_no_continents.png
 )
 
-cdat_add_test(test_vcs_center_longitude
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
-  ${BASELINE_DIR}/test_vcs_center_longitude.png
-)
+#cdat_add_test(test_vcs_center_longitude
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
+#  ${BASELINE_DIR}/test_vcs_center_longitude.png
+#)
 
 cdat_add_test(test_vcs_textextents
   "${PYTHON_EXECUTABLE}"
