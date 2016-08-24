@@ -25,6 +25,7 @@
 import VCS_validation_functions
 import vcs
 import genutil
+from xmldocs import fillarea_script
 
 
 def getmember(self, name):
@@ -104,9 +105,6 @@ def process_src(nm, code):
 class Tf(object):
 
     """
- Class:	Tf				# Fillarea
-
- Description of Tf Class:
     The Fillarea class object allows the user to edit fillarea attributes, including
     fillarea interior style, style index, and color index.
 
@@ -114,62 +112,85 @@ class Tf(object):
     can be used to change some or all of the fillarea attributes in an
     existing fillarea table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('fillarea')		# Show predefined fillarea objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of fillarea use:
-     fa=a.createfillarea('new','def37')	# Copies content of 'def37' to 'new'
-     fa=a.createfillarea('new') 	# Copies content of 'default' to 'new'
+    .. describe:: Useful Functions:
 
-    To Modify an existing fillarea use:
-     fa=a.getfillarea('red')
+        .. code-block:: python
 
-    fa.list()  				# Will list all the fillarea attribute values
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined fillarea objects
+            a.show('fillarea')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    There are three possibilities for setting the isofill style (Ex):
-    fa.style = 'solid'
-    fa.style = 'hatch'
-    fa.style = 'pattern'
-    fa.index=1			        # Range from 1 to 20
-    fa.color=100			# Range from 1 to 256
-    fa.opacity=100                      # Range from 0 to 100
+    .. describe:: Create a fillarea object:
 
-    Specify the fillarea index:
-     fa.index=1
-     fa.index=2
-     fa.index=3
-     fa.index=4
-     fa.index=5
-     fa.index=6
-     fa.index=7
-     fa.index=8
-     fa.index=9
-     fa.index=10
-     fa.index=11
-     fa.index=12
-     fa.index=13
-     fa.index=14
-     fa.index=15
-     fa.index=16
-     fa.index=17
-     fa.index=18
-     fa.index=19
-     fa.index=20
+        .. code-block:: python
 
-     fa.priority=1                      # Set the graphics priority on the canvas
-     fa.viewport=[0, 1.0, 0,1.0]        # FloatType [0,1]x[0,1]
-     fa.worldcoordinate=[0,1.0,0,1.0]   # FloatType [#,#]x[#,#]
+            #Create a VCS Canvas object
+            a=vcs.init()
 
-     fa.x=[[0,.1,.2], [.3,.4,.5]]        # List of FloatTypes
-     fa.y=[[.5,.4,.3], [.2,.1,0]]        # List of FloatTypes
-"""
+            # Two ways to create a fillarea:
+
+            # Copies content of 'def37' to 'new'ea:
+            fa=a.createfillarea('new','def37')
+            # Copies content of 'default' to 'new'
+            fa=a.createfillarea('new')
+
+    .. describe::  Modify an existing fillarea:
+
+        .. code-block:: python
+
+            fa=a.getfillarea('red')
+
+    * Overview of fillarea attributes:
+
+        * List all the fillarea attribute values
+
+            .. code-block:: python
+
+                fa.list()
+
+        * There are three possibilities for setting the isofill style:
+
+            .. code-block:: python
+
+                fa.style = 'solid'
+                fa.style = 'hatch'
+                fa.style = 'pattern'
+
+        * Setting index, color, opacity:
+
+            .. code-block:: python
+
+                # Range from 1 to 20
+                fa.index=1
+                # Range from 1 to 256
+                fa.color=100
+                # Range from 0 to 100
+                fa.opacity=100
+
+        * Setting the graphics priority viewport, worldcoordinate:
+
+            .. code-block:: python
+
+                fa.priority=1
+                # FloatType [0,1]x[0,1]
+                fa.viewport=[0, 1.0, 0,1.0]
+                # FloatType [#,#]x[#,#]
+                fa.worldcoordinate=[0,1.0,0,1.0]
+
+        * Setting x and y values:
+
+            .. code-block:: python
+
+                #List of FloatTypes
+                fa.x=[[0,.1,.2], [.3,.4,.5]]
+                # List of FloatTypes
+                fa.y=[[.5,.4,.3], [.2,.1,0]]
+
+        """
     __slots__ = [
         'name',
         's_name',
@@ -428,28 +449,8 @@ class Tf(object):
     #
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTf
-
- Description of Function:
-       Saves out a fillarea graphics method in Python or VCS script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    fa=a.createfillarea('temp')
-    fa.script('filename.py')         # Append to a Python file "filename.py"
-    fa.script('filename.scr')        # Append to a VCS file "filename.scr"
-    fa.script('filename','w')        # Create or overwrite to a Python file "filename.py"
-    """
+        Documentation moved to xmldocs.py
+        """
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -523,6 +524,7 @@ class Tf(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
+    script.__doc__ = fillarea_script
 
 
 #
