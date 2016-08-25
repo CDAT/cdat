@@ -1,6 +1,8 @@
 import cdms2
 from .node import GetVariableOperation, SubsetVariableOperation, TransformVariableOperation, OperatorOperation, MetadataOperation, AxisOperation
 import operator
+import cdutil
+import numpy
 
 
 def open_file(uri):
@@ -38,7 +40,13 @@ class NumpySubsetVariableOperation(SubsetVariableOperation):
         for ax in axes:
             if ax not in var_axis_ids:
                 raise ValueError("No axis '%s' found." % (ax))
-        return variable(**axes)
+
+        kwargs = axes.copy()
+        kwargs["squeeze"] = self._arguments.get("squeeze", False)
+        kwargs["order"] = self._arguments.get('order', None)
+        kwargs["grid"] = self._arguments.get('grid', None)
+
+        return variable(**kwargs)
 
 
 class NumpyTransformVariableOperation(TransformVariableOperation):
@@ -250,7 +258,15 @@ class NumpyMetadataOperation(MetadataOperation):
 
     Expects a dictionary of attributes and the new values to assign to them.
     """
-    pass
+    def evaluate(self, values):
+        variable = values[0]
+        for k, v in self._arguments["attributes"].iteritems():
+            variable.attributes[k] = v
+
+        if "id" in self._arguments:
+            variable.id = self._arguments["id"]
+
+        return variable
 
 
 class NumpyAxisOperation(AxisOperation):
@@ -259,4 +275,32 @@ class NumpyAxisOperation(AxisOperation):
 
     Expects an axis identifier, and an attributes dictionary.
     """
-    pass
+    def evaluate(self, values):
+        variable = values[0]
+
+        axis = self._arguments["axis"]
+        if axis not in variable.getAxisIds():
+            raise ValueError("No axis '%s' available." % axis)
+
+        axis = variable.getAxis(variable.getAxisIndex(axis))
+
+        attributes = self._arguments["attributes"]
+
+        for attr in attributes:
+            if attr == "bounds":
+                if axis.isTime():
+                    if attributes["bounds"] == "daily":
+                        cdutil.setAxisTimeBoundsDaily(axis)
+                        continue
+                    elif attributes["bounds"] == "monthly":
+                        cdutil.setAxisTimeBoundsMonthly(axis)
+                        continue
+                    elif attributes["bounds"] == "yearly":
+                        cdutil.setAxisTimeBoundsYearly(axis)
+                        continue
+
+                axis.setBounds(numpy.array(attributes["bounds"]))
+            else:
+                setattr(axis, attr, attributes[attr])
+
+        return variable
