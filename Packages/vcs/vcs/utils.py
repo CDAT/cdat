@@ -1135,7 +1135,7 @@ def getcolors(levs, colors=None, split=1, white=240):
    '''
 
     import string
-    
+
     if colors is None:
         colors = range(16, 240)
     if len(levs) == 1:
