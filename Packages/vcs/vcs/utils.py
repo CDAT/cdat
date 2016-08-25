@@ -1093,7 +1093,7 @@ def mklabels(vals, output='dict'):
         return lbls
 
 
-def getcolors(levs, colors=range(16, 240), split=1, white=240):
+def getcolors(levs, colors=None, split=1, white=240):
     '''
     Function : getcolors(levs,colors=range(16,240),split=1,white=240)
 
@@ -1135,7 +1135,9 @@ def getcolors(levs, colors=range(16, 240), split=1, white=240):
    '''
 
     import string
-
+    
+    if colors is None:
+        colors = range(16, 240)
     if len(levs) == 1:
         return [colors[0]]
     if isinstance(levs[0], list) or isinstance(levs[0], tuple):
