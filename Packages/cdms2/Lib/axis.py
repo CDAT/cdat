@@ -1037,7 +1037,7 @@ class AbstractAxis(CdmsObj):
         if self.isTime():
             if type(value) in CdtimeTypes:
                 value = value.torel(self.units, self.getCalendar()).value
-            elif type(value) is types.StringType and value not in [':',unspecified]:
+            elif isinstance(value, (str, unicode)) and value not in [':',unspecified]:
                 cal = self.getCalendar()
                 value = cdtime.s2c(value, cal).torel(self.units, cal).value
         return value
