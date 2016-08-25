@@ -25,10 +25,12 @@
 import VCS_validation_functions
 import vcs
 import genutil
+from xmldocs import texttable_script
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates boxfill gm from it"""
+
+    # Takes VCS script code (string) as input and generates boxfill gm from it
     try:
         tt = Tt(nm)
     except:
@@ -77,9 +79,6 @@ def process_src(nm, code):
 class Tt(object):
 
     """
- Class:	Tt				# Text Table
-
- Description of Tt Class:
     The (Tt) Text Table lists text attribute set names that define the font, spacing,
     expansion, and color index.
 
@@ -87,47 +86,93 @@ class Tt(object):
     can be used to change some or all of the text table attributes in an
     existing text table table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('texttable')	# Show predefined text table objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of text table use:
-     tt=a.createtexttable('new','std')	# Copies content of 'std' to 'new'
-     tt=a.createtexttable('new') 	# Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing texttable use:
-     tt=a.gettexttable('std')
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined text table objects
+            a.show('texttable')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    tt.list()  				# Will list all the texttable attribute values
+    .. describe:: Make a Canvas object to work with:
 
-    Specify the text font type:
-     tt.font=1				# The font value must be in the range 1 to 9
+        .. code-block:: python
 
-    Specify the text spacing:
-     tt.spacing=2			# The spacing value must be in the range -50 to 50
+            a=vcs.init()
 
-    Specify the text expansion:
-     tt.expansion=100			# The expansion value must be in the range 50 to 150
+    .. describe:: Create a new instance of text table:
 
-    Specify the text color:
-     tt.color=241			# The text color attribute value must be in the range 1 to 257
+        .. code-block:: python
 
-    Specify the text background color and opacity:
-     tt.backgroundcolor=241		# The text backgroundcolor attribute value must be in the range 1 to 257
-     tt.backgroundopacity=0             # The text backgroundopacity attribute value must be in the range 0 to 100
+            # Copies content of 'std' to 'new'
+            tt=a.createtexttable('new','std')
+            # Copies content of 'default' to 'new'
+            tt=a.createtexttable('new')
 
-     tt.priority=1                      # Set the graphics priority on the canvas
-     tt.viewport=[0, 1.0, 0,1.0]        # FloatType [0,1]x[0,1]
-     tt.worldcoordinate=[0,1.0,0,1.0]   # FloatType [#,#]x[#,#]
+    .. describe:: Modify an existing texttable:
 
-     tt.x=[[0,.1,.2], [.3,.4,.5]]        # List of FloatTypes
-     tt.y=[[.5,.4,.3], [.2,.1,0]]        # List of FloatTypes
+        .. code-block:: python
+
+            tt=a.gettexttable('std')
+
+    .. describe:: Overview of texttable attributes:
+
+        * Listing attributes:
+
+            .. code-block:: python
+
+                # Will list all the texttable attribute values
+                tt.list()
+
+        * Specify the text font type:
+
+            .. code-block:: python
+
+                # The font value must be in the range 1 to 9
+                tt.font=1
+
+        * Specify the text spacing:
+
+            .. code-block:: python
+
+                # The spacing value must be in the range -50 to 50
+                tt.spacing=2
+
+        * Specify the text expansion:
+
+            .. code-block:: python
+
+                # The expansion value must be in the range 50 to 150
+                tt.expansion=100
+
+        * Specify the text color:
+
+            .. code-block:: python
+
+            # The text color attribute value must be in the range 1 to 257
+            tt.color=241
+
+        * Specify the text background color and opacity:
+
+            .. code-block:: python
+
+                # The text backgroundcolor attribute value must be in the range 1 to 257
+                tt.backgroundcolor=241
+                # The text backgroundopacity attribute value must be in the range 0 to 100
+                tt.backgroundopacity=0
+                # Set the graphics priority on the canvas
+                tt.priority=1
+                # FloatType [0,1]x[0,1]
+                tt.viewport=[0, 1.0, 0,1.0]
+                # FloatType [#,#]x[#,#]
+                tt.worldcoordinate=[0,1.0,0,1.0]
+                # List of FloatTypes
+                tt.x=[[0,.1,.2], [.3,.4,.5]]
+                # List of FloatTypes
+                tt.y=[[.5,.4,.3], [.2,.1,0]]
 
 """
     __slots__ = [
@@ -557,8 +602,4 @@ class Tt(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################
+    script.__doc__ = texttable_script
