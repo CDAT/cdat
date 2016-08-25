@@ -6,9 +6,6 @@ sudo: false
 
 osx_image: xcode7.2
 
-language: python
-    - "2.7"
-
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi 
@@ -23,9 +20,9 @@ before_install:
 script:
   - export NOX="OFF"
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; fi
-#  - echo "TRAVIS BRACNH: "$TRAVIS_BRANCH
-  - echo "TRAVISE TYPE: "$TRAVIS_EVENT_TYPE
-  - echo "TRAVIS PR: "$TRAVIS_PULL_REQUEST
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_EVENT_TYPE
+  - echo $TRAVIS_PULL_REQUEST
   - git checkout $(git branch | tail -n1)
   - cd ..
   - mkdir _build
