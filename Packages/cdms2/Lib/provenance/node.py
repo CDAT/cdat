@@ -1,141 +1,140 @@
-import inspect
-import importlib
-import operator
+import weakref
 
 
-class VariableNode(object):
-    def __init__(self, operation, arguments, keyword_arguments, parents):
+class Node(object):
+    def __init__(self):
+        self.__cache__ = None
+
+    def get_value(self):
+        """
+        Retrieves the cached version of the value, or calculates it if no cache is available.
+
+        Uses a weakreference to avoid memory pressure, recalculates if necessary.
+        """
+        if self.__cache__ is None or self.__cache__() is None:
+            v = self.derive()
+            self.__cache__ = weakref.ref(v)
+        return self.__cache__()
+
+    def derive(self):
+        raise NotImplementedError("Please implement derive for node type %s" % (type(self)))
+
+
+class FileNode(Node):
+    def __init__(self, uri, backend):
+        super(FileNode, self).__init__()
+        self._uri = uri
+        self.backend = backend
+
+    def derive(self):
+        return self.backend.open_file(self._uri)
+
+    def finalize(self, f):
+        self.backend.close_file(f)
+        self.__cache__ = None
+
+
+class VariableNode(Node):
+    def __init__(self, operation, parents):
+        super(VariableNode, self).__init__()
         self._oper = operation
-        self._args = arguments
-        self._kwargs = keyword_arguments
         self._parents = parents
-        self._result = None
 
-    @property
-    def result(self):
-        if self._result is None:
-            self._result = self.calculate()
-        return self._result
-
-    def calculate(self):
-        return self._oper.calculate(*self._args, **self._kwargs)
-
-    def format(self):
-        return {"type": "variable", "id": self.id()}
-
-    def dump(self, dictionary=None):
-        if dictionary is None:
-            dictionary = {
-                "files": [],
-                "variables": []
-            }
-
-        for dep in self.parents:
-            dep.serialize(dictionary)
-
-        dictionary["variables"].append({
-            "id": self.id(),
-            "arguments": [a.format() for a in self._args],
-            "operation": self._oper.format()
-        })
-
-        return dictionary
-
-    def id(self):
-        if self._result is not None:
-            return self._result.id
-        else:
-            return self._oper.id() + "_".join([p.id() for p in self.parents])
+    def derive(self):
+        parent_values = []
+        files = []
+        for p in self._parents:
+            parent_values.append(p.get_value())
+            if isinstance(p, FileNode):
+                files.append((p, parent_values[-1]))
+        value = self._oper.evaluate(parent_values)
+        for node, file in files:
+            # Makes sure files get closed properly.
+            # This is incredibly wasteful. Should really just open/close once.
+            node.finalize(file)
+        return value
 
 
-class TransformNode(object):
+class OperationNode(object):
+    def __init__(self, spec):
+        for k in self.required_arguments:
+            if k not in spec:
+                raise ValueError("Missing required argument: %s" % k)
+            if not isinstance(spec[k], self.required_arguments[k]):
+                raise TypeError("Argument '%s' should be of type %s." % (k, self.required_arguments[k]))
+        self._arguments = spec
 
-    key = None
-
-    def __init__(self, value):
-        self.value = value
-
-    def format(self):
-        return {"key": self.key, "value": self.value}
-
-    def calculate(self, args, kwargs):
-        raise NotImplementedError("You need to implement calculate on %s." % (type(self)))
-
-
-class FunctionTransform(TransformNode):
-    key = "func"
-
-    def __init__(self, func):
-        if callable(func):
-            self.value = func.__name__
-            self.module = inspect.getmodulename(func)
-        else:
-            if "." in func:
-                parts = func.split(".")
-                self.value = parts[-1]
-                self.module = ".".join(parts[:-1])
-            else:
-                raise ValueError("Argument should be either a function object or the complete module/function name of some function.")
-
-    def calculate(self, args, kwargs):
-        module = importlib.import_module(self.module)
-        func = getattr(module, self.value)
-        return func(*args, **kwargs)
-
-    def format(self):
-        d = super(FunctionOperation, self).format()
-        d["module"] = self.module
-        return d
-
-    def id(self):
-        return self.value
+    def evaluate(self, values):
+        raise NotImplementedError("Please implement evaluate for operation type: %s" % (type(self)))
 
 
-class OperatorTransform(TransformNode):
-    key = "operator"
-    unary_operations = {
-        "-": operator.neg,
-        "~": operator.invert,
-        "+": operator.pos,
-        "not": operator.not_
-    }
-    binary_operations = {
-        "+": operator.add,
-        "/": operator.div,
-        "&": opeartor.and_,
-        "^": operator.xor,
-        "|": opeartor.or_,
-        "**": operator.pow,
-        "is": operator.is_,
-        "is not": operator.is_not,
-        "<<": operator.lshift,
-        "%": operator.mod,
-        "*": operator.mul,
-        ">>": operator.rshift,
-        "-": operator.sub,
-        "<": operator.lt,
-        ">": operator.gt,
-        ">=": operator.gte,
-        "<=": operator.lte,
-        "==": operator.eq,
-        "!=": operator.ne,
-        "in": operator.contains
+class GetVariableOperation(OperationNode):
+    """
+    Implements the retrieval of a variable from a file.
+
+    Expects just an "id" argument, and the parent should be a file object (as defined by the backend, not a node).
+    """
+    required_arguments = {"id": (str, unicode)}
+
+
+class SubsetVariableOperation(OperationNode):
+    """
+    Reduces one or more axes of a variable.
+
+    Expects a dictionary of axes and the selectors to use to reduce those axes (axes specified by ID)
+    """
+    required_arguments = {"axes": dict}
+
+
+class TransformVariableOperation(OperationNode):
+    """
+    Calls the appropriate function on a variable.
+    """
+    required_arguments = {"function": (str, unicode)}
+
+
+class OperatorOperation(OperationNode):
+    """
+    Performs the appropriate mathematical operator on the parent variables.
+    """
+    required_arguments = {"operator": (str, unicode)}
+
+
+class MetadataOperation(OperationNode):
+    """
+    Updates the variables metadata.
+
+    Expects a dictionary of attributes and the new values to assign to them.
+    """
+    required_arguments = {"attributes": dict}
+
+
+class AxisOperation(OperationNode):
+    """
+    Updates the metadata of variable axes.
+
+    Expects an axis identifier, and an attributes dictionary.
+    """
+    required_arguments = {"axis": (str, unicode), "attributes": dict}
+
+
+def create_operation(oper_spec, backend):
+    oper_dict = {
+        "get": GetVariableOperation,
+        "subset": SubsetVariableOperation,
+        "transform": TransformVariableOperation,
+        "operator": OperatorOperation,
+        "metadata": MetadataOperation,
+        "axis": AxisOperation
     }
 
-    def __init__(self, oper, binary=True):
-        self.value = oper
-        oper_dict = self.binary_operations if binary else self.unary_operations
-        self.operation = oper_dict[oper]
+    oper_class = oper_dict.get(oper_spec["type"].lower(), None)
 
-    def calculate(self, args):
-        return self.operation(*args)
+    if oper_class is None:
+        raise ValueError("No operation of type '%s' defined." % oper_spec["type"])
 
-    def id(self):
-        return self.operation.__name__.rstrip("_")
+    for sc in oper_class.__subclasses__():
+        if sc.__module__ == backend.__name__:
+            return sc(oper_spec)
 
-
-def load(dictionary):
-    for f in dictionary["files"]:
-        pass
-    for v in dictionary["variables"]:
-        pass
+    raise NotImplementedError("No implementation of operation type %s found in module %s." % (oper_spec["type"], backend.__name__))
