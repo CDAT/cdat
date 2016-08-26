@@ -1,5 +1,5 @@
 import cdms2
-from .node import GetVariableOperation, SubsetVariableOperation, TransformVariableOperation, OperatorOperation, MetadataOperation, AxisOperation
+from .node import GetVariableOperation, SubsetVariableOperation, TransformOperation, MetadataOperation, AxisOperation
 import operator
 import cdutil
 import numpy
@@ -49,18 +49,15 @@ class NumpySubsetVariableOperation(SubsetVariableOperation):
         return variable(**kwargs)
 
 
-class NumpyTransformVariableOperation(TransformVariableOperation):
+class NumpyTransformVariableOperation(TransformOperation):
     """
     Calls the appropriate function on a variable.
     """
-    binary_functions = {
+    func_map = {
         "remainder": cdms2.MV2.remainder,
         "hypot": cdms2.MV2.hypot,
         "arctan2": cdms2.MV2.arctan2,
         "outerproduct": cdms2.MV2.outerproduct,
-    }
-
-    unary_functions = {
         "log": cdms2.MV2.log,
         "log10": cdms2.MV2.log10,
         "conjugate": cdms2.MV2.conjugate,
@@ -79,19 +76,13 @@ class NumpyTransformVariableOperation(TransformVariableOperation):
         "floor": cdms2.MV2.floor,
         "ceil": cdms2.MV2.ceil,
         "sqrt": cdms2.MV2.sqrt,
-        "absolute": cdms2.MV2.absolute
-    }
-
-    unary_with_axis = {
+        "absolute": cdms2.MV2.absolute,
         "sometrue": cdms2.MV2.sometrue,
         "alltrue": cdms2.MV2.alltrue,
         "max": cdms2.MV2.max,
         "min": cdms2.MV2.min,
         "sort": cdms2.MV2.sort,
-        "count": cdms2.MV2.count
-    }
-
-    misc_functions = {
+        "count": cdms2.MV2.count,
         "product": cdms2.MV2.product,
         "sum": cdms2.MV2.sum,
         "average": cdms2.MV2.average,
@@ -102,154 +93,27 @@ class NumpyTransformVariableOperation(TransformVariableOperation):
         "repeat": cdms2.MV2.repeat,
         "reshape": cdms2.MV2.reshape,
         "resize": cdms2.MV2.resize,
-        "diagonal": cdms2.MV2.diagonal
+        "diagonal": cdms2.MV2.diagonal,
+        "add": cdms2.MV2.add,
+        "sub": cdms2.MV2.subtract,
+        "mul": cdms2.MV2.multiply,
+        "div": cdms2.MV2.divide,
+        "eq": cdms2.MV2.equal,
+        "le": cdms2.MV2.less_equal,
+        "ge": cdms2.MV2.greater_equal,
+        "lt": cdms2.MV2.less,
+        "gt": cdms2.MV2.greater,
+        "ne": cdms2.MV2.not_equal,
+        "not": cdms2.MV2.logical_not,
+        "and": cdms2.MV2.bitwise_and,
+        "or": cdms2.MV2.bitwise_or,
+        "xor": cdms2.MV2.bitwise_xor,
+        "pow": cdms2.MV2.power,
+        "neg": cdms2.MV2.negative,
     }
 
-    def evaluate(self, values):
-        function = self._arguments["function"]
-
-        # Binary operations need two arrays
-        if function in self.binary_functions:
-            if len(values) != 2:
-                raise ValueError("Function %s requires two variables. %d provided." % (self._arguments["function"], len(values)))
-            return self.binary_functions[function](values[0], values[1])
-
-        if function == "average":
-            if len(values) == 2:
-                # Second array is the weights
-                weights = values[1]
-            else:
-                weights = None
-            axis = self._arguments.get("axis", None)
-            returned = self._arguments.get("returned", False)
-            return cdms2.MV2.average(values[0], axis=axis, weights=weights, returned=returned)
-        if function == "compress":
-            if "mask" in self._arguments:
-                mask = self._arguments["mask"]
-            else:
-                if len(values) == 2:
-                    mask = values[1]
-                else:
-                    raise ValueError("Function compress requires two variables or a mask argument.")
-            return cdms2.MV2.compress(values[0], mask)
-
-        # All of the rest only require a single array
-        if len(values) != 1:
-            raise ValueError("Function %s requires one variable. %d provided." % (self._arguments["function"], len(values)))
-
-        if function in self.unary_functions:
-            return self.unary_functions[function](values[0])
-
-        if function in self.unary_with_axis:
-            axis = self._arguments.get("axis", None)
-            if axis is None:
-                return self.unary_with_axis[function](values[0])
-            else:
-                return self.unary_with_axis[function](values[0], axis=axis)
-
-        # args will be an index into values or a string to fetch from _arguments
-        # kwargs is a dict of default values that will be fetched from _arguments if given.
-        # Most just use the array as the only positional arg
-        args = (0,)
-        kwargs = {"axis": None}
-        if function == "product":
-            kwargs = {"axis": 0, dtype: None}
-        elif function == "sum":
-            kwargs = {"axis": None, "fill_value": 0, "dtype": None}
-        elif function == "choose":
-            args = ("indices", 0)
-            kwargs = {}
-        elif function == "take":
-            args = (0, "indices")
-        elif function == "transpose":
-            # Defaults are good
-            pass
-        elif function == "argsort":
-            kwargs = {"axis": -1, "fill_value": None}
-        elif function == "repeat":
-            args = (0, "repeats")
-        elif function == "reshape":
-            args = (0, "shape")
-            kwargs = {"axes": None, "attributes": None, "id": None, "grid": None}
-        elif function == "resize":
-            args = (0, "shape")
-            kwargs = {"axes": None, "attributes": None, "id": None, "grid": None}
-        elif function == "diagonal":
-            kwargs = {"offset": 0, "axis1": 0, "axis2": 1}
-        else:
-            raise ValueError("No function '%s' defined for Numpy backend." % function)
-
-        real_args = []
-        for arg in args:
-            if isinstance(arg, int):
-                real_args.append(values[arg])
-            elif isinstance(arg, (str, unicode)):
-                real_args.append(self._arguments.get(arg, None))
-
-        real_kwargs = {}
-        for key, default in kwargs.iteritems():
-            if key in self._arguments:
-                real_kwargs[key] = self._arguments[key]
-            else:
-                real_kwargs[key] = default
-
-        return misc_functions[function](*real_args, **real_kwargs)
-
-
-class NumpyOperatorOperation(OperatorOperation):
-    """
-    Performs the appropriate mathematical operator on the parent variables.
-    """
-    binary_operators = {
-        "add": operator.add,
-        "concat": operator.concat,
-        "contains": operator.contains,
-        "div": operator.div,
-        "truediv": operator.truediv,
-        "floordiv": operator.floordiv,
-        "and": operator.and_,
-        "xor": operator.xor,
-        "invert": operator.invert,
-        "or": operator.or_,
-        "pow": operator.pow,
-        "is": operator.is_,
-        "is_not": operator.is_not,
-        "setitem": operator.setitem,
-        "delitem": operator.delitem,
-        "getitem": operator.getitem,
-        "lshift": operator.lshift,
-        "mod": operator.mod,
-        "mul": operator.mul,
-        "rshift": operator.rshift,
-        "repeat": operator.repeat,
-        "sub": operator.sub,
-        "lt": operator.lt,
-        "le": operator.le,
-        "eq": operator.eq,
-        "ne": operator.ne,
-        "ge": operator.ge,
-        "gt": operator.gt,
-    }
-
-    unary_operators = {
-        "neg": operator.neg,
-        "not": operator.not_,
-        "pos": operator.pos,
-        "truth": operator.truth,
-    }
-
-    def evaluate(self, values):
-        oper = self._arguments["operator"]
-        if oper in self.binary_operators:
-            if len(values) != 2:
-                raise ValueError("Operator %s requires 2 variables." % (oper))
-            return self.binary_operators[oper](values[0], values[1])
-        elif oper in self.unary_operators:
-            if len(values) != 1:
-                raise ValueError("Operator %s requires 1 variable." % oper)
-            return self.unary_operators[oper](values[0])
-        else:
-            raise ValueError("Invalid operator %s." % oper)
+    def execute_transform(self, func_name, args, kwargs):
+        return self.func_map[func_name](*args, **kwargs)
 
 
 class NumpyMetadataOperation(MetadataOperation):
