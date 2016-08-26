@@ -1,4 +1,5 @@
 import weakref
+import logging
 
 
 class Node(object):
@@ -13,7 +14,10 @@ class Node(object):
         """
         if self.__cache__ is None or self.__cache__() is None:
             v = self.derive()
-            self.__cache__ = weakref.ref(v)
+            try:
+                self.__cache__ = weakref.ref(v)
+            except TypeError:
+                self.__cache__ = lambda: v
         return self.__cache__()
 
     def derive(self):
@@ -86,18 +90,90 @@ class SubsetVariableOperation(OperationNode):
     required_arguments = {"axes": dict}
 
 
-class TransformVariableOperation(OperationNode):
+class TransformOperation(OperationNode):
     """
     Calls the appropriate function on a variable.
     """
     required_arguments = {"function": (str, unicode)}
+    argument_specs = {
+        "remainder": ([0, 1], {}),
+        "hypot": ([0, 1], {}),
+        "arctan2": ([0, 1], {}),
+        "outerproduct": ([0, 1], {}),
+        "log": ([0], {}),
+        "log10": ([0], {}),
+        "conjugate": ([0], {}),
+        "sin": ([0], {}),
+        "cos": ([0], {}),
+        "tan": ([0], {}),
+        "arcsin": ([0], {}),
+        "arccos": ([0], {}),
+        "arctan": ([0], {}),
+        "sinh": ([0], {}),
+        "cosh": ([0], {}),
+        "tanh": ([0], {}),
+        "fabs": ([0], {}),
+        "nonzero": ([0], {}),
+        "around": ([0], {}),
+        "floor": ([0], {}),
+        "ceil": ([0], {}),
+        "sqrt": ([0], {}),
+        "absolute": ([0], {}),
+        "sometrue": ([0], {"axis": None}),
+        "alltrue": ([0], {"axis": None}),
+        "max": ([0], {"axis": None}),
+        "min": ([0], {"axis": None}),
+        "sort": ([0], {"axis": None}),
+        "count": ([0], {"axis": None}),
+        "product": ([0], {"axis": None, "dtype": None}),
+        "sum": ([0], {"axis": None, "fill_value": 0, "dtype": None}),
+        "average": ([0], {"axis": None, "returned": False, "weights": None}),
+        "choose": (["indices", 0], {}),
+        "take": ([0, "indices"], {"axis": None}),
+        "transpose": ([0], {"axis": None}),
+        "argsort": ([0], {"axis": -1, "fill_value": None}),
+        "repeat": ([0, "count"], {"axis": None}),
+        "reshape": ([0, "shape"], {"axis": None, "attributes": None, "id": None, "grid": None}),
+        "resize": ([0, "shape"], {"axis": None, "attributes": None, "id": None, "grid": None}),
+        "diagonal": ([0], {"axis1": 0, "axis2": 1, "offset": 0}),
+        "add": ([0, 1], {}),
+        "sub": ([0, 1], {}),
+        "mul": ([0, 1], {}),
+        "div": ([0, 1], {}),
+        "eq": ([0, 1], {}),
+        "le": ([0, 1], {}),
+        "ge": ([0, 1], {}),
+        "lt": ([0, 1], {}),
+        "gt": ([0, 1], {}),
+        "ne": ([0, 1], {}),
+        "and": ([0, 1], {}),
+        "or": ([0, 1], {}),
+        "xor": ([0, 1], {}),
+        "pow": ([0, 1], {}),
+        "neg": ([0], {}),
+        "not": ([0], {}),
+    }
 
+    def evaluate(self, values):
+        func = self._arguments["function"]
+        if func not in self.argument_specs:
+            raise ValueError("Unknown transform %s." % func)
 
-class OperatorOperation(OperationNode):
-    """
-    Performs the appropriate mathematical operator on the parent variables.
-    """
-    required_arguments = {"operator": (str, unicode)}
+        args, kwargs = self.argument_specs[func]
+        sub_args, sub_kwargs = [], {}
+        for a in args:
+            if isinstance(a, int):
+                sub_args.append(values[a])
+            if isinstance(a, (str, unicode)):
+                sub_args.append(self._arguments[a])
+        for kw, default in kwargs.iteritems():
+            val = self._arguments.get(kw, default)
+            # grid and weights are special ones that can use
+            # parent values, so check if they're ints.
+            if kw in ("grid", "weights") and isinstance(val, int):
+                val = values[val]
+            sub_kwargs[kw] = val
+        return self.execute_transform(func, sub_args, sub_kwargs)
 
 
 class MetadataOperation(OperationNode):
@@ -122,8 +198,7 @@ def create_operation(oper_spec, backend):
     oper_dict = {
         "get": GetVariableOperation,
         "subset": SubsetVariableOperation,
-        "transform": TransformVariableOperation,
-        "operator": OperatorOperation,
+        "transform": TransformOperation,
         "metadata": MetadataOperation,
         "axis": AxisOperation
     }
