@@ -1132,7 +1132,6 @@ def getcolors(levs, colors=None, split=1, white="white"):
       [0, 36, 73, 109, 146, 182, 219, 255]
    '''
 
-
     if colors is None:
         colors = range(256)
     if len(levs) == 1:
