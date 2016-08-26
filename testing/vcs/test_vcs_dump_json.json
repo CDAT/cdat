@@ -42,8 +42,8 @@
  "Gfb": {
   "vcs_instance": {
    "boxfill_type": "linear", 
-   "color_1": 16, 
-   "color_2": 239, 
+   "color_1": 0, 
+   "color_2": 255, 
    "colormap": null, 
    "datawc_calendar": 135441, 
    "datawc_timeunits": "days since 2000", 
