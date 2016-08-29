@@ -1,6 +1,7 @@
 import json
 import node
 import numpy_backend
+import os
 
 
 def derive_variable(json_spec, backend=numpy_backend):
@@ -37,3 +38,49 @@ def derive_variable(json_spec, backend=numpy_backend):
     if "id" in definition:
         var.id = str(definition["id"])
     return var
+
+
+def export_variable(node, path, fmt=None):
+    """
+    Convert the node's data graph into a serialized format and store it at path.
+
+    If fmt is None, it will default to using whatever format is specified in
+    path's file extension, or, if none found, will use JSON.
+    """
+
+    if fmt is None:
+        _, fmt = os.path.splitext(path)
+        if not fmt:
+            fmt = "json"
+
+    if fmt == "json":
+        graph = graph_to_dict(node)
+        with open(path, "w") as outfile:
+            json.dump(graph, outfile)
+    else:
+        raise NotImplementedError("No export for filetype %s implemented." % fmt)
+
+
+def graph_to_dict(node):
+    all_nodes = [node]
+    index = 0
+
+    # Accumulate node and its ancestors into all_nodes
+    while index <= len(all_nodes):
+        n = all_nodes[index]
+        if isinstance(n, node.VariableNode):
+            all_nodes.extend(n.parents)
+        index += 1
+
+    graph = {
+        "id": node.get_value().id,
+        "derivation": []
+    }
+
+    ordered_nodes = all_nodes[::-1]
+
+    # Assemble the derivation
+    for node in ordered_nodes:
+        graph["derivation"].append(node.to_dict(ordered_nodes))
+
+    return graph

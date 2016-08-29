@@ -20,6 +20,9 @@ class Node(object):
                 self.__cache__ = lambda: v
         return self.__cache__()
 
+    def to_dict(self, node_graph):
+        raise NotImplementedError("Please implement to_dict for node type %s" % (type(self)))
+
     def derive(self):
         raise NotImplementedError("Please implement derive for node type %s" % (type(self)))
 
@@ -33,6 +36,9 @@ class FileNode(Node):
     def derive(self):
         return self.backend.open_file(self._uri)
 
+    def to_dict(self, node_graph):
+        return {"type": "file", "uri": self._uri}
+
     def finalize(self, f):
         self.backend.close_file(f)
         self.__cache__ = None
@@ -42,12 +48,12 @@ class VariableNode(Node):
     def __init__(self, operation, parents):
         super(VariableNode, self).__init__()
         self._oper = operation
-        self._parents = parents
+        self.parents = parents
 
     def derive(self):
         parent_values = []
         files = []
-        for p in self._parents:
+        for p in self.parents:
             parent_values.append(p.get_value())
             if isinstance(p, FileNode):
                 files.append((p, parent_values[-1]))
@@ -57,6 +63,19 @@ class VariableNode(Node):
             # This is incredibly wasteful. Should really just open/close once.
             node.finalize(file)
         return value
+
+    def to_dict(self, node_graph):
+        parent_indices = []
+        for parent in self.parents:
+            if parent not in node_graph:
+                raise ValueError("Variable %s has parent not in graph." % self)
+            parent_indices.append(node_graph.index(parent))
+
+        return {
+            "type": "variable",
+            "parents": parent_indices,
+            "operation": self._oper.to_dict()
+        }
 
 
 class OperationNode(object):
@@ -68,6 +87,16 @@ class OperationNode(object):
                 raise TypeError("Argument '%s' should be of type %s." % (k, self.required_arguments[k]))
         self._arguments = spec
 
+    def to_dict(self):
+        base = {
+            "type": self.type_key
+        }
+
+        for arg in self._arguments:
+            base[arg] = self._arguments[arg]
+
+        return base
+
     def evaluate(self, values):
         raise NotImplementedError("Please implement evaluate for operation type: %s" % (type(self)))
 
@@ -78,6 +107,7 @@ class GetVariableOperation(OperationNode):
 
     Expects just an "id" argument, and the parent should be a file object (as defined by the backend, not a node).
     """
+    type_key = "get"
     required_arguments = {"id": (str, unicode)}
 
 
@@ -87,6 +117,7 @@ class SubsetVariableOperation(OperationNode):
 
     Expects a dictionary of axes and the selectors to use to reduce those axes (axes specified by ID)
     """
+    type_key = "subset"
     required_arguments = {"axes": dict}
 
 
@@ -94,6 +125,7 @@ class TransformOperation(OperationNode):
     """
     Calls the appropriate function on a variable.
     """
+    type_key = "transform"
     required_arguments = {"function": (str, unicode)}
     argument_specs = {
         "remainder": ([0, 1], {}),
@@ -182,6 +214,7 @@ class MetadataOperation(OperationNode):
 
     Expects a dictionary of attributes and the new values to assign to them.
     """
+    type_key = "metadata"
     required_arguments = {"attributes": dict}
 
 
@@ -191,17 +224,15 @@ class AxisOperation(OperationNode):
 
     Expects an axis identifier, and an attributes dictionary.
     """
+    type_key = "axis"
     required_arguments = {"axis": (str, unicode), "attributes": dict}
 
 
 def create_operation(oper_spec, backend):
-    oper_dict = {
-        "get": GetVariableOperation,
-        "subset": SubsetVariableOperation,
-        "transform": TransformOperation,
-        "metadata": MetadataOperation,
-        "axis": AxisOperation
-    }
+    oper_dict = {}
+    # Gather all of the implemented types
+    for clz in OperationNode.__subclasses__():
+        oper_dict[clz.type_key] = clz
 
     oper_class = oper_dict.get(oper_spec["type"].lower(), None)
 
