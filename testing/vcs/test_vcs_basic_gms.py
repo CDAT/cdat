@@ -30,7 +30,6 @@ x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
-x.setcolormap("rainbow")
 exec("gm=vcs.create%s()" % gm_type)
 if args.projtype != "default":
     p = vcs.createprojection()
