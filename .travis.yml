@@ -25,7 +25,10 @@ script:
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_EVENT_TYPE
   - echo $TRAVIS_PULL_REQUEST
-  - git checkout $(git branch | tail -n1)
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' | cut -d'"' -f 2) ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git fetch origin +refs/heads/*:refs/remotes/origin/* ; fi
+  - echo $TRAVIS_BRANCH
+  - git checkout -b $TRAVIS_BRANCH origin/$TRAVIS_BRANCH
   - cd ..
   - mkdir _build
   - cd _build
