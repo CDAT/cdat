@@ -924,21 +924,24 @@ class AbstractAxis(CdmsObj):
         
         baxis = self[0]
         eaxis = self[-1]
-        deltaend = self[-1] - self[-2]
-        eaxistest = eaxis + deltaend - baxis
+        try:  # some types will fail this!
+            deltaend = self[-1] - self[-2]
+            eaxistest = eaxis + deltaend - baxis
 
-        cycle=self.getModuloCycle()
+            cycle=self.getModuloCycle()
 
-        tol=0.01*deltaend
+            tol=0.01*deltaend
 
-        test=0
-        if(abs(eaxistest - cycle) < tol): test=1
-        
-        if hasattr(self,'topology') and test == 1:
-            iscircle = (self.topology=='circular')
-        elif (self.isLongitude() and test == 1):
-            iscircle = 1
-        else:
+            test=0
+            if(abs(eaxistest - cycle) < tol): test=1
+            
+            if hasattr(self,'topology') and test == 1:
+                iscircle = (self.topology=='circular')
+            elif (self.isLongitude() and test == 1):
+                iscircle = 1
+            else:
+                iscircle = 0
+        except:
             iscircle = 0
 
         # save realtopology attribute in __dict__, don't write it to the file
