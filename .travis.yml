@@ -21,7 +21,7 @@ before_install:
 
 script:
   - export NOX="OFF"
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="uvcdat -c spyder-ide libxcb"; fi
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_EVENT_TYPE
   - echo $TRAVIS_PULL_REQUEST
@@ -33,6 +33,6 @@ script:
   - mkdir _build
   - cd _build
   - echo "OFFSCREEN IS:"$NOX
-  - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX
+  - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
   - make
   - ctest -j8 -D Experimental
