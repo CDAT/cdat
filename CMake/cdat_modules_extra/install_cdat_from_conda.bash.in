@@ -3,7 +3,7 @@
 @CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c @CONDA_CHANNEL_UVCDAT@  hdf5 libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>=4.9.2 vtk libcdms cdat_info flake8 requests numpy==1.9.2 cycler matplotlib --show-channel-urls --copy
 
 source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
-for pkg in cdat_info testing cdtime cdms esg DV3D vcs vcsaddons cdutil unidata xmgrace genutil Thermo WK distarray; do
+for pkg in cdat_info testing cdtime cdms esg DV3D vcs vcsaddons cdutil unidata xmgrace genutil Thermo wk distarray; do
     git clone git://github.com/UV-CDAT/${pkg}
     cd ${pkg}
     rm -rf build
