@@ -729,7 +729,7 @@ def loadTemplate(nm, vals):
 
 def loadVCSItem(typ, nm, json_dict={}):
     if typ in vcs._protected_elements.keys() and nm in vcs._protected_elements[typ]:
-        ## protected element do not overload
+        # protected element do not overload
         return
     tp = typ
     if typ == "L":

@@ -10,7 +10,6 @@
 def _files():
     import sys
     import os
-    import shutil
     import vcs
     dotdir, dotdirenv = vcs.getdotdirectory()
     #
