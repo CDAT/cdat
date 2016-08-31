@@ -6,7 +6,7 @@ language: python
 
 sudo: false
 
-osx_image: xcode7.2
+#osx_image: xcode7.2
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
@@ -25,10 +25,16 @@ script:
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_EVENT_TYPE
   - echo $TRAVIS_PULL_REQUEST
-  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' | cut -d'"' -f 2) ; fi
-  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git fetch origin +refs/heads/*:refs/remotes/origin/* ; fi
-  - echo $TRAVIS_BRANCH
-  - git checkout -b $TRAVIS_BRANCH origin/$TRAVIS_BRANCH
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST); fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then echo $TRAVIS_PR_BRANCH ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref ) ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then echo $TRAVIS_PR_BRANCH ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' ) ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then echo $TRAVIS_PR_BRANCH ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' | cut -d'"' -f 2) ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then echo $TRAVIS_PR_BRANCH ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git fetch origin +refs/heads/$TRAVIS_PR_BRANCH:refs/remotes/origin/$TRAVIS_PR_BRANCH ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git checkout -b $TRAVIS_PR_BRANCH origin/$TRAVIS_PR_BRANCH ; fi
   - cd ..
   - mkdir _build
   - cd _build
