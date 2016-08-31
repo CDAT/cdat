@@ -1,8 +1,6 @@
 os:
-  - linux
+#  - linux
   - osx
-
-language: python
 
 sudo: false
 
