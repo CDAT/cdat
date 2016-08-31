@@ -53,237 +53,291 @@ class Proj(object):
     can be used to change some or all of the attributes in an existing
     projection table entry.
 
-.. describe:: Projection Transformation Package Projection Parameters
+    .. describe:: Projection Transformation Package Projection Parameters
 
-    +-----------------------+---------------------------------------------------------------------------------+
-    |                       |                                         Array Element                           |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |  Code & Projection Id |   1  |   2  |  3   |  4   |   5   |    6    |7 | 8|  9  |  10 |  11 |  12 |  13 |
-    +=======================+======+======+======+======+=======+=========+==+==+=====+=====+=====+=====+=====+
-    |0 Geographic           |      |      |      |      |       |         |  |  |     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |1 U T M                |Lon/Z |Lat/Z |      |      |       |         |  |  |     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |2 State Plane          |      |      |      |      |       |         |  |  |     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |3 Albers Equal Area    |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |4 Lambert Conformal C  |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |5 Mercator             |SMajor|SMinor|      |      |CentMer|TrueScale|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |6 Polar Stereographic  |SMajor|SMinor|      |      |LongPol|TrueScale|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |7 Polyconic            |SMajor|SMinor|      |      |CentMer|OriginLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |8 Equid. Conic A       |SMajor|SMinor|STDPAR|      |CentMer|OriginLat|FE|FN| zero|     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |  Equid. Conic B       |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN| one |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |9 Transverse Mercator  |SMajor|SMinor|Factor|      |CentMer|OriginLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |10 Stereographic       |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |11 Lambert Azimuthal   |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |12 Azimuthal           |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |13 Gnomonic            |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |14 Orthographic        |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |15 Gen. Vert. Near Per |Sphere|      |Height|      |CentLon|CenterLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |16 Sinusoidal          |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |17 Equirectangular     |Sphere|      |      |      |CentMer|TrueScale|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |18 Miller Cylindrical  |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |19 Van der Grinten     |Sphere|      |      |      |CentMer|OriginLat|FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |20 Hotin Oblique Merc A|SMajor|SMinor|Factor|      |       |OriginLat|FE|FN|Long1|Lat1 |Long2|Lat2 |zero |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |   Hotin Oblique Merc B|SMajor|SMinor|Factor|AziAng|AzmthPt|OriginLat|FE|FN|     |     |     |     | one |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |21 Robinson            |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |22 Space Oblique Merc A|SMajor|SMinor|      |IncAng|AscLong|         |FE|FN|PSRev|LRat |PFlag|     |zero |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |   Space Oblique Merc B|SMajor|SMinor|Satnum|Path  |       |         |FE|FN|     |     |     |     | one |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |23 Alaska Conformal    |SMajor|SMinor|      |      |       |         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |24 Interrupted Goode   |Sphere|      |      |      |       |         |  |  |     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |25 Mollweide           |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |26 Interrupt Mollweide |Sphere|      |      |      |       |         |  |  |     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |27 Hammer              |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |28 Wagner IV           |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |29 Wagner VII          |Sphere|      |      |      |CentMer|         |FE|FN|     |     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
-    |30 Oblated Equal Area  |Sphere|      |Shapem|Shapen|CentLon|CenterLat|FE|FN|Angle|     |     |     |     |
-    +-----------------------+------+------+------+------+-------+---------+--+--+-----+-----+-----+-----+-----+
+        +-----------------------+---------------------------------------------------------+
+        |                       |                  Array Element                          |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |*Code & Projection Id* |   1  |   2  |  3   |  4   |   5   |    6    |7 | 8|  9  |
+        +=======================+======+======+======+======+=======+=========+==+==+=====+
+        |0 Geographic           |      |      |      |      |       |         |  |  |     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |1 U T M                |Lon/Z |Lat/Z |      |      |       |         |  |  |     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |2 State Plane          |      |      |      |      |       |         |  |  |     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |3 Albers Equal Area    |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |4 Lambert Conformal C  |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |5 Mercator             |SMajor|SMinor|      |      |CentMer|TrueScale|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |6 Polar Stereographic  |SMajor|SMinor|      |      |LongPol|TrueScale|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |7 Polyconic            |SMajor|SMinor|      |      |CentMer|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |8 Equid. Conic A       |SMajor|SMinor|STDPAR|      |CentMer|OriginLat|FE|FN| zero|
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |  Equid. Conic B       |SMajor|SMinor|STDPR1|STDPR2|CentMer|OriginLat|FE|FN| one |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |9 Transverse Mercator  |SMajor|SMinor|Factor|      |CentMer|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |10 Stereographic       |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |11 Lambert Azimuthal   |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |12 Azimuthal           |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |13 Gnomonic            |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |14 Orthographic        |Sphere|      |      |      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |15 Gen. Vert. Near Per |Sphere|      |Height|      |CentLon|CenterLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |16 Sinusoidal          |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |17 Equirectangular     |Sphere|      |      |      |CentMer|TrueScale|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |18 Miller Cylindrical  |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |19 Van der Grinten     |Sphere|      |      |      |CentMer|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |20 Hotin Oblique Merc A|SMajor|SMinor|Factor|      |       |OriginLat|FE|FN|Long1|
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |   Hotin Oblique Merc B|SMajor|SMinor|Factor|AziAng|AzmthPt|OriginLat|FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |21 Robinson            |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |22 Space Oblique Merc A|SMajor|SMinor|      |IncAng|AscLong|         |FE|FN|PSRev|
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |   Space Oblique Merc B|SMajor|SMinor|Satnum|Path  |       |         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |23 Alaska Conformal    |SMajor|SMinor|      |      |       |         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |24 Interrupted Goode   |Sphere|      |      |      |       |         |  |  |     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |25 Mollweide           |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |26 Interrupt Mollweide |Sphere|      |      |      |       |         |  |  |     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |27 Hammer              |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |28 Wagner IV           |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |29 Wagner VII          |Sphere|      |      |      |CentMer|         |FE|FN|     |
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+        |30 Oblated Equal Area  |Sphere|      |Shapem|Shapen|CentLon|CenterLat|FE|FN|Angle|
+        +-----------------------+------+------+------+------+-------+---------+--+--+-----+
+
+        +-----------------------+-----------------------+
+        |                       |       Array Element   |
+        +-----------------------+-----+-----+-----+-----+
+        |  Code & Projection Id |  10 |  11 |  12 |  13 |
+        +=======================+=====+=====+=====+=====+
+        |20 Hotin Oblique Merc A|Lat1 |Long2|Lat2 |zero |
+        +-----------------------+-----+-----+-----+-----+
+        |   Hotin Oblique Merc B|     |     |     | one |
+        +-----------------------+-----+-----+-----+-----+
+        |22 Space Oblique Merc A|LRat |PFlag|     |zero |
+        +-----------------------+-----+-----+-----+-----+
+        |   Space Oblique Merc B|     |     |     | one |
+        +-----------------------+-----+-----+-----+-----+
+
+            .. note::
+
+                All other projections are blank (containing 0) for elements 10-13
+
+
 
         .. glossary::
 
             Lon/Z
+
                 Longitude of any point in the UTM zone or zero.  If zero,
                 a zone code must be specified.
 
             Lat/Z
+
                 Latitude of any point in the UTM zone or zero.  If zero, a
                 zone code must be specified.
 
             SMajor
+
                 Semi-major axis of ellipsoid.  If zero, Clarke 1866 in meters
                 is assumed.
 
             SMinor
+
                 Eccentricity squared of the ellipsoid if less than zero,
                 if zero, a spherical form is assumed, or if greater than
                 zero, the semi-minor axis of ellipsoid.
 
             Sphere
+
                 Radius of reference sphere.  If zero, 6370997 meters is used.
 
             STDPAR
+
                 Latitude of the standard parallel
 
             STDPR1
+
                 Latitude of the first standard parallel
 
             STDPR2
+
                 Latitude of the second standard parallel
 
             CentMer
+
                 Longitude of the central meridian
 
             OriginLat
+
                 Latitude of the projection origin
 
             FE
+
                 False easting in the same units as the semi-major axis
 
             FN
+
                 False northing in the same units as the semi-major axis
 
             TrueScale
+
                 Latitude of true scale
 
             LongPol
+
                 Longitude down below pole of map
 
             Factor
+
                 Scale factor at central meridian (Transverse Mercator) or
                 center of projection (Hotine Oblique Mercator)
 
             CentLon
+
                 Longitude of center of projection
 
             CenterLat
+
                 Latitude of center of projection
 
             Height
+
                 Height of perspective point
 
             Long1
+
                 Longitude of first point on center line (Hotine Oblique
                 Mercator, format A)
 
             Long2
+
                 Longitude of second point on center line (Hotine Oblique
                 Mercator, format A)
 
             Lat1
+
                 Latitude of first point on center line (Hotine Oblique
                 Mercator, format A)
 
             Lat2
+
                 Latitude of second point on center line (Hotine Oblique
                 Mercator, format A)
 
             AziAng
+
                 Azimuth angle east of north of center line (Hotine Oblique
                 Mercator, format B)
 
             AzmthPt
+
                 Longitude of point on central meridian where azimuth occurs
                 (Hotine Oblique Mercator, format B)
 
             IncAng
+
                 Inclination of orbit at ascending node, counter-clockwise
                 from equator (SOM, format A)
 
             AscLong
+
                 Longitude of ascending orbit at equator (SOM, format A)
 
             PSRev
+
                 Period of satellite revolution in minutes (SOM, format A)
 
             LRat
+
                 Landsat ratio to compensate for confusion at northern end
                 of orbit (SOM, format A -- use 0.5201613)
 
             PFlag
+
                 End of path flag for Landsat:  0 = start of path,
                 1 = end of path (SOM, format A)
 
             Satnum
+
                 Landsat Satellite Number (SOM, format B)
 
             Path
+
                 Landsat Path Number (Use WRS-1 for Landsat 1, 2 and 3 and
                 WRS-2 for Landsat 4, 5 and 6.)  (SOM, format B)
 
             Shapem
+
                 Oblated Equal Area oval shape parameter m
 
             Shapen
+
                 Oblated Equal Area oval shape parameter n
 
             Angle
+
                 Oblated Equal Area oval rotation angle
 
 
-    .. describe:: Array Elements:
+        .. describe:: Array Elements:
 
-        * Array elements 14 and 15 are set to zero
+            * Array elements 14 and 15 are set to zero
 
-        * All array elements with blank fields are set to zero
+            * All array elements with blank fields are set to zero
 
-        * All angles (latitudes, longitudes, azimuths, etc.) are entered in packed
-            degrees/ minutes/ seconds (DDDMMMSSS.SS) format
+            * All angles (latitudes, longitudes, azimuths, etc.) are entered in packed
+                degrees/ minutes/ seconds (DDDMMMSSS.SS) format
 
-    .. describe:: Space Oblique Mercator A projection:
+        .. describe:: Space Oblique Mercator A projection:
 
-        * A portion of Landsat rows 1 and 2 may also be seen as parts of rows
-            246 or 247.  To place these locations at rows 246 or 247, set the end of
-            path flag (parameter 11) to 1--end of path.  This flag defaults to zero.
+            * A portion of Landsat rows 1 and 2 may also be seen as parts of rows
+                246 or 247.  To place these locations at rows 246 or 247, set the end of
+                path flag (parameter 11) to 1--end of path.  This flag defaults to zero.
 
-        * When Landsat-1,2,3 orbits are being used, use the following values
-            for the specified parameters:
+            * When Landsat-1,2,3 orbits are being used, use the following values
+                for the specified parameters:
 
-            * Parameter 4   099005031.2
-            * Parameter 5   128.87 degrees - (360/251 * path number) in packed DMS format
+                * Parameter 4   099005031.2
+                * Parameter 5   128.87 degrees - (360/251 * path number) in packed DMS format
 
-            * Parameter 9   103.2669323
-            * Parameter 10  0.5201613
+                * Parameter 9   103.2669323
+                * Parameter 10  0.5201613
 
-        * When Landsat-4,5 orbits are being used, use the following values
-            for the specified parameters:
+            * When Landsat-4,5 orbits are being used, use the following values
+                for the specified parameters:
 
-            * Parameter 4   098012000.0
-            * Parameter 5   129.30 degrees - (360/233 * path number) in packed DMS format
-            * Parameter 9   98.884119
-            * Parameter 10  0.5201613
+                * Parameter 4   098012000.0
+                * Parameter 5   129.30 degrees - (360/233 * path number) in packed DMS format
+                * Parameter 9   98.884119
+                * Parameter 10  0.5201613
 
-    .. note::
-        In vcs angles can be entered either in DDDMMMSSS or regular angle format.
+        .. note::
+            In vcs angles can be entered either in DDDMMMSSS or regular angle format.
 
     .. describe:: Useful Functions:
 
@@ -328,12 +382,7 @@ class Proj(object):
             #or
             iso.projection='lambert'
 
-"""
-    ##########################################################################
-    #                                                                           #
-    # Initialize the projection attributes.                                        #
-    #                                                                           #
-    ##########################################################################
+    """
 
     def __init__(self, Proj_name=None, Proj_name_src='default'):
 
@@ -952,7 +1001,3 @@ class Proj(object):
             value)
         self._parameters = value
     parameters = property(_getparameters, _setparameters)
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################

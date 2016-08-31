@@ -788,13 +788,11 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_objecthelp
 
-            a=vcs.init()
-            # Get a VCS line object
-            ln=a.getline('red')
-            # This will print out information on how to use ln
-            >>> a.objecthelp(ln)
+                >>> a=vcs.init()
+                >>> ln=a.getline('red') # Get a VCS line object
+                >>> a.objecthelp(ln) # This will print out information on how to use ln
         """
         for x in arg:
             print getattr(x, "__doc__", "")
@@ -932,16 +930,38 @@ class Canvas(object):
 
     # Functions to set/querie drawing of UV-CDAT logo
     def drawlogoon(self):
-        """Show UV-CDAT logo on the canvas"""
+        """
+        Show UV-CDAT logo on the canvas
+
+        :Example:
+
+            .. doctest:: canvas_drawlogoon
+
+                >>> a=vcs.init()
+                >>> a.drawlogoon()
+                >>> a.getdrawlogo()
+                True
+        """
         self.enableLogo = True
 
     def drawlogooff(self):
-        """Hide UV-CDAT logo on the canvas"""
+        """
+        Hide UV-CDAT logo on the canvas
+
+        :Example:
+
+            .. doctest:: canvas_drawlogooff
+
+                >>> a=vcs.init()
+                >>> a.drawlogooff()
+                >>> a.getdrawlogo()
+                False
+        """
         self.enableLogo = False
 
     def getdrawlogo(self):
         """
-        Returns value of draw logo
+        Returns value of draw logo. By default, draw logo is set to True.
 
         :Example:
 
@@ -950,8 +970,11 @@ class Canvas(object):
                 >>> a=vcs.init()
                 >>> a.getdrawlogo()
                 True
+                >>> a.drawlogooff()
+                >>> a.getdrawlogo()
+                False
 
-        :returns: Boolean value of system variable which indicates whether log will be drawn
+        :returns: Boolean value of system variable which indicates whether logo will be drawn
         :rtype: bool
         """
         return self.enableLogo
@@ -970,10 +993,13 @@ class Canvas(object):
             .. doctest:: canvas_update
 
                 >>> a=vcs.init()
-                >>> s=None
-                >>> a.plot(s,'default','boxfill','quick') # TODO: add a bit creating a slab
+                >>> import cdms2 # We need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> s = f('clt') # use the data file to create a slab
+                >>> a.plot(s,'default','boxfill','quick')
+                <vcs.displayplot.Dp ...>
                 >>> a.mode = 0 # Go to manual mode
-                >>> box=x.getboxfill('quick')
+                >>> box=a.getboxfill('quick')
                 >>> box.color_1=100
                 >>> box.xticlabels('lon30','lon30')
                 >>> box.xticlabels('','')
@@ -1019,15 +1045,15 @@ class Canvas(object):
                 >>> a.scriptobject(i,'ex_isoline.py') # Save isoline object as a Python file 'isoline.py'
                 >>> a.scriptobject(i,'ex_isoline2') # Save isoline object as a JSON object 'isoline2.json'
 
-    :param script_filename: Name of the output script file.
-    :type script_filename: str
+        :param script_filename: Name of the output script file.
+        :type script_filename: str
 
-    :param mode: Mode is either "w" for replace or "a" for append.
-    :type mode: str
+        :param mode: Mode is either "w" for replace or "a" for append.
+        :type mode: str
 
-    :param obj: Any VCS primary class or secondary class object.
-    :type obj: VCS object
-    """
+        :param obj: Any VCS primary class or secondary class object.
+        :type obj: VCS object
+        """
         if istemplate(obj):
             template.P.script(obj, script_filename, mode)
         elif isgraphicsmethod(obj):
@@ -1153,12 +1179,12 @@ class Canvas(object):
 
     def boxfill(self, *args, **parms):
         """
-        Plot a boxfill.
-
         Generate a boxfill plot given the data, boxfill graphics method, and
         template. If no boxfill class object is given, then the 'default' boxfill
         graphics method is used. Similarly, if no template class object is given,
         then the 'default' template is used.
+
+
 
         :Example:
 
@@ -1167,29 +1193,38 @@ class Canvas(object):
                 >>> a=vcs.init()
 
                 >>> a.show('boxfill') # Show all the existing boxfill graphics methods
+                *******************Boxfill Names List**********************
+                ...
+                *******************End Boxfill Names List**********************
 
                 >>> box=a.getboxfill('quick') # Create instance of 'quick'
 
-                >>> a.boxfill(array,box) # Plot array using specified box and default template
+                >>> array=[range(10) for _ in range(10)]
 
-                >>> template=a.gettemplate('AMIP') # Create an instance of template 'AMIP'
-
+                >>> a.boxfill(array, box) # Plot array using specified box and default template
+                <vcs.displayplot.Dp ...>
+                >>> template = a.gettemplate('quick') # get quick template
                 >>> a.clear() # Clear VCS canvas
+                >>> a.boxfill(array, box, template) # Plot array using specified box and template
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill(box, array, template) # Plot array using specified box and template
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill(template, array, box) # Plot array using specified box and template
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill(template, box, array) # Plot array using specified box and template
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill(array, 'hovmuller', 'quick') # Use 'hovmuller' template and 'quick' boxfill
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill('hovmuller', array, 'quick') # Use 'hovmuller' template and 'quick' boxfill
+                <vcs.displayplot.Dp ...>
+                >>> a.boxfill('hovmuller', 'quick', array) # Use 'hovmuller template and 'quick' boxfill
+                <vcs.displayplot.Dp ...>
 
-                >>> a.boxfill(array,box,template) # Plot array using specified box and template
+            .. note::
 
-                >>> a.boxfill(box,array,template) # Plot array using specified box and template
-
-                >>> a.boxfill(template,array,box) # Plot array using specified box and template
-
-                >>> a.boxfill(template,array,box) # Plot array using specified box and template
-
-                >>> a.boxfill(array,'AMIP','quick') # Use 'AMIP' template and 'quick' boxfill
-
-                >>> a.boxfill('AMIP',array,'quick') # Use 'AMIP' template and 'quick' boxfill
-
-                >>> a.boxfill('AMIP','quick',array) # Use 'AMIP' template and 'quick' boxfill
-
+                As shown above, the array, 'template', and 'box' parameters can be provided in any order.
+                The 'template' and 'box' parameters can either be VCS template and boxfill objects,
+                or string names of template and boxfill objects.
         %s
         %s
         %s
@@ -1223,18 +1258,20 @@ class Canvas(object):
                 >>> a=vcs.init()
 
                 >>> a.show('taylordiagram') # Show all the existing taylordiagram graphics methods
-
+                *******************Taylordiagram Names List**********************
+                ...
+                *******************End Taylordiagram Names List**********************
                 >>> td= a.gettaylordiagram() # Create instance of 'default'
-
-                >>> array=None # TODO: put a legitimate array here
-
+                >>> array=[range(1, 11) for _ in range(1, 11)]
                 >>> a.taylordiagram(array,td) # Plot array using specified iso and default template
-
+                <vcs.displayplot.Dp ...>
                 >>> a.clear() # Clear VCS canvas
-
-                >>> template=None # TODO: put a legitimate template here
-
+                >>> template=a.gettemplate('hovmuller')
                 >>> a.taylordiagram(array,td,template) # Plot array using specified iso and template
+                <vcs.displayplot.Dp ...>
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('taylordiagram', args)
         return self.__plot(arglist, parms)
@@ -1273,19 +1310,22 @@ class Canvas(object):
             .. doctest:: canvas_meshfill
 
                 >>> a=vcs.init()
-
                 >>> a.show('meshfill') # Show all the existing meshfill graphics methods
-                # Create instance of 'default'
-                mesh=a.getmeshfill()
-                # Plot array using specified mesh and default template
-                >>> a.meshfill(array,mesh)
-                # Clear VCS canvas
-                >>> a.clear()
-                # Plot array using specified mesh mesh graphic method and template
-                >>> a.meshfill(array,mesh,mesh_graphic_method,template)
+                *******************Meshfill Names List**********************
+                ...
+                *******************End Meshfill Names List**********************
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab = f('clt') # use the data file to create a cdms2 slab
+                >>> mesh=a.getmeshfill() # Create instance of 'default'
+                >>> a.meshfill(slab,mesh) # Plot array using specified mesh and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> a.meshfill(slab,mesh,'quick','a_polar_meshfill')  # Plot slab with polar mesh, quick template
+                <vcs.displayplot.Dp ...>
 
-        :returns: ???
-        :rtype: ???
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('meshfill', args)
         return self.__plot(arglist, parms)
@@ -1346,25 +1386,32 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_isofill
 
-            a=vcs.init()
-             # Show all the existing isofill graphics methods
-            >>> a.show('isofill')
-            # Create instance of 'quick'
-            iso=a.getisofill('quick')
-            # Plot array using specified iso and default template
-            >>> a.isofill(array,iso)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified iso and template
-            >>> a.isofill(array,iso,template)
+                >>> a=vcs.init()
+                >>> a.show('isofill') # Show all the existing isofill graphics methods
+                *******************Isofill Names List**********************
+                ...
+                *******************End Isofill Names List**********************
+                >>> iso=a.getisofill('quick') # Create instance of 'quick'
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab = f('clt') # use the data file to create a cdms2 slab
+                >>> a.isofill(slab,iso) # Plot array using specified iso and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template = a.gettemplate('hovmuller')
+                >>> a.isofill(slab,iso,template) # Plot array using specified iso and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('isofill', args)
         return self.__plot(arglist, parms)
@@ -1388,26 +1435,31 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_isoline
 
-            a=vcs.init()
-            # Show all the existing isoline graphics methods
-            >>> a.show('isoline')
-            # Create instance of 'quick'
-            iso=a.getisoline('quick')
-            # Plot array using specified iso and default template
-            >>> a.isoline(array,iso)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified iso and template
-            >>> a.isoline(array,iso,template)
+                >>> a=vcs.init()
+                >>> a.show('isoline') # Show all the existing isoline graphics methods
+                *******************Isoline Names List**********************
+                ...
+                *******************End Isoline Names List**********************
+                >>> iso=a.getisoline('quick') # Create instance of 'quick'
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.isoline(array,iso) # Plot array using specified iso and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template = a.gettemplate('hovmuller')
+                >>> a.isoline(array,iso,template)  # Plot array using specified iso and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
-"""
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
+        """
         arglist = _determine_arg_list('isoline', args)
         return self.__plot(arglist, parms)
     isoline.__doc__ = isoline.__doc__ % (
@@ -1438,25 +1490,30 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_xyvsy
 
-            a=vcs.init()
-            # Show all the existing Xyvsy graphics methods
-            >>> a.show('xyvsy')
-            # Create instance of 'quick'
-            xyy=a.getxyvsy('quick')
-            # Plot array using specified xyy and default template
-            >>> a.xyvsy(array,xyy)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified xyy and template
-            >>> a.xyvsy(array,xyy,template)
+                >>> a=vcs.init()
+                >>> a.show('xyvsy') # Show all the existing Xyvsy graphics methods
+                *******************Xyvsy Names List**********************
+                ...
+                *******************End Xyvsy Names List**********************
+                >>> xyy=a.getxyvsy('default_xyvsy_') # Create instance of default xyvsy
+                >>> array=[range(1, 11) for _ in range(1, 11)]
+                >>> a.xyvsy(array,xyy) # Plot array using specified xyy and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template=a.gettemplate('hovmuller')
+                >>> a.xyvsy(array,xyy,template) # Plot array using specified xyy and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('xyvsy', args)
         return self.__plot(arglist, parms)
@@ -1480,25 +1537,30 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_yxvsx
 
-            a=vcs.init()
-            # Show all the existing Yxvsx graphics methods
-            >>> a.show('yxvsx')
-            # Create instance of 'quick'
-            yxx=a.getyxvsx('quick')
-            # Plot array using specified yxx and default template
-            >>> a.yxvsx(array,yxx)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified yxx and template
-            >>> a.yxvsx(array,yxx,template)
+                >>> a=vcs.init()
+                >>> a.show('yxvsx') # Show all the existing Yxvsx graphics methods
+                *******************Yxvsx Names List**********************
+                ...
+                *******************End Yxvsx Names List**********************
+                >>> yxx=a.getyxvsx('default_yxvsx_') # Create instance of default yxvsx
+                >>> array=[range(1, 11) for _ in range(1, 11)]
+                >>> a.yxvsx(array,yxx) # Plot array using specified yxx and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template=a.gettemplate('hovmuller')
+                >>> a.yxvsx(array,yxx,template) # Plot array using specified yxx and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('yxvsx', args)
         return self.__plot(arglist, parms)
@@ -1522,25 +1584,30 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_xvsy
 
-            a=vcs.init()
-            # Show all the existing XvsY graphics methods
-            >>> a.show('xvsy')
-            # Create instance of 'quick'
-            xy=a.getxvsy('quick')
-            # Plot array using specified xy and default template
-            >>> a.xvsy(array,xy)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified xy and template
-            >>> a.xvsy(array,xy,template)
+                >>> a=vcs.init()
+                >>> a.show('xvsy') # Show all the existing XvsY graphics methods
+                *******************Xvsy Names List**********************
+                ...
+                *******************End Xvsy Names List**********************
+                >>> xy=a.getxvsy('default_xvsy_') # Create instance of 'quick'
+                >>> array=[range(1, 11) for _ in range(1, 11)]
+                >>> a.xvsy(array,xy) # Plot array using specified xy and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template=a.gettemplate('hovmuller')
+                >>> a.xvsy(array,xy,template) # Plot array using specified xy and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('xvsy', args)
         return self.__plot(arglist, parms)
@@ -1567,19 +1634,26 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_vector
 
-            a=vcs.init()
-            # Show all the existing vector graphics methods
-            >>> a.show('vector')
-            # Create instance of 'quick'
-            vec=a.getvector('quick')
-            # Plot array using specified vec and default template
-            >>> a.vector(array,vec)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified vec and template
-            >>> a.vector(array,vec,template)
+                >>> a=vcs.init()
+                >>> a.show('vector') # Show all the existing vector graphics methods
+                *******************Vector Names List**********************
+                ...
+                *******************End Vector Names List**********************
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab1 = f('u') # use the data file to create a cdms2 slab
+                >>> slab2 = f('v') # vector needs 2 slabs, so get another
+                >>> a.vector(slab1, slab2) # plot vector using slab and default vector
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template=a.gettemplate('hovmuller')
+                >>> a.vector(slab1, slab2, template) # Plot array using default vector and specified template
+                <vcs.displayplot.Dp ...>
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('vector', args)
         return self.__plot(arglist, parms)
@@ -1601,25 +1675,32 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_scatter
 
-            a=vcs.init()
-            # Show all the existing scatter graphics methods
-            >>> a.show('scatter')
-            # Create instance of 'quick'
-            sct=a.getscatter('quick')
-            # Plot array using specified sct and default template
-            >>> a.scatter(array,sct)
-            # Clear VCS canvas
-            >>> a.clear()
-            # Plot array using specified sct and template
-            >>> a.scatter(array,sct,template)
+                >>> a=vcs.init()
+                >>> a.show('scatter') # Show all the existing scatter graphics methods
+                *******************Scatter Names List**********************
+                ...
+                *******************End Scatter Names List**********************
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab1 = f('u') # use the data file to create a cdms2 slab
+                >>> slab2 = f('v') # need 2 slabs, so get another
+                >>> a.scatter(slab1, slab2) # Plot array using specified sct and default template
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # Clear VCS canvas
+                >>> template=a.gettemplate('hovmuller')
+                >>> a.scatter(slab1, slab2, template) # Plot array using specified sct and template
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
         %s
         %s
         %s
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
 
         arglist = _determine_arg_list('scatter', args)
@@ -1650,25 +1731,24 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_line
 
-            a=vcs.init()
-            # Show all the existing line objects
-            >>> a.show('line')
-            # Create instance of 'red'
-            ln=a.getline('red')
-            # Set the line width
-            ln.width=4
-            # Set the line color
-            ln.color = 242
-            # Set the line type
-            ln.type = 4
-            # Set the x value points
-            ln.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
-            # Set the y value points
-            ln.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
-            # Plot using specified line object
-            >>> a.line(ln)
+                >>> a=vcs.init()
+                >>> a.show('line')  # Show all the existing line objects
+                *******************Line Names List**********************
+                ...
+                *******************End Line Names List**********************
+                >>> ln=a.getline('red') # Create instance of 'red'
+                >>> ln.width=4 # Set the line width
+                >>> ln.color = 242 # Set the line color
+                >>> ln.type = 4 # Set the line type
+                >>> ln.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]] # Set the x value points
+                >>> ln.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]] # Set the y value points
+                >>> a.line(ln) # Plot using specified line object
+                <vcs.displayplot.Dp ...>
+
+        :returns: A VCS displayplot object.
+        :rtype: vcs.displayplot.Dp
         """
         arglist = _determine_arg_list('line', args)
         return self.__plot(arglist, parms)
@@ -1682,19 +1762,17 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_drawline
 
-            a=vcs.init()
-            # Show all the existing line objects
-            >>> a.show('line')
-            # Create instance of line object 'red'
-            ln=a.drawline(name='red', ltype='dash', width=2,
-                          color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
-                          worldcoordinate=[0,100, 0,50],
-                          x=[0,20,40,60,80,100],
-                          y=[0,10,20,30,40,50] )
-            # Plot using specified line object
-            >>> a.line(ln)
+                >>> a=vcs.init()
+                >>> a.show('line') # Show all the existing line objects
+                >>> ln=a.drawline(name='red', ltype='dash', width=2,
+                ...              color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
+                ...              worldcoordinate=[0,100, 0,50],
+                ...              x=[0,20,40,60,80,100],
+                ...              y=[0,10,20,30,40,50] )
+                >>> a.line(ln) # Plot using specified line object
+                <vcs.displayplot.Dp ...>
 
         :param name: Name of created object
         :type name: str
@@ -1776,25 +1854,21 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_marker
 
-            a=vcs.init()
-            # Show all the existing marker objects
-            >>> a.show('marker')
-            # Create instance of 'red'
-            mrk=a.getmarker('red')
-            # Set the marker size
-            mrk.size=4
-            # Set the marker color
-            mrk.color = 242
-            # Set the marker type
-            mrk.type = 4
-            # Set the x value points
-            mrk.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
-            # Set the y value points
-            mrk.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
-            # Plot using specified marker object
-            >>> a.marker(mrk)
+                >>> a=vcs.init()
+                >>> a.show('marker') # Show all the existing marker objects
+                *******************Marker Names List**********************
+                ...
+                *******************End Marker Names List**********************
+                >>> mrk=a.getmarker('red') # Create instance of 'red'
+                >>> mrk.size=4 # Set the marker size
+                >>> mrk.color = 242 # Set the marker color
+                >>> mrk.type = 4 # Set the marker type
+                >>> mrk.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]] # Set the x value points
+                >>> mrk.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]] # Set the y value points
+                >>> a.marker(mrk) # Plot using specified marker object
+                <vcs.displayplot.Dp ...>
 
         :returns: a VCS displayplot object
         :rtype: vcs.displayplot.Dp
@@ -1811,19 +1885,20 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_drawmarker
 
-            a=vcs.init()
-            # Show all the existing marker objects
-            >>> a.show('marker')
-            # Create instance of marker object 'red'
-            mrk=a.drawmarker(name='red', mtype='dot', size=2,
-                          color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
-                          worldcoordinate=[0,100, 0,50]
-                          x=[0,20,40,60,80,100],
-                          y=[0,10,20,30,40,50] )
-            # Plot using specified marker object
-            >>> a.marker(mrk)
+                >>> a=vcs.init()
+                >>> a.show('marker')  # Show all the existing marker objects
+                *******************Marker Names List**********************
+                ...
+                *******************End Marker Names List**********************
+                >>> mrk=a.drawmarker(name='red', mtype='dot', size=2,
+                ...              color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
+                ...              worldcoordinate=[0,100, 0,50]
+                ...              x=[0,20,40,60,80,100],
+                ...              y=[0,10,20,30,40,50] ) # Create instance of marker object 'red'
+                >>> a.marker(mrk) # Plot using specified marker object
+                <vcs.displayplot.Dp ...>
 
         :param name: Name of created object
         :type name: str
@@ -1905,25 +1980,21 @@ class Canvas(object):
 
             .. doctest::
 
-            a=vcs.init()
-            # Show all the existing fillarea objects
-            >>> a.show('fillarea')
-            # Create instance of 'red'
-            fa=a.createfillarea('red')
-            # Set the fillarea style
-            fa.style=1
-            # Set the fillarea index
-            fa.index=4
-            # Set the fillarea color
-            fa.color = 242
-            # Set the fillarea type
-            fa.type = 4
-            # Set the x value points
-            fa.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]]
-            # Set the y value points
-            fa.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]]
-            # Plot using specified fillarea object
-            >>> a.fillarea(fa)
+                a=vcs.init()
+
+                    >>> a.show('fillarea') # Show all the existing fillarea objects
+                    *******************Fillarea Names List**********************
+                    ...
+                    *******************End Fillarea Names List**********************
+                    >>> fa=a.createfillarea() # Create instance of default fillarea
+                    >>> fa.style=1 # Set the fillarea style
+                    >>> fa.index=4 # Set the fillarea index
+                    >>> fa.color = 242 # Set the fillarea color
+                    >>> fa.type = 4 # Set the fillarea type
+                    >>> fa.x=[[1.0,2.0,2.0,1.0,1.0], [0.5,1.5]] # Set the x value points
+                    >>> fa.y=[[1.0,1.0,2.0,2.0,1.0], [1.0,1.0]] # Set the y value points
+                    >>> a.fillarea(fa) # Plot using specified fillarea object
+                    <vcs.displayplot.Dp ...>
 
         :returns: A fillarea object
         :rtype: vcs.displayplot.Dp
@@ -2089,7 +2160,7 @@ class Canvas(object):
             ...
             *******************End Textorientation Names List**********************
 
-            >>> vcs.createtext('std_tt', 'std', '7left_to', '7left') # Create instance of 'std_tt' and '7left_to'
+            >>> vcs.createtext('qa_tt', 'qa', '7left_to', '7left') # Create instance of 'std_tt' and '7left_to'
             <vcs.textcombined.Tc object at ...
 
             >>> tc=a.gettext('std_tt','7left_to')
@@ -5206,22 +5277,16 @@ class Canvas(object):
 
             .. doctest::
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Overwrite a postscript file
-            >>> a.postscript('example')
-            # Append postscript to an existing file
-            >>> a.postscript('example', 'a')
-            # Overwrite an existing file
-            >>> a.postscript('example', 'r')
-            # Append postscript to an existing file
-            >>> a.postscript('example', mode='a')
-            # US Legal (default)
-            >>> a.postscript('example', width=11.5, height= 8.5)
-            # A4
-            >>> a.postscript('example', width=21, height=29.7, units='cm')
-            >>> a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
-            # US Legal output and control of margins (for printer friendly output), default units 'inches'
+                >>> a=vcs.init()
+                >>> array = [range(10) for _ in range(10)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.postscript('example') # Overwrite a postscript file
+                >>> a.postscript('example', 'a') # Append postscript to an existing file
+                >>> a.postscript('example', 'r') # Overwrite an existing file
+                >>> a.postscript('example', mode='a') # Append postscript to an existing file
+                >>> a.postscript('example', width=11.5, height= 8.5) # US Legal (default)
+                >>> a.postscript('example', width=21, height=29.7, units='cm') # A4
 
         :param file: String name of the desired output file
         :type file: str
@@ -5302,23 +5367,21 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_saveinitial
 
-            a=vcs.init()
-            ...
-
-            >>> a.saveinitialfile()
+                >>> a=vcs.init()
+                >>> a.saveinitialfile()
 
         .. warning::
-            This removes first ALL object generated automatically
+
+            This removes first ALL objects generated automatically
             (i.e. whose name starts with '__') in order to preserve this, rename objects first
             e.g:
 
-            .. codeblock:: python
+            .. doctest:: canvas_saveinitial_warning
 
-                b=a.createboxfill()
-                b.name='MyBoxfill'
-                # graphic method is now preserved
+                >>> b=vcs.createboxfill()
+                >>> b.name='MyBoxfill' # graphic method is now preserved
         """
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
@@ -5394,8 +5457,11 @@ class Canvas(object):
                 >>> a=vcs.init()
 
                 >>> a.show('template') # Show all the existing templates
+                *******************Template Names List**********************
+                ...
+                *******************End Template Names List**********************
 
-                >>> plot1=a.getplot('dpy_plot_1') # plot1 instance of 'dpy_plot_1' display plot
+                >>> plot1=a.getplot() # plot1 instance of 'dpy_plot_1' display plot
 
     :param Dp_name_src: String name of an existing display plot object
     :type Dp_name_src: str
@@ -5482,28 +5548,16 @@ class Canvas(object):
             .. doctest:: canvas_getfont
 
                 >>> a=vcs.init()
-
-                >>> fonts=[]
-
+                >>> font_names=[]
                 >>> for i in range(1,17):
-                ...     fonts.append(str(a.getfont(i)))
-
-                >>> print(fonts[0:8])
-                ['default', 'Clarendon', 'Courier', 'Helvetica', 'Adelon', 'Times', 'Arabic', 'Chinese']
-                >>> print(fonts[8:16])
-                ['Greek', 'Hebrew', 'Russian', 'Maths1', 'Maths2', 'Maths3', 'Maths4', 'AvantGarde']
-
-                >>> fontmap = {}
-
-                >>> for font in fonts:
-                ...     fontmap[font] = a.getfont(font)
-
-                >>> print(fontmap.items()[0:6])
-                [('Maths1', 12), ('Maths3', 14), ('Maths2', 13), ('Chinese', 8), ('Courier', 3), ('Greek', 9)]
-                >>> print(fontmap.items()[6:12])
-                [('default', 1), ('Helvetica', 4), ('AvantGarde', 16), ('Times', 6), ('Clarendon', 2), ('Hebrew', 10)]
-                >>> print(fontmap.items()[12:16])
-                [('Russian', 11), ('Adelon', 5), ('Arabic', 7), ('Maths4', 15)]
+                ...     font_names.append(str(a.getfont(i))) # font_names is now filled with all font names
+                >>> font_names
+                ['default', ...]
+                >>> font_numbers = []
+                >>> for name in font_names:
+                ...     font_numbers.append(a.getfont(name)) # font_numbers is now filled with all font numbers
+                >>> font_numbers
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
         :param font: The font name/number
         :type font: int or str
