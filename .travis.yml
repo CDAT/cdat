@@ -3,9 +3,8 @@ os:
 osx_image: xcode7.1
 sudo: false
 before_install:
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-  -O miniconda.sh; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
+  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh
   -O miniconda.sh; fi
 - export PATH="$HOME/miniconda/bin:$PATH"
