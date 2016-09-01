@@ -27,7 +27,7 @@ def derive_variable(json_spec, backend=numpy_backend):
 
         if step["type"].lower() == "variable":
             operation = node.create_operation(step["operation"], backend)
-            result = node.VariableNode(operation, [derivation_results[i] for i in step["parents"]])
+            result = node.VariableNode(operation, [derivation_results[i] for i in step["parents"]], backend)
 
         if result is None:
             raise ValueError("Unsupported derivation step type: %s" % (step["type"]))
@@ -40,7 +40,7 @@ def derive_variable(json_spec, backend=numpy_backend):
     return var
 
 
-def export_variable(node, path, fmt=None):
+def export_variable(variable, path, fmt=None):
     """
     Convert the node's data graph into a serialized format and store it at path.
 
@@ -48,39 +48,44 @@ def export_variable(node, path, fmt=None):
     path's file extension, or, if none found, will use JSON.
     """
 
+    n = variable.provenance_node
+    if n is None:
+        raise ValueError("Variable %s not tracking provenance." % variable.id)
+
     if fmt is None:
         _, fmt = os.path.splitext(path)
+        fmt = fmt[1:]
         if not fmt:
             fmt = "json"
 
     if fmt == "json":
-        graph = graph_to_dict(node)
+        graph = graph_to_dict(n)
         with open(path, "w") as outfile:
             json.dump(graph, outfile)
     else:
         raise NotImplementedError("No export for filetype %s implemented." % fmt)
 
 
-def graph_to_dict(node):
-    all_nodes = [node]
+def graph_to_dict(obj_node):
+    all_nodes = [obj_node]
     index = 0
 
     # Accumulate node and its ancestors into all_nodes
-    while index <= len(all_nodes):
+    while index < len(all_nodes):
         n = all_nodes[index]
         if isinstance(n, node.VariableNode):
             all_nodes.extend(n.parents)
         index += 1
 
     graph = {
-        "id": node.get_value().id,
+        "id": obj_node.get_value().id,
         "derivation": []
     }
 
     ordered_nodes = all_nodes[::-1]
 
     # Assemble the derivation
-    for node in ordered_nodes:
-        graph["derivation"].append(node.to_dict(ordered_nodes))
+    for n in ordered_nodes:
+        graph["derivation"].append(n.to_dict(ordered_nodes))
 
     return graph

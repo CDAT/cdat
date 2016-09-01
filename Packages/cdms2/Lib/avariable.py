@@ -117,7 +117,7 @@ def getNumericCompatibility():
     return _numeric_compatibility
 
 class AbstractVariable(CdmsObj, Slab):
-    def __init__ (self, parent=None, variableNode=None):
+    def __init__ (self, parent=None, variableNode=None, provenanceNode=None):
         """Not to be called by users.
            variableNode is the variable tree node, if any.
            parent is the containing dataset instance.
@@ -125,7 +125,7 @@ class AbstractVariable(CdmsObj, Slab):
         if variableNode is not None and variableNode.tag !='variable':
             raise CDMSError, 'Node is not a variable node'
         CdmsObj.__init__(self, variableNode)
-        val = self.__cdms_internals__ + ['id','domain']
+        val = self.__cdms_internals__ + ['id', 'domain', "provenance_node"]
         self.___cdms_internals__ = val 
         Slab.__init__(self)
         self.id = None                  # Transient variables key on this to create a default ID
@@ -136,7 +136,33 @@ class AbstractVariable(CdmsObj, Slab):
         elif numpy.isnan(self.missing_value):
           self.missing_value = None
 
+        self.provenance_node = provenanceNode
+
         # Reminder: children to define self.shape and set self.id
+
+    def track_operation(self, op_code, **kwargs):
+        """
+        Used to generate an operation node for tracking provenance
+        """
+        if self.provenance_node:
+            import provenance.node
+            operation_dictionary = {
+                "type": op_code
+            }
+            operation_dictionary.update(kwargs)
+            return provenance.node.create_operation(operation_dictionary, self.provenance_node.backend)
+        else:
+            return None
+
+    def track_child(self, operation, parents=None):
+        if self.provenance_node:
+            import provenance.node
+            if parents == None:
+                parents = [self.provenance_node]
+            variable = provenance.node.VariableNode(operation, parents, self.provenance_node.backend)
+            return variable
+        else:
+            return None
 
     def __array__ (self, t=None, context=None):  #Numeric, ufuncs call this
         return numpy.ma.filled(self.getValue(squeeze=0))
@@ -153,9 +179,10 @@ class AbstractVariable(CdmsObj, Slab):
         # make the selector
         s = selectors.Selector(*args, **d)
         # get the selection
+
         return s.unmodified_select(self, raw=raw,
-                                         squeeze=squeeze, 
-                                         order=order, 
+                                         squeeze=squeeze,
+                                         order=order,
                                          grid=grid)
 
     select = __call__
@@ -615,6 +642,28 @@ class AbstractVariable(CdmsObj, Slab):
 
             # If forcing use of input axes, make sure they are not copied.
             # Same if the grid is not rectilinear - this is when forceaxes is set.
+            if self.provenance_node:
+                # Build out the subset operation and the variable node to pass to the child.
+                axis_subsets = {}
+                for index in range(self.rank()):
+                    axis = self.getAxis(index)
+                    sliceobj = slicelist[index]
+                    start = float(axis[sliceobj.start])
+                    if sliceobj.stop < len(axis):
+                        stop = float(axis[sliceobj.stop])
+                    else:
+                        stop = float(axis[-1])
+                    if axis.isTime():
+                        import cdtime
+                        start = str(cdtime.relativetime(start, axis.units).tocomp())
+                        stop = str(cdtime.relativetime(stop, axis.units).tocomp())
+                    axis_subsets[axis.id] = [start, stop]
+
+                operation = self.track_operation("subset", axes=axis_subsets, squeeze=squeeze, order=order, grid=grid)
+                variable_node = self.track_child(operation)
+            else:
+                variable_node = None
+
             copyaxes = (forceaxes is None) and (resultgrid is None)
             result = TransientVariable(resultArray, 
                                      copy=0,
@@ -623,7 +672,8 @@ class AbstractVariable(CdmsObj, Slab):
                                      copyaxes = copyaxes,
                                      grid = resultgrid,
                                      attributes=self.attributes,
-                                     id = self.id)
+                                     id = self.id,
+                                     provenanceNode=variable_node)
             if grid is not None:
                 order2 = grid.getOrder()
                 if order is None:
@@ -724,7 +774,6 @@ class AbstractVariable(CdmsObj, Slab):
 
         speclist = self._process_specs (specs, keys)
         slicelist = self.reg_specs2slices (speclist)
-
         squeeze = keys.get ('squeeze', 0)
         raw = keys.get('raw',0)
         order = keys.get('order', None)
@@ -1203,7 +1252,6 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
                 if speclist[i] is not unspecified:
                     raise CDMSError, 'Conflict between specifier %s and %s'%(`speclist[i]`,`keys`)
                 speclist[i] = v
-
         return speclist
 
     def _single_specs (self, specs):
@@ -1417,7 +1465,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
 
         # Note: raw=0 ensures that a TransientVariable is returned
         return self.getSlice(numericSqueeze=1, raw=0, isitem=1, *speclist)
-        
+
     def __getslice__(self, low, high):
 
         # Note: raw=0 ensures that a TransientVariable is returned

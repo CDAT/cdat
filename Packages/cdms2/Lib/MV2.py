@@ -18,6 +18,17 @@ from error import CDMSError
 from axis import allclose as axisAllclose, TransientAxis, concatenate as axisConcatenate, take as axisTake
 
 
+def track(name, *args, **kwargs):
+    if len(args) == 0:
+        raise ValueError("Provide at least one parent for tracking.")
+
+    parent = args[0]
+    if hasattr(parent, "provenance_node"):
+        operation = parent.track_operation("transform", function=name, **kwargs)
+        parents = [p.provenance_node for p in args]
+        return parent.track_child(operation, parents)
+    return None
+
 
 create_mask = make_mask_none
 e = numpy.e
@@ -76,8 +87,11 @@ class var_unary_operation:
 
     def __call__ (self, a):
         axes, attributes, id, grid = _extractMetadata(a)
+
+        prov_node = track(self.mafunc.__name__, a)
+
         maresult = self.mafunc(_makeMaskedArg(a))
-        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, provenanceNode=prov_node)
 
 class var_unary_operation_with_axis:
     def __init__(self, mafunc):
@@ -87,11 +101,14 @@ class var_unary_operation_with_axis:
         self.mafunc = mafunc
         self.__doc__ = mafunc.__doc__
     def __call__ (self, a, axis=0):
+
+        prov_node = track(self.mafunc.__name__, a, axis=axis)
+
         axis = _conv_axis_arg(axis)
         ta = _makeMaskedArg(a)
         maresult = self.mafunc(ta, axis=axis)
         axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, provenanceNode=prov_node)
 
 def commonDomain(a,b,omit=None):
     """commonDomain(a,b) tests that the domains of variables/arrays a and b are equal,
@@ -223,36 +240,49 @@ class var_binary_operation:
         TransientVariable.variable_count+=1
         axes = commonDomain(a,b)
         grid = commonGrid(a,b,axes)
+
+        # Build the provenance node here, retrieve it in other funcs
+        prov_node = track(self.mafunc.__name__, a, b)
+
         ta = _makeMaskedArg(a)
         tb = _makeMaskedArg(b)
         maresult = self.mafunc(ta,tb)
-        return TransientVariable(maresult, axes=axes, grid=grid,no_update_from=True,id=id)
+        return TransientVariable(maresult, axes=axes, grid=grid,no_update_from=True,id=id, provenanceNode=prov_node)
 
     def reduce (self, target, axis=0):
+        prov_node = track(self.mafunc.__name__, target, axis=axis)
+
         ttarget = _makeMaskedArg(target)
         maresult = self.mafunc.reduce(ttarget, axis=axis)
         axes, attributes, id, grid = _extractMetadata(target, omit=axis)
-        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, provenanceNode=prov_node)
 
     def accumulate (self, target, axis=0):
+        prov_node = track(self.mafunc.__name__, target, axis=axis)
+
         ttarget = _makeMaskedArg(target)
         maresult = self.mafunc.accumulate(ttarget, axis=axis)
         axes, attributes, id, grid = _extractMetadata(target, omit=axis)
-        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
-        
+        return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, provenanceNode=prov_node)
+
     def outer (self, a, b):
         """Return the function applied to the outer product of a and b"""
         a1 = _makeMaskedArg(a)
         b1 = _makeMaskedArg(b)
         maresult = self.mafunc.outer(a1, b1)
-        return TransientVariable(maresult)
+
+        prov_node = track(self.mafunc.__name__, a, b, axis=axis)
+
+        return TransientVariable(maresult, provenanceNode=prov_node)
 
 
 def compress(a,b):
    __doc__=numpy.ma.__doc__
    import warnings
    warnings.warn("arguments order for compress function has changed\nit is now: MV2.copmress(array,condition), if your code seems to not react or act wrong to a call to compress, please check this", Warning)
-   return TransientVariable(numpy.ma.compress(a,b),copy=1)
+
+   prov_node = track("compress", a, b)
+   return TransientVariable(numpy.ma.compress(a,b),copy=1, provenanceNode=prov_node)
 
 
 sqrt = var_unary_operation(numpy.ma.sqrt)
@@ -275,7 +305,8 @@ def power (a, b, third=None):
     tb = _makeMaskedArg(b)
     maresult = numpy.ma.power(ta,tb,third)
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    prov_node = track("power", a, b, third=third)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, provenanceNode=prov_node)
 
 def left_shift (a, n):
     "Left shift n bits"
@@ -283,7 +314,8 @@ def left_shift (a, n):
     tb = _makeMaskedArg(n)
     maresult = numpy.ma.left_shift(ta,numpy.ma.filled(tb))
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    prov_node = track("left_shift", a, n=n)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, provenanceNode=prov_node)
 
 def right_shift (a, n):
     "Right shift n bits"
@@ -291,7 +323,8 @@ def right_shift (a, n):
     tb = _makeMaskedArg(n)
     maresult = numpy.ma.right_shift(ta,numpy.ma.filled(tb))
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    prov_node = track("right_shift", a, n=n)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, provenanceNode=prov_node)
 
 
 def _convdtype(dtype, typecode):
@@ -374,34 +407,38 @@ def count (a, axis = None):
     if axis is None:
         return numpy.ma.count(a,axis)
     else:
+        prov_node = track("count", a, axis=axis)
         ta = _makeMaskedArg(a)
         maresult = numpy.ma.count(ta,axis)
         axes, attributes, id, grid = _extractMetadata(a,omit=axis)
         F=getattr(a,"fill_value",1.e20)
-        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F, provenanceNode=prov_node)
 
 def sum (a, axis = None, fill_value=0, dtype=None):
     "Sum of elements along a certain axis."
+    prov_node = track("sum", a, axis=axis, fill_value=fill_value, dtype=str(dtype))
     axis = _conv_axis_arg(axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.sum(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     F=getattr(a,"fill_value",1.e20)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F, provenanceNode=prov_node)
 
 def product (a, axis = 0, dtype=None):
     "Product of elements along axis."
+    prov_node = track("product", a, axis=axis, dtype=str(dtype))
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.product(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis)
     F=getattr(a,"fill_value",1.e20)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F, provenanceNode=prov_node)
 
 def average (a, axis=None, weights=None, returned=False):
+    prov_node = track("average", a, axis=axis, weights=weights, returned=returned)
     axis = _conv_axis_arg(axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.average(ta, axis, weights, returned)
-    axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
+    axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None),)
     if returned:
       if isinstance(maresult,tuple):
         maresult, wresult = maresult
@@ -409,7 +446,7 @@ def average (a, axis=None, weights=None, returned=False):
         #ok it's masked constant need to return both things by hand
         wresult = numpy.ma.masked
     F=getattr(a,"fill_value",1.e20)
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F, provenanceNode=prov_node)
     if returned:
         F=getattr(a,"fill_value",1.e20)
         w1 = TransientVariable(wresult, axes=axes, grid=grid, id=id,no_update_from=True, fill_value=F)
@@ -419,25 +456,28 @@ def average (a, axis=None, weights=None, returned=False):
 average.__doc__ = numpy.ma.average.__doc__
 
 def max (a, axis=None):
+    prov_node = track("max", a, axis=axis)
     axis = _conv_axis_arg(axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.max(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     F=getattr(a,"fill_value",1.e20)
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F, provenanceNode=prov_node)
     return r1
 max.__doc__ = numpy.ma.max.__doc__
 def min (a, axis=None):
+    prov_node = track("min", a, axis=axis)
     axis = _conv_axis_arg(axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.min(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     F=getattr(a,"fill_value",1.e20)
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F, provenanceNode=prov_node)
     return r1
 min.__doc__ = numpy.ma.min.__doc__
 
 def sort (a, axis=-1):
+    prov_node = track("sort", a, axis=axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.sort(a.asma(), axis)
     axes, attributes, id, grid = _extractMetadata(a)
@@ -446,7 +486,7 @@ def sort (a, axis=-1):
         grid = None
     axes[axis] = TransientAxis(numpy.arange(len(sortaxis)))
     F=getattr(a,"fill_value",1.e20)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F, provenanceNode=prov_node)
 sort.__doc__ = numpy.ma.sort.__doc__ + "The sort axis is replaced with a dummy axis."
 
 def choose (indices, t):
@@ -457,18 +497,20 @@ def choose (indices, t):
 
       The result has only the default axes.
     """
+    prov_node = track("choose", t, indices=indices)
     maresult = numpy.ma.choose(indices, map(_makeMaskedArg, t))
     F=getattr(t,"fill_value",1.e20)
-    return TransientVariable(maresult, fill_value=F)
+    return TransientVariable(maresult, fill_value=F, provenanceNode=prov_node)
 
 def where (condition, x, y):
     "where(condition, x, y) is x where condition is true, y otherwise" 
 ##    axes = commonDomain(x,y)
 ##    grid = commonGrid(x,y,axes)
+    prov_node = track("where", x, y, condition=condition)
     maresult = numpy.ma.where(condition, _makeMaskedArg(x), _makeMaskedArg(y))
     axes, attributes, id, grid = _extractMetadata(condition)
     F=getattr(x,"fill_value",1.e20)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F, provenanceNode=prov_node)
 
 def masked_where(condition, x, copy=1):
     """Return x as an array masked where condition is true. 
