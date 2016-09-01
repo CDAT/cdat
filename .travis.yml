@@ -32,7 +32,7 @@ script:
 - echo "OFFSCREEN IS:"$NOX
 - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
 - make
-- ctest -j8 -D Experimental
+- ctest -j2 -D Experimental
 env:
   global:
     secure: Z06idl4BP01QMhrocmfuYV4CcbLmb5ZJZoXXymDr5sLIIfqdMiSL/CfDCRkIwl44vKpTN5R9AAhQV6iNMdU0NOQQrftHJyT5YV4y966FuAA1v9ev7y/cgExJFv7M/4E37WAN6YIcO7E42KZReeNKOAodorpqoT87MW6FAImZbrM=
