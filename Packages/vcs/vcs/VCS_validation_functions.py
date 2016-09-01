@@ -351,7 +351,8 @@ def checkMarker(self, name, value):
         elif value in range(100, 203):
             value = "w%.2i" % (value - 100)
         elif (queries.ismarker(value) == 1):
-            value = value.name
+                value = value.name
+
     else:
         checkedRaise(
             self,

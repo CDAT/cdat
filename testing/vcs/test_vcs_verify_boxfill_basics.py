@@ -27,13 +27,13 @@ assert(numpy.allclose(b.level_1,  1e+20))
 assert(numpy.allclose(b.level_2,  1e+20))
 print b.levels
 assert(numpy.allclose(b.levels,  1e+20))
-assert(b.color_1 ==  16)
-assert(b.color_2 ==  239)
+assert(b.color_1 ==  0)
+assert(b.color_2 ==  255)
 assert(b.fillareacolors ==  None)
 assert(b.legend ==  None)
 assert(b.ext_1 ==  False)
 assert(b.ext_2 == False )
-assert(b.missing ==  1)
+assert(b.missing ==  (0.0, 0.0, 0.0, 100.0))
 
 ## Now test setting attributes correctly and incorrectly
 b.projection = 'linear'

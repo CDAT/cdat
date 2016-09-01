@@ -222,8 +222,7 @@ class Gfi(object):
                 iso.yaxisconvert='linear'
                 # Will set them both
                 iso.xyscale('linear', 'area_wt')
-                # Color index value range 0 to 255
-                iso.missing=241
+                iso.missing='black'
                 iso.legend=None
                 ext_1='n'
                 ext_2='y'
@@ -300,7 +299,7 @@ class Gfi(object):
                     # change style
                     fill.style='hatch'
                     # change color
-                    fill.color=241
+                    fill.color='black'
                     # change style index
                     fill.index=3
 
@@ -629,7 +628,7 @@ class Gfi(object):
             self._datawc_x2 = 1.e20
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
-            self._missing = 241
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'

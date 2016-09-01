@@ -259,7 +259,7 @@ class Gfm(object):
             # change style
             fill.style='hatch'
             # change color
-            fill.color=241
+            fill.color='black'
             # change style index
             fill.index=3
 
@@ -272,9 +272,9 @@ wrap :: ([float,float]) ([0.,0.]) Modulo to wrap around on either axis (automati
     # % (xmldocs.graphics_method_core, xmldocs.meshfill_doc)
 
     ##########################################################################
-    #                                                                           #
-    # Initialize the meshfill attributes.                                        #
-    #                                                                           #
+    #                                                                        #
+    # Initialize the meshfill attributes.                                    #
+    #                                                                        #
     ##########################################################################
     colormap = VCS_validation_functions.colormap
     __slots__ = [
@@ -616,7 +616,7 @@ wrap :: ([float,float]) ([0.,0.]) Modulo to wrap around on either axis (automati
             self._datawc_x2 = 1.e20
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
-            self._missing = 241
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'

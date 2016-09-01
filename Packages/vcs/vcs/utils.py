@@ -667,7 +667,7 @@ def scriptrun(script):
         exec(compile(open(script).read(), script, 'exec'))
     else:
         if os.path.split(script)[-1] == "initial.attributes":
-            vcs._doValidation = False
+            vcs._doValidation = True
         loader = {"P": 'template',
                   "Gfb": 'boxfill',
                   "Gfi": 'isofill',
@@ -735,10 +735,9 @@ def loadTemplate(nm, vals):
 
 
 def loadVCSItem(typ, nm, json_dict={}):
-    # if typ=="oneD":
-    #  tp = "oned"
-    # else:
-    #  tp = typ
+    if typ in vcs._protected_elements.keys() and nm in vcs._protected_elements[typ]:
+        # protected element do not overload
+        return
     tp = typ
     if typ == "L":
         d = {}
@@ -1056,7 +1055,6 @@ def mklabels(vals, output='dict'):
     :returns: Dictionary or list of labels for the given values.
     :rtype: dict, list
         """
-    import string
     import numpy.ma
     if isinstance(vals[0], list) or isinstance(vals[0], tuple):
         vals = __split2contiguous(vals)
@@ -1066,7 +1064,7 @@ def mklabels(vals, output='dict'):
     # Finds maximum number to write
     amax = float(numpy.ma.maximum(numpy.ma.absolute(vals)))
     if amax == 0:
-        if string.lower(output[:3]) == 'dic':
+        if output[:3].lower() == 'dic':
             return {0: '0'}
         else:
             return ['0']
@@ -1079,7 +1077,7 @@ def mklabels(vals, output='dict'):
                 lbls.append(mklabels([vals[i]], output='list')[0])
             else:
                 lbls.append('0')
-        if string.lower(output[:3]) == 'dic':
+        if output[:3].lower() == 'dic':
             dic = {}
             for i in range(len(vals)):
                 dic[float(vals[i])] = lbls[i]
@@ -1117,8 +1115,8 @@ def mklabels(vals, output='dict'):
                 ii = 1
                 if vals[i] < 0.:
                     ii = 2
-                aa = string.ljust(aa, idig + ii)
-                aa = string.replace(aa, ' ', '0')
+                aa = aa.ljust(idig + ii)
+                aa = aa.replace(' ', '0')
                 lbls.append(aa + 'E' + str(idigleft - 1))
     elif idigleft > 0 and idigleft >= idig:  # F format
         for i in range(nvals):
@@ -1139,7 +1137,7 @@ def mklabels(vals, output='dict'):
         vals = -vals
         for i in range(len(lbls)):
             lbls[i] = '-' + lbls[i]
-    if string.lower(output[:3]) == 'dic':
+    if output[:3].lower() == 'dic':
         dic = {}
         for i in range(len(vals)):
             dic[float(vals[i])] = str(lbls[i])
@@ -1148,12 +1146,12 @@ def mklabels(vals, output='dict'):
         return lbls
 
 
-def getcolors(levs, colors=None, split=1, white=240):
+def getcolors(levs, colors=None, split=1, white="white"):
     """
     For isofill/boxfill purposes
     Given a list of levels this function returns the colors that would
-    best spread a list of "user-defined" colors (default is 16 to 239,
-    i.e 224 colors), always using the first and last color.
+    best spread a list of "user-defined" colors (default is 0 to 255,
+    i.e 256 colors), always using the first and last color.
     Optionally the color range can be split into 2 equal domain to
     represent <0 and >0 values.
     If the colors are split an interval goes from <0 to >0
@@ -1165,16 +1163,16 @@ def getcolors(levs, colors=None, split=1, white=240):
 
         >>> a=[0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
         >>> vcs.getcolors (a)
-        [16, 41, 66, 90, 115, 140, 165, 189, 214, 239]
+        [0, 28, 57, 85, 113, 142, 170, 198, 227, 255]
         >>> vcs.getcolors (a,colors=range(16,200))
         [16, 36, 57, 77, 97, 118, 138, 158, 179, 199]
         >>> vcs.getcolors(a,colors=[16,25,15,56,35,234,12,11,19,32,132,17])
         [16, 25, 15, 35, 234, 12, 11, 32, 132, 17]
         >>> a=[-6.0, -2.0, 2.0, 6.0, 10.0, 14.0, 18.0, 22.0, 26.0]
         >>> vcs.getcolors (a,white=241)
-        [72, 241, 128, 150, 172, 195, 217, 239]
+        [0, 241, 128, 153, 179, 204, 230, 255]
         >>> vcs.getcolors (a,white=241,split=0)
-        [16, 48, 80, 112, 143, 175, 207, 239]
+        [0, 36, 73, 109, 146, 182, 219, 255]
 
 
     :param levs: levels defining the color ranges
@@ -1189,19 +1187,16 @@ def getcolors(levs, colors=None, split=1, white=240):
                     2 : split even if all the values are positive or negative
     :type split: int
 
-    :param white: If split is on and an interval goes from <0 to >0 this color number
-                  will be used within this interval (240 is white in the default VCS palette color).
-                  Integer must be between 0 and 255.
-    :type white: int
+    :param white: If split is on and an interval goes from <0 to >0 this color
+                  will be used within this interval.
+    :type white: int, string, tuple
 
     :returns: List of colors
     :rtype: list
     """
 
-    import string
-    
     if colors is None:
-        colors = range(16, 240)
+        colors = range(256)
     if len(levs) == 1:
         return [colors[0]]
     if isinstance(levs[0], list) or isinstance(levs[0], tuple):
@@ -1221,8 +1216,8 @@ def getcolors(levs, colors=None, split=1, white=240):
         else:
             split = 1
     # Take care of argument white
-    if isinstance(white, str):
-        white = string.atoi(white)
+    if isinstance(white, basestring):
+        white = genutil.colors.str2rgb(white)
 
     # Gets first and last value, and adjust if extensions
     mn = levs[0]
@@ -1759,7 +1754,7 @@ def match_color(color, colormap=None):
     :rtype: int
 """
     # First gets the rgb values
-    if isinstance(color, type('')):
+    if isinstance(color, basestring):
         vals = genutil.colors.str2rgb(color)
         vals[0] /= 2.55
         vals[1] /= 2.55

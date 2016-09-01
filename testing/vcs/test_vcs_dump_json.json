@@ -9,11 +9,21 @@
    "datawc_y1": 1e+20, 
    "datawc_y2": 1e+20, 
    "flip": false, 
-   "linecolor": 241, 
+   "linecolor": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "linetype": "solid", 
    "linewidth": 1, 
    "marker": "dot", 
-   "markercolor": 241, 
+   "markercolor": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "markersize": 1, 
    "projection": "linear", 
    "smooth": null, 
@@ -32,8 +42,8 @@
  "Gfb": {
   "vcs_instance": {
    "boxfill_type": "linear", 
-   "color_1": 16, 
-   "color_2": 239, 
+   "color_1": 0, 
+   "color_2": 255, 
    "colormap": null, 
    "datawc_calendar": 135441, 
    "datawc_timeunits": "days since 2000", 
@@ -56,7 +66,12 @@
     1e+20, 
     1e+20
    ], 
-   "missing": 1, 
+   "missing": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "projection": "linear", 
    "xaxisconvert": "linear", 
    "xmtics1": "", 
@@ -96,7 +111,12 @@
      1.0000000200408773e+20
     ]
    ], 
-   "missing": 241, 
+   "missing": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "projection": "linear", 
    "xaxisconvert": "linear", 
    "xmtics1": "", 
@@ -135,7 +155,12 @@
     ]
    ], 
    "mesh": 0, 
-   "missing": 241, 
+   "missing": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "projection": "linear", 
    "wrap": [
     0.0, 
@@ -185,7 +210,12 @@
     ]
    ], 
    "linecolors": [
-    1
+    [
+     0.0, 
+     0.0, 
+     0.0, 
+     100.0
+    ]
    ], 
    "linetypes": [
     "solid"
@@ -682,7 +712,12 @@
  "Tl": {
   "vcs_instance": {
    "color": [
-    1
+    [
+     0.0, 
+     0.0, 
+     0.0, 
+     100.0
+    ]
    ], 
    "colormap": null, 
    "priority": 1, 
@@ -749,9 +784,19 @@
  }, 
  "Tt": {
   "vcs_instance": {
-   "backgroundcolor": 0, 
+   "backgroundcolor": [
+    100.0, 
+    100.0, 
+    100.0, 
+    0.0
+   ], 
    "backgroundopacity": 0, 
-   "color": 1, 
+   "color": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "colormap": null, 
    "expansion": 100, 
    "fillincolor": 0, 

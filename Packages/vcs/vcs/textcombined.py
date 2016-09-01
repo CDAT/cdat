@@ -102,7 +102,6 @@ class Tc(object):
 
             .. code-block:: python
 
-                # The font value must be in the range 1 to 9
                 tc.font=1
 
         * Specify the text spacing:
@@ -123,8 +122,8 @@ class Tc(object):
 
             .. code-block:: python
 
-                # The text color value ranges from 1 to 257
-                tc.color=241
+                # The text color
+                tc.color="black"
 
         * Specify the graphics text priority on the VCS Canvas:
 

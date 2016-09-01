@@ -43,7 +43,7 @@ ice.long_name = "September sea ice fraction: 4xCO2 climate, no ocean albedo alte
 levs = vcs.mkscale(ice.min(), ice.max())
 
 cols = vcs.getcolors(levs)
-cols[0] = 240
+cols[0] = 'white'
 
 gm.levels = levs
 gm.fillareacolors = cols
