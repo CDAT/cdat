@@ -16,7 +16,7 @@ before_install:
 script:
 - export NOX="OFF"
 - export CONDA_XTRA="uvcdat"
-- export NCPUS="2"
+- export NCPUS="4"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="uvcdat -c spyder-ide libxcb"; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
 - echo $TRAVIS_BRANCH
