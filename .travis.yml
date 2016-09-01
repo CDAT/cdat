@@ -21,7 +21,7 @@ script:
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="uvcdat -c spyder-ide libxcb"; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
 - echo $TRAVIS_BRANCH
-- export $TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
+- export TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
 - echo $TRAVIS_EVENT_TYPE
 - echo $TRAVIS_PULL_REQUEST
 - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl -u doutriaux1:$MY_GITHUB_TOKEN https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' | cut -d'"' -f 2) ; fi
