@@ -18,14 +18,15 @@ FileClosedWrite = "Cannot write to a closed file, variable: "
 
 class FileVariable(DatasetVariable):
     "A variable in a single file."
-    def __init__(self,parent,varname,cdunifobj=None):
+    def __init__(self,parent,varname,cdunifobj=None, provenanceNode=None):
         DatasetVariable.__init__(self, parent, varname)
         self._obj_ = cdunifobj
         if cdunifobj is not None:
             for attname, attval in cdunifobj.__dict__.items():
                 self.__dict__[attname] = attval
                 self.attributes[attname]=attval
-        val = self.__cdms_internals__+['name_in_file',]
+        val = self.__cdms_internals__+['name_in_file']
+        self.provenance_node = provenanceNode
         self.___cdms_internals__ = val
 
     # Initialize the domain

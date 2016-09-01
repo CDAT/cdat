@@ -316,7 +316,7 @@ def createDataset(path, template=None):
 # 'mode' is 'r', 'r+', 'a', or 'w'
 
 
-def openDataset(uri, mode='r', template=None, dods=1, dpath=None, hostObj=None):
+def openDataset(uri, mode='r', template=None, dods=1, dpath=None, hostObj=None, backend=None):
     """
     Options:::
 mode :: (str) ('r') mode to open the file in read/write/append
@@ -331,7 +331,16 @@ Output:::
 file :: (cdms2.dataset.CdmsFile) (0) file to read from
 :::
     """
+    import provenance.node
+
     uri = string.strip(uri)
+
+    if backend is None:
+        import provenance.numpy_backend
+        backend = provenance.numpy_backend
+
+    file_node = provenance.node.FileNode(uri, backend)
+
     (scheme, netloc, path, parameters, query, fragment) = urlparse.urlparse(uri)
     if scheme in ('', 'file'):
         if netloc:
@@ -349,16 +358,16 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             # If the doesn't exist allow it to be created
             # Ok mpi has issues with bellow we need to test this only with 1 rank
             if not os.path.exists(path):
-                return CdmsFile(path, mode, mpiBarrier=CdMpi)
+                return CdmsFile(path, mode, mpiBarrier=CdMpi, provenanceNode=file_node)
             elif mode == "w":
                 try:
                     os.remove(path)
                 except:
                     pass
-                return CdmsFile(path, mode, mpiBarrier=CdMpi)
+                return CdmsFile(path, mode, mpiBarrier=CdMpi, provenanceNode=file_node)
 
             # The file exists
-            file1 = CdmsFile(path, "r")
+            file1 = CdmsFile(path, "r", provenanceNode=file_node)
             if libcf is not None:
                 if hasattr(file1, libcf.CF_FILETYPE):
                     if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
@@ -367,15 +376,15 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                         # helps performance on machines where file open (in CdmsFile) is costly
                         file = file1
                     else:
-                        file = CdmsFile(path, mode, hostObj=hostObj)
+                        file = CdmsFile(path, mode, hostObj=hostObj, provenanceNode=file_node)
                     file1.close()
                 else:
                     file1.close()
-                    file = CdmsFile(path, mode)
+                    file = CdmsFile(path, mode, provenanceNode=file_node)
                 return file
             else:
                 file1.close()
-                return CdmsFile(path, mode)
+                return CdmsFile(path, mode, provenanceNode=file_node)
     elif scheme in ['http', 'gridftp']:
 
         if (dods):
@@ -383,7 +392,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 raise ModeNotSupported(mode)
             # DODS file?
             try:
-                file = CdmsFile(uri, mode)
+                file = CdmsFile(uri, mode, provenanceNode=file_node)
                 return file
             except Exception:
                 msg = "Error in DODS open of: " + uri
@@ -1024,7 +1033,7 @@ class Dataset(CdmsObj, cuDataset):
 
 class CdmsFile(CdmsObj, cuDataset):
 
-    def __init__(self, path, mode, hostObj=None, mpiBarrier=False):
+    def __init__(self, path, mode, hostObj=None, mpiBarrier=False, provenanceNode=None):
 
         if mpiBarrier:
             MPI.COMM_WORLD.Barrier()
@@ -1041,7 +1050,8 @@ class CdmsFile(CdmsObj, cuDataset):
                                            'id',
                                            'uri',
                                            'parent',
-                                           'mode']
+                                           'mode',
+                                           'provenance_node']
         self.___cdms_internals__ = value
         self.id = path
         if "://" in path:
@@ -1064,6 +1074,7 @@ class CdmsFile(CdmsObj, cuDataset):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
+        self.provenance_node = provenanceNode
 
         # self.attributes returns the Cdunif file dictionary.
 # self.replace_external_attributes(self._file_.__dict__)
@@ -1093,6 +1104,8 @@ class CdmsFile(CdmsObj, cuDataset):
             coords1d = self._convention_.getAxisIds(self._file_.variables)
             coordsaux = self._convention_.getAxisAuxIds(self._file_.variables, coords1d)
 
+            import provenance.node
+
             # Build variable list
             for name in self._file_.variables.keys():
                 if name not in coords1d:
@@ -1105,7 +1118,9 @@ class CdmsFile(CdmsObj, cuDataset):
                         else:
                             self.variables[name] = FileAuxAxis1D(self, name, cdunifvar)
                     else:
-                        self.variables[name] = FileVariable(self, name, cdunifvar)
+                        operation = provenance.node.create_operation({"type": "get", "id": name}, self.provenance_node.backend)
+                        var_node = provenance.node.VariableNode(operation, [self.provenance_node], self.provenance_node.backend)
+                        self.variables[name] = FileVariable(self, name, cdunifvar, provenanceNode=var_node)
 
             # Build axis list
             for name in self._file_.dimensions.keys():

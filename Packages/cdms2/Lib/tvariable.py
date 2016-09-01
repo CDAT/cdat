@@ -172,7 +172,8 @@ class TransientVariable(AbstractVariable, numpy.ma.MaskedArray):
         if isinstance(data, types.TupleType):
             data = list(data)
 
-        AbstractVariable.__init__(self)
+        provenance = kargs.get("provenanceNode", None)
+        AbstractVariable.__init__(self, provenanceNode=provenance)
 
         if isinstance(data, AbstractVariable):
             if not isinstance(data, TransientVariable):

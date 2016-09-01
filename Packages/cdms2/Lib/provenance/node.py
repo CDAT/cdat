@@ -3,8 +3,10 @@ import logging
 
 
 class Node(object):
-    def __init__(self):
+    def __init__(self, backend):
         self.__cache__ = None
+        self.backend = backend
+
 
     def get_value(self):
         """
@@ -29,9 +31,8 @@ class Node(object):
 
 class FileNode(Node):
     def __init__(self, uri, backend):
-        super(FileNode, self).__init__()
+        super(FileNode, self).__init__(backend)
         self._uri = uri
-        self.backend = backend
 
     def derive(self):
         return self.backend.open_file(self._uri)
@@ -45,8 +46,8 @@ class FileNode(Node):
 
 
 class VariableNode(Node):
-    def __init__(self, operation, parents):
-        super(VariableNode, self).__init__()
+    def __init__(self, operation, parents, backend):
+        super(VariableNode, self).__init__(backend)
         self._oper = operation
         self.parents = parents
 
