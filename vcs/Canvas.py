@@ -1591,13 +1591,16 @@ class Canvas(object):
                 *******************Xvsy Names List**********************
                 ...
                 *******************End Xvsy Names List**********************
-                >>> xy=a.getxvsy('default_xvsy_') # Create instance of 'quick'
-                >>> array=[range(1, 11) for _ in range(1, 11)]
-                >>> a.xvsy(array,xy) # Plot array using specified xy and default template
+                >>> xy=a.getxvsy('default_xvsy_') # Create instance of default xvsy
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab1 = f('u') # use the data file to create a cdms2 slab
+                >>> slab2 = f('v') # use the data file to create a cdms2 slab
+                >>> a.xvsy(slab1,slab2,xy) # Plot array using specified xy and default template
                 <vcs.displayplot.Dp ...>
                 >>> a.clear() # Clear VCS canvas
                 >>> template=a.gettemplate('hovmuller')
-                >>> a.xvsy(array,xy,template) # Plot array using specified xy and template
+                >>> a.xvsy(slab1,slab2,xy,template) # Plot array using specified xy and template
                 <vcs.displayplot.Dp ...>
 
         %s
@@ -1766,6 +1769,9 @@ class Canvas(object):
 
                 >>> a=vcs.init()
                 >>> a.show('line') # Show all the existing line objects
+                *******************Line Names List**********************
+                ...
+                *******************End Line Names List**********************
                 >>> ln=a.drawline(name='red', ltype='dash', width=2,
                 ...              color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                 ...              worldcoordinate=[0,100, 0,50],
@@ -1894,7 +1900,7 @@ class Canvas(object):
                 *******************End Marker Names List**********************
                 >>> mrk=a.drawmarker(name='red', mtype='dot', size=2,
                 ...              color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
-                ...              worldcoordinate=[0,100, 0,50]
+                ...              worldcoordinate=[0,100, 0,50],
                 ...              x=[0,20,40,60,80,100],
                 ...              y=[0,10,20,30,40,50] ) # Create instance of marker object 'red'
                 >>> a.marker(mrk) # Plot using specified marker object
@@ -1978,10 +1984,9 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_fillarea
 
-                a=vcs.init()
-
+                    >>> a=vcs.init()
                     >>> a.show('fillarea') # Show all the existing fillarea objects
                     *******************Fillarea Names List**********************
                     ...
@@ -2011,19 +2016,16 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_drawfillarea
 
-            a=vcs.init()
-            # Show all the existing fillarea objects
-            >>> a.show('fillarea')
-            # Create instance of fillarea object 'red'
-            fa=a.drawfillarea(name='red', style=1, color=242,
-                          priority=1, viewport=[0, 1.0, 0, 1.0],
-                          worldcoordinate=[0,100, 0,50]
-                          x=[0,20,40,60,80,100],
-                          y=[0,10,20,30,40,50], bg=0 )
-            # Plot using specified fillarea object
-            >>> a.fillarea(fa)
+                >>> a=vcs.init()
+                >>> a.show('fillarea') # Show all the existing fillarea objects
+                >>> fa=a.drawfillarea(name='red', style=1, color=242,
+                ...              priority=1, viewport=[0, 1.0, 0, 1.0],
+                ...              worldcoordinate=[0,100, 0,50],
+                ...              x=[0,20,40,60,80,100],
+                ...              y=[0,10,20,30,40,50], bg=0 ) # Create instance of fillarea object 'red'
+                >>> a.fillarea(fa) # Plot using specified fillarea object
 
         :param name: Name of created object
         :type name: str
@@ -2149,40 +2151,29 @@ class Canvas(object):
         .. doctest:: canvas_textcombined
 
             >>> a=vcs.init()
-
+            >>> a.clean_auto_generated_objects()
             >>> a.show('texttable') # Show all the existing texttable objects
             *******************Texttable Names List**********************
             ...
             *******************End Texttable Names List**********************
-
             >>> a.show('textorientation') # Show all the existing textorientation objects
             *******************Textorientation Names List**********************
             ...
             *******************End Textorientation Names List**********************
-
-            >>> vcs.createtext('qa_tt', 'qa', '7left_to', '7left') # Create instance of 'std_tt' and '7left_to'
+            >>> vcs.createtext('qa_txta', 'qa', '7left_txto', '7left') # Create instance of 'std_tt' and '7left_to'
             <vcs.textcombined.Tc object at ...
-
-            >>> tc=a.gettext('std_tt','7left_to')
-
-            >>> tc.string = 'Text1' # Show the string "Text1" on the VCS Canvas
-
+            >>> tc=a.gettext('qa_txta', '7left_txto')
+            >>> tc.string='Text1' # Show the string "Text1" on the VCS Canvas
             >>> tc.font=2 # Set the text size
-
-            >>> tc.color = 242 # Set the text color
-
-            >>> tc.angle = 45 # Set the text angle
-
-            >>> tc.x=[[0.0,2.0,2.0,0.0,0.0], [0.5,1.5]] # Set the x value points
-
-            >>> tc.y=[[0.0,0.0,2.0,2.0,0.0], [1.0,1.0]] # Set the y value points
-
+            >>> tc.color=242 # Set the text color
+            >>> tc.angle=45 # Set the text angle
+            >>> tc.x=[0.5]
+            >>> tc.y=[0.5]
             >>> a.textcombined(tc) # Plot using specified text object
+            <vcs.displayplot.Dp ...>
 
-            >>> a.plot('Hi',.5,.5,color=241,angle=45) # You can also pass a string, the coordinates, and any keyword
-
-        :returns: A plot object
-        :rtype:
+        :returns: A fillarea object
+        :rtype: vcs.displayplot.Dp
         """
         # First check if color is a string
         if 'color' in parms.keys():
@@ -2221,21 +2212,21 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_gettextextent
 
-            a=vcs.init()
-            t=a.createtext()
-            t.x=[.5]
-            t.y=[.5]
-            t.string=['Hello World']
-            extent = a.gettextextent(t)
-            print extent
+                >>> a=vcs.init()
+                >>> t=a.createtext()
+                >>> t.x=[.5]
+                >>> t.y=[.5]
+                >>> t.string=['Hello World']
+                >>> a.gettextextent(t)
+                [[0.5, 0.578125, 0.5, 0.5177065767284992]]
 
         :param textobject: A VCS text object
         :type textobject: textcombined
 
-        :returns: ???
-        :rtype: ???
+        :returns: list of floats containing the coordinates of the text object's bounding box.
+        :rtype: list
         """
         if not vcs.istext(textobject):
             raise vcsError('You must pass a text object')
@@ -2258,19 +2249,19 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_drawtextcombined
 
-            a=vcs.init()
-            # Show all the existing texttable objects
-            >>> a.show('texttable')
-            # Create instance of texttable object 'red'
-            tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
-                               color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
-                               worldcoordinate=[0,100, 0,50]
-                               x=[0,20,40,60,80,100],
-                               y=[0,10,20,30,40,50] )
-            # Plot using specified texttable object
-            >>> a.texttable(tt)
+                >>> a=vcs.init()
+                >>> a.show('texttable')  # Show all the existing texttable objects
+                *******************Texttable Names List**********************
+                ...
+                *******************End Texttable Names List**********************
+                >>> tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
+                ...                   color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
+                ...                   worldcoordinate=[0,100, 0,50],
+                ...                   x=[0,20,40,60,80,100],
+                ...                   y=[0,10,20,30,40,50] ) # Create instance of texttable object 'red'
+                >>> a.texttable(tt) # Plot using specified texttable object
 
         :param name: Name of created object
         :type name: str
@@ -2377,6 +2368,7 @@ class Canvas(object):
                     [key=value [, key=value [, ...]]])
 
             .. note::
+
                  array1 and array2 are NumPy arrays.
 
         .. describe:: Plot attribute keywords:
@@ -2444,6 +2436,7 @@ class Canvas(object):
                         [x|y]rev = 0|1
 
                     .. note::
+
                         For example, xrev = 1 would reverse the
                         direction of the x-axis
 
@@ -2456,6 +2449,7 @@ class Canvas(object):
                         continents_line = vcs.getline("default")
 
                     .. note::
+
                         If continents >=1, plot continental outlines.
                         By default: plot of xaxis is longitude, yaxis is latitude
                         -OR- xname is 'longitude' and yname is 'latitude'
@@ -2504,6 +2498,7 @@ class Canvas(object):
                         plot_based_dual_grid = True | False
 
                     .. note::
+
                         This is based on what is needed by the plot: isofill, isoline, vector need
                         point attributes, boxfill and meshfill need cell attributes
                         the default is True (if the parameter is not specified).
@@ -2517,26 +2512,25 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_plot
 
-            # x is an instance of the VCS class object (constructor)
-            x=vcs.init()
-            # this call will use default settings for template and boxfill
-            x.plot(array)
-            # this is specifying the template and graphics method
-            x.plot(array, 'AMIP', 'isofill','AMIP_psl')
-            # get a predefined the template 'AMIP'
-            t=x.gettemplate('AMIP')
-            # get a predefined the vector graphics method 'quick'
-            vec=x.getvector('quick')
-            # plot the data as a vector using the 'AMIP' template
-            x.plot(array1, array2, t, vec)
-            # clear the VCS Canvas of all plots
-            x.clear()
-            # create boxfill graphics method 'new'
-            box=x.createboxfill('new')
-            # plot array data using box 'new' and template 't'
-            x.plot(box,t,array)
+                >>> x=vcs.init()
+                >>> import cdms2 # Need cdms2 to create a slab
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
+                >>> slab1 = f('u') # use the data file to create a cdms2 slab
+                >>> slab2 = f('v') # need 2 slabs, so get another
+                >>> x.plot(slab1) # this call will use default settings for template and boxfill
+                <vcs.displayplot.Dp ...>
+                >>> x.plot(slab1, 'polar', 'isofill', 'polar') # this is specifying the template and graphics method
+                <vcs.displayplot.Dp ...>
+                >>> t=x.gettemplate('polar') # get the polar template
+                >>> vec=x.getvector() # get default vector
+                >>> x.plot(slab1, slab2, t, vec) # plot the data as a vector using the 'AMIP' template
+                <vcs.displayplot.Dp ...>
+                >>> x.clear() # clear the VCS Canvas of all plots
+                >>> box=x.createboxfill('new') # create boxfill graphics method 'new'
+                >>> x.plot(box,t,slab2) # plot array data using box 'new' and template 't'
+                <vcs.displayplot.Dp ...>
 
         %s
         %s
@@ -2544,6 +2538,9 @@ class Canvas(object):
         %s
         %s
         %s
+
+        :returns: A VCS display plot object
+        :rtype: vcs.displayplot.Dp
         """
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
@@ -4006,12 +4003,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_clear
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            #clear VCS displays from the page
-            >>> a.clear()
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.clear() # clear VCS displays from the page
 
         """
         if self.animate.created():
@@ -4050,12 +4048,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_close
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            #close the vcs canvas
-            >>> a.close()
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.close() #close the vcs canvas
 
         """
         if self.configurator:
@@ -4071,11 +4070,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_destroy
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            >>> a.destroy()
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.destroy()
 
         """
         import gc
@@ -4119,11 +4120,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_flush
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            >>> a.flush()
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.flush()
         """
         return self.backend.flush(*args)
 
@@ -4133,11 +4136,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_geometry
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            >>> a.geometry(450,337)
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.geometry(450,337)
         """
         if len(args) == 0:
             return self.backend.geometry()
@@ -4156,6 +4161,7 @@ class Canvas(object):
         Obtain the current attributes of the VCS Canvas window.
 
         :returns: Dictionary with keys: "mapstate" (whether the canvas is opened), "height", "width", "depth", "x", "y"
+        :rtype: dict
         """
         return self.backend.canvasinfo(*args, **kargs)
 
@@ -4166,11 +4172,10 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_getcontinentstype
 
-            a=vcs.init()
-            # Get the continents type
-            cont_type = a.getcontinentstype()
+                >>> a=vcs.init()
+                >>> cont_type = a.getcontinentstype() # Get the continents type
 
         :returns: An int between 1 and 0, or the path to a custom continentstype
         :rtype: int or system filepath
@@ -4187,16 +4192,15 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_pstogif
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # convert the postscript file to a gif file (l=landscape)
-            >>> a.pstogif('filename.ps')
-            # convert the postscript file to a gif file (l=landscape)
-            >>> a.pstogif('filename.ps','l')
-            # convert the postscript file to a gif file (p=portrait)
-            >>> a.pstogif('filename.ps','p')
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.pstogif('filename.ps') # convert the postscript file to a gif file (l=landscape)
+                >>> a.pstogif('filename.ps','l') # convert the postscript file to a gif file (l=landscape)
+                >>> a.pstogif('filename.ps','p') # convert the postscript file to a gif file (p=portrait)
 
         :param filename: String name of the desired output file
         :type filename: str
@@ -4244,10 +4248,10 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_grid
 
-            a=vcs.init()
-            >>> a.grid(12,12,0,71,0,45)
+                >>> a=vcs.init()
+                >>> a.grid(12,12,0,71,0,45)
         """
 
         p = self.canvas.grid(*args)
@@ -4275,20 +4279,17 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_landscape
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Change the VCS Canvas orientation and set object flag to landscape
-            >>> a.landscape()
-            # Change the VCS Canvas to landscape and clear the page
-            >>> a.landscape(clear=1)
-            # Change to landscape and set the window size
-            >>> a.landscape(width = 400, height = 337)
-            # Change to landscape and set the x and y screen position
-            >>> a.landscape(x=100, y = 200)
-            # Change to landscape and give specifications
-            >>> a.landscape(width = 400, height = 337, x=100, y = 200, clear=1)
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.landscape() # Change the VCS Canvas orientation and set object flag to landscape
+                >>> a.landscape(clear=1) # Change the VCS Canvas to landscape and clear the page
+                >>> a.landscape(width = 400, height = 337) # Change to landscape and set the window size
+                >>> a.landscape(x=100, y = 200) # Change to landscape and set the x and y screen position
+                >>> a.landscape(width = 400, height = 337, x=100, y = 200, clear=1) # landscape with more settings
 
         :param width: Width of the canvas, in pixels
         :type width: int
@@ -4348,10 +4349,11 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_listelements
 
-            a=vcs.init()
-            >>> a.listelements()
+                >>> a=vcs.init()
+                >>> a.listelements()
+                ['1d', '3d_dual_scalar', '3d_scalar', ...]
 
         :returns: A list of string names of all VCS class objects
         :rtype: list
@@ -4378,11 +4380,11 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_open
 
-            a=vcs.init()
-            >>> a.open()
-            >>> a.open(800,600)
+                >>> a=vcs.init()
+                >>> a.open()
+                >>> a.open(800,600)
 
         :param width: Integer representing the desire width of the opened window in pixels
         :type width: int
@@ -4413,20 +4415,17 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_portrait
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Change the VCS Canvas orientation and set object flag to portrait
-            >>> a.portrait()
-            # Change the VCS Canvas to portrait and clear the page
-            >>> a.portrait(clear=1)
-            # Change to portrait and set the window size
-            >>> a.portrait(width = 337, height = 400)
-            # Change to portrait and set the x and y screen position
-            >>> a.portrait(x=100, y = 200)
-            # Change to portrait and give specifications
-            >>> a.portrait(width = 337, height = 400, x=100, y = 200, clear=1)
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.portrait()  # Change the VCS Canvas orientation and set object flag to portrait
+                >>> a.portrait(clear=1) # Change the VCS Canvas to portrait and clear the page
+                >>> a.portrait(width = 337, height = 400) # Change to portrait and set the window size
+                >>> a.portrait(x=100, y = 200) # Change to portrait and set the x and y screen position
+                >>> a.portrait(width = 337, height = 400, x=100, y = 200, clear=1) # portrait, with more specifications
 
         :param width: Width to set the canvas to (in pixels)
         :type width: int
@@ -4489,25 +4488,26 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_ffmpeg
 
-            a=vcs.init()
-            #... code to generate png files ...
-            # here is a dummy example
-            files =[]
-            for i in range(10):
-              a.png('my_png__%i' % i)
-              files.append('my_png__%i.png' % i)
-            # generates mpeg from pattern
-            >>> a.ffmpeg('mymovie.mpeg','my_png_%d.png')
-            # generates from list of files
-            >>> a.ffmpeg('mymovie.mpeg',files)
-            # generates mpeg at 512kbit
-            >>> a.ffmpeg('mymovie.mpeg','my_png_%d.png',bitrate=512)
-            # generates movie with 50 frame per second
-            >>> a.ffmpeg('mymovie.mpeg','my_png_%d.png',rate=50)
-            # generates movie at 50 frame per sec and 1024k bitrate
-            >>> a.ffmpeg('mymovie.mpeg','my_png_%d.png',options='-r 50 -b 1024k')
+                >>> a=vcs.init()
+                >>> import cdms2
+                >>> f = cdms2.open(vcs.sample_data+'/clt.nc')
+                >>> v = f('v') # use the data file to create a cdms2 slab
+                >>> u = f('u') # use the data file to create a cdms2 slab
+                >>> files = []
+                >>> for i in range(10): # create a number of pngs to use for an mpeg
+                ...     a.clear()
+                ...     if (i%2):
+                ...         a.plot(u,v)
+                ...     else:
+                ...         a.plot(v,u)
+                ...     a.png('my_png__%i' % i)
+                ...     files.append('my_png__%i.png' % i)
+                >>> a.ffmpeg('mymovie.mpeg',files) # generates from list of files
+                >>> a.ffmpeg('mymovie.mpeg',files,bitrate=512) # generates mpeg at 512kbit
+                >>> a.ffmpeg('mymovie.mpeg',files,rate=50) # generates movie with 50 frame per second
+                >>> a.ffmpeg('mymovie.mpeg',files,options='-r 50 -b 1024k')  # 50 fps and 1024k bitrate
 
         :param movie: Output video file name
         :type movie: str
@@ -4621,13 +4621,11 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_setbgoutputdimensions
 
-            a=vcs.init()
-            # US Legal
-            >>> a.setbgoutputdimensions(width=11.5, height= 8.5)
-            # A4
-            >>> a.setbgoutputdimensions(width=21, height=29.7, units='cm')
+                >>> a=vcs.init()
+                >>> a.setbgoutputdimensions(width=11.5, height= 8.5) # US Legal
+                >>> a.setbgoutputdimensions(width=21, height=29.7, units='cm') # A4
 
         :param width: Float representing the desired width of the output, using the specified unit of measurement
         :type width: float
@@ -4669,12 +4667,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_png
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Overwrite a png file
-            >>> a.png('example')
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.png('example') # Overwrite a png file
 
         :param file: Output image filename
         :type file: str
@@ -4716,16 +4715,15 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_pdf
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Overwrite a postscript file
-            >>> a.pdf('example')
-            # US Legal
-            >>> a.pdf('example', width=11.5, height= 8.5)
-            # A4
-            >>> a.pdf('example', width=21, height=29.7, units='cm')
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.pdf('example') # Overwrite a postscript file
+                >>> a.pdf('example', width=11.5, height= 8.5) # US Legal
+                >>> a.pdf('example', width=21, height=29.7, units='cm') # A4
 
         :param file: Desired string name of the output file
         :type file: str
@@ -4741,9 +4739,6 @@ class Canvas(object):
 
         :param textAsPaths: Specifies whether to render text objects as paths.
         :type textAsPaths: bool
-
-        :returns: ???
-        :rtype: ???
         """
         if units not in [
                 'inches', 'in', 'cm', 'mm', 'pixel', 'pixels', 'dot', 'dots']:
@@ -4768,16 +4763,15 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_svg
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Overwrite a postscript file
-            >>> a.svg('example')
-            # US Legal
-            >>> a.svg('example', width=11.5, height= 8.5)
-            # A4
-            >>> a.svg('example', width=21, height=29.7, units='cm')
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.svg('example') # Overwrite a postscript file
+                >>> a.svg('example', width=11.5, height= 8.5) # US Legal
+                >>> a.svg('example', width=21, height=29.7, units='cm') # A4
 
         :param file:
         :type file:
@@ -5002,24 +4996,19 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_postscript
 
-            a=vcs.init()
-            >>> a.plot(array)
-            # Overwrite a postscript file
-            >>> a.postscript('example')
-            # Append postscript to an existing file
-            >>> a.postscript('example', 'a')
-            # Overwrite an existing file
-            >>> a.postscript('example', 'r')
-            # Append postscript to an existing file
-            >>> a.postscript('example', mode='a')
-            # US Legal (default)
-            >>> a.postscript('example', width=11.5, height= 8.5)
-            # A4
-            >>> a.postscript('example', width=21, height=29.7, units='cm')
-            # US Legal output and control of margins (for printer friendly output), default units 'inches'
-            >>> a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> a.postscript('example') # Overwrite a postscript file
+                >>> a.postscript('example', 'a') # Append postscript to an existing file
+                >>> a.postscript('example', 'r') # Overwrite an existing file
+                >>> a.postscript('example', mode='a') # Append postscript to an existing file
+                >>> a.postscript('example', width=11.5, height= 8.5) # US Legal (default)
+                >>> a.postscript('example', width=21, height=29.7, units='cm') # A4
+                >>> a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
 
         :param file: String name of the desired output file
         :type file: str
@@ -5085,11 +5074,15 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_setcolormap
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            >>> a.setcolormap("AMIP")
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.setcolormap("AMIP")
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
 
         :param name: Name of the colormap to use
         :type name: str
@@ -5119,19 +5112,22 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_setcolorcell
 
-            a=vcs.init()
-            >>> a.plot(array,'default','isofill','quick')
-            >>> a.setcolormap("AMIP")
-            >>> a.setcolorcell(11,0,0,0)
-            >>> a.setcolorcell(21,100,0,0)
-            >>> a.setcolorcell(31,0,100,0)
-            >>> a.setcolorcell(41,0,0,100)
-            >>> a.setcolorcell(51,100,100,100)
-            >>> a.setcolorcell(61,70,70,70)
-    """
-
+                >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+                >>> a.setcolormap("AMIP")
+                >>> a.setcolorcell(11,0,0,0)
+                >>> a.setcolorcell(21,100,0,0)
+                >>> a.setcolorcell(31,0,100,0)
+                >>> a.setcolorcell(41,0,0,100)
+                >>> a.setcolorcell(51,100,100,100)
+                >>> a.setcolorcell(61,70,70,70)
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
+        """
         a = vcs.setcolorcell(self.colormap, *args)
         return a
 
@@ -5142,15 +5138,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_setcontinentsline
 
-            a = vcs.init()
-            line = vcs.createline()
-            line.width = 5
-            # Use custom continents line
-            >>> a.setcontinentsline(line)
-            # Use default line
-            >>> a.setcontinentsline("default")
+                >>> a = vcs.init()
+                >>> line = vcs.createline()
+                >>> line.width = 5
+                >>> a.setcontinentsline(line) # Use custom continents line
+                >>> a.setcontinentsline("default") # Use default line
 
         :param line: Line to use for drawing continents. Can be a string name of a line, or a VCS line object
         :type line: str or :py:class:`vcs.line.Tl`
@@ -5186,11 +5180,13 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_setcontinentstype
 
-            a=vcs.init()
-            >>> a.setcontinentstype(3)
-            >>> a.plot(array,'default','isofill','quick')
+                >>> a=vcs.init()
+                >>> a.setcontinentstype(3)
+                >>> array = [range(1, 11) for _ in range(1, 11)]
+                >>> a.plot(array,'default','isofill','quick')
+                <vcs.displayplot.Dp ...>
 
         :param value: Integer representing continent type, as specified in function description
         :type value: int
@@ -5233,23 +5229,23 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_gif
 
-            a=vcs.init()
-            >>> a.plot(array)
-            >>> a.gif(filename='example.gif', merge='a', orientation='l', geometry='800x600')
-            # overwrite existing gif file (default is merge='r')
-            >>> a.gif('example')
-            # overwrite existing gif file
-            >>> a.gif('example',merge='r')
-            # merge gif image into existing gif file
-            >>> a.gif('example',merge='a')
-            # merge gif image into existing gif file with landscape orientation
-            >>> a.gif('example',orientation='l')
-            # merge gif image into existing gif file with portrait orientation
-            >>> a.gif('example',orientation='p')
-            # merge gif image into existing gif file and set the gif geometry
-            >>> a.gif('example',geometry='600x500')
+                >>> a=vcs.init()
+                >>> a.plot(array)
+                >>> a.gif(filename='example.gif', merge='a', orientation='l', geometry='800x600')
+
+                >>> a.gif('example') # overwrite existing gif file (default is merge='r')
+
+                >>> a.gif('example',merge='r') # overwrite existing gif file
+                # merge gif image into existing gif file
+                >>> a.gif('example',merge='a')
+                # merge gif image into existing gif file with landscape orientation
+                >>> a.gif('example',orientation='l')
+                # merge gif image into existing gif file with portrait orientation
+                >>> a.gif('example',orientation='p')
+                # merge gif image into existing gif file and set the gif geometry
+                >>> a.gif('example',geometry='600x500')
         """
         if orientation is None:
             orientation = self.orientation()[0]
@@ -5381,7 +5377,7 @@ class Canvas(object):
             .. doctest:: canvas_saveinitial_warning
 
                 >>> b=vcs.createboxfill()
-                >>> b.name='MyBoxfill' # graphic method is now preserved
+                >>> b.rename('MyBoxfill') # graphic method is now preserved
         """
         self.clean_auto_generated_objects()
         return vcs.saveinitialfile()
