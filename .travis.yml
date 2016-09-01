@@ -34,7 +34,7 @@ script:
 - echo "OFFSCREEN IS:"$NOX
 - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
 - make
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -j$NCPUS -D Experimental -R vcs ; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -j$NCPUS -D Experimental -R vcs -R download ; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ctest -j$NCPUS -D Experimental ; fi
 env:
   global:
