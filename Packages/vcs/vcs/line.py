@@ -318,7 +318,7 @@ class Tl(object):
             self._type = ['solid', ]
             self._projection = "default"
             self._width = [1.0, ]
-            self._color = [1, ]
+            self._color = [[0., 0., 0., 100.], ]
             self._priority = 1
             self._viewport = [0., 1., 0., 1.]
             self._worldcoordinate = [0., 1., 0., 1.]

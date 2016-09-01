@@ -83,7 +83,7 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname=sys.argv[1], threshold=defaultThreshold,
-                       baseline=True, cleanup=True, update_baselines = False, suffix="_1"):
+                       baseline=True, cleanup=True, update_baselines = False, suffix=""):
     testImage = image_from_file(fname)
     if testImage is None:
         print "Testing image missing, test failed."

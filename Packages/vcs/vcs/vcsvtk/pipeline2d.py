@@ -133,7 +133,7 @@ class IPipeline2D(Pipeline):
 
         # Figure out colors
         self._contourColors = self._gm.fillareacolors
-        if self._contourColors == [1] or self._contourColors is None:
+        if self._contourColors in [[1], None, [[0.0, 0.0, 0.0, 100.0]]]:
             # TODO BUG It's possible that levs2 may not exist here...
             self._contourColors = vcs.getcolors(levs2, split=0)
             if isinstance(self._contourColors, (int, float)):
@@ -221,7 +221,7 @@ class Pipeline2D(IPipeline2D):
             if i == 0:
                 C = [self._contourColors[i]]
                 if style == "pattern":
-                    C = [241]
+                    C = [(0., 0., 0., 100.)]
                 if numpy.allclose(self._contourLevels[0][0], -1.e20):
                     # ok it's an extension arrow
                     L = [self._scalarRange[0] - 1., self._contourLevels[0][1]]

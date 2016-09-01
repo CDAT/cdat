@@ -32,6 +32,7 @@
 # 1) Clone and exit if the target directory doesn't exist.
 if(NOT EXISTS "${TESTDATA_DIR}")
   message("Cloning \"${TESTDATA_URL}\" into \"${TESTDATA_DIR}\"...")
+  message("Cloning COMMAND: ${GIT_EXECUTABLE} clone --depth=1 --no-single-branch ${TESTDATA_URL} ${TESTDATA_DIR}")
 
   # Use depth=1 to avoid fetching the full history. Use "git pull --unshallow"
   # to backfill the history if needed.

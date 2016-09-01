@@ -1250,7 +1250,7 @@ def prepFillarea(renWin, farea, cmap=None):
         y = farea.y[i]
         st = farea.style[i]
         if st == "pattern":
-            c = 241
+            c = (0., 0., 0., 100.)
         else:
             c = farea.color[i]
 

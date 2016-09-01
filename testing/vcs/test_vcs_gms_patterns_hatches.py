@@ -25,6 +25,8 @@ bg = not args.show
 
 x = vcs.init()
 x.setantialiasing(0)
+x.setcolormap("classic")
+
 if bg:
     x.setbgoutputdimensions(1200, 1091, units="pixels")
 gm = vcs.creategraphicsmethod(gm_type, "default")

@@ -639,10 +639,10 @@ class G1d(object):
             self._xaxisconvert = "linear"
             self._yaxisconvert = "linear"
             self._linetype = 'solid'
-            self._linecolor = 241
+            self._linecolor = (0.0, 0.0, 0.0, 100.0)
             self._linewidth = 1
             self._marker = 'dot'
-            self._markercolor = 241
+            self._markercolor = (0.0, 0.0, 0.0, 100.0)
             self._markersize = 1
             self._datawc_timeunits = "days since 2000"
             self._datawc_calendar = 135441

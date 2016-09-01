@@ -30,7 +30,6 @@ x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
-x.setcolormap("rainbow")
 exec("gm=vcs.create%s()" % gm_type)
 if args.projtype != "default":
     p = vcs.createprojection()
@@ -106,6 +105,11 @@ if args.transparent:
     for i in range(256):  # tweaks all colors
         cmap.setcolorcell(i,100.,0,0,i/2.55)
     x.setcolormap(cmap)
+    if gm_type == "vector":
+        gm.linecolor = [100, 0, 0, 50.]
+    elif gm_type in ["yxvsx","xyvsy","yvsx","scatter","1d"]:
+        gm.linecolor = [100, 0, 0, 50.]
+        gm.markercolor = [100, 0, 0, 50.]
 
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)

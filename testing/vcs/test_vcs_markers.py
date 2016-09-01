@@ -1,6 +1,7 @@
 import os, sys, numpy, cdms2, MV2, vcs, testing.regression as regression
 
 x = regression.init()
+x.setcolormap("classic")
 m = x.createmarker()
 m.x = [[0.,],[5,],[10.,],[15.]]
 m.y = [[0.,],[5,],[10.,],[15.]]
