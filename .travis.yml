@@ -28,6 +28,7 @@ script:
 - echo $TRAVIS_PR_BRANCH
 - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git fetch origin +refs/heads/$TRAVIS_PR_BRANCH:refs/remotes/origin/$TRAVIS_PR_BRANCH ; fi
 - git checkout -b $TRAVIS_PR_BRANCH origin/$TRAVIS_PR_BRANCH
+- git checkout $TRAVIS_PR_BRANCH
 - cd ..
 - mkdir _build
 - cd _build
