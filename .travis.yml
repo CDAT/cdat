@@ -6,8 +6,7 @@ sudo: false
 before_install:
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
   #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh
-  -O miniconda.sh; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh; fi
 - export PATH="$HOME/miniconda/bin:$PATH"
 - bash miniconda.sh -b -p $HOME/miniconda
 - conda config --set always_yes yes --set changeps1 no
@@ -35,7 +34,8 @@ script:
 - echo "OFFSCREEN IS:"$NOX
 - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
 - make
-- ctest -j$NCPUS -D Experimental
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -j$NCPUS -D Experimental -R vcs ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ctest -j$NCPUS -D Experimental ; fi
 env:
   global:
     secure: Z06idl4BP01QMhrocmfuYV4CcbLmb5ZJZoXXymDr5sLIIfqdMiSL/CfDCRkIwl44vKpTN5R9AAhQV6iNMdU0NOQQrftHJyT5YV4y966FuAA1v9ev7y/cgExJFv7M/4E37WAN6YIcO7E42KZReeNKOAodorpqoT87MW6FAImZbrM=
