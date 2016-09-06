@@ -5461,8 +5461,9 @@ Options:::
             raise vcsError(
                 "Error you must pass either a number or font name!, you passed for font 2: %s" %
                 font2)
-
-        return self.canvas.switchfontnumbers(*(index1, index2))
+        tmp = vcs.elements['fontNumber'][index1]
+        vcs.elements['fontNumber'][index1] = vcs.elements['fontNumber'][index2]
+        vcs.elements['fontNumber'][index2] = tmp
 
     def copyfontto(self, font1, font2):
         """
