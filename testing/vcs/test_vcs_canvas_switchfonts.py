@@ -1,5 +1,6 @@
 import vcs
 
+a=vcs.init()
 font1 = a.getfont(1)
 font2 = a.getfont(2)
 
