@@ -1191,16 +1191,12 @@ class Canvas(object):
             .. doctest:: canvas_boxfill
 
                 >>> a=vcs.init()
-
                 >>> a.show('boxfill') # Show all the existing boxfill graphics methods
                 *******************Boxfill Names List**********************
                 ...
                 *******************End Boxfill Names List**********************
-
                 >>> box=a.getboxfill('quick') # Create instance of 'quick'
-
                 >>> array=[range(10) for _ in range(10)]
-
                 >>> a.boxfill(array, box) # Plot array using specified box and default template
                 <vcs.displayplot.Dp ...>
                 >>> template = a.gettemplate('quick') # get quick template
@@ -1995,9 +1991,8 @@ class Canvas(object):
                     >>> fa.style=1 # Set the fillarea style
                     >>> fa.index=4 # Set the fillarea index
                     >>> fa.color = 242 # Set the fillarea color
-                    >>> fa.type = 4 # Set the fillarea type
-                    >>> fa.x=[[1.0,2.0,2.0,1.0,1.0], [0.5,1.5]] # Set the x value points
-                    >>> fa.y=[[1.0,1.0,2.0,2.0,1.0], [1.0,1.0]] # Set the y value points
+                    >>> fa.x=[0.25,0.75] # Set the x value points
+                    >>> fa.y=[0.2,0.5] # Set the y value points
                     >>> a.fillarea(fa) # Plot using specified fillarea object
                     <vcs.displayplot.Dp ...>
 
@@ -2020,12 +2015,16 @@ class Canvas(object):
 
                 >>> a=vcs.init()
                 >>> a.show('fillarea') # Show all the existing fillarea objects
+                *******************Fillarea Names List**********************
+                ...
+                *******************End Fillarea Names List**********************
                 >>> fa=a.drawfillarea(name='red', style=1, color=242,
                 ...              priority=1, viewport=[0, 1.0, 0, 1.0],
                 ...              worldcoordinate=[0,100, 0,50],
                 ...              x=[0,20,40,60,80,100],
                 ...              y=[0,10,20,30,40,50], bg=0 ) # Create instance of fillarea object 'red'
                 >>> a.fillarea(fa) # Plot using specified fillarea object
+                <vcs.displayplot.Dp ...>
 
         :param name: Name of created object
         :type name: str
@@ -2160,9 +2159,9 @@ class Canvas(object):
             *******************Textorientation Names List**********************
             ...
             *******************End Textorientation Names List**********************
-            >>> vcs.createtext('qa_txta', 'qa', '7left_txto', '7left') # Create instance of 'std_tt' and '7left_to'
+            >>> vcs.createtext('qa_tta', 'qa', '7left_tto', '7left') # Create instance of 'std_tt' and '7left_to'
             <vcs.textcombined.Tc object at ...
-            >>> tc=a.gettext('qa_txta', '7left_txto')
+            >>> tc=a.gettext('qa_tta', '7left_tto')
             >>> tc.string='Text1' # Show the string "Text1" on the VCS Canvas
             >>> tc.font=2 # Set the text size
             >>> tc.color=242 # Set the text color
@@ -2256,12 +2255,12 @@ class Canvas(object):
                 *******************Texttable Names List**********************
                 ...
                 *******************End Texttable Names List**********************
-                >>> tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
+                >>> tc=a.drawtextcombined(Tt_name = 'std_example', To_name='7left_example', string='Hello example!', spacing=5,
                 ...                   color=242, priority=1, viewport=[0, 1.0, 0, 1.0],
                 ...                   worldcoordinate=[0,100, 0,50],
                 ...                   x=[0,20,40,60,80,100],
-                ...                   y=[0,10,20,30,40,50] ) # Create instance of texttable object 'red'
-                >>> a.texttable(tt) # Plot using specified texttable object
+                ...                   y=[0,10,20,30,40,50]) # Create instance of texttable object 'red'
+                >>> a.textcombined(tc) # Plot using specified texttable object
 
         :param name: Name of created object
         :type name: str
@@ -2514,22 +2513,22 @@ class Canvas(object):
 
             .. doctest:: canvas_plot
 
-                >>> x=vcs.init()
+                >>> a=vcs.init()
                 >>> import cdms2 # Need cdms2 to create a slab
                 >>> f = cdms2.open(vcs.sample_data+'/clt.nc') # use cdms2 to open a data file
                 >>> slab1 = f('u') # use the data file to create a cdms2 slab
                 >>> slab2 = f('v') # need 2 slabs, so get another
-                >>> x.plot(slab1) # this call will use default settings for template and boxfill
+                >>> a.plot(slab1) # this call will use default settings for template and boxfill
                 <vcs.displayplot.Dp ...>
-                >>> x.plot(slab1, 'polar', 'isofill', 'polar') # this is specifying the template and graphics method
+                >>> a.plot(slab1, 'polar', 'isofill', 'polar') # this is specifying the template and graphics method
                 <vcs.displayplot.Dp ...>
-                >>> t=x.gettemplate('polar') # get the polar template
-                >>> vec=x.getvector() # get default vector
-                >>> x.plot(slab1, slab2, t, vec) # plot the data as a vector using the 'AMIP' template
+                >>> t=a.gettemplate('polar') # get the polar template
+                >>> vec=a.getvector() # get default vector
+                >>> a.plot(slab1, slab2, t, vec) # plot the data as a vector using the 'AMIP' template
                 <vcs.displayplot.Dp ...>
-                >>> x.clear() # clear the VCS Canvas of all plots
-                >>> box=x.createboxfill('new') # create boxfill graphics method 'new'
-                >>> x.plot(box,t,slab2) # plot array data using box 'new' and template 't'
+                >>> a.clear() # clear the VCS Canvas of all plots
+                >>> box=a.getboxfill() # get default boxfill graphics method
+                >>> a.plot(box,t,slab2) # plot array data using box 'new' and template 't'
                 <vcs.displayplot.Dp ...>
 
         %s
@@ -4252,6 +4251,10 @@ class Canvas(object):
 
                 >>> a=vcs.init()
                 >>> a.grid(12,12,0,71,0,45)
+
+        .. admonition:: Not Yet Implemented
+
+            :py:func`vcs.Canvas.grid`_ does not work.
         """
 
         p = self.canvas.grid(*args)
@@ -4495,19 +4498,24 @@ class Canvas(object):
                 >>> f = cdms2.open(vcs.sample_data+'/clt.nc')
                 >>> v = f('v') # use the data file to create a cdms2 slab
                 >>> u = f('u') # use the data file to create a cdms2 slab
-                >>> files = []
+                >>> png_files = [] # for saving file names to make the mpeg
+                >>> plots = [] # for saving plots for later reference
                 >>> for i in range(10): # create a number of pngs to use for an mpeg
                 ...     a.clear()
                 ...     if (i%2):
-                ...         a.plot(u,v)
+                ...         plots.append(a.plot(u,v))
                 ...     else:
-                ...         a.plot(v,u)
+                ...         plots.append(a.plot(v,u))
                 ...     a.png('my_png__%i' % i)
-                ...     files.append('my_png__%i.png' % i)
-                >>> a.ffmpeg('mymovie.mpeg',files) # generates from list of files
-                >>> a.ffmpeg('mymovie.mpeg',files,bitrate=512) # generates mpeg at 512kbit
-                >>> a.ffmpeg('mymovie.mpeg',files,rate=50) # generates movie with 50 frame per second
-                >>> a.ffmpeg('mymovie.mpeg',files,options='-r 50 -b 1024k')  # 50 fps and 1024k bitrate
+                ...     png_files.append('my_png__%i.png' % i)
+                >>> a.ffmpeg('mymovie.mpeg',png_files) # generates from list of files
+                True
+                >>> a.ffmpeg('mymovie.mpeg',files="my_png__[0-9]*\.png") # generate from files with name matching regex
+                True
+                >>> a.ffmpeg('mymovie.mpeg',png_files,bitrate=512) # generates mpeg at 512kbit
+                True
+                >>> a.ffmpeg('mymovie.mpeg',png_files,rate=50) # generates movie with 50 frame per second
+                True
 
         :param movie: Output video file name
         :type movie: str
@@ -5008,7 +5016,6 @@ class Canvas(object):
                 >>> a.postscript('example', mode='a') # Append postscript to an existing file
                 >>> a.postscript('example', width=11.5, height= 8.5) # US Legal (default)
                 >>> a.postscript('example', width=21, height=29.7, units='cm') # A4
-                >>> a.postscript('example', right_margin=.2,left_margin=.2,top_margin=.2,bottom_margin=.2)
 
         :param file: String name of the desired output file
         :type file: str
@@ -5232,20 +5239,16 @@ class Canvas(object):
             .. doctest:: canvas_gif
 
                 >>> a=vcs.init()
+                >>> array = [range(1, 11) for _ in range(1, 11)]
                 >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
                 >>> a.gif(filename='example.gif', merge='a', orientation='l', geometry='800x600')
-
                 >>> a.gif('example') # overwrite existing gif file (default is merge='r')
-
                 >>> a.gif('example',merge='r') # overwrite existing gif file
-                # merge gif image into existing gif file
-                >>> a.gif('example',merge='a')
-                # merge gif image into existing gif file with landscape orientation
-                >>> a.gif('example',orientation='l')
-                # merge gif image into existing gif file with portrait orientation
-                >>> a.gif('example',orientation='p')
-                # merge gif image into existing gif file and set the gif geometry
-                >>> a.gif('example',geometry='600x500')
+                >>> a.gif('example',merge='a') # merge gif image into existing gif file
+                >>> a.gif('example',orientation='l') # merge gif image into existing gif file with landscape orientation
+                >>> a.gif('example',orientation='p') # merge gif image into existing gif file with portrait orientation
+                >>> a.gif('example',geometry='600x500') # merge gif image into existing gif file and set gif geometry
         """
         if orientation is None:
             orientation = self.orientation()[0]
@@ -5271,7 +5274,7 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_eps
 
                 >>> a=vcs.init()
                 >>> array = [range(10) for _ in range(10)]
@@ -5397,13 +5400,14 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_islandscape
 
-            a=vcs.init()
-            # ...
-            if a.islandscape():
-                # Set VCS's orientation to portrait mode
-               >>> a.portrait()
+                >>> a=vcs.init()
+                >>> array = [range(10) for _ in range(10)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> if a.islandscape():
+                ...     a.portrait() # Set VCS's orientation to portrait mode
 
         :returns: Integer indicating VCS is in landscape mode (1), or not (0)
         :rtype: int
@@ -5420,13 +5424,14 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_isportrait
 
-            a=vcs.init()
-            #...
-            if a.isportrait():
-                # Set VCS's orientation to landscape mode
-                a.landscape()
+                >>> a=vcs.init()
+                >>> array = [range(10) for _ in range(10)]
+                >>> a.plot(array)
+                <vcs.displayplot.Dp ...>
+                >>> if a.isportrait():
+                ...     a.landscape() # Set VCS's orientation to landscape mode
 
         :returns: Returns a 1 if orientation is portrait, or 0 if not in portrait mode
         :rtype: bool
@@ -5451,23 +5456,21 @@ class Canvas(object):
             .. doctest:: canvas_getplot
 
                 >>> a=vcs.init()
-
                 >>> a.show('template') # Show all the existing templates
                 *******************Template Names List**********************
                 ...
                 *******************End Template Names List**********************
-
                 >>> plot1=a.getplot() # plot1 instance of 'dpy_plot_1' display plot
 
-    :param Dp_name_src: String name of an existing display plot object
-    :type Dp_name_src: str
+        :param Dp_name_src: String name of an existing display plot object
+        :type Dp_name_src: str
 
-    :param template: The displayplot template to inherit from
-    :type template:
+        :param template: The displayplot template to inherit from
+        :type template:
 
-    :returns: A VCS displayplot object
-    :rtype: vcs.displayplot.Dp
-    """
+        :returns: A VCS displayplot object
+        :rtype: vcs.displayplot.Dp
+        """
         if not isinstance(Dp_name_src, str):
             raise ValueError('Error -  The argument must be a string.')
 
@@ -5648,11 +5651,11 @@ class Canvas(object):
 
         :Example:
 
-            .. doctest::
+            .. doctest:: canvas_orientation
 
-            a = vcs.init()
-            # Show current orientation of the canvas
-            >>> a.orientation()
+                >>> a=vcs.init()
+                >>> a.orientation() # Show current orientation of the canvas
+                'landscape'
 
         :returns: A string indicating the orientation of the canvas, i.e. 'landscape' or 'portrait'
         :rtype: str

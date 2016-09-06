@@ -2483,8 +2483,7 @@ def getcolormap(Cp_name_src='default'):
 
     :returns: A pre-existing VCS colormap object
     :rtype: vcs.colormap.Cp
-
-"""
+    """
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Cp_name_src, str):
         raise ValueError('Error -  The argument must be a string.')
