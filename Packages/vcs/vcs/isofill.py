@@ -37,7 +37,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates isofill gm from it"""
+
+    # Takes VCS script code (string) as input and generates isofill gm from it
     try:
         g = Gfi(nm)
     except:
@@ -126,15 +127,7 @@ def process_src(nm, code):
 
 class Gfi(object):
 
-    """
-    Options:::
-%s
-%s
-:::
-
-Class: Gfi				# Isofill
-
- Description of Gfb Class:
+    __doc__ = """
     The Isofill graphics method fills the area between selected isolevels
     (levels of constant value) of a two-dimensional array with a
     user-specified color. The example below shows how to display an isofill
@@ -144,102 +137,176 @@ Class: Gfi				# Isofill
     can be used to change some or all of the isofill attributes in an
     existing isofill table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('isofill')		# Show predefined isofill graphics methods
-             a.show('fillarea')		# Show predefined fillarea objects
-             a.show('template')		# Show predefined fillarea objects
-             a.setcolormap("AMIP")	# Change the VCS color map
-             a.createtemplate('test')	# Create a template
-             a.createfillarea('fill')	# Create a fillarea
-             a.gettemplate('AMIP')	# Get an existing template
-             a.getfillarea('def37')	# Get an existing fillarea
-             a.isofill(s,i,t)		# Plot array 's' with isofill 'i' and
-                                               template 't'
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of isofill use:
-     iso=a.createisofill('new','quick') # Copies content of 'quick' to 'new'
-     iso=a.createisofill('new') 	# Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing isofill use:
-     iso=a.getisofill('AMIP_psl')
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined isofill graphics methods
+            a.show('isofill')
+            # Show predefined fillarea objects
+            a.show('fillarea')
+            # Show predefined template objects
+            a.show('template')
+            # Change the VCS color map
+            a.setcolormap("AMIP")
+            # Create a template
+            a.createtemplate('test')
+            # Create a fillarea
+            a.createfillarea('fill')
+            # Get an existing template
+            a.gettemplate('AMIP')
+            # Get an existing fillarea
+            a.getfillarea('def37')
+            # Plot array 's' with isofill 'i' and template 't'
+            a.isofill(s,i,t)
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    iso.list()  			# Will list all the isofill attribute values
-    iso.projection='linear'
-    lon30={-180:'180W',-150:'150W',0:'Eq'}
-    iso.xticlabels1=lon30
-    iso.xticlabels2=lon30
-    iso.xticlabels(lon30, lon30)  	# Will set them both
-    iso.xmtics1=''
-    iso.xmtics2=''
-    iso.xmtics(lon30, lon30)  		# Will set them both
-    iso.yticlabels1=lat10
-    iso.yticlabels2=lat10
-    iso.yticlabels(lat10, lat10)  	# Will set them both
-    iso.ymtics1=''
-    iso.ymtics2=''
-    iso.ymtics(lat10, lat10)  		# Will set them both
-    iso.datawc_y1=-90.0
-    iso.datawc_y2=90.0
-    iso.datawc_x1=-180.0
-    iso.datawc_x2=180.0
-    iso.datawc(-90, 90, -180, 180)  	# Will set them all
-    xaxisconvert='linear'
-    yaxisconvert='linear'
-    iso.xyscale('linear', 'area_wt')  	# Will set them both
-    missing="black"				# Color index value range 0 to 255
+    .. describe:: Creating an isofill object:
 
-    iso.legend=None
+        .. code-block:: python
 
-    There are two possibilities for setting the isofill levels:
-     A) Levels are all contiguous (Examples):
-                iso.levels=([0,20,25,30,35,40],)
-                iso.levels=([0,20,25,30,35,40,45,50])
-                iso.levels=[0,20,25,30,35,40]
-                iso.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
-     B) Levels are not contiguous (Examples):
-                iso.levels=([0,20],[30,40],[50,60])
-                iso.levels=([0,20,25,30,35,40],[30,40],[50,60])
+            #Create a VCS Canvas
+            a=vcs.init()
+            #Create a new instance of isofill:
+            # Copies content of 'quick' to 'new'
+            iso=a.createisofill('new','quick')
+            # Copies content of 'default' to 'new'
+            iso=a.createisofill('new')
 
-    There are three possibilities for setting the fillarea color indices (Ex):
+    .. describe:: Modifying an existing isofill:
+
+        .. code-block:: python
+
+            iso=a.getisofill('AMIP_psl')
+
+    .. describe:: Overview of isofill attributes:
+
+        * List all isofill attribute values:
+
+            .. code-block:: python
+
+                iso.list()
+
+        * Set isofill attributes:
+
+            .. code-block:: python
+
+                iso.projection='linear'
+                lon30={-180:'180W',-150:'150W',0:'Eq'}
+                iso.xticlabels1=lon30
+                iso.xticlabels2=lon30
+                # Will set them both
+                iso.xticlabels(lon30, lon30)
+                iso.xmtics1=''
+                iso.xmtics2=''
+                # Will set them both
+                iso.xmtics(lon30, lon30)
+                iso.yticlabels1=lat10
+                iso.yticlabels2=lat10
+                # Will set them both
+                iso.yticlabels(lat10, lat10)
+                iso.ymtics1=''
+                iso.ymtics2=''
+                # Will set them both
+                iso.ymtics(lat10, lat10)
+                iso.datawc_y1=-90.0
+                iso.datawc_y2=90.0
+                iso.datawc_x1=-180.0
+                iso.datawc_x2=180.0
+                # Will set them all
+                iso.datawc(-90, 90, -180, 180)
+                iso.xaxisconvert='linear'
+                iso.yaxisconvert='linear'
+                # Will set them both
+                iso.xyscale('linear', 'area_wt')
+                iso.missing='black'
+                iso.legend=None
+                ext_1='n'
+                ext_2='y'
+                # Will set them both
+                iso.exts('n', 'y' )
+
+        * Setting the isofill levels:
+
+            .. code-block:: python
+
+                # 1) When levels are all contiguous:
+                    iso.levels=([0,20,25,30,35,40],)
+                    iso.levels=([0,20,25,30,35,40,45,50])
+                    iso.levels=[0,20,25,30,35,40]
+                    iso.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
+
+                # 2) When levels are not contiguous:
+                    iso.levels=([0,20],[30,40],[50,60])
+                    iso.levels=([0,20,25,30,35,40],[30,40],[50,60])
+
+        * Setting the fillarea color indices:
+
+            .. code-block:: python
+
                 iso.fillareacolors=([22,33,44,55,66,77])
                 iso.fillareacolors=(16,19,33,44)
                 iso.fillareacolors=None
 
-    There are three possibilities for setting the fillarea style (Ex):
+        * Setting the fillarea style:
+
+            .. code-block:: python
+
                 iso.fillareastyle = 'solid'
                 iso.fillareastyle = 'hatch'
                 iso.fillareastyle = 'pattern'
 
-    There are two ways to set the fillarea hatch or pattern indices (Ex):
+        * Setting the fillarea hatch or pattern indices:
+
+            .. code-block:: python
+
                 iso.fillareaindices=([1,3,5,6,9,20])
                 iso.fillareaindices=(7,1,4,9,6,15)
-                See using fillarea objects below!
 
-    Using the fillarea secondary object (Ex):
-                f=createfillarea('fill1')
-                To Create a new instance of fillarea use:
-                   fill=a.createisofill('new','quick') # Copies 'quick' to 'new'
-                   fill=a.createisofill('new') 	# Copies 'default' to 'new'
+    .. describe:: Using the fillarea secondary object (Ex):
 
-                To Modify an existing isofill use:
-                   fill=a.getisofill('def37')
+            * Create a new instance of fillarea:
 
-                iso.fillareaindices=(7,fill,4,9,fill,15) # Set index using fillarea
-                fill.list()				 # list fillarea attributes
-                fill.style='hatch'			 # change style
-                fill.color="black"				 # change color
-                fill.index=3				 # change style index
+                .. code-block:: python
 
-    ext_1='n'
-    ext_2='y'
-    iso.exts('n', 'y' )  		# Will set them both
+                    f=createfillarea('fill1')
+
+            * Create a new isofill:
+
+                .. code-block:: python
+
+                    # Copies 'quick' to 'new'
+                    fill=a.createisofill('new','quick')
+                    # Copies 'default' to 'new'
+                    fill=a.createisofill('new')
+
+            * Modify an existing isofill:
+
+                .. code-block:: python
+
+                    fill=a.getisofill('def37')
+
+            * Set index using fillarea
+
+                .. code-block:: python
+
+                    iso.fillareaindices=(7,fill,4,9,fill,15)
+                    # list fillarea attributes
+                    fill.list()
+                    # change style
+                    fill.style='hatch'
+                    # change color
+                    fill.color='black'
+                    # change style index
+                    fill.index=3
+
+    .. describe:: Attribute descriptions:
+
+        %s
+        %s
 """ % (xmldocs.graphics_method_core, xmldocs.isofill_doc)
     colormap = VCS_validation_functions.colormap
     __slots__ = [
@@ -349,10 +416,7 @@ Class: Gfi				# Isofill
         return self._yaxisconvert
 
     def _setyaxisconvert(self, value):
-        value = VCS_validation_functions.checkAxisConvert(
-            self,
-            'yaxisconvert',
-            value)
+        value = VCS_validation_functions.checkAxisConvert(self, 'yaxisconvert', value)
         self._yaxisconvert = value
     yaxisconvert = property(_getyaxisconvert, _setyaxisconvert)
 
@@ -685,30 +749,6 @@ Class: Gfi				# Isofill
     #
     #
     def script(self, script_filename, mode='a'):
-        """
-%s
-Function:     script                           # Calls _vcs.scriptGfi
-
- Description of Function:
-       Saves out a isofill graphics method in Python or VCS script form to
-       a designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    iso=a.createisofill('temp')
-    iso.script('filename.py')         # Append to a Python file "filename.py"
-    iso.script('filename.scr')        # Append to a VCS file "filename.scr"
-    iso.script('filename','w')
-    """
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -840,7 +880,7 @@ Function:     script                           # Calls _vcs.scriptGfi
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-    script.__doc__ = script.__doc__ % xmldocs.scriptdoc
+    script.__doc__ = xmldocs.isofill_script
 
 
 #

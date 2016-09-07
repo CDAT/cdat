@@ -24,10 +24,12 @@
 import VCS_validation_functions
 import vcs
 import genutil
+from xmldocs import marker_script
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates oneD gm from it"""
+
+    # Takes VCS script code (string) as input and generates oneD gm from it
     try:
         gm = Tm(nm)
     except:
@@ -106,62 +108,91 @@ def process_src(nm, code):
 class Tm(object):
 
     """
- Class:	Tm				# Marker
-
- Description of Tm Class:
     The Marker object allows the manipulation of marker type, size, and color index.
 
     This class is used to define an marker table entry used in VCS, or it
     can be used to change some or all of the marker attributes in an
     existing marker table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('marker')		# Show predefined marker objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of marker use:
-     mk=a.createmarker('new','red') 	# Copies content of 'red' to 'new'
-     mk=a.createmarker('new') 		# Copies content of 'default' to 'new'
+    :Example:
 
-    To Modify an existing marker use:
-     mk=a.getmarker('red')
+::
 
-    mk.list()  				# Will list all the marker attribute values
-    mk.color=100			# Range from 1 to 256
-    mk.size=100				# Range from 1 to 300
+    # Useful Functions:
+        # VCS Canvas Constructor
+        a=vcs.init()
+        # Show predefined marker objects
+        a.show('marker')
+        # Updates the VCS Canvas at user's request
+        a.update()
+        a=vcs.init()
 
-    Specify the marker type:
-     mk.type='dot'          		# Same as mk.type=1
-     mk.type='plus'          		# Same as mk.type=2
-     mk.type='star'          		# Same as mk.type=3
-     mk.type='circle'          		# Same as mk.type=4
-     mk.type='cross'          		# Same as mk.type=5
-     mk.type='diamond'          	# Same as mk.type=6
-     mk.type='triangle_up'          	# Same as mk.type=7
-     mk.type='triangle_down'          	# Same as mk.type=8
-     mk.type='triangle_left'          	# Same as mk.type=9
-     mk.type='triangle_right'          	# Same as mk.type=10
-     mk.type='square'          		# Same as mk.type=11
-     mk.type='diamond_fill'          	# Same as mk.type=12
-     mk.type='triangle_up_fill'         # Same as mk.type=13
-     mk.type='triangle_down_fill'       # Same as mk.type=14
-     mk.type='triangle_left_fill'       # Same as mk.type=15
-     mk.type='triangle_right_fill'      # Same as mk.type=16
-     mk.type='square_fill'          	# Same as mk.type=17
+    # To Create a new instance of marker use:
+        # Copies content of 'red' to 'new'
+        mk=a.createmarker('new','red')
+        # Copies content of 'default' to 'new'
+        mk=a.createmarker('new')
 
-     mk.priority=1			# Set the graphics priority on the canvas
-     mk.viewport=[0, 1.0, 0,1.0]        # FloatType [0,1]x[0,1]
-     mk.worldcoordinate=[0,1.0,0,1.0]   # FloatType [#,#]x[#,#]
+    # To Modify an existing marker use:
+        mk=a.getmarker('red')
 
-     mk.x=[[0,.1,.2], [.3,.4,.5]]       # List of FloatTypes
-     mk.y=[[.5,.4,.3], [.2,.1,0]]       # List of FloatTypes
-"""
+    # Overview of marker attributes:
+        # Will list all the marker attribute values
+        mk.list()
+        # Range from 1 to 256
+        mk.color=100
+        # Range from 1 to 300
+        mk.size=100
+
+        # Specify the marker type:
+            # Same as mk.type=1
+            mk.type='dot'
+            # Same as mk.type=2
+            mk.type='plus'
+            # Same as mk.type=3
+            mk.type='star'
+            # Same as mk.type=4
+            mk.type='circle'
+            # Same as mk.type=5
+            mk.type='cross'
+            # Same as mk.type=6
+            mk.type='diamond'
+            # Same as mk.type=7
+            mk.type='triangle_up'
+            # Same as mk.type=8
+            mk.type='triangle_down'
+            # Same as mk.type=9
+            mk.type='triangle_left'
+            # Same as mk.type=10
+            mk.type='triangle_right'
+            # Same as mk.type=11
+            mk.type='square'
+            # Same as mk.type=12
+            mk.type='diamond_fill'
+            # Same as mk.type=13
+            mk.type='triangle_up_fill'
+            # Same as mk.type=14
+            mk.type='triangle_down_fill'
+            # Same as mk.type=15
+            mk.type='triangle_left_fill'
+            # Same as mk.type=16
+            mk.type='triangle_right_fill'
+            # Same as mk.type=17
+            mk.type='square_fill'
+
+        # Set the graphics priority on the canvas
+        mk.priority=1
+        # FloatType [0,1]x[0,1]
+        mk.viewport=[0, 1.0, 0,1.0]
+        # FloatType [#,#]x[#,#]
+        mk.worldcoordinate=[0,1.0,0,1.0]
+
+        # List of FloatTypes
+        mk.x=[[0,.1,.2], [.3,.4,.5]]
+        # List of FloatTypes
+        mk.y=[[.5,.4,.3], [.2,.1,0]]
+        """
     __slots__ = [
         's_name',
         'name',
@@ -346,20 +377,7 @@ class Tm(object):
         self._y = value
     y = property(_gety, _sety)
 
-    ##########################################################################
-    #                                                                           #
-    # Initialize the marker attributes.                                         #
-    #                                                                           #
-    ##########################################################################
     def __init__(self, Tm_name, Tm_name_src='default'):
-                #                                                         #
-                ###########################################################
-                # Initialize the marker class and its members             #
-                # The getTmmember function retrieves the values of the    #
-                # marker members in the C structure and passes back the   #
-                # appropriate Python Object.                              #
-                ###########################################################
-                #                                                         #
         if (Tm_name is None):
             raise ValueError('Must provide a marker name.')
         self._name = Tm_name
@@ -389,11 +407,6 @@ class Tm(object):
         # Ok now we need to stick in the elements
         vcs.elements["marker"][Tm_name] = self
 
-    ##########################################################################
-    #                                                                           #
-    # List out marker members (attributes).                                     #
-    #                                                                           #
-    ##########################################################################
     def list(self):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -411,34 +424,9 @@ class Tm(object):
         print "projection =", self.projection
         print "colormap =", self.colormap
 
-    ##########################################################################
-    #                                                                           #
-    # Script out secondary marker method in VCS to a file.                      #
-    #                                                                           #
-    ##########################################################################
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTm
-
- Description of Function:
-       Saves out a marker graphics method in Python or VCS script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: script_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    mrk=a.createboxfill('temp')
-    mrk.script('filename.py')         # Append to a Python file "filename.py"
-    mrk.script('filename.scr')        # Append to a VCS file "filename.scr"
-    mrk.script('filename','w')        # Create or overwrite to a Python file "filename.py"
+        script.__doc__ = xmldocs.marker_script
 """
         if (script_filename is None):
             raise ValueError(
@@ -510,8 +498,5 @@ class Tm(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
+    script.__doc__ = marker_script
 
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################

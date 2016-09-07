@@ -54,7 +54,8 @@ def get_att_from_sub(code, att):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates isoline gm from it"""
+
+    # Takes VCS script code (string) as input and generates isoline gm from it
     try:
         g = Gi(nm)
     except:
@@ -194,26 +195,8 @@ def process_src(nm, code):
 
 class Gi(object):
 
-    """
-    Options:::
-%s
-    label :: (str) ('n') turn on/off labels on isolines
-    labelskipdistance :: (float) (0.0) minimum distance between isoline labels
-    labelbackgroundcolors :: ([float]) (None) background color for isoline labels
-    labelbackgroundopacities :: ([float]) (None) background opacity for isoline labels
-%s
-%s
-    level :: ([float,...]) ([[0.0, 1.0000000200408773e+20]]) isocountours to display
-    clockwise :: ([int,...]) ([0]) draw directional arrows +-(0,1,2)
-    indicate none/clockwise/clokwise on y axis >0/clockwise on x axis positive negative value invert behaviour
-    scale :: ([float,...]) ([1.0]) scales the directional arrows length
-    angle :: ([float,...]) ([35.]) directional arrows head angle
-    spacing :: ([float,...]) ([1.0]) scales spacing between directional arrows
-    :::
- Class:	Gi				# Isoline
-
- Description of Gi Class:
-    The Isoline graphics method draws lines of constant value at specified
+    __doc__ = """
+    The Isoline graphics method (Gi) draws lines of constant value at specified
     levels in order to graphically represent a two-dimensional array. It
     also labels the values of these isolines on the VCS Canvas. The example
     below shows how to plot isolines of different types at specified levels
@@ -224,106 +207,220 @@ class Gi(object):
     be used to change some or all of the isoline attributes in an existing isoline
     table entry.
 
- Other Useful Functions:
-            a=vcs.init()		# Constructor
-            a.show('isoline')		# Show predefined isoline graphics methods
-            a.show('line')		# Show predefined VCS line objects
-            a.setcolormap("AMIP")	# Change the VCS color map
-            a.isoline(s,a,'default') 	# Plot data 's' with isoline 'i' and
-                                                'default' template
-            a.update()		 	# Updates the VCS Canvas at user's request
-            a.mode=1, or 0 	 	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of isoline use:
-     iso=a.createisoline('new','quick') # Copies content of 'quick' to 'new'
-     iso=a.createisoline('new') 	# Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing isoline use:
-        iso=a.getisoline('AMIP_psl')
+            # VCS Canvas Constructor
+            a=vcs.init()
+            # Show predefined isoline graphics methods
+            a.show('isoline')
+            # Show predefined VCS line objects
+            a.show('line')
+            # Change the VCS color map
+            a.setcolormap("AMIP")
+            # Plot data 's' with isoline 'i' and 'default' template
+            a.isoline(s,a,'default')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    iso.list()  			# Will list all the isoline attribute values
-    iso.projection='linear'
-    lon30={-180:'180W',-150:'150W',0:'Eq'}
-    iso.xticlabels1=lon30
-    iso.xticlabels2=lon30
-    iso.xticlabels(lon30, lon30)  	# Will set them both
-    iso.xmtics1=''
-    iso.xmtics2=''
-    iso.xmtics(lon30, lon30)  		# Will set them both
-    iso.yticlabels1=lat10
-    iso.yticlabels2=lat10
-    iso.yticlabels(lat10, lat10)  	# Will set them both
-    iso.ymtics1=''
-    iso.ymtics2=''
-    iso.ymtics(lat10, lat10)  		# Will set them both
-    iso.datawc_y1=-90.0
-    iso.datawc_y2=90.0
-    iso.datawc_x1=-180.0
-    iso.datawc_x2=180.0
-    iso.datawc(-90, 90, -180, 180)  	# Will set them all
-    xaxisconvert='linear'
-    yaxisconvert='linear'
-    iso.xyscale('linear', 'area_wt')  	# Will set them both
+    .. describe::  Create a canvas object:
 
-    There are many possibilities ways to set the isoline values:
-        A) As a list of tuples (Examples):
-                iso.level=[(23,32,45,50,76),]
-                iso.level=[(22,33,44,55,66)]
-                iso.level=[(20,0.0),(30,0),(50,0)]
-                iso.level=[(23,32,45,50,76), (35, 45, 55)]
-        B) As a tuple of lists (Examples):
-                iso.level=([23,32,45,50,76],)
-                iso.level=([22,33,44,55,66])
-                iso.level=([23,32,45,50,76],)
-                iso.level=([0,20,25,30,35,40],[30,40],[50,60])
-        C) As a list of lists (Examples):
-                iso.level=[[20,0.0],[30,0],[50,0]]
-        D) As a tuple of tuples (Examples):
-                iso.level=((20,0.0),(30,0),(50,0),(60,0),(70,0))
+        .. code-block:: python
 
-        Note: a combination of a pair (i.e., (30,0) or [30,0]) represents
-                the isoline value plus it increment value. Thus, to let VCS
-                generate "default" isolines enter the following:
-                iso.level=[[0,1e20]]  	# Same as iso.level=((0,1e20),)
+            a=vcs.init()
 
-    Displaying isoline labels:
-        iso.label='y'  			# Same as iso.label=1, will display isoline labels
-        iso.label='n'  			# Same as iso.label=0, will turn isoline labels off
+    .. describe:: Create a new instance of isoline:
 
-    Specify the isoline line style (or type):
-        iso.linetypes=([0,1,2,3,4])   	# Same as
-        iso.linetypes=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash']), will
-                specify the isoline style
+        .. code-block:: python
 
-    There are three possibilities for setting the line color indices (Ex):
-        iso.linecolors=(22,33,44,55,66,77)	# Same as
-        iso.linecolors=([22,33,44,55,66,77])	# Will set the isoline to a specific
-                                                #     color index
-        iso.linecolors=None			# Turns off the line color index
+            # Copies content of 'quick' to 'new'
+            iso=a.createisoline('new','quick')
+            # Copies content of 'default' to 'new'
+            iso=a.createisoline('new')
 
-    There are three possibilities for setting the line widths (Ex):
-        iso.linewidths=(1,10,3,4,5,6,7,8)	# Same as
-        iso.linewidths=([1,2,3,4,5,6,7,8])	# Will set the isoline to a specific
-                                                #     width size
-        iso.linewidths=None			# Turns off the line width size
-    If the number of line types, colors or widths are less than the number of levels
-    we extend the attribute list using the last attribute value in the attribute list.
+    .. describe:: Modify an existing isoline:
 
-    There are three ways to specify the text or font number:
-        iso.text=(1,2,3,4,5,6,7,8,9)     	# Font numbers are between 1 and 9
-        iso.text=[9,8,7,6,5,4,3,2,1]
-        iso.text=([1,3,5,6,9,2])
-        iso.text=None		        	# Removes the text settings
+        .. code-block:: python
 
-    There are three possibilities for setting the text color indices (Ex.):
-        iso.textcolors=([22,33,44,55,66,77])
-        iso.textcolors=(16,19,33,44)
-        iso.textcolors=None	        	# Turns off the text color index
-""" % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
+            iso=a.getisoline('AMIP_psl')
+
+    .. _isoline-attributes:
+
+    .. describe:: Overview of isoline attributes:
+
+        * List all the isoline attribute values
+
+            .. code-block:: python
+
+                iso.list()
+
+        * Set isoline attribute values:
+
+            .. code-block:: python
+
+                iso.projection='linear'
+                lon30={-180:'180W',-150:'150W',0:'Eq'}
+                iso.xticlabels1=lon30
+                iso.xticlabels2=lon30
+                # Will set them both
+                iso.xticlabels(lon30, lon30)
+                iso.xmtics1=''
+                iso.xmtics2=''
+                # Will set them both
+                iso.xmtics(lon30, lon30)
+                iso.yticlabels1=lat10
+                iso.yticlabels2=lat10
+                # Will set them both
+                iso.yticlabels(lat10, lat10)
+                iso.ymtics1=''
+                iso.ymtics2=''
+                # Will set them both
+                iso.ymtics(lat10, lat10)
+                iso.datawc_y1=-90.0
+                iso.datawc_y2=90.0
+                iso.datawc_x1=-180.0
+                iso.datawc_x2=180.0
+                # Will set them all
+                iso.datawc(-90, 90, -180, 180)
+                xaxisconvert='linear'
+                yaxisconvert='linear'
+                # Will set them both
+                iso.xyscale('linear', 'area_wt')
+
+        * Setting isoline :py:attr:`level` values:
+
+            .. code-block:: python
+
+                #1) As a list of tuples (Examples):
+                    iso.level=[(23,32,45,50,76),]
+                    iso.level=[(22,33,44,55,66)]
+                    iso.level=[(20,0.0),(30,0),(50,0)]
+                    iso.level=[(23,32,45,50,76), (35, 45, 55)]
+                #2) As a tuple of lists (Examples):
+                    iso.level=([23,32,45,50,76],)
+                    iso.level=([22,33,44,55,66])
+                    iso.level=([23,32,45,50,76],)
+                    iso.level=([0,20,25,30,35,40],[30,40],[50,60])
+                #3) As a list of lists (Examples):
+                    iso.level=[[20,0.0],[30,0],[50,0]]
+                #4) As a tuple of tuples (Examples):
+                    iso.level=((20,0.0),(30,0),(50,0),(60,0),(70,0))
+
+
+            .. note::
+                A combination of a pairs (i.e., (30,0) or [30,0])
+                represents the isoline value plus its increment value.
+                Thus, to let VCS generate "default" isolines:
+
+                .. code-block:: python
+
+                    # Same as iso.level=((0,1e20),)
+                    iso.level=[[0,1e20]]
+
+        * Displaying isoline labels:
+
+            .. code-block:: python
+
+                # Same as iso.label=1, will display isoline labels
+                iso.label='y'
+                # Same as iso.label=0, will turn isoline labels off
+                iso.label='n'
+
+        * Specify the isoline line style (or type):
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent.
+                iso.line=([0,1,2,3,4])
+                # Both specify the isoline style
+                iso.line=(['solid, 'dash', 'dot', 'dash-dot', 'long-dash'])
+
+        * There are three possibilities for setting the line color indices:
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent
+                # Both will set the isoline to a specific color index
+                iso.linecolors=(22,33,44,55,66,77)
+                iso.linecolors=([22,33,44,55,66,77])
+                # Turns off the line color index
+                iso.linecolors=None
+
+        * There are three possibilities for setting the line widths:
+
+            .. code-block:: python
+
+                # The following two lines of code are equivalent
+                iso.linewidths=(1,10,3,4,5,6,7,8)
+                # Both will set the isoline to a specific width size
+                iso.linewidths=([1,2,3,4,5,6,7,8])
+                # Turns off the line width size
+                iso.linewidths=None
+
+            .. note::
+                If the number of line styles, colors or widths are less
+                than the number of levels, we extend the attribute list
+                using the last attribute value in the attribute list.
+
+        * There are three ways to specify the text or font number:
+
+            .. code-block:: python
+
+                # Font numbers are between 1 and 9
+                iso.text=(1,2,3,4,5,6,7,8,9)
+                iso.text=[9,8,7,6,5,4,3,2,1]
+                iso.text=([1,3,5,6,9,2])
+                # Removes the text settings
+                iso.text=None
+
+        * There are three possibilities for setting the text color indices:
+
+            .. code-block:: python
+
+                iso.textcolors=([22,33,44,55,66,77])
+                iso.textcolors=(16,19,33,44)
+                # Turns off the text color index
+                iso.textcolors=None
+
+        .. _isoline-attribute-descriptions:
+
+        * Attribute descriptions:
+
+            .. py:attribute:: label (str)
+            Turn on/off labels on isolines
+
+            .. py:attribute:: labelskipdistance (float)
+            Minimum distance between isoline labels
+
+            .. py:attribute:: labelbackgroundcolors ([float])
+            Background color for isoline labels
+
+            .. py:attribute:: labelbackgroundopacities ([float])
+            Background opacity for isoline labels
+
+            .. py:attribute:: level ([float,...])
+            Isocountours to display
+
+            .. py:attribute:: clockwise ([int,...])
+            Draw directional arrows
+            +-(0,1,2) Indicate none/clockwise/clokwise on y axis >0.
+            Clockwise on x axis positive negative value invert behaviour
+
+            .. py:attribute:: scale ([float,...])
+            Scales the directional arrow lengths
+
+            .. py:attribute:: angle ([float,...])
+            Directional arrows head angle
+
+            .. py:attribute:: spacing ([float,...])
+            Scales spacing between directional arrows
+
+            %s
+            %s
+            %s
+            """ % (xmldocs.graphics_method_core, xmldocs.linesdoc, xmldocs.textsdoc)
+
     colormap = VCS_validation_functions.colormap
     __slots__ = [
         '__doc__',
@@ -958,30 +1055,6 @@ class Gi(object):
     #                                                                           #
     ##########################################################################
     def script(self, script_filename, mode='a'):
-        """
- %s
- Function:     script                           # Calls _vcs.scriptGi
-
- Description of Function:
-       Saves out a isoline graphics method in Python and VCS script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    iso=a.createisoline('temp')
-    iso.script('filename.py')         # Append to a Python file "filename.py"
-    iso.script('filename.scr')        # Append to a VCS file "filename.scr"
-    iso.script('filename','w')
-"""
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -1114,7 +1187,7 @@ class Gi(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-    script.__doc__ = script.__doc__ % xmldocs.scriptdoc
+    script.__doc__ = xmldocs.isoline_script
 
 ##########################################################################
 #        END OF FILE								#
