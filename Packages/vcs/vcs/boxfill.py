@@ -212,9 +212,9 @@ class Gfb(object):
     box.xyscale('linear', 'area_wt')  	# Will set them both
     box.level_1=1e20
     box.level_2=1e20
-    box.color_1=16
-    box.color_2=239
-    box.colors(16, 239 )  		# Will set them both
+    box.color_1=0
+    box.color_255
+    box.colors(0, 255 )  		# Will set them both
     box.boxfill_type='linear'		# 'linear' - compute or specify legend
                                         # 'log10' - plot using log10,
                                         # 'custom' - use custom values to display legend evenly
@@ -222,7 +222,7 @@ class Gfb(object):
     box.ext_1='n'                       # Show left overflow arrow
     box.ext_2='y'                       # Show right overflow arrow
     box.exts('n', 'y' )  		# Will set them both
-    box.missing=241                     # Color index value range 0 to 255
+    box.missing='black'                     # Color index or rgb value or name
 
     There are two possibilities for setting the boxfill levels:
      A) Levels are all contiguous (Examples):
@@ -395,7 +395,7 @@ class Gfb(object):
             self._yaxisconvert = "linear"
             self._ext_1 = False
             self._ext_2 = False
-            self._missing = 1
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._fillareastyle = 'solid'
             self._fillareaindices = [1, ]
             self._fillareaopacity = []
@@ -403,8 +403,8 @@ class Gfb(object):
             self._levels = ([1.e20, 1.e20])
             self._level_1 = 1.e20
             self._level_2 = 1.e20
-            self._color_1 = 16
-            self._color_2 = 239
+            self._color_1 = 0
+            self._color_2 = 255
             self._boxfill_type = "linear"
             self._datawc_timeunits = 'days since 2000'
             self._datawc_calendar = cdtime.DefaultCalendar
@@ -689,7 +689,7 @@ class Gfb(object):
         self._datawc_y2 = value
     datawc_y2 = property(_getdatawc_y2, _setdatawc_y2)
 
-    def colors(self, color1=16, color2=239):
+    def colors(self, color1=0, color2=255):
         self.color_1 = color1
         self.color_2 = color2
     colors.__doc__ = xmldocs.colorsdoc

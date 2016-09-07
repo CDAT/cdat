@@ -9,6 +9,7 @@ boxfill = canvas.createboxfill()
 
 boxfill.color_1 = 242
 boxfill.color_2 = 250
+boxfill.colormap = "classic"
 
 canvas.plot(data, boxfill, bg=1)
 

@@ -176,9 +176,9 @@ class Tl(object):
     def _settype(self, value):
         if isinstance(value, (str, int)):
             value = [value, ]
-        self._type, colors, width = VCS_validation_functions.checkLinesList(
+        self._type = VCS_validation_functions.checkLineTypeList(
             self,
-            'index',
+            'type',
             value)
 
     type = property(_gettype, _settype)
@@ -318,7 +318,7 @@ class Tl(object):
             self._type = ['solid', ]
             self._projection = "default"
             self._width = [1.0, ]
-            self._color = [1, ]
+            self._color = [[0., 0., 0., 100.], ]
             self._priority = 1
             self._viewport = [0., 1., 0., 1.]
             self._worldcoordinate = [0., 1., 0., 1.]

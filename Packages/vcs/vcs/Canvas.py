@@ -4961,6 +4961,7 @@ Options:::
         #   updateVCSsegments_flag = args[1]
         # except:
         #   updateVCSsegments_flag = 1
+
         self.colormap = name
         self.update()
         return

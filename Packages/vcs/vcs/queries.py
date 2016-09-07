@@ -767,7 +767,7 @@ if queries.ismarker(mk):
    mk.list()
 
 """
-    if (isinstance(obj, marker.Tm)):
+    if isinstance(obj, marker.Tm):
         return 1
     else:
         return 0

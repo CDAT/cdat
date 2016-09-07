@@ -1283,6 +1283,26 @@ def createline(name=None, source='default', ltype=None,
     return ln
 
 
+def setLineAttributes(to, l):
+    '''
+    Set attributes linecolor, linewidth and linetype from line l.
+    l can be a line name defined in vcs.elements or a line object
+    '''
+    import queries
+    line = None
+    if (queries.isline(l)):
+        line = l
+    elif l in vcs.elements["line"]:
+        line = vcs.elements["line"][l]
+    else:
+        raise ValueError("Expecting a line object or a " +
+                         "line name defined in vcs.elements, got type " +
+                         type(l).__name__)
+    to.linecolor = line.color[0]
+    to.linewidth = line.width[0]
+    to.linetype = line.type[0]
+
+
 def getline(name='default', ltype=None, width=None, color=None,
             priority=None, viewport=None,
             worldcoordinate=None,

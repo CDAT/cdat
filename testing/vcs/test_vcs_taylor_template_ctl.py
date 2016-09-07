@@ -14,11 +14,11 @@ x.portrait()
 
 ## Create a line which we will make dotted and grey
 gdl=x.createline('gdl')
-gdl.color=252
+gdl.color=["grey",]
 gdl.type='dot'
 ## Create a line which we will make grey
 gl=x.createline('gl')
-gl.color=252
+gl.color=["grey",]
 gl.type='solid'
 
 

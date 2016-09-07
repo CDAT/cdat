@@ -59,7 +59,7 @@ import os  # noqa
 from manageElements import *  # noqa
 import collections  # noqa
 
-_colorMap = "default"
+_colorMap = "viridis"
 
 _default_time_units = 'days since 2000'
 
@@ -133,8 +133,7 @@ dic[-90] = "90S"
 dic[90] = "90N"
 elements["list"]["Lat20"] = dic
 
-d, e = vcs.getdotdirectory()
-i = 0
+i = 1
 for nm, fnt in [
     ("default", "AvantGarde-Book_Bold.ttf"),
     ("Clarendon", "Clarendon.ttf"),
@@ -153,15 +152,15 @@ for nm, fnt in [
     ("Maths4", "blsy.ttf"),
     ("AvantGarde", "AvantGarde-Book_Bold.ttf"),
 ]:
-    i += 1
-    pth = os.path.join(os.path.expanduser("~"), d, fnt)
-    pthe = os.path.join(os.environ.get(e, ""), fnt)
+    pth = os.path.join(
+        vcs.prefix,
+        "share",
+        "vcs",
+        fnt)
     if os.path.exists(pth):
         vcs.elements["font"][nm] = pth
         vcs.elements["fontNumber"][i] = nm
-    elif os.path.exists(pthe):
-        vcs.elements["font"][nm] = pthe
-        vcs.elements["fontNumber"][i] = nm
+        i += 1
 
 p = projection.Proj("default")
 p = projection.Proj("linear")

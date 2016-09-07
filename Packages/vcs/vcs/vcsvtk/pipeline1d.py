@@ -69,7 +69,7 @@ class Pipeline1D(Pipeline):
             l.width = self._gm.linewidth
         else:
             l.priority = 0
-        l.type = self._gm.line
+        l.type = self._gm.linetype
         l._viewport = [tmpl.data.x1, tmpl.data.x2,
                        tmpl.data.y1, tmpl.data.y2]
 

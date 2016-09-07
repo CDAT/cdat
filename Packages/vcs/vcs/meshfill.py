@@ -243,7 +243,7 @@ Class:	Gfm                       	# Meshfill
                 mesh.fillareaindices=(7,fill,4,9,fill,15) # Set index using fillarea
                 fill.list()				 # list fillarea attributes
                 fill.style='hatch'			 # change style
-                fill.color=241				 # change color
+                fill.color="black"				 # change color
                 fill.index=3				 # change style index
 
     ext_1='n'
@@ -596,7 +596,7 @@ Class:	Gfm                       	# Meshfill
             self._datawc_x2 = 1.e20
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
-            self._missing = 241
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'

@@ -6,7 +6,7 @@ p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
 p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
-p.add_argument("--scale", dest="scale", type=float, help="scale arrows", default=1.)
+p.add_argument("--scale", dest="scale", type=float, help="scale arrows", default=5.)
 
 args = p.parse_args(sys.argv[1:])
 
@@ -31,8 +31,8 @@ import os
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 u=f("u")
 v=f("v")
-u=MV2.masked_greater(u,35.)
-v=MV2.masked_greater(v,888.)
+u=MV2.masked_greater(u,35.)[...,::2,::2]
+v=MV2.masked_greater(v,888.)[...,::2,::2]
 print u.max(),v.max(),u.min(),v.min()
 #x.plot(U)
 x.plot(u,v,gm,bg=bg)
@@ -42,7 +42,7 @@ if args.show:
   #x.interact()
 else:
   fnm = "test_vcs_vectors_missing"
-  if args.scale!=1.:
+  if args.scale!=5.:
     fnm+="_%.1g" % args.scale
   fnm+=nm_xtra
   x.png(fnm)

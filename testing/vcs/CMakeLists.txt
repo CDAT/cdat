@@ -1067,12 +1067,12 @@ cdat_add_test(test_vcs_large_pattern_hatch
 foreach(x_over_y 0.5 2)
  # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
  foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
-   foreach(mode foreground background)
+   foreach(mode 0 1)
      string(SUBSTRING ${plot} 2 -1 plot_name)
      cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
        "${PYTHON_EXECUTABLE}"
        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
-       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
+       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}_${mode}.png"
        ${mode}
        ${plot}
        ${x_over_y}
@@ -1110,6 +1110,12 @@ cdat_add_test(test_vcs_no_continents
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_no_continents.py
   ${BASELINE_DIR}/test_vcs_no_continents.png
 )
+
+#cdat_add_test(test_vcs_center_longitude
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
+#  ${BASELINE_DIR}/test_vcs_center_longitude.png
+#)
 
 cdat_add_test(test_vcs_textextents
   "${PYTHON_EXECUTABLE}"

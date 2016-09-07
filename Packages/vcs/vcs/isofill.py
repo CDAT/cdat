@@ -193,7 +193,7 @@ Class: Gfi				# Isofill
     xaxisconvert='linear'
     yaxisconvert='linear'
     iso.xyscale('linear', 'area_wt')  	# Will set them both
-    missing=241				# Color index value range 0 to 255
+    missing="black"				# Color index value range 0 to 255
 
     iso.legend=None
 
@@ -234,7 +234,7 @@ Class: Gfi				# Isofill
                 iso.fillareaindices=(7,fill,4,9,fill,15) # Set index using fillarea
                 fill.list()				 # list fillarea attributes
                 fill.style='hatch'			 # change style
-                fill.color=241				 # change color
+                fill.color="black"				 # change color
                 fill.index=3				 # change style index
 
     ext_1='n'
@@ -564,7 +564,7 @@ Class: Gfi				# Isofill
             self._datawc_x2 = 1.e20
             self._xaxisconvert = 'linear'
             self._yaxisconvert = 'linear'
-            self._missing = 241
+            self._missing = (0.0, 0.0, 0.0, 100.0)
             self._ext_1 = False
             self._ext_2 = False
             self._fillareastyle = 'solid'
