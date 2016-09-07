@@ -825,7 +825,7 @@ class Gfb(object):
     def xyscale(self, xat='linear', yat='linear'):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
-    xyscale.__doc__ = xmldocs.xyscaledoc
+    xyscale.__doc__ = xmldocs.xyscaledoc % (('boxfill',) * 2)
 
     def getlevels(self, varmin, varmax):
         if self.boxfill_type == "custom":

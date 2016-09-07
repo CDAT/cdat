@@ -713,7 +713,7 @@ class Gfi(object):
     def xyscale(self, xat='', yat=''):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
-    xyscale.__doc__ = xmldocs.xyscaledoc
+    xyscale.__doc__ = xmldocs.xyscaledoc % (('isofill',) * 2)
 
     def list(self):
         print "", "----------Isofill (Gfi) member (attribute) listings ----------"

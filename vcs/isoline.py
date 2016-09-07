@@ -967,7 +967,7 @@ class Gi(object):
     def xyscale(self, xat='', yat=''):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
-    xyscale.__doc__ = xmldocs.xyscaledoc
+    xyscale.__doc__ = xmldocs.xyscaledoc % (('isoline',) * 2)
 
     def list(self):
         if (self.name == '__removed_from_VCS__'):
