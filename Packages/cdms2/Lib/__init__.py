@@ -67,3 +67,9 @@ except:
 from restApi import esgfConnection, esgfDataset, FacetConnection
 
 MV = MV2
+__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable",
+           "sliceut", "error", "variable", "fvariable", "tvariable", "dataset",
+           "database", "cache", "selectors", "MV2", "convention", "bindex",
+           "auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable",
+           "mvBaseWriter", "mvSphereMesh", "mvVsWriter", "mvCdmsRegrid"]
+
