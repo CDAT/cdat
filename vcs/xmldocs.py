@@ -437,7 +437,7 @@ istextcombined_doc = queries_is_doc % dict
 dict['tc_example'] = dict['to'] = ''
 dict.clear()
 obj_types={
-    "gm_default":{
+    "graphics_default":{
         "3d_scalar": "vcs.dv3d.Gf3Dscalar",
         "3d_dual_scalar": "vcs.dv3d.Gf3DDualScalar",
         "3d_vector": "vcs.dv3d.Gf3Dvector",
@@ -450,14 +450,14 @@ obj_types={
         "1d": "vcs.unified1D.G1d",
     },
 
-    "gm_polar":{
+    "graphics_polar":{
         "boxfill": "vcs.boxfill.Gfb",
         "isofill": "vcs.isofill.Gfi",
         "isoline": "vcs.isoline.Gi",
         "template": "vcs.template.P",
         "projection": "vcs.projection.Proj",
     },
-    "gm_other":{
+    "graphics_other":{
         "meshfill": "vcs.meshfill.Gfm",
     },
     "secondary_default":{
@@ -479,40 +479,48 @@ obj_types={
     }
 }
 
-def populate_dict(type_dict, target_dict, docstring, method):
+def populate_docstrings(type_dict, target_dict, docstring, method):
 
     dict = {}
+    # example2 docstring snippet at top due to funky indentation stuff with sphinx
+    example2 = ''
+    if method == 'get':
+        example2 = """
+        >>> ex2=vcs.get%(call)s('%(parent2)s')  # instance of '%(parent2)s' %(name)s %(type)s
+        >>> a.%(name)s(ex2) # Plot using specified %(call)s object
+        <vcs.displayplot.Dp ...>
+            """
+    elif method == 'create':
+        example2 ="""
+        >>> ex2=vcs.create%(name)s('example2','%(parent)s') # create 'example2' from '%(parent)s' template
+        >>> vcs.show('%(name)s') # should now contain the 'example2' %(name)s
+        *******************%(cap)s Names List**********************
+        ...
+        *******************End %(cap)s Names List**********************
+            """
     for key in type_dict.keys():
-        method_type = key.split('_')[0]
+        vcs_method_type = key.split('_')[0]
         parent2 = key.split('_')[1]
         for _ in type_dict[key].keys():
-            if(_ not in ["list of obj exceptions here",]):
+            if _ in ["list of obj exceptions here",]:
+                # TODO: make this section represent exceptions to the general rule
+                dict['parent'] = 'not_default'
+                dict['name'] = dict['call'] = _
+                dict['cap'] = dict['name'].title()
+            else:
                 dict['parent'] = 'default'
                 dict['name'] = dict['call'] = _
                 dict['cap'] = dict['name'].title()
-            else:
-                dict['parent'] = 'not_default' # TODO
-                dict['name'] = dict['call'] = _
-                dict['cap'] = dict['name'].title()
-            # assign dict['type']
-            if(method_type == 'secondary'):
-                dict['type'] = 'secondary method'
-            if(method_type == 'gm'):
-                dict['type'] = 'graphics method'
-            # assign dict['ex2']
-            if(parent2 == 'default'):
-                dict['ex2'] = ''
-            elif(parent2=='other'):
+            dict['type'] = vcs_method_type + ' method'
+            dict['ex2'] = ''
+            dict['parent2'] = ''
+            dict['method'] = method
+            if parent2=='other':
                 # TODO: fill this out!
-            else:
-                dict['method'] = method
+                pass
+            elif parent2 != 'default':
                 dict['parent2'] = parent2
-                # indentation is weird, but it's necessary to be in line with
-                dict['ex2'] = """
-            >>> ex2=vcs.get%(call)s('%(parent2)s')  # instance of '%(parent2)s' %(name)s %(type)s
-            >>> a.%(name)s(ex2) # Plot using specified %(call)s object
-            <vcs.displayplot.Dp ...>
-                """ % dict
+                dict['ex2'] = example2 % dict
             target_dict[_] = docstring % dict
 
 get_methods_doc = """
@@ -528,7 +536,7 @@ get_methods_doc = """
 
     :Example:
 
-        .. doctest:: get_methods
+        .. doctest:: manageElements_get
 
             >>> a=vcs.init()
             >>> vcs.show('%(name)s') # Show all the existing %(name)s %(type)s
@@ -541,7 +549,7 @@ get_methods_doc = """
             %(ex2)s
     """
 get_docs = {}
-populate_dict(obj_types, get_docs, get_methods_doc, 'get')
+populate_docstrings(obj_types, get_docs, get_methods_doc, 'get')
 
 
 # For all cases with a 'default' parent object
@@ -718,6 +726,7 @@ create_methods_doc = """
     :returns: A %(name)s %(type)s object
     :rtype: %(rtype)s
     """
+create_docs = {}
 # Graphics method create methods
 #   no second example
 dict['type'] = 'graphics method'

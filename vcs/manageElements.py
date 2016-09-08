@@ -100,21 +100,7 @@ def createtemplate(name=None, source='default'):
 
 def gettemplate(Pt_name_src='default'):
     """
-    VCS contains a list of predefined templates. This function will create a
-    template class object from an existing VCS template. If no template name
-    is given, then template 'default' will be used.
-
-    Note, VCS does not allow the modification of 'default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createtemplate function.)
-
-    :Example:
-
-        .. doctest:: manageElements_gettemplate
-
-            >>> vcs.listelements('template') # Show all the existing templates
-            >>> templt=vcs.gettemplate() # templt instance of 'default' template
-            >>> templt2=vcs.gettemplate('quick') # templt2 contains 'quick' template
+    %s
 
     :param Pt_name_src: String name of an existing template VCS object
     :type Pt_name_src:
@@ -129,6 +115,7 @@ def gettemplate(Pt_name_src='default'):
     if Pt_name_src not in vcs.elements["template"].keys():
         raise ValueError("template '%s' does not exists" % Pt_name_src)
     return vcs.elements["template"][Pt_name_src]
+gettemplate.__doc__ = gettemplate.__doc__ % xmldocs.get_docs['template']
 
 
 def createprojection(name=None, source='default'):
@@ -177,24 +164,7 @@ def createprojection(name=None, source='default'):
 
 def getprojection(Proj_name_src='default'):
     """
-    VCS contains a list of graphics methods. This function will create a
-    projection class object from an existing VCS projection method. If
-    no projection name is given, then projection 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createprojection function.)
-
-    :Example:
-
-        .. doctest:: manageElements_getprojection
-
-            >>> vcs.show('projection') # Show all the existing projection methods
-            *******************Projection Names List**********************
-            ...
-            *******************End Projection Names List**********************
-            >>> p=vcs.getprojection() # box instance of 'default' projection method
-            >>> p2=vcs.getprojection('polar') # box2 instance of existing 'polar' projection graphics method
+    %s
 
     :param Proj_name_src: String name of an existing VCS projection object
     :type Proj_name_src: str
@@ -210,6 +180,7 @@ def getprojection(Proj_name_src='default'):
     if Proj_name_src not in vcs.elements["projection"]:
         raise vcsError("No such projection '%s'" % Proj_name_src)
     return vcs.elements["projection"][Proj_name_src]
+getprojection.__doc__ = getprojection.__doc__ % xmldocs.get_docs['projection']
 
 
 def createboxfill(name=None, source='default'):
@@ -365,25 +336,7 @@ def createtaylordiagram(name=None, source='default'):
 
 def gettaylordiagram(Gtd_name_src='default'):
     """
-    VCS contains a list of graphics methods. This function will create a
-    taylordiagram class object from an existing VCS taylordiagram graphics method. If
-    no taylordiagram name is given, then taylordiagram 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createboxfill function.)
-
-    :Example:
-
-        .. doctest:: manageElements_gettaylordiagram
-
-
-            >>> vcs.show('taylordiagram')  # Show all the existing taylordiagram graphics methods
-            *******************Taylordiagram Names List**********************
-            ...
-            *******************End Taylordiagram Names List**********************
-            >>> td=vcs.gettaylordiagram()  # td instance of 'default' taylordiagram graphics method
-            >>> td2=vcs.gettaylordiagram('default') # td2 instance of existing 'default' taylordiagram graphics method
+    %s
 
     :param Gtd_name_src: String name of an existing taylordiagram VCS object
     :type Gtd_name_src: str
@@ -402,7 +355,7 @@ def gettaylordiagram(Gtd_name_src='default'):
             Gtd_name_src)
     else:
         return vcs.elements["taylordiagram"][Gtd_name_src]
-
+gettaylordiagram.__doc__ = gettaylordiagram.__doc__ % xmldocs.get_docs['taylordiagram']
 
 def createmeshfill(name=None, source='default'):
     """
