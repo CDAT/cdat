@@ -1,3 +1,4 @@
+import vcs
 plot_keywords_doc = """
     :param xaxis: Axis object to replace the slab -1 dim axis
     :param yaxis: Axis object to replace the slab -2 dim axis, only if slab has more than 1D
@@ -273,7 +274,7 @@ scriptdoc = """
     :param mode: Either 'w' for replace, or 'a' for append. Defaults to 'a', if not specified.
     :type mode: str
 """
-
+scriptdocs = {}
 
 # Graphics Method scriptdocs
 dict['type'] = 'graphics method'
@@ -326,6 +327,7 @@ template_script = scriptdoc % dict
 dict['type'] = 'secondary method'
 dict['name'] = dict['call'] = 'projection'
 projection_script = scriptdoc % dict
+dict.clear()
 
 # dict['parent'] is for rare cases where there is no 'default' object to inherit from.
 dict['parent'] = 'REPLACE_ME'
@@ -353,6 +355,7 @@ queries_is_doc= """
     :returns: An integer indicating whether the object is a %(name)s %(method_type)s (1), or not (0).
     :rtype: int
     """
+is_docs = {}
 # queries.is[PRIMARY_OBJECT]
 dict['type'] = 'primary'
 dict['parent'] = 'default'
@@ -362,7 +365,6 @@ dict['name'] = 'vector'
 dict['cap'] = dict['name'].title()
 isvector_doc = queries_is_doc % dict
 dict['name'] = 'taylordiagram'
-dict['cap'] = dict['name'].title()
 dict['cap'] = dict['name'].title()
 istaylordiagram_doc = queries_is_doc % dict
 dict['name'] = 'meshfill'
@@ -433,10 +435,88 @@ dict['parent'] = 'example_tt'
 dict['to'] = ", 'example_to'"
 istextcombined_doc = queries_is_doc % dict
 dict['tc_example'] = dict['to'] = ''
+dict.clear()
+obj_types={
+    "gm_default":{
+        "3d_scalar": "vcs.dv3d.Gf3Dscalar",
+        "3d_dual_scalar": "vcs.dv3d.Gf3DDualScalar",
+        "3d_vector": "vcs.dv3d.Gf3Dvector",
+        "vector": "vcs.vector.Gv",
+        "taylordiagram": "vcs.taylor.Gtd",
+        "scatter": "vcs.unified1D.G1d",
+        "yxvsx": "vcs.unified1D.G1d",
+        "xyvsy": "vcs.unified1D.G1d",
+        "xvsy": "vcs.unified1D.G1d",
+        "1d": "vcs.unified1D.G1d",
+    },
 
+    "gm_polar":{
+        "boxfill": "vcs.boxfill.Gfb",
+        "isofill": "vcs.isofill.Gfi",
+        "isoline": "vcs.isoline.Gi",
+        "template": "vcs.template.P",
+        "projection": "vcs.projection.Proj",
+    },
+    "gm_other":{
+        "meshfill": "vcs.meshfill.Gfm",
+    },
+    "secondary_default":{
+        "fillarea": "vcs.fillarea.Tf",
+    },
+    "secondary_red":{
+        "line": "vcs.line.Tl",
+        "marker": "vcs.marker.Tm",
+    },
+    "secondary_other":{
+        # rainbow
+        "colormap": "vcs.colormap.Cp",
+        # no methods initially populated
+        "textcombined": "vcs.textcombined.Tc",
+    },
+    "secondary_bigger":{
+        "texttable": "vcs.texttable.Tt",
+        "textorientation": "vcs.textorientation.To",
+    }
+}
+
+def populate_dict(type_dict, target_dict, docstring, method):
+
+    dict = {}
+    for key in type_dict.keys():
+        method_type = key.split('_')[0]
+        parent2 = key.split('_')[1]
+        for _ in type_dict[key].keys():
+            if(_ not in ["list of obj exceptions here",]):
+                dict['parent'] = 'default'
+                dict['name'] = dict['call'] = _
+                dict['cap'] = dict['name'].title()
+            else:
+                dict['parent'] = 'not_default' # TODO
+                dict['name'] = dict['call'] = _
+                dict['cap'] = dict['name'].title()
+            # assign dict['type']
+            if(method_type == 'secondary'):
+                dict['type'] = 'secondary method'
+            if(method_type == 'gm'):
+                dict['type'] = 'graphics method'
+            # assign dict['ex2']
+            if(parent2 == 'default'):
+                dict['ex2'] = ''
+            elif(parent2=='other'):
+                # TODO: fill this out!
+            else:
+                dict['method'] = method
+                dict['parent2'] = parent2
+                # indentation is weird, but it's necessary to be in line with
+                dict['ex2'] = """
+            >>> ex2=vcs.get%(call)s('%(parent2)s')  # instance of '%(parent2)s' %(name)s %(type)s
+            >>> a.%(name)s(ex2) # Plot using specified %(call)s object
+            <vcs.displayplot.Dp ...>
+                """ % dict
+            target_dict[_] = docstring % dict
 
 get_methods_doc = """
-    VCS contains a list of secondary methods. This function will create a
+    VCS contains a list of %(type)ss. This function will create a
     %(name)s class object from an existing VCS %(name)s %(type)s. If
     no %(name)s name is given, then %(name)s '%(parent)s' will be used.
 
@@ -444,7 +524,7 @@ get_methods_doc = """
 
         VCS does not allow the modification of 'default' attribute sets.
         However, a 'default' attribute set that has been copied under a
-        different name can be modified. (See the :ref:`vcs.manageElements.createfillarea` function.)
+        different name can be modified. (See the :py:func:`vcs.manageElements.create%(name)s` function.)
 
     :Example:
 
@@ -458,14 +538,86 @@ get_methods_doc = """
             >>> ex=vcs.get%(call)s()  # instance of '%(parent)s' %(name)s %(type)s
             >>> a.%(name)s(ex) # Plot using specified %(call)s object
             <vcs.displayplot.Dp ...>
+            %(ex2)s
     """
-# Get for secondary methods with a 'default' available
-dict['parent'] = 'default'
-dict['type'] = 'secondary method'
+get_docs = {}
+populate_dict(obj_types, get_docs, get_methods_doc, 'get')
 
+
+# For all cases with a 'default' parent object
+dict['parent'] = 'default'
+# Get for secondary methods
+dict['type'] = 'secondary method'
+#   default
+dict['ex2'] = ''
 dict['name'] = dict['call'] = 'fillarea'
 dict['cap'] = dict['name'].title()
 get_fillarea_doc = get_methods_doc % dict
+#   red
+dict['name'] = dict['call'] = 'line'
+dict['cap'] = dict['name'].title()
+dict['ex2'] ="""
+            >>> ex2=vcs.get%(call)s('red')  # instance of 'red' %(name)s %(type)s
+            >>> a.%(name)s(ex2) # Plot using specified %(call)s object
+            <vcs.displayplot.Dp ...>
+"""
+get_line_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'marker'
+dict['cap'] = dict['name'].title()
+get_marker_doc = get_methods_doc % dict
+#   other
+dict['name'] = dict['call'] = 'colormap'
+dict['cap'] = dict['name'].title()
+dict['ex2'] ="""
+            >>> ex2=vcs.get%(call)s('rainbow')  # instance of 'rainbow' %(name)s %(type)s
+            >>> a.%(name)s(ex2) # Plot using specified %(call)s object
+            <vcs.displayplot.Dp ...>
+"""
+get_colormap_doc = get_methods_doc % dict
+# Get for gms
+dict['type'] = 'graphics method'
+#   default
+dict['ex2'] = ''
+dict['name'] = dict['call'] = '3d_scalar'
+dict['cap'] = dict['name'].title()
+get_3d_scalar_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = '3d_dual_scalar'
+dict['cap'] = dict['name'].title()
+get_3d_dual_scalar_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = '3d_vector'
+dict['cap'] = dict['name'].title()
+get_3d_vector_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'vector'
+dict['cap'] = dict['name'].title()
+get_vector_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'taylordiagram'
+dict['cap'] = dict['name'].title()
+get_taylordiagram_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'scatter'
+dict['cap'] = dict['name'].title()
+get_scatter_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'yxvsx'
+dict['cap'] = dict['name'].title()
+get_yxvsx_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'xyvsy'
+dict['cap'] = dict['name'].title()
+get_xyvsy_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = 'xvsy'
+dict['cap'] = dict['name'].title()
+get_xvsy_doc = get_methods_doc % dict
+dict['name'] = dict['call'] = '1d'
+dict['cap'] = dict['name'].title()
+get_1d_doc = get_methods_doc % dict
+#   polar
+dict['ex2'] ="""
+            >>> ex2=vcs.get%(call)s('polar')  # instance of 'polar' %(name)s %(type)s
+            >>> a.%(name)s(ex2) # Plot using specified %(call)s object
+            <vcs.displayplot.Dp ...>
+"""
+#   other
+
+
+
 dict['name'] = dict['call'] = 'texttable'
 dict['cap'] = dict['name'].title()
 get_texttable_doc = get_methods_doc % dict
@@ -529,6 +681,62 @@ get_3d_vector_doc = get_methods_doc % dict
 dict['name'] = dict['call'] = 'texttable'
 dict['cap'] = dict['name'].title()
 get_colormap_doc = get_methods_doc % dict
+dict.clear()
+
+create_methods_doc = """
+    Create a new %(name)s %(type)s given the the name and the existing
+    %(name)s %(type)s to copy the attributes from. If no existing
+    %(name)s %(type)s is given, then the default %(name)s %(type)s will be used as the graphics method
+    to which the attributes will be copied from.
+
+    .. note::
+
+        If the name provided already exists, then an error will be returned. %(type)s
+        names must be unique.
+
+    :Example:
+
+        .. doctest:: manageElements_create
+
+            >>> vcs.show('%(name)s') # show all available %(name)s
+            *******************%(cap)s Names List**********************
+            ...
+            *******************End %(cap)s Names List**********************
+            >>> ex=vcs.create%(call)s('example1') # Create %(name)s 'example1' that inherits from 'default'
+            >>> vcs.show('%(name)s') # should now contain the 'example1' %(name)s
+            *******************%(cap)s Names List**********************
+            ...
+            *******************End %(cap)s Names List**********************
+            %(ex2)s
+
+    :param name: The name of the created object
+    :type name: str
+
+    :param source: The object to inherit from
+    :type source: a %(name)s or a string name of a %(name)s
+
+    :returns: A %(name)s %(type)s object
+    :rtype: %(rtype)s
+    """
+# Graphics method create methods
+#   no second example
+dict['type'] = 'graphics method'
+dict['ex2'] = ''
+dict['name'] = dict['call'] = 'taylordiagram'
+dict['cap'] = dict['name'].title()
+
+# No type create methods
+dict['type'] = ''
+dict['name'] = dict['call'] = 'template'
+dict['parent'] = 'quick'
+dict['ex2'] = """
+            >>> ex2=vcs.create%(name)s('example2','%(parent)s') # create 'example2' from '%(parent)s' template
+            >>> vcs.show('%(name)s') # should now contain the 'example2' %(name)s
+            *******************%(cap)s Names List**********************
+            ...
+            *******************End %(cap)s Names List**********************
+    """ % dict
+
 
 exts_attrs= """
             .. py:attribute:: ext_1 (str)

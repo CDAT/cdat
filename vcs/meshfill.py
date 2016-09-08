@@ -690,7 +690,7 @@ wrap :: ([float,float]) ([0.,0.]) Modulo to wrap around on either axis (automati
     def xyscale(self, xat='', yat=''):
         self.xaxisconvert = xat
         self.yaxisconvert = yat
-    xyscale.__doc__ = xmldocs.xyscaledoc
+    xyscale.__doc__ = xmldocs.xyscaledoc % (('meshfill',) * 2)
 
     ##########################################################################
     #                                                                           #

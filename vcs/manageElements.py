@@ -19,10 +19,7 @@ import texttable
 import textorientation
 import textcombined
 import vector
-from xmldocs import plot_keywords_doc, graphics_method_core, axesconvert,\
-    create_GM_input, get_GM_input, boxfill_output, \
-    isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output,\
-    scatter_output, get_fillarea_doc, get_texttable_doc
+import xmldocs
 import random
 from error import vcsError
 import warnings
@@ -77,15 +74,14 @@ def createtemplate(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_createtemplate
 
-        # create 'example1' template from 'default' template
-        con=vcs.createtemplate('example1')
-        # Show all the existing templates
-        vcs.listelements('template')
-        # create 'example2' from 'quick' template
-        con=vcs.createtemplate('example2','quick')
-
+            >>> con=vcs.createtemplate('example1') # create 'example1' template from 'default' template
+            >>> vcs.listelements('template') # Show all the existing templates
+            [... example1, ...]
+            >>> con=vcs.createtemplate('example2','quick') # create 'example2' from 'quick' template
+            >>> vcs.listelements('template') # Show all the existing templates
+            [..., example2, ...]
 
     :param name: The name of the created object
     :type name: str
@@ -108,20 +104,17 @@ def gettemplate(Pt_name_src='default'):
     template class object from an existing VCS template. If no template name
     is given, then template 'default' will be used.
 
-    Note, VCS does not allow the modification of `default' attribute
+    Note, VCS does not allow the modification of 'default' attribute
     sets. However, a `default' attribute set that has been copied under a
     different name can be modified. (See the createtemplate function.)
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_gettemplate
 
-        # Show all the existing templates
-        vcs.listelements('template')
-        # templt instance of 'default' template
-        templt=vcs.gettemplate()
-        # templt2 contains 'quick' template
-        templt2=vcs.gettemplate('quick')
+            >>> vcs.listelements('template') # Show all the existing templates
+            >>> templt=vcs.gettemplate() # templt instance of 'default' template
+            >>> templt2=vcs.gettemplate('quick') # templt2 contains 'quick' template
 
     :param Pt_name_src: String name of an existing template VCS object
     :type Pt_name_src:
@@ -151,13 +144,22 @@ def createprojection(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_createprojection
 
-        vcs.show('projection')
-        p=vcs.createprojection('example1',)
-        vcs.show('projection')
-        p=vcs.createprojection('example2','quick')
-        vcs.show('projection')
+            >>> vcs.show('projection')
+            *******************Projection Names List**********************
+            ...
+            *******************End Projection Names List**********************
+            >>> p=vcs.createprojection('example1',)
+            >>> vcs.show('projection')
+            *******************Projection Names List**********************
+            ...
+            *******************End Projection Names List**********************
+            >>> p=vcs.createprojection('example2','polar')
+            >>> vcs.show('projection')
+            *******************Projection Names List**********************
+            ...
+            *******************End Projection Names List**********************
 
     :param name: The name of the created object
     :type name: str
@@ -185,14 +187,14 @@ def getprojection(Proj_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_getprojection
 
-        # Show all the existing projection methods
-        vcs.show('projection')
-        # box instance of 'default' projection method
-        p=vcs.getprojection()
-        # box2 instance of existing 'quick' projection graphics method
-        p2=vcs.getprojection('quick')
+            >>> vcs.show('projection') # Show all the existing projection methods
+            *******************Projection Names List**********************
+            ...
+            *******************End Projection Names List**********************
+            >>> p=vcs.getprojection() # box instance of 'default' projection method
+            >>> p2=vcs.getprojection('polar') # box2 instance of existing 'polar' projection graphics method
 
     :param Proj_name_src: String name of an existing VCS projection object
     :type Proj_name_src: str
@@ -226,13 +228,22 @@ def createboxfill(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_createboxfill
 
-        vcs.show('boxfill')
-        box=vcs.createboxfill('example1',)
-        vcs.show('boxfill')
-        box=vcs.createboxfill('example2','quick')
-        vcs.show('boxfill')
+            >>> vcs.show('boxfill')
+            *******************Boxfill Names List**********************
+            ...
+            *******************End Boxfill Names List**********************
+            >>> box=vcs.createboxfill('example1')
+            >>> vcs.show('boxfill')
+            *******************Boxfill Names List**********************
+            ...
+            *******************End Boxfill Names List**********************
+            >>> box=vcs.createboxfill('example2','polar')
+            >>> vcs.show('boxfill')
+            *******************Boxfill Names List**********************
+            ...
+            *******************End Boxfill Names List**********************
 
     :param name: The name of the created object
     :type name: str
@@ -253,7 +264,8 @@ def createboxfill(name=None, source='default'):
     name, source = check_name_source(name, source, 'boxfill')
     return boxfill.Gfb(name, source)
 createboxfill.__doc__ = createboxfill.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, boxfill_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert,
+    xmldocs.create_GM_input, xmldocs.boxfill_output)
 
 
 def getboxfill(Gfb_name_src='default'):
@@ -268,14 +280,14 @@ def getboxfill(Gfb_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_getboxfill
 
-        # Show all the existing boxfill graphics methods
-        vcs.show('boxfill')
-        # box instance of 'default' boxfill graphics method
-        box=vcs.getboxfill()
-        # box2 instance of existing 'quick' boxfill graphics method
-        box2=vcs.getboxfill('quick')
+            >>> vcs.show('boxfill')  # Show all boxfill graphics methods
+            *******************Boxfill Names List**********************
+            ...
+            *******************End Boxfill Names List**********************
+            >>> box=vcs.getboxfill() # box instance of 'default' boxfill graphics method
+            >>> box2=vcs.getboxfill('polar') # box2 instance of existing 'quick' boxfill graphics method
 
     :param Gfb_name_src: String name of an existing boxfill VCS object
     :type Gfb_name_src: str
@@ -297,7 +309,7 @@ def getboxfill(Gfb_name_src='default'):
         raise "The boxfill method: '%s' does not seem to exist"
     return vcs.elements["boxfill"][Gfb_name_src]
 getboxfill.__doc__ = getboxfill.__doc__ % \
-                     (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, boxfill_output)
+                     (xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.boxfill_output)
 
 
 def createtaylordiagram(name=None, source='default'):
@@ -313,13 +325,17 @@ def createtaylordiagram(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_createtaylordiagram
 
-        vcs.show('taylordiagram')
-        td=vcs.createtaylordiagram('example1',)
-        vcs.show('taylordiagram')
-        td=vcs.createtaylordiagram('example2','quick')
-        vcs.show('taylordiagram')
+            >>> vcs.show('taylordiagram') # show all available taylordiagrams
+            *******************Taylordiagram Names List**********************
+            ...
+            *******************End Taylordiagram Names List**********************
+            >>> td=vcs.createtaylordiagram('example1') # Create taylordiagram 'example1' that inherits from 'default'
+            >>> vcs.show('taylordiagram') # should now contain the 'example1' taylordiagram
+            *******************Taylordiagram Names List**********************
+            ...
+            *******************End Taylordiagram Names List**********************
 
     :param name: The name of the created object
     :type name: str
@@ -344,6 +360,7 @@ def createtaylordiagram(name=None, source='default'):
             ' does not exist')
     n = vcs.taylor.Gtd(name, source)
     return n
+# createtaylordiagram.__doc__ = xmldocs.create_taylor_doc
 
 
 def gettaylordiagram(Gtd_name_src='default'):
@@ -358,14 +375,15 @@ def gettaylordiagram(Gtd_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_gettaylordiagram
 
-        # Show all the existing taylordiagram graphics methods
-        vcs.show('taylordiagram')
-        # td instance of 'default' taylordiagram graphics method
-        td=vcs.gettaylordiagram()
-        # td2 instance of existing 'default' taylordiagram graphics method
-        td2=vcs.gettaylordiagram('default')
+
+            >>> vcs.show('taylordiagram')  # Show all the existing taylordiagram graphics methods
+            *******************Taylordiagram Names List**********************
+            ...
+            *******************End Taylordiagram Names List**********************
+            >>> td=vcs.gettaylordiagram()  # td instance of 'default' taylordiagram graphics method
+            >>> td2=vcs.gettaylordiagram('default') # td2 instance of existing 'default' taylordiagram graphics method
 
     :param Gtd_name_src: String name of an existing taylordiagram VCS object
     :type Gtd_name_src: str
@@ -401,13 +419,22 @@ def createmeshfill(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_createmeshfill
 
-        vcs.show('meshfill')
-        mesh=vcs.createmeshfill('example1')
-        vcs.show('meshfill')
-        mesh=vcs.createmeshfill('example2','quick')
-        vcs.show('meshfill')
+            >>> vcs.show('meshfill') # list names of all meshfill objects
+            *******************Meshfill Names List**********************
+            ...
+            *******************End Meshfill Names List**********************
+            >>> mesh=vcs.createmeshfill('example1') # inherits from default meshfill
+            >>> vcs.show('meshfill') # should no
+            *******************Meshfill Names List**********************
+            ...
+            *******************End Meshfill Names List**********************
+            >>> mesh=vcs.createmeshfill('example2','quick')
+            >>> vcs.show('meshfill')
+            *******************Meshfill Names List**********************
+            ...
+            *******************End Meshfill Names List**********************
 
     :param name: The name of the created object
     :type name: str
@@ -436,7 +463,7 @@ def getmeshfill(Gfm_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         # Show all the existing meshfill graphics methods
@@ -479,7 +506,7 @@ def createisofill(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         vcs.show('isofill')
         iso=vcs.createisofill('example1')
@@ -506,7 +533,7 @@ def createisofill(name=None, source='default'):
     name, source = check_name_source(name, source, 'isofill')
     return isofill.Gfi(name, source)
 createisofill.__doc__ = createisofill.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.isofill_output)
 
 
 def getisofill(Gfi_name_src='default'):
@@ -524,7 +551,7 @@ def getisofill(Gfi_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         # Show all the existing isofill graphics methods
         vcs.show('isofill')
@@ -554,7 +581,7 @@ def getisofill(Gfi_name_src='default'):
         raise ValueError("The isofill '%s' does not exists" % Gfi_name_src)
     return vcs.elements["isofill"][Gfi_name_src]
 getisofill.__doc__ = getisofill.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, isofill_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.isofill_output)
 
 
 def createisoline(name=None, source='default'):
@@ -573,7 +600,7 @@ def createisoline(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         vcs.show('isoline')
         iso=vcs.createisoline('example1')
@@ -600,7 +627,7 @@ def createisoline(name=None, source='default'):
     name, source = check_name_source(name, source, 'isoline')
     return isoline.Gi(name, source)
 createisoline.__doc__ = createisoline.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isoline_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.isoline_output)
 
 
 def getisoline(Gi_name_src='default'):
@@ -617,7 +644,7 @@ def getisoline(Gi_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         # Show all the existing isoline graphics methods
         vcs.show('isoline')
@@ -647,7 +674,7 @@ def getisoline(Gi_name_src='default'):
         raise ValueError("The isoline '%s' does not exists" % Gi_name_src)
     return vcs.elements["isoline"][Gi_name_src]
 getisoline.__doc__ = getisoline.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, isoline_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.isoline_output)
 
 
 def create1d(name=None, source='default'):
@@ -680,7 +707,7 @@ def createxyvsy(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         vcs.show('xyvsy')
@@ -719,7 +746,7 @@ def createxyvsy(name=None, source='default'):
     gm.flip = True
     return gm
 createxyvsy.__doc__ = createxyvsy.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.xyvsy_output)
 
 
 def getxyvsy(GXy_name_src='default'):
@@ -737,7 +764,7 @@ def getxyvsy(GXy_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         # Show all the existing Xyvsy graphics methods
@@ -765,7 +792,7 @@ def getxyvsy(GXy_name_src='default'):
         return vcs.get1d(GXy_name_src + "_xyvsy")
     return gm
 getxyvsy.__doc__ = getxyvsy.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.xyvsy_output)
 
 
 def createyxvsx(name=None, source='default'):
@@ -783,7 +810,7 @@ def createyxvsx(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         vcs.show('yxvsx')
@@ -820,7 +847,7 @@ def createyxvsx(name=None, source='default'):
             raise ve
     return gm
 createyxvsx.__doc__ = createyxvsx.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.yxvsx_output)
 
 
 def getyxvsx(GYx_name_src='default'):
@@ -838,7 +865,7 @@ def getyxvsx(GYx_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         # Show all the existing Yxvsx graphics methods
@@ -865,7 +892,7 @@ def getyxvsx(GYx_name_src='default'):
         return vcs.get1d(GYx_name_src + "_yxvsx")
     return gm
 getyxvsx.__doc__ = getyxvsx.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.yxvsx_output)
 
 
 def createxvsy(name=None, source='default'):
@@ -883,7 +910,7 @@ def createxvsy(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         vcs.show('xvsy')
@@ -919,7 +946,7 @@ def createxvsy(name=None, source='default'):
             raise ve
     return gm
 createxvsy.__doc__ = createxvsy.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.xvsy_output)
 
 
 def getxvsy(GXY_name_src='default'):
@@ -936,7 +963,7 @@ def getxvsy(GXY_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing XvsY graphics methods
@@ -963,24 +990,24 @@ def getxvsy(GXY_name_src='default'):
         return vcs.get1d(GXY_name_src + "_xvsy")
     return gm
 getxvsy.__doc__ = getxvsy.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.xvsy_output)
 
 
 def createvector(name=None, source='default'):
     """
-        Create a new vector graphics method given the the name and the existing
-        vector graphics method to copy the attributes from. If no existing
-        vector graphics method name is given, then the default vector graphics
-        method will be used as the graphics method to which the attributes will
-        be copied from.
+    Create a new vector graphics method given the the name and the existing
+    vector graphics method to copy the attributes from. If no existing
+    vector graphics method name is given, then the default vector graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
 
-        .. note::
-            If the name provided already exists, then an error will be returned. Graphics
-            method names must be unique.
+    .. note::
+        If the name provided already exists, then an error will be returned. Graphics
+        method names must be unique.
 
-        :Example:
+    :Example:
 
-::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         vcs.show('vector')
@@ -1017,7 +1044,7 @@ def getvector(Gv_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing vector graphics methods
@@ -1058,7 +1085,7 @@ def createscatter(name=None, source='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     vcs.show('scatter')
@@ -1095,7 +1122,7 @@ def createscatter(name=None, source='default'):
     gm.linewidth = 0
     return gm
 createscatter.__doc__ = createscatter.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, scatter_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.create_GM_input, xmldocs.scatter_output)
 
 
 def getscatter(GSp_name_src='default'):
@@ -1112,7 +1139,7 @@ def getscatter(GSp_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing scatter graphics methods
@@ -1139,7 +1166,7 @@ def getscatter(GSp_name_src='default'):
         return vcs.get1d(GSp_name_src + "_scatter")
     return gm
 getscatter.__doc__ = getscatter.__doc__ % (
-    plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, scatter_output)
+    xmldocs.plot_keywords_doc, xmldocs.graphics_method_core, xmldocs.axesconvert, xmldocs.get_GM_input, xmldocs.scatter_output)
 
 
 def createline(name=None, source='default', ltype=None,
@@ -1159,7 +1186,7 @@ def createline(name=None, source='default', ltype=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     vcs.show('line')
@@ -1255,7 +1282,7 @@ def getline(name='default', ltype=None, width=None, color=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing line secondary methods
@@ -1350,7 +1377,7 @@ def createmarker(name=None, source='default', mtype=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     vcs.show('marker')
@@ -1444,7 +1471,7 @@ def getmarker(name='default', mtype=None, size=None, color=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing marker secondary methods
@@ -1541,7 +1568,7 @@ def createfillarea(name=None, source='default', style=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     vcs.show('fillarea')
     fa=vcs.createfillarea('example1',)
@@ -1625,37 +1652,37 @@ def getfillarea(name='default', style=None,
     """
     %s
 
-:param name: String name of an existing fillarea VCS object
-:type name: str
+    :param name: String name of an existing fillarea VCS object
+    :type name: str
 
-:param style: One of "hatch", "solid", or "pattern".
-:type style: str
+    :param style: One of "hatch", "solid", or "pattern".
+    :type style: str
 
-:param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill with.
-              Accepts ints from 1-20.
-:type index: int
+    :param index: Specifies which `pattern <http://uvcdat.llnl.gov/gallery/fullsize/pattern_chart.png>`_ to fill with.
+                  Accepts ints from 1-20.
+    :type index: int
 
-:param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
-              or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
-:type color: str or int
+    :param color: A color name from the `X11 Color Names list <https://en.wikipedia.org/wiki/X11_color_names>`_,
+                  or an integer value from 0-255, or an RGB/RGBA tuple/list (e.g. (0,100,0), (100,100,0,50))
+    :type color: str or int
 
-:param priority: The layer on which the texttable will be drawn.
-:type priority: int
+    :param priority: The layer on which the texttable will be drawn.
+    :type priority: int
 
-:param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
-:type viewport: list of floats
+    :param viewport: 4 floats between 0 and 1. These specify the area that the X/Y values are mapped to inside of the canvas
+    :type viewport: list of floats
 
-:param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
-:type worldcoordinate: list of floats
+    :param worldcoordinate: List of 4 floats (xmin, xmax, ymin, ymax)
+    :type worldcoordinate: list of floats
 
-:param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
-:type x: list of floats
+    :param x: List of lists of x coordinates. Values must be between worldcoordinate[0] and worldcoordinate[1].
+    :type x: list of floats
 
-:param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
-:type y: list of floats
+    :param y: List of lists of y coordinates. Values must be between worldcoordinate[2] and worldcoordinate[3].
+    :type y: list of floats
 
-:returns: A fillarea secondary object
-:rtype: vcs.fillarea.Tf
+    :returns: A fillarea secondary object
+    :rtype: vcs.fillarea.Tf
 
     """
 
@@ -1683,7 +1710,7 @@ def getfillarea(name='default', style=None,
     if (y is not None) and (fa.name != "default"):
         fa.y = y
     return fa
-getfillarea.__doc__ = getfillarea.__doc__ % get_fillarea_doc
+getfillarea.__doc__ = getfillarea.__doc__ % xmldocs.get_docs['fillarea']
 
 def createtexttable(name=None, source='default', font=None,
                     spacing=None, expansion=None, color=None, priority=None,
@@ -1705,7 +1732,7 @@ def createtexttable(name=None, source='default', font=None,
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     # Show names of all available texttable objects
     vcs.show('texttable')
@@ -1826,7 +1853,7 @@ def gettexttable(name='default', font=None,
 
     :returns: A texttable graphics method object
     :rtype: vcs.texttable.Tt
-    """ % get_texttable_doc
+    """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(name, str):
@@ -1835,6 +1862,7 @@ def gettexttable(name='default', font=None,
     if name not in vcs.elements["texttable"]:
         raise ValueError("The texttable '%s' does not exists" % name)
     return vcs.elements["texttable"][name]
+gettexttable.__doc__ = gettexttable.__doc__ % xmldocs.get_docs['texttable']
 
 
 def createtextorientation(name=None, source='default'):
@@ -1851,7 +1879,7 @@ def createtextorientation(name=None, source='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     vcs.show('textorientation')
     to=vcs.createtextorientation('example1',)
@@ -1889,7 +1917,7 @@ def gettextorientation(To_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing textorientation secondary methods
@@ -2073,7 +2101,7 @@ def gettextcombined(Tt_name_src='default', To_name_src=None, string=None, font=N
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     # Show all the existing texttable secondary methods
     vcs.show('texttable')
@@ -2215,7 +2243,7 @@ def get3d_scalar(Gfdv3d_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     # Show all the existing 3Dscalar graphics methods
     a.show('3d_scalar')
@@ -2252,7 +2280,7 @@ def create3d_scalar(name=None, source='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     a.show('3d_scalar')
@@ -2283,7 +2311,7 @@ def get3d_dual_scalar(Gfdv3d_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     # Show all the existing 3Dscalar graphics methods
     a.show('3d_dual_scalar')
@@ -2320,7 +2348,7 @@ def create3d_dual_scalar(name=None, source='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
         a=vcs.init()
         a.show('3d_dual_scalar')
@@ -2352,7 +2380,7 @@ def get3d_vector(Gfdv3d_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     # Show all the existing 3Dvector graphics methods
     a.show('3d_vector')
@@ -2391,7 +2419,7 @@ def create3d_vector(name=None, source='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     a.show('3d_vector')
@@ -2432,7 +2460,7 @@ def createcolormap(Cp_name=None, Cp_name_src='default'):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     cp=a.createcolormap('example1',)
@@ -2467,7 +2495,7 @@ def getcolormap(Cp_name_src='default'):
 
     :Example:
 
-    ::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # Show all the existing colormap secondary methods
@@ -2610,7 +2638,7 @@ def removeobject(obj):
 
     :Example:
 
-::
+        .. doctest:: manageElements_
 
     a=vcs.init()
     # To Modify an existing line object

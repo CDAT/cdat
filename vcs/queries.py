@@ -55,12 +55,7 @@ def isgraphicsmethod(gobj):
         .. doctest:: queries_isgraphicsmethod
 
             >>> a=vcs.init()
-            ...
-
-            # To Modify an existing boxfill use:
-            >>> box=a.getboxfill('quick')
-            ...
-
+            >>> box=a.getboxfill() # get default boxfill object
             >>> vcs.isgraphicsmethod(box)
             1
 
@@ -69,7 +64,7 @@ def isgraphicsmethod(gobj):
 
     :returns: Integer reperesenting whether gobj is one of the above graphics methods.
                 1 indicates true, 0 indicates false.
-    :rtype:
+    :rtype: int
     """
     import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
@@ -107,10 +102,8 @@ def graphicsmethodlist():
         .. doctest:: queries_gmlist
 
             >>> a=vcs.init()
-            ...
-
             >>> vcs.graphicsmethodlist() # Return graphics method list
-            ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', ...]
+            [...]
 
     :returns: A list of available grapics methods (i.e., boxfill, isofill, isoline, outfill,
               scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
@@ -131,27 +124,15 @@ def graphicsmethodtype(gobj):
         .. doctest:: queries_gmtype
 
             >>> a=vcs.init()
-            ...
 
-            >>> # Get an existing boxfill graphics method in VCS:
-            >>> box=a.getboxfill('quick')
-            ...
-
-            >>> # Get an existing isofill graphics method in VCS
-            >>> iso=a.getisofill('quick')
-            ...
-
-            >>> # Get an existing line element in VCS
-            >>> ln=a.getline('red')
-            ...
-
-            >>> print vcs.graphicsmethodtype(box)
-            boxfill
-
-            >>> print vcs.graphicsmethodtype(iso)
-            isofill
-
-            >>> print vcs.graphicsmethodtype(ln)
+            >>> box=a.getboxfill() # Get default boxfill graphics method
+            >>> iso=a.getisofill() # Get default isofill graphics method
+            >>> ln=a.getline()# Get default line element
+            >>> vcs.graphicsmethodtype(box)
+            'boxfill'
+            >>> vcs.graphicsmethodtype(iso)
+            'isofill'
+            >>> vcs.graphicsmethodtype(ln)
             Traceback (most recent call last):
             ...
             vcsError: The object passed is not a graphics method object.
@@ -196,15 +177,11 @@ def isplot(pobj):
         .. doctest:: queries_isplot
 
             >>> a=vcs.init()
-
             >>> a.show('display') # Show all available displays
             *******************Display Names List**********************
             ...
             *******************End Display Names List**********************
-
             >>> ex = a.getplot('default') # To test an existing display object
-            ...
-
             >>> vcs.queries.isplot(ex)
             1
 
@@ -228,15 +205,11 @@ def iscolormap(obj):
     .. doctest:: queries_iscolormap
 
         >>> a=vcs.init()
-        ...
-
         >>> a.show('colormap') # Show all available colormap objects
         *******************Colormap Names List**********************
         ...
         *******************End Colormap Names List**********************
         >>> ex = a.getcolormap('default') # To test an existing colormap object
-        ...
-
         >>> vcs.iscolormap(ex)
         1
 
@@ -261,15 +234,11 @@ def istemplate(gobj):
         .. doctest:: queries_istemplate
 
             >>> a=vcs.init()
-
             >>> a.show('template') # Show all available template
             *******************Template Names List**********************
             ...     
             *******************End Template Names List**********************
-                        
             >>> ex = a.gettemplate('default') # To test an existing template object
-            ...
-            
             >>> vcs.istemplate(ex)
             1
 
@@ -311,16 +280,11 @@ def issecondaryobject(sobj):
         .. doctest:: queries_issecondary
 
             >>> a=vcs.init()
-            ...
-
             >>> a.show('line') # Show all available lines
             *******************Line Names List**********************
             ...
             *******************End Line Names List**********************
-
             >>> ex = a.getprojection('default') # To test an existing line object
-            ...
-
             >>> vcs.issecondaryobject(ex)
             1
 
@@ -360,16 +324,11 @@ def isprojection(obj):
         .. doctest:: queries_isprojection
 
             >>> a=vcs.init()
-            ...
-
             >>> a.show('projection') # Show all available projection
             *******************Projection Names List**********************
             ...
             *******************End Projection Names List**********************
-
             >>> ex = a.getprojection('default') # To test an existing projection object
-            ...
-
             >>> vcs.isprojection(ex)
             1
 
