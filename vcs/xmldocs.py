@@ -436,26 +436,27 @@ dict['to'] = ", 'example_to'"
 istextcombined_doc = queries_is_doc % dict
 dict['tc_example'] = dict['to'] = ''
 dict.clear()
-obj_types={
+# contains api implementation details used to build Example doctests and fill in docstring
+obj_details={
     "graphics_default":{
-        "3d_scalar": "vcs.dv3d.Gf3Dscalar",
-        "3d_dual_scalar": "vcs.dv3d.Gf3DDualScalar",
-        "3d_vector": "vcs.dv3d.Gf3Dvector",
+        "taylordiagram": "1_slab,",
+        "3d_scalar": "nocall,",
+        "3d_dual_scalar": "nocall,",
+        "3d_vector": "nocall,",
         "vector": "vcs.vector.Gv",
-        "taylordiagram": "vcs.taylor.Gtd",
         "scatter": "vcs.unified1D.G1d",
         "yxvsx": "vcs.unified1D.G1d",
         "xyvsy": "vcs.unified1D.G1d",
         "xvsy": "vcs.unified1D.G1d",
-        "1d": "vcs.unified1D.G1d",
+        "1d": "nocall,",
     },
 
     "graphics_polar":{
         "boxfill": "vcs.boxfill.Gfb",
         "isofill": "vcs.isofill.Gfi",
         "isoline": "vcs.isoline.Gi",
-        "template": "vcs.template.P",
-        "projection": "vcs.projection.Proj",
+        "template": "nocall,",
+        "projection": "nocall,",
     },
     "graphics_other":{
         "meshfill": "vcs.meshfill.Gfm",
@@ -474,9 +475,36 @@ obj_types={
         "textcombined": "vcs.textcombined.Tc",
     },
     "secondary_bigger":{
-        "texttable": "vcs.texttable.Tt",
-        "textorientation": "vcs.textorientation.To",
+        "texttable": "nocall,",
+        "textorientation": "nocall,",
     }
+}
+# mapping of object names to their associated vcs class type
+obj_types={
+
+    "taylordiagram": "vcs.taylor.Gtd",
+    "3d_scalar": "vcs.dv3d.Gf3Dscalar",
+    "3d_dual_scalar": "vcs.dv3d.Gf3DDualScalar",
+    "3d_vector": "vcs.dv3d.Gf3Dvector",
+    "vector": "vcs.vector.Gv",
+    "scatter": "vcs.unified1D.G1d",
+    "yxvsx": "vcs.unified1D.G1d",
+    "xyvsy": "vcs.unified1D.G1d",
+    "xvsy": "vcs.unified1D.G1d",
+    "1d": "vcs.unified1D.G1d",
+    "boxfill": "vcs.boxfill.Gfb",
+    "isofill": "vcs.isofill.Gfi",
+    "isoline": "vcs.isoline.Gi",
+    "template": "vcs.template.P",
+    "projection": "vcs.projection.Proj",
+    "meshfill": "vcs.meshfill.Gfm",
+    "fillarea": "vcs.fillarea.Tf",
+    "line": "vcs.line.Tl",
+    "marker": "vcs.marker.Tm",
+    "colormap": "vcs.colormap.Cp",
+    "textcombined": "vcs.textcombined.Tc",
+    "texttable": "vcs.texttable.Tt",
+    "textorientation": "vcs.textorientation.To",
 }
 
 def populate_docstrings(type_dict, target_dict, docstring, method):
@@ -502,8 +530,10 @@ def populate_docstrings(type_dict, target_dict, docstring, method):
         vcs_method_type = key.split('_')[0]
         parent2 = key.split('_')[1]
         for _ in type_dict[key].keys():
-            if _ in ["list of obj exceptions here",]:
+            obj_specs = type_dict[key].split(",")
+            if obj_specs[0] == 'nocall':
                 # TODO: make this section represent exceptions to the general rule
+                # dict['call'] must change, because there is no vcs function with that name
                 dict['parent'] = 'not_default'
                 dict['name'] = dict['call'] = _
                 dict['cap'] = dict['name'].title()
@@ -544,12 +574,12 @@ get_methods_doc = """
             ...
             *******************End %(cap)s Names List**********************
             >>> ex=vcs.get%(call)s()  # instance of '%(parent)s' %(name)s %(type)s
-            >>> a.%(name)s(ex) # Plot using specified %(call)s object
+            >>> a.%(call)s(ex) # Plot using specified %(name)s object
             <vcs.displayplot.Dp ...>
             %(ex2)s
     """
 get_docs = {}
-populate_docstrings(obj_types, get_docs, get_methods_doc, 'get')
+populate_docstrings(obj_details, get_docs, get_methods_doc, 'get')
 
 
 # For all cases with a 'default' parent object
