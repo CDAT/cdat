@@ -1279,8 +1279,6 @@ class P(object):
         :type ov2: float
         """
 
-        attr = vars(self).keys()
-
         Attr = dir(self)
         attr = []
         for a in Attr:
