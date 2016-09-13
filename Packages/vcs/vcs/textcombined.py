@@ -1,4 +1,5 @@
 import vcs
+from xmldocs import textcombined_script
 
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 """
@@ -44,9 +45,6 @@ import textorientation
 class Tc(object):
 
     """
- Class: Tc                              # Text Combined
-
- Description of Tc Class:
     The (Tc) Text Combined class will combine a text table class and a text orientation
     class together. From combining the two classess, the user will be able to set
     attributes for both classes (i.e., define the font, spacing, expansion, color
@@ -55,71 +53,154 @@ class Tc(object):
     This class is used to define and list a combined text table and text orientation
     entry used in VCS.
 
- Other Useful Functions:
-             a=vcs.init()               # Constructor
-             a.show('texttable')        # Show predefined text table objects
-             a.show('textorientation')  # Show predefined text orientation objects
-             a.update()                 # Updates the VCS Canvas at user's request
-             a.mode=1, or 0             # If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of text table use:
-     tc=a.createtextcombined('new_tt','std','new_to','7left')  # Copies content of
-                                        # 'std' to 'new_tt' and '7left' to 'new_to'
+    .. describe:: Useful Functions:
 
-    To Modify an existing texttable use:
-     tc=a.gettextcombined('std','7left')
+        .. code-block:: python
 
-    tc.list()                           # Will list all the textcombined attribute values
-                                        # (i.e., texttable and textorientation attributes
-    Specify the text font type:
-     tc.font=1                          # The font value must be in the range 1 to 9
+            # Constructor
+             a=vcs.init()
+             # Show predefined text table objects
+             a.show('texttable')
+             # Show predefined text orientation objects
+             a.show('textorientation')
+             # Updates the VCS Canvas at user's request
+             a.update()
 
-    Specify the text spacing:
-     tc.spacing=2                       # The spacing value must be in the range -50 to 50
+    .. describe:: Make a Canvas object to work with:
 
-    Specify the text expansion:
-     tc.expansion=100                   # The expansion value ranges from 50 to 150
+        .. code-block:: python
 
-    Specify the text color:
-     tc.color="black"                       # The text color value ranges from 1 to 257
+            a=vcs.init()
 
-    Specify the graphics text priority on the VCS Canvas:
-     tt.priority = 1
+    .. describe:: Create a new instance of text table:
 
-    Specify the viewport and world coordinate:
-     tt.viewport=[0, 1.0, 0,1.0]        # FloatType [0,1]x[0,1]
-     tt.worldcoordinate=[0,1.0,0,1.0]   # FloatType [#,#]x[#,#]
+        .. code-block:: python
 
-    Specify the location of the text:
-     tt.x=[[0,.1,.2], [.3,.4,.5]]        # List of FloatTypes
-     tt.y=[[.5,.4,.3], [.2,.1,0]]        # List of FloatTypes
+            # Copies content of 'std' to 'new_tt' and '7left' to 'new_to'
+            tc=a.createtextcombined('new_tt','std','new_to','7left')
 
-    Specify the text height:
-     tc.height=20                       # The height value must be an integer
 
-    Specify the text angle:
-     tc.angle=0                         # The angle value ranges from 0 to 360
+    .. describe:: Modify an existing texttable:
 
-    Specify the text path:
-     tc.path='right'                    # Same as tc.path=0
-     tc.path='left'                     # Same as tc.path=1
-     tc.path='up'                       # Same as tc.path=2
-     tc.path='down'                     # Same as tc.path=3
+        .. code-block:: python
 
-    Specify the text horizontal alignment:
-     tc.halign='right'                  # Same as tc.halign=0
-     tc.halign='center'                 # Same as tc.halign=1
-     tc.halign='right'                  # Same as tc.halign=2
+            tc=a.gettextcombined('std','7left')
 
-    Specify the text vertical alignment:
-     tc.valign='tcp'                    # Same as tcvalign=0
-     tc.valign='cap'                    # Same as tcvalign=1
-     tc.valign='half'                   # Same as tcvalign=2
-     tc.valign='base'                   # Same as tcvalign=3
-     tc.valign='bottom'                 # Same as tcvalign=4
+    .. describe:: Overview of textcombined attributes:
+
+        .. note::
+            Textcombined attributes are a combination of texttable and textorientation attributes
+
+        * Listing the attributes:
+
+            .. code-block:: python
+
+                # Will list all the textcombined attribute values
+                tc.list()
+
+        * Specify the text font type:
+
+            .. code-block:: python
+
+                tc.font=1
+
+        * Specify the text spacing:
+
+            .. code-block:: python
+
+                # The spacing value must be in the range -50 to 50
+                tc.spacing=2
+
+        * Specify the text expansion:
+
+            .. code-block:: python
+
+                # The expansion value ranges from 50 to 150
+                tc.expansion=100
+
+        * Specify the text color:
+
+            .. code-block:: python
+
+                # The text color
+                tc.color="black"
+
+        * Specify the graphics text priority on the VCS Canvas:
+
+            .. code-block:: python
+
+                tt.priority = 1
+
+        * Specify the viewport and world coordinate:
+
+            .. code-block:: python
+
+            # FloatType [0,1]x[0,1]
+            tt.viewport=[0, 1.0, 0,1.0]
+            # FloatType [#,#]x[#,#]
+            tt.worldcoordinate=[0,1.0,0,1.0]
+
+        * Specify the location of the text:
+
+            .. code-block:: python
+
+                # List of FloatTypes
+                tt.x=[[0,.1,.2], [.3,.4,.5]]
+                # List of FloatTypes
+                tt.y=[[.5,.4,.3], [.2,.1,0]]
+
+        * Specify the text height:
+
+            .. code-block:: python
+
+                # The height value must be an integer
+                tc.height=20
+
+        * Specify the text angle:
+
+            .. code-block:: python
+
+                # The angle value ranges from 0 to 360
+                tc.angle=0
+
+        * Specify the text path:
+
+            .. code-block:: python
+
+                # Same as tc.path=0
+                tc.path='right'
+                # Same as tc.path=1
+                tc.path='left'
+                # Same as tc.path=2
+                tc.path='up'
+                # Same as tc.path=3
+                tc.path='down'
+
+        * Specify the text horizontal alignment:
+
+            .. code-block:: python
+
+                # Same as tc.halign=0
+                tc.halign='right'
+                # Same as tc.halign=1
+                tc.halign='center'
+                # Same as tc.halign=2
+                tc.halign='right'
+
+        * Specify the text vertical alignment:
+
+            .. code-block:: python
+
+                # Same as tcvalign=0
+                tc.valign='tcp'
+                # Same as tcvalign=1
+                tc.valign='cap'
+                # Same as tcvalign=2
+                tc.valign='half'
+                # Same as tcvalign=3
+                tc.valign='base'
+                # Same as tcvalign=4
+                tc.valign='bottom'
 """
 
     __slots__ = [
@@ -365,29 +446,6 @@ class Tc(object):
     #                                                                           #
     ##########################################################################
     def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scripTo
-
- Description of Function:
-       Saves out a text table and text orientation graphics method in Python or
-       VCS script form to a designated file.
-
- Example of Use:
-    script(scriptfile_name,mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    tc=a.createtextcombined('new_tt','std','new_to','7left')
-    tc.script('filename.py')	     # Append to a Python file "filename.py"
-    tc.script('filename.scr')	     # Append to a VCS file "filename.scr"
-    tc.script('filename','w')	     # Create or overwrite to a Python file "filename.py"
-'''
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -482,7 +540,7 @@ class Tc(object):
             f = open(script_filename, 'a+')
             vcs.utils.dumpToJson(self.Tt, f)
             f.close()
-
+    script.__doc__ = textcombined_script
 ##########################################################################
 #        END OF FILE                                                            #
 ##########################################################################
