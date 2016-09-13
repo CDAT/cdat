@@ -99,12 +99,11 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
     if msk is not numpy.ma.nomask and not numpy.allclose(msk, False):
         if actorColor is not None:
             flatIMask = msk.astype(numpy.double).flat
+            grid2 = grid.NewInstance()
             if grid.IsA("vtkStructuredGrid"):
-                grid2 = vtk.vtkStructuredGrid()
                 vtkmask = numpy_to_vtk_wrapper(flatIMask, deep=deep, array_type=vtk.VTK_DOUBLE)
                 attributes2 = grid2.GetCellData() if cellData else grid2.GetPointData()
             else:
-                grid2 = vtk.vtkUnstructuredGrid()
                 if (cellData):
                     attributes2 = grid2.GetCellData()
                     attributes = grid.GetCellData()
@@ -134,7 +133,7 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
                 pointToCell.SetInputConnection(geoFilter.GetOutputPort())
                 geoFilter = pointToCell
                 lut.SetNumberOfTableValues(256)
-                lut.SetTableValue(0, 1., 1., 1., 1.)
+                lut.SetTableValue(0, 1., 1., 1., 0.)
                 for i in range(1, 256):
                     lut.SetTableValue(i, r / 100., g / 100., b / 100., a / 100.)
             else:
@@ -167,6 +166,12 @@ def putMaskOnVTKGrid(data, grid, actorColor=None, cellData=True, deep=True):
             attributes.AddArray(vtkghost)
         setArray(grid, ghost, vtk.vtkDataSetAttributes.GhostArrayName(),
                  cellData, isScalars=False)
+        if (grid.GetExtentType() == vtk.VTK_PIECES_EXTENT):
+            if (cellData):
+                pass
+            else:
+                removeHiddenPoints(grid)
+
     return mapper
 
 
@@ -213,7 +218,7 @@ def getBoundsList(axis, hasCellData, dualGrid):
 def setInfToValid(geoPoints, ghost):
     '''
     Set infinity points to a point that already exists in the list.
-    If a ghost array is passed, we also hide infinity points.
+    We also hide infinity points in the ghost array.
     We return true if any points are infinity
     '''
     anyInfinity = False
@@ -236,6 +241,32 @@ def setInfToValid(geoPoints, ghost):
             geoPoints.SetPoint(i, newPoint)
             ghost.SetValue(i, vtk.vtkDataSetAttributes.HIDDENPOINT)
     return anyInfinity
+
+
+def removeHiddenPoints(grid):
+    ghost = grid.GetPointGhostArray()
+    if (not ghost):
+        return
+    pts = grid.GetPoints()
+    for i in range(pts.GetNumberOfPoints()):
+        if (ghost.GetValue(i) & vtk.vtkDataSetAttributes.HIDDENPOINT):
+            cells = vtk.vtkIdList()
+            # point hidden, remove all cells used by this point
+            grid.GetPointCells(i, cells)
+            for j in range(cells.GetNumberOfIds()):
+                grid.DeleteCell(cells.GetId(j))
+    grid.RemoveDeletedCells()
+
+
+def removeHiddenCells(grid):
+    ghost = grid.GetCellGhostArray()
+    if (not ghost):
+        return
+    for i in range(grid.GetNumberOfCells()):
+        if (ghost.GetValue(i) & vtk.vtkDataSetAttributes.HIDDENCELL):
+            # cell hidden, remove it
+            grid.DeleteCell(i)
+    grid.RemoveDeletedCells()
 
 
 def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
@@ -421,31 +452,7 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
         ptsBounds = pts.GetBounds()
         xRange = ptsBounds[1] - ptsBounds[0]
         xm, xM, ym, yM, tmp, tmp2 = pts.GetBounds()
-        if (isinstance(g, cdms2.hgrid.TransientCurveGrid) and
-                xRange > 360 and not numpy.isclose(xRange, 360)):
-            vg.SetPoints(pts)
-            # index into the scalar array. Used for upgrading
-            # the scalar after wrapping. Note this will work
-            # correctly only for cell data. For point data
-            # the indexes for points on the border will be incorrect after
-            # wrapping
-            pedigreeId = vtk.vtkIntArray()
-            pedigreeId.SetName("PedigreeIds")
-            pedigreeId.SetNumberOfTuples(attribute.GetNumberOfTuples())
-            for i in range(0, attribute.GetNumberOfTuples()):
-                pedigreeId.SetValue(i, i)
-            if cellData:
-                vg.GetCellData().SetPedigreeIds(pedigreeId)
-            else:
-                vg.GetPointData().SetPedigreeIds(pedigreeId)
-            vg = wrapDataSetX(vg)
-            pts = vg.GetPoints()
-            xm, xM, ym, yM, tmp, tmp2 = vg.GetPoints().GetBounds()
-    else:
-        xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
-    projection = vcs.elements["projection"][gm.projection]
-    if grid is None:
-        vg.SetPoints(pts)
+
         # We use the zooming feature for linear and polar projections
         # We use plotting coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
@@ -456,6 +463,33 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
             wc = vcs.utils.getworldcoordinates(gm,
                                                data1.getAxis(-1),
                                                data1.getAxis(-2))
+
+        vg.SetPoints(pts)
+        # index into the scalar array. Used for upgrading
+        # the scalar after wrapping. Note this will work
+        # correctly only for cell data. For point data
+        # the indexes for points on the border will be incorrect after
+        # wrapping
+        pedigreeId = vtk.vtkIntArray()
+        pedigreeId.SetName("PedigreeIds")
+        pedigreeId.SetNumberOfTuples(attribute.GetNumberOfTuples())
+        for i in range(0, attribute.GetNumberOfTuples()):
+            pedigreeId.SetValue(i, i)
+        if cellData:
+            vg.GetCellData().SetPedigreeIds(pedigreeId)
+        else:
+            vg.GetPointData().SetPedigreeIds(pedigreeId)
+
+        if (isinstance(g, cdms2.hgrid.TransientCurveGrid) and
+                xRange > 360 and not numpy.isclose(xRange, 360)):
+            vg = wrapDataSetX(vg)
+            pts = vg.GetPoints()
+            xm, xM, ym, yM, tmp, tmp2 = vg.GetPoints().GetBounds()
+        vg = doWrapData(vg, wc)
+        pts = vg.GetPoints()
+        xm, xM, ym, yM, tmp, tmp2 = vg.GetPoints().GetBounds()
+        projection = vcs.elements["projection"][gm.projection]
+        vg.SetPoints(pts)
         geo, geopts = project(pts, projection, getWrappedBounds(
             wc, [xm, xM, ym, yM], wrap))
         # proj4 returns inf for points that are not visible. Set those to a valid point
@@ -477,9 +511,15 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None, genVectors=False,
                         ym = p[1]
                     if (p[1] > yM):
                         yM = p[1]
+            # hidden point don't work for polys or unstructured grids.
+            # We remove the cells in this case.
+            if (vg.GetExtentType() == vtk.VTK_PIECES_EXTENT):
+                removeHiddenPoints(vg)
+
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
     else:
+        xm, xM, ym, yM, tmp, tmp2 = grid.GetPoints().GetBounds()
         vg = grid
     # Add a GlobalIds array to keep track of cell ids throughout the pipeline
     globalIds = numpy_to_vtk_wrapper(numpy.arange(0, vg.GetNumberOfCells()), deep=True)
@@ -855,32 +895,46 @@ def dump2VTK(obj, fnm=None):
     dsw.Write()
 
 
-# Wrapping around
-def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
+def doWrapData(data, wc, wrap=[0., 360], fastClip=True):
+    '''
+    Wrapping around and 'wrap' modulo' and clipping.
+    wrap contains YWrap, XWrap modulo in degrees, 0 means no wrap
+    '''
     if wrap is None:
-        return Act
-    Mapper = Act.GetMapper()
-    Mapper.Update()
-    data = Mapper.GetInput()
+        return data
+
+    # convert to poly data
+    surface = vtk.vtkDataSetSurfaceFilter()
+    surface.SetInputData(data)
+    surface.Update()
+    data = surface.GetOutput()
+
+    bounds = data.GetBounds()
     # insure that GLOBALIDS are not removed by the append filter
     attributes = data.GetCellData()
     attributes.SetActiveAttribute(-1, attributes.GLOBALIDS)
     xmn = min(wc[0], wc[1])
     xmx = max(wc[0], wc[1])
-    if numpy.allclose(xmn, 1.e20) or numpy.allclose(xmx, 1.e20):
-        xmx = abs(wrap[1])
-        xmn = -wrap[1]
+    if (numpy.allclose(xmn, 1.e20) or numpy.allclose(xmx, 1.e20)):
+        xmn = bounds[0]
+        if (wrap[1] > 0. and (bounds[1] - bounds[0] > wrap[1])):
+            xmx = bounds[0] + abs(wrap[1])
+        else:
+            xmx = bounds[1]
     ymn = min(wc[2], wc[3])
     ymx = max(wc[2], wc[3])
     if numpy.allclose(ymn, 1.e20) or numpy.allclose(ymx, 1.e20):
-        ymx = abs(wrap[0])
-        ymn = -wrap[0]
+        ymn = bounds[2]
+        if (wrap[0] > 0. and (bounds[3] - bounds[2] > wrap[0])):
+            ymx = bounds[2] + abs(wrap[0])
+        else:
+            ymx = bounds[3]
 
     appendFilter = vtk.vtkAppendPolyData()
     appendFilter.AddInputData(data)
     appendFilter.Update()
     # X axis wrappping
-    Amn, Amx = Act.GetXRange()
+    Amn, Amx = bounds[0], bounds[1]
     if wrap[1] != 0.:
         i = 0
         while Amn > xmn:
@@ -908,7 +962,7 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
             appendFilter.Update()
 
     # Y axis wrapping
-    Amn, Amx = Act.GetYRange()
+    Amn, Amx = bounds[2], bounds[3]
     if wrap[0] != 0.:
         i = 0
         while Amn > ymn:
@@ -957,8 +1011,7 @@ def doWrap(Act, wc, wrap=[0., 360], fastClip=True):
     attributes.GetArray("GlobalIds", globalIdsIndex)
     attributes.SetActiveAttribute(globalIdsIndex, attributes.GLOBALIDS)
 
-    Mapper.SetInputData(clipper.GetOutput())
-    return Act
+    return clipper.GetOutput()
 
 
 # Wrap grid in interval minX, minX + 360
