@@ -70,7 +70,6 @@ class VTKVCSBackend(object):
         # Turn on anti-aliasing by default
         # Initially set to 16x Multi-Sampled Anti-Aliasing
         self.antialiasing = 8
-        self._rasterPropsInVectorFormats = False
         self._geometry = geometry
 
         if renWin is not None:
@@ -687,20 +686,6 @@ class VTKVCSBackend(object):
                 gtype)
         self.scaleLogo()
 
-        # Decide whether to rasterize background in vector outputs
-        # Current limitation to vectorize:
-        #       * if fillarea style is either pattern or hatch
-        try:
-            if gm.style and all(style != 'solid' for style in gm.style):
-                self._rasterPropsInVectorFormats = True
-        except:
-            pass
-        try:
-            if gm.fillareastyle in ['pattern', 'hatch']:
-                self._rasterPropsInVectorFormats = True
-        except:
-            pass
-
         if not kargs.get("donotstoredisplay", False) and kargs.get(
                 "render", True):
             self.renWin.Render()
@@ -1101,13 +1086,7 @@ class VTKVCSBackend(object):
         # Since the vcs layer stacks renderers to manually order primitives, sorting
         # is not needed and will only slow things down and introduce artifacts.
         gl.SetSortToOff()
-
-        # Since the patterns are applied as textures on vtkPolyData, enabling
-        # background rasterization is required to write them out
-
-        if self._rasterPropsInVectorFormats:
-            gl.Write3DPropsAsRasterImageOn()
-
+        gl.DrawBackgroundOff()
         gl.SetInput(self.renWin)
         gl.SetCompress(0)  # Do not compress
         gl.SetFilePrefix(".".join(file.split(".")[:-1]))
