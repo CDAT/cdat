@@ -34,42 +34,56 @@ import VCS_validation_functions
 class Pbl(object):
 
     '''
- Class:	Pbl				# Template text
-
- Description of Pbl Class:
     The Template text object allows the manipulation of line type, width, and color index.
 
-    This class is used to define an line table entry used in VCS, or it
+    This class is used to define a line table entry used in VCS, or it
     can be used to change some or all of the line attributes in an
     existing line table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('line')		# Show predefined line objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    :Example:
 
- Example of Use:
+::
+
+    # Basic Usage Overview:
+
     a=vcs.init()
-    To Create a new instance of line use:
-     ln=a.createline('new','red') 	# Copies content of 'red' to 'new'
-     ln=a.createline('new') 		# Copies content of 'default' to 'new'
+    # Show predefined line objects
+    a.show('line')
+    # Updates the VCS Canvas at user's request
+    a.update()
 
-    To Modify an existing line use:
-     ln=a.getline('red')
+    #For mode:
+    #   If 1, then automatic update.
+    #   If 0,use update function to update VCS canvas
+    a.mode=1
 
-    ln.list()  				# Will list all the line attribute values
-    ln.color=100			# Range from 1 to 256
-    ln.width=100			# Range from 1 to 300
+    #To Create a new instance of line use:
+    #    Copies content of 'red' to 'new'
+    ln=a.createline('new','red')
+    #    Copies content of 'default' to 'new'
+    ln=a.createline('new')
 
-    Specify the line type:
-     ln.type='solid'          		# Same as ln.type=0
-     ln.type='dash'          		# Same as ln.type=1
-     ln.type='dot'          		# Same as ln.type=2
-     ln.type='dash-dot'          	# Same as ln.type=3
-     ln.type='long-dash'          	# Same as ln.type=4
+    #To Modify an existing line use:
+    ln=a.getline('red')
+
+    # Will list all the line attribute values
+    ln.list()
+    # Range from 1 to 256
+    ln.color=100
+    # Range from 1 to 300
+    ln.width=100
+
+     #Specify the line type:
+     # Same as ln.type=0
+     ln.type='solid'
+     # Same as ln.type=1
+     ln.type='dash'
+     # Same as ln.type=2
+     ln.type='dot'
+     # Same as ln.type=3
+     ln.type='dash-dot'
+     # Same as ln.type=4
+     ln.type='long-dash'
 '''
     ##########################################################################
     #                                                                           #

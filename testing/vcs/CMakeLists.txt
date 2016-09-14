@@ -14,12 +14,25 @@ cdat_add_test(test_vcs_bad_png_path
 )
 
 foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
-  cdat_add_test(test_vcs_boxfill_${projection}
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
-    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
-    ${projection}
-    )
+  foreach(zoom none datawc subset)
+    if (zoom STREQUAL "none")
+      cdat_add_test(test_vcs_boxfill_${projection}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+        ${projection}
+        ${zoom}
+        )
+    else()
+      cdat_add_test(test_vcs_boxfill_${projection}_${zoom}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}_${zoom}.png"
+        ${projection}
+        ${zoom}
+        )
+    endif()
+  endforeach()
 endforeach()
 
 foreach(lat_0 45 90)
@@ -787,11 +800,15 @@ cdat_add_test(test_vcs_settings_color_name_rgba
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  )
-  cdat_add_test(test_vcs_polar_set_opt_param_polar
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
-    "${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
-    )
+
+  foreach(z none subset datawc0 datawc1 datawc2)
+    cdat_add_test(test_vcs_polar_zoom_${z}
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_zoom.py
+      "${BASELINE_DIR}/test_vcs_polar_zoom_${z}.png"
+      ${z})
+  endforeach()
+
   cdat_add_test(test_vcs_boxfill_lev1_lev2
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py

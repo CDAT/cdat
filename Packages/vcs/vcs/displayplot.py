@@ -30,9 +30,6 @@ import vcs
 class Dp(object):
 
     """
- Class:	Dp				# Display Plot
-
- Description of Dp Class:
     The Display plot object allows the manipulation of the plot name, off,
     priority, template, graphics type, graphics name, and data array(s).
 
@@ -40,29 +37,47 @@ class Dp(object):
     can be used to change some or all of the display plot attributes in an
     existing display plot table entry.
 
- Other Useful Functions:
-             a=vcs.init()		# Constructor
-             a.show('plot')		# Show display plot objects
-             a.update()               	# Updates the VCS Canvas at user's request
-             a.mode=1, or 0           	# If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of line use:
-     p1=a.plot(s) 			# Create a plot object
+        .. code-block:: python
 
-    To Modify an existing plot in use:
-     p1=a.getplot('dpy_plot_1')
+            # Canvas constructor
+            a=vcs.init()
+            # Show display plot objects
+            a.show('plot')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    p1.list()  				# Will list all the display plot attributes
-    p1.off=1				# "On" or "Off" status, 1=on, 0=off
-    p1.priority=1			# Piority to place plot in front of other objects
-    p1.template='quick'			# Name of template object
-    p1.g_type='boxfill'			# Graphics method type
-    p1.g_name='quick'			# Graphics method name
-    p1.array=['a1']			# List of all the array names
+    .. describe:: General display plot usage:
+
+            .. code-block:: python
+
+                #Create a VCS Canvas object
+                a=vcs.init()
+                #To Create a new instance of plot:
+                # Create a plot object
+                p1=a.plot(s)
+                #To Modify an existing plot in use:
+                p1=a.getplot('dpy_plot_1')
+
+    .. describe:: Display plot object attributes:
+
+        .. code-block:: python
+
+            # Will list all the display plot attributes
+            p1.list()
+            # "On" or "Off" status, 1=on, 0=off
+            p1.off=1
+            # Priority to place plot in front of other objects
+            p1.priority=1
+            # Name of template object
+            p1.template='quick'
+            # Graphics method type
+            p1.g_type='boxfill'
+            # Graphics method name
+            p1.g_name='quick'
+            # List of all the array names
+            p1.array=['a1']
     """
     __slots__ = ["name",
                  "_name",
@@ -298,91 +313,3 @@ class Dp(object):
         print "continents =", self.continents
         print "extradisplays =", self.extradisplays
         print "ratio =", self.ratio
-
-    ##########################################################################
-    #                                                                           #
-    # Script out display plot object in VCS to a file.                          #
-    #                                                                           #
-    ##########################################################################
-    def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scriptDp
-
- Description of Function:
-       Saves out a display plot object in VCS or Python script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    ln=a.createboxfill('temp')
-    ln.script('filename.py')         # Append to a Python file "filename.py"
-    ln.script('filename.scr')        # Append to a VCS file "filename.scr"
-    ln.script('filename','w')        # Create or overwrite to a Python file "filename.py"
-'''
-        if (script_filename is None):
-            raise ValueError(
-                'Error - Must provide an output script file name.')
-
-        if (mode is None):
-            mode = 'a'
-        elif (mode not in ('w', 'a')):
-            raise ValueError(
-                'Error - Mode can only be "w" for replace or "a" for append.')
-
-        # By default, save file in python script mode
-        scr_type = script_filename[
-            len(script_filename) -
-            4:len(script_filename)]
-        if scr_type == '.scr':
-            raise DeprecationWarning("scr script are no longer generated")
-        else:
-            mode = mode + '+'
-            py_type = script_filename[
-                len(script_filename) -
-                3:len(script_filename)]
-            if (py_type != '.py'):
-                script_filename = script_filename + '.py'
-
-            # Write to file
-            fp = open(script_filename, mode)
-            if (fp.tell() == 0):  # Must be a new file, so include below
-                fp.write("#####################################\n")
-                fp.write("#                                 #\n")
-                fp.write("# Import and Initialize VCS     #\n")
-                fp.write("#                             #\n")
-                fp.write("#############################\n")
-                fp.write("import vcs\n")
-                fp.write("v=vcs.init()\n\n")
-
-            unique_name = '__Dp__' + self.name
-            fp.write(
-                "#----------Display Plot (Dp) member (attribute) listings ----------\n")
-            fp.write("dp_list=v.listelements('Plot')\n")
-            fp.write("if ('%s' in dp_list):\n" % self.name)
-            fp.write("   %s = v.getplot('%s')\n" % (unique_name, self.name))
-            fp.write("else:\n")
-            fp.write("   %s = v.createplot('%s')\n" % (unique_name, self.name))
-            fp.write("%s.off = '%s'\n" % (unique_name, self.off))
-            fp.write("%s.priority = %g\n" % (unique_name, self.priority))
-            fp.write("%s.template = %g\n\n" % (unique_name, self.template))
-            fp.write(
-                "%s._template_origin = %g\n\n" %
-                (unique_name, self._template_origin))
-            fp.write("%s.g_type = %g\n\n" % (unique_name, self.g_type))
-            fp.write("%s.g_name = %g\n\n" % (unique_name, self.g_name))
-            fp.write("%s.array = %g\n\n" % (unique_name, self.array))
-            fp.write("%s.continents = %g\n\n" % (unique_name, self.continents))
-
-
-##########################################################################
-#        END OF FILE								#
-##########################################################################

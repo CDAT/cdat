@@ -44,29 +44,33 @@ import dv3d
 import displayplot
 import projection
 import vcs
+import xmldocs
 
 from error import vcsError
 
 
 def isgraphicsmethod(gobj):
     """
-Function: isgraphicsmethod
+    Indicates if the entered argument is one of the following graphics
+    methods: boxfill, isofill, isoline,
+    scatter, vector, xvsy, xyvsy, yxvsx.
 
-Description of Function:
-Indicates if the entered argument is one of the following graphics
-methods: boxfill, isofill, isoline,
-scatter, vector, xvsy, xyvsy, yxvsx.
+    :Example:
 
-Returns a 1, which indicates true, if the argment is one of the above.
-Otherwise, it will return a 0, indicating false.
+::
 
-Example of Use:
-a=vcs.init()
-box=a.getboxfill('quick')  # To Modify an existing boxfill use:
-...
+    a=vcs.init()
+    # To Modify an existing boxfill use:
+    box=a.getboxfill('quick')
+    #...
+    if vcs.isgraphicsmethod(box):
+       box.list()
 
-if vcs.isgraphicsmethod(box):
-   box.list()
+:param gobj: A graphics object
+:type gobj: A VCS graphics object
+
+:returns: Integer reperesenting whether gobj is one of the above graphics methods. 1 indicates true, 0 indicates false.
+:rtype:
 """
     import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
@@ -97,16 +101,19 @@ if vcs.isgraphicsmethod(box):
 
 def graphicsmethodlist():
     """
-Function: graphicsmethodlist
+    List available graphics methods.
 
-Description of Function:
-    Will return a list of available grapics methods (i.e., boxfill, isofill, isoline, outf
-ill,
-    scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
+    :Example:
 
-Example of Use:
-a=vcs.init()
-gm_list=a.graphicsmethodlist()  # Return graphics method list
+::
+
+    a=vcs.init()
+    # Return graphics method list
+    gm_list=a.graphicsmethodlist()
+
+:returns: A list of available grapics methods (i.e., boxfill, isofill, isoline, outfill,
+          scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
+:rtype: list
 """
     return ['boxfill', 'isofill', 'isoline', 'meshfill', 'scatter',
             'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_dual_scalar', '3d_vector']
@@ -114,26 +121,34 @@ gm_list=a.graphicsmethodlist()  # Return graphics method list
 
 def graphicsmethodtype(gobj):
     """
-Function: graphicsmethodtype
-
-Description of Function:
-    Will return the grapics method's type: boxfill, isofill, isoline,
-    scatter, vector, xvsy, xyvsy, or yxvsx, taylordiagram.
+    Check the type of a graphics object.
 
     Returns a None if the object is not a graphics method.
 
-Example of Use:
-a=vcs.init()
-box=a.getboxfill('quick')  # Get an existing boxfill graphics method in VCS
-iso=a.getisofill('quick')  # Get an existing isofill graphics method in VCS
-ln=a.getline('quick')      # Get an existing line element in VCS
-...
+    :Example:
 
-print vcs.graphicsmethodtype(box)         # Will print 'boxfill'
-print vcs.graphicsmethodtype(iso)         # Will print 'isofill'
-print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
-                                          #         graphics method
-"""
+::
+
+    a=vcs.init()
+    # Get an existing boxfill graphics method in VCS
+    box=a.getboxfill('quick')
+    # Get an existing isofill graphics method in VCS
+    iso=a.getisofill('quick')
+    # Get an existing line element in VCS
+    ln=a.getline('quick')
+    #...
+    # Will print 'boxfill'
+    print vcs.graphicsmethodtype(box)
+    # Will print 'isofill'
+    print vcs.graphicsmethodtype(iso)
+    # Will print None, because ln is not a graphics method
+    print vcs.graphicsmethodtype(ln)
+
+:returns: If gobj is a graphics method object, returns its type: 'boxfill', 'isofill', 'isoline',
+          'scatter', 'vector', 'xvsy', 'xyvsy', or 'yxvsx', 'taylordiagram'.
+          If gobj is not a graphics method object, returns None.
+:rtype: str or None
+    """
     import vcsaddons
     if (isinstance(gobj, boxfill.Gfb)):
         return 'boxfill'
@@ -160,61 +175,58 @@ print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
     else:
         raise vcsError('The object passed is not a graphics method object.')
 
-#############################################################################
-#                                                                           #
-# Is this a display plot object in VCS?                                     #
-#                                                                           #
-#############################################################################
-
 
 def isplot(pobj):
     """
- Function: isplot
+    Check to see if this object is a VCS secondary display plot.
 
- Description of Function:
-    Indicates if the entered argument a display plot.
+     :Example:
 
-    Returns a 1 if the argment true.
-    Otherwise, it will return a 0, indicating false.
+::
 
- Example of Use:
     a=vcs.init()
-    ...
-    a.show('plot')			# show all the plot objects on the VCS Canvas
-    p1=a.getplot('dpy_plot_1')  	# Get an existing plot object named 'dpy_plot_1'
-    p2=a.plot(s)			# Create a new display plot object
-    ...
+    # Show all available display
+    a.show('display')
+    # To test an existing display object
+    test_obj = a.getdisplay('default')
+    # ...
+    if queries.isdisplay(test_obj):
+       test_obj.list()
 
-    if a.isplot(p1):
-       p1.list()               		# If it is a plot then list its members
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a display plot (1), or not (0).
+:rtype: int
 """
     if (isinstance(pobj, displayplot.Dp)):
         return 1
     else:
         return 0
 
-#############################################################################
-#                                                                           #
-# Is this a secondary colormap in VCS?                                      #
-#                                                                           #
-#############################################################################
-
 
 def iscolormap(obj):
     """
- Function: iscolormap
-
- Description of Function:
     Check to see if this object is a VCS secondary colormap.
 
- Example of Use:
+     :Example:
+
+::
+
     a=vcs.init()
-    ln=a.getcolormap("quick")  # To Modify an existing colormap object
-    ...
+    # Show all available colormap
+    a.show('colormap')
+    # To test an existing colormap object
+    test_obj = a.getcolormap('default')
+    # ...
+    if queries.iscolormap(test_obj):
+       test_obj.list()
 
-    if a.iscolormap(ln):
-       ln.list()
+:param obj: A VCS object
+:type obj: VCS Object
 
+:returns: An integer indicating whether the object is a colormap (1), or not (0).
+:rtype: int
 """
     if (isinstance(obj, vcs.colormap.Cp)):
         return 1
@@ -224,21 +236,26 @@ def iscolormap(obj):
 
 def istemplate(gobj):
     """
- Function: istemplate
+    Check to see if this object is a template.
 
- Description of Function:
-    Indicates if the entered argument a template.
+     :Example:
 
-    Returns a 1 if the argment true.
-    Otherwise, it will return a 0, indicating false.
+::
 
- Example of Use:
     a=vcs.init()
-    templt=a.gettemplate('quick')  # Modify an existing template named 'quick'
-    ...
+    # Show all available template
+    a.show('template')
+    # To test an existing template object
+    test_obj = a.gettemplate('default')
+    # ...
+    if queries.istemplate(test_obj):
+       test_obj.list()
 
-    if vcs.istemplate(templt):
-       templt.list()               # If it is a template then list its members
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a template (1), or not (0)
+:rtype: int
 """
     if (isinstance(gobj, template.P)):
         return 1
@@ -248,36 +265,42 @@ def istemplate(gobj):
 
 def issecondaryobject(sobj):
     """
- Function: issecondaryobject
+        Check to see if this object is a VCS secondary object
 
- Description of Function:
+        .. note::
+            Secondary objects will be one of the following:
+            1.) colormap: specification of combinations of 256 available
+                       colors
+            2.) fill area: style, style index, and color index
+            3.) format: specifications for converting numbers to display
+                       strings
+            4.) line: line type, width, and color index
+            5.) list: a sequence of pairs of numerical and character values
+            6.) marker: marker type, size, and color index
+            7.) text table: text font type, character spacing, expansion, and
+                       color index
+            8.) text orientation: character height, angle, path, and
+                       horizontal/vertical alignment
+            9.) projections
 
-In addition, detailed specification of the primary elements' (or
-primary class elements'), attributes is provided by eight secondary
-elements or (secondary class elements):
+     :Example:
 
- 1.) colormap: specification of combinations of 256 available
-               colors
- 2.) fill area: style, style index, and color index
- 3.) format: specifications for converting numbers to display
-               strings
- 4.) line: line type, width, and color index
- 5.) list: a sequence of pairs of numerical and character values
- 6.) marker: marker type, size, and color index
- 7.) text table: text font type, character spacing, expansion, and
-               color index
- 8.) text orientation: character height, angle, path, and
-               horizontal/vertical alignment
- 9.) projections
+::
 
+    a=vcs.init()
+    # Show all available lines
+    a.show('line')
+    # To test an existing line object
+    test_obj = a.getprojection('default')
+    # ...
+    if queries.issecondaryobject(test_obj):
+       test_obj.list()
 
- Example of Use:
-a=vcs.init()
-line=a.getline('red')  # To Modify an existing line object
-...
+:param obj: A VCS object
+:type obj: VCS Object
 
-if queries.issecondaryobject(line):
-   box.list()
+:returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
+:rtype: int
 """
     if (isinstance(sobj, line.Tl)):
         return 1
@@ -300,603 +323,195 @@ if queries.issecondaryobject(line):
     else:
         return 0
 
-#############################################################################
-#                                                                           #
-# Is this a secondary object, projectionmethod in VCS?                      #
-#                                                                           #
-#############################################################################
-
 
 def isprojection(obj):
     """
- Function: isprojection
+    Check to see if this object is a VCS secondary projection graphics object.
 
- Description of Function:
-Check to see if this object is a VCS secondary projection graphic object .
+     :Example:
 
- Example of Use:
-a=vcs.init()
-p=a.getprojection("default")  # To Modify an existing taylor object
-...
+::
 
-if queries.isprojection(p):
-   p.list()
+    a=vcs.init()
+    # Show all available projection
+    a.show('projection')
+    # To test an existing projection object
+    test_obj = a.getprojection('default')
+    # ...
+    if queries.isprojection(test_obj):
+       test_obj.list()
 
+:param obj: A VCS object
+:type obj: VCS Object
+
+:returns: An integer indicating whether the object is a projection graphics object (1), or not (0).
+:rtype: int
 """
     if (isinstance(obj, projection.Proj)):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
-# Is this a primary taylor diagram graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
 
 
 def istaylordiagram(obj):
-    """
- Function: istaylordiagram
-
- Description of Function:
-Check to see if this object is a VCS primary taylordiagram graphics method.
-
- Example of Use:
-a=vcs.init()
-td=a.gettaylordiagram("default")  # To get an existing taylor object
-...
-
-if queries.istaylordiagram(td):
-   td.list()
-
-"""
     if (isinstance(obj, taylor.Gtd)):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
-# Is this a primary meshfill graphics method in VCS?                        #
-#                                                                           #
-#############################################################################
+istaylordiagram.__doc__ = xmldocs.istaylordiagram_doc
 
 
 def ismeshfill(obj):
-    """
- Function: ismeshfill
-
- Description of Function:
-Check to see if this object is a VCS primary meshfill graphics method.
-
- Example of Use:
-a=vcs.init()
-mesh=a.getmeshfill("quick")  # To Modify an existing taylor object
-...
-
-if queries.ismeshfill(mesh):
-   mesh.list()
-
-"""
     if (isinstance(obj, meshfill.Gfm)):
         return 1
     else:
         return 0
-#############################################################################
-#                                                                           #
-# Is this a primary boxfill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+ismeshfill.__doc__ = xmldocs.ismeshfill_doc
 
 
 def isboxfill(obj):
-    """
- Function: isboxfill
-
- Description of Function:
-Check to see if this object is a VCS primary boxfill graphics method.
-
- Example of Use:
-a=vcs.init()
-box=a.getboxfill("quick")  # To Modify an existing boxfill object
-...
-
-if queries.isboxfill(box):
-   box.list()
-
-"""
     if (isinstance(obj, boxfill.Gfb)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary 3d_scalar graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+isboxfill.__doc__ = xmldocs.isboxfill_doc
 
 
 def is3d_scalar(obj):
-    """
- Function: is3d_scalar
-
- Description of Function:
-Check to see if this object is a VCS primary 3d_scalar graphics method.
-
- Example of Use:
-a=vcs.init()
-plot=a.get3d_scalar()  # To Modify an existing 3d_scalar object
-...
-
-if queries.is3d_scalar(plot):
-   ...
-
-"""
     if (isinstance(obj, dv3d.Gf3Dscalar) or isinstance(obj, dv3d.Gf3DDualScalar)):
         return 1
     else:
         return 0
+is3d_scalar.__doc__ = xmldocs.is3d_scalar_doc
 
 
-#############################################################################
-#                                                                           #
-# Is this a primary 3d_scalar graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
 def is3d_dual_scalar(obj):
-    """
- Function: is3d_dual_scalar
-
- Description of Function:
-Check to see if this object is a VCS primary 3d_dual_scalar graphics method.
-
- Example of Use:
-a=vcs.init()
-plot=a.get3d_dual_scalar()  # To Modify an existing 3d_scalar object
-...
-
-if queries.is3d_dual_scalar(plot):
-   ...
-
-"""
     if isinstance(obj, dv3d.Gf3DDualScalar):
         return 1
     else:
         return 0
+is3d_dual_scalar.__doc__ = xmldocs.is3d_dual_scalar_doc
 
-
-#############################################################################
-#                                                                           #
-# Is this a primary 3d_vector graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
 
 def is3d_vector(obj):
-    """
- Function: is3d_vector
-
- Description of Function:
-Check to see if this object is a VCS primary 3d_vector graphics method.
-
- Example of Use:
-a=vcs.init()
-plot=a.get3d_vector()  # To Modify an existing 3d_vector object
-...
-
-if queries.is3d_vector(plot):
-   ...
-
-"""
     if (isinstance(obj, dv3d.Gf3Dvector)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary isofill graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+is3d_vector.__doc__ = xmldocs.is3d_vector_doc
 
 
 def isisofill(obj):
-    """
- Function: isisofill
-
- Description of Function:
-Check to see if this object is a VCS primary isofill graphics method.
-
- Example of Use:
-a=vcs.init()
-iso=a.getisofill("quick")  # To Modify an existing isofill object
-...
-
-if queries.isisofill(iso):
-   iso.list()
-
-"""
     if (isinstance(obj, isofill.Gfi)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary isoline graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+isisofill.__doc__ = xmldocs.isisofill_doc
 
 
 def isisoline(obj):
-    """
- Function: isisoline
-
- Description of Function:
-Check to see if this object is a VCS primary isoline graphics method.
-
- Example of Use:
-a=vcs.init()
-iso=a.getisoline("quick")  # To Modify an existing isoline object
-...
-
-if queries.isisoline(iso):
-   iso.list()
-
-"""
     if (isinstance(obj, isoline.Gi)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary scatter graphics method in VCS?                         #
-#                                                                           #
-#############################################################################
+isisoline.__doc__ = xmldocs.isisoline_doc
 
 
 def isscatter(obj):
-    """
- Function: isscatter
-
- Description of Function:
-Check to see if this object is a VCS primary scatter graphics method.
-
- Example of Use:
-a=vcs.init()
-scr=a.getscatter("quick")  # To Modify an existing scatter object
-...
-
-if queries.isscatter(scr):
-   scr.list()
-
-"""
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "scatter":
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary Xyvsy graphics method in VCS?                           #
-#                                                                           #
-#############################################################################
+isscatter.__doc__ = xmldocs.isscatter_doc
 
 
 def isxyvsy(obj):
-    """
- Function: isxyvsy
-
- Description of Function:
-Check to see if this object is a VCS primary Xyvsy graphics method.
-
- Example of Use:
-a=vcs.init()
-xyy=a.getxyvsy("quick")  # To Modify an existing Xyvsy object
-...
-
-if queries.isxyvsy(xyy):
-   xyy.list()
-
-"""
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "xyvsy":
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary Yxvsx graphics method in VCS?                           #
-#                                                                           #
-#############################################################################
+isxyvsy.__doc__ = xmldocs.isxyvsy_doc
 
 
 def isyxvsx(obj):
-    """
- Function: isyxvsx
-
- Description of Function:
-Check to see if this object is a VCS primary yxvsx graphics method.
-
- Example of Use:
-a=vcs.init()
-yxx=a.getyxvsx("quick")  # To Modify an existing yxvsx object
-...
-
-if queries.isyxvsx(yxx):
-   yxx.list()
-
-"""
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary XvsY graphics method in VCS?                            #
-#                                                                           #
-#############################################################################
+isyxvsx.__doc__ = xmldocs.isyxvsx_doc
 
 
 def isxvsy(obj):
-    """
- Function: isxvsy
-
- Description of Function:
-Check to see if this object is a VCS primary xvsy graphics method.
-
- Example of Use:
-a=vcs.init()
-xy=a.getxvsy("quick")  # To Modify an existing xvsy object
-...
-
-if queries.isxvsy(xy):
-   xy.list()
-
-"""
     if (isinstance(obj, unified1D.G1d)) and obj.g_type == "yxvsx":
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary oneD graphics method in VCS?                            #
-#                                                                           #
-#############################################################################
+isxvsy.__doc__ = xmldocs.isxvsy_doc
 
 
 def is1d(obj):
-    """
- Function: isxvsy
-
- Description of Function:
-Check to see if this object is a VCS primary xvsy graphics method.
-
- Example of Use:
-a=vcs.init()
-xy=a.getxvsy("quick")  # To Modify an existing xvsy object
-...
-
-if queries.isxvsy(xy):
-   xy.list()
-
-"""
     if (isinstance(obj, unified1D.G1d)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a primary vector graphics method in VCS?                          #
-#                                                                           #
-#############################################################################
+is1d.__doc__ = xmldocs.is1d_doc
 
 
 def isvector(obj):
-    """
- Function: isvector
-
- Description of Function:
-Check to see if this object is a VCS primary vector graphics method.
-
- Example of Use:
-a=vcs.init()
-vec=a.getvector("quick")  # To Modify an existing vector object
-...
-
-if queries.isvector(vec):
-   vec.list()
-
-"""
     if (isinstance(obj, vector.Gv)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary line method in VCS?                                   #
-#                                                                           #
-#############################################################################
+isvector.__doc__ = xmldocs.isvector_doc
 
 
 def isline(obj):
-    """
- Function: isline
-
- Description of Function:
-Check to see if this object is a VCS secondary line.
-
- Example of Use:
-a=vcs.init()
-ln=a.getline("red")  # To Modify an existing line object
-...
-
-if queries.isline(ln):
-   ln.list()
-
-"""
     if (isinstance(obj, line.Tl)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary marker method in VCS?                                 #
-#                                                                           #
-#############################################################################
+isline.__doc__ = xmldocs.isline_doc
 
 
 def ismarker(obj):
-    """
- Function: ismarker
-
- Description of Function:
-Check to see if this object is a VCS secondary marker.
-
- Example of Use:
-a=vcs.init()
-mk=a.getmarker("red")  # To Modify an existing marker object
-...
-
-if queries.ismarker(mk):
-   mk.list()
-
-"""
-    if isinstance(obj, marker.Tm):
+    if (isinstance(obj, marker.Tm)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary fillarea method in VCS?                               #
-#                                                                           #
-#############################################################################
+ismarker.__doc__ = xmldocs.ismarker_doc
 
 
 def isfillarea(obj):
-    """
- Function: isfillarea
-
- Description of Function:
-Check to see if this object is a VCS secondary fillarea.
-
- Example of Use:
-a=vcs.init()
-fa=a.getfillarea("def37")  # To Modify an existing fillarea object
-...
-
-if queries.isfillarea(fa):
-   fa.list()
-
-"""
     if (isinstance(obj, fillarea.Tf)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary text table  method in VCS?                            #
-#                                                                           #
-#############################################################################
+isfillarea.__doc__ = xmldocs.isfillarea_doc
 
 
 def istexttable(obj):
-    """
- Function: istexttable
-
- Description of Function:
-Check to see if this object is a VCS secondary text table.
-
- Example of Use:
-a=vcs.init()
-tt=a.gettexttable("std")  # To Modify an existing text table object
-...
-
-if queries.istexttable(tt):
-   tt.list()
-
-"""
     if (isinstance(obj, texttable.Tt)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary text orientation method in VCS?                       #
-#                                                                           #
-#############################################################################
+istexttable.__doc__ = xmldocs.istexttable_doc
 
 
 def istextorientation(obj):
-    """
- Function: istextorientation
-
- Description of Function:
-Check to see if this object is a VCS secondary text orientation.
-
- Example of Use:
-a=vcs.init()
-to=a.gettextorientation("7left")  # To Modify an existing text orientation object
-...
-
-if queries.istextorientation(to):
-   to.list()
-
-"""
     if (isinstance(obj, textorientation.To)):
         return 1
     else:
         return 0
-
-#############################################################################
-#                                                                           #
-# Is this a secondary text combined method in VCS?                          #
-#                                                                           #
-#############################################################################
+istextorientation.__doc__ = xmldocs.istextorientation_doc
 
 
 def istextcombined(obj):
-    """
- Function: istextcombined
-
- Description of Function:
-Check to see if this object is a VCS secondary text combined.
-
- Example of Use:
-a=vcs.init()
-tc=a.gettextcombined("std", "7left")  # To Modify existing text table and orientation objects
-...
-
-if istextcombined(tc):
-   tc.list()
-if istexttable(tc):
-   tc.list()
-if istextorientation(tc):
-   tc.list()
-
-"""
     if (isinstance(obj, textcombined.Tc)):
         return 1
     else:
         return 0
+istextcombined.__doc__ = xmldocs.istextcombined_doc
 
-#############################################################################
-#                                                                           #
 # Set an alias for the secondary text combined method in VCS.               #
 # This is much easier to type than 'textcombined'.                          #
-#                                                                           #
-#############################################################################
 istext = istextcombined
-
-
-##########################################################################
-#        END OF FILE                                                            #
-##########################################################################

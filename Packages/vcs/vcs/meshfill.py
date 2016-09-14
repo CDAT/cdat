@@ -24,7 +24,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates meshfill gm from it"""
+
+    # Takes VCS script code (string) as input and generates meshfill gm from it
     try:
         g = Gfm(nm)
     except:
@@ -149,16 +150,6 @@ def process_src(nm, code):
 class Gfm(object):
 
     """
-    Options:::
-%s
-%s
-mesh :: (str/int) (0) Draws the mesh
-wrap :: ([float,float]) ([0.,0.]) Modulo to wrap around on either axis (automatically sets to 360 for longiutde axes)
-:::
-
-Class:	Gfm                       	# Meshfill
-
- Description of Gfm Class:
     The meshfill graphics method (Gfm) displays a two-dimensional data array
     by surrounding each data value by a colored grid mesh.
 
@@ -166,95 +157,124 @@ Class:	Gfm                       	# Meshfill
     can be used to change some or all of the attributes in an existing
     meshfill table entry
     .
- Other Useful Functions:
-               a=vcs.init()             # Constructor
-               a.show('meshfill')        # Show predefined meshfill graphics methods
-               a.setcolormap("AMIP")    # Change the VCS color map
-               a.meshfill(s,b,'default') # Plot data 's' with meshfill 'b' and
-                                               'default' template
-               a.update()               # Updates the VCS Canvas at user's request
-               a.mode=1, or 0           # If 1, then automatic update, else if
-                                          0, then use the update function to
-                                          update the VCS Canvas.
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of meshfill use:
-     mesh=a.createmeshfill('new','quick') # Copies content of 'quick' to 'new'
-     mesh=a.createmeshfill('new') 	# Copies content of 'default' to 'new'
+    :Example:
 
-    To Modify an existing meshfill use:
-     mesh=a.getmeshfill('AMIP_psl')
+::
 
-    mesh.list()  			# Will list all the meshfill attribute values
-    mesh.projection='linear'
-    lon30={-180:'180W',-150:'150W',0:'Eq'}
-    mesh.xticlabels1=lon30
-    mesh.xticlabels2=lon30
-    mesh.xticlabels(lon30, lon30)  	# Will set them both
-    mesh.xmtics1=''
-    mesh.xmtics2=''
-    mesh.xmtics(lon30, lon30)  		# Will set them both
-    mesh.yticlabels1=lat10
-    mesh.yticlabels2=lat10
-    mesh.yticlabels(lat10, lat10)  	# Will set them both
-    mesh.ymtics1=''
-    mesh.ymtics2=''
-    mesh.ymtics(lat10, lat10)  		# Will set them both
-    mesh.datawc_y1=-90.0
-    mesh.datawc_y2=90.0
-    mesh.datawc_x1=-180.0
-    mesh.datawc_x2=180.0
-    mesh.datawc(-90, 90, -180, 180)  	# Will set them all
-    There are two possibilities for setting the meshfill levels:
-     A) Levels are all contiguous (Examples):
-                mesh.levels=([0,20,25,30,35,40],)
-                mesh.levels=([0,20,25,30,35,40,45,50])
-                mesh.levels=[0,20,25,30,35,40]
-                mesh.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
-     B) Levels are not contiguous (Examples):
-                mesh.levels=([0,20],[30,40],[50,60])
-                mesh.levels=([0,20,25,30,35,40],[30,40],[50,60])
+    # Useful Functions:
+        # VCS Canvas Constructor
+        a=vcs.init()
+        # Show predefined meshfill graphics methods
+        a.show('meshfill')
+        # Change the VCS color map
+        a.setcolormap("AMIP")
+        # Plot data 's' with meshfill 'b' and 'default' template
+        a.meshfill(s,b,'default')
+        # Updates the VCS Canvas at user's request
+        a.update()
 
-    There are three possibilities for setting the fillarea color indices (Ex):
+    # To Create a new instance of meshfill use:
+        # Copies content of 'quick' to 'new'
+        mesh=a.createmeshfill('new','quick')
+        # Copies content of 'default' to 'new'
+        mesh=a.createmeshfill('new')
+
+    # To Modify an existing meshfill use:
+        mesh=a.getmeshfill('AMIP_psl')
+
+    # Overview of meshfill object attributes:
+        # Will list all the meshfill attribute values
+        mesh.list()
+        mesh.projection='linear'
+        lon30={-180:'180W',-150:'150W',0:'Eq'}
+        mesh.xticlabels1=lon30
+        mesh.xticlabels2=lon30
+        # Will set them both
+        mesh.xticlabels(lon30, lon30)
+        mesh.xmtics1=''
+        mesh.xmtics2=''
+        # Will set them both
+        mesh.xmtics(lon30, lon30)
+        mesh.yticlabels1=lat10
+        mesh.yticlabels2=lat10
+        # Will set them both
+        mesh.yticlabels(lat10, lat10)
+        mesh.ymtics1=''
+        mesh.ymtics2=''
+        # Will set them both
+        mesh.ymtics(lat10, lat10)
+        mesh.datawc_y1=-90.0
+        mesh.datawc_y2=90.0
+        mesh.datawc_x1=-180.0
+        mesh.datawc_x2=180.0
+        # Will set them all
+        mesh.datawc(-90, 90, -180, 180)
+        mesh.ext_1='n'
+        mesh.ext_2='y'
+        # Will set them both
+        mesh.exts('n', 'y' )
+        # Color index value range 0 to 255
+        mesh.missing=241
+
+        # There are two possibilities for setting meshfill levels:
+            1) Levels are all contiguous (Examples):
+                    mesh.levels=([0,20,25,30,35,40],)
+                    mesh.levels=([0,20,25,30,35,40,45,50])
+                    mesh.levels=[0,20,25,30,35,40]
+                    mesh.levels=(0.0,20.0,25.0,30.0,35.0,40.0,50.0)
+            2) Levels are not contiguous (Examples):
+                    mesh.levels=([0,20],[30,40],[50,60])
+                    mesh.levels=([0,20,25,30,35,40],[30,40],[50,60])
+
+        # There are three possibilities for setting fillarea color indices:
                 mesh.fillareacolors=([22,33,44,55,66,77])
                 mesh.fillareacolors=(16,19,33,44)
                 mesh.fillareacolors=None
 
-    There are three possibilities for setting the fillarea style (Ex):
+        # There are three possibilities for setting fillarea style:
                 mesh.fillareastyle = 'solid'
                 mesh.fillareastyle = 'hatch'
                 mesh.fillareastyle = 'pattern'
 
-    There are two ways to set the fillarea hatch or pattern indices (Ex):
+        # There are two ways to set fillarea hatch or pattern indices:
                 mesh.fillareaindices=([1,3,5,6,9,20])
                 mesh.fillareaindices=(7,1,4,9,6,15)
                 See using fillarea objects below!
 
-    Using the fillarea secondary object (Ex):
-                f=createfillarea('fill1')
-                To Create a new instance of fillarea use:
-                   fill=a.createfillarea('new','quick') # Copies 'quick' to 'new'
-                   fill=a.createfillarea('new') 	# Copies 'default' to 'new'
+    #Using the fillarea secondary object:
+        f=createfillarea('fill1')
+        # To Create a new instance of fillarea:
+            # Copies 'quick' to 'new'
+            fill=a.createfillarea('new','quick')
+            # Copies 'default' to 'new'
+            fill=a.createfillarea('new')
 
-                To Modify an existing fillarea use:
-                   fill=a.getmfillarea('def37')
+        # To Modify an existing fillarea use:
+            fill=a.getmfillarea('def37')
+            # Set index using fillarea
+            mesh.fillareaindices=(7,fill,4,9,fill,15)
+            # list fillarea attributes
+            fill.list()
+            # change style
+            fill.style='hatch'
+            # change color
+            fill.color='black'
+            # change style index
+            fill.index=3
 
-                mesh.fillareaindices=(7,fill,4,9,fill,15) # Set index using fillarea
-                fill.list()				 # list fillarea attributes
-                fill.style='hatch'			 # change style
-                fill.color="black"				 # change color
-                fill.index=3				 # change style index
 
-    ext_1='n'
-    ext_2='y'
-    mesh.exts('n', 'y' )  		# Will set them both
-    missing=241                         # Color index value range 0 to 255
-""" % (xmldocs.graphics_method_core, xmldocs.meshfill_doc)
+%s
+%s
+mesh :: (str/int) (0) Draws the mesh
+wrap :: ([float,float]) ([0.,0.]) Modulo to wrap around on either axis (automatically sets to 360 for longiutde axes)
+"""
+    # % (xmldocs.graphics_method_core, xmldocs.meshfill_doc)
+
     ##########################################################################
-    #                                                                           #
-    # Initialize the meshfill attributes.                                        #
-    #                                                                           #
+    #                                                                        #
+    # Initialize the meshfill attributes.                                    #
+    #                                                                        #
     ##########################################################################
     colormap = VCS_validation_functions.colormap
     __slots__ = [
@@ -720,30 +740,6 @@ Class:	Gfm                       	# Meshfill
     #                                                                           #
     ##########################################################################
     def script(self, script_filename, mode='a'):
-        """
-        %s
-        Function:     script				# Calls _vcs.scriptGfm
-
-        Description of Function:
-             Saves out a meshfill graphics method in Python or VCS script form to a
-             designated file.
-
-        Example of Use:
-             script(scriptfile_name, mode)
-                  where: scriptfile_name is the output name of the script file.
-                       mode is either 'w' for replace or 'a' for append.
-
-                  Note: If the the filename has a '.py' at the end, it will produce a
-                       Python script. If the filename has a '.scr' at the end, it will
-                       produce a VCS script. If neither extensions are give, then by
-                       default a Python script will be produced.
-
-             a=vcs.init()
-             mesh=a.createmeshfill('temp')
-             mesh.script('filename.py')         # Append to a Python file 'filename.py'
-             mesh.script('filename.scr')        # Append to a VCS file 'filename.scr'
-             mesh.script('filename','w')
-             """
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -877,7 +873,7 @@ Class:	Gfm                       	# Meshfill
             vcs.utils.dumpToJson(self, f)
             f.close()
         return
-    script.__doc__ = script.__doc__ % xmldocs.scriptdoc
+    script.__doc__ = xmldocs.meshfill_script
 
 
 ##########################################################################
