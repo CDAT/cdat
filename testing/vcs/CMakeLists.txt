@@ -433,6 +433,10 @@ cdat_add_test(test_vcs_export_text
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_export_text.py
   )
+cdat_add_test(test_vcs_canvas_switchfonts
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_switchfonts.py
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data
