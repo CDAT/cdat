@@ -755,11 +755,11 @@ class VTKVCSBackend(object):
         if continents_path is None:
             return (None, 1, 1)
         contData = vcs2vtk.prepContinents(continents_path)
+        contData = vcs2vtk.doWrapData(contData, wc, fastClip=False)
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
         contActor.SetMapper(contMapper)
-        contActor = vcs2vtk.doWrap(contActor, wc, fastClip=False)
 
         if projection.type != "linear":
             contData = contActor.GetMapper().GetInput()
@@ -1471,24 +1471,19 @@ class VTKVCSBackend(object):
                 ports = vtkobjects["vtk_backend_geofilters"]
             else:
                 # Vector plot
+                # TODO: this does not work with wrapping
                 ports = vtkobjects["vtk_backend_glyphfilters"]
                 w = vcs2vtk.generateVectorArray(array1, array2, vg)
                 vg.GetPointData().AddArray(w)
                 ports[0].SetInputData(vg)
 
-            projection = None
-            if "vtk_backend_geo" in vtkobjects:
-                projection = vtkobjects["vtk_backend_geo"]
-
             if "vtk_backend_actors" in vtkobjects:
                 i = 0
                 for a in vtkobjects["vtk_backend_actors"]:
                     act = a[0]
-                    wrp = a[1]
                     if a[1] is missingMapper:
                         i -= 1
                         mapper = missingMapper2
-                        wrp = a[2]
                     else:
                         # Labeled contours are a different kind
                         if "vtk_backend_luts" in vtkobjects:
@@ -1526,9 +1521,6 @@ class VTKVCSBackend(object):
                                 mapper.SetScalarModeToUseCellData()
                             mapper.SetScalarRange(rg[0], rg[1])
                     act.SetMapper(mapper)
-                    if not projection:
-                        # Wrap only if the data is not projected
-                        act = vcs2vtk.doWrap(a[0], wrp)
                     i += 1
 
         taxis = array1.getTime()

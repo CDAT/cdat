@@ -1,6 +1,7 @@
 import os, sys, vcs, testing.regression as regression
 
 x = regression.init()
+x.setcolormap("classic")
 
 # Create a test plot for listing all the hatches and patterns
 style_list = []

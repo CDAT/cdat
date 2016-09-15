@@ -14,12 +14,25 @@ cdat_add_test(test_vcs_bad_png_path
 )
 
 foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
-  cdat_add_test(test_vcs_boxfill_${projection}
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
-    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
-    ${projection}
-    )
+  foreach(zoom none datawc subset)
+    if (zoom STREQUAL "none")
+      cdat_add_test(test_vcs_boxfill_${projection}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+        ${projection}
+        ${zoom}
+        )
+    else()
+      cdat_add_test(test_vcs_boxfill_${projection}_${zoom}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}_${zoom}.png"
+        ${projection}
+        ${zoom}
+        )
+    endif()
+  endforeach()
 endforeach()
 
 foreach(lat_0 45 90)
@@ -420,6 +433,10 @@ cdat_add_test(test_vcs_export_text
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_export_text.py
   )
+cdat_add_test(test_vcs_canvas_switchfonts
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_switchfonts.py
+  )
 ##############################################################################
 #
 # These tests perform plotting and need sample data
@@ -783,11 +800,15 @@ cdat_add_test(test_vcs_settings_color_name_rgba
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  )
-  cdat_add_test(test_vcs_polar_set_opt_param_polar
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
-    "${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
-    )
+
+  foreach(z none subset datawc0 datawc1 datawc2)
+    cdat_add_test(test_vcs_polar_zoom_${z}
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_zoom.py
+      "${BASELINE_DIR}/test_vcs_polar_zoom_${z}.png"
+      ${z})
+  endforeach()
+
   cdat_add_test(test_vcs_boxfill_lev1_lev2
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py
@@ -1057,12 +1078,12 @@ cdat_add_test(test_vcs_large_pattern_hatch
 foreach(x_over_y 0.5 2)
  # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
  foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
-   foreach(mode foreground background)
+   foreach(mode 0 1)
      string(SUBSTRING ${plot} 2 -1 plot_name)
      cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
        "${PYTHON_EXECUTABLE}"
        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
-       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
+       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}_${mode}.png"
        ${mode}
        ${plot}
        ${x_over_y}
@@ -1101,11 +1122,11 @@ cdat_add_test(test_vcs_no_continents
   ${BASELINE_DIR}/test_vcs_no_continents.png
 )
 
-cdat_add_test(test_vcs_center_longitude
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
-  ${BASELINE_DIR}/test_vcs_center_longitude.png
-)
+#cdat_add_test(test_vcs_center_longitude
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
+#  ${BASELINE_DIR}/test_vcs_center_longitude.png
+#)
 
 cdat_add_test(test_vcs_textextents
   "${PYTHON_EXECUTABLE}"

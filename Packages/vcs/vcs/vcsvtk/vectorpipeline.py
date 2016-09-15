@@ -75,7 +75,7 @@ class VectorPipeline(Pipeline2D):
         except:
             lstyle = "solid"  # noqa
             lwidth = 1.  # noqa
-            lcolor = 0
+            lcolor = [0., 0., 0., 100.]
         if self._gm.linewidth is not None:
             lwidth = self._gm.linewidth  # noqa
         if self._gm.linecolor is not None:
@@ -172,7 +172,10 @@ class VectorPipeline(Pipeline2D):
         act.SetMapper(mapper)
 
         cmap = self.getColorMap()
-        r, g, b, a = cmap.index[lcolor]
+        if isinstance(lcolor, (list, tuple)):
+            r, g, b, a = lcolor
+        else:
+            r, g, b, a = cmap.index[lcolor]
         act.GetProperty().SetColor(r / 100., g / 100., b / 100.)
 
         plotting_dataset_bounds = vcs2vtk.getPlottingBounds(

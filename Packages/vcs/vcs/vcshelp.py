@@ -27,15 +27,20 @@ import queries
 
 
 def objecthelp(*arg):
-    """ Function:     objecthelp
+    """
+    Print the documentation of each object in the argument list.
+    Prints a blank line if no documentation.
 
- Description of Function:
-       Print the documentation of each object in the argument list.
-       Prints a blank line if no documentation.
+    :Example:
 
- Example of Use:
+    ::
+
         import vcs
-       vcs.objecthelp(object)  #  where: object is the Python object
+        # where: object is the Python object
+        vcs.objecthelp(object)
+
+    :param arg: Instance of a VCS object to display the documentation for.
+    :type arg: VCS object instance
 """
     for x in arg:
         print getattr(x, "__doc__", "")

@@ -25,8 +25,9 @@ else:
 if args.gm != "meshfill":
   f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
   if args.gm == "vector":
-    u = f("u")
-    v = f("v")
+    u = f("u")[...,::2,::2]
+    v = f("v")[...,::2,::2]
+    gm.scale = 8.
   else:
     s=f("clt",slice(0,1))
 else:

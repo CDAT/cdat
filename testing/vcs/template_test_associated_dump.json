@@ -371,9 +371,19 @@
  }, 
  "Tt": {
   "this_is_my_test_tt": {
-   "backgroundcolor": 0, 
+   "backgroundcolor": [
+    100.0, 
+    100.0, 
+    100.0, 
+    0.0
+   ], 
    "backgroundopacity": 0, 
-   "color": 1, 
+   "color": [
+    0.0, 
+    0.0, 
+    0.0, 
+    100.0
+   ], 
    "colormap": null, 
    "expansion": 100, 
    "fillincolor": 0, 
