@@ -4,6 +4,7 @@
 
 source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
 for pkg in cdat_info testing cdtime cdms esg DV3D vcs vcsaddons cdutil unidata xmgrace genutil thermo wk distarray; do
+    cd @cdat_BINARY_DIR@
     git clone git://github.com/UV-CDAT/${pkg}
     cd ${pkg}
     rm -rf build
