@@ -112,6 +112,7 @@ if args.transparent:
         gm.markercolor = [100, 0, 0, 50.]
 
 if gm_type=="vector":
+    gm.scale = 4.
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
     x.plot(s,s2,gm,bg=bg)

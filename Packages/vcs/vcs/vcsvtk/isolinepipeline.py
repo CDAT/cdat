@@ -251,11 +251,6 @@ class IsolinePipeline(Pipeline2D):
             p.SetLineWidth(tmpLineWidths[i])
             vcs2vtk.stippleLine(p, tmpLineTypes[i])
 
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
-                                     self._dataWrapModulo)
             actors.append([act, plotting_dataset_bounds])
 
             # create a new renderer for this mapper
@@ -283,11 +278,6 @@ class IsolinePipeline(Pipeline2D):
             mappers.insert(0, self._maskedDataMapper)
             act = vtk.vtkActor()
             act.SetMapper(self._maskedDataMapper)
-            if self._vtkGeoTransform is None:
-                # If using geofilter on wireframed does not get wrppaed not
-                # sure why so sticking to many mappers
-                act = vcs2vtk.doWrap(act, plotting_dataset_bounds,
-                                     self._dataWrapModulo)
             actors.append([act, self._maskedDataMapper, plotting_dataset_bounds])
             # create a new renderer for this mapper
             # (we need one for each mapper because of cmaera flips)
