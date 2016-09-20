@@ -582,7 +582,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     # For aggregation server interface. Use clone to make a true copy.
     def copy(self):
-        return self.filled()
+        return self.__copy__()
 
     def setTileIndex(self, index):
         """
