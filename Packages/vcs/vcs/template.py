@@ -36,7 +36,9 @@ from Plegend import *  # noqa
 from Pdata import *  # noqa
 import inspect
 import cdutil
-from projection import round_projections, elliptical_projections
+from projection import round_projections
+from projection import elliptical_projections
+from xmldocs import template_script
 
 # Following for class properties
 
@@ -69,7 +71,8 @@ def epsilon_lte(a, b):
 
 # read .scr file
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates boxfill gm from it"""
+
+    # Takes VCS script code (string) as input and generates boxfill gm from it
     try:
         t = P(nm)
     except:
@@ -136,39 +139,49 @@ def process_src(nm, code):
 class P(object):
 
     """
- Class: P                             # Template
-
- Description of P Class:
     The template primary method (P) determines the location of each picture
     segment, the space to be allocated to it, and related properties relevant
     to its display.
 
- Other Useful Functions:
-               a.show('template')   	# Show predefined templates
-               a.show('texttable')   	# Show predefined text table methods
-               a.show('textorientation')   # Show predefined text orientation methods
-               a.show('line')   	# Show predefined line methods
-               a.listelements('template') # Show templates as a Python list
-               a.update()               # Updates the VCS Canvas at user's request
-               a.mode=1, or 0           # If 1, then automatic update, else if
-                                          0, then use the update function to
-                                          update the VCS Canvas.
+     .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of boxfill use:
-     box=a.createboxfill('new','quick') # Copies content of 'quick' to 'new'
-     box=a.createboxfill('new')         # Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing boxfill use:
-     box=a.getboxfill('AMIP_psl')
+            # Show predefined templates
+            a.show('template')
+            # Show predefined text table methods
+            a.show('texttable')
+            # Show predefined text orientation methods
+            a.show('textorientation')
+            # Show predefined line methods
+            a.show('line')
+            # Show templates as a Python list
+            a.listelements('template')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    To Create a new instance of template use:
-     tpl=a.createtemplate('new','AMIP')  # Copies content of 'AMIP' to 'new'
-     tpl=a.createtemplate('new')         # Copies content of 'default' to 'new'
+    .. describe:: Make a Canvas object to work with:
 
-    To Modify an existing template use:
-     tpl=a.gettemplate('AMIP')
+        .. code-block:: python
+
+            # VCS Canvas constructor
+            a=vcs.init()
+
+    .. describe:: Create a new instance of template:
+
+        .. code-block:: python
+
+            # Two ways to create a templates:
+            # Copies content of 'hovmuller' to 'new'
+            temp=a.createtemplate('new','hovmuller')
+            # Copies content of 'default' to 'new'
+            temp=a.createtemplate('new')
+
+    .. describe:: Modify an existing template:
+
+        .. code-block:: python
+
+             temp=a.gettemplate('hovmuller')
 """
     __slots__ = ["name", "_name", "_p_name", "p_name",
                  "_orientation", "_orientation", "_file", "file",
@@ -216,11 +229,7 @@ class P(object):
         _setOrientation,
         "The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).")
 
-    ###########################################################################
-    #                                                                         #
     # Initialize the template attributes.                                     #
-    #                                                                         #
-    ###########################################################################
     def __init__(self, Pic_name=None, Pic_name_src='default'):
             #                                                         #
             ###########################################################
@@ -514,11 +523,6 @@ class P(object):
 
         vcs.elements["template"][Pic_name] = self
 
-    ###########################################################################
-    #                                                                         #
-    # List out template text members (attributes).                            #
-    #                                                                         #
-    ###########################################################################
     def list(self, single=None):
         if (self.name == '__removed_from_VCS__'):
             raise ValueError('This instance has been removed from VCS.')
@@ -749,33 +753,6 @@ class P(object):
     #                                                                         #
     ###########################################################################
     def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scriptP
-
- Description of Function:
-       Saves out a template object in VCS or Python script form to a designated
-       file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end,
-                    it will produce a
-                    Python script. If the filename has a ".scr"
-                    at the end, it will
-                    produce a VCS script. If neither extensions
-                    are give, then by default a Python script
-                    will be produced.
-
-    a=vcs.init()
-    templt=a.createtemplate('temp')   # create a template object
-    templt.script('filename.py')      # Append to a Python file "filename.py"
-    templt.script('filename.scr')     # Append to a VCS file "filename.scr"
-    templt.script('filename','w')     # Create or overwrite to a
-                                        Python file "filename.py"
-'''
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -1020,16 +997,19 @@ class P(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
+    script.__doc__ = template_script
 
     # Adding the drawing functionnality to plot all these attributes on the
     # Canvas
     def drawTicks(self, slab, gm, x, axis, number,
                   vp, wc, bg=0, X=None, Y=None, **kargs):
-        """Draws the ticks for the axis x number number
+        """
+        Draws the ticks for the axis x number number
         using the label passed by the graphic  method
         vp and wc are from the actual canvas, they have
         been reset when they get here...
         """
+
         kargs["donotstoredisplay"] = True
         if X is None:
             X = slab.getAxis(-1)
@@ -1242,10 +1222,12 @@ class P(object):
 
     def blank(self, attribute=None):
         """
-        This function blanks elements of a template object
-        the argument: elements can be None/str/list
-        if None then all eleements will be turned off
-        Otherwise only the elets named by "elements" will be
+        This function turns off elements of a template object.
+
+
+    :param attribute: String or list, indicating the elements of a template which should be turned off.
+                      If attribute is left blank, or is None, all elements of the template will be turned off.
+    :type attribute: None, str, list
         """
         if attribute is None:
             attribute = self.__slots__
@@ -1264,19 +1246,39 @@ class P(object):
 
     def reset(self, sub_name, v1, v2, ov1=None, ov2=None):
         """
-        this function reset all the attribute who have a
-        sub attribute named name1 or name2 or name
-        also respect how far from original position you are
-        i.e you move to x1,x2 from old_x1, old_x2
-        if your current x1 value is not == to old_x1_value,
-        then respect how far from it you  were
-        usage:
-        reset(sub_name,v1,v2,ov1=None,ov2=None)
+        This function resets all the attributes having a
+        sub-attribute with the specified name.
+
+        .. note::
+            Respect how far from original position you are
+            i.e. you move to x1,x2 from old_x1, old_x2
+            if your current x1 value is not == to old_x1_value,
+            then respect how far from it you  were
+
         Example:
-             t.reset('x',x1,x2,t.data.x1,t.data.x2)
-             #where t is a vcs template object
+
+            Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            Set x1 value to 0.15 and x2 value to 0.5
+            t.reset('x',0.15,0.5,t.data.x1,t.data.x2)
+
+        :param sub_name: String indicating the name of the sub-attribute to be reset.
+                         For example, sub-name='x' would cause the x1 ans x2 attributes to be set.
+        :type sub_name: str
+
+        :param v1: Float value to used to set the sub_name1 attribute.
+        :type v1: float
+
+        :param v2: Float value used to set the sub_name2 attribute.
+        :type v2: float
+
+        :param ov1: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
+        :type ov1: float
+
+        :param ov2: Float value of the old sub-name1 attribute value. Used to compute an offset ratio.
+        :type ov2: float
         """
-        # attr=vars(self).keys()
+
         Attr = dir(self)
         attr = []
         for a in Attr:
@@ -1322,15 +1324,29 @@ class P(object):
                     pass
 
     def move(self, p, axis):
-        """ move a template by p% along the axis 'x' or 'y'
-        positive values of p mean movement toward right/top
-        negative values of p mean movement toward left/bottom
+        """
+        Move a template by p% along the axis 'x' or 'y'.
+        Positive values of p mean movement toward right/top
+        Negative values of p mean movement toward left/bottom
         The reference point is t.data.x1/y1
-        usage
-        t.move(p,axis)
-        example:
-        t.move(.2,'x') # move everything right by 20%
-        t.move(.2,'y') # move everything down by 20%
+
+        :Example:
+
+        ::
+
+
+            # Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            # Move everything right by 20%
+            t.move(0.2,'x')
+            # Move everything up by 20%
+            t.move(0.2,'y')
+
+        :param p: Float indicating the percentage by which the template should move. i.e. 0.2 = 20%.
+        :type p: float
+
+        :param axis: One of ['x', 'y']. The axis along which the template will move.
+        :type axis: str
         """
         if axis not in ['x', 'y']:
             raise 'Error you can move the template only the x or y axis'
@@ -1342,12 +1358,23 @@ class P(object):
         self.reset(axis, v1, v2, ov1, ov2)
 
     def moveto(self, x, y):
-        """ move a template along the axis 'x' or 'y' to p
-        The reference point is t.data.x/y1
-        usage
-        t.moveto(x,y)
-        example:
-        t.moveto(.2,.2) # move everything so that data.x1=.2and data.y1=.2
+        """
+        Move a template to point (x,y), adjusting all attributes so data.x1 = x, and data.y1 = y.
+
+        :Example:
+
+        ::
+
+            # Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            # Move everything so that data.x1= 0.2 and data.y1= 0.2
+            t.moveto(0.2, 0.2)
+
+        :param x: Float representing the new coordinate of the template's data.x1 attribute.
+        :type x: float
+
+        :param y: Float representing the new coordinate of the template's data.y1 attribute.
+        :type y: float
         """
         # p/=100.
         ov1 = getattr(self.data, 'x1')
@@ -1362,26 +1389,35 @@ class P(object):
         self.reset('y', v1, v2, ov1, ov2)
 
     def scale(self, scale, axis='xy', font=-1):
-        """ scale a template along the axis 'x' or 'y' by scale
-        positive values of p mean increase
-        negative values of p mean decrease
-        The reference point is t.data.x/y1
-        usage
-        t.scale(scale,axis='xy',font=-1)
-        scale: any number
-        axis can be 'x','y' or 'xy' (which means both)
-        font can be 1/0/-1
-                    0: means do not scale the fonts
-                    1: means scale the fonts
-                   -1: means do not scale the fonts unless axis='xy'
-        Example:
-        x=vcs.init()
-        t=x.createtemplate('a_template')
-        t.scale(.5)  # halves the template size
-        t.scale(1.2) # upsize everything to 20% more than the original size
-        t.scale(2,'x') # double the x axis
+        """
+        Scale a template along the axis 'x' or 'y' by scale
+        Positive values of scale mean increase
+        Negative values of scale mean decrease
+        The reference point is t.data.x1/y1
 
-        reference is t.data.x1/y1
+        :Example:
+
+        ::
+
+            # Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            # Halves the template size
+            t.scale(0.5)
+            # Upsize everything to 20% more than the original size
+            t.scale(1.2)
+            # Double the x axis
+            t.scale(2,'x')
+
+        :param scale: Float representing the factor by which to scale the template.
+        :type scale: float
+
+        :param axis: One of ['x', 'y', 'xy']. Represents the axis/axes along which the template should be scaled.
+        :type axis: str
+
+        :param font: Integer flag indicating what should be done with the template's fonts. One of [-1, 0, 1].
+                    0: means do not scale the fonts. 1: means scale the fonts.
+                    -1: means do not scale the fonts unless axis='xy'
+        :type font: int
 
         """
         if axis not in ['x', 'y', 'xy']:
@@ -1402,14 +1438,17 @@ class P(object):
 
     def scalefont(self, scale):
         """
-        Scales the tempate font by scale
-        Usage:
-        scalefont(scale)
+        Scales the template font by scale.
 
         Example:
-        x=vcs.init()
-        t=x.createtemplate('a_template')
-        t.scalefont(.5) # reduces the fonts size by 2
+
+            Create template 'example1' which inherits from 'default' template
+            t = vcs.createtemplate('example1', 'default')
+            reduces the fonts size by 2
+            t.scalefont(0.5)
+
+        :param scale: Float representing the factor by which to scale the template's font size.
+        :type scale: float
         """
         try:
             attr = vars(self).keys()
@@ -1428,9 +1467,14 @@ class P(object):
 
     def plot(self, x, slab, gm, bg=0, min=None,
              max=None, X=None, Y=None, **kargs):
-        """ This plots the template stuff on the Canvas,
-        it needs a slab and a graphic method
-        returns a list containing all the displays used"""
+        """
+        This plots the template stuff on the Canvas.
+        It needs a slab and a graphic method.
+
+        :returns: A list containing all the displays used
+        :rtype: list
+        """
+
         displays = []
         kargs["donotstoredisplay"] = True
         kargs["render"] = False
@@ -1677,6 +1721,7 @@ class P(object):
         bg: background mode ?
         returns a list of displays used
         """
+
         kargs["donotstoredisplay"] = True
         displays = []
         #
@@ -1947,7 +1992,7 @@ class P(object):
     def ratio_linear_projection(self, lon1, lon2, lat1, lat2,
                                 Rwished=None, Rout=None,
                                 box_and_ticks=0, x=None):
-        '''
+        """
         Computes ratio to shrink the data area of a template in order
         that the overall area
         has the least possible deformation in linear projection
@@ -1969,9 +2014,9 @@ class P(object):
           vcs template object
 
         Usage example:
-          ## USA
+          #USA
           t.ratio_linear_projection(-135,-50,20,50)
-        '''
+        """
 
         # Converts lat/lon to rad
         Lat1 = lat1 / 180. * numpy.pi
@@ -2000,7 +2045,7 @@ class P(object):
         return
 
     def ratio(self, Rwished, Rout=None, box_and_ticks=0, x=None):
-        '''
+        """
         Computes ratio to shrink the data area of a template
         to have an y/x ratio of Rwished
         has the least possible deformation in linear projection
@@ -2018,9 +2063,9 @@ class P(object):
           vcs template object
 
         Usage example:
-          ## y is twice x
+          # y is twice x
           t.ratio(2)
-        '''
+        """
         if x is None:
             x = vcs.init()
         if isinstance(Rout, str):
@@ -2143,10 +2188,3 @@ class P(object):
 
         del(vcs.elements["template"][t.name])
         return
-
-
-###############################################################################
-#                                                                             #
-#        END OF FILE                                                          #
-#                                                                             #
-###############################################################################

@@ -25,6 +25,7 @@
 from UserDict import UserDict
 import vcs
 import copy
+import xmldocs
 
 
 def process_src(nm, code):
@@ -170,41 +171,67 @@ class RGB_Table(UserDict):
 class Cp(object):
 
     """
- Class: Cp                              # Colormap
-
- Description of Cp Class:
     The Colormap object allows the manipulation of the colormap index R,G,B values.
 
     This class is used to define a colormap table entry used in VCS, or it
     can be used to change some or all of the colormap R,G,B attributes in an
     existing colormap table entry.
 
- Other Useful Functions:
-             a=vcs.init()               # Constructor
-             a.show('colormap')         # Show predefined colormap objects
-             a.update()                 # Updates the VCS Canvas at user's request
-             a.mode=1, or 0             # If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Some Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of colormap use:
-     cp=a.createcolormap('new','quick') # Copies content of 'red' to 'new'
-     cp=a.createcolormap('new')         # Copies content of 'default' to 'new'
-        print "Now our index is :",self.index[242],self
+        .. code-block:: python
 
-    To Modify an existing colormap use:
-     cp=a.getcolormap('quick')
+            # Constructor
+            a=vcs.init()
+            # Show predefined colormap objects
+            a.show('colormap')
+            # Updates the VCS Canvas at user's request
+            a.update()
+            # If mode=1, automatic update
+            a.mode=1
+            #If mode=0, use update function to update the VCS Canvas.
+            a.mode=0
 
-    cp.list()                           # Will list all the colormap indices and
-                                        #      R,G,B attribute values
-    cp.color=16,100,0,0                 # Index, R, G, B
-    cp.color=16,0,100,0                 # Index range from 0 to 255, but can only
-                                        #      modify from 0 to 239
-    cp.color=17,0,0,100                 # R, G, B values range from 0 to 100, where
-                                        #      0 is low intensity and 100 is highest intensity
-"""
+
+
+    .. describe:: General use of a colormap:
+
+        .. code-block:: python
+
+            # Create a VCS Canvas object
+            a=vcs.init()
+            #To Create a new instance of colormap use:
+            # Copies content of 'red' to 'new'
+            cp=a.createcolormap('new','quick')
+            # Copies content of 'default' to 'new'
+            cp=a.createcolormap('new')
+
+    .. describe:: Modifying an existing colormap:
+
+        .. code-block:: python
+
+            cp=a.getcolormap('quick')
+
+    .. describe:: Overview of colormap attributes:
+
+        * List all the colormap indices and R,G,B attribute values
+
+            .. code-block:: python
+
+                cp.list()
+
+        * Setting colormap attribute values:
+
+            .. code-block:: python
+
+                # Index, R, G, B
+                cp.color=16,100,0,0
+                # Index range from 0 to 255, but can only modify from 0 to 239
+                cp.color=16,0,100,0
+                # R, G, B values range from 0 to 100, where 0 is low intensity and 100 is highest intensity
+                cp.color=17,0,0,100
+
+    """
     __slots__ = ["s_name", "name", "_name", "index", "_index"]
 
     def getname(self):
@@ -275,15 +302,59 @@ class Cp(object):
     def setcolorcell(self, index, red, green, blue, alpha=100.):
         """
         Sets the R,G,B,A values of a colorcell
-        Usage setcolorcell(index,r,g,b,a=100.)
-        """
+
+        :Example:
+
+::
+
+        #Create a vcs Canvas
+        a = vcs.init()
+        #Create a colormap
+        cmap = a.createcolormap('example', 'default')
+        #Set RGBA values
+        cmap.setcolorcell(1,255,255,255,1.0)
+
+:param index: Integer from 0-255.
+:type index: int
+
+:param red: Integer from 0-255 representing the concentration of red in the colorcell.
+:type red: int
+
+:param green: Integer from 0-255 representing the concentration of green in the colorcell.
+:type green: int
+
+:param blue: Integer from 0-255 representing the concentration of blue in the colorcell.
+:type blue: int
+
+:param alpha: Float representing the percentage of opacity in the colorcell.
+:type alpha: float
+
+:returns:
+:rtype:
+"""
         self.index[index] = [red, green, blue, alpha]
 
     # get a colorcell RGB
     def getcolorcell(self, index):
         """
-        Sets the R,G,B values of a colorcell
-        Usage setcolorcell(index,r,g,b)
+        Gets the R,G,B,A values of a colorcell.
+
+        :Example:
+
+    ::
+
+        #Create a vcs Canvas
+        a = vcs.init()
+        #Create a colormap
+        cmap = a.createcolormap('example', 'default')
+        #Get RGBA values
+        cmap.getcolorcell(1)
+
+:param index: Index of a cell in the colormap. Must be an integer from 0-255.
+:type index: int
+
+:returns: A list containing the red, green, blue, and alpha values (in that order), of the colorcell at the given index.
+:rtype: list
         """
         return self.index[index]
 
@@ -306,29 +377,6 @@ class Cp(object):
     #                                                                           #
     ##########################################################################
     def script(self, script_filename=None, mode=None):
-        '''
- Function:     script                           # Calls _vcs.scriptCp
-
- Description of Function:
-       Saves out a colormap graphics method in VCS or Python script form to a
-       designated file.
-
- Example of Use:
-    script(scriptfile_name, mode)
-              where: scriptfile_name is the output name of the script file.
-                     mode is either "w" for replace or "a" for append.
-
-              Note: If the the filename has a ".py" at the end, it will produce a
-                    Python script. If the filename has a ".scr" at the end, it will
-                    produce a VCS script. If neither extensions are give, then by
-                    default a Python script will be produced.
-
-    a=vcs.init()
-    cp=a.createcolormap('temp')
-    cp.script('filename.py')         # Append to a Python file "filename.py"
-    cp.script('filename.scr')        # Append to a VCS file "filename.scr"
-    cp.script('filename','w')        # Create or overwrite to a Python file "filename.py"
-'''
         if (script_filename is None):
             raise ValueError(
                 'Error - Must provide an output script file name.')
@@ -388,7 +436,7 @@ class Cp(object):
             vcs.utils.dumpToJson(self, f)
             f.close()
 
-
+    script.__doc__ = xmldocs.colormap_script
 ##########################################################################
 #        END OF FILE                                                            #
 ##########################################################################

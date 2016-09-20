@@ -24,6 +24,7 @@
 import vcs
 import VCS_validation_functions
 import cdtime
+from xmldocs import vector_script
 
 
 def load(nm, json_dict={}):
@@ -31,7 +32,8 @@ def load(nm, json_dict={}):
 
 
 def process_src(nm, code):
-    """Takes VCS script code (string) as input and generates vector gm from it"""
+
+    # Takes VCS script code (string) as input and generates vector gm from it
     try:
         gm = Gv(nm)
     except:
@@ -146,9 +148,6 @@ def process_src(nm, code):
 class Gv(object):
 
     """
- Class: Gv              # Vector
-
- Description of Gv Class:
     The vector graphics method displays a vector plot of a 2D vector field. Vectors
     are located at the coordinate locations and point in the direction of the data
     vector field. Vector magnitudes are the product of data vector field lengths and
@@ -159,77 +158,145 @@ class Gv(object):
     used to change some or all of the vector attributes in an existing vector table
     entry.
 
- Other Useful Functions:
-         a=vcs.init()           # Constructor
-         a.show('vector')       # Show predefined vector graphics methods
-         a.show('line')         # Show predefined VCS line objects
-         a.setcolormap("AMIP")      # Change the VCS color Map
-         a.vector(s1, s2, v,'default')  # Plot data 's1', and 's2' with vector 'v'
-                                         and 'default' template
-         a.update()         # Updates the VCS Canvas at user's request
-         a.mode=1, or 0         # If 1, then automatic update, else if
-                                          0, then use update function to
-                                          update the VCS Canvas.
+    .. describe:: Useful Functions:
 
- Example of Use:
-    a=vcs.init()
-    To Create a new instance of vector use:
-     vc=a.createvector('new','quick')   # Copies content of 'quick' to 'new'
-     vc=a.createvector('new')       # Copies content of 'default' to 'new'
+        .. code-block:: python
 
-    To Modify an existing vector use:
-     vc=a.getvector('AMIP_psl')
+            # Constructor
+            a=vcs.init()
+            # Show predefined vector graphics methods
+            a.show('vector')
+            # Show predefined VCS line objects
+            a.show('line')
+            # Change the VCS color Map
+            a.setcolormap("AMIP")
+            # Plot data 's1', and 's2' with vector 'v' and 'default' template
+            a.vector(s1, s2, v,'default')
+            # Updates the VCS Canvas at user's request
+            a.update()
 
-    vc.list()               # Will list all the vector attribute values
-    vc.projection='linear'          # Can only be 'linear'
-    lon30={-180:'180W',-150:'150W',0:'Eq'}
-    vc.xticlabels1=lon30
-    vc.xticlabels2=lon30
-    vc.xticlabels(lon30, lon30)     # Will set them both
-    vc.xmtics1=''
-    vc.xmtics2=''
-    vc.xmtics(lon30, lon30)         # Will set them both
-    vc.yticlabels1=lat10
-    vc.yticlabels2=lat10
-    vc.yticlabels(lat10, lat10)     # Will set them both
-    vc.ymtics1=''
-    vc.ymtics2=''
-    vc.ymtics(lat10, lat10)         # Will set them both
-    vc.datawc_y1=-90.0
-    vc.datawc_y2=90.0
-    vc.datawc_x1=-180.0
-    vc.datawc_x2=180.0
-    vc.datawc(-90, 90, -180, 180)   # Will set them all
-    xaxisconvert='linear'
-    yaxisconvert='linear'
-    vc.xyscale('linear', 'area_wt')     # Will set them both
+    .. describe:: Make a Canvas object to work with:
 
-    Specify the line style:
-     vc.linetype=0              # Same as vc.linetype='solid'
-     vc.linetype=1              # Same as vc.linetype='dash'
-     vc.linetype=2              # Same as vc.linetype='dot'
-     vc.linetype=3              # Same as vc.linetype='dash-dot'
-     vc.linetype=4              # Same as vc.linetype='long-dot'
+        .. code-block:: python
 
-    Specify the line color of the vectors:
-     vc.linecolor=16            # Color range: 16 to 230, default line color is black
-     vc.linewidth=1             # Width range: 1 to 100, default size is 1
+            a=vcs.init()
 
-    Specify the vector scale factor:
-     vc.scale=2.0               # Can be an integer or float
+    .. describe:: Create a new instance of vector:
 
-    Specify the vector alignment:
-     vc.alignment=0         # Same as vc.alignment='head'
-     vc.alignment=1         # Same as vc.alignment='center'
-     vc.alignment=2         # Same as vc.alignment='tail'
+        .. code-block:: python
 
-    Specify the vector type:
-      vc.type=0             # Same as vc.type='arrow head'
-      vc.type=1             # Same as vc.type='wind barbs'
-      vc.type=2             # Same as vc.type='solid arrow head'
+            # Copies content of 'quick' to 'new'
+            vc=a.createvector('new','quick')
+            # Copies content of 'default' to 'new'
+            vc=a.createvector('new')
 
-    Specify the vector reference:
-      vc.reference=4            # Can be an integer or float
+    .. describe:: Modify an existing vector:
+
+        .. code-block:: python
+
+            vc=a.getvector('AMIP_psl')
+
+    .. describe:: Overview of vector attributes:
+
+        * List all attributes:
+
+            .. code-block:: python
+                # Will list all the vector attribute values
+                vc.list()
+
+        * Set axis attributes:
+
+            .. code-block:: python
+
+                # Can only be 'linear'
+                vc.projection='linear'
+                lon30={-180:'180W',-150:'150W',0:'Eq'}
+                vc.xticlabels1=lon30
+                vc.xticlabels2=lon30
+                # Will set them both
+                vc.xticlabels(lon30, lon30)
+                vc.xmtics1=''
+                vc.xmtics2=''
+                # Will set them both
+                vc.xmtics(lon30, lon30)
+                vc.yticlabels1=lat10
+                vc.yticlabels2=lat10
+                # Will set them both
+                vc.yticlabels(lat10, lat10)
+                vc.ymtics1=''
+                vc.ymtics2=''
+                # Will set them both
+                vc.ymtics(lat10, lat10)
+                vc.datawc_y1=-90.0
+                vc.datawc_y2=90.0
+                vc.datawc_x1=-180.0
+                vc.datawc_x2=180.0
+                # Will set them all
+                vc.datawc(-90, 90, -180, 180)
+                xaxisconvert='linear'
+                yaxisconvert='linear'
+                # Will set them both
+                vc.xyscale('linear', 'area_wt')
+
+        * Specify the line style:
+
+            .. code-block:: python
+
+                # Same as vc.line='solid'
+                vc.line=0
+                # Same as vc.line='dash'
+                vc.line=1
+                # Same as vc.line='dot'
+                vc.line=2
+                # Same as vc.line='dash-dot'
+                vc.line=3
+                # Same as vc.line='long-dot'
+                vc.line=4
+
+        * Specify the line color of the vectors:
+
+            .. code-block:: python
+
+                # Color range: 16 to 230, default line color is black
+                vc.linecolor=16
+                # Width range: 1 to 100, default size is 1
+                vc.linewidth=1
+
+        * Specify the vector scale factor:
+
+            .. code-block:: python
+
+                # Can be an integer or float
+                vc.scale=2.0
+
+        * Specify the vector alignment:
+
+            .. code-block:: python
+
+                # Same as vc.alignment='head'
+                vc.alignment=0
+                # Same as vc.alignment='center'
+                vc.alignment=1
+                # Same as vc.alignment='tail'
+                vc.alignment=2
+
+        * Specify the vector type:
+
+            .. code-block:: python
+
+                # Same as vc.type='arrow head'
+                vc.type=0
+                # Same as vc.type='wind barbs'
+                vc.type=1
+                # Same as vc.type='solid arrow head'
+                vc.type=2
+
+        * Specify the vector reference:
+
+            .. code-block:: python
+
+                # Can be an integer or float
+                vc.reference=4
 """
     __slots__ = [
         'name',
@@ -889,8 +956,4 @@ class Gv(object):
             f = open(script_filename, mode)
             vcs.utils.dumpToJson(self, f)
             f.close()
-
-
-###############################################################################
-#        END OF FILE                                  #
-###############################################################################
+    script.__doc__ = vector_script
