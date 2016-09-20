@@ -241,7 +241,7 @@ static int cdattget(PyCdunifFileObject *file, int varid, const char* name, void*
 	if (err==-1)
 	    return -1;
 	err = nc_get_att_any(file->id, varid, name, dtype, value);
-	if (dtype == NC_CHAR) {
+	if ((dtype == NC_CHAR)  || (dtype == NC_STRING)) {
 	  ((char *)value)[t_len]='\0';
 	}
 	return err;
@@ -1048,6 +1048,9 @@ cdunif_type_from_type(char array_type)
   case NPY_DOUBLE:
     type = NC_DOUBLE;
     break;
+  case NPY_STRING:
+    type = NC_STRING;
+    break;
   default:
     type = 0;
   }
@@ -1075,7 +1078,7 @@ collect_attributes(PyCdunifFileObject *file, int varid, PyObject *attributes, in
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
     py_type = data_types[type];
-    if (py_type == NPY_CHAR) {
+    if ((py_type == NPY_CHAR) || (py_type == NPY_STRING)){
       char *s = (char *)malloc((length+1)*sizeof(char));
       if (s != NULL) {
 	PyObject *string;

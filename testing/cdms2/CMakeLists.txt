@@ -1,6 +1,7 @@
 
 # cdms2 tests
 
+set(DATA_DIR "${UVCDAT_GIT_TESTDATA_DIR}/data")
 cdat_add_test(cdms2_test_default_fill_value_not_nan
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/cdms2/test_default_fill_value_not_nan.py
@@ -104,6 +105,11 @@ cdat_add_test("CDMS_Test_18"
 cdat_add_test("CDMS_Test_20"
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/cdms2/cdtest20.py)
+
+cdat_add_test("test_ncString"
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/cdms2/test_ncString.py 
+    ${DATA_DIR})
 
 if(CDAT_DOWNLOAD_SAMPLE_DATA)
     cdat_add_test("CDMS_Test_JSON"
