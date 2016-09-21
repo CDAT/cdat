@@ -8,6 +8,7 @@ for pkg in cdat_info cdtime cdms esg dv3d vcs vcsaddons cdutil unidata xmgrace g
     cd @cdat_BINARY_DIR@
     git clone git://github.com/UV-CDAT/${pkg}
     cd ${pkg}
+    git checkout @CHECKOUT_BRANCH@
     rm -rf build
     if [ ${pkg} == "vcs" ]; then
         python setup.py install --old-and-unmanageable
