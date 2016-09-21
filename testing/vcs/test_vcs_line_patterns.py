@@ -2,7 +2,7 @@ import vcs
 import cdms2
 import sys
 import os
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 
 
 pth = os.path.join(os.path.dirname(__file__), "..")

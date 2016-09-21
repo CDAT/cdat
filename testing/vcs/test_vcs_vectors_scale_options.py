@@ -1,4 +1,4 @@
-import sys, cdms2, vcs, testing.regression as regression
+import sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 data = cdms2.open(vcs.sample_data+"/clt.nc")
 v = data['v'][...,::10,::10]

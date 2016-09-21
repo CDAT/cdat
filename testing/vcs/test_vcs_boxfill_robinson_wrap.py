@@ -1,4 +1,4 @@
-import os, sys, cdms2, cdutil, genutil, vcs, testing.regression as regression
+import os, sys, cdms2, cdutil, genutil, vcs, vcs.vcs.vcs.testing.regression as regression
 
 # This tests if extending the longitude to more than 360 decrees is handled correctly by
 # proj4. See https://github.com/UV-CDAT/uvcdat/issues/1728 for more information.

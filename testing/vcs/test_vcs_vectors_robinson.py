@@ -1,5 +1,5 @@
 import vcs, cdms2, numpy, os, sys
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 
 x = regression.init()
 f = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))

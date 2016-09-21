@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import cdms2, cdutil, os, sys, vcs, testing.regression as regression
+import cdms2, cdutil, os, sys, vcs, vcs.vcs.vcs.testing.regression as regression
 
 f = cdms2.open(sys.argv[2])
 ice = f("variable_6")

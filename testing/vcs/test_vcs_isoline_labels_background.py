@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
 import random
 
 (latmin, latmax, lonmin, lonmax) = (-90, 90, -180, 180)

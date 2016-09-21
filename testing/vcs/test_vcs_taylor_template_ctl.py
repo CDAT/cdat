@@ -1,6 +1,6 @@
 
 import sys, os, vcs, MV2
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 
 x = regression.init()
 

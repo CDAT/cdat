@@ -3,7 +3,7 @@ src = sys.argv[1]
 import vcs
 import vcsaddons, numpy
 import cdms2, cdutil, cdtime
-import testing.regression as regression
+import vcs.testing.regression as regression
 
 x = regression.init()
 

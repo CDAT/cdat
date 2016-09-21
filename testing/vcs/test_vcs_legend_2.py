@@ -1,7 +1,7 @@
 import vcs
 import argparse
 import sys
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-e","--extensions",default=0,type=int,choices=[0,1,2,3])

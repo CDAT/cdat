@@ -1,4 +1,4 @@
-import os, sys, testing.regression as regression
+import os, sys, vcs.testing.regression as regression
 
 import vcs
 from vcsaddons import EzTemplate
