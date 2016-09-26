@@ -1,5 +1,5 @@
 import sys,os
-import testing.regression as regression
+import vcs.testing.regression as regression
 import vcs
 import vcsaddons, numpy
 

@@ -10,7 +10,7 @@ import vcs, os, sys, shutil, collections, subprocess
 TestingDir=os.path.dirname(__file__)
 pth = os.path.join(TestingDir,"..")
 sys.path.append(pth)
-import testing.regression as regression
+import vcs.testing.regression as regression
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"

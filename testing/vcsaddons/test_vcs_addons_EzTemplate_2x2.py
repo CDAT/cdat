@@ -1,4 +1,4 @@
-import os, sys, cdms2, testing.regression as regression, vcs, vcsaddons
+import os, sys, cdms2, vcs.testing.regression as regression, vcs, vcsaddons
 
 f = cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
 s = f("clt",time=slice(0,1),squeeze=1)

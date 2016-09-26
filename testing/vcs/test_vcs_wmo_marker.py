@@ -2,7 +2,7 @@
 import vcs,numpy,cdms2,MV2,os,sys
 
 
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 x = regression.init()
 
 

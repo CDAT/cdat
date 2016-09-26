@@ -1,5 +1,5 @@
 import vcs,cdms2,os,sys,cdtime
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 
 f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 s=f("clt",squeeze=1)

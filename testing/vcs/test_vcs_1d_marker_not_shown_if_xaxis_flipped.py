@@ -1,5 +1,5 @@
 
-import vcs, numpy, cdms2, MV2, os, sys, testing.regression as regression
+import vcs, numpy, cdms2, MV2, os, sys, vcs.vcs.vcs.testing.regression as regression
 
 x = regression.init()
 data = MV2.array([4,5,6,7,1,3,7,9,])+230.

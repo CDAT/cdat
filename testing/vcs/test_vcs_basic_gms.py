@@ -1,4 +1,4 @@
-import argparse, os, sys, cdms2, MV2, testing.regression as regression, vcs, vtk
+import argparse, os, sys, cdms2, MV2, vcs.vcs.vcs.testing.regression as regression, vcs, vtk
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")

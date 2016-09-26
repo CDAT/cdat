@@ -1,6 +1,6 @@
 import sys
 src = sys.argv[1]
-import testing.regression as regression
+import vcs.testing.regression as regression
 import vcs
 import vcsaddons, numpy
 

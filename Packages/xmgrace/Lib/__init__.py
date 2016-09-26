@@ -1,1 +1,0 @@
-from xmgrace import *  # noqa

@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 f = cdms2.open(sys.argv[2])
 h = f("heat")

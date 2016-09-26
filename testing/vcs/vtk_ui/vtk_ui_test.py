@@ -102,7 +102,7 @@ class vtk_ui_test(object):
         generate_png(self.win, self.test_file)
         pth = os.path.join(os.path.dirname(__file__), "../..")
         sys.path.append(pth)
-        import testing.regression as regression
+        import vcs.testing.regression as regression
         return regression.check_result_image(self.test_file, compare_against)
 
     def test(self):

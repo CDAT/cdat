@@ -1,4 +1,4 @@
-import os, sys, EzTemplate, cdms2, vcs, testing.regression as regression
+import os, sys, EzTemplate, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))

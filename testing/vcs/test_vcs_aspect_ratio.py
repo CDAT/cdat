@@ -1,4 +1,4 @@
-import vcs, numpy, cdms2, MV2, os, sys, testing.regression as regression
+import vcs, numpy, cdms2, MV2, os, sys, vcs.vcs.vcs.testing.regression as regression
 src = sys.argv[1]
 pth0 = os.path.dirname(_file__)
 pth = os.path.join(pth0,"..")
