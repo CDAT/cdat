@@ -23,11 +23,9 @@ from regrid2.mvGenericRegrid import guessPeriodicity
 from convention import CF1
 from grid import AbstractRectGrid
 #import internattr
-
 InvalidRegion = "Invalid region: "
 OutOfRange = "Coordinate interval is out of range or intersection has no data: "
 NotImplemented = "Child of AbstractVariable failed to implement: "
-
 _numeric_compatibility = False          # Backward compatibility with numpy behavior
                                         # False: return scalars from 0-D slices
                                         #        MV axis=None by default
@@ -117,6 +115,9 @@ def getNumericCompatibility():
     return _numeric_compatibility
 
 class AbstractVariable(CdmsObj, Slab):
+    def info(self, flag=None, device=None):
+        Slab.info(self, flag, device)
+
     def __init__ (self, parent=None, variableNode=None):
         """Not to be called by users.
            variableNode is the variable tree node, if any.
@@ -1174,13 +1175,19 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
         """
         myrank = self.rank()
         nsupplied = len(specs)
-        if Ellipsis in specs:
+        # numpy will broadcast if we have a new axis in specs
+        # ---------------------------------------------------
+        if (numpy.newaxis in specs):
+            nnewaxis = 1
+        else:
+            nnewaxis = 0
+            
+        if (Ellipsis in specs):
             nellipses = 1
-        elif numpy.newaxis in specs:
-            raise CDMSError, 'Sorry, you cannot use NewAxis in this context ' + str(specs)
         else:
             nellipses = 0
-        if nsupplied-nellipses > myrank:
+            
+        if nsupplied-nellipses-nnewaxis > myrank:
             raise CDMSError, InvalidRegion + \
               "too many dimensions: %d, for variable %s"%(len(specs),self.id)
 
@@ -1188,7 +1195,7 @@ avariable.regrid: We chose regridMethod = %s for you among the following choices
         i = 0
         j = 0
         while i < nsupplied:
-            if specs[i] is Ellipsis:
+            if (specs[i] is Ellipsis) or (specs[i] is numpy.newaxis):
                j = myrank  - (nsupplied - (i+1)) 
             else:
                speclist[j] = specs[i]

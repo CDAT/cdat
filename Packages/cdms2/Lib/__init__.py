@@ -1,14 +1,16 @@
 """
 CDMS module-level API
 """
-import cdat_info
-cdat_info.pingPCMDIdb("cdat","cdms2")
 
-__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", \
-"sliceut", "error", "variable", "fvariable", "tvariable", "dataset", \
-"database", "cache", "selectors", "MV2", "convention", "bindex", \
-"auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable", \
-"mvBaseWriter", "mvSphereMesh", "mvVsWriter", "mvCdmsRegrid"]
+import cdat_info
+cdat_info.pingPCMDIdb("cdat", "cdms2")
+from . import git
+
+__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable",
+           "sliceut", "error", "variable", "fvariable", "tvariable", "dataset",
+           "database", "cache", "selectors", "MV2", "convention", "bindex",
+           "auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable",
+           "mvBaseWriter", "mvSphereMesh", "mvVsWriter", "mvCdmsRegrid"]
 
 # Errors
 from error import CDMSError
@@ -28,23 +30,23 @@ from grid import createGenericGrid, createGlobalMeanGrid, createRectGrid, create
 
 # Dataset functions
 from dataset import createDataset, openDataset, useNetcdf3, \
-        getNetcdfClassicFlag, getNetcdfShuffleFlag, getNetcdfDeflateFlag, getNetcdfDeflateLevelFlag,\
-        setNetcdfClassicFlag, setNetcdfShuffleFlag, setNetcdfDeflateFlag, setNetcdfDeflateLevelFlag,\
-        setNetcdfUseNCSwitchModeFlag,getNetcdfUseNCSwitchModeFlag,\
-        setCompressionWarnings,\
-        setNetcdf4Flag, getNetcdf4Flag,\
-        setNetcdfUseParallelFlag, getNetcdfUseParallelFlag, \
-        getMpiRank, getMpiSize
+    getNetcdfClassicFlag, getNetcdfShuffleFlag, getNetcdfDeflateFlag, getNetcdfDeflateLevelFlag,\
+    setNetcdfClassicFlag, setNetcdfShuffleFlag, setNetcdfDeflateFlag, setNetcdfDeflateLevelFlag,\
+    setNetcdfUseNCSwitchModeFlag, getNetcdfUseNCSwitchModeFlag,\
+    setCompressionWarnings,\
+    setNetcdf4Flag, getNetcdf4Flag,\
+    setNetcdfUseParallelFlag, getNetcdfUseParallelFlag, \
+    getMpiRank, getMpiSize
 
 open = openDataset
 
 # Database functions
 from database import connect, Base, Onelevel, Subtree
 
-#Selectors
+# Selectors
 import selectors
 from selectors import longitude, latitude, time, level, required, \
-                      longitudeslice, latitudeslice, levelslice, timeslice
+    longitudeslice, latitudeslice, levelslice, timeslice
 
 from avariable import order2index, orderparse, setNumericCompatibility, getNumericCompatibility
 # TV
@@ -64,6 +66,7 @@ try:
 except:
     pass
 
-from restApi import esgfConnection,esgfDataset,FacetConnection
+from restApi import esgfConnection, esgfDataset, FacetConnection
 
 MV = MV2
+
