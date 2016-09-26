@@ -1,4 +1,4 @@
-import vcs, numpy, os, sys, cdms2, testing.regression as regression
+import vcs, numpy, os, sys, cdms2, vcs.vcs.vcs.testing.regression as regression
 
 x = regression.init()
 f=cdms2.open(os.path.join(vcs.sample_data,"sampleCurveGrid4.nc"))

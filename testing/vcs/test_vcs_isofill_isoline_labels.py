@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")

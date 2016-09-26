@@ -255,6 +255,15 @@ include(cdat_pkg)
 # CONDA Options
 set(CONDA_ENVIRONMENT_NAME ${cdat_VERSION} CACHE STRING "Name of conda environment we want to build CDAT in")
 set(CONDA_CHANNEL_UVCDAT uvcdat CACHE STRING "channels to use (if more than one use '-c' between channels e.g. uvcdat/label/nightly -c uvcdat)")
+
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" symbolic-ref --short HEAD
+    WORKING_DIRECTORY "${cdat_SOURCE_DIR}"
+    RESULT_VARIABLE RESULT
+    ERROR_VARIABLE OUTPUT
+    OUTPUT_VARIABLE CURRENT_BRANCH)
+message("[INFO] CURRENT BRANCH ${CURRENT_BRANCH}")
+set(CHECKOUT_BRANCH ${CURRENT_BRANCH} CACHE STRING "branch to try to check out on each repo")
 # Now sort and include external packages
 #=============================================================================
 include(TopologicalSort)

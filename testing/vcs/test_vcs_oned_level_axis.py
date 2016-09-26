@@ -1,4 +1,4 @@
-import os, sys, vcs, cdms2, cdutil, testing.regression as regression
+import os, sys, vcs, cdms2, cdutil, vcs.vcs.vcs.testing.regression as regression
 
 f = cdms2.open(os.path.join(vcs.sample_data,"ta_ncep_87-6-88-4.nc"))
 ta = f("ta",time=slice(0,1),squeeze=1)

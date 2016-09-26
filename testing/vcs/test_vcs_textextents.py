@@ -1,4 +1,4 @@
-import os, sys, numpy, cdms2, MV2, vcs, testing.regression as regression
+import os, sys, numpy, cdms2, MV2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 # We have to specify the geometry to make sure that the size of the canvas doesn't change between the init and the plot functions
 x = regression.init(bg=True, geometry=(1200,1091))

@@ -1,5 +1,5 @@
 # Test animation of projected plots
-import argparse, os, sys, cdms2, MV2, vcs, testing.regression as regression
+import argparse, os, sys, cdms2, MV2, vcs, vcs.vcs.vcs.testing.regression as regression
 
 p = argparse.ArgumentParser(description="Testing animation of projected plots")
 p.add_argument("--gm_type", dest="gm", help="gm to test")

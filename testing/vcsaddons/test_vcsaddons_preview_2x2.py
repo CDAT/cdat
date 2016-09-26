@@ -1,4 +1,4 @@
-import os, sys, testing.regression as regression, vcsaddons
+import os, sys, vcs.testing.regression as regression, vcsaddons
 
 bg = True
 M = vcsaddons.EzTemplate.Multi(rows=2,columns=2)

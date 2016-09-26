@@ -1,7 +1,7 @@
 import cdms2
 import os
 import sys
-import testing.regression as regression
+import vcs.vcs.vcs.testing.regression as regression
 import vcs
 
 data = sys.argv[2]
