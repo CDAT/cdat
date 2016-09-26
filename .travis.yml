@@ -17,7 +17,7 @@ script:
 - export NOX="OFF"
 - export CONDA_XTRA="uvcdat"
 - export NCPUS="4"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="nadeau/label/1234 -c uvcdat -c spyder-ide libxcb"; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="nadeau1/label/1234 -c uvcdat -c spyder-ide libxcb"; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
 - echo $TRAVIS_BRANCH
 - export TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
