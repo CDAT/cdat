@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 baselineName = sys.argv[1]
 centerlatitude = float(sys.argv[2])

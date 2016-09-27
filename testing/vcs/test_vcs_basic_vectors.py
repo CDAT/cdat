@@ -17,7 +17,7 @@ args = p.parse_args(sys.argv[1:])
 
 if not args.show:
   src = args.src
-  import vcs.vcs.vcs.testing.regression as regression
+  import vcs.testing.regression as regression
 
 bg = not args.show
 

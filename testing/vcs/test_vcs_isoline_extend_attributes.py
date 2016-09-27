@@ -1,6 +1,6 @@
 import cdms2
 import vcs
-import vcs.vcs.vcs.testing.regression as regression
+import vcs.testing.regression as regression
 
 x = regression.init()
 isoline = vcs.createisoline()

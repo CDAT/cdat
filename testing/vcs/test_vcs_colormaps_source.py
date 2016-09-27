@@ -1,4 +1,4 @@
-import argparse, os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
+import argparse, os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-g",dest="gm",default="boxfill",choices = ["boxfill","isofill","meshfill","isoline","vector","1d"])

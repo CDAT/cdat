@@ -1,4 +1,4 @@
-import vcs, cdms2, sys, os, vcs.vcs.vcs.testing.regression as regression
+import vcs, cdms2, sys, os, vcs.testing.regression as regression
 
 zoom = sys.argv[2]
 

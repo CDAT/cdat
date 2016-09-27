@@ -1,4 +1,4 @@
-import os, sys, numpy, cdms2, MV2, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, numpy, cdms2, MV2, vcs, vcs.testing.regression as regression
 
 x = regression.init()
 x.setcolormap("classic")

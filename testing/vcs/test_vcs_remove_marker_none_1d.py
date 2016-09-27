@@ -3,7 +3,7 @@
 #
 # J-Y Peterschmitt - LSCE - 03/2015
 
-import vcs, numpy, cdms2, MV2, os, sys, vcs.vcs.vcs.testing.regression as regression
+import vcs, numpy, cdms2, MV2, os, sys, vcs.testing.regression as regression
 
 dummy_data = numpy.arange(50, dtype=numpy.float32)
 x = regression.init()

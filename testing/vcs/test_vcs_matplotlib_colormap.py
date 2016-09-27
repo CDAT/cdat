@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 import matplotlib
 sp = matplotlib.__version__.split(".")
 if int(sp[0])*10+int(sp[1])<15:

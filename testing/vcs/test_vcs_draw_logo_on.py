@@ -1,4 +1,4 @@
-import vcs, numpy, cdms2, MV2, os, sys, vcs.vcs.vcs.testing.regression as regression
+import vcs, numpy, cdms2, MV2, os, sys, vcs.testing.regression as regression
 
 x = vcs.init()
 a=numpy.arange(100)
