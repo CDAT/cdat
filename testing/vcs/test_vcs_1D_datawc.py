@@ -5,7 +5,7 @@ src=sys.argv[1]
 pth = os.path.join(os.path.dirname(__file__),"..")
 sys.path.append(pth)
 
-import vcs.vcs.vcs.testing.regression as regression
+import vcs.testing.regression as regression
 
 x = regression.init()
 yx =x.createyxvsx()

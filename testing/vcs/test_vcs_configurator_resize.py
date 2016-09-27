@@ -21,7 +21,7 @@ png_writer.Write()
 
 import sys, os
 if len(sys.argv) > 1:
-    import vcs.vcs.vcs.testing.regression as regression
+    import vcs.testing.regression as regression
     src = sys.argv[1]
     ret = regression.check_result_image(fnm, src)
     sys.exit(ret)

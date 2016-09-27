@@ -1,4 +1,4 @@
-import os, sys, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, vcs, vcs.testing.regression as regression
 
 x = regression.init()
 x.setcolormap("classic")

@@ -3,7 +3,7 @@ import os
 import sys
 import vcs
 
-import vcs.vcs.vcs.testing.regression as regression
+import vcs.testing.regression as regression
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))

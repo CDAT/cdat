@@ -1,5 +1,5 @@
 
-import sys, os, vcs, MV2, vcs.vcs.vcs.testing.regression as regression
+import sys, os, vcs, MV2, vcs.testing.regression as regression
 
 data = MV2.array([[-0.50428531,-0.8505522 ,],
  [ 0.70056821,-0.27235352,],

@@ -1,4 +1,4 @@
-import os, sys, numpy, MV2, cdms2, vcs.vcs.vcs.testing.regression as regression
+import os, sys, numpy, MV2, cdms2, vcs.testing.regression as regression
 
 s= numpy.sin(numpy.arange(100))
 s = numpy.reshape(s,(10,10))
