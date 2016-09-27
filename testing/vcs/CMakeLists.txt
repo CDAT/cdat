@@ -455,6 +455,31 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ENDFOREACH()
   ENDFOREACH()
 
+  FOREACH(zoom 1. .5 1.5)
+      FOREACH(xoff 0 .25 -.25)
+          FOREACH(yoff 0 .25 -.25)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
+      FOREACH(xoff 0 250 -250)
+          FOREACH(yoff 0 250 -250)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_pixels_False
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -u pixels
+                  -H False
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
+  ENDFOREACH()
+
   # NOTE Fix baseline name
   cdat_add_test(test_vcs_meshfill_regular_grid
     "${PYTHON_EXECUTABLE}"
