@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 x = regression.init()
 f = cdms2.open(vcs.sample_data+"/ta_ncep_87-6-88-4.nc")

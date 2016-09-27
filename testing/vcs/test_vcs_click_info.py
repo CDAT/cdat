@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 testConfig = {'a_boxfill': ('clt.nc', 'clt', (200, 200)),
               'a_mollweide_boxfill': ('clt.nc', 'clt', (222, 322)),

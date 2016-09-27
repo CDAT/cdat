@@ -1,4 +1,4 @@
-import cdms2, os, sys, vcs, cdtime, vcs.vcs.vcs.testing.regression as regression
+import cdms2, os, sys, vcs, cdtime, vcs.testing.regression as regression
 
 # Test that we can restrict the plot using datawc along a time axis
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))

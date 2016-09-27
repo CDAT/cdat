@@ -1,4 +1,4 @@
-import os, sys, numpy, vcs, vcs.vcs.vcs.testing.regression as regression
+import os, sys, numpy, vcs, vcs.testing.regression as regression
 
 x = regression.init()
 

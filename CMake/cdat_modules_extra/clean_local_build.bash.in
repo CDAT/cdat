@@ -3,4 +3,4 @@
 echo "Clean build directory:"@CMAKE_BINARY_DIR@
 cd @CMAKE_BINARY_DIR@
 rm -rf CMake* CTestTestfile.cmake  DartConfiguration.tcl  Makefile testing/ Testing/ cmake_install.cmake version CDAT-prefix
-rm -rf usr cdms  cdtime  cdutil  distarray  dv3d  genutil  testing  thermo  unidata  uvcdat-testdata  vcs  vcsaddons  wk  xmgrace
+rm -rf usr cdms  cdtime  cdutil  distarray  dv3d  genutil  testing  thermo  unidata   vcs  vcsaddons  wk  xmgrace
