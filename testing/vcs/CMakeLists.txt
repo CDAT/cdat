@@ -455,6 +455,10 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ENDFOREACH()
   ENDFOREACH()
 
+  cdat_add_test(test_vcs_custom_logo
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_custom_logo.py
+      ${BASELINE_DIR}/test_vcs_custom_logo.png)
+
   cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_percent_True
       "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
       -z 1.0
