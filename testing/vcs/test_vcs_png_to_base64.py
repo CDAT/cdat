@@ -15,7 +15,7 @@ display = x.plot(m, bg=1)
 
 success = 0
 try:
-    display._repr_png()
+    display._repr_png_()
 except Exception as exc:
     print "Conversion to base64 binary string failed.", exc
     success = 1
