@@ -15,7 +15,7 @@ p.add_argument("-s","--source",default="./somefile.png")
 
 args = p.parse_args(sys.argv[1:])
 print args
-bg=False
+bg=True
 x=vcs.init(bg=bg,geometry=(1200,800))
 x.open()
 png = os.path.join(sys.prefix,"share","uvcdat","sample_data","BlueMarble.ppm")

@@ -455,9 +455,23 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ENDFOREACH()
   ENDFOREACH()
 
-  FOREACH(zoom 1. .5 1.5)
-      FOREACH(xoff 0 .25 -.25)
-          FOREACH(yoff 0 .25 -.25)
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_percent_True
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_percent_True.png)
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_pixels_False
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -u pixels
+      -H
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_pixels_False.png)
+  FOREACH(zoom .5 1.5)
+      FOREACH(xoff -25.0 25.0)
+          FOREACH(yoff 25.0 -25.0)
               cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True
                   "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
                   -z ${zoom}
@@ -466,15 +480,15 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
                   -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
           ENDFOREACH()
       ENDFOREACH()
-      FOREACH(xoff 0 250 -250)
-          FOREACH(yoff 0 250 -250)
+      FOREACH(xoff 250.0 -250.0)
+          FOREACH(yoff 250.0 -250.0)
               cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_pixels_False
                   "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
                   -z ${zoom}
                   -x ${xoff}
                   -y ${yoff}
                   -u pixels
-                  -H False
+                  -H
                   -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
           ENDFOREACH()
       ENDFOREACH()
