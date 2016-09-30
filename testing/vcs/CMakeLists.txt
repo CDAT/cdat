@@ -967,6 +967,13 @@ cdat_add_test(test_vcs_settings_color_name_rgba
        )
    endforeach()
 
+   cdat_add_test(test_vcs_isofill_level3
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_levels.py
+     "${BASELINE_DIR}/test_vcs_isofill_level3.png"
+     "${UVCDAT_GIT_TESTDATA_DIR}/data/masked-file.nc"
+     3
+     )
   cdat_add_test(test_vcs_issue_960_labels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
