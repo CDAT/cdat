@@ -455,6 +455,49 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ENDFOREACH()
   ENDFOREACH()
 
+  cdat_add_test(test_vcs_custom_logo
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_custom_logo.py
+      ${BASELINE_DIR}/test_vcs_custom_logo.png)
+
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_percent_True
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_percent_True.png)
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_pixels_False
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -u pixels
+      -H
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_pixels_False.png)
+  FOREACH(zoom .5 1.5)
+      FOREACH(xoff -25.0 25.0)
+          FOREACH(yoff 25.0 -25.0)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
+      FOREACH(xoff 250.0 -250.0)
+          FOREACH(yoff 250.0 -250.0)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_pixels_False
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -u pixels
+                  -H
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
+  ENDFOREACH()
+
   # NOTE Fix baseline name
   cdat_add_test(test_vcs_meshfill_regular_grid
     "${PYTHON_EXECUTABLE}"
@@ -931,8 +974,6 @@ cdat_add_test(test_vcs_settings_color_name_rgba
      "${UVCDAT_GIT_TESTDATA_DIR}/data/masked-file.nc"
      3
      )
-
-   
   cdat_add_test(test_vcs_issue_960_labels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
