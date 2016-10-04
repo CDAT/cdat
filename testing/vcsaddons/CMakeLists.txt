@@ -92,3 +92,9 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
     ${BASELINE_DIR}/test_vcs_addons_EzTemplate_2x2.png
   )
 endif()
+cdat_add_test(vcs_addons_test_pcoords
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcsaddons/test_vcs_addons_pcoords.py
+  ${BASELINE_DIR}/../../data/vcsaddons/pcoords.nc
+  ${BASELINE_DIR}/testParallelCoordinates.png
+)
