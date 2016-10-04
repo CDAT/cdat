@@ -2,11 +2,10 @@ import vtk
 
 
 class Pattern(object):
-    def __init__(self, width, height, num_pixels, colors, style, opacity):
-        self.width = width
-        self.height = height
+    def __init__(self, patternPolyData, xres, yres, colors, style, opacity):
+        self.patternPolyData = patternPolyData
+        self.size = [xres, yres]
         self.colors = [int(c / 100. * 255) for c in colors]
-        self.num_pixels = num_pixels
         self.style = style
         if self.style != "hatch":
             self.colors = [0, 0, 0]
@@ -14,108 +13,159 @@ class Pattern(object):
             self.opacity = int(opacity / 100. * 255)
         else:
             self.opacity = 255
+        self.rgba = self.colorTuple()
 
     def render(self):
         """
         Returns vtkImageData for pattern
         """
-        patternSource = vtk.vtkImageCanvasSource2D()
-        patternSource.SetScalarTypeToUnsignedChar()
-        patternSource.SetExtent(0, self.width, 0, self.height, 0, 0)
-        patternSource.SetNumberOfScalarComponents(4)
-        patternSource.SetDrawColor(255, 255, 255, 0)
-        patternSource.FillBox(0, self.width, 0, self.height)
-        patternSource.SetDrawColor(self.colors[0],
-                                   self.colors[1],
-                                   self.colors[2],
-                                   self.opacity)
-        self.paint(patternSource)
-        patternSource.Update()
-        return patternSource.GetOutput()
+        cells = vtk.vtkCellArray()
+        self.patternPolyData.SetPolys(cells)
+        colors = vtk.vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(4)
+        colors.SetName("Colors")
+        self.patternPolyData.GetCellData().SetScalars(colors)
+        self.paint()
 
-    def paint(self, pattern):
+    def paint(self):
         raise NotImplementedError(
             "paint() not implemented for %s" % str(
                 type(self)))
 
+    def colorTuple(self):
+        """
+        Returns a 4 component color tuple (RGBA)
+        """
+        color = self.colors[0:3]
+        color.append(self.opacity)
+        return color
+
 
 class BottomLeftTri(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        for x in xrange(0, self.width, self.num_pixels):
-            for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillTriangle(x, y,
-                                           x + self.num_pixels * 3 / 4, y,
-                                           x, y + self.num_pixels * 3 / 4)
+        cells = self.patternPolyData.GetPolys()
+        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 3))
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        cell = [0, 0, 0]
+        for i in range(0, self.size[1], 2):
+            for j in range(0, self.size[0], 2):
+                cell[0] = j + i * (self.size[0] + 1)
+                cell[1] = cell[0] + 1
+                cell[2] = cell[0] + self.size[0] + 1
+                cells.InsertNextCell(3, cell)
+                colors.InsertNextTypedTuple(self.rgba)
 
 
 class TopRightTri(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        for x in xrange(0, self.width, self.num_pixels):
-            for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillTriangle(x + self.num_pixels, y + self.num_pixels,
-                                           x + self.num_pixels / 4, y + self.num_pixels,
-                                           x + self.num_pixels, y + self.num_pixels * 1 / 4)
+        cells = self.patternPolyData.GetPolys()
+        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 3))
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        cell = [0, 0, 0]
+        for i in range(0, self.size[1], 2):
+            for j in range(0, self.size[0], 2):
+                cell[0] = j + i * (self.size[0] + 1)
+                cell[1] = cell[0] + self.size[0] + 1
+                cell[2] = cell[1] + 1
+                cells.InsertNextCell(3, cell)
+                colors.InsertNextTypedTuple(self.rgba)
 
 
 class SmallRectDot(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        for x in xrange(0, self.width, self.num_pixels):
-            for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillBox(x + self.num_pixels / 4, x + self.num_pixels * 3 / 4,
-                                      y + self.num_pixels / 4, y + self.num_pixels * 3 / 4)
-
-
-class CheckerBoard(Pattern):
-
-    def paint(self, patternSource):
-        if patternSource is None:
-            return None
-        for x in xrange(0, self.width, self.num_pixels):
-            for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillBox(x, x + self.num_pixels / 2,
-                                      y, y + self.num_pixels / 2)
-                patternSource.FillBox(x + self.num_pixels / 2, x + self.num_pixels,
-                                      y + self.num_pixels / 2, y + self.num_pixels)
+        cells = self.patternPolyData.GetPolys()
+        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 4))
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        cell = [0, 0, 0, 0]
+        for i in range(0, self.size[1], 2):
+            for j in range(0, self.size[0], 2):
+                cell[0] = j + i * (self.size[0] + 1)
+                cell[1] = cell[0] + 1
+                cell[2] = cell[0] + self.size[0] + 2
+                cell[3] = cell[2] - 1
+                cells.InsertNextCell(4, cell)
+                colors.InsertNextTypedTuple(self.rgba)
 
 
 class HorizStripe(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        patternLevels = range(0, self.height, self.num_pixels)
-        for lev in patternLevels:
-            patternSource.FillBox(0, self.width, lev + self.num_pixels / 4, lev + self.num_pixels * 3 / 4)
+        cells = self.patternPolyData.GetPolys()
+        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 4))
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        cell = [0, 0, 0, 0]
+        for i in range(0, self.size[1], 2):
+            for j in range(0, self.size[0], 1):
+                cell[0] = j + i * (self.size[0] + 1)
+                cell[1] = cell[0] + 1
+                cell[2] = cell[1] + self.size[0] + 1
+                cell[3] = cell[2] - 1
+                cells.InsertNextCell(4, cell)
+                colors.InsertNextTypedTuple(self.rgba)
 
 
 class VertStripe(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        patternLevels = range(0, self.width, self.num_pixels)
-        for lev in patternLevels:
-            patternSource.FillBox(lev + self.num_pixels / 4, lev + self.num_pixels * 3 / 4, 0, self.height)
+        cells = self.patternPolyData.GetPolys()
+        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 4))
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        cell = [0, 0, 0, 0]
+        for i in range(0, self.size[1], 1):
+            for j in range(0, self.size[0], 2):
+                cell[0] = j + i * (self.size[0] + 1)
+                cell[1] = cell[0] + 1
+                cell[2] = cell[1] + self.size[0] + 1
+                cell[3] = cell[2] - 1
+                cells.InsertNextCell(4, cell)
+                colors.InsertNextTypedTuple(self.rgba)
 
 
 class HorizDash(Pattern):
 
-    def paint(self, patternSource):
-        if patternSource is None:
+    def paint(self):
+        if self.patternPolyData is None:
             return None
-        for x in xrange(0, self.width, self.num_pixels):
-            for y in xrange(0, self.height, self.num_pixels):
-                patternSource.FillBox(x, x + self.num_pixels * 3 / 4,
-                                      y, y + self.num_pixels / 4)
+        r = vtk.vtkRegularPolygonSource()
+        g = vtk.vtkGlyph2D()
+        g.SetInputData(self.patternPolyData)
+        g.SetSourceConnection(r.GetOutputPort())
+        g.Update()
+        self.patternPolyData = g.GetOutput()
+#        colors = self.patternPolyData.GetPointData().GetScalars("Colors")
+#        if colors is None:
+#            colors = vtk.vtkUnsignedCharArray()
+#            colors.SetName("Colors")
+#            colors.SetNumberOfComponents(4)
+#            self.patternPolyData.GetPointData().SetScalars(colors)
+#        for i in range(self.patternPolyData.GetNumberOfPoints()):
+#            colors.InsertNextTypedTuple(self.rgba)
+
+#        cells = self.patternPolyData.GetPolys()
+#        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 4))
+#        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+#        cell = [0, 0, 0, 0]
+#        for i in range(0, self.size[1], 2):
+#            for j in range(0, self.size[0], 3):
+#                cell[0] = j + i * (self.size[0] + 1)
+#                cell[1] = cell[0] + 2
+#                cell[2] = cell[1] + self.size[0] + 1
+#                cell[3] = cell[2] - 2
+#                cells.InsertNextCell(4, cell)
+#                colors.InsertNextTypedTuple(self.rgba)
 
 
 class VertDash(Pattern):
@@ -339,7 +389,7 @@ class EmptyCircle(Pattern):
 
 
 # Patterns are 1-indexed, so we always skip the 0th element in this list
-pattern_list = [Pattern, BottomLeftTri, TopRightTri, SmallRectDot, CheckerBoard,
+pattern_list = [Pattern, BottomLeftTri, TopRightTri, SmallRectDot,
                 HorizStripe, VertStripe, HorizDash, VertDash, XDash, ThinDiagDownRight,
                 ThickDiagRownRight, ThinDiagUpRight, ThickDiagUpRight, ThickThinVertStripe,
                 ThickThinHorizStripe, LargeRectDot, Diamond, Bubble, Snake, EmptyCircle]
