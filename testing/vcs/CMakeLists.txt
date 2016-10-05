@@ -64,6 +64,13 @@ cdat_add_test(test_vcs_fillarea_transparency
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_transparency.py
   "${BASELINE_DIR}/test_vcs_fillarea_transparency.png"
 )
+
+cdat_add_test(test_drawLinesAndMarkersLegend
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_drawLinesAndMarkersLegend.py
+    "${BASELINE_DIR}/test_drawLinesAndMarkersLegend.png"
+    )
+
 cdat_add_test(test_vcs_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
