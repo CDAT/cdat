@@ -31,18 +31,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 
     xres = int(xBounds/2)
     yres = int(yBounds/2)
-#    if size is not None and len(size) == 2:
-#        if size[0] > size[1]:
-#            yres = 20
-#            xres = size[0] * 20 / size[1]
-#        else:
-#            xres = 20
-#            yres = size[1] * 20 / size[0]
-#    else:
-#        xres = 5
-#        yres = 5
 
-    numPts = (xres+1) * (yres+1)
+    numPts = (xres-1) * (yres-1)
     patternPts.Allocate(numPts)
     normals = vtk.vtkFloatArray()
     normals.SetName("Normals")
@@ -59,9 +49,9 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     v2 = [bounds[1] - bounds[0], 0.0]
     normal = [0.0, 0.0, 1.0]
     numPt = 0
-    for i in range(yres+1):
+    for i in range(1, yres):
         tc[0] = i * 1.0 / yres
-        for j in range(xres+1):
+        for j in range(1, xres):
             tc[1] = j * 1.0 / xres
             for ii in range(2):
                 x[ii] = bounds[2*ii] + tc[0] * v1[ii] + tc[1] * v2[ii]
@@ -77,8 +67,8 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 #    patternPlane.SetPoint1(bounds[0], bounds[3], 0.0)
 #    patternPlane.SetPoint2(bounds[1], bounds[2], 0.0)
 #    if size is not None and len(size) == 2:
-#        patternPlane.SetXResolution(size[0])
-#        patternPlane.SetYResolution(size[1])
+#        patternPlane.SetXResolution(yres)
+#        patternPlane.SetYResolution(xres)
 #
 #    patternPlane.Update()
 #    patternPolyData = patternPlane.GetOutput()
@@ -145,13 +135,20 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
 #    patternTexture.InterpolateOn()
 #    patternTexture.RepeatOn()
 
-    ctp = vtk.vtkCellDataToPointData()
-    ctp.SetInputData(inputContours)
-    ctp.Update()
+    # Handle special case of legend
+    # Here there are no contours, so no point data
+    p = vtk.vtkPolyData()
+    p.DeepCopy(inputContours)
+    if inputContours.GetPointData().GetNumberOfArrays() == 0:
+        ctp = vtk.vtkCellDataToPointData()
+        ctp.SetInputData(inputContours)
+        ctp.Update()
+        p.DeepCopy(ctp.GetOutput())
     # Now that the polydata has been created,
     # clip it using the input contour
     implicitFn = vtk.vtkImplicitDataSet()
-    implicitFn.SetDataSet(ctp.GetOutput())
+    implicitFn.SetDataSet(p)
+    implicitFn.SetOutValue(-1.0)
     clipFilter = vtk.vtkClipPolyData()
     clipFilter.SetInputData(patternPolyData)
     clipFilter.SetClipFunction(implicitFn)
