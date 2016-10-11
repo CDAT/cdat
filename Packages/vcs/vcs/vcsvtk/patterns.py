@@ -139,20 +139,30 @@ class HorizDash(Pattern):
     def paint(self):
         if self.patternPolyData is None:
             return None
-        r = vtk.vtkRegularPolygonSource()
+        bounds = self.patternPolyData.GetBounds()
+        xb = bounds[1] - bounds[0]
+        yb = bounds[3] - bounds[2]
+        xscale = xb / self.size[0]
+        yscale = yb / self.size[1]
+        glyphSource = vtk.vtkGlyphSource2D()
+        glyphSource.SetGlyphTypeToDash()
+        glyphSource.SetScale(6 * max(xscale, yscale))
+        glyphSource.FilledOn()
+
         g = vtk.vtkGlyph2D()
         g.SetInputData(self.patternPolyData)
-        g.SetSourceConnection(r.GetOutputPort())
+        g.SetSourceConnection(glyphSource.GetOutputPort())
+        g.ScalingOff()
         g.Update()
-        self.patternPolyData = g.GetOutput()
-#        colors = self.patternPolyData.GetPointData().GetScalars("Colors")
-#        if colors is None:
-#            colors = vtk.vtkUnsignedCharArray()
-#            colors.SetName("Colors")
-#            colors.SetNumberOfComponents(4)
-#            self.patternPolyData.GetPointData().SetScalars(colors)
-#        for i in range(self.patternPolyData.GetNumberOfPoints()):
-#            colors.InsertNextTypedTuple(self.rgba)
+        self.patternPolyData.DeepCopy(g.GetOutput())
+        colors = self.patternPolyData.GetCellData().GetScalars("Colors")
+        if colors is None:
+            colors = vtk.vtkUnsignedCharArray()
+            colors.SetName("Colors")
+            colors.SetNumberOfComponents(4)
+            self.patternPolyData.GetCellData().SetScalars(colors)
+        for i in range(self.patternPolyData.GetNumberOfCells()):
+            colors.InsertNextTypedTuple(self.rgba)
 
 #        cells = self.patternPolyData.GetPolys()
 #        cells.Allocate(cells.EstimateSize(self.size[0] * self.size[1], 4))
