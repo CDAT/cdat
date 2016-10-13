@@ -33,7 +33,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     xres = int(xBounds / 2)
     yres = int(yBounds / 2)
 
-    numPts = (xres - 1) * (yres - 1)
+    numPts = (xres + 1) * (yres + 1)
     patternPts.Allocate(numPts)
     normals = vtk.vtkFloatArray()
     normals.SetName("Normals")
@@ -50,9 +50,9 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     v2 = [bounds[1] - bounds[0], 0.0]
     normal = [0.0, 0.0, 1.0]
     numPt = 0
-    for i in range(1, yres):
+    for i in range(yres + 1):
         tc[0] = i * 1.0 / yres
-        for j in range(1, xres):
+        for j in range(xres + 1):
             tc[1] = j * 1.0 / xres
             for ii in range(2):
                 x[ii] = bounds[2 * ii] + tc[0] * v1[ii] + tc[1] * v2[ii]
@@ -81,7 +81,7 @@ def make_patterned_polydata(inputContours, fillareastyle=None,
     # clip it using the input contour
     implicitFn = vtk.vtkImplicitDataSet()
     implicitFn.SetDataSet(p)
-    implicitFn.SetOutValue(-1.0)
+    implicitFn.SetOutValue(-1e3)
     clipFilter = vtk.vtkClipPolyData()
     clipFilter.SetInputData(patternPolyData)
     clipFilter.SetClipFunction(implicitFn)
