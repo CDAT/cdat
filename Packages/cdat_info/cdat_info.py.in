@@ -136,8 +136,11 @@ def pingPCMDIdb(*args, **kargs):
     import threading
     kargs['target'] = pingPCMDIdbThread
     kargs['args'] = args
-    t = threading.Thread(**kargs)
-    t.start()
+    try:
+        t = threading.Thread(**kargs)
+        t.start()
+    except:
+        pass
 
 
 def pingPCMDIdbThread(*args, **kargs):
@@ -145,15 +148,17 @@ def pingPCMDIdbThread(*args, **kargs):
     kargs['target'] = submitPing
     kargs['args'] = args
     t = threading.Thread(**kargs)
-    t.start()
-    import time
-    time.sleep(5)  # Lets wait 5 seconds top for this ping to work
-    if t.isAlive():
-        try:
-            t._Thread__stop()
-        except:
-            pass
-
+    try:
+        t.start()
+        import time
+        time.sleep(5)  # Lets wait 5 seconds top for this ping to work
+        if t.isAlive():
+            try:
+                t._Thread__stop()
+            except:
+                pass
+    except:
+        pass
 
 def submitPing(source, action, source_version=None):
     try:
