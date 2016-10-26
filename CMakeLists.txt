@@ -313,7 +313,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/clean_local_build.bas
     ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
     @ONLY
     )
-add_subdirectory(testing)
 
 # Clean conda env
 add_custom_target(clean-conda
@@ -324,3 +323,30 @@ add_custom_target(clean-conda
 add_custom_target(clean-local
     COMMAND ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
     )
+
+# Let's clone the repos so that we can add test suites...
+set(GIT_REPOS "cdat_info;cdtime;cdms;esg;dv3d;vcs;vcsaddons;cdutil;unidata;xmgrace;genutil;thermo;wk;distarray")
+foreach(gpkg ${GIT_REPOS})
+    message("[INFO] cloning repo: ${gpkg}")
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" clone git://github.com/UV-CDAT/${gpkg}
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+    message("[INFO] checking out branch ${CHECKOUT_BRANCH}")
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" pull
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}/${gpkg}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" checkout ${CHECKOUT_BRANCH}
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}/${gpkg}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+endforeach()
+# Now we can add testing directory
+add_subdirectory(testing)
