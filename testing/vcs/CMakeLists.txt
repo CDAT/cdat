@@ -981,6 +981,12 @@ cdat_add_test(test_vcs_settings_color_name_rgba
      "${UVCDAT_GIT_TESTDATA_DIR}/data/masked-file.nc"
      3
      )
+   cdat_add_test(test_vcs_isofill_masked_bounds
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_masked_bounds.py
+     "${BASELINE_DIR}/test_vcs_isofill_masked_bounds.png"
+     "${UVCDAT_GIT_TESTDATA_DIR}/data/coads_climatology.nc"
+     )
   cdat_add_test(test_vcs_issue_960_labels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
