@@ -5,10 +5,8 @@
 source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
 
 for pkg in cdat_info cdtime cdms esg dv3d vcs vcsaddons cdutil unidata xmgrace genutil thermo wk distarray; do
-    cd @cdat_BINARY_DIR@
-    git clone git://github.com/UV-CDAT/${pkg}
-    cd ${pkg}
-    git checkout @CHECKOUT_BRANCH@
+    cd @cdat_BINARY_DIR@/${pkg}
+    git pull
     rm -rf build
     if [ ${pkg} == "vcs" ]; then
         python setup.py install --old-and-unmanageable
