@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-@CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c @CONDA_CHANNEL_UVCDAT@  ipython libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>=4.9.2 vtk@CONDA_NOX@ libcdms flake8 requests numpy==1.9.2 hdf5=1.8.16 cycler matplotlib --show-channel-urls --copy
+@CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c @CONDA_CHANNEL_UVCDAT@  ipython libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>=4.9.2 vtk@CONDA_NOX@ libcdms flake8 requests numpy hdf5=1.8.16 cycler matplotlib --show-channel-urls --copy
 
 source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
 
 for pkg in cdat_info cdtime cdms esg dv3d vcs vcsaddons cdutil unidata xmgrace genutil thermo wk distarray; do
-    cd @cdat_BINARY_DIR@
-    git clone git://github.com/UV-CDAT/${pkg}
-    cd ${pkg}
-    git checkout @CHECKOUT_BRANCH@
+    cd @cdat_BINARY_DIR@/${pkg}
+    git pull
     rm -rf build
     if [ ${pkg} == "vcs" ]; then
         python setup.py install --old-and-unmanageable
