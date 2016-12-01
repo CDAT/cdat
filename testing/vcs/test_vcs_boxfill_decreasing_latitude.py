@@ -52,4 +52,5 @@ gm.datawc_y2 = 30
 gm.datawc_y1 = 90
 
 x.plot(ice, gm, tmpl, bg=1)
-regression.run(x, "test_boxfill_decreasing_latitude.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

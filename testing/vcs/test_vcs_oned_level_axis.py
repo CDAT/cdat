@@ -5,5 +5,5 @@ ta = f("ta",time=slice(0,1),squeeze=1)
 ta = cdutil.averager(ta,axis="yx")
 x = regression.init()
 x.plot(ta,bg=1)
-fnm = "test_oned_level_axis.png"
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 regression.run(x, fnm)

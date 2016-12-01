@@ -14,5 +14,5 @@ b.levels=i.levels
 b.fillareacolors=i.fillareacolors
 b.boxfill_type="custom"
 x.plot(s,b,bg=1)
-fnm = "test_celine_iso_2.png"
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 regression.run(x, fnm)

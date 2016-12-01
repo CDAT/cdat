@@ -12,5 +12,5 @@ x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.plot(s,bg=1)
-fnm = "infinity.png"
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 regression.run(x, fnm)

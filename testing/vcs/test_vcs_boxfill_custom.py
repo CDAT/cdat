@@ -19,4 +19,5 @@ canvas.plot(clt, boxfill, bg=1)
 
 # Load the image testing module:
 # Create the test image and compare:
-regression.run(canvas, "test_boxfill_custom.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(canvas, fnm)

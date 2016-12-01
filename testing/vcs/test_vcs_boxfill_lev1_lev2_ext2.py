@@ -8,4 +8,5 @@ b.level_1 = 20
 b.level_2 = 80
 b.ext_2 = "y"
 x.plot(s, b, bg=1)
-regression.run(x, "test_boxfill_lev1_lev2_ext2.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

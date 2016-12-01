@@ -124,7 +124,7 @@ class vcsTest:
     def test( self, interactive=False ):
         self.build()
 #        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
-        test_image = '.'.join( [ self.name, 'test', 'png' ] )
+        test_image = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image, width = 900, height = 600 )
 
         ret = regression.check_result_image( test_image, self.image_name,\
