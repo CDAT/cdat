@@ -82,7 +82,7 @@ for sec in secondaries:
         except:
             print "Scriptrun broke on " + sec.s_name
             os.remove(scr)
-            # sys.exit(1)
+            sys.exit(1)
         else:
             if sec.s_name == 'To':
                 getfunc = vcs.gettextorientation
@@ -112,5 +112,6 @@ for sec in secondaries:
                     print comp[1] + " for " + sec.s_name
                 else:
                     print "Scriptrun failed: " + comp[1]
+                    sys.exit(1)
     if os.path.exists(scr):
         os.remove(scr)
