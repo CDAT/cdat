@@ -8,4 +8,5 @@ b = x.createboxfill()
 b.level_1 = -40
 b.level_2 = 40
 x.plot(s, b, bg=1)
-regression.run(x, "test_boxfill_lev1_lev2_ta_missing.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

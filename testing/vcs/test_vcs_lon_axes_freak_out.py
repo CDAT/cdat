@@ -8,4 +8,5 @@ x = regression.init()
 x.plot(s,bg=1)
 x.clear()
 x.plot(s3,bg=1)
-regression.run(x, "test_lon_axes_freak_out.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

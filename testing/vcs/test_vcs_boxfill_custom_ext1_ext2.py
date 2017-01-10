@@ -21,6 +21,6 @@ boxfill.ext_2="y"
 boxfill.fillareacolors=vcs.getcolors(boxfill.levels)
 
 canvas.plot(clt, boxfill, bg=1)
-
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 # Load the image testing module:
-regression.run(canvas, "test_boxfill_custom_ext1_ext2.png")
+regression.run(canvas, fnm)

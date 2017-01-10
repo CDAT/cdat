@@ -10,5 +10,5 @@ x.setcolormap("classic")
 x.scriptrun(os.path.join(pth0,"celine.json"))
 i = x.getisofill("celine")
 x.plot(s,i,bg=1)
-fnm = "test_celine_iso.png"
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 regression.run(x, fnm)

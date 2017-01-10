@@ -11,5 +11,5 @@ gm = x.createyxvsx('test_yxvsx')
 
 gm.marker = None
 x.plot(gm, dummy_data,bg=1)
-fnm = "test_remove_marker_none_1d.png"
+fnm = "test_vcs_remove_marker_none_1d.png"
 regression.run(x, fnm)

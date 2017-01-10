@@ -15,4 +15,5 @@ clt = clt(latitude=(-90.0, 90.0), longitude=(-180., 175.), squeeze=1,
 canvas = regression.init()
 canvas.setcolormap(vcs.matplotlib2vcs("viridis"))
 canvas.plot(clt, bg=1)
-regression.run(canvas, "test_matplotlib_colormap.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(canvas, fnm)
