@@ -23,9 +23,7 @@ f = doctest.DocTestFinder(exclude_empty=False)
 runner = doctest.DocTestRunner(optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
 objs = f.find(queries) # list of objects with non-empty docstrings
 failed = False
-doctest_failed = []
-no_doctest = []
-no_docstring = []
+doctest_failed, no_doctest, no_docstring = [], [], []
 if not os.path.isdir(vcs.sample_data):
     vcs.download_sample_data_files() # we need to have these for any example that uses slabs made from sample data
 for obj in objs:
@@ -46,7 +44,7 @@ for obj in objs:
         no_doctest.append(obj.name)
 cleanup() # testing done
 
-# Reporting section
+# Report summary for cdash
 if len(doctest_failed):
     print "FAILING DOCTESTS:"
     for name in doctest_failed:

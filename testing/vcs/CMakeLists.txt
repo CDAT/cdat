@@ -1197,6 +1197,10 @@ cdat_add_test(test_vcs_textextents
   ${BASELINE_DIR}/test_textextents.png
 )
 
+cdat_add_test(test_vcs_docstrings_queries
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_queries.py
+)
 
 
 add_subdirectory(vtk_ui)
