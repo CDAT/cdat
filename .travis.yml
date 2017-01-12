@@ -15,8 +15,6 @@ before_install:
 - conda install cmake
 script:
 - export NOX="OFF"
-# we need nightly so that we pick up post-release externals packages
-- export CONDA_XTRA="uvcdat/label/nightly -c uvcdat"
 - export NCPUS="4"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="uvcdat -c spyder-ide libxcb"; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
@@ -35,6 +33,7 @@ script:
 - echo "OFFSCREEN IS:"$NOX
 - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
 - make
+- conda list
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -VV -R download_sample_data ; fi
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -j$NCPUS -D Experimental -R vcs ; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ctest -j$NCPUS -D Experimental ; fi
