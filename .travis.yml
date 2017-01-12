@@ -17,7 +17,7 @@ script:
 - export NOX="OFF"
 - export NCPUS="4"
 - export CONDA_XTRA="uvcdat/label/nightly -c uvcdat"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA=${CONDA_XTRA}+" -c spyder-ide libxcb"; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA=${CONDA_XTRA}" -c spyder-ide libxcb"; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
 - echo $TRAVIS_BRANCH
 - export TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
@@ -33,6 +33,7 @@ script:
 - cd _build
 - echo "OFFSCREEN IS:"$NOX
 - cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
+- echo "CNODA EXTEAS WERE:"${CONDA_XTRA}
 - make
 - conda list
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -VV -R download_sample_data ; fi
