@@ -1,4 +1,4 @@
-from vcs import queries
+from vcs.line import Tl
 import vcs.utils
 import glob
 import os
@@ -21,7 +21,7 @@ def cleanup():
 
 f = doctest.DocTestFinder(exclude_empty=False)
 runner = doctest.DocTestRunner(optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
-objs = f.find(queries) # list of objects with non-empty docstrings
+objs = f.find(Tl) # list of objects with non-empty docstrings
 failed = False
 doctest_failed, no_doctest, no_docstring = [], [], []
 if not os.path.isdir(vcs.sample_data):
@@ -62,5 +62,5 @@ if len(no_docstring):
         print "\t" + name
 
 assert failed is False
-print ("All doctests passed for vcs.queries")
+print ("All doctests passed for vcs.line")
 
