@@ -432,6 +432,15 @@ cdat_add_test(test_vcs_missing_colorname
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
   "${BASELINE_DIR}/test_vcs_missing_colorname.png"
   )
+FOREACH(gm isofill boxfill meshfill)
+  cdat_add_test(test_vcs_missing_opacity_${gm}
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_opacity_gms.py"
+    --gm_type=${gm}
+    "--source=${BASELINE_DIR}/test_vcs_missing_opacity_${gm}.png"
+    "--threshold=15"
+    )
+ENDFOREACH(gm)
 cdat_add_test(test_vcs_geometry
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
