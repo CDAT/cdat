@@ -59,6 +59,9 @@ if args.gm == "boxfill":
 if args.gm == "meshfill":
     gm.mesh = True
 
+gm.fillareapixelspacing = [15, 15]
+gm.fillareapixelscale = 15.0
+
 nm_xtra = ""
 xtra = {}
 if args.lat1 != args.lat2:

@@ -47,6 +47,8 @@ fill_test.index = index_list
 fill_test.color = color_list
 fill_test.x = x_list
 fill_test.y = y_list
+fill_test.pixelspacing = [15, 15]
+fill_test.pixelscale = 15.0
 
 fill_info = x.createtext('fill_info')
 fill_info.angle = 45
