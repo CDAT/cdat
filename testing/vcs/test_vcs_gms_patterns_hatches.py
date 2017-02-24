@@ -1,4 +1,9 @@
-import argparse, os, sys, cdms2, vcs, vcs.testing.regression as regression
+import argparse
+import cdms2
+import os
+import sys
+import vcs
+import vcs.testing.regression as regression
 
 p = argparse.ArgumentParser(description="Patterns/hatches testing code for vcs gms")
 p.add_argument("--source", dest="src", help="source image file")
@@ -13,7 +18,7 @@ p.add_argument("--lon1", dest="lon1", default=-180, type=float, help="First Long
 p.add_argument("--lon2", dest="lon2", default=180, type=float, help="Last Longitude")
 p.add_argument("--keep", dest="keep", action="store_true", help="Save image, even if baseline matches.")
 p.add_argument("--threshold", dest="threshold", type=int, default=regression.defaultThreshold,
-        help="Default threshold")
+               help="Default threshold")
 p.add_argument("--non-contiguous", dest="contig", default=True, action="store_false", help="use non contiguous levels")
 
 args = p.parse_args(sys.argv[1:])
@@ -42,8 +47,8 @@ if args.projtype != "default":
 if args.contig:
     gm.levels = [220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320]
 else:
-    gm.levels = [[230,235],[240,245],[250,255],[260,265],[270,275],
-                 [280,285],[290,295],[300,305],[310,315],[320,325]]
+    gm.levels = [[230, 235], [240, 245], [250, 255], [260, 265], [270, 275],
+                 [280, 285], [290, 295], [300, 305], [310, 315], [320, 325]]
 gm.fillareastyle = args.fill_style
 gm.fillareacolors = [242, 244, 237, 248, 250, 252, 44, 243, 139, 247]
 if args.fill_style == "hatch":
@@ -58,6 +63,9 @@ if args.gm == "boxfill":
 
 if args.gm == "meshfill":
     gm.mesh = True
+
+gm.fillareapixelspacing = [15, 15]
+gm.fillareapixelscale = 15.0
 
 nm_xtra = ""
 xtra = {}
@@ -90,7 +98,7 @@ fnm += nm_xtra
 x.png(fnm)
 print "fnm:", fnm
 print "src:", src
-ret = regression.check_result_image(fnm+'.png', src,
+ret = regression.check_result_image(fnm + '.png', src,
                                     args.threshold,
                                     cleanup=not args.keep)
 if args.show:

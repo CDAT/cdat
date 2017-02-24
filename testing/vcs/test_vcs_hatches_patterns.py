@@ -1,4 +1,4 @@
-import os, sys, vcs, vcs.testing.regression as regression
+import vcs.testing.regression as regression
 
 x = regression.init()
 x.setcolormap("classic")
@@ -30,7 +30,7 @@ for j, style in enumerate(['pattern', 'hatch']):
 
         style_list.append(style)
         # Hatches/Patterns indices have to be in 1-20 range
-        index_list.append(i+1)
+        index_list.append(i + 1)
         col_idx = col_cycle[i % nb_cols]
         color_list.append(col_idx)
 
@@ -38,7 +38,7 @@ for j, style in enumerate(['pattern', 'hatch']):
         txt_x_list.append(x1 + 0.015)
         txt_y_list.append(y1 - 0.015)
         txt_str_list.append('%s = %i  -  Color = %i' %
-                            (style, i+1, col_idx))
+                            (style, i + 1, col_idx))
 
 # Create the fill area and the text annotations
 fill_test = x.createfillarea('fill_hatches_patterns')
@@ -47,6 +47,8 @@ fill_test.index = index_list
 fill_test.color = color_list
 fill_test.x = x_list
 fill_test.y = y_list
+fill_test.pixelspacing = [15, 15]
+fill_test.pixelscale = 15.0
 
 fill_info = x.createtext('fill_info')
 fill_info.angle = 45
