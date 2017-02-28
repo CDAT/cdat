@@ -652,7 +652,7 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       ENDFOREACH(ext1)
     ENDFOREACH(ori)
   ENDFOREACH(gm)
-  FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
+  FOREACH(gm boxfill isofill isoline vector streamline meshfill yxvsx xvsy xyvsy 1d scatter)
     cdat_add_test(test_vcs_basic_${gm}_transparent
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
@@ -1047,6 +1047,12 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
       "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
+      )
+    cdat_add_test(test_vcs_streamline_robinson
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+      "${BASELINE_DIR}/test_vcs_streamline_robinson.png"
+      "streamline"
       )
     cdat_add_test(test_vcs_vectors_robinson_wrap
       "${PYTHON_EXECUTABLE}"

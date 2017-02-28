@@ -67,7 +67,7 @@ if gm_type=="meshfill":
     f=cdms2.open(os.path.join(vcs.sample_data,'sampleCurveGrid4.nc'))
 else:
     f=cdms2.open(os.path.join(vcs.sample_data,'clt.nc'))
-if gm_type=="vector":
+if gm_type=="vector" or gm_type=="streamline":
     u=f("u",**xtra)
     v=f("v",**xtra)
     if args.mask:
@@ -105,14 +105,15 @@ if args.transparent:
     for i in range(256):  # tweaks all colors
         cmap.setcolorcell(i,100.,0,0,i/2.55)
     x.setcolormap(cmap)
-    if gm_type == "vector":
+    if gm_type == "vector" or gm_type=="streamline":
         gm.linecolor = [100, 0, 0, 50.]
     elif gm_type in ["yxvsx","xyvsy","yvsx","scatter","1d"]:
         gm.linecolor = [100, 0, 0, 50.]
         gm.markercolor = [100, 0, 0, 50.]
 
-if gm_type=="vector":
-    gm.scale = 4.
+if gm_type=="vector" or gm_type=='streamline':
+    if (gm_type=="vector"):
+        gm.scale = 4.
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
     x.plot(s,s2,gm,bg=bg)
