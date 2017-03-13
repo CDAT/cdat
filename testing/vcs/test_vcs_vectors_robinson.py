@@ -5,8 +5,12 @@ x = regression.init()
 f = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
 u = f("u")
 v = f("v")
-if (len(sys.argv) == 3 and sys.argv[2] == 'streamline'):
+if (len(sys.argv) >= 3 and sys.argv[2] == 'streamline'):
     V = x.createstreamline()
+    if (len(sys.argv) >= 4 and sys.argv[3] == 'colored'):
+        V.coloredbyvector = True
+    else:
+        V.coloredbyvector = False
 else:
     V = x.createvector()
 p = x.createprojection()

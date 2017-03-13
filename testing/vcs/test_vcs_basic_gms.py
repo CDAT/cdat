@@ -14,6 +14,7 @@ p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="S
 p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
 p.add_argument("--transparent", dest="transparent", action="store_true",help="Add transparency to colors")
+p.add_argument("--colored", dest="colored", action="store_true",help="Streamlines are colored")
 
 dataMods = p.add_mutually_exclusive_group()
 dataMods.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
@@ -114,12 +115,16 @@ if args.transparent:
 if gm_type=="vector" or gm_type=='streamline':
     if (gm_type=="vector"):
         gm.scale = 4.
+    if not args.colored:
+        gm.coloredbyvector = False
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
     x.plot(s,s2,gm,bg=bg)
 else:
     x.plot(s,gm,bg=bg)
 fnm = "test_vcs_basic_%s" % gm_type.lower()
+if (args.colored):
+    fnm += "_colored"
 if args.mask:
     fnm+="_masked"
 elif args.bigvalues:
