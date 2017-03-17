@@ -1080,6 +1080,12 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       "${BASELINE_DIR}/test_vcs_streamline_colored_robinson.png"
       "streamline" "colored"
       )
+    cdat_add_test(test_vcs_streamline_colored_count_robinson
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+      "${BASELINE_DIR}/test_vcs_streamline_colored_count_robinson.png"
+      "streamline" "colored" "count"
+      )
     cdat_add_test(test_vcs_vectors_robinson_wrap
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson_wrap.py

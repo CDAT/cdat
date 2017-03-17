@@ -11,6 +11,10 @@ if (len(sys.argv) >= 3 and sys.argv[2] == 'streamline'):
         V.coloredbyvector = True
     else:
         V.coloredbyvector = False
+    if (len(sys.argv) >= 5 and sys.argv[4] == 'count'):
+        V.numberofglyphs = 10
+        V.numberofseeds = 3
+        V.filledglyph = False
 else:
     V = x.createvector()
 p = x.createprojection()
