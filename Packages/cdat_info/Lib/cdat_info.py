@@ -1,12 +1,13 @@
 import subprocess
 
-GIT_DESCRIBE = subprocess.Popen(["git","describe","--tag"],stdout=subprocess.PIPE).stdout.read().strip()
-Version = GIT_DESCRIBE
+import version
+Version = version.__describe__
 ping_checked = False
 check_in_progress = False
 
 
 def version():
+    print "VERSION:",Version
     sp = Version.split("-")
     vnm = "-".join(sp[:-2])
     vlist = vnm.split(".") + sp[-2:]
@@ -219,10 +220,10 @@ def download_sample_data_files(files_md5,path=None):
     """
     import requests
     import hashlib
-    if not os..path.exists(files_md5) or os.path.isdir(files_md5):
+    if not os.path.exists(files_md5) or os.path.isdir(files_md5):
         raise RuntimeError("Invalid file type for list of files: %s" % files_md5)
     if path is None:
-        path = os.environ.get("UVCDAT_SETUP_PATH",os.path.join(sys.prefix,"share","sample_data"))
+        path = get_sampledata_path()
     samples = open(files_md5).readlines()
     download_url_root = samples[0].strip()
     for sample in samples[1:]:
