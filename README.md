@@ -1,7 +1,7 @@
 uvcdat
 ======
 [![build status](https://travis-ci.org/UV-CDAT/uvcdat.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat/builds)
-[![stable version](https://img.shields.io/badge/stable%20version-2.8.0-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/2.8.0)
+[![stable version](https://img.shields.io/badge/stable%20version-2.8.0-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/v2.8)
 ![platforms](https://img.shields.io/badge/platforms-linux%20|%20osx-lightgrey.svg)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.164442.svg)](https://dx.doi.org/10.5281/zenodo.164442)
 [![Anaconda-Server Badge](https://anaconda.org/uvcdat/uvcdat/badges/installer/conda.svg)](https://conda.anaconda.org/uvcdat)
