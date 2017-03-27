@@ -1,9 +1,13 @@
-Version = 'GIT_DESCRIBE'
+import subprocess
+
+import version
+Version = version.__describe__
 ping_checked = False
 check_in_progress = False
 
 
 def version():
+    print "VERSION:",Version
     sp = Version.split("-")
     vnm = "-".join(sp[:-2])
     vlist = vnm.split(".") + sp[-2:]
@@ -195,6 +199,69 @@ def submitPing(source, action, source_version=None):
                 urllib.urlencode(data))
     except Exception as err:
         pass
+
+def download_sample_data_files(files_md5,path=None):
+    """Downloads sample data from a list of files
+    Default download directory is os.environ["UVCDAT_SETUP_PATH"]
+    then data will be downloaded to that path.
+
+    :Example:
+
+        .. doctest:: download_sample_data
+
+            >>> import os # use this to check if sample data already exists
+            >>> if not os.path.isdir(os.environ['UVCDAT_SETUP_PATH']):
+            ...     cdat_info.download_sample_data_files()
+
+    :param path: String of a valid filepath.
+        If None, sample data will be downloaded into the
+        vcs.sample_data directory.
+    :type path: `str`_ or `None`_
+    """
+    import requests
+    import hashlib
+    if not os.path.exists(files_md5) or os.path.isdir(files_md5):
+        raise RuntimeError("Invalid file type for list of files: %s" % files_md5)
+    if path is None:
+        path = get_sampledata_path()
+    samples = open(files_md5).readlines()
+    download_url_root = samples[0].strip()
+    if len(download_url_root.split())>1:
+        # Old style
+        download_url_root = "http://uvcdat.llnl.gov/cdat/sample_data/"
+        n0 = 0
+    else:
+        n0=1
+    for sample in samples[n0:]:
+        good_md5, name = sample.split()
+        local_filename = os.path.join(path, name)
+        try:
+            os.makedirs(os.path.dirname(local_filename))
+        except:
+            pass
+        attempts = 0
+        while attempts < 3:
+            md5 = hashlib.md5()
+            if os.path.exists(local_filename):
+                f = open(local_filename)
+                md5.update(f.read())
+                if md5.hexdigest() == good_md5:
+                    attempts = 5
+                    continue
+            print "Downloading: '%s' from '%s' in: %s" % (name, download_url_root, local_filename)
+            r = requests.get(
+                "%s/sample_data/%s" % (download_url_root, name),
+                stream=True)
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:  # filter local_filename keep-alive new chunks
+                        f.write(chunk)
+                        md5.update(chunk)
+            f.close()
+            if md5.hexdigest() == good_md5:
+                attempts = 5
+            else:
+                attempts += 1
 
 import os
 import sys

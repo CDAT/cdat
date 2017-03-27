@@ -1,33 +1,26 @@
 from distutils.core import setup
 import subprocess
-import os
-import tempfile
-import shutil
-import sys
 
-src_dir = os.path.dirname(os.path.realpath(__file__))
-
-os.chdir(src_dir)
-GIT_DESCRIBE = subprocess.Popen(["git","describe","--tag"],stdout=subprocess.PIPE).stdout.read().strip()
-
-tmp_dir = os.path.join(tempfile.gettempdir(),"cdat_info_build")
-shutil.rmtree(tmp_dir,ignore_errors=True)
-os.makedirs(tmp_dir)
-os.chdir(tmp_dir)
-lib_dir = os.path.join(tmp_dir,"cdat_info_Lib")
-shutil.copytree(os.path.join(src_dir,"Lib"),lib_dir)
-
-
-
-f=open(os.path.join(src_dir,"cdat_info.py.in"))
-cdat_info = f.read().replace("GIT_DESCRIBE",GIT_DESCRIBE)
+Version = "2.8.10"
+p = subprocess.Popen(
+    ("git",
+     "describe",
+     "--tags"),
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE)
+try:
+    descr = p.stdout.readlines()[0].strip()
+    Version = "-".join(descr.split("-")[:-2])
+    if Version == "":
+        Version = descr
+except:
+    descr = Version
+f = open("Lib/version.py", "w")
+print >>f, "__version__ = '%s'" % Version
+print >>f, "__describe__ = '%s'" % descr
 f.close()
-f=open(os.path.join(lib_dir,"cdat_info.py"),"w")
-f.write(cdat_info)
-f.close()
-
 setup (name = "cdat_info",
        packages = ['cdat_info'],
-       package_dir = {'cdat_info': lib_dir},
+       package_dir = {'cdat_info': "Lib"},
       )
-shutil.rmtree(lib_dir,ignore_errors=True)
