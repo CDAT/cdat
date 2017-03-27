@@ -226,7 +226,13 @@ def download_sample_data_files(files_md5,path=None):
         path = get_sampledata_path()
     samples = open(files_md5).readlines()
     download_url_root = samples[0].strip()
-    for sample in samples[1:]:
+    if len(download_url_root.split())>1:
+        # Old style
+        download_url_root = "http://uvcdat.llnl.gov/cdat/sample_data/"
+        n0 = 0
+    else:
+        n0=1
+    for sample in samples[n0:]:
         good_md5, name = sample.split()
         local_filename = os.path.join(path, name)
         try:
@@ -242,7 +248,7 @@ def download_sample_data_files(files_md5,path=None):
                 if md5.hexdigest() == good_md5:
                     attempts = 5
                     continue
-            print "Downloading:", name, "in", local_filename
+            print "Downloading: '%s' from '%s' in: %s" % (name, download_url_root, local_filename)
             r = requests.get(
                 "%s/sample_data/%s" % (download_url_root, name),
                 stream=True)
