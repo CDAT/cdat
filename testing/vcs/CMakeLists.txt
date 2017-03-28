@@ -1044,7 +1044,7 @@ cdat_add_test(test_vcs_settings_color_name_rgba
     )
   cdat_add_test(test_vcs_animate_isoline_colored
     "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_olored.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_animate_isoline_colored.py
     ${BASELINE_DIR}
     )
   if ( (NOT EXISTS /etc/redhat-release) AND (NOT CDAT_BUILD_OFFSCREEN))

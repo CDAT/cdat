@@ -115,7 +115,7 @@ if args.transparent:
 if gm_type=="vector" or gm_type=='streamline':
     if (gm_type=="vector"):
         gm.scale = 4.
-    if not args.colored:
+    if gm_type == 'streamline' and not args.colored:
         gm.coloredbyvector = False
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
