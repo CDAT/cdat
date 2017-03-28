@@ -250,7 +250,7 @@ def download_sample_data_files(files_md5,path=None):
                     continue
             print "Downloading: '%s' from '%s' in: %s" % (name, download_url_root, local_filename)
             r = requests.get(
-                "%s/sample_data/%s" % (download_url_root, name),
+                "%s/%s" % (download_url_root, name),
                 stream=True)
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
