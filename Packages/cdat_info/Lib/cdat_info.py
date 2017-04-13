@@ -7,7 +7,6 @@ check_in_progress = False
 
 
 def version():
-    print "VERSION:",Version
     sp = Version.split("-")
     vnm = "-".join(sp[:-2])
     vlist = vnm.split(".") + sp[-2:]
