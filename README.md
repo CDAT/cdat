@@ -1,10 +1,9 @@
 uvcdat
 ======
 [![build status](https://travis-ci.org/UV-CDAT/uvcdat.svg?branch=master)](https://travis-ci.org/UV-CDAT/uvcdat/builds)
-[![stable version](http://img.shields.io/badge/stable version-2.4.1-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/2.4.1)
-![platforms](http://img.shields.io/badge/platforms-linux | osx-lightgrey.svg)
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.50101.svg)](http://dx.doi.org/10.5281/zenodo.50101)
-
+[![stable version](https://img.shields.io/badge/stable%20version-2.8.0-brightgreen.svg)](https://github.com/UV-CDAT/uvcdat/releases/tag/v2.8)
+![platforms](https://img.shields.io/badge/platforms-linux%20|%20osx-lightgrey.svg)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.164442.svg)](https://dx.doi.org/10.5281/zenodo.164442)
 [![Anaconda-Server Badge](https://anaconda.org/uvcdat/uvcdat/badges/installer/conda.svg)](https://conda.anaconda.org/uvcdat)
 [![Anaconda-Server Badge](https://anaconda.org/uvcdat/uvcdat/badges/downloads.svg)](https://anaconda.org/uvcdat/uvcdat)
 
@@ -14,6 +13,4 @@ Led by Lawrence Livermore National Laboratory (LLNL), the consortium consists of
 
 Developing and Contributing
 ------
-We'd love to get contributions from you! Please take a look at the
-[Contribution Documents](CONTRIBUTING.md) to see how to get your changes merged
-in.
+We'd love to get contributions from you! Please take a look at the [Contribution Documents](CONTRIBUTING.md) to see how to get your changes merged in.
