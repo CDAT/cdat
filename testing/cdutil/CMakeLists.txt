@@ -1,5 +1,10 @@
-
 # cdutil tests
+
+add_test(flake8_cdms2
+  "${FLAKE8_EXECUTABLE}" "${cdat_SOURCE_DIR}/Packages/cdutil/Lib/"
+  --show-source # Show context for detected errors
+  --statistics  # Show summary of errors at end of output
+)
 
 cdat_add_test("test_departures_time_bounds"
     "${PYTHON_EXECUTABLE}"
@@ -56,5 +61,3 @@ endif()
 
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
-
-
