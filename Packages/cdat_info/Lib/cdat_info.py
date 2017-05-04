@@ -1,5 +1,5 @@
 import subprocess
-
+import pwd
 import version
 Version = version.__describe__
 ping_checked = False
@@ -192,7 +192,8 @@ def submitPing(source, action, source_version=None):
                 data['source_version'] = source_version
             data['action'] = action
             data['sleep'] = cdat_info.sleep
-            data['hashed_username'] = hashlib.sha1(os.getlogin()).hexdigest()
+            login = pwd.getpwuid(os.geteuid())[0]
+            data['hashed_username'] = hashlib.sha1(login).hexdigest()
             urllib2.urlopen(
                 'http://uv-cdat.llnl.gov/UVCDATUsage/log/add/',
                 urllib.urlencode(data))
