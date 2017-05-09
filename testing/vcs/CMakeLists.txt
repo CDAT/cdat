@@ -652,34 +652,54 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       ENDFOREACH(ext1)
     ENDFOREACH(ori)
   ENDFOREACH(gm)
-  FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
-    cdat_add_test(test_vcs_basic_${gm}_transparent
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --transparent
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_transparent.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_zero
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --zero
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_zero.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}.png"
-      )
-    cdat_add_test(test_vcs_basic_${gm}_masked
-      "${PYTHON_EXECUTABLE}"
-      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-      --gm_type=${gm}
-      --mask
-      "--source=${BASELINE_DIR}/test_vcs_basic_${gm}_masked.png"
-      )
+  FOREACH(gm boxfill isofill isoline vector streamline meshfill yxvsx xvsy xyvsy 1d scatter)
+    if(${gm} STREQUAL streamline)
+      set(colored "--nocolored" "--colored")
+    else()
+      set(colored "--nocolored")
+    endif()
+    foreach(color ${colored})
+        if (${color} STREQUAL "--nocolored")
+          set(color "")
+        endif()
+        if(NOT "${color}" STREQUAL "")
+          string(SUBSTRING ${color} 2 -1 postfix)
+          set(postfix "_${postfix}")
+        else()
+          set(postfix "")
+        endif()
+        cdat_add_test(test_vcs_basic_${gm}${postfix}_transparent
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+          --gm_type=${gm}
+          --transparent
+          ${color}
+          "--source=${BASELINE_DIR}/test_vcs_basic_${gm}${postfix}_transparent.png"
+          )
+        cdat_add_test(test_vcs_basic_${gm}${postfix}_zero
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+          --gm_type=${gm}
+          --zero
+          ${color}
+          "--source=${BASELINE_DIR}/test_vcs_basic_${gm}${postfix}_zero.png"
+          )
+        cdat_add_test(test_vcs_basic_${gm}${postfix}
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+          --gm_type=${gm}
+          ${color}
+          "--source=${BASELINE_DIR}/test_vcs_basic_${gm}${postfix}.png"
+          )
+        cdat_add_test(test_vcs_basic_${gm}${postfix}_masked
+          "${PYTHON_EXECUTABLE}"
+          ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+          --gm_type=${gm}
+          --mask
+          ${color}
+          "--source=${BASELINE_DIR}/test_vcs_basic_${gm}${postfix}_masked.png"
+          )
+    endforeach()
   ENDFOREACH(gm)
   cdat_add_test(test_vcs_show
     "${PYTHON_EXECUTABLE}"
@@ -1047,6 +1067,24 @@ cdat_add_test(test_vcs_settings_color_name_rgba
       "${PYTHON_EXECUTABLE}"
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
       "${BASELINE_DIR}/test_vcs_vectors_robinson.png"
+      )
+    cdat_add_test(test_vcs_streamline_robinson
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+      "${BASELINE_DIR}/test_vcs_streamline_robinson.png"
+      "streamline"
+      )
+    cdat_add_test(test_vcs_streamline_colored_robinson
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+      "${BASELINE_DIR}/test_vcs_streamline_colored_robinson.png"
+      "streamline" "colored"
+      )
+    cdat_add_test(test_vcs_streamline_colored_count_robinson
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_robinson.py
+      "${BASELINE_DIR}/test_vcs_streamline_colored_count_robinson.png"
+      "streamline" "colored" "count"
       )
     cdat_add_test(test_vcs_vectors_robinson_wrap
       "${PYTHON_EXECUTABLE}"
