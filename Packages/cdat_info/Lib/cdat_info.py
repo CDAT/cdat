@@ -138,7 +138,7 @@ def runCheck():
                                     pass
         if (last_time_checked is None or last_version_check is None) and val is False:
             val = None
-        elif time.time() - last_time_checked > 2592000 and val is False:  # Approximately 3 months
+        elif time.time() - last_time_checked > 2592000 and val is False:  # Approximately 1 month
             val = None
         current = version()
         if val is False and last_version_check is not None and versions_compare(
