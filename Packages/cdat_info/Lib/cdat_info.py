@@ -30,7 +30,6 @@ def versions_compare(version1,version2):
 
     v1 = str(version1[0])
     v2 = str(version2[0])
-
     # Trim leading non alpha char
     while len(v1)>0 and not v1.isdigit():
         v1= v1[1:]
@@ -43,10 +42,16 @@ def versions_compare(version1,version2):
 
     if v1 == v2:
         return versions_compare(version1[1:],version2[1:])
+    elif v1.isdigit() and v2.isdigit():
+        if int(v1)>int(v2):
+            return 1
+        else:
+            return -1
     elif v1>v2:
         return 1
     else:
         return -1
+
 
     
 
@@ -127,12 +132,12 @@ def runCheck():
                                     val = eval(sp[1])
                                 except:
                                     pass
-        if last_time_checked is None or last_version_check is None:
+        if (last_time_checked is None or last_version_check is None) and val is False:
             val = None
-        elif time.time()-last_time_checked>2592000:  # Approximately 3 mnoths
+        elif time.time()-last_time_checked>2592000 and val is False:  # Approximately 3 months
             val = None
         current = version()
-        if last_version_check is not None and versions_compare(current,last_version_check)>0: # we have a newer version
+        if val is False and last_version_check is not None and versions_compare(current,last_version_check)>0: # we have a newer version
             val = None
         reload(cdat_info)
         return val
@@ -144,12 +149,11 @@ def askAnonymous(val):
     while cdat_info.ping_checked is False and not val in [
             True, False]:  # couldn't get a valid value from env or file
         val2 = raw_input(
-            "Allow anonymous logging usage to help improve UV-CDAT? (you can also set the environment variable UVCDAT_ANONYMOUS_LOG to yes or     no) [yes]/no")
+                "Allow anonymous logging usage to help improve UV-CDAT (you can also set the environment variable UVCDAT_ANONYMOUS_LOG to yes or no)? [yes]/no: ")
         if val2.lower() in ['y', 'yes', 'ok', '1', 'true', '']:
             val = True
         elif val2.lower() in ['n', 'no', 'not', '0', 'false']:
             val = False
-        print "VAL:",val
         if val in [True, False]:  # store result for next time
             try:
                 fanom = os.path.join(
@@ -164,7 +168,6 @@ def askAnonymous(val):
                         "last_time_checked": time.time(),
                         "last_version_check": version()
                         }
-                print "DATA:",data
                 with open(fanom, "w") as f:
                     json.dump(data,f,indent=2)
             except Exception as err:
