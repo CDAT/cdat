@@ -12,7 +12,6 @@ import warnings
 import os
 import sys
 import requests
-
 Version = version.__describe__
 ping_checked = False
 check_in_progress = False
@@ -213,7 +212,7 @@ def pingPCMDIdbThread(*args, **kargs):
     t = threading.Thread(**kargs)
     try:
         t.start()
-        time.sleep(2)  # Lets wait 5 seconds top for this ping to work
+        time.sleep(2)  # Lets wait 2 seconds top for this ping to work
         if t.isAlive():
             try:
                 t._Thread__stop()
