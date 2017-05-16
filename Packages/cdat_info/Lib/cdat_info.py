@@ -4,19 +4,17 @@ import version
 import time
 import json
 import bz2
-import urllib2
 import cdat_info
 import hashlib
-import urllib
 import warnings
 import os
 import sys
 import requests
 Version = version.__describe__
 ping_checked = False
-check_in_progress = False
 cacheLock = threading.Lock()
 checkLock = threading.Lock()
+post_url = 'https://uvcdat-usage.llnl.gov/log/add/'
 
 def version():
     sp = Version.split("-")
@@ -223,21 +221,17 @@ def pingPCMDIdbThread(*args, **kargs):
 
 def post_data(data):
     try:
-        post = urllib2.urlopen(
-            'http://uv-cdat.llnl.gov/UVCDATUsage/log/add/',
-            urllib.urlencode(data))
-        if not (200<=post.get_code()<300):
+        post = requests.post(
+            url = cdat_info.post_url,
+            params = data)
+        if not (200<=post.status_code()<300):
             return data
     except BaseException,err:
-        cdat_info.check_in_progress = False
         return data
     return None
 
 def cache_data(data):
     cacheLock.acquire()
-    while cdat_info.check_in_progress:
-        pass
-    cdat_info.check_in_progress = True
     cache_file = os.path.join(
                 os.path.expanduser("~"),
                 ".uvcdat",
