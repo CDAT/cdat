@@ -97,14 +97,17 @@ def get_sampledata_path():
 def runCheck():
     # Wait for other threads to be done
     checkLock.acquire()
+    last_time_checked = None
+    last_version_check = None
     if cdat_info.ping_checked is False:
         val = None
         envanom = os.environ.get("UVCDAT_ANONYMOUS_LOG", None)
         if envanom is not None:
-            if envanom.lower() in ['true', 'yes', 'y', 'ok']:
+            if envanom.lower() in ['true', 'yes', 'y', 'ok','1']:
                 val = True
-            elif envanom.lower() in ['false', 'no', 'n', 'not']:
-                val = False
+            elif envanom.lower() in ['false', 'no', 'n', 'not', '0']:
+                checkLock.release()
+                return False
             else:
                 warnings.warn(
                     "UVCDAT logging environment variable UVCDAT_ANONYMOUS_LOG should be set to 'True' or 'False'" +
@@ -116,8 +119,6 @@ def runCheck():
                 ".uvcdat",
                 ".anonymouslog")
             # last time and version we asked for anonymous
-            last_time_checked = None
-            last_version_check = None
             if os.path.exists(fanom):
                 try:
                     with open(fanom) as f:
