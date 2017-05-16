@@ -221,10 +221,54 @@ def pingPCMDIdbThread(*args, **kargs):
                 pass
     except BaseException:
         pass
+def post_data(data):
+    post = urllib2.urlopen(
+        'http://uv-cdat.llnl.gov/UVCDATUsage/log/add/',
+        urllib.urlencode(data))
+    if not (200<=post.get_code()<300):
+        return data
+    else:
+        return None
 
+def cache_data(data):
+    cache_file = os.path.join(
+                os.path.expanduser("~"),
+                ".uvcdat",
+                ".cdat_cache")
+    if os.path.exists(cache_file):
+        with open(cache_file)as f:
+            cache = json.load(f)
+    else:
+        cache = []
+    cache.append(data)
+    with open(cache_file,"w") as f:
+        json.dump(cache,f)
+
+def clean_cache():
+    cache_file = os.path.join(
+                os.path.expanduser("~"),
+                ".uvcdat",
+                ".cdat_cache")
+    if os.path.exists(cache_file):
+        with open(cache_file)as f:
+            cache = json.load(f)
+    else:
+        cache = []
+    if len(cache)==0:  # No cache
+        return
+
+    bad=[]
+    for data in cache:
+        result = post_data(data)
+        if result is not None:
+            bad.append(cache)
+    with open(cache_file,"w") as f:
+        json.dump(bad,f)
 
 def submitPing(source, action, source_version=None):
+    clean_cache()
     try:
+        data = None
         if source in ['cdat', 'auto', None]:
             source = cdat_info.SOURCE
         if cdat_info.ping:
@@ -240,19 +284,22 @@ def submitPing(source, action, source_version=None):
             data['platform_version'] = uname[2]
             data['hashed_hostname'] = hashlib.sha1(uname[1]).hexdigest()
             data['source'] = source
+            data['cdat_info_version'] = version()
             if source_version is None:
-                data['source_version'] = cdat_info.get_version()
+                data['source_version'] = get_version()
             else:
                 data['source_version'] = source_version
             data['action'] = action
             data['sleep'] = cdat_info.sleep
+            data['pid'] = os.getpid()
             login = pwd.getpwuid(os.geteuid())[0]
             data['hashed_username'] = hashlib.sha1(login).hexdigest()
-            urllib2.urlopen(
-                'http://uv-cdat.llnl.gov/UVCDATUsage/log/add/',
-                urllib.urlencode(data))
+            data['gmtime'] = time.asctime(time.gmtime())
+            data = post_data(data)
     except BaseException:
         pass
+    if data is not None:
+        cache_data(data)
 
 
 def download_sample_data_files(files_md5, path=None):
