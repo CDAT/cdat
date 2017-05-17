@@ -97,7 +97,7 @@ def get_sampledata_path():
 def runCheck():
     # Wait for other threads to be done
     checkLock.acquire()
-    last_time_checked = None
+    last_time_checked = 0
     last_version_check = None
     if cdat_info.ping_checked is False:
         val = None
@@ -124,7 +124,7 @@ def runCheck():
                     with open(fanom) as f:
                         data = json.load(f)
                         val = data.get("log_anonymously", None)
-                        last_time_checked = data.get("last_time_checked", None)
+                        last_time_checked = data.get("last_time_checked", 0)
                         last_version_check = data.get(
                             "last_version_check", None)
                 except BaseException:
@@ -137,7 +137,7 @@ def runCheck():
                                     val = eval(sp[1])
                                 except BaseException:
                                     pass
-        if (last_time_checked is None or last_version_check is None) and val is False:
+        if (last_time_checked==0 or last_version_check is None) and val is False:
             val = None
         elif time.time() - last_time_checked > 2592000 and val is False:  # Approximately 1 month
             val = None
