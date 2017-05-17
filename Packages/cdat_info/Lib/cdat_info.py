@@ -14,6 +14,7 @@ Version = version.__describe__
 ping_checked = False
 cacheLock = threading.Lock()
 checkLock = threading.Lock()
+triedToClean = False
 post_url = 'https://uvcdat-usage.llnl.gov/log/add/'
 
 def version():
@@ -248,6 +249,7 @@ def cache_data(data):
     cacheLock.release()
 
 def clean_cache():
+    triedToClean = True
     cacheLock.acquire()
     cache_file = os.path.join(
                 os.path.expanduser("~"),
@@ -271,7 +273,8 @@ def clean_cache():
         f.write(repr(bad))
 
 def submitPing(source, action, source_version=None):
-    clean_cache()
+    if not triedToClean:
+        clean_cache()
     try:
         data = None
         if source in ['cdat', 'auto', None]:
@@ -335,7 +338,7 @@ def download_sample_data_files(files_md5, path=None):
     download_url_root = samples[0].strip()
     if len(download_url_root.split()) > 1:
         # Old style
-        download_url_root = "http://uvcdat.llnl.gov/cdat/sample_data/"
+        download_url_root = "https://uvcdat.llnl.gov/cdat/sample_data/"
         n0 = 0
     else:
         n0 = 1
