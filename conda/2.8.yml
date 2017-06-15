@@ -154,7 +154,7 @@ dependencies:
 - !!python/unicode
   'numpy=1.11.2=py27_0'
 - !!python/unicode
-  'pyqt=4.11.3=py27_1'
+  'pyqt=4.11.3'
 - !!python/unicode
   'qt=4.8.6=3'
 - !!python/unicode
@@ -188,7 +188,7 @@ dependencies:
 - !!python/unicode
   'dv3d=2.8=py27_2'
 - !!python/unicode
-  'esmf=ESMF_6_3_0rp1_ESMP_01=np111py27_2'
+  'esmf=ESMF_6_3_0rp1_ESMP_01'
 - !!python/unicode
   'eztemplate=2.8=py27_2'
 - !!python/unicode
@@ -226,7 +226,7 @@ dependencies:
 - !!python/unicode
   'uvcdat=2.8.0=0'
 - !!python/unicode
-  'uvcmetrics=2.2=np111py27_2'
+  'uvcmetrics=2.2'
 - !!python/unicode
   'vcs=2.8=py27_2'
 - !!python/unicode

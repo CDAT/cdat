@@ -322,11 +322,11 @@ dependencies:
 - !!python/unicode
   'cryptography=1.8.1=py27_0'
 - !!python/unicode
-  'gcc=4.8.5=7'
+  'gcc=4.8.5'
 - !!python/unicode
-  'isl=0.12.2=0'
+  'isl=0.12.2'
 - !!python/unicode
-  'libgcc=5.2.0=0'
+  'libgcc=4.8.5'
 - !!python/unicode
   'libgfortran=3.0.0=1'
 - !!python/unicode
@@ -334,7 +334,7 @@ dependencies:
 - !!python/unicode
   'numpy=1.12.1=py27_0'
 - !!python/unicode
-  'pyqt=4.11.3=py27_1'
+  'pyqt=4.11.3'
 - !!python/unicode
   'qt=4.8.6=3'
 - !!python/unicode
@@ -344,7 +344,7 @@ dependencies:
 - !!python/unicode
   'sip=4.16.5=py27_0'
 - !!python/unicode
-  'asciidata=2.10=np112py27_0'
+  'asciidata=2.10'
 - !!python/unicode
   'binaryio=2.10=np112py27_0'
 - !!python/unicode
@@ -354,7 +354,7 @@ dependencies:
 - !!python/unicode
   'dv3d=2.10=py27_0'
 - !!python/unicode
-  'hdf5tools=2.10=np112py27_0'
+  'hdf5tools=2.10'
 - !!python/unicode
   'lmoments=2.10=np112py27_0'
 - !!python/unicode
@@ -372,7 +372,7 @@ dependencies:
 - !!python/unicode
   'trends=2.10=np112py27_0'
 - !!python/unicode
-  'uvcdat=2.10=2'
+  'uvcdat=2.10'
 - !!python/unicode
   'uvcmetrics=2.2.1=np112py27_0'
 - !!python/unicode
@@ -382,7 +382,7 @@ dependencies:
 - !!python/unicode
   'vistrails=2.8=2'
 - !!python/unicode
-  'vtk-cdat=7.1.0.2.10=py27_1'
+  'vtk-cdat=7.1.0.2.10'
 - !!python/unicode
   'wk=2.10=py27_0'
 - !!python/unicode
