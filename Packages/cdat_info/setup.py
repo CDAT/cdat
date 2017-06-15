@@ -1,7 +1,7 @@
 from distutils.core import setup
 import subprocess
 
-Version = "2.8.10"
+Version = "2.10"
 p = subprocess.Popen(
     ("git",
      "describe",
