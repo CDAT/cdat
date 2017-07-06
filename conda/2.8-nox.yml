@@ -236,21 +236,8 @@ dependencies:
 - pip:
   - adamsregrid==0.0.0
   - backports.shutil-get-terminal-size==1.0.0
-  - cdat-info==0.0.0
-  - dv3d==0.0.0
-  - eztemplate==1.0
   - ipython-genutils==0.1.0
-  - metrics==1.0.0
-  - mv2==3.0.0
-  - output-viewer==1.2.0
   - prompt-toolkit==1.0.9
-  - regrid2==3.0.0
   - sh==0.0.0
-  - thermo==1.0
-  - udunits==1.0
-  - unknown==0.0.0
-  - vcs==2.8
-  - vcsaddons==0.9
-  - wk==1.0
 prefix: !!python/unicode '/usr/local/anaconda2/envs/2.8-nox'
 
