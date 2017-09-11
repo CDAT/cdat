@@ -21,9 +21,9 @@ dependencies:
 - bzip2=1.0.6=1
 - ca-certificates=2017.7.27.1=0
 - cartopy=0.15.1=py27_4
-- cdat_info=2.12=py27_0
+- cdat_info=2.12=py27_1
 - cdms2=2.12=np113py27_0
-- cdtime=2.12=np113py27_1
+- cdtime=2.12=np113py27_2
 - cdutil=2.12=py27_0
 - certifi=2017.7.27.1=py27_0
 - cffi=1.10.0=py27_0
@@ -154,7 +154,7 @@ dependencies:
 - rope=0.10.7=py27_0
 - scandir=1.5=py27_1
 - setuptools=36.3.0=py27_0
-- shapely=1.6.1=py27_0
+- shapely=1.6.1=py27_1
 - simplegeneric=0.8.1=py27_0
 - singledispatch=3.4.0.3=py27_0
 - six=1.10.0=py27_1
@@ -162,7 +162,7 @@ dependencies:
 - sortedcontainers=1.5.7=py27_0
 - sphinx=1.6.3=py27_0
 - sphinxcontrib-websupport=1.0.1=py27_0
-- spyder=3.2.2=py27_0
+- spyder=3.2.3=py27_0
 - sqlite=3.13.0=1
 - ssl_match_hostname=3.5.0.1=py27_1
 - subprocess32=3.2.7=py27_0
@@ -171,7 +171,7 @@ dependencies:
 - testpath=0.3.1=py27_0
 - tk=8.5.19=2
 - toolz=0.8.2=py27_0
-- tornado=4.5.1=py27_0
+- tornado=4.5.2=py27_0
 - traitlets=4.3.2=py27_0
 - typing=3.6.2=py27_0
 - udunits2=2.2.23=0
