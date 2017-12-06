@@ -202,7 +202,6 @@ dependencies:
 - scikit-learn=0.19.0=np113py27_0
 - scipy=0.19.1=np113py27_0
 - sip=4.16.5=py27_0
-- acme_diags=v0.1b=hf894526_0
 - asciidata=2.12=py27hbe9d963_0
 - binaryio=2.12=np113py27h8073811_0
 - cdp=1.0.3=0
@@ -228,7 +227,6 @@ dependencies:
 - xmgrace=2.12=py27hb3ccff1_0
 - zonalmeans=2.12=np113py27h96f9f80_0
 - pip:
-  - acme-diags==0.1
   - adamsregrid==0.0.0
   - backports-abc==0.5
   - backports.functools-lru-cache==1.4
