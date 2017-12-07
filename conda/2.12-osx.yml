@@ -234,5 +234,5 @@ dependencies:
   - regrid2==3.0.0
   - sh==0.0.0
   - unknown==0.0.0
-prefix: /Users/doutriaux1/anaconda2/envs/2.12
+prefix: /usr/local/anaconda2/envs/2.12
 
