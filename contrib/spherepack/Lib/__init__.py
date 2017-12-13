@@ -1,1 +1,1 @@
-from sphere import *
+from .sphere import *

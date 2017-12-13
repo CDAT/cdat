@@ -9,8 +9,8 @@ x=vcs.init()
 # Open data file
 f=cdms2.open('test_data.nc')
 O2=f("O2",level=slice(0,5))
-print O2.shape,O2.mask
-print 'Level:',O2.getLevel()
+print(O2.shape,O2.mask)
+print('Level:',O2.getLevel())
 f.close()
 # Open grid file
 f=cdms2.open('test_grid.nc')
@@ -23,6 +23,6 @@ area = f('area')
 
 res=ZonalMeans.compute(O2,bounds_lon=blon,bounds_lat=blat,area=area,delta_band=5)
 
-print res[1].shape
+print(res[1].shape)
 x.plot(res[1][:,0],bg=bg)
 vcs.test.support.check_plot(x)

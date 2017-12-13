@@ -18,7 +18,7 @@ from getopt import gnu_getopt
 files = ['Src/zonebasin.f90', 'Src/mask4d.f90', 'Src/meme_cote.f90',  'Src/intersecte.f90' , 'Src/echange.f90', 'Src/SphericalPolyArea.f90', 'Src/cal_int.f90', 'Src/cfraction.f90']
 ## Get package version info
 version_file = os.path.join(os.curdir,"Lib","package_version.py")
-execfile(version_file)
+exec(compile(open(version_file).read(), version_file, 'exec'))
 
 ## scypy_distutils Script
 from numpy.distutils.core import setup, Extension

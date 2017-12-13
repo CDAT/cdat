@@ -27,7 +27,7 @@ writeTestcase = 'yes'
 try:
     import cdms2
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms2'
+    print('Can not write test case results to netCDF files without module cdms2')
     writeTestcase = 'no'
 
 def document():
@@ -48,17 +48,17 @@ def document():
     std = sys.stdout                                             # save sys.stout to allow reassigning later
     sys.stdout = open( 'shgridmodule.doc', 'w')
 
-    print '**********************************************************************************************\n'  
-    print '*************************** Overview of the CDAT interface to shgrid ************************\n'
-    print '**********************************************************************************************\n'  
-    print sh.__doc__
-    print
-    print
-    print '   HELP PACKAGE EXAMPLE \n'
-    print '    ************************ Default Parameter Table **********************\n'
-    print '    -----------------------------------------------------------------------------------------------------'
+    print('**********************************************************************************************\n')  
+    print('*************************** Overview of the CDAT interface to shgrid ************************\n')
+    print('**********************************************************************************************\n')  
+    print(sh.__doc__)
+    print()
+    print()
+    print('   HELP PACKAGE EXAMPLE \n')
+    print('    ************************ Default Parameter Table **********************\n')
+    print('    -----------------------------------------------------------------------------------------------------')
     sh.help('table')
-    print
+    print()
 
     sys.stdout = std
 
@@ -82,11 +82,11 @@ def sendOutput(msg, value = None, screen = 'no'):
     #------------------------------------------------------------------------------
     if value is None:
         if screen != 'no':
-            print msg
+            print(msg)
         output.write(msg + '\n')
     else:
         if screen != 'no':
-            print msg, `value`
+            print(msg, repr(value))
         output.write(msg + ' %15.11e\n' % (value,))
 
     return None
@@ -109,7 +109,7 @@ def runtests():
     for n in range(1,4):
        err = choose(n)
        if err != 0:
-           print 'test number with error :',n,err
+           print('test number with error :',n,err)
            testError = testError + 1
     return testError
 
@@ -383,9 +383,9 @@ def rmserror(data1, data2):
     #---------------------------------------------------------------------------------
 
     if data1.shape != data2.shape:
-        print 'Error in shape in rmserror'
-        print 'data1 shape = ', data1.shape
-        print 'data2 shape = ', data2.shape
+        print('Error in shape in rmserror')
+        print('data1 shape = ', data1.shape)
+        print('data2 shape = ', data2.shape)
         raise ValueError
 
     d1 = numpy.ravel(data1)
@@ -401,7 +401,7 @@ def rmserror(data1, data2):
 if __name__ == "__main__":
     output = open('test.asc', 'w')               # global file name
 
-    print 'Running the test computations.'
+    print('Running the test computations.')
     testError = runtests() 
     write = document()
 
@@ -412,11 +412,11 @@ if __name__ == "__main__":
     sendOutput(' ')
 
     if testError == 0:
-        print 'Testing Completed Successfully'
+        print('Testing Completed Successfully')
     else:
-        print 'Testing completed but it may have problems. Look at test.asc for an explanation'
+        print('Testing completed but it may have problems. Look at test.asc for an explanation')
 
-    print 'Some details on the testing have been written to the file test.asc.'
-    print 'General information on the use of SHGRID has been written to the file shgridmodule.doc.'
+    print('Some details on the testing have been written to the file test.asc.')
+    print('General information on the use of SHGRID has been written to the file shgridmodule.doc.')
 
     output.close()

@@ -5,6 +5,7 @@ import _gengridzmean
 import cdms2
 import MV2
 import genutil
+from functools import reduce
 
 def compute_array_of_lat_bands (delta_band, nbands):
     """
@@ -414,7 +415,7 @@ def compute(variable,delta_band=None,
         if cdms2.isVariable(regions_masks):
             Axes.append(regions_masks.getAxis(0))
         elif MV2.rank(regions_masks)==3:
-            Axes.append(cdms2.createAxis(range(regions_masks.shape[-1]),id='regions'))
+            Axes.append(cdms2.createAxis(list(range(regions_masks.shape[-1])),id='regions'))
     else:
         dimspop.append(0)
 

@@ -27,7 +27,7 @@ writeTestcase = 'yes'
 try:
     import cdms2
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms2'
+    print('Can not write test case results to netCDF files without module cdms2')
     writeTestcase = 'no'
 
 def document():
@@ -48,17 +48,17 @@ def document():
     std = sys.stdout                                             # save sys.stout to allow reassigning later
     sys.stdout = open( 'cssgridmodule.doc', 'w')
 
-    print '**********************************************************************************************\n'  
-    print '*************************** Overview of the CDAT interface to cssgrid ************************\n'
-    print '**********************************************************************************************\n'  
-    print css.__doc__
-    print
-    print
-    print '   HELP PACKAGE EXAMPLE \n'
-    print '    ************************ Default Parameter Table **********************\n'
-    print '    -----------------------------------------------------------------------------------------------------'
+    print('**********************************************************************************************\n')  
+    print('*************************** Overview of the CDAT interface to cssgrid ************************\n')
+    print('**********************************************************************************************\n')  
+    print(css.__doc__)
+    print()
+    print()
+    print('   HELP PACKAGE EXAMPLE \n')
+    print('    ************************ Default Parameter Table **********************\n')
+    print('    -----------------------------------------------------------------------------------------------------')
     css.help('table')
-    print
+    print()
 
     sys.stdout = std
 
@@ -82,11 +82,11 @@ def sendOutput(msg, value = None, screen = 'no'):
     #------------------------------------------------------------------------------
     if value is None:
         if screen != 'no':
-            print msg
+            print(msg)
         output.write(msg + '\n')
     else:
         if screen != 'no':
-            print msg, `value`
+            print(msg, repr(value))
         output.write(msg + ' %15.11e\n' % (value,))
 
     return None
@@ -648,7 +648,7 @@ def YData(lonvals, latvals, data_name = 'Y32'):
         data = Y30(lonvals, latvals)
     else:
         msg = 'Must choose Y33, Y32, Y31 or Y30'
-        raise ValueError, msg
+        raise ValueError(msg)
         return
 
     return data
@@ -794,9 +794,9 @@ def rmserror(data1, data2):
     #---------------------------------------------------------------------------------
 
     if data1.shape != data2.shape:
-        print 'Error in shape in rmserror'
-        print 'data1 shape = ', data1.shape
-        print 'data2 shape = ', data2.shape
+        print('Error in shape in rmserror')
+        print('data1 shape = ', data1.shape)
+        print('data2 shape = ', data2.shape)
         raise ValueError
 
     d1 = numpy.ravel(data1)
@@ -812,7 +812,7 @@ def rmserror(data1, data2):
 if __name__ == "__main__":
     output = open('test.asc', 'w')               # global file name
 
-    print 'Running the test computations'
+    print('Running the test computations')
     testError = runtests() 
     write = document()
 
@@ -823,12 +823,12 @@ if __name__ == "__main__":
     sendOutput(' ')
 
     if testError == 0:
-        print 'Testing Completed Successfully'
+        print('Testing Completed Successfully')
     else:
-        print 'Testing completed but it may have problems. The test generates a randomly spaced grid which may be a difficult one.'
-        print 'Look at the results or run the test again in order to use a different randomly generated grid.'
+        print('Testing completed but it may have problems. The test generates a randomly spaced grid which may be a difficult one.')
+        print('Look at the results or run the test again in order to use a different randomly generated grid.')
 
-    print 'Some details on the testing have been written to the file test.asc.'
-    print 'General information on the use of CSSGRID has been written to the file cssgridmodule.doc.'
+    print('Some details on the testing have been written to the file test.asc.')
+    print('General information on the use of CSSGRID has been written to the file cssgridmodule.doc.')
 
     output.close()

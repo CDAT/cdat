@@ -269,14 +269,14 @@ writeTestcase = 'yes'
 try:
     import cdms
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms'
+    print('Can not write test case results to netCDF files without module cdms')
     writeTestcase = 'no'
 
 usefilled = 'yes'
 try:
     import MA
 except ImportError:
-    print 'Can not convert from MA array to numpy array without module MA'
+    print('Can not convert from MA array to numpy array without module MA')
     usefilled = 'no'
 
 debug = 0
@@ -321,48 +321,48 @@ class Shgrid:
             nxi = len(xi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The first input dimension argument must be an array'
-            raise TypeError, msg                        
+            raise TypeError(msg)                        
 
         if xi.dtype.char != 'f':
-            print 'Warning -- changing first input coordinate grid array to single precision'
+            print('Warning -- changing first input coordinate grid array to single precision')
             xi = xi.astype(numpy.float32)
 
         if nxi < 10:
             msg = 'CANNOT CREATE INSTANCE - The length of the first input dimension argument must be greater than 9'
-            raise ValueError, msg                        
+            raise ValueError(msg)                        
 
         try:
             nyi = len(yi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The second input dimension argument must be an array'
-            raise TypeError, msg                        
+            raise TypeError(msg)                        
 
         if yi.dtype.char != 'f':
-            print 'Warning -- changing second input coordinate grid array to single precision'
+            print('Warning -- changing second input coordinate grid array to single precision')
             yi = yi.astype(numpy.float32)
 
         if nyi < 10:
             msg = 'CANNOT CREATE INSTANCE - The length of the second input dimension argument must be greater than 9'
-            raise ValueError, msg                        
+            raise ValueError(msg)                        
 
         try:
             nzi = len(zi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The third input dimension argument must be an array'
-            raise TypeError, msg                        
+            raise TypeError(msg)                        
 
         if zi.dtype.char != 'f':
-            print 'Warning -- changing third input coordinate grid array to single precision'
+            print('Warning -- changing third input coordinate grid array to single precision')
             zi = zi.astype(numpy.float32)
 
         if nzi < 10:
             msg = 'CANNOT CREATE INSTANCE - The length of the third input dimension argument must be greater than 9'
-            raise ValueError, msg                        
+            raise ValueError(msg)                        
 
 
         if nxi != nyi and nxi != nzi:
             msg = 'CANNOT CREATE INSTANCE - Lengths of the arrays must be equal for listed input grid'
-            raise ValueError, msg
+            raise ValueError(msg)
         else:
             self.ni = nxi
 
@@ -401,14 +401,14 @@ class Shgrid:
             self.callGridded = 'no'
         else:
             msg = 'CANNOT CREATE INSTANCE - the output grid request must be 3 arrays or 3 values'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         # ---- monotonicity and direction check of the grid ----
         if self.callGridded == 'yes':
             self.xo, self.yo, self.zo, monotonic, self.xreverse, self.yreverse, self.zreverse = checkdim(xo, yo, zo)
             if monotonic == 'no':
                 msg = 'CANNOT CREATE INSTANCE - the output grid must be monotonic'
-                raise ValueError, msg
+                raise ValueError(msg)
         else:
             self.xo = xo
             self.yo = yo
@@ -457,7 +457,7 @@ class Shgrid:
                 dataIn = MA.filled(dataIn)
 
             if debug == 1:
-                print 'calling shgrid' 
+                print('calling shgrid') 
 
             iwk = numpy.zeros((2*self.ni,),'i')
             rwk = numpy.zeros((11*self.ni+6,),'f')
@@ -468,11 +468,11 @@ class Shgrid:
             dataOut = numpy.transpose(dataOut)
 
             if debug == 1:
-                print '*****************   returning from shgrid with  ier = ', ier
+                print('*****************   returning from shgrid with  ier = ', ier)
 
             if ier != 0:
                 msg = 'Error in return from shgrid call with -- ' + Shgrid.errorTable(self)[ier]
-                raise ValueError, msg
+                raise ValueError(msg)
 
             # is a reverse the order in the returned arrays necessary?
 
@@ -489,7 +489,7 @@ class Shgrid:
 
         else:                                                       # Computation of nearest neighbors
             if debug == 1:
-                print 'calling shgetnp' 
+                print('calling shgetnp') 
 
             numberPoints = dataIn
             np = numpy.zeros((numberPoints,),numpy.int32)
@@ -505,10 +505,10 @@ class Shgrid:
                                               iwk, rwk)
 
             if debug == 1:
-                print '*****************   returning from shgrid with  ier = ', ier
+                print('*****************   returning from shgrid with  ier = ', ier)
             if ier != 0:
                 msg = 'Error in return from shgetnp call with -- ' + Shgrid.errorTable(self)[ier]
-                raise ValueError, msg
+                raise ValueError(msg)
 
             iflag = 1
             for i in range(1, numberPoints):
@@ -518,10 +518,10 @@ class Shgrid:
                                                   iwk, rwk)
 
                 if debug == 1:
-                    print '*****************   returning from shgrid with  ier = ', ier
+                    print('*****************   returning from shgrid with  ier = ', ier)
                 if ier != 0:
                     msg = 'Error in return from shgetnp call with -- ' + Shgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
             return np
 
 
@@ -609,7 +609,7 @@ class Shgrid:
         parameterDict = Shgrid.makeDefaultParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-6.6s  %-6.6s  %-22.22s   %-24.24s  %s' % items
+            print('%-6.6s  %-6.6s  %-22.22s   %-24.24s  %s' % items)
 
         return 
 
@@ -633,7 +633,7 @@ class Shgrid:
         parameterDict = Shgrid.makeInstanceParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-6.6s  %-6.6s  %-22.22s   %-14.14s  %s' % items
+            print('%-6.6s  %-6.6s  %-22.22s   %-14.14s  %s' % items)
 
         return 
 
@@ -656,7 +656,7 @@ class Shgrid:
         names = names[2:]
 
         for name in names:
-            print 'Currently,  %s = %d' % (name, eval('self.' + name))
+            print('Currently,  %s = %d' % (name, eval('self.' + name)))
 
         return None      
 
@@ -908,7 +908,7 @@ def printParameterTable():
 
     for item in names:
         items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-        print '%-6.6s  %-5.6s  %-22.22s   %-14.14s  %s' % items
+        print('%-6.6s  %-5.6s  %-22.22s   %-14.14s  %s' % items)
 
     return 
 
@@ -934,7 +934,7 @@ def printStoredParameters():
     typeDict = { 'dmv':'float', 'dmx':'float', 'erf':'char', 'exp':'float', 'shd':'int' }
 
     for item in names:
-        print '   %s = %d' % (item, shgridmodule.shgeti(item))
+        print('   %s = %d' % (item, shgridmodule.shgeti(item)))
 
     return None      
 
@@ -956,10 +956,10 @@ def sendOutput(output, msg, value = None):
     #
     #---------------------------------------------------------------------------------"""
     if value is None:
-        print msg
+        print(msg)
         output.write(msg + '\n')
     else:
-        print msg, `value`
+        print(msg, repr(value))
         output.write(msg + ' %15.11e\n' % (value,))
 
     return None
@@ -982,38 +982,38 @@ def document():
     std = sys.stdout                                             # save sys.stout to allow reassigning later
     sys.stdout = open( 'shgridmodule.doc', 'w')
 
-    print '**********************************************************************************************\n'  
-    print '*************************** Overview of the CDAT interface to shgrid ************************\n'
-    print '**********************************************************************************************\n'  
-    print sh.__doc__
-    print
-    print
+    print('**********************************************************************************************\n')  
+    print('*************************** Overview of the CDAT interface to shgrid ************************\n')
+    print('**********************************************************************************************\n')  
+    print(sh.__doc__)
+    print()
+    print()
 
-    print '  ******************** Instructions for use of the shgrid function *****************************'
-    print cssgridmodule.shgrid.__doc__
-    print
+    print('  ******************** Instructions for use of the shgrid function *****************************')
+    print(cssgridmodule.shgrid.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the shgetnp function *****************************'
-    print cssgridmodule.shgetnp.__doc__
-    print
+    print('  ******************** Instructions for use of the shgetnp function *****************************')
+    print(cssgridmodule.shgetnp.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the shseti function *****************************'
-    print cssgridmodule.shseti.__doc__
-    print
+    print('  ******************** Instructions for use of the shseti function *****************************')
+    print(cssgridmodule.shseti.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the shseti function *****************************'
-    print cssgridmodule.shgeti.__doc__
-    print
+    print('  ******************** Instructions for use of the shseti function *****************************')
+    print(cssgridmodule.shgeti.__doc__)
+    print()
 
     sys.stdout = std
 
     return None
 
 def help(choice = None):
-    import sh
+    from . import sh
 
     if choice is None:                               # get instructions for use of help
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
       
       INSTRUCTIONS ON USE THE OBJECT ORIENTED INTERFACE TO THE SHGRID PACKAGE FROM NGMATH 
      
@@ -1065,10 +1065,10 @@ def help(choice = None):
      
                 sh.help('shgrid')
  
-     ------------------------------------------------------------------------------------------------------"""
+     ------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'Shgrid': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
             Array Input And Output Case In Preparation For Interpolation In 3-space
 
@@ -1095,11 +1095,11 @@ def help(choice = None):
                        while px, py and pz are the coordinates of a point whose nearest
                        neighbors are to be found. 
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
  
 
     elif choice == 'parameters': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
              In the absence of an instance of the class Shgrid, a description of the control parameters can be found 
              by typing
@@ -1133,7 +1133,7 @@ def help(choice = None):
                 r. printStoredParameters()    -- prints the parameters in memory which may differ from the above if the
                                                    user has made more than one instance of the Shgrid class.
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'table': 
         printParameterTable()
@@ -1141,7 +1141,7 @@ def help(choice = None):
     #-----------------------------------------------------------------------------------------------------
 
     elif choice == 'regrid':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
 
             After making the appropriate instance for the interpolation of the Shgrid class, r,  perform an 
             interpolation in 3-space with
@@ -1150,9 +1150,9 @@ def help(choice = None):
 
                         where dataIn is input data in list form and dataOut is output data in gridded form
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
     elif choice == 'nearestPoint':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
             After making the appropriate instance for the nearest point computation of the Shgrid class, r,  find the 
             nearest points by typing
 
@@ -1164,20 +1164,20 @@ def help(choice = None):
 
                For the ith element in np the point in 3-space is ( xi[np[i]], yi[np[i]], zi[np[i]] ).
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'shgrid':
-        print shgridmodule.shgrid.__doc__
+        print(shgridmodule.shgrid.__doc__)
     elif choice == 'shseti':
-        print shgridmodule.shseti.__doc__
+        print(shgridmodule.shseti.__doc__)
     elif choice == 'shgeti':
-        print shgridmodule.shgeti.__doc__
+        print(shgridmodule.shgeti.__doc__)
     elif choice == 'shgetnp':
-        print shgridmodule.shgetnp.__doc__
+        print(shgridmodule.shgetnp.__doc__)
 
     else:
-        print 'Your request is not in help.   The help choices are: ' 
-        print 'Shgrid, parameters, table, regrid, nearestPoint, shgrid, shseti, shgeti, shgetnp'                               
+        print('Your request is not in help.   The help choices are: ') 
+        print('Shgrid, parameters, table, regrid, nearestPoint, shgrid, shseti, shgeti, shgetnp')                               
 
     return None
 

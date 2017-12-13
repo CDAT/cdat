@@ -28,7 +28,7 @@ p3 = p2[numpy.newaxis,:,:]*lev1[:,numpy.newaxis,numpy.newaxis]
 p4 = p3[numpy.newaxis,:,:,:]*tim1[:,numpy.newaxis,numpy.newaxis,numpy.newaxis]
 
 
-print 'Testing for 1D array/grid'
+print('Testing for 1D array/grid')
 interps = ['linear','linearLog','cubic','cubicLog']
 M.x.clear()
 M.x.plot(p1,ts[0],bg=bg)
@@ -40,7 +40,7 @@ for i in range(4):
     M.x.plot(po1,ts[i+1],bg=bg)
 vcs.test.support.check_plot(M.x)
     
-print 'Testing for 2D array/grid'
+print('Testing for 2D array/grid')
 interps = ['linear','linearLog','cubic','cubicLog']
 M.x.clear()
 M.x.plot(p2,ts[0],bg=bg)
@@ -53,7 +53,7 @@ for i in range(4):
     M.x.plot(po2,ts[i+1],bg=bg)
 vcs.test.support.check_plot(M.x)
 
-print 'Testing for 3D array/grid'
+print('Testing for 3D array/grid')
 interps = ['linear','linearLog','cubic','cubicLog']
 M.x.clear()
 M.x.plot(p3,ts[0],bg=bg)
@@ -68,7 +68,7 @@ for i in range(4):
     M.x.plot(po3,ts[i+1],bg=bg)
 vcs.test.support.check_plot(M.x)
 
-print 'Testing for 4D array/grid'
+print('Testing for 4D array/grid')
 interps = ['linear','linearLog','cubic','cubicLog']
 M.x.clear()
 M.x.plot(p4,ts[0],bg=bg)
@@ -84,7 +84,7 @@ for i in range(4):
     M.x.plot(po4,ts[i+1],bg=bg)
 vcs.test.support.check_plot(M.x)
 
-print 'Testing for 1D array/grid passing 2D'
+print('Testing for 1D array/grid passing 2D')
 interps = ['linear','linearLog','cubic','cubicLog']
 M.x.clear()
 M.x.plot(p2,ts[0],bg=bg)

@@ -1,1 +1,1 @@
-from zmean import *
+from .zmean import *

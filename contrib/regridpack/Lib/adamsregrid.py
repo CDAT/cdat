@@ -94,8 +94,8 @@ usefilled = 'yes'
 try:
     import numpy.ma
 except ImportError:
-    print 'Can not convert from numpy.ma to numpy array without module numpy.ma'
-    print 'Can not check for pressence of missing data without module numpy.ma'
+    print('Can not convert from numpy.ma to numpy array without module numpy.ma')
+    print('Can not check for pressence of missing data without module numpy.ma')
     usefilled = 'no'
 
 class Regrid:
@@ -205,7 +205,7 @@ class Regrid:
 
         if x is None or xp is None or xtype is None or xdim is None:      # x dimension is necessary
             msg = 'CANNOT CREATE INSTANCE - Must specify the x dimension completely with four entries'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         elif y is None:                            # 1D interpolation         
 
@@ -225,7 +225,7 @@ class Regrid:
 
             if y is None or yp is None or ytype is None or ydim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the y dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             try: 
                 size = len(x) 
@@ -240,7 +240,7 @@ class Regrid:
                 try: 
                     size = len(y)
                     msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                    raise ValueError, msg
+                    raise ValueError(msg)
                 except TypeError:
                     self.dimdict['x'] = (xdim, 'no', 'no') 
                     self.dimdict['y'] = (ydim, 'no', 'no') 
@@ -251,10 +251,10 @@ class Regrid:
 
             if y is None or yp is None or ytype is None or ydim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the y dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
             elif z is None or zp is None or ztype is None or zdim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the z dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             try:
                 size = len(x)
@@ -271,12 +271,12 @@ class Regrid:
                 try:
                     size = len(y)
                     msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                    raise ValueError, msg
+                    raise ValueError(msg)
                 except TypeError:
                     try:                              # make sure y is also uniform
                         size = len(z)
                         msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                        raise ValueError, msg
+                        raise ValueError(msg)
                     except TypeError:
                         self.dimdict['x'] = (xdim, 'no', 'no') 
                         self.dimdict['y'] = (ydim, 'no', 'no') 
@@ -288,13 +288,13 @@ class Regrid:
 
             if y is None or yp is None or ytype is None or ydim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the y dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
             elif z is None or zp is None or ztype is None or zdim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the z dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
             elif tp is None or ttype is None or tdim is None:
                 msg = 'CANNOT CREATE INSTANCE - Must specify the t dimension completely with four entries'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             try:                                    # try is successful for general grids
                 size = len(x)
@@ -314,17 +314,17 @@ class Regrid:
                 try:                                                  # make sure y is also uniform
                     size = len(y)
                     msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                    raise ValueError, msg
+                    raise ValueError(msg)
                 except TypeError:
                     try:                              # make sure y is also uniform
                         size = len(z)
                         msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                        raise ValueError, msg
+                        raise ValueError(msg)
                     except TypeError:
                         try:                                           # make sure y is also uniform
                             size = len(t)
                             msg = 'CANNOT CREATE INSTANCE - If any dimension is uniform, all must be also'
-                            raise ValueError, msg
+                            raise ValueError(msg)
                         except TypeError:
                             self.dimdict['x'] = (xdim, 'no', 'no') 
                             self.dimdict['y'] = (ydim, 'no', 'no') 
@@ -341,7 +341,7 @@ class Regrid:
              value = self.dimdict[alldimdictKeys[n]][0]
              if value < 0 or value > 3:
                  msg = 'CANNOT CREATE INSTANCE -Dimension position value is less than 0 or greater than 3' 
-                 raise ValueError, msg
+                 raise ValueError(msg)
              else:
                  self.intpolDimlist.append(value)
 
@@ -355,7 +355,7 @@ class Regrid:
 
         if len(checkdict) < len(self.dimdict):
             msg = 'CANNOT CREATE INSTANCE - Can not handle a duplicate in the dimension list'
-            raise ValueError, msg
+            raise ValueError(msg)
 
 
     def rgrd(self, p, missingValue = None):
@@ -377,7 +377,7 @@ class Regrid:
     
     --------------------------------------------------------------------------------------------------------""" 
         if debug == 1:
-            print 'performing interpolation'
+            print('performing interpolation')
 
         if usefilled == 'yes':
             p = numpy.ma.filled(p)
@@ -391,7 +391,7 @@ class Regrid:
         # --- Check data type and change to float if necessary ----
 
         if p.dtype.char != 'f':
-            print 'WARNING - data will be converted to float32'
+            print('WARNING - data will be converted to float32')
             p = p.astype(numpy.float32)
    
         # ----- Check for missing data -------
@@ -400,7 +400,7 @@ class Regrid:
             um = numpy.ma.missing_value(u, missingValue)
             if um.mask is not None:
                 msg = 'CANNOT PROCESS THE DATA - field has missing data'
-                raise ValueError, msg
+                raise ValueError(msg)
 
 
         # --- check consistency between source coordinate vectors and data sizes ----
@@ -413,7 +413,7 @@ class Regrid:
         dataSize = p.shape[dimdict['x'][0]]
         if dataSize != gridSize:
             msg = 'INCONSISTENT INPUT DATA - First dimension grid is %d and data size is %d' % (gridSize, dataSize)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         if numberIntpol >= 2:
             try: 
@@ -424,7 +424,7 @@ class Regrid:
             dataSize = p.shape[dimdict['y'][0]]
             if dataSize != gridSize:
                 msg = 'INCONSISTENT INPUT DATA - Second dimension grid is %d and data size is %d' % (gridSize, dataSize)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         if numberIntpol >= 3:
             try: 
@@ -435,7 +435,7 @@ class Regrid:
             dataSize = p.shape[dimdict['z'][0]]
             if dataSize != gridSize:
                 msg = 'INCONSISTENT INPUT DATA - Third dimension grid is %d and data size is %d' % (gridSize, dataSize)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         if numberIntpol >= 4:
             try: 
@@ -446,7 +446,7 @@ class Regrid:
             dataSize = p.shape[dimdict['t'][0]]
             if dataSize != gridSize:
                 msg = 'INCONSISTENT INPUT DATA - Fourth dimension grid is %d and data size is %d' % (gridSize, dataSize)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         # --- put information in dimdict into lists ----
 
@@ -465,19 +465,19 @@ class Regrid:
         sizeData = len(p.shape)
         if max(intpolDimlist) > (sizeData - 1):          # check the value of the maximum dimension request 
             msg = 'CANNOT INTERPOLATE - A dimension request exceeds the number of dimensions in the data'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         newOrder, inverseOrder, needsTranspose = getnewOrder(intpolDimlist, sizeData)
 
         if debug == 1:
-            print 'dimdict = ', dimdict
-            print 'sourceRevlist = ', sourceRevlist
-            print 'targetRevlist = ', targetRevlist
-            print 'intpolDimlist = ', intpolDimlist
-            print 'sizeData = ', sizeData
-            print 'needsTranspose = ', needsTranspose
-            print 'newOrder = ', newOrder
-            print 'inverseOrder = ', inverseOrder
+            print('dimdict = ', dimdict)
+            print('sourceRevlist = ', sourceRevlist)
+            print('targetRevlist = ', targetRevlist)
+            print('intpolDimlist = ', intpolDimlist)
+            print('sizeData = ', sizeData)
+            print('needsTranspose = ', needsTranspose)
+            print('newOrder = ', newOrder)
+            print('inverseOrder = ', inverseOrder)
 
         if needsTranspose == 'yes':                # if needed transpose data with x intpol dimensions on far right
             p = numpy.transpose(p, newOrder)                           
@@ -552,12 +552,12 @@ class Regrid:
 
         if needsTranspose == 'yes':                    # if needed transpose data with intpol dimensions on right
             if debug == 1:
-                print 'Doing transpose next'
+                print('Doing transpose next')
             q = numpy.transpose(q, inverseOrder)                        # transpose data to original order 
             q = numpy.array(q.astype(numpy.float32), numpy.float32) # make contiguous 
 
         if debug == 1:
-            print 'returning with the interpolated data'
+            print('returning with the interpolated data')
 
         return q 
 
@@ -586,7 +586,7 @@ class Rgrd1:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd1'
+            print('making instance of Rgrd1')
 
         self.x = x
         self.xp = xp
@@ -612,7 +612,7 @@ class Rgrd1:
             intpol = 3
             lw = 4*mx
         else:
-            print 'In 1D rgrd the interpolation type is not set to linear, linearLog, cubic or cubicLog'
+            print('In 1D rgrd the interpolation type is not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -623,7 +623,7 @@ class Rgrd1:
         q, ier = regridpack.rgrd1( x, p, xx, intpol, w, iw)
 
         if ier != 0:
-            print 'In return from call to rgrd1 ier = ', ier
+            print('In return from call to rgrd1 ier = ', ier)
             raise ValueError
 
         return q 
@@ -655,7 +655,7 @@ class Rgrd1u:
         #---------------------------------------------------------------------------------------
 
         if debug == 1:
-            print 'making instance of Rgrd1u'
+            print('making instance of Rgrd1u')
 
         self.x = x
         self.xp = xp
@@ -679,7 +679,7 @@ class Rgrd1u:
             intpol = 3
             lw = 4*mx
         else:
-            print 'In 1D rgrd1 the interpolation type is not set to linear, linearLog, cubic or cubicLog'
+            print('In 1D rgrd1 the interpolation type is not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -693,7 +693,7 @@ class Rgrd1u:
         q, ier = regridpack.rgrd1u(p, mx, intpol, w, iw)
 
         if ier!= 0:
-            print 'In return from call to rgrd1u ier = ', ier
+            print('In return from call to rgrd1u ier = ', ier)
             raise ValueError
 
         return q 
@@ -727,7 +727,7 @@ class Rgrd2:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd2'
+            print('making instance of Rgrd2')
 
         self.x = x
         self.xp = xp
@@ -763,7 +763,7 @@ class Rgrd2:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 2D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 2D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -774,7 +774,7 @@ class Rgrd2:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 2D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 2D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -786,7 +786,7 @@ class Rgrd2:
         q, ier = regridpack.rgrd2(x, y, numpy.transpose(p), xx, yy, intpol, w, iw)
         q = numpy.transpose(q)
         if ier != 0:
-            print 'In return from call to rgrd2 ier = ', ier
+            print('In return from call to rgrd2 ier = ', ier)
             raise ValueError
 
         return q 
@@ -820,7 +820,7 @@ class Rgrd2u:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd2u'
+            print('making instance of Rgrd2u')
 
         self.x = x
         self.xp = xp
@@ -854,7 +854,7 @@ class Rgrd2u:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 2D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 2D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -868,7 +868,7 @@ class Rgrd2u:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 2D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 2D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -880,7 +880,7 @@ class Rgrd2u:
         q, ier = regridpack.rgrd2u(numpy.transpose(p), mx, my, intpol, w, iw)
         q = numpy.transpose(q)
         if ier != 0:
-            print 'In return from call to rgrd2u ier = ', ier
+            print('In return from call to rgrd2u ier = ', ier)
             raise ValueError
 
         return q 
@@ -919,7 +919,7 @@ class Rgrd3:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd3'
+            print('making instance of Rgrd3')
 
         self.x = x
         self.xp = xp
@@ -963,7 +963,7 @@ class Rgrd3:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 3D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -974,7 +974,7 @@ class Rgrd3:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 3D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -985,7 +985,7 @@ class Rgrd3:
             intpol[2] = 3
             lwz = 4*(mx*my + mz)
         else:
-            print 'In 3D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -997,7 +997,7 @@ class Rgrd3:
         q, ier = regridpack.rgrd3(x, y, z, numpy.transpose(p), xx, yy, zz, intpol, w, iw)
         q= numpy.transpose(q)
         if ier != 0:
-            print 'In return from call to rgrd3 ier = ', ier
+            print('In return from call to rgrd3 ier = ', ier)
             raise ValueError
 
         return q 
@@ -1035,7 +1035,7 @@ class Rgrd3u:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd3u'
+            print('making instance of Rgrd3u')
 
         self.x = x
         self.xp = xp
@@ -1074,7 +1074,7 @@ class Rgrd3u:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 3D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1088,7 +1088,7 @@ class Rgrd3u:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 3D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1102,7 +1102,7 @@ class Rgrd3u:
             intpol[2] = 3
             lwz = 4*(mx*my + mz)
         else:
-            print 'In 3D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 3D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1115,7 +1115,7 @@ class Rgrd3u:
         q = numpy.transpose(q)
         
         if ier != 0:
-            print 'In return from call to rgrd3u ier = ', ier
+            print('In return from call to rgrd3u ier = ', ier)
             raise ValueError
 
         return q 
@@ -1156,7 +1156,7 @@ class Rgrd4:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd4'
+            print('making instance of Rgrd4')
 
         self.x = x
         self.xp = xp
@@ -1208,7 +1208,7 @@ class Rgrd4:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 4D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1219,7 +1219,7 @@ class Rgrd4:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 4D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1230,7 +1230,7 @@ class Rgrd4:
             intpol[2] = 3
             lwz = 4*(mx*my + mz)
         else:
-            print 'In 4D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1241,7 +1241,7 @@ class Rgrd4:
             intpol[3] = 3
             lwt = 4*(mx*my*mz + mt)
         else:
-            print 'In 4D rgrd fourth dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd fourth dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1254,7 +1254,7 @@ class Rgrd4:
         q = numpy.transpose(q)
         
         if ier != 0:
-            print 'In return from call to rgrd4 ier = ', ier
+            print('In return from call to rgrd4 ier = ', ier)
             raise ValueError
 
         return q 
@@ -1301,7 +1301,7 @@ class Rgrd4u:
         #
         #---------------------------------------------------------------------------------------
         if debug == 1:
-            print 'making instance of Rgrd4u'
+            print('making instance of Rgrd4u')
 
         self.x = x
         self.xp = xp
@@ -1347,7 +1347,7 @@ class Rgrd4u:
             intpol[0] = 3
             lwx = 4*mx
         else:
-            print 'In 4D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd first dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1361,7 +1361,7 @@ class Rgrd4u:
             intpol[1] = 3
             lwy = 4*(mx + my)
         else:
-            print 'In 4D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd second dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1375,7 +1375,7 @@ class Rgrd4u:
             intpol[2] = 3
             lwz = 4*(mx*my + mz)
         else:
-            print 'In 4D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd third dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1389,7 +1389,7 @@ class Rgrd4u:
             intpol[3] = 3
             lwt = 4*(mx*my*mz + mt)
         else:
-            print 'In 4D rgrd fourth dimension interpolation type not set to linear, linearLog, cubic or cubicLog'
+            print('In 4D rgrd fourth dimension interpolation type not set to linear, linearLog, cubic or cubicLog')
             raise ValueError
             return
 
@@ -1402,7 +1402,7 @@ class Rgrd4u:
         q = numpy.transpose(q)
 
         if ier != 0:
-            print 'In return from call to rgrd4u ier = ', ier
+            print('In return from call to rgrd4u ier = ', ier)
             raise ValueError
 
         return q 
@@ -1435,19 +1435,19 @@ def checkdimension(x, xp, xtype):
         xsize = len(x)
     except:
         msg = 'CANNOT CREATE INSTANCE - Expected an array for the dimension'
-        raise TypeError, msg
+        raise TypeError(msg)
 
     try:
         xpsize = len(xp)
     except:
         msg = 'CANNOT CREATE INSTANCE - Expected an array for the dimension'
-        raise TypeError, msg
+        raise TypeError(msg)
 
     # -----  check request for valid interpoloation type  -----  
 
     if xtype != 'linear' and xtype != 'linearLog' and xtype != 'cubic' and xtype != 'cubicLog':
         msg = 'CANNOT CREATE INSTANCE - interpolation choice must be linear, linearLog, cubic or cubicLog'
-        raise ValueError, msg
+        raise ValueError(msg)
 
     # -----  check for inadequate coordinate vector sizes  -----  
 
@@ -1455,18 +1455,18 @@ def checkdimension(x, xp, xtype):
         minLength = 4
         if xsize < minLength:
             msg =  'ERROR - input grid vector needs size of least 4, but has only %d' % (xsize,)
-            raise ValueError, msg
+            raise ValueError(msg)
         if xpsize < minLength:
             msg =  'ERROR - input grid vector needs size of least 4, but has only %d' % (xpsize,)
-            raise ValueError, msg
+            raise ValueError(msg)
     else:
         minLength = 2
         if xsize < minLength:
             msg =  'ERROR - input grid vector needs size of least 2, but has only %d' % (xsize,)
-            raise ValueError, msg
+            raise ValueError(msg)
         if xpsize < minLength:
             msg =  'ERROR - input grid vector needs size of least 2, but has only %d' % (xpsize,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
     # -----  take log of vectors if needed  -----  
 
@@ -1475,30 +1475,30 @@ def checkdimension(x, xp, xtype):
         n = numpy.add.reduce(numpy.where(numpy.less(numpy.ravel(x), 0.0),1,0))  # look for negative values
         if n > 0:
             msg =  'ERROR IN TAKING LOG OF INPUT COORDINATE - negative values'
-            raise ValueError, msg
+            raise ValueError(msg)
         n = numpy.add.reduce(numpy.where(numpy.less(numpy.ravel(xp), 0.0),1,0))  # look for negative values
         if n > 0:
             msg =  'ERROR IN TAKING LOG OF OUTPUT COORDINATE - negative values'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         n = numpy.add.reduce(numpy.where(numpy.equal(numpy.ravel(x), 0.0),1,0))  
         if n > 0:                                                                        # found zero in x
-            print 'IN TAKING LOG OF INPUT COORDINATE - 0.0 replaced by 1.0e-6'
+            print('IN TAKING LOG OF INPUT COORDINATE - 0.0 replaced by 1.0e-6')
             x = numpy.where(numpy.equal(x, 0.0), 1.0e-6, x)  
             x = numpy.log(x)
         n = numpy.add.reduce(numpy.where(numpy.equal(numpy.ravel(xp), 0.0),1,0))  
         if n > 0:                                                                        # found zero in xp
-            print  'IN TAKING LOG OF INPUT COORDINATE - 0.0 replaced by 1.0e-6'
+            print('IN TAKING LOG OF INPUT COORDINATE - 0.0 replaced by 1.0e-6')
             xp = numpy.where(numpy.equal(xp, 0.0), 1.0e-6, xp)  
             xp = numpy.log(xp)
 
     # ----- Check dimension type and change to float if necessary -------
 
     if x.dtype.char != 'f':
-        print 'WARNING - source dimension vector will be converted to float32'
+        print('WARNING - source dimension vector will be converted to float32')
         x = x.astype(numpy.float32)
     if xp.dtype.char != 'f':
-        print 'WARNING - target dimension vector will be converted to float32'
+        print('WARNING - target dimension vector will be converted to float32')
         xp = xp.astype(numpy.float32)
 
     if x[0] > x[xsize - 1]:
@@ -1518,19 +1518,19 @@ def checkdimension(x, xp, xtype):
     small = 1.0e-04
     if (x[0] - xp[0] > small) or ( xp[xpsize - 1] - x[xsize - 1] > small):
         msg = 'CANNOT CREATE INSTANCE - extrapolation is not posible'
-        raise ValueError,msg
+        raise ValueError(msg)
         return
 
     for n in range(1,xsize):
         if x[n] < x[n - 1]:
             msg = 'CANNOT CREATE INSTANCE - source vector not monotonic'
-            raise ValueError,msg
+            raise ValueError(msg)
             return
 
     for n in range(1,xpsize):
         if xp[n] < xp[n - 1]:
             msg = 'CANNOT CREATE INSTANCE - target vector not monotonic'
-            raise ValueError,msg
+            raise ValueError(msg)
             return
 
     return xreverse, xpreverse, x, xp
@@ -1637,13 +1637,13 @@ def gaussianGrid(nlat):
     points, wts, ierror = regridpack.gaqd(nlat, ldwork)
 
     if ierror != 0:
-        print 'In return from call to gaqd ierror = ', ierror
+        print('In return from call to gaqd ierror = ', ierror)
         raise ValueError
 
     # convert points to geophysical format
 
     colatlist = list(points) 
-    latlist = map( (lambda x: 90.0 - x*180.0/math.pi), colatlist)
+    latlist = list(map( (lambda x: 90.0 - x*180.0/math.pi), colatlist))
 
     grid =  numpy.array(latlist, numpy.float32)
 
@@ -1651,10 +1651,10 @@ def gaussianGrid(nlat):
 
 def help(choice = None):
 
-    import adamsregrid
+    from . import adamsregrid
 
     if choice is None:
-        print """    --------------------------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------------------------
       
       INSTRUCTIONS 
      
@@ -1682,15 +1682,15 @@ def help(choice = None):
      
                     adamstest.document()
      
-    --------------------------------------------------------------------------------------------------------""" 
+    --------------------------------------------------------------------------------------------------------""") 
     elif choice is 'overview':
-        print adamsregrid.__doc__
+        print(adamsregrid.__doc__)
     elif choice == 'Regrid':
-        print adamsregrid.Regrid.__init__.__doc__
+        print(adamsregrid.Regrid.__init__.__doc__)
     elif choice == 'rgrd':
-        print adamsregrid.Regrid.rgrd.__doc__
+        print(adamsregrid.Regrid.rgrd.__doc__)
     elif choice == 'OneDexample':
-        print """     ------------------------------------------------------------------------------------------------------
+        print("""     ------------------------------------------------------------------------------------------------------
      
       EXAMPLE OF ONE DIMENSIONAL INTERPOLATION  
          
@@ -1741,10 +1741,10 @@ def help(choice = None):
      
                 anotherOutputData = r.rgrd( anotherInputData) 
      
-     -----------------------------------------------------------------------------------------------------------"""
+     -----------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'FourDexample':
-        print """     ------------------------------------------------------------------------------------------------------
+        print("""     ------------------------------------------------------------------------------------------------------
      
          
       EXAMPLE OF FOUR DIMENSIONAL INTERPOLATION  
@@ -1807,10 +1807,10 @@ def help(choice = None):
      
                 anotherOutputData = r.rgrd( anotherInputData) 
      
-     -------------------------------------------------------------------------------------------------"""
+     -------------------------------------------------------------------------------------------------""")
 
     else:
-        print 'Could not find this choice in help'
+        print('Could not find this choice in help')
 
     return None
 

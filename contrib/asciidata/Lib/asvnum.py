@@ -1,11 +1,11 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import ASV
+from . import ASV
 import numpy, string
 
 def get_array(asv, name, tc=None):
     """Return the array whose field name is name, using typecode tc
     """
-    return numpy.array(map(string.atof, [r[name] for r in asv]), tc)
+    return numpy.array(list(map(string.atof, [r[name] for r in asv])), tc)
 
 def get_arrays(asv, omit=None, typecodes=None):
     """Return a dictionary of arrays from an ASV object, omitting names in the list omit,

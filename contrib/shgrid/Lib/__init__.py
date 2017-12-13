@@ -1,2 +1,2 @@
-from sh import *
+from .sh import *
 

@@ -21,6 +21,6 @@ y3 = binaryio.binread(j, 2*3, 4, 5)
 y4 = binaryio.binread(j, 2, 3, 4, 5)
 binaryio.binclose(j)
 if not numpy.allclose(binaryio.row_major(x4), y4):
-    raise FuioError, "x4 and y4 fail to compare."
-print "Test completed successfully."
+    raise FuioError("x4 and y4 fail to compare.")
+print("Test completed successfully.")
 

@@ -305,7 +305,7 @@ usefilled = 'yes'
 try:
     import numpy.ma
 except ImportError:
-    print 'Can not convert from numpy.ma array to numpy array without module numpy.ma'
+    print('Can not convert from numpy.ma array to numpy array without module numpy.ma')
     usefilled = 'no'
 
 debug = 0
@@ -347,7 +347,7 @@ class Cssgrid:
 
         if (lato is None and lono is not None) or (lato is not None and lono is None): 
             msg = 'CANNOT CREATE INSTANCE - The number of arrays is either two or four' 
-            raise ValueError, msg
+            raise ValueError(msg)
         
         if (lato is not None):                                    # output grid is part of the initialization 
             # check the argument list
@@ -355,28 +355,28 @@ class Cssgrid:
                 size = len(lati)
                 if size < 4:
                     msg = 'CANNOT CREATE INSTANCE - The length of the input lat coordinate grid must be greater than 3'
-                    raise ValueError, msg
+                    raise ValueError(msg)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Input latitude must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
             try: 
                 size = len(loni)
                 if size < 4:
                     msg = 'CANNOT CREATE INSTANCE - The length of the input lon coordinate grid must be greater than 3'
-                    raise ValueError, msg
+                    raise ValueError(msg)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Input longitude must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
             try:
                 size = len(lato)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Output latitude must be an array. Can have length of 1'
-                raise TypeError, msg
+                raise TypeError(msg)
             try: 
                 size = len(lono)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Output longitude must be an array. Can have length of 1'
-                raise TypeError, msg
+                raise TypeError(msg)
 
             # make sure that the arrays are numpy arrays
 
@@ -410,12 +410,12 @@ class Cssgrid:
                 numberDoubles = numberDoubles + 1
 
             if debug == 1:
-                print 'number Singles and Doubles : ', numberSingles, numberDoubles
+                print('number Singles and Doubles : ', numberSingles, numberDoubles)
 
             if numberSingles >= numberDoubles:
                 self.group = 'single' 
                 if numberSingles < 4:
-                    print 'Changing all the coordinate grid types to float32'
+                    print('Changing all the coordinate grid types to float32')
                     lati = lati.astype(numpy.float32)
                     loni = loni.astype(numpy.float32)
                     lato = lato.astype(numpy.float32)
@@ -423,14 +423,14 @@ class Cssgrid:
             else:
                 self.group = 'double' 
                 if numberDoubles < 4:
-                    print 'Changing all the coordinate grid types to float64'
+                    print('Changing all the coordinate grid types to float64')
                     lati = lati.astype(numpy.float64)
                     loni = loni.astype(numpy.float64)
                     lato = lato.astype(numpy.float64)
                     lono = lono.astype(numpy.float64)
 
             if debug == 1:
-                print 'self.group: ', self.group
+                print('self.group: ', self.group)
         
             # set the self data for the input grid
 
@@ -438,7 +438,7 @@ class Cssgrid:
             nloni = len(loni)
             if nlati != nloni:
                 msg = 'CANNOT CREATE INSTANCE - The input grid must be in a list form -- here the array lengths area not equal'
-                raise ValueError, msg
+                raise ValueError(msg)
             else:
                 self.ni = nlati
 
@@ -458,18 +458,18 @@ class Cssgrid:
                 size = len(lati)
                 if size < 4:
                     msg = 'CANNOT CREATE INSTANCE - The length of the input lat corrrdindate grid must be greater than 3'
-                    raise ValueError, msg
+                    raise ValueError(msg)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Input latitude must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
             try: 
                 size = len(loni)
                 if size < 4:
                     msg = 'CANNOT CREATE INSTANCE - The length of the input lon coordindate grid must be greater than 3'
-                    raise ValueError, msg
+                    raise ValueError(msg)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - Input longitude must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
 
             # make sure that the arrays are numpy arrays
 
@@ -492,18 +492,18 @@ class Cssgrid:
                 numberDoubles = numberDoubles + 1
 
             if debug == 1:
-                print 'number Singles and Doubles : ', numberSingles, numberDoubles
+                print('number Singles and Doubles : ', numberSingles, numberDoubles)
 
             if numberSingles >= numberDoubles:
                 self.group = 'single' 
                 if numberSingles < 2:
-                    print 'Changing all the coordinate grid types to float32'
+                    print('Changing all the coordinate grid types to float32')
                     lati = lati.astype(numpy.float32)
                     loni = loni.astype(numpy.float32)
             else:
                 self.group = 'double' 
                 if numberDoubles < 2:
-                    print 'Changing all the coordinate grid types to float64'
+                    print('Changing all the coordinate grid types to float64')
                     lati = lati.astype(numpy.float64)
                     loni = loni.astype(numpy.float64)
         
@@ -513,7 +513,7 @@ class Cssgrid:
             nloni = len(loni)
             if nlati != nloni:
                 msg = 'CANNOT CREATE INSTANCE - The input grid must be in a list form -- here the array lengths area not equal'
-                raise ValueError, msg
+                raise ValueError(msg)
             else:
                 self.ni = nlati
 
@@ -606,21 +606,21 @@ class Cssgrid:
 
         if (dataIn is None and compType is None): 
             msg = 'CANNOT CARRY OUT COMPUTATION - Must pass either dataIn or compType' 
-            raise ValueError, msg
+            raise ValueError(msg)
 
         if (dataIn is not None and compType is not None): 
             msg = 'CANNOT CARRY OUT COMPUTATION - Passing dataIn and compType is inconsistent' 
-            raise ValueError, msg
+            raise ValueError(msg)
 
         if dataIn is None:
             if compType != 'triangles' and compType != 'polygons': 
                 msg = 'CANNOT CARRY OUT COMPUTATION - compType must be triangles or polygons'
-                raise ValueError, msg
+                raise ValueError(msg)
 
         else:
             if len(dataIn) != self.ni:
                 msg = 'CANNOT INTERPOLATE - The length of the input grids and the length of data must agree'
-                raise ValueError, msg
+                raise ValueError(msg)
             if usefilled == 'yes':
                 dataIn = numpy.ma.filled(dataIn)
 
@@ -648,7 +648,7 @@ class Cssgrid:
             tmp2 = numpy.zeros((13*self.ni),'d')
             if self.group == 'single':                 # single precision
                 if debug == 1:
-                    print '********** in rgrd with single precision regrid  ********'
+                    print('********** in rgrd with single precision regrid  ********')
                 
                 dataOut, ier = cssgridmodule.cssgrid(self.lati, self.loni, dataIn,
                                                      self.lato, self.lono, tmp1, tmp2)
@@ -659,7 +659,7 @@ class Cssgrid:
 
             if ier != 0:
                 msg = 'Error in return from cssgrid call with -- ' + Cssgrid.errorTable(self)[ier] 
-                raise ValueError, msg
+                raise ValueError(msg)
 
             return dataOut 
 
@@ -668,23 +668,23 @@ class Cssgrid:
             tmp2 = numpy.zeros((13*self.ni),'d')
             if self.group == 'single':                 # single precision
                 if debug == 1:
-                    print '********** in rgrd with single precision triangles  ********'
+                    print('********** in rgrd with single precision triangles  ********')
 
                 nt, ntri, ier = cssgridmodule.csstri(self.lati, self.loni, tmp1, tmp2)
 
                 if ier != 0:
                     msg = 'Error in return from csstri call with -- ' + Cssgrid.errorTable(self)[ier] 
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
             else:                                       # double precision
                 if debug == 1:
-                    print '********** in rgrd with double precision triangles  ********'
+                    print('********** in rgrd with double precision triangles  ********')
 
                 nt, ntri, ier = cssgridmodule.csstrid(self.lati, self.loni, tmp1, tmp2)
 
                 if ier != 0:
                     msg = 'Error in return from csstrid call with -- ' + Cssgrid.errorTable(self)[ier] 
-                    raise ValueError, msg
+                    raise ValueError(msg)
             ntri = numpy.transpose(ntri) # mirror
             ntriTruncated = ntri[:nt,:] 
             del ntri
@@ -697,33 +697,33 @@ class Cssgrid:
             tmp2 = numpy.zeros((9*self.ni),'d')
             if indexVoro is None or firstCall is None:
                 msg = 'CANNOT CALCULATE VERONOI POLYGONS - indexVoro and firstCall must be set. Their is no default'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             indexVoro = indexVoro + 1                 # change to Fortran 1 based index
             if indexVoro >= self.ni:
                 msg = 'CANNOT CALCULATE VERONOI POLYGONS - indexVoro is is too large'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             if self.group == 'single':                 # single precision
                 if debug == 1:
-                    print '********** in rgrd with single precision polygons  ********'
+                    print('********** in rgrd with single precision polygons  ********')
 
                 nc = 2*self.ni
 
                 latV, lonV, rc, nca, numv, nv, ier = cssgridmodule.csvoro(self.lati, self.loni, indexVoro, firstCall, tmp1,tmp2, nc)
                 if ier != 0:
                     msg = 'Error in return from csvoro call with -- ' + Cssgrid.errorTable(self)[ier] 
-                    raise ValueError, msg
+                    raise ValueError(msg)
             else:                                       # double precision
                 if debug == 1:
-                    print '********** in rgrd with double precision polygons  ********'
+                    print('********** in rgrd with double precision polygons  ********')
 
                 nc = 2*self.ni
 
                 latV, lonV, rc, nca, numv, nv, ier = cssgridmodule.csvorod(self.lati, self.loni, indexVoro, firstCall, tmp1, tmp2, nc)
                 if ier != 0:
                     msg = 'Error in return from csvorod call with -- ' + Cssgrid.errorTable(self)[ier] 
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
             # nca is not calculated properly in csvoro and csvorod but the number -5.729e06 in latV can be used to fix it.
 
@@ -857,7 +857,7 @@ class Cssgrid:
         parameterDict = Cssgrid.makeDefaultParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items
+            print('%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items)
 
         return 
 
@@ -880,7 +880,7 @@ class Cssgrid:
         parameterDict = Cssgrid.makeInstanceParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items
+            print('%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items)
 
         return 
 
@@ -905,9 +905,9 @@ class Cssgrid:
 
         for name in names:
             if typeDict[name] == 'int':
-                print 'Currently, %s = %d' % (name, eval('self.' + name))
+                print('Currently, %s = %d' % (name, eval('self.' + name)))
             elif typeDict[name] == 'float':
-                print 'Currently, %s = %f' % (name, eval('self.' + name))
+                print('Currently, %s = %f' % (name, eval('self.' + name)))
 
         return None      
 
@@ -994,7 +994,7 @@ class Cssgrid:
         #-------------------------------------------------------------------------------
         typeDict = Cssgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 cssgridmodule.csseti(name, value)
                 self.__dict__[name] = value
@@ -1025,7 +1025,7 @@ class Cssgrid:
         #-------------------------------------------------------------------------------
         typeDict = Cssgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 value = cssgridmodule.csgeti(name)
             elif typeDict[name] == 'float':
@@ -1034,7 +1034,7 @@ class Cssgrid:
                 value = cssgridmodule.csgetrd(name)[0]
 
         else:
-            raise AttributeError, name
+            raise AttributeError(name)
 
         return value
 
@@ -1075,7 +1075,7 @@ def printParameterTable():
 
     for item in names:
         items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-        print '%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items
+        print('%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items)
 
     return None      
 
@@ -1105,19 +1105,19 @@ def printStoredParameters():
 
     for item in names:
         if typeDict[item] == 'int':
-            print 'Currently, %s = %d' % (item, cssgridmodule.csgeti(item))
+            print('Currently, %s = %d' % (item, cssgridmodule.csgeti(item)))
         elif typeDict[item] == 'float':
-            print 'Currently, %s = %f' % (item, cssgridmodule.csgetr(item)[0])
+            print('Currently, %s = %f' % (item, cssgridmodule.csgetr(item)[0]))
         elif typeDict[item] == 'double':
-            print 'Currently, %s = %f' % (item, cssgridmodule.csgetrd(item)[0])
+            print('Currently, %s = %f' % (item, cssgridmodule.csgetrd(item)[0]))
 
     return None      
 
 def help(choice = None):
-    import css
+    from . import css
 
     if choice is None:                               # get instructions for use of help
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
       
       INSTRUCTIONS ON USE THE OBJECT ORIENTED INTERFACE TO THE CSSGRID PACKAGE FROM NGMATH 
      
@@ -1197,10 +1197,10 @@ def help(choice = None):
           directly, indices atart at 1. In either case, data is passed with the latitude index moving faster than the longitude
           index. 
      
-     ------------------------------------------------------------------------------------------------------"""
+     ------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'Cssgrid': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
      
             To make an instance, r, type:
@@ -1226,10 +1226,10 @@ def help(choice = None):
                     The grid coordinate arrays may be single or double precision. The choice determines whether the subsequent
                     computations are single or double precision.
                                            
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'parameters': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
              In the absence of an instance of the class Cssgrid, a description of the control parameters can be found 
              by typing
@@ -1272,7 +1272,7 @@ def help(choice = None):
 
                 css. printStoredParameters()    -- prints the parameters in memory which may differ from the above if the
                                                    user has made more than one instance of the Cssgrid class.
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'table': 
         printParameterTable()
@@ -1280,7 +1280,7 @@ def help(choice = None):
     #-----------------------------------------------------------------------------------------------------
 
     elif choice == 'interpolate':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
      
             Make an instance, r, by typing:
      
@@ -1303,10 +1303,10 @@ def help(choice = None):
      
                     where dataOut is the interpolated data on the output grid.
      
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'triangles':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
      
             Make an instance, r, by typing:
      
@@ -1331,10 +1331,10 @@ def help(choice = None):
                                 were in the list of triples, it would describe the triangle having vertices at (loni(5), lati(5)),
                                 (loni(1), lati(1)) and (loni(2),lati(2)). 
      
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'polygons':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
      
             Make an instance, r, by typing:
      
@@ -1378,35 +1378,35 @@ def help(choice = None):
                                  is a vertex of the Voronoi polygon enclosing (loni(ni), lati(ni)). The indices in nv list out
                                  the vertices of the Voronoi polygon in counter- clockwise order.
      
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'cssgtri':
-        print cssgridmodule.cssgtri.__doc__
+        print(cssgridmodule.cssgtri.__doc__)
     elif choice == 'csvoro':
-        print cssgridmodule.csvoro.__doc__
+        print(cssgridmodule.csvoro.__doc__)
     elif choice == 'csseti':
-        print cssgridmodule.csseti.__doc__
+        print(cssgridmodule.csseti.__doc__)
     elif choice == 'csgeti':
-        print cssgridmodule.csgeti.__doc__
+        print(cssgridmodule.csgeti.__doc__)
     elif choice == 'cssetr':
-        print cssgridmodule.cssetr.__doc__
+        print(cssgridmodule.cssetr.__doc__)
     elif choice == 'csgetr':
-        print cssgridmodule.csgetr.__doc__
+        print(cssgridmodule.csgetr.__doc__)
     elif choice == 'cssgtrid':
-        print cssgridmodule.cssgtrid.__doc__
+        print(cssgridmodule.cssgtrid.__doc__)
     elif choice == 'csvorod':
-        print cssgridmodule.csvorod.__doc__
+        print(cssgridmodule.csvorod.__doc__)
     elif choice == 'cssetd':
-        print cssgridmodule.cssetd.__doc__
+        print(cssgridmodule.cssetd.__doc__)
     elif choice == 'csgetd':
-        print cssgridmodule.csgetd.__doc__
+        print(cssgridmodule.csgetd.__doc__)
     elif choice == 'css2c':
-        print cssgridmodule.css2c.__doc__
+        print(cssgridmodule.css2c.__doc__)
     elif choice == 'csc2s':
-        print cssgridmodule.csc2s.__doc__
+        print(cssgridmodule.csc2s.__doc__)
     else:
-        print 'Your request is not in help.   The help choices are: ' 
-        print 'Cssgrid, parameters, interpolate,triangles, polygons,cssgrid, cssgtri, csvoro, csseti, csgeti, cssetr, csgetr, cssgtrid, csvorod, cssetd, csgetd, css2c, csc2s'
+        print('Your request is not in help.   The help choices are: ') 
+        print('Cssgrid, parameters, interpolate,triangles, polygons,cssgrid, cssgtri, csvoro, csseti, csgeti, cssetr, csgetr, cssgtrid, csvorod, cssetd, csgetd, css2c, csc2s')
 
     return None
 

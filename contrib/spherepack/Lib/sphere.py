@@ -338,7 +338,7 @@ usefilled = 'yes'
 try:
     import numpy.ma
 except ImportError:
-    print 'Can not convert from numpy.ma array to numpy array without module numpy.ma'
+    print('Can not convert from numpy.ma array to numpy array without module numpy.ma')
     usefilled = 'no'
 
 class Sphere:
@@ -443,13 +443,13 @@ class Sphere:
         # check the shape for a unique number of longitudes and a unique number of latitudes
 
         if self.lon in [self.tme, self.lev, self.lat]:
-            print 'Warning - number of longitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of longitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of latitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
         if self.lat in [self.tme, self.lev, self.lon]:
-            print 'Warning - number of latitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of latitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of longitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
 
         # check grids and get grid_type as 'even' or 'gaussian'
 
@@ -475,7 +475,7 @@ class Sphere:
                 self.gridComp = Wrapes()
         else:
             msg = 'CANNOT PROCESS THE DATA - The computation scheme for the coefficients must be either computed or stored'
-            raise ValueError, msg
+            raise ValueError(msg)
 
     def div(self, u, v, missingValue = None):
         """    --------------------------------------------------------------------------------------------------------
@@ -1532,23 +1532,23 @@ class Wrapec:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to divec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from divec with div'
+            print(' ')
+            print('pass to divec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from divec with div')
 
         if ierror != 0:
             msg = 'In return from call to shaeci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return dv 
 
@@ -1596,23 +1596,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to gradec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from gradec with u, v'
+            print(' ')
+            print('pass to gradec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from gradec with u, v')
 
         if ierror != 0:
             msg = 'In return from call to gradec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -1662,23 +1662,23 @@ class Wrapec:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idivec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from idivec with u, v'
+            print(' ')
+            print('pass to idivec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from idivec with u, v')
 
         if ierror != 0:
             msg = 'In return from call to idivec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -1728,23 +1728,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idvtec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from idvtec with u and v'
+            print(' ')
+            print('pass to idvtec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from idvtec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to idvtec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -1792,23 +1792,23 @@ class Wrapec:
         sf = numpy.transpose(sf)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to igradec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'isf = ', isf
-            print 'jsf = ', jsf
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from igradec with sf'
+            print(' ')
+            print('pass to igradec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('isf = ', isf)
+            print('jsf = ', jsf)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from igradec with sf')
 
         if ierror != 0:
             msg = 'In return from call to igradec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -1858,23 +1858,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to isfvpec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from isfvpec with u and v'
+            print(' ')
+            print('pass to isfvpec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from isfvpec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to isfvpec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -1919,23 +1919,23 @@ class Wrapec:
         sf = numpy.transpose(sf)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to islapec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from islapec with sf'
+            print(' ')
+            print('pass to islapec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from islapec with sf')
 
         if ierror != 0:
             msg = 'In return from call to islapec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -1980,23 +1980,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivlapec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from ivlapec with u and v'
+            print(' ')
+            print('pass to ivlapec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from ivlapec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to ivlapec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -2044,23 +2044,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivrtec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from ivrtec with u, v'
+            print(' ')
+            print('pass to ivrtec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from ivrtec with u, v')
 
         if ierror != 0:
             msg = 'In return from call to ivrtec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -2110,23 +2110,23 @@ class Wrapec:
         vp = numpy.transpose(vp)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to sfvpec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from sfvpec with sf and vp'
+            print(' ')
+            print('pass to sfvpec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from sfvpec with sf and vp')
 
         if ierror != 0:
             msg = 'In return from call to sfvpec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf, vp 
 
@@ -2158,17 +2158,17 @@ class Wrapec:
         wshaec, ierror = spherepack.shaeci(nlat, nlon, lshaec, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shaeci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshaec = ', lshaec
-            print 'ldwork = ', ldwork
-            print 'return from shaeci with wshaec and lshaec'
+            print(' ')
+            print('pass to shaeci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshaec = ', lshaec)
+            print('ldwork = ', ldwork)
+            print('return from shaeci with wshaec and lshaec')
 
         if ierror != 0:
             msg = 'In return from call to shaeci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshaec, lshaec 
 
@@ -2212,23 +2212,23 @@ class Wrapec:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shaec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshaec = ', lshaec
-            print 'lwork = ', lwork
-            print 'return from shaec with a, b'
+            print(' ')
+            print('pass to shaec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshaec = ', lshaec)
+            print('lwork = ', lwork)
+            print('return from shaec with a, b')
 
         if ierror != 0:
             msg = 'In return from call to shaec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return a, b 
 
@@ -2261,17 +2261,17 @@ class Wrapec:
         wshsec, ierror = spherepack.shseci(nlat, nlon, lshsec, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shseci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshsec = ', lshsec
-            print 'ldwork = ', ldwork
-            print 'return from shseci with wshsec and lshsec'
+            print(' ')
+            print('pass to shseci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshsec = ', lshsec)
+            print('ldwork = ', ldwork)
+            print('return from shseci with wshsec and lshsec')
 
         if ierror != 0:
             msg = 'In return from call to shseci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshsec, lshsec 
 
@@ -2313,23 +2313,23 @@ class Wrapec:
         g = numpy.transpose(g)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from shsec with g'
+            print(' ')
+            print('pass to shsec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from shsec with g')
 
         if ierror != 0:
             msg = 'In return from call to shsec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return g 
 
@@ -2373,23 +2373,23 @@ class Wrapec:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to slapec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from slapec with slap'
+            print(' ')
+            print('pass to slapec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from slapec with slap')
 
         if ierror != 0:
             msg = 'In return from call to slapec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return slap 
 
@@ -2421,17 +2421,17 @@ class Wrapec:
         wvhaec, ierror = spherepack.vhaeci(nlat, nlon, lvhaec, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhaeci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhaec = ', lvhaec
-            print 'ldwork = ', ldwork
-            print 'return from vhaeci with wvhaec and lvhaec'
+            print(' ')
+            print('pass to vhaeci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhaec = ', lvhaec)
+            print('ldwork = ', ldwork)
+            print('return from vhaeci with wvhaec and lvhaec')
 
         if ierror != 0:
             msg = 'In return from call to vhaeci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhaec, lvhaec 
 
@@ -2477,23 +2477,23 @@ class Wrapec:
         ci = numpy.transpose(ci)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhaec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhaec = ', lvhaec
-            print 'lwork = ', lwork
-            print 'return from vhaec with br,bi,cr,ci'
+            print(' ')
+            print('pass to vhaec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhaec = ', lvhaec)
+            print('lwork = ', lwork)
+            print('return from vhaec with br,bi,cr,ci')
 
         if ierror != 0:
             msg = 'In return from call to vhaec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return br, bi, cr, ci 
 
@@ -2524,17 +2524,17 @@ class Wrapec:
         wvhsec, ierror = spherepack.vhseci(nlat, nlon, lvhsec, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhseci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhsec = ', lvhsec
-            print 'ldwork = ', ldwork
-            print 'return from vhseci with wvhsec and lvhsec'
+            print(' ')
+            print('pass to vhseci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhsec = ', lvhsec)
+            print('ldwork = ', ldwork)
+            print('return from vhseci with wvhsec and lvhsec')
 
         if ierror != 0:
             msg = 'In return from call to vhseci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhsec, lvhsec 
 
@@ -2579,23 +2579,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from vhsec with u and v'
+            print(' ')
+            print('pass to vhsec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from vhsec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vhsec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -2647,23 +2647,23 @@ class Wrapec:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vlapec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsec = ', lvhsec
-            print 'lwork = ', lwork
-            print 'return from vlapec with u and v'
+            print(' ')
+            print('pass to vlapec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsec = ', lvhsec)
+            print('lwork = ', lwork)
+            print('return from vlapec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vlapec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -2707,23 +2707,23 @@ class Wrapec:
         vort = numpy.transpose(vort)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vortec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ivrt = ', ivrt
-            print 'jvrt = ', jvrt
-            print 'mdc = ', mdc
-            print 'ndc = ', ndc
-            print 'lshsec = ', lshsec
-            print 'lwork = ', lwork
-            print 'return from vrtec with vort'
+            print(' ')
+            print('pass to vortec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ivrt = ', ivrt)
+            print('jvrt = ', jvrt)
+            print('mdc = ', mdc)
+            print('ndc = ', ndc)
+            print('lshsec = ', lshsec)
+            print('lwork = ', lwork)
+            print('return from vrtec with vort')
 
         if ierror != 0:
             msg = 'In return from call to vrtec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return vort 
 
@@ -2754,17 +2754,17 @@ class Wrapec:
         wvts, ierror = spherepack.vtseci(nlat, nlon, lwvts, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtseci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lwvts = ', lwvts
-            print 'ldwork = ', ldwork
-            print 'return from vtseci with wvts and lwvts'
+            print(' ')
+            print('pass to vtseci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lwvts = ', lwvts)
+            print('ldwork = ', ldwork)
+            print('return from vtseci with wvts and lwvts')
 
         if ierror != 0:
             msg = 'In return from call to vtseci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvts, lwvts 
 
@@ -2809,23 +2809,23 @@ class Wrapec:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtsec'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lwvts = ', lwvts
-            print 'lwork = ', lwork
-            print 'return from vtsec with u and v'
+            print(' ')
+            print('pass to vtsec')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lwvts = ', lwvts)
+            print('lwork = ', lwork)
+            print('return from vtsec with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vtsec ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -2889,23 +2889,23 @@ class Wrapgc:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to divgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from divgc with div'
+            print(' ')
+            print('pass to divgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from divgc with div')
 
         if ierror != 0:
             msg = 'In return from call to divgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return dv 
 
@@ -2953,23 +2953,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to gradgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from gradgc with u, v'
+            print(' ')
+            print('pass to gradgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from gradgc with u, v')
 
         if ierror != 0:
             msg = 'In return from call to gradgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3017,23 +3017,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idivgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from idivgc with u, v'
+            print(' ')
+            print('pass to idivgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from idivgc with u, v')
 
         if ierror != 0:
             msg = 'In return from call to idivgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3083,23 +3083,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idvtgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from idvtgc with w and v'
+            print(' ')
+            print('pass to idvtgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from idvtgc with w and v')
 
         if ierror != 0:
             msg = 'In return from call to idvtgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3147,23 +3147,23 @@ class Wrapgc:
         sf = numpy.transpose(sf)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to igradgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'isf = ', isf
-            print 'jsf = ', jsf
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from igradgc with sf'
+            print(' ')
+            print('pass to igradgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('isf = ', isf)
+            print('jsf = ', jsf)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from igradgc with sf')
 
         if ierror != 0:
             msg = 'In return from call to igradgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -3208,23 +3208,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to isfvpgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from isfvpgc with u and v'
+            print(' ')
+            print('pass to isfvpgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from isfvpgc with u and v')
 
         if ierror != 0:
             msg = 'In return from call to isfvpgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3269,23 +3269,23 @@ class Wrapgc:
         sf = numpy.transpose(sf)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to islapgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from islapgc with sf'
+            print(' ')
+            print('pass to islapgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from islapgc with sf')
 
         if ierror != 0:
             msg = 'In return from call to islapgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -3334,23 +3334,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivlapgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from ivlapgc with u and v'
+            print(' ')
+            print('pass to ivlapgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from ivlapgc with u and v')
 
         if ierror != 0:
             msg = 'In return from call to ivlapgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3400,23 +3400,23 @@ class Wrapgc:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivrtgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from ivrtgc with u, v'
+            print(' ')
+            print('pass to ivrtgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from ivrtgc with u, v')
 
         if ierror != 0:
             msg = 'In return from call to ivrtgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3467,23 +3467,23 @@ class Wrapgc:
         vp = numpy.transpose(vp)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to sfvpgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from sfvpgc with sf and vp'
+            print(' ')
+            print('pass to sfvpgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from sfvpgc with sf and vp')
 
         if ierror != 0:
             msg = 'In return from call to sfvpgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf, vp 
 
@@ -3514,17 +3514,17 @@ class Wrapgc:
         wshagc, ierror = spherepack.shagci(nlat, nlon, lshagc, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shagci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshagc = ', lshagc
-            print 'ldwork = ', ldwork
-            print 'return from shagci with wshagc and lshagc'
+            print(' ')
+            print('pass to shagci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshagc = ', lshagc)
+            print('ldwork = ', ldwork)
+            print('return from shagci with wshagc and lshagc')
 
         if ierror != 0:
             msg = 'In return from call to shagci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshagc, lshagc
 
@@ -3568,23 +3568,23 @@ class Wrapgc:
         b = numpy.transpose(b)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shagc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshagc = ', lshagc
-            print 'lwork = ', lwork
-            print 'return from shagc with a, b'
+            print(' ')
+            print('pass to shagc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshagc = ', lshagc)
+            print('lwork = ', lwork)
+            print('return from shagc with a, b')
 
         if ierror != 0:
             msg = 'In return from call to shagc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return a, b 
 
@@ -3615,17 +3615,17 @@ class Wrapgc:
         wshsgc, ierror = spherepack.shsgci(nlat, nlon, lshsgc, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsgci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshsgc = ', lshsgc
-            print 'ldwork = ', ldwork
-            print 'return from shsgci with wshsgc and lshsgc'
+            print(' ')
+            print('pass to shsgci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshsgc = ', lshsgc)
+            print('ldwork = ', ldwork)
+            print('return from shsgci with wshsgc and lshsgc')
 
         if ierror != 0:
             msg = 'In return from call to shsgci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshsgc, lshsgc 
 
@@ -3666,23 +3666,23 @@ class Wrapgc:
                                         wshsgc, work)
         g = numpy.transpose(g)
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'mode = ', mode
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from shsgc with g'
+            print(' ')
+            print('pass to shsgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('mode = ', mode)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from shsgc with g')
 
         if ierror != 0:
             msg = 'In return from call to shsgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return g 
 
@@ -3725,23 +3725,23 @@ class Wrapgc:
         slap = numpy.transpose(slap)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to slapgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from slapgc with slap'
+            print(' ')
+            print('pass to slapgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from slapgc with slap')
 
         if ierror != 0:
             msg = 'In return from call to slapgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return slap 
 
@@ -3774,17 +3774,17 @@ class Wrapgc:
         wvhagc, ierror = spherepack.vhagci(nlat, nlon, lvhagc, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhagci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhagc = ', lvhagc
-            print 'ldwork = ', ldwork
-            print 'return from vhagci with wvhagc'
+            print(' ')
+            print('pass to vhagci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhagc = ', lvhagc)
+            print('ldwork = ', ldwork)
+            print('return from vhagci with wvhagc')
 
         if ierror != 0:
             msg = 'In return from call to vhagci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhagc, lvhagc 
 
@@ -3830,23 +3830,23 @@ class Wrapgc:
         ci = numpy.transpose(ci)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhagc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhagc = ', lvhagc
-            print 'lwork = ', lwork
-            print 'return from vhagc with br,bi,cr,ci'
+            print(' ')
+            print('pass to vhagc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhagc = ', lvhagc)
+            print('lwork = ', lwork)
+            print('return from vhagc with br,bi,cr,ci')
 
         if ierror != 0:
             msg = 'In return from call to vhagc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return br, bi, cr, ci 
 
@@ -3877,17 +3877,17 @@ class Wrapgc:
         wvhsgc, ierror = spherepack.vhsgci(nlat, nlon, lvhsgc, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsgci'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhsgc = ', lvhsgc
-            print 'ldwork = ', ldwork
-            print 'return from vhsgci with wvhsgc'
+            print(' ')
+            print('pass to vhsgci')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhsgc = ', lvhsgc)
+            print('ldwork = ', ldwork)
+            print('return from vhsgci with wvhsgc')
 
         if ierror != 0:
             msg = 'In return from call to vhsgci ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhsgc, lvhsgc 
 
@@ -3931,23 +3931,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from vhsgc with u and v'
+            print(' ')
+            print('pass to vhsgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from vhsgc with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vhsgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -3998,23 +3998,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vlapgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsgc = ', lvhsgc
-            print 'lwork = ', lwork
-            print 'return from vlapgc with u and v'
+            print(' ')
+            print('pass to vlapgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsgc = ', lvhsgc)
+            print('lwork = ', lwork)
+            print('return from vlapgc with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vlapgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4056,23 +4056,23 @@ class Wrapgc:
         vort = numpy.transpose(vort)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vortgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ivrt = ', ivrt
-            print 'jvrt = ', jvrt
-            print 'mdc = ', mdc
-            print 'ndc = ', ndc
-            print 'lshsgc = ', lshsgc
-            print 'lwork = ', lwork
-            print 'return from vrtgc with vort'
+            print(' ')
+            print('pass to vortgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ivrt = ', ivrt)
+            print('jvrt = ', jvrt)
+            print('mdc = ', mdc)
+            print('ndc = ', ndc)
+            print('lshsgc = ', lshsgc)
+            print('lwork = ', lwork)
+            print('return from vrtgc with vort')
 
         if ierror != 0:
             msg = 'In return from call to vrtgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return vort 
 
@@ -4103,16 +4103,16 @@ class Wrapgc:
         wvts, ierror = spherepack.vtsgci(nlat, nlon, lwvts, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lwvts = ', lwvts
-            print 'ldwork = ', ldwork
-            print 'return from vtsgci with wvts and lwvts'
+            print(' ')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lwvts = ', lwvts)
+            print('ldwork = ', ldwork)
+            print('return from vtsgci with wvts and lwvts')
 
         if ierror != 0:
             msg = 'In return from call to vtsi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvts, lwvts 
 
@@ -4157,23 +4157,23 @@ class Wrapgc:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtsgc'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lwvts = ', lwvts
-            print 'lwork = ', lwork
-            print 'return from vtsgc with u and v'
+            print(' ')
+            print('pass to vtsgc')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lwvts = ', lwvts)
+            print('lwork = ', lwork)
+            print('return from vtsgc with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vtsgc ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4236,23 +4236,23 @@ class Wrapes:
         dv = numpy.transpose(dv)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to dives'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from dives with div'
+            print(' ')
+            print('pass to dives')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from dives with div')
 
         if ierror != 0:
             msg = 'In return from call to dives ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return dv 
 
@@ -4300,23 +4300,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to grades'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from grades with u, v'
+            print(' ')
+            print('pass to grades')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from grades with u, v')
 
         if ierror != 0:
             msg = 'In return from call to grades ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4364,23 +4364,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idives'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from idives with u, v'
+            print(' ')
+            print('pass to idives')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from idives with u, v')
 
         if ierror != 0:
             msg = 'In return from call to idives ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4430,23 +4430,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idvtes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from idvtes with u and v'
+            print(' ')
+            print('pass to idvtes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from idvtes with u and v')
 
         if ierror != 0:
             msg = 'In return from call to idvtes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4493,23 +4493,23 @@ class Wrapes:
                                         wshses, work)
         sf = numpy.transpose(sf)
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to igrades'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'isf = ', isf
-            print 'jsf = ', jsf
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from igrades with sf'
+            print(' ')
+            print('pass to igrades')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('isf = ', isf)
+            print('jsf = ', jsf)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from igrades with sf')
 
         if ierror != 0:
             msg = 'In return from call to igrades ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -4552,23 +4552,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to isfvpes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from isfvpes with u and v'
+            print(' ')
+            print('pass to isfvpes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from isfvpes with u and v')
 
         if ierror != 0:
             msg = 'In return from call to isfvpes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4613,23 +4613,23 @@ class Wrapes:
         sf = numpy.transpose(sf)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to islapes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from islapes with sf'
+            print(' ')
+            print('pass to islapes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from islapes with sf')
 
         if ierror != 0:
             msg = 'In return from call to islapes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -4674,23 +4674,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivlapes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from ivlapes with u and v'
+            print(' ')
+            print('pass to ivlapes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from ivlapes with u and v')
 
         if ierror != 0:
             msg = 'In return from call to ivlapes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4739,23 +4739,23 @@ class Wrapes:
         v = numpy.transpose(v)
         w = numpy.transpose(w)
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivrtes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from ivrtes with u, v'
+            print(' ')
+            print('pass to ivrtes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from ivrtes with u, v')
 
         if ierror != 0:
             msg = 'In return from call to ivrtes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -4803,23 +4803,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to sfvpes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from sfvpes with sf and vp'
+            print(' ')
+            print('pass to sfvpes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from sfvpes with sf and vp')
 
         if ierror != 0:
             msg = 'In return from call to sfvpes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf, vp 
 
@@ -4853,18 +4853,18 @@ class Wrapes:
         wshaes, ierror = spherepack.shaesi(nlat, nlon, lshaes, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shaesi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshaes = ', lshaes
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from shaesi with wshaes and lshaes'
+            print(' ')
+            print('pass to shaesi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshaes = ', lshaes)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from shaesi with wshaes and lshaes')
 
         if ierror != 0:
             msg = 'In return from call to shaies ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshaes, lshaes 
 
@@ -4909,23 +4909,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shaes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshaes = ', lshaes
-            print 'lwork = ', lwork
-            print 'return from shaes with a, b'
+            print(' ')
+            print('pass to shaes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshaes = ', lshaes)
+            print('lwork = ', lwork)
+            print('return from shaes with a, b')
 
         if ierror != 0:
             msg = 'In return from call to shaes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return a, b 
 
@@ -4958,18 +4958,18 @@ class Wrapes:
         wshses, ierror = spherepack.shsesi(nlat, nlon, lshses, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsesi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from shsesi with wshses and lshses'
+            print(' ')
+            print('pass to shsesi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from shsesi with wshses and lshses')
 
         if ierror != 0:
             msg = 'In return from call to shsesi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshses, lshses 
 
@@ -5012,23 +5012,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shses'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from shses with g'
+            print(' ')
+            print('pass to shses')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from shses with g')
 
         if ierror != 0:
             msg = 'In return from call to shses ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return g 
 
@@ -5073,23 +5073,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to slapes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from slapes with slap'
+            print(' ')
+            print('pass to slapes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from slapes with slap')
 
         if ierror != 0:
             msg = 'In return from call to slapes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return slap 
 
@@ -5122,18 +5122,18 @@ class Wrapes:
         wvhaes, ierror = spherepack.vhaesi(nlat, nlon, lvhaes, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhaesi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhaes = ', lvhaes
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from vhaesi with wvhaes and lvhaes'
+            print(' ')
+            print('pass to vhaesi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhaes = ', lvhaes)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from vhaesi with wvhaes and lvhaes')
 
         if ierror != 0:
             msg = 'In return from call to vhaesi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhaes, lvhaes 
 
@@ -5181,23 +5181,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhaes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhaes = ', lvhaes
-            print 'lwork = ', lwork
-            print 'return from vhaes with br,bi,cr,ci'
+            print(' ')
+            print('pass to vhaes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhaes = ', lvhaes)
+            print('lwork = ', lwork)
+            print('return from vhaes with br,bi,cr,ci')
 
         if ierror != 0:
             msg = 'In return from call to vhaes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return br, bi, cr, ci 
 
@@ -5232,18 +5232,18 @@ class Wrapes:
         wvhses, ierror = spherepack.vhsesi(nlat, nlon, lvhses, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsesi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from vhsesi with wvhses and lvhses'
+            print(' ')
+            print('pass to vhsesi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from vhsesi with wvhses and lvhses')
 
         if ierror != 0:
             msg = 'In return from call to vhsies ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhses, lvhses 
 
@@ -5287,23 +5287,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhses'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from vhses with u and v'
+            print(' ')
+            print('pass to vhses')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from vhses with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vhses ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5353,23 +5353,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vlapes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhses = ', lvhses
-            print 'lwork = ', lwork
-            print 'return from vlapes with u and v'
+            print(' ')
+            print('pass to vlapes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhses = ', lvhses)
+            print('lwork = ', lwork)
+            print('return from vlapes with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vlapes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5413,23 +5413,23 @@ class Wrapes:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vortes'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ivrt = ', ivrt
-            print 'jvrt = ', jvrt
-            print 'mdc = ', mdc
-            print 'ndc = ', ndc
-            print 'lshses = ', lshses
-            print 'lwork = ', lwork
-            print 'return from vrtes with vort'
+            print(' ')
+            print('pass to vortes')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ivrt = ', ivrt)
+            print('jvrt = ', jvrt)
+            print('mdc = ', mdc)
+            print('ndc = ', ndc)
+            print('lshses = ', lshses)
+            print('lwork = ', lwork)
+            print('return from vrtes with vort')
 
         if ierror != 0:
             msg = 'In return from call to vrtes ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return vort 
 
@@ -5462,18 +5462,18 @@ class Wrapes:
         wvts, ierror = spherepack.vtsesi(nlat, nlon, lwvts, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtsesi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lwvts = ', lwvts
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from vtsesi with wvts and lwvts'
+            print(' ')
+            print('pass to vtsesi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lwvts = ', lwvts)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from vtsesi with wvts and lwvts')
 
         if ierror != 0:
             msg = 'In return from call to vtsesi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvts, lwvts 
 
@@ -5518,23 +5518,23 @@ class Wrapes:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtses'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lwvts = ', lwvts
-            print 'lwork = ', lwork
-            print 'return from vtses with u and v'
+            print(' ')
+            print('pass to vtses')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lwvts = ', lwvts)
+            print('lwork = ', lwork)
+            print('return from vtses with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vtses ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5599,23 +5599,23 @@ class Wrapgs:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to divgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idiv = ', idiv
-            print 'jdiv = ', jdiv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from divgs with div'
+            print(' ')
+            print('pass to divgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idiv = ', idiv)
+            print('jdiv = ', jdiv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from divgs with div')
 
         if ierror != 0:
             msg = 'In return from call to divgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return dv 
 
@@ -5663,23 +5663,23 @@ class Wrapgs:
         w = numpy.transpose(W)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to gradgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from gradgs with u, v'
+            print(' ')
+            print('pass to gradgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from gradgs with u, v')
 
         if ierror != 0:
             msg = 'In return from call to gradgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5727,23 +5727,23 @@ class Wrapgs:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idivgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from idivgs with u, v'
+            print(' ')
+            print('pass to idivgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from idivgs with u, v')
 
         if ierror != 0:
             msg = 'In return from call to idivgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5793,23 +5793,23 @@ class Wrapgs:
         w = numpy.transpose(w)
         
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to idvtgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from idvtgs with u and v'
+            print(' ')
+            print('pass to idvtgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from idvtgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to idvtgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5858,23 +5858,23 @@ class Wrapgs:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to igradgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'isf = ', isf
-            print 'jsf = ', jsf
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from igradgs with sf'
+            print(' ')
+            print('pass to igradgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('isf = ', isf)
+            print('jsf = ', jsf)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from igradgs with sf')
 
         if ierror != 0:
             msg = 'In return from call to igradgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -5919,23 +5919,23 @@ class Wrapgs:
         w = numpy.transpose(w)
         
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to isfvpgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from isfvpgs with u and v'
+            print(' ')
+            print('pass to isfvpgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from isfvpgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to isfvpgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -5980,23 +5980,23 @@ class Wrapgs:
         sf = numpy.transpose(sf)
         
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to islapgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from islapgs with sf'
+            print(' ')
+            print('pass to islapgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from islapgs with sf')
 
         if ierror != 0:
             msg = 'In return from call to islapgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf 
 
@@ -6041,23 +6041,23 @@ class Wrapgs:
         w = numpy.transpose(w)
         
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivlapgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from ivlapgs with u and v'
+            print(' ')
+            print('pass to ivlapgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from ivlapgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to ivlapgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -6106,23 +6106,23 @@ class Wrapgs:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to ivrtgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from ivrtgs with u, v'
+            print(' ')
+            print('pass to ivrtgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from ivrtgs with u, v')
 
         if ierror != 0:
             msg = 'In return from call to ivrtgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -6174,23 +6174,23 @@ class Wrapgs:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to sfvpgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idv = ', idv
-            print 'jdv = ', jdv
-            print 'mdb = ', mdb
-            print 'ndb = ', ndb
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from sfvpgs with sf and vp'
+            print(' ')
+            print('pass to sfvpgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idv = ', idv)
+            print('jdv = ', jdv)
+            print('mdb = ', mdb)
+            print('ndb = ', ndb)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from sfvpgs with sf and vp')
 
         if ierror != 0:
             msg = 'In return from call to sfvpgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return sf, vp 
 
@@ -6224,18 +6224,18 @@ class Wrapgs:
         wshags, ierror = spherepack.shagsi(nlat, nlon, lshags, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shagsi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshags = ', lshags
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from shagsi with wshags and lshags'
+            print(' ')
+            print('pass to shagsi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshags = ', lshags)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from shagsi with wshags and lshags')
 
         if ierror != 0:
             msg = 'In return from call to shagsi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshags, lshags
 
@@ -6279,23 +6279,23 @@ class Wrapgs:
         
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shags'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshags = ', lshags
-            print 'lwork = ', lwork
-            print 'return from shags with a, b'
+            print(' ')
+            print('pass to shags')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshags = ', lshags)
+            print('lwork = ', lwork)
+            print('return from shags with a, b')
 
         if ierror != 0:
             msg = 'In return from call to shags ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return a, b 
 
@@ -6328,18 +6328,18 @@ class Wrapgs:
         wshsgs, ierror = spherepack.shsgsi(nlat, nlon, lshsgs, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsgsi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
-            print 'return from shsgsi with wshsgs and lshsgs'
+            print(' ')
+            print('pass to shsgsi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
+            print('return from shsgsi with wshsgs and lshsgs')
 
         if ierror != 0:
             msg = 'In return from call to shsgsi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wshsgs, lshsgs 
 
@@ -6380,23 +6380,23 @@ class Wrapgs:
                                      wshsgs, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to shsgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'mode = ', mode
-            print 'nt = ', nt
-            print 'idg = ', idg
-            print 'jdg = ', jdg
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from shsgs with g'
+            print(' ')
+            print('pass to shsgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('mode = ', mode)
+            print('nt = ', nt)
+            print('idg = ', idg)
+            print('jdg = ', jdg)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from shsgs with g')
 
         if ierror != 0:
             msg = 'In return from call to shsgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return g 
 
@@ -6438,23 +6438,23 @@ class Wrapgs:
                                          wshsgs, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to slapgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ids = ', ids
-            print 'jds = ', jds
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from slapgs with slap'
+            print(' ')
+            print('pass to slapgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ids = ', ids)
+            print('jds = ', jds)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from slapgs with slap')
 
         if ierror != 0:
             msg = 'In return from call to slapgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return slap 
 
@@ -6487,17 +6487,17 @@ class Wrapgs:
         wvhags, ierror = spherepack.vhagsi(nlat, nlon, lvhags, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhagsi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhags = ', lvhags
-            print 'ldwork = ', ldwork
-            print 'return from vhagsi with wvhags'
+            print(' ')
+            print('pass to vhagsi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhags = ', lvhags)
+            print('ldwork = ', ldwork)
+            print('return from vhagsi with wvhags')
 
         if ierror != 0:
             msg = 'In return from call to vhagsi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhags, lvhags 
 
@@ -6540,23 +6540,23 @@ class Wrapgs:
                                                   wvhags, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhags'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhags = ', lvhags
-            print 'lwork = ', lwork
-            print 'return from vhags with br,bi,cr,ci'
+            print(' ')
+            print('pass to vhags')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhags = ', lvhags)
+            print('lwork = ', lwork)
+            print('return from vhags with br,bi,cr,ci')
 
         if ierror != 0:
             msg = 'In return from call to vhags ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return br, bi, cr, ci 
 
@@ -6587,17 +6587,17 @@ class Wrapgs:
         wvhsgs, ierror = spherepack.vhsgsi(nlat, nlon, lvhsgs, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsgsi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lvhsgs = ', lvhsgs
-            print 'ldwork = ', ldwork
-            print 'return from vhsgsi with wvhsgs'
+            print(' ')
+            print('pass to vhsgsi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lvhsgs = ', lvhsgs)
+            print('ldwork = ', ldwork)
+            print('return from vhsgsi with wvhsgs')
 
         if ierror != 0:
             msg = 'In return from call to vhsigs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvhsgs, lvhsgs 
 
@@ -6641,23 +6641,23 @@ class Wrapgs:
         w = numpy.transpose(w)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vhsgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from vhsgs with u and v'
+            print(' ')
+            print('pass to vhsgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from vhsgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vhsgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -6709,23 +6709,23 @@ class Wrapgs:
 
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vlapgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdbc = ', mdbc
-            print 'ndbc = ', ndbc
-            print 'lvhsgs = ', lvhsgs
-            print 'lwork = ', lwork
-            print 'return from vlapgs with u and v'
+            print(' ')
+            print('pass to vlapgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdbc = ', mdbc)
+            print('ndbc = ', ndbc)
+            print('lvhsgs = ', lvhsgs)
+            print('lwork = ', lwork)
+            print('return from vlapgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vlapgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -6767,23 +6767,23 @@ class Wrapgs:
         vort = numpy.transpose(vort)
         
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vortgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'isym = ', isym
-            print 'nt = ', nt
-            print 'ivrt = ', ivrt
-            print 'jvrt = ', jvrt
-            print 'mdc = ', mdc
-            print 'ndc = ', ndc
-            print 'lshsgs = ', lshsgs
-            print 'lwork = ', lwork
-            print 'return from vrtgs with vort'
+            print(' ')
+            print('pass to vortgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('isym = ', isym)
+            print('nt = ', nt)
+            print('ivrt = ', ivrt)
+            print('jvrt = ', jvrt)
+            print('mdc = ', mdc)
+            print('ndc = ', ndc)
+            print('lshsgs = ', lshsgs)
+            print('lwork = ', lwork)
+            print('return from vrtgs with vort')
 
         if ierror != 0:
             msg = 'In return from call to vrtgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return vort 
 
@@ -6816,17 +6816,17 @@ class Wrapgs:
         wvts, ierror = spherepack.vtsgsi(nlat, nlon, lwvts, work, dwork)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtsgsi'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'lwvts = ', lwvts
-            print 'ldwork = ', ldwork
-            print 'return from vtsgsi with wvts and lwvts'
+            print(' ')
+            print('pass to vtsgsi')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('lwvts = ', lwvts)
+            print('ldwork = ', ldwork)
+            print('return from vtsgsi with wvts and lwvts')
 
         if ierror != 0:
             msg = 'In return from call to vtsgsi ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return wvts, lwvts 
 
@@ -6869,23 +6869,23 @@ class Wrapgs:
                                         wvts, work)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to vtsgs'
-            print 'nlon = ', nlon
-            print 'nlat = ', nlat
-            print 'ityp = ', ityp
-            print 'nt = ', nt
-            print 'idvw = ', idvw
-            print 'jdvw = ', jdvw
-            print 'mdab = ', mdab
-            print 'ndab = ', ndab
-            print 'lwvts = ', lwvts
-            print 'lwork = ', lwork
-            print 'return from vtsgs with u and v'
+            print(' ')
+            print('pass to vtsgs')
+            print('nlon = ', nlon)
+            print('nlat = ', nlat)
+            print('ityp = ', ityp)
+            print('nt = ', nt)
+            print('idvw = ', idvw)
+            print('jdvw = ', jdvw)
+            print('mdab = ', mdab)
+            print('ndab = ', ndab)
+            print('lwvts = ', lwvts)
+            print('lwork = ', lwork)
+            print('return from vtsgs with u and v')
 
         if ierror != 0:
             msg = 'In return from call to vtsgs ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         return w, v 
 
@@ -6958,13 +6958,13 @@ class Regrid:
         # ------ check the shape for a unique number of longitudes and a unique number of latitudes ------  
 
         if self.lonIn in [self.tmeIn, self.levIn, self.latIn]:
-            print 'Warning - number of longitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of longitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of latitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
         if self.latIn in [self.tmeIn, self.levIn, self.lonIn]:
-            print 'Warning - number of latitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of latitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of longitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
 
 
         # ------  set self data for igridIn and igridOut ------
@@ -6996,7 +6996,7 @@ class Regrid:
                 self.igridIn[0] = +2
         else:                                              # gaussian
             msg =  'CANNOT PROCESS THE DATA - Grid maust be even or gaussian'
-            raise ValueError, msg
+            raise ValueError(msg)
             return
 
         if grid_typeOut == 'even': 
@@ -7011,7 +7011,7 @@ class Regrid:
                 self.igridOut[0] = +2
         else:                                              # gaussian
             msg = 'CANNOT PROCESS THE DATA - Grid maust be even or gaussian'
-            raise ValueError, msg
+            raise ValueError(msg)
             return
 
         self.igridIn[1] = 1                             # for choice nlat x nlon built into .pyf file
@@ -7099,26 +7099,26 @@ class Regrid:
 
             if ierror != 0:
                 msg = 'In return from call to trssph ierror =  %d and call number = %d' % (ierror,i)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to trssph'
-            print 'igrida = ', igrida
-            print 'nlona = ', nlona
-            print 'nlata = ', nlata
-            print 'igridb = ', igridb
-            print 'nlonb = ', nlonb
-            print 'nlatb = ', nlatb
-            print 'lsave = ', lsave
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
+            print(' ')
+            print('pass to trssph')
+            print('igrida = ', igrida)
+            print('nlona = ', nlona)
+            print('nlata = ', nlata)
+            print('igridb = ', igridb)
+            print('nlonb = ', nlonb)
+            print('nlatb = ', nlatb)
+            print('lsave = ', lsave)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
 
-            print 'return from trssph with db'
-            print 'lsvmin = ', lsvmin
-            print 'lsave = ', lsave
-            print 'lwkmin = ', lwkmin
-            print 'lwork = ', lwork
+            print('return from trssph with db')
+            print('lsvmin = ', lsvmin)
+            print('lsave = ', lsave)
+            print('lwkmin = ', lwkmin)
+            print('lwork = ', lwork)
 
 
         # ** transform to geo order **
@@ -7209,28 +7209,28 @@ class Regrid:
 
             if ierror != 0:
                 msg = 'In return from call to trvsph ierror =  %d and call number = %d' % (ierror,i)
-                raise ValueError, msg
+                raise ValueError(msg)
 
         if ierror != 0 or debug == 1:
-            print ' '
-            print 'pass to trvsph'
-            print 'igrida = ', igrida
-            print 'iveca = ', iveca
-            print 'nlona = ', nlona
-            print 'nlata = ', nlata
-            print 'igridb = ', igridb
-            print 'ivecb = ', ivecb
-            print 'nlonb = ', nlonb
-            print 'nlatb = ', nlatb
-            print 'lsave = ', lsave
-            print 'lwork = ', lwork
-            print 'ldwork = ', ldwork
+            print(' ')
+            print('pass to trvsph')
+            print('igrida = ', igrida)
+            print('iveca = ', iveca)
+            print('nlona = ', nlona)
+            print('nlata = ', nlata)
+            print('igridb = ', igridb)
+            print('ivecb = ', ivecb)
+            print('nlonb = ', nlonb)
+            print('nlatb = ', nlatb)
+            print('lsave = ', lsave)
+            print('lwork = ', lwork)
+            print('ldwork = ', ldwork)
 
-            print 'return from trvsph with ub, vb, lsvmin, lwkmin'
-            print 'lsvmin = ', lsvmin
-            print 'lsave = ', lsave
-            print 'lwkmin = ', lwkmin
-            print 'lwork = ', lwork
+            print('return from trvsph with ub, vb, lsvmin, lwkmin')
+            print('lsvmin = ', lsvmin)
+            print('lsave = ', lsave)
+            print('lwkmin = ', lwkmin)
+            print('lwork = ', lwork)
 
         # ** transform to geo order **
         ub, vb = mathtogeo(reverseLatitude, standardShapeb, inverseOrder, ub, vb)
@@ -7316,13 +7316,13 @@ class Shiftgrid:
         # check the shape for a unique number of longitudes and a unique number of latitudes
 
         if self.lon in [self.tme, self.lev, self.lat]:
-            print 'Warning - number of longitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of longitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of latitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
         if self.lat in [self.tme, self.lev, self.lon]:
-            print 'Warning - number of latitudes in duplicated in the shape. The geotomath shape \
+            print('Warning - number of latitudes in duplicated in the shape. The geotomath shape \
                    transform will not work unless it differs from the number of longitudes and it \
-                   is one of the last two entiries in the shape'
+                   is one of the last two entiries in the shape')
 
     def shiftScalar(self, sf, missingValue = None):
         """    --------------------------------------------------------------------------------------------------------
@@ -7366,7 +7366,7 @@ class Shiftgrid:
         wsav, ierror = spherepack.sshifti(ioff, nlon, nlat, lsav)
         if ierror != 0:
             msg = 'In return from call to sshifti ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         # ** transform to standard geo order **
         if ioff == 1:                                                            # regular grid passed in
@@ -7398,17 +7398,17 @@ class Shiftgrid:
                     
 
                     if ierror != 0 or debug == 1:
-                        print ' '
-                        print 'pass to sshifte'
-                        print 'nlon = ', nlon
-                        print 'nlat = ', nlat
-                        print 'lsav = ', lsav
-                        print 'lwrk = ', lwrk
-                        print 'return from sshifte'
+                        print(' ')
+                        print('pass to sshifte')
+                        print('nlon = ', nlon)
+                        print('nlat = ', nlat)
+                        print('lsav = ', lsav)
+                        print('lwrk = ', lwrk)
+                        print('return from sshifte')
 
                     if ierror != 0:
                         msg = 'In return from call to sshifte ierror =  %d' % (ierror,)
-                        raise ValueError, msg
+                        raise ValueError(msg)
 
                     goff_return[i,:,:] = goff
 
@@ -7436,17 +7436,17 @@ class Shiftgrid:
                     goff = numpy.transpose(goff)
                     greg = numpy.transpose(greg)
                     if ierror != 0 or debug == 1:
-                        print ' '
-                        print 'pass to sshifte'
-                        print 'nlon = ', nlon
-                        print 'nlat = ', nlat
-                        print 'lsav = ', lsav
-                        print 'lwrk = ', lwrk
-                        print 'return from sshifte'
+                        print(' ')
+                        print('pass to sshifte')
+                        print('nlon = ', nlon)
+                        print('nlat = ', nlat)
+                        print('lsav = ', lsav)
+                        print('lwrk = ', lwrk)
+                        print('return from sshifte')
 
                     if ierror != 0:
                         msg = 'In return from call to sshifte ierror =  %d' % (ierror,)
-                        raise ValueError, msg
+                        raise ValueError(msg)
 
                     greg_return[i,:,:] = greg
 
@@ -7476,17 +7476,17 @@ class Shiftgrid:
                 greg = numpy.transpose(greg)
                 
                 if ierror != 0 or debug == 1:
-                    print ' '
-                    print 'pass to sshifte'
-                    print 'nlon = ', nlon
-                    print 'nlat = ', nlat
-                    print 'lsav = ', lsav
-                    print 'lwrk = ', lwrk
-                    print 'return from sshifte'
+                    print(' ')
+                    print('pass to sshifte')
+                    print('nlon = ', nlon)
+                    print('nlat = ', nlat)
+                    print('lsav = ', lsav)
+                    print('lwrk = ', lwrk)
+                    print('return from sshifte')
 
                 if ierror != 0:
                     msg = 'In return from call to sshifte ierror =  %d' % (ierror,)
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
                 goff = numpy.reshape(goff, (1, goff.shape[0], goff.shape[1]))      # restore dummy dimension
 
@@ -7512,17 +7512,17 @@ class Shiftgrid:
                 greg = numpy.transpose(greg)
 
                 if ierror != 0 or debug == 1:
-                    print ' '
-                    print 'pass to sshifte'
-                    print 'nlon = ', nlon
-                    print 'nlat = ', nlat
-                    print 'lsav = ', lsav
-                    print 'lwrk = ', lwrk
-                    print 'return from sshifte'
+                    print(' ')
+                    print('pass to sshifte')
+                    print('nlon = ', nlon)
+                    print('nlat = ', nlat)
+                    print('lsav = ', lsav)
+                    print('lwrk = ', lwrk)
+                    print('return from sshifte')
 
                 if ierror != 0:
                     msg = 'In return from call to sshifte ierror =  %d' % (ierror,)
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
                 greg = numpy.reshape(greg, (1, greg.shape[0], greg.shape[1]))      # restore dummy dimension
 
@@ -7575,7 +7575,7 @@ class Shiftgrid:
         wsav, ierror = spherepack.vshifti(ioff, nlon, nlat, lsav)
         if ierror != 0:
             msg = 'In return from call to vshifti ierror =  %d' % (ierror,)
-            raise ValueError, msg
+            raise ValueError(msg)
 
         # ** transform to standard geo order **
         if ioff == 1:                                                            # regular grid passed in
@@ -7619,17 +7619,17 @@ class Shiftgrid:
 
 
                     if ierror != 0 or debug == 1:
-                        print ' '
-                        print 'pass to sshifte'
-                        print 'nlon = ', nlon
-                        print 'nlat = ', nlat
-                        print 'lsav = ', lsav
-                        print 'lwrk = ', lwrk
-                        print 'return from vshifte'
+                        print(' ')
+                        print('pass to sshifte')
+                        print('nlon = ', nlon)
+                        print('nlat = ', nlat)
+                        print('lsav = ', lsav)
+                        print('lwrk = ', lwrk)
+                        print('return from vshifte')
 
                     if ierror != 0:
                         msg = 'In return from call to vshifte ierror =  %d' % (ierror,)
-                        raise ValueError, msg
+                        raise ValueError(msg)
 
                     uoff_return[i,:,:] = uoff
                     voff_return[i,:,:] = voff
@@ -7669,17 +7669,17 @@ class Shiftgrid:
                     vreg = numpy.transpose(vreg)
 
                     if ierror != 0 or debug == 1:
-                        print ' '
-                        print 'pass to vshifte'
-                        print 'nlon = ', nlon
-                        print 'nlat = ', nlat
-                        print 'lsav = ', lsav
-                        print 'lwrk = ', lwrk
-                        print 'return from sshifte'
+                        print(' ')
+                        print('pass to vshifte')
+                        print('nlon = ', nlon)
+                        print('nlat = ', nlat)
+                        print('lsav = ', lsav)
+                        print('lwrk = ', lwrk)
+                        print('return from sshifte')
 
                     if ierror != 0:
                         msg = 'In return from call to vshifte ierror =  %d' % (ierror,)
-                        raise ValueError, msg
+                        raise ValueError(msg)
 
                     ureg_return[i,:,:] = ureg
                     vreg_return[i,:,:] = vreg
@@ -7721,17 +7721,17 @@ class Shiftgrid:
                 vreg = numpy.transpose(vreg)
 
                 if ierror != 0 or debug == 1:
-                    print ' '
-                    print 'pass to vshifte'
-                    print 'nlon = ', nlon
-                    print 'nlat = ', nlat
-                    print 'lsav = ', lsav
-                    print 'lwrk = ', lwrk
-                    print 'return from vshifte'
+                    print(' ')
+                    print('pass to vshifte')
+                    print('nlon = ', nlon)
+                    print('nlat = ', nlat)
+                    print('lsav = ', lsav)
+                    print('lwrk = ', lwrk)
+                    print('return from vshifte')
 
                 if ierror != 0:
                     msg = 'In return from call to vshifte ierror =  %d' % (ierror,)
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
                 uoff = numpy.reshape(uoff, (1, uoff.shape[0], uoff.shape[1]))      # restore dummy dimension
                 voff = numpy.reshape(voff, (1, voff.shape[0], voff.shape[1]))      # restore dummy dimension
@@ -7768,17 +7768,17 @@ class Shiftgrid:
                 vreg = numpy.transpose(vreg)
 
                 if ierror != 0 or debug == 1:
-                    print ' '
-                    print 'pass to vshifte'
-                    print 'nlon = ', nlon
-                    print 'nlat = ', nlat
-                    print 'lsav = ', lsav
-                    print 'lwrk = ', lwrk
-                    print 'return from vshifte'
+                    print(' ')
+                    print('pass to vshifte')
+                    print('nlon = ', nlon)
+                    print('nlat = ', nlat)
+                    print('lsav = ', lsav)
+                    print('lwrk = ', lwrk)
+                    print('return from vshifte')
 
                 if ierror != 0:
                     msg = 'In return from call to sshifte ierror =  %d' % (ierror,)
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
                 ureg = numpy.reshape(ureg, (1, ureg.shape[0], ureg.shape[1]))      # restore dummy dimension
                 vreg = numpy.reshape(vreg, (1, vreg.shape[0], vreg.shape[1]))      # restore dummy dimension
@@ -7821,12 +7821,12 @@ def gaussian_pts_wts_bnds(nlat):
 
     if ierror != 0:
         msg = 'In return from call to gaqd ierror =  %d' % (ierror,)
-        raise ValueError, msg
+        raise ValueError(msg)
 
     # convert points to geophysical format
 
     colatlist = list(points) 
-    latlist = map( (lambda x: 90.0 - x*180.0/math.pi), colatlist)
+    latlist = list(map( (lambda x: 90.0 - x*180.0/math.pi), colatlist))
 
 
     # calculate the bounds
@@ -7891,9 +7891,9 @@ def check_lonlat(checklonpass, checklatpass):
 
     if maxdiff < small:
         if abs(90. - checklat[0]) > small or abs(-90. - checklat[nlat-1]) > small:
-            print '***************************************************************************'
-            print 'CANNOT PROCESS THE DATA - Evenly spaced grids must include the pole points'
-            print '***************************************************************************'
+            print('***************************************************************************')
+            print('CANNOT PROCESS THE DATA - Evenly spaced grids must include the pole points')
+            print('***************************************************************************')
             raise ValueError
             return
         else:
@@ -7904,17 +7904,17 @@ def check_lonlat(checklonpass, checklatpass):
     # check the pass for evenly spaced longitudes without a wrap
 
     if checklon[0] > checklon[nlon-1]: 
-        print '****************************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes must run from west to east'
-        print '****************************************************************'
+        print('****************************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes must run from west to east')
+        print('****************************************************************')
         raise ValueError
         return
 
     delta = 360./nlon
     if (checklon[nlon-1] - checklon[0]) > (360.0 -(delta - small)) : 
-        print '**************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes can not wrap'
-        print '**************************************************'
+        print('**************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes can not wrap')
+        print('**************************************************')
         raise ValueError
         return
 
@@ -7948,17 +7948,17 @@ def check_lonlat(checklonpass, checklatpass):
             maxdiff = diff
 
     if maxdiff > small:
-        print '***********************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes are not evenly spaced'
-        print '***********************************************************'
+        print('***********************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes are not evenly spaced')
+        print('***********************************************************')
         raise ValueError
         return
 
     laterror = max( abs(latvals - checklat) )
     if laterror > small:
-        print '********************************************************'
-        print 'CANNOT PROCESS THE DATA - Latitude values are incorrect'
-        print '********************************************************'
+        print('********************************************************')
+        print('CANNOT PROCESS THE DATA - Latitude values are incorrect')
+        print('********************************************************')
         raise ValueError
 
     return  grid_type 
@@ -8007,26 +8007,26 @@ def check_shiftgrids(checklon, checklat):
         else:
             grid_type = 'offset'
     else:
-        print '*********************************************************'
-        print 'CANNOT PROCESS THE DATA - Latitudes are not evenly spaced'
-        print '*********************************************************'
+        print('*********************************************************')
+        print('CANNOT PROCESS THE DATA - Latitudes are not evenly spaced')
+        print('*********************************************************')
         raise ValueError
         return
  
     # check the pass for evenly spaced longitudes and conformity to  the grid type as 'regular' or 'offset'
 
     if checklon[0] > checklon[nlon-1]: 
-        print '***************************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes must run from west to east'
-        print '***************************************************************'
+        print('***************************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes must run from west to east')
+        print('***************************************************************')
         raise ValueError
         return
 
     delta = 360./nlon
     if (checklon[nlon-1] - checklon[0]) > (360.0 -(delta - small)) : 
-        print '*************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes can not wrap'
-        print '*************************************************'
+        print('*************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes can not wrap')
+        print('*************************************************')
         raise ValueError
         return
 
@@ -8037,24 +8037,24 @@ def check_shiftgrids(checklon, checklat):
             maxdiff = diff
 
     if maxdiff > small:
-        print '**********************************************************'
-        print 'CANNOT PROCESS THE DATA - Longitudes are not evenly spaced'
-        print '**********************************************************'
+        print('**********************************************************')
+        print('CANNOT PROCESS THE DATA - Longitudes are not evenly spaced')
+        print('**********************************************************')
         raise ValueError
         return
     else:
         if grid_type == 'regular':
             if abs(0. - checklon[0]) > small or abs(360. - delta - checklon[nlon-1]) > small: 
-                print '********************************************************************'
-                print 'WARNING - Longitude end points do not conform to regular grid values'
-                print 'Expected longitude to start at 0 degrees'
-                print '********************************************************************'
+                print('********************************************************************')
+                print('WARNING - Longitude end points do not conform to regular grid values')
+                print('Expected longitude to start at 0 degrees')
+                print('********************************************************************')
         else:
             if abs(0. + delta/2. - checklon[0]) > small or abs(360. - delta/2. - checklon[nlon-1]) > small: 
-                print '*********************************************************************'
-                print 'WARNING -  Longitude end points do not conform to offset grid values'
-                print 'Expected longitude to start offset from 0 degrees by half grid spacing'
-                print '**********************************************************************'
+                print('*********************************************************************')
+                print('WARNING -  Longitude end points do not conform to offset grid values')
+                print('Expected longitude to start offset from 0 degrees by half grid spacing')
+                print('**********************************************************************')
 
     return  grid_type 
 
@@ -8109,16 +8109,16 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
     # ----- Check data type and change to float if necessary -------
 
     if u.dtype.char != 'f':
-        print '*******************************************'
-        print 'WARNING - data will be converted to Float32'
-        print '*******************************************'
+        print('*******************************************')
+        print('WARNING - data will be converted to Float32')
+        print('*******************************************')
         u = u.astype(numpy.float32)
    
     if v is not None:
         if v.dtype.char != 'f':
-            print '*******************************************'
-            print 'WARNING - data will be converted to Float32'
-            print '*******************************************'
+            print('*******************************************')
+            print('WARNING - data will be converted to Float32')
+            print('*******************************************')
             v = v.astype(numpy.float32)
 
     # ----- Check for missing data -------
@@ -8126,17 +8126,17 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
     if missingValue is not None and  usefilled == 'yes':
         um = numpy.ma.masked_where(u, missingValue)
         if um.mask is not numpy.ma.nomask:
-            print '************************************************'
-            print 'CANNOT PROCESS THE DATA - field has missing data'
-            print '************************************************'
+            print('************************************************')
+            print('CANNOT PROCESS THE DATA - field has missing data')
+            print('************************************************')
             raise ValueError
             return
         if v is not None:
             vm = numpy.ma.masked_where(v, missingValue)
             if vm.mask is not numpy.ma.nomask:
-                print '************************************************'
-                print 'CANNOT PROCESS THE DATA - field has missing data'
-                print '************************************************'
+                print('************************************************')
+                print('CANNOT PROCESS THE DATA - field has missing data')
+                print('************************************************')
                 raise ValueError
                 return
 
@@ -8144,21 +8144,21 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
 
     if v is not None:
         if u.shape != v.shape:
-            print '***************************************************************************'
-            print 'CANNOT PROCESS THE DATA - Error in the data - u and v have different shapes'
-            print '***************************************************************************'
+            print('***************************************************************************')
+            print('CANNOT PROCESS THE DATA - Error in the data - u and v have different shapes')
+            print('***************************************************************************')
             raise 'IndexError'
             return
 
     origShape = u.shape                                  # u is the scalar function
     
     if len(standardShape) != len(origShape):
-        print '***********************************'
-        print 'CANNOT PROCESS THE DATA'
-        print 'Shapes are not the same length'
-        print 'standardShape is : ', standardShape
-        print 'origShape is : ', origShape
-        print '***********************************'
+        print('***********************************')
+        print('CANNOT PROCESS THE DATA')
+        print('Shapes are not the same length')
+        print('standardShape is : ', standardShape)
+        print('origShape is : ', origShape)
+        print('***********************************')
         raise IndexError
         return
 
@@ -8199,9 +8199,9 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
     elif size == 2:
         nt = 1
     else:
-        print '**************************************************************'
-        print 'CANNOT PROCESS THE DATA - size of data array must be 2, 3 or 4'
-        print '**************************************************************'
+        print('**************************************************************')
+        print('CANNOT PROCESS THE DATA - size of data array must be 2, 3 or 4')
+        print('**************************************************************')
         raise IndexError
         return
 
@@ -8217,7 +8217,7 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
         elif reverseLatitude == 'geoyes':
             u = u[:,::-1,:]
         else:
-            print 'Only choices for reverseLatitude are strings no, mathyes or geoyes'
+            print('Only choices for reverseLatitude are strings no, mathyes or geoyes')
             raise ValueError
 
     if v is None:                                                     # scalar function case
@@ -8234,7 +8234,7 @@ def geotomath(missingValue, reverseLatitude, standardShape, u, v = None):
             elif reverseLatitude == 'geoyes':
                 v = v[:,::-1,:]
             else:
-                print 'Only choices for reverseLatitude are strings no, mathyes or geoyes'
+                print('Only choices for reverseLatitude are strings no, mathyes or geoyes')
                 raise ValueError
 
  
@@ -8264,7 +8264,7 @@ def mathtogeo(reverseLatitude, standardShape, inverseOrder, u, v = None):
                 u = u[:,::-1,:]
                 v = v[:,::-1,:]
             else:
-                print 'Only choices for reverseLatitude are strings no, mathyes or geoyes'
+                print('Only choices for reverseLatitude are strings no, mathyes or geoyes')
                 raise ValueError
 
         u = numpy.reshape(u, standardShape)
@@ -8292,7 +8292,7 @@ def mathtogeo(reverseLatitude, standardShape, inverseOrder, u, v = None):
             elif reverseLatitude == 'geoyes':
                 u = u[:,::-1,:]
             else:
-                print 'Only choices for reverseLatitude are strings no, mathyes or geoyes'
+                print('Only choices for reverseLatitude are strings no, mathyes or geoyes')
                 raise ValueError
 
         u = numpy.reshape(u, standardShape)
@@ -8328,16 +8328,16 @@ def gridGenerator(nlon, nlat, firstLongitude, typeLatitudes, directionLatitudes)
     #--------------------------------------------------------------------------------------------
 
     if typeLatitudes != 'even' and typeLatitudes != 'gaussian':          # check ltitude request
-        print '****************************************************************'
-        print 'CANNOT PROCESS THE DATA - typeLatitudes must be even or gaussian'
-        print '****************************************************************'
+        print('****************************************************************')
+        print('CANNOT PROCESS THE DATA - typeLatitudes must be even or gaussian')
+        print('****************************************************************')
         raise ValueError
         return
 
     if directionLatitudes != 'north_to_south' and directionLatitudes != 'south_to_north': 
-        print '*************************************************************************************'
-        print 'CANNOT PROCESS THE DATA - directionLatitudes must be north_to_south or south_to_north'
-        print '*************************************************************************************'
+        print('*************************************************************************************')
+        print('CANNOT PROCESS THE DATA - directionLatitudes must be north_to_south or south_to_north')
+        print('*************************************************************************************')
         raise ValueError
         return
 
@@ -8404,16 +8404,16 @@ def truncate(wave, a, b, taper = 'yes'):
     ashape = a.shape                                                         # -- Preliminary error checks --
     bshape = b.shape
     if ashape != bshape:
-        print 'In truncate -- the shape of the two coefficient arrays passed are not the same '
+        print('In truncate -- the shape of the two coefficient arrays passed are not the same ')
         raise IndexError
 
     if len(ashape) != 3:
-        print 'In truncate -- the coefficient arrays must be 3D'
+        print('In truncate -- the coefficient arrays must be 3D')
         raise IndexError
 
     nb = ashape[1] 
     if wave + 1 > nb:
-        print 'In truncate -- the wave number for the truncation is too large'
+        print('In truncate -- the wave number for the truncation is too large')
         raise IndexError
 
     t = wave + 1                                                            # -- Perform triangular truncation --
@@ -8449,10 +8449,10 @@ def truncate(wave, a, b, taper = 'yes'):
  
 def help(choice = None):
 
-    import sphere
+    from . import sphere
 
     if choice is None:
-        print """-------------------------------------------------------------------------------------------
+        print("""-------------------------------------------------------------------------------------------
 
         To get an overview of the sphere module, type
              sphere.help('overview')
@@ -8533,12 +8533,12 @@ def help(choice = None):
                 To get a suggestion for an example of the the use of the Sphere class which has an
                 an answer which can be verified  type
                     sphere.help('SphereTest')
-    ----------------------------------------------------------------------------------------------------------------"""
+    ----------------------------------------------------------------------------------------------------------------""")
     elif choice == 'overview':                          # look at the whole package
-        print sphere.__doc__
+        print(sphere.__doc__)
 
     elif choice == 'Sphere':                           # how to make an instance of a class
-        print """    --------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------
                                            
       To make an instance x of the Sphere class type
      
@@ -8570,10 +8570,10 @@ def help(choice = None):
                                                                          computed_stored = 'stored') 
           where the order of the keyword entries is immaterial.
                                            
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'Regrid':
-        print """    --------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------
                                  
       To make an instance x of the Regrid class type
          
@@ -8589,10 +8589,10 @@ def help(choice = None):
           numberLevels  = input grid number of levels (optional)
           numberTimes = input grid number of times (optional)
          
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'Shiftgrid':
-        print """    --------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------
                                            
                                  
       To make an instance x of the Shiftgrid class type
@@ -8606,10 +8606,10 @@ def help(choice = None):
           numberLevels = number of levels (optional)
           numberTimes = number of times (optional)
          
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'GeneralExample':                    # example and a suggestion
-        print """    --------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------
                                            
              
         Step 1.  Type
@@ -8641,10 +8641,10 @@ def help(choice = None):
          
                      sphere.Clasname.functionName.__doc__ 
          
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'SphereTest':
-        print """    --------------------------------------------------------------------------------------
+        print("""    --------------------------------------------------------------------------------------
                                        
          
         Typing 
@@ -8683,10 +8683,10 @@ def help(choice = None):
             Step 6. Compare the results for equality, sf_source with vort and vp_source with div. If the comparison
                     fails, please complain about it.
          
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'gridGenerator':                     # utilities
-        print """    -----------------------------------------------------------------------------
+        print("""    -----------------------------------------------------------------------------
                                            
           routine: gridGenerator 
                                            
@@ -8705,10 +8705,10 @@ def help(choice = None):
      
           definition: gridGenerator(nlon, nlat, firstLongitude, typeLatitudes, directionLatitudes):
      
-    -----------------------------------------------------------------------------------"""
+    -----------------------------------------------------------------------------------""")
 
     elif choice == 'truncate':
-        print """    -------------------------------------------------------------------------------------------
+        print("""    -------------------------------------------------------------------------------------------
                                            
           routine: truncate 
      
@@ -8734,78 +8734,78 @@ def help(choice = None):
                  in Sardeshmukh P. D. and Hoskins B. J., 1984, Spatial Smoothing on the Sphere. Mon. Wea. 
                  Rev., 112, 2524-2529.
      
-    -------------------------------------------------------------------------------------------"""
+    -------------------------------------------------------------------------------------------""")
 
     elif choice == 'div':                               # Sphere class method functions
-        print sphere.Sphere.div.__doc__
+        print(sphere.Sphere.div.__doc__)
 
     elif choice == 'idiv':
-        print sphere.Sphere.idiv.__doc__
+        print(sphere.Sphere.idiv.__doc__)
 
     elif choice == 'vrt':
-        print sphere.Sphere.vrt.__doc__
+        print(sphere.Sphere.vrt.__doc__)
 
     elif choice == 'ivrt':
-        print sphere.Sphere.ivrt.__doc__
+        print(sphere.Sphere.ivrt.__doc__)
 
     elif choice == 'idvt':
-        print sphere.Sphere.idvt.__doc__
+        print(sphere.Sphere.idvt.__doc__)
 
     elif choice == 'vts':
-        print sphere.Sphere.vts.__doc__
+        print(sphere.Sphere.vts.__doc__)
 
     elif choice == 'grad':
-        print sphere.Sphere.grad.__doc__
+        print(sphere.Sphere.grad.__doc__)
 
     elif choice == 'igrad':
-        print sphere.Sphere.igrad.__doc__
+        print(sphere.Sphere.igrad.__doc__)
 
     elif choice == 'slap':
-        print sphere.Sphere.slap.__doc__
+        print(sphere.Sphere.slap.__doc__)
 
     elif choice == 'islap':
-        print sphere.Sphere.islap.__doc__
+        print(sphere.Sphere.islap.__doc__)
 
     elif choice == 'vlap':
-        print sphere.Sphere.vlap.__doc__
+        print(sphere.Sphere.vlap.__doc__)
 
     elif choice == 'ivlap':
-        print sphere.Sphere.ivlap.__doc__
+        print(sphere.Sphere.ivlap.__doc__)
     elif choice == 'sfvp':
-        print sphere.Sphere.sfvp.__doc__
+        print(sphere.Sphere.sfvp.__doc__)
 
     elif choice == 'isfvp':
-        print sphere.Sphere.isfvp.__doc__
+        print(sphere.Sphere.isfvp.__doc__)
 
     elif choice == 'truncation':
-        print sphere.Sphere.truncation.__doc__
+        print(sphere.Sphere.truncation.__doc__)
 
     elif choice == 'sha':
-        print sphere.Sphere.sha.__doc__
+        print(sphere.Sphere.sha.__doc__)
 
     elif choice == 'shs':
-        print sphere.Sphere.shs.__doc__
+        print(sphere.Sphere.shs.__doc__)
 
     elif choice == 'vha':
-        print sphere.Sphere.vha.__doc__
+        print(sphere.Sphere.vha.__doc__)
 
     elif choice == 'vhs':
-        print sphere.Sphere.vhs.__doc__
+        print(sphere.Sphere.vhs.__doc__)
 
     elif choice == 'regridScalar':                               # Regrid class method functions
-        print sphere.Regrid.regridScalar.__doc__
+        print(sphere.Regrid.regridScalar.__doc__)
 
     elif choice == 'regridVector':
-        print sphere.Regrid.regridVector.__doc__
+        print(sphere.Regrid.regridVector.__doc__)
 
     elif choice == 'shiftScalar':                               # Regrid class method functions
-        print sphere.Shiftgrid.shiftScalar.__doc__
+        print(sphere.Shiftgrid.shiftScalar.__doc__)
 
     elif choice == 'shiftVector':
-        print sphere.Shiftgrid.shiftVector.__doc__
+        print(sphere.Shiftgrid.shiftVector.__doc__)
 
     else:
-        print 'Unknown Request - cannot provide help for ', choice 
+        print('Unknown Request - cannot provide help for ', choice) 
 
     return None
 

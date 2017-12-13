@@ -51,7 +51,7 @@
 
 
 import sys, types
-from UserList import UserList
+from collections import UserList
 
 
 
@@ -206,7 +206,7 @@ class ASV(UserList):
 		input_class should refer to.
 		"""
 	
-		apply(input_class.input, (self, data) + args, kwargs)
+		input_class.input(*(self, data) + args, **kwargs)
 	
 	
 	
@@ -223,7 +223,7 @@ class ASV(UserList):
 		file = open(input_file, "rb")
 		data = file.read(-1)
 		file.close()
-		apply(self.input, (data, input_class) + args, kwargs)
+		self.input(*(data, input_class) + args, **kwargs)
 	
 	
 	
@@ -234,7 +234,7 @@ class ASV(UserList):
 		Create output data using output_class
 		"""
 	
-		return apply(output_class.output, (self, ) + args, kwargs)
+		return output_class.output(*(self, ) + args, **kwargs)
 	
 	
 	
@@ -247,7 +247,7 @@ class ASV(UserList):
 		This is a convenience method for the output method
 		"""
 	
-		output = apply(self.output, (output_class, ) + args, kwargs)
+		output = self.output(*(output_class, ) + args, **kwargs)
 		file = open(output_file, "wb")
 		file.write(output)
 		file.close()
@@ -343,7 +343,7 @@ class SimpleSV:
 			stripped_a_comment = 0    # Know if we stripped a comment so we can start the while loop
 			                          #   again. Oh, for named loops...
 			for comment in self._COMMENTS:
-				if type(comment) == types.StringType:
+				if type(comment) == bytes:
 					# With comments of type string, we look for the comment character and then ignore
 					#   everything until the end of the line or end of the file, whichever one comes
 					#   first
@@ -698,7 +698,7 @@ class Row(UserList):
 
 	def __getitem__(self, x):
 	
-		if isinstance(x, types.IntType):
+		if isinstance(x, int):
 			return self.data[x]
 		else:
 			return self.data[self._field_names.index(x)]
@@ -707,7 +707,7 @@ class Row(UserList):
 	
 	def __setitem__(self, x, item):
 	
-		if isinstance(x, types.IntType):
+		if isinstance(x, int):
 			self.data[x] == item
 		else:
 			self.data[self._field_names.index(x)] = item
@@ -743,8 +743,8 @@ if __name__ == "__main__":
 
 	builders = []
 	builder_names = []
-	for thing in globals().values():
-		if type(thing) == types.ClassType:
+	for thing in list(globals().values()):
+		if type(thing) == type:
 			# Flatten the super classes of this class ie we get a list of this classes super
 			#   classes, and all of the super classes classes etc
 			
@@ -795,24 +795,24 @@ if __name__ == "__main__":
 		has_valid_arguments = 0
 	
 	if not has_valid_arguments:
-		print """asv [-c] -<input builder> [<input file name>] [-c] -<output builder> [<output file name>]
+		print("""asv [-c] -<input builder> [<input file name>] [-c] -<output builder> [<output file name>]
 
 Possible builders are:
-"""
+""")
 
 		for builder in builders:
-			print "   ", builder.__name__.lower(),
+			print("   ", builder.__name__.lower(), end=' ')
 			if builder.__doc__:
-				print ":", builder.__doc__,
-			print
+				print(":", builder.__doc__, end=' ')
+			print()
 		
-		print """
+		print("""
 -c can be used instead of the input/output file name to enable reading from stdin/stdout.
 
 Example:
 
   asv -tsv old_data.tsv -c -csv
-  Will read in a TSV file, convert it to CSV and output the result to screen"""
+  Will read in a TSV file, convert it to CSV and output the result to screen""")
 
 		sys.exit(0)
 
@@ -821,8 +821,8 @@ Example:
 	else:
 		try:
 			input_file = open(input_file_name, "rb")
-		except IOError, e:
-			print "Unable to open file '%s' for reading" % input_file_name
+		except IOError as e:
+			print("Unable to open file '%s' for reading" % input_file_name)
 			sys.exit(0)
 			
 	if output_file_name is None:
@@ -830,8 +830,8 @@ Example:
 	else:
 		try:
 			output_file = open(output_file_name, "wb")
-		except IOError, e:
-			print "Unable to open file '%s' for writing" % output_file_name
+		except IOError as e:
+			print("Unable to open file '%s' for writing" % output_file_name)
 			sys.exit(0)
 	
 	for builder in builders:

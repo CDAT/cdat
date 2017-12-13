@@ -49,7 +49,7 @@ writeTestcase = 'yes'
 try:
     import cdms2
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms2'
+    print('Can not write test case results to netCDF files without module cdms2')
     writeTestcase = 'no'
 
 def document(brief = 'no'):
@@ -70,58 +70,58 @@ def document(brief = 'no'):
     std = sys.stdout 
     sys.stdout = open('spheremodule.doc', 'w') 
 
-    print '**********************************************************************************************\n'  
-    print '****************** Overview of the CDAT interface to the NCAR SPHEREPACK 3.0 *****************\n'
-    print '**********************************************************************************************\n'  
-    print sphere.__doc__
-    print
-    print
+    print('**********************************************************************************************\n')  
+    print('****************** Overview of the CDAT interface to the NCAR SPHEREPACK 3.0 *****************\n')
+    print('**********************************************************************************************\n')  
+    print(sphere.__doc__)
+    print()
+    print()
     if brief != 'no':
         return None
 
-    print '    ************************************************************************************\n'  
-    print '    ************************** Sphere class documentation ******************************\n'
-    print '    ************************************************************************************\n'  
+    print('    ************************************************************************************\n')  
+    print('    ************************** Sphere class documentation ******************************\n')
+    print('    ************************************************************************************\n')  
     sphere.help('Sphere')                           # how to make an instance of a class
-    print
+    print()
 
-    print '    **************************** Sphere class functions ********************************\n'
+    print('    **************************** Sphere class functions ********************************\n')
     SphereList = ['div', 'idiv', 'vrt', 'ivrt', 'idvt', 'vts', 'grad', 'igrad', 'slap',
                    'islap', 'vlap', 'ivlap', 'sfvp', 'isfvp', 'truncation', 'sha', 'shs', 'vha', 'vhs']  
     for name in SphereList:
         command = "sphere.help(" + "name" + ")"
-        exec command 
-        print
+        exec(command) 
+        print()
 
-    print '    ************************************************************************************\n'  
-    print '    **************************** Regrid class documentation ****************************\n'
-    print '    ************************************************************************************\n'  
+    print('    ************************************************************************************\n')  
+    print('    **************************** Regrid class documentation ****************************\n')
+    print('    ************************************************************************************\n')  
     sphere.help('Regrid')                           # how to make an instance of a class
-    print
-    print '    ****************************** Regrid class functions ******************************\n'
+    print()
+    print('    ****************************** Regrid class functions ******************************\n')
     sphere.help('regridScalar') 
-    print
+    print()
     sphere.help('regridVector') 
-    print
+    print()
 
-    print '    ************************************************************************************\n'  
-    print '    *************************** Shiftgrid class documentation **************************\n'
-    print '    ************************************************************************************\n'  
+    print('    ************************************************************************************\n')  
+    print('    *************************** Shiftgrid class documentation **************************\n')
+    print('    ************************************************************************************\n')  
     sphere.help('Shiftgrid')                           # how to make an instance of a class
-    print
-    print '    ***************************** Shiftgrid class functions ****************************\n'
+    print()
+    print('    ***************************** Shiftgrid class functions ****************************\n')
     sphere.help('shiftScalar') 
-    print
+    print()
     sphere.help('shiftVector') 
-    print
+    print()
 
-    print '    ************************************************************************************\n'  
-    print '    **************************** Utility documentation *********************************\n'
-    print '    ************************************************************************************\n'  
+    print('    ************************************************************************************\n')  
+    print('    **************************** Utility documentation *********************************\n')
+    print('    ************************************************************************************\n')  
     sphere.help('gridGenerator')                           # how to make an instance of a class
-    print
+    print()
     sphere.help('truncate') 
-    print
+    print()
 
     sys.stdout = std
 
@@ -399,11 +399,11 @@ def sendmsg(msg, value = None, screen = 'no'):
     #------------------------------------------------------------------------------
     if value is None:
         if screen != 'no':
-            print msg
+            print(msg)
         output.write(msg + '\n')
     else:
         if screen != 'no':
-            print msg, `value`
+            print(msg, repr(value))
         output.write(msg + ' %15.11e\n' % (value,))
 
     return None
@@ -440,7 +440,7 @@ def rmserror(data1, data2):
     #-----------------------------------------------------------------------------------
 
     if data1.shape != data2.shape:
-        print 'Error in shape in rmserror'
+        print('Error in shape in rmserror')
         raise ValueError
 
     d1 = numpy.ravel(data1)
@@ -464,7 +464,7 @@ def sphere_test(nlon, nlat, sorv = 's',  grid_choice = 'even'):
     #-----------------------------------------------------------------------------------
 
     if sorv != 's' and sorv != 'v':
-        print 'Must pass s or v to select scalar or vector'
+        print('Must pass s or v to select scalar or vector')
         raise ValueError
         return
 
@@ -479,7 +479,7 @@ def sphere_test(nlon, nlat, sorv = 's',  grid_choice = 'even'):
 
     lons =  numpy.array(lonlistrad, numpy.float64)                # in radians for computation
 
-    lonlist = map( (lambda x: (180./math.pi)*x), lonlistrad)
+    lonlist = list(map( (lambda x: (180./math.pi)*x), lonlistrad))
     lonvals =  numpy.array(lonlist, numpy.float64)                # in degrees for return
 
     if grid_choice == 'even':
@@ -493,7 +493,7 @@ def sphere_test(nlon, nlat, sorv = 's',  grid_choice = 'even'):
 
         lats =  numpy.array(latlistrad, numpy.float64)             # in radians for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)             # array of latitudes in degrees
 
 
@@ -503,20 +503,20 @@ def sphere_test(nlon, nlat, sorv = 's',  grid_choice = 'even'):
         work = numpy.zeros((ldwork,),'d')
         points, wts, ierror = spherepack.gaqd(nlat, work)            # get colatitudes from gaqd
         if ierror != 0:
-            print 'In return from call to gaqd ierror = ', ierror
+            print('In return from call to gaqd ierror = ', ierror)
             raise ValueError
 
         # convert points to latitudes
 
         colatlistrad = list(points)                                   
-        latlistrad = map( (lambda x: math.pi/2. - x), colatlistrad)    # convert to latitudes
+        latlistrad = list(map( (lambda x: math.pi/2. - x), colatlistrad))    # convert to latitudes
         lats =  numpy.array(latlistrad, numpy.float64)             # in radians for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)
 
     else:
-        print 'grid_choice must be even or gaussian'
+        print('grid_choice must be even or gaussian')
         raise ValueError
         return
 
@@ -593,7 +593,7 @@ def regrid_testfunction(nlon, nlat, sorv = 'h',  grid_choice = 'even'):
     #-----------------------------------------------------------------------------------
 
     if sorv != 's' and sorv != 'v':
-        print 'Must pass s or v to select scalar or vector'
+        print('Must pass s or v to select scalar or vector')
         raise ValueError
         return
 
@@ -608,7 +608,7 @@ def regrid_testfunction(nlon, nlat, sorv = 'h',  grid_choice = 'even'):
 
     lons =  numpy.array(lonlistrad, numpy.float64)                # in radians for computation
 
-    lonlist = map( (lambda x: (180./math.pi)*x), lonlistrad)
+    lonlist = list(map( (lambda x: (180./math.pi)*x), lonlistrad))
     lonvals =  numpy.array(lonlist, numpy.float64)                # in degrees for return
 
     if grid_choice == 'even':
@@ -622,7 +622,7 @@ def regrid_testfunction(nlon, nlat, sorv = 'h',  grid_choice = 'even'):
 
         lats =  numpy.array(latlistrad, numpy.float64)             # in radians for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)             # array of latitudes in degrees
 
 
@@ -632,20 +632,20 @@ def regrid_testfunction(nlon, nlat, sorv = 'h',  grid_choice = 'even'):
         work = numpy.zeros((ldwork,),'d')
         points, wts, ierror = spherepack.gaqd(nlat, work)            # get colatitudes from gaqd
         if ierror != 0:
-            print 'In return from call to gaqd ierror = ', ierror
+            print('In return from call to gaqd ierror = ', ierror)
             raise ValueError
 
         # convert points to latitudes
 
         colatlistrad = list(points)                                   
-        latlistrad = map( (lambda x: math.pi/2. - x), colatlistrad)    # convert to latitudes
+        latlistrad = list(map( (lambda x: math.pi/2. - x), colatlistrad))    # convert to latitudes
         lats =  numpy.array(latlistrad, numpy.float64)             # in radians for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)
 
     else:
-        print 'grid_choice must be even or gaussian'
+        print('grid_choice must be even or gaussian')
         raise ValueError
         return
 
@@ -717,7 +717,7 @@ def sshift_testfunction(nlon, nlat, grid_type = 'regular'):
     #-----------------------------------------------------------------------------------
 
     if grid_type != 'regular' and grid_type != 'offset':
-        print 'Must pass regular or offset to select grid from sshift_testfunction'
+        print('Must pass regular or offset to select grid from sshift_testfunction')
         raise ValueError
         return
 
@@ -737,10 +737,10 @@ def sshift_testfunction(nlon, nlat, grid_type = 'regular'):
     reglons =  numpy.array(reg_lonlistrad, numpy.float64)         # for use in computation
     offlons =  numpy.array(off_lonlistrad, numpy.float64)         # for use in computation
 
-    lonlist = map( (lambda x: (180./math.pi)*x), reg_lonlistrad)  # degrees for return
+    lonlist = list(map( (lambda x: (180./math.pi)*x), reg_lonlistrad))  # degrees for return
     reglonvals =  numpy.array(lonlist, numpy.float64)
 
-    lonlist = map( (lambda x: (180./math.pi)*x), off_lonlistrad)
+    lonlist = list(map( (lambda x: (180./math.pi)*x), off_lonlistrad))
     offlonvals =  numpy.array(lonlist, numpy.float64)
 
 
@@ -760,7 +760,7 @@ def sshift_testfunction(nlon, nlat, grid_type = 'regular'):
 
         lats =  numpy.array(latlistrad, numpy.float64)              # latitudes for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)              # array of latitudes in degrees
 
         sf = numpy.zeros((1,nlat + 1,nlon), numpy.float32)                # malloc in c order
@@ -796,7 +796,7 @@ def sshift_testfunction(nlon, nlat, grid_type = 'regular'):
 
         lats =  numpy.array(latlistrad, numpy.float64)                 # latitudes for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)                 # array of latitudes in degrees
 
         sf = numpy.zeros((1,nlat,nlon), numpy.float32)                   # malloc in c order
@@ -832,7 +832,7 @@ def vshift_testfunction(nlon, nlat, grid_type = 'regular'):
     #-----------------------------------------------------------------------------------
 
     if grid_type != 'regular' and grid_type != 'offset':
-        print 'Must pass regular or offset to select grid from vshift_testfunction'
+        print('Must pass regular or offset to select grid from vshift_testfunction')
         raise ValueError
         return
 
@@ -852,10 +852,10 @@ def vshift_testfunction(nlon, nlat, grid_type = 'regular'):
     reglons =  numpy.array(reg_lonlistrad, numpy.float64)         # for use in computation
     offlons =  numpy.array(off_lonlistrad, numpy.float64)         # for use in computation
 
-    lonlist = map( (lambda x: (180./math.pi)*x), reg_lonlistrad)  # degrees for return
+    lonlist = list(map( (lambda x: (180./math.pi)*x), reg_lonlistrad))  # degrees for return
     reglonvals =  numpy.array(lonlist, numpy.float64)
 
-    lonlist = map( (lambda x: (180./math.pi)*x), off_lonlistrad)
+    lonlist = list(map( (lambda x: (180./math.pi)*x), off_lonlistrad))
     offlonvals =  numpy.array(lonlist, numpy.float64)
 
 
@@ -876,7 +876,7 @@ def vshift_testfunction(nlon, nlat, grid_type = 'regular'):
 
         lats =  numpy.array(latlistrad, numpy.float64)              # latitudes for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)              # array of latitudes in degrees
 
         u = numpy.zeros((1,nlat + 1,nlon), numpy.float32)                  # malloc in c order
@@ -920,7 +920,7 @@ def vshift_testfunction(nlon, nlat, grid_type = 'regular'):
 
         lats =  numpy.array(latlistrad, numpy.float64)                 # latitudes for computation  
 
-        latlist = map( (lambda x: (180./math.pi)*x), latlistrad)
+        latlist = list(map( (lambda x: (180./math.pi)*x), latlistrad))
         latvals =  numpy.array(latlist, numpy.float64)                 # array of latitudes in degrees
 
         u = numpy.zeros((1,nlat,nlon), numpy.float32)                  # malloc in c order
@@ -953,7 +953,7 @@ def vshift_testfunction(nlon, nlat, grid_type = 'regular'):
 if __name__ == "__main__":
     output = open('test.asc', 'w')               # global file name
 
-    print 'Running the test computations'
+    print('Running the test computations')
     te1 = sfvp() 
     te2 = shift()
     te3 = regrid()
@@ -967,10 +967,10 @@ if __name__ == "__main__":
     sendmsg(' ')
 
     if testError == 0:
-        print 'Testing Completed Successfully'
+        print('Testing Completed Successfully')
     else:
-        print 'Testing Completed But It May Have Problems'
-    print 'Some details on the testing have been written to the file test.asc.'
-    print 'General information on the use of SPHEREPACK has been written to the file spheremodule.doc.'
+        print('Testing Completed But It May Have Problems')
+    print('Some details on the testing have been written to the file test.asc.')
+    print('General information on the use of SPHEREPACK has been written to the file spheremodule.doc.')
 
     output.close()

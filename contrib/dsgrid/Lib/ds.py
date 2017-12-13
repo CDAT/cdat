@@ -237,14 +237,14 @@ writeTestcase = 'yes'
 try:
     import cdms2
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms'
+    print('Can not write test case results to netCDF files without module cdms')
     writeTestcase = 'no'
 
 usefilled = 'yes'
 try:
     import numpy.ma
 except ImportError:
-    print 'Can not convert from numpy.ma array to numpy array without module numpy.ma'
+    print('Can not convert from numpy.ma array to numpy array without module numpy.ma')
     usefilled = 'no'
 
 debug = 0
@@ -320,10 +320,10 @@ class Dsgrid:
             self.is3D = 'yes'
         elif zi is not None and zo  is None:
             msg = 'CANNOT CREATE INSTANCE - The z coordinate must have an input and an output array'
-            raise ValueError, msg
+            raise ValueError(msg)
         elif zi  is None and zo is not None:
             msg = 'CANNOT CREATE INSTANCE - The z coordinate must have an input and an output array'
-            raise ValueError, msg
+            raise ValueError(msg)
         
         # make sure that the arrays are numpy arrays
 
@@ -398,47 +398,47 @@ class Dsgrid:
             size = len(xi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The first argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
         if size < 3:
             msg = 'CANNOT CREATE INSTANCE - The length of the input x coordindate grid must be greater than 2'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         try:
             size = len(xo)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The second argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
 
         try: 
             size = len(yi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The third argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
         if size < 3:
             msg = 'CANNOT CREATE INSTANCE - The length of the input y coordindate grid must be greater than 2'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         try: 
             size = len(yo)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The fourth argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
 
         if self.is3D == 'yes':
             try: 
                 size = len(zi)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - The third argument must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
             if size < 3:
                 msg = 'CANNOT CREATE INSTANCE - The length of the input z coordindate grid must be greater than 2'
-                raise ValueError, msg
+                raise ValueError(msg)
 
             try: 
                 size = len(zo)
             except:                        
                 msg = 'CANNOT CREATE INSTANCE - The fourth argument must be an array'
-                raise TypeError, msg
+                raise TypeError(msg)
 
         # set the self data for the input grid
 
@@ -446,7 +446,7 @@ class Dsgrid:
         self.nyi = len(yi)
         if self.nxi != self.nyi:
             msg = 'CANNOT CREATE INSTANCE - The input coordinates must all have the same length'
-            raise ValueError, msg
+            raise ValueError(msg)
         self.xi = xi
         self.yi = yi
         if self.is3D == 'yes':
@@ -454,7 +454,7 @@ class Dsgrid:
             self.zi = zi
             if self.nzi != self.nxi:
                 msg = 'CANNOT CREATE INSTANCE - The input coordinates must all have the same length'
-                raise ValueError, msg
+                raise ValueError(msg)
 
         # set the self data for the input grid
 
@@ -472,13 +472,13 @@ class Dsgrid:
 
             if self.monotonic == 'no':
                 msg = 'CANNOT CREATE INSTANCE - The gridded output coordinates must be arranged monotonically'
-                raise ValueError, msg
+                raise ValueError(msg)
 
 
         else:                                # listed output
             if self.nxo != self.nyo:
                 msg = 'CANNOT CREATE INSTANCE - The listed output coordinates must all have the same length'
-                raise ValueError, msg
+                raise ValueError(msg)
             self.xo = xo
             self.yo = yo
             self.monotonic = None
@@ -490,7 +490,7 @@ class Dsgrid:
                 self.nzo = len(zo)
                 if self.nzo != self.nyo:
                     msg = 'CANNOT CREATE INSTANCE - The listed output coordinates must all have the same length'
-                    raise ValueError, msg
+                    raise ValueError(msg)
                 self.zo= zo
 
 
@@ -528,7 +528,7 @@ class Dsgrid:
 
         if dataIn.dtype.char == 'f':                                                 # single precision
             if self.group == 'double':                                               # change the grid type to match dataIn
-                print 'converting grid to single to match data'
+                print('converting grid to single to match data')
                 self.group = 'single'                                               # change the grid type to match dataIn
                 self.xi = self.xi.astype(numpy.float32)
                 self.xo = self.xo.astype(numpy.float32)
@@ -541,7 +541,7 @@ class Dsgrid:
 
         else:                                                                      # double precision
             if self.group == 'single':                                              # change the grid type to match dataIn
-                print 'converting grid to double to match data'
+                print('converting grid to double to match data')
                 self.group = 'double'                                               # change the grid type to match dataIn
                 self.xi = self.xi.astype(numpy.float64)
                 self.xo = self.xo.astype(numpy.float64)
@@ -553,7 +553,7 @@ class Dsgrid:
 
         if self.nxi != len(dataIn):
             msg = 'CANNOT INTERPOLATE - The length of the both input grids and the length of data must agree'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         if usefilled == 'yes':
             dataIn = numpy.ma.filled(dataIn)
@@ -579,39 +579,39 @@ class Dsgrid:
         if self.group == 'single':                                                                       # single precision
             if self.is3D == 'yes':
                 if debug == 1:
-                    print 'In rgrdPrimary using single precision 3D computation'
+                    print('In rgrdPrimary using single precision 3D computation')
 
                 dataOut, ier = dsgridmodule.grid3s(self.nxi, self.xi, self.yi, self.zi, dataIn,          # 3D
                                self.nxo, self.nyo, self.nzo, self.xo, self.yo, self.zo)
                 if ier != 0:
                     msg = 'Error in return from grid3s call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError,msg
+                    raise ValueError(msg)
             else:
                 if debug == 1:
-                    print 'In rgrdPrimary using single precision 2D computation'
+                    print('In rgrdPrimary using single precision 2D computation')
                 dataOut, ier = dsgridmodule.grid2s(self.nxi, self.xi, self.yi, dataIn,                   # 2D
                                          self.nxo, self.nyo, self.xo, self.yo)
                 if ier != 0:
                     msg = 'Error in return from grid2s call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
         else:                                                                                            # double precision
             if self.is3D == 'yes':
                 if debug == 1:
-                    print 'In rgrdPrimary using double precision 3D computation'
+                    print('In rgrdPrimary using double precision 3D computation')
                 dataOut, ier = dsgridmodule.grid3d(self.nxi, self.xi, self.yi, self.zi, dataIn,          # 3D
                                self.nxo, self.nyo, self.nzo, self.xo, self.yo, self.zo)
                 if ier != 0:
                     msg = 'Error in return from grid3d call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
             else:
                 if debug == 1:
-                    print 'In rgrdPrimary using double precision 2D computation'
+                    print('In rgrdPrimary using double precision 2D computation')
                 dataOut, ier = dsgridmodule.grid2d(self.nxi, self.xi, self.yi, dataIn,                   # 2D
                                          self.nxo, self.nyo, self.xo, self.yo)
                 if ier != 0:
                     msg = 'Error in return from grid2d call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
         return dataOut
 
@@ -625,35 +625,35 @@ class Dsgrid:
 
             if self.is3D == 'yes':                                                 # 3D
                 if debug == 1:
-                    print 'In rgrdSinglePoint using single precision 3D computation'
+                    print('In rgrdSinglePoint using single precision 3D computation')
                 dataOut, ier = dsgridmodule.pnt3s(self.nxi, self.xi, self.yi, self.zi, dataIn, self.nxo, self.xo, self.yo, self.zo)
                 if ier != 0:
                     msg = 'Error in return from pnt3s call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
             else:                                                                  # 2D
                 if debug == 1:
-                    print 'In rgrdSinglePoint using single precision 2D computation'
+                    print('In rgrdSinglePoint using single precision 2D computation')
                 dataOut, ier = dsgridmodule.pnt2s(self.nxi, self.xi, self.yi, dataIn, self.nxo, self.xo, self.yo)
                 if ier != 0:
                     msg = 'Error in return from pnt2s call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
         else:                                                                      # double precision
 
             if self.is3D == 'yes':                                                 # 3D
                 if debug == 1:
-                    print 'In rgrdSinglePoint using double precision 3D computation'
+                    print('In rgrdSinglePoint using double precision 3D computation')
                 dataOut, ier = dsgridmodule.pnt3d(self.nxi, self.xi, self.yi, self.zi, dataIn, self.nxo, self.xo, self.yo, self.zo)
                 if ier != 0:
                     msg = 'Error in return from pnt3d call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
             else:                                                                  # 2D
                 if debug == 1:
-                    print 'In rgrdSinglePoint using double precision 2D computation'
+                    print('In rgrdSinglePoint using double precision 2D computation')
                 dataOut, ier = dsgridmodule.pnt2d(self.nxi, self.xi, self.yi, dataIn, self.nxo, self.xo, self.yo)
                 if ier != 0:
                     msg = 'Error in return from pnt2d call with -- ' + Dsgrid.errorTable(self)[ier]
-                    raise ValueError, msg
+                    raise ValueError(msg)
 
         return dataOut 
 
@@ -764,7 +764,7 @@ class Dsgrid:
         parameterDict = Dsgrid.makeDefaultParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-14.14s   %-9.9s  %s' % items
+            print('%-7.7s  %-6.6s  %-14.14s   %-9.9s  %s' % items)
 
         return 
 
@@ -790,7 +790,7 @@ class Dsgrid:
         parameterDict = Dsgrid.makeInstanceParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items
+            print('%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items)
 
         return 
 
@@ -816,11 +816,11 @@ class Dsgrid:
 
         for name in names:
             if typeDict[name] == 'int':
-                print 'Currently,  %s = %d' % (name, eval('self.' + name))
+                print('Currently,  %s = %d' % (name, eval('self.' + name)))
             elif typeDict[name] == 'char':
-                print 'Currently,  %s = %s' % (name, eval('self.' + name))
+                print('Currently,  %s = %s' % (name, eval('self.' + name)))
             elif typeDict[name] == 'float':
-                print 'Currently,  %s = %f' % (name, eval('self.' + name))
+                print('Currently,  %s = %f' % (name, eval('self.' + name)))
 
         return None      
 
@@ -915,7 +915,7 @@ class Dsgrid:
 
         typeDict = Dsgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 dsgridmodule.seti(name, value)
                 self.__dict__[name] = value
@@ -950,7 +950,7 @@ class Dsgrid:
 
         typeDict = Dsgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 value = dsgridmodule.geti(name)
             elif typeDict[name] == 'char':
@@ -1000,7 +1000,7 @@ def printParameterTable():
 
     for item in names:
         items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-        print '%-7.7s  %-6.6s  %-14.14s   %-9.9s  %s' % items
+        print('%-7.7s  %-6.6s  %-14.14s   %-9.9s  %s' % items)
 
     return 
 
@@ -1027,13 +1027,13 @@ def printStoredParameters():
 
     for item in names:
         if typeDict[item] == 'int':
-            print '   %s = %d' % (item, dsgridmodule.geti(item))
+            print('   %s = %d' % (item, dsgridmodule.geti(item)))
         elif typeDict[item] == 'char':
-            print '   %s = %s' % (item, dsgridmodule.getc(item))
+            print('   %s = %s' % (item, dsgridmodule.getc(item)))
         elif typeDict[item] == 'float':
-            print '   %s = %f' % (item, dsgridmodule.getr(item))
+            print('   %s = %f' % (item, dsgridmodule.getr(item)))
         elif typeDict[item] == 'double':
-            print '   %s = %f' % (item, dsgridmodule.getrd(item))
+            print('   %s = %f' % (item, dsgridmodule.getrd(item)))
 
     return None      
 
@@ -1144,76 +1144,76 @@ def document():
     std = sys.stdout                                             # save sys.stout to allow reassigning later
     sys.stdout = open( 'dsgrid.doc', 'w')
 
-    print '**********************************************************************************************\n'  
-    print '**************************** Overview of the CDAT interface to dsgrid ************************\n'
-    print '**********************************************************************************************\n'  
-    print ds.__doc__
-    print
-    print
+    print('**********************************************************************************************\n')  
+    print('**************************** Overview of the CDAT interface to dsgrid ************************\n')
+    print('**********************************************************************************************\n')  
+    print(ds.__doc__)
+    print()
+    print()
 
-    print '  ******************** Instructions for use of the grid2s function *****************************'
-    print dsgridmodule.grid2s.__doc__
-    print
+    print('  ******************** Instructions for use of the grid2s function *****************************')
+    print(dsgridmodule.grid2s.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the grid3s function *****************************'
-    print dsgridmodule.grid3s.__doc__
-    print
+    print('  ******************** Instructions for use of the grid3s function *****************************')
+    print(dsgridmodule.grid3s.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the seti function *****************************'
-    print dsgridmodule.seti.__doc__
-    print
+    print('  ******************** Instructions for use of the seti function *****************************')
+    print(dsgridmodule.seti.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the geti function *****************************'
-    print dsgridmodule.geti.__doc__
-    print
+    print('  ******************** Instructions for use of the geti function *****************************')
+    print(dsgridmodule.geti.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the setr function *****************************'
-    print dsgridmodule.setr.__doc__
-    print
+    print('  ******************** Instructions for use of the setr function *****************************')
+    print(dsgridmodule.setr.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the getr function *****************************'
-    print dsgridmodule.getr.__doc__
-    print
+    print('  ******************** Instructions for use of the getr function *****************************')
+    print(dsgridmodule.getr.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the setc function *****************************'
-    print dsgridmodule.setc.__doc__
-    print
+    print('  ******************** Instructions for use of the setc function *****************************')
+    print(dsgridmodule.setc.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the getc function *****************************'
-    print dsgridmodule.getc.__doc__
-    print
+    print('  ******************** Instructions for use of the getc function *****************************')
+    print(dsgridmodule.getc.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the pnt2s function *****************************'
-    print dsgridmodule.pnt2s.__doc__
-    print
+    print('  ******************** Instructions for use of the pnt2s function *****************************')
+    print(dsgridmodule.pnt2s.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the pnt3s function *****************************'
-    print dsgridmodule.pnt3s.__doc__
-    print
+    print('  ******************** Instructions for use of the pnt3s function *****************************')
+    print(dsgridmodule.pnt3s.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the grid2d function *****************************'
-    print dsgridmodule.grid2d.__doc__
-    print
+    print('  ******************** Instructions for use of the grid2d function *****************************')
+    print(dsgridmodule.grid2d.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the grid3d function *****************************'
-    print dsgridmodule.grid3d.__doc__
-    print
+    print('  ******************** Instructions for use of the grid3d function *****************************')
+    print(dsgridmodule.grid3d.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the setrd function *****************************'
-    print dsgridmodule.setrd.__doc__
-    print
+    print('  ******************** Instructions for use of the setrd function *****************************')
+    print(dsgridmodule.setrd.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the getrd function *****************************'
-    print dsgridmodule.getrd.__doc__
-    print
+    print('  ******************** Instructions for use of the getrd function *****************************')
+    print(dsgridmodule.getrd.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the pnt2d function *****************************'
-    print dsgridmodule.pnt2d.__doc__
-    print
+    print('  ******************** Instructions for use of the pnt2d function *****************************')
+    print(dsgridmodule.pnt2d.__doc__)
+    print()
 
-    print '  ******************** Instructions for use of the pnt3d function *****************************'
-    print dsgridmodule.pnt3d.__doc__
-    print
+    print('  ******************** Instructions for use of the pnt3d function *****************************')
+    print(dsgridmodule.pnt3d.__doc__)
+    print()
 
     sys.stdout = std
 
@@ -1223,7 +1223,7 @@ def help(choice = None):
     import ds
 
     if choice is None:                               # get instructions for use of help
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
       
       INSTRUCTIONS ON USE THE OBJECT ORIENTED INTERFACE TO THE DSGRID PACKAGE FROM NGMATH 
      
@@ -1294,10 +1294,10 @@ def help(choice = None):
  
       This same information is available in the help package.
  
-     ------------------------------------------------------------------------------------------------------"""
+     ------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'Dsgrid': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
 
             Rectangular Gridded Output Coordinates
 
@@ -1334,10 +1334,10 @@ def help(choice = None):
             or double precision. The choice is determined by the type of the coordinate arrays submitted
             in makking the instance. 
  
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'parameters': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
              In the absence of an instance of the class Dsgrid, a description of the control parameters can be found 
              by typing
@@ -1374,7 +1374,7 @@ def help(choice = None):
                 r.printInstanceParameters()     -- prints a list of the parameters values used in subsequent calls to the 
                                                    the rgrd method
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'table': 
         printParameterTable()
@@ -1382,7 +1382,7 @@ def help(choice = None):
     #-----------------------------------------------------------------------------------------------------
 
     elif choice == 'interpolations':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
 
             First make an instance, r. To get instructions on making an instance, type
      
@@ -1391,38 +1391,38 @@ def help(choice = None):
                 ds.help('Dsgrid')
 
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'grid2s':
-        print dsgridmodule.grid2s.__doc__
+        print(dsgridmodule.grid2s.__doc__)
     elif choice == 'grid3s':
-        print dsgridmodule.grid3s.__doc__
+        print(dsgridmodule.grid3s.__doc__)
     elif choice == 'grid2d':
-        print dsgridmodule.grid2d.__doc__
+        print(dsgridmodule.grid2d.__doc__)
     elif choice == 'grid3d':
-        print dsgridmodule.grid3d.__doc__
+        print(dsgridmodule.grid3d.__doc__)
     elif choice == 'seti':
-        print dsgridmodule.seti.__doc__
+        print(dsgridmodule.seti.__doc__)
     elif choice == 'geti':
-        print dsgridmodule.geti.__doc__
+        print(dsgridmodule.geti.__doc__)
     elif choice == 'setr':
-        print dsgridmodule.setr.__doc__
+        print(dsgridmodule.setr.__doc__)
     elif choice == 'getr':
-        print dsgridmodule.getr.__doc__
+        print(dsgridmodule.getr.__doc__)
     elif choice == 'setc':
-        print dsgridmodule.setc.__doc__
+        print(dsgridmodule.setc.__doc__)
     elif choice == 'getc':
-        print dsgridmodule.getc.__doc__
+        print(dsgridmodule.getc.__doc__)
     elif choice == 'pnt2s':
-        print dsgridmodule.pnt2s.__doc__
+        print(dsgridmodule.pnt2s.__doc__)
     elif choice == 'pnt3s':
-        print dsgridmodule.pnt3s.__doc__
+        print(dsgridmodule.pnt3s.__doc__)
     elif choice == 'pnt2d':
-        print dsgridmodule.pnt2d.__doc__
+        print(dsgridmodule.pnt2d.__doc__)
     elif choice == 'pnt3d':
-        print dsgridmodule.pnt3d.__doc__
+        print(dsgridmodule.pnt3d.__doc__)
     else:
-        print 'Your request is not in help.   The help choices are the strings: Dsgrid, parameters, table, interpolations, grid2s, grid2d, grid3s, grid3d,  seti, geti, setr, getr, setrd, getrd, setc, getc, pnt2s, pnt3s, pnt2d and pnt3d' 
+        print('Your request is not in help.   The help choices are the strings: Dsgrid, parameters, table, interpolations, grid2s, grid2d, grid3s, grid3d,  seti, geti, setr, getr, setrd, getrd, setc, getc, pnt2s, pnt3s, pnt2d and pnt3d') 
 
     return None
                                                                                                 
@@ -1438,14 +1438,14 @@ def sendmsg(msg, value1 = None, value2 = None):
     #
     #---------------------------------------------------------------------------------"""
 
-    print '*******************************************************************'
+    print('*******************************************************************')
     if value1  is None:
-        print msg
+        print(msg)
     elif value2  is None:
-        print msg, value1
+        print(msg, value1)
     else:
-        print msg, value1, value2
-    print '*******************************************************************'
+        print(msg, value1, value2)
+    print('*******************************************************************')
 
     return None
 

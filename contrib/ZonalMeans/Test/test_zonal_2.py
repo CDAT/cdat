@@ -5,7 +5,7 @@ import cdms2,ZonalMeans,sys,os
 ## 
 f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
 s=f('u')
-print s.shape
+print(s.shape)
 res = ZonalMeans.compute(s)
 import vcs
 import vcs.test.support

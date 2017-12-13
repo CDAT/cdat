@@ -366,14 +366,14 @@ writeTestcase = 'yes'
 try:
     import cdms2
 except ImportError:
-    print 'Can not write test case results to netCDF files without module cdms'
+    print('Can not write test case results to netCDF files without module cdms')
     writeTestcase = 'no'
 
 usefilled = 'yes'
 try:
     import numpy.ma
 except ImportError:
-    print 'Can not convert from numpy.ma array to numpy array without module numpy.ma'
+    print('Can not convert from numpy.ma array to numpy array without module numpy.ma')
     usefilled = 'no'
 
 debug = 0
@@ -438,19 +438,19 @@ class Natgrid:
             size = len(xi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The first argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
         if size < 4:
             msg = 'CANNOT CREATE INSTANCE - The length of the input x coordindate grid must be greater than 3'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         try: 
             size = len(yi)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The third argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
         if size < 4:
             msg = 'CANNOT CREATE INSTANCE - The length of the input y coordindate grid must be greater than 3'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         # set the self data for the input grid
 
@@ -458,7 +458,7 @@ class Natgrid:
         self.nyi = len(yi)
         if self.nxi != self.nyi:
             msg = 'CANNOT CREATE INSTANCE - The length of the input x and y coordindate grids must be equal'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         self.xi = xi
         self.yi = yi
@@ -470,12 +470,12 @@ class Natgrid:
             size = len(xo)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The second argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
         try: 
             size = len(yo)
         except:                        
             msg = 'CANNOT CREATE INSTANCE - The fourth argument must be an array'
-            raise TypeError, msg
+            raise TypeError(msg)
 
         # set the self data for the output grid
 
@@ -487,12 +487,12 @@ class Natgrid:
 
             if monotonic == 'no':
                 msg = 'CANNOT CREATE INSTANCE - Rectangular output grid must be monotonic'
-                raise ValueError, msg
+                raise ValueError(msg)
             self.listOutput = 'no'
         else:
             if self.nxo != self.nyo:
                 msg = 'CANNOT CREATE INSTANCE - The list type output arrays must have the same length'
-                raise ValueError, msg
+                raise ValueError(msg)
             else:
                 self.xo = xo
                 self.yo = yo
@@ -524,7 +524,7 @@ class Natgrid:
             numberDoubles = numberDoubles + 1
         
         if debug == 1:
-            print 'number Singles and Doubles : ', numberSingles, numberDoubles
+            print('number Singles and Doubles : ', numberSingles, numberDoubles)
 
         if numberSingles >= numberDoubles:
             self.group = 'single' 
@@ -608,7 +608,7 @@ class Natgrid:
     --------------------------------------------------------------------------------------------------------""" 
         if self.nxi != len(dataIn):
             msg = 'CANNOT CREATE INSTANCE - The length of the input coordindate grids and the data must be equal'
-            raise ValueError, msg
+            raise ValueError(msg)
 
         if usefilled == 'yes':
             dataIn = numpy.ma.filled(dataIn)
@@ -657,13 +657,13 @@ class Natgrid:
 
         if dataIn.dtype.char == 'f':                                                 # single precision
             if debug == 1:
-                print 'In rgrdPrimary calling natgrids'
+                print('In rgrdPrimary calling natgrids')
 
             dataOut, ier = natgridmodule.natgrids(self.nxi, self.xi, self.yi, dataIn, self.nxo, self.nyo, self.xo, self.yo)
 
             if ier != 0:
                 msg = 'Error in return from natgrids call with -- ' + Natgrid.errorTable(self)[ier] 
-                raise ValueError, msg
+                raise ValueError(msg)
 
             if aspectSlope != 'no':
 
@@ -676,7 +676,7 @@ class Natgrid:
                         uvtemp, ier = natgridmodule.getaspects(i, j)
                         if ier != 0:
                             msg = 'Error in return from getaspects call with -- ' + Natgrid.errorTable(self)[ier] 
-                            raise ValueError, msg
+                            raise ValueError(msg)
                         a[i,j] = uvtemp                                            # return aspect in degrees
 
                 s = numpy.zeros((nxo, nyo), numpy.float32)
@@ -686,17 +686,17 @@ class Natgrid:
                         uvtemp, ier = natgridmodule.getslopes(i, j)
                         if ier != 0:
                             msg = 'Error in return from getslopes call with -- ' + Natgrid.errorTable(self)[ier] 
-                            raise ValueError, msg
+                            raise ValueError(msg)
                         s[i,j] = uvtemp                                            # return slope in degrees
 
         else:                                                                      # double precision
             if debug == 1:
-                print 'In rgrdPrimary calling natgridd'
+                print('In rgrdPrimary calling natgridd')
 
             dataOut, ier = natgridmodule.natgridd(self.nxi, self.xi, self.yi, dataIn, self.nxo, self.nyo, self.xo, self.yo)
             if ier != 0:
                 msg = 'Error in return from natgridd call with -- ' + Natgrid.errorTable(self)[ier] 
-                raise ValueError, msg
+                raise ValueError(msg)
 
             if aspectSlope != 'no':
 
@@ -709,7 +709,7 @@ class Natgrid:
                         uvtemp, ier = natgridmodule.getsloped(i, j)
                         if ier != 0:
                             msg = 'Error in return from getaspectd call with -- ' + Natgrid.errorTable(self)[ier] 
-                            raise ValueError, msg
+                            raise ValueError(msg)
                         a[i,j] = uvtemp                                            # return aspect in degrees
 
                 s = numpy.zeros((nxo, nyo), numpy.float64)
@@ -719,7 +719,7 @@ class Natgrid:
                         s[i,j], ier = natgridmodule.getsloped(i, j)
                         if ier != 0:
                             msg = 'Error in return from getsloped call with -- ' + Natgrid.errorTable(self)[ier] 
-                            raise ValueError, msg
+                            raise ValueError(msg)
                         s[i,j] = uvtemp                                     # return slope in degrees
 
         # is a reverse the order in the returned arrays necessary
@@ -758,7 +758,7 @@ class Natgrid:
 
         if dataIn.dtype.char == 'f':                                                 # single precision
             if debug == 1:
-                print 'In rgrdSinglePoint using single precision computation'
+                print('In rgrdSinglePoint using single precision computation')
 
             natgridmodule.pntinits(self.nxi, self.xi, self.yi, dataIn)
 
@@ -770,7 +770,7 @@ class Natgrid:
 
         else:                                                                      # double precision
             if debug == 1:
-                print 'In rgrdSinglePoint using double precision computation'
+                print('In rgrdSinglePoint using double precision computation')
 
             natgridmodule.pntinitd(self.nxi, self.xi, self.yi, dataIn)
 
@@ -817,7 +817,7 @@ class Natgrid:
         #     
         #------------------------------------------------------------------------------
         if debug == 1:
-            print 'entering wrapAll with array lengths: ', len(lat)
+            print('entering wrapAll with array lengths: ', len(lat))
 
         # Make a wrapped grid and wrapped data
 
@@ -855,7 +855,7 @@ class Natgrid:
             data = numpy.array(dataList, numpy.float64)
 
         if debug == 1:
-            print 'leaving wrapAll with array lengths: ', len(lat)
+            print('leaving wrapAll with array lengths: ', len(lat))
 
         return lat, lon, data
  
@@ -1001,7 +1001,7 @@ class Natgrid:
         parameterDict = Natgrid.makeDefaultParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-12.12s   %-15.15s  %s' % items
+            print('%-7.7s  %-6.6s  %-12.12s   %-15.15s  %s' % items)
 
         return 
 
@@ -1025,7 +1025,7 @@ class Natgrid:
         parameterDict = Natgrid.makeInstanceParameterTable(self)
         for item in names:
             items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-            print '%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items
+            print('%-7.7s  %-6.6s  %-12.12s   %-7.7s  %s' % items)
 
         return 
     def printInstanceParameters(self):
@@ -1050,13 +1050,13 @@ class Natgrid:
 
         for name in names:
             if typeDict[name] == 'int':
-                print 'Currently,  %s = %d' % (name, eval('self.' + name))
+                print('Currently,  %s = %d' % (name, eval('self.' + name)))
             elif typeDict[name] == 'char':
-                print 'Currently,  %s = %s' % (name, eval('self.' + name))
+                print('Currently,  %s = %s' % (name, eval('self.' + name)))
             elif typeDict[name] == 'float':
-                print 'Currently,  %s = %f' % (name, eval('self.' + name))
+                print('Currently,  %s = %f' % (name, eval('self.' + name)))
             elif typeDict[name] == 'double':
-                print 'Currently,  %s = %f' % (name, eval('self.' + name))
+                print('Currently,  %s = %f' % (name, eval('self.' + name)))
 
         return None      
 
@@ -1169,7 +1169,7 @@ class Natgrid:
         #---------------------------------------------------------------------------------
         typeDict = Natgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 natgridmodule.seti(name, value)
                 self.__dict__[name] = value
@@ -1203,7 +1203,7 @@ class Natgrid:
         #---------------------------------------------------------------------------------
         typeDict = Natgrid.parameterType(self)
 
-        if name in typeDict.keys():
+        if name in list(typeDict.keys()):
             if typeDict[name] == 'int':
                 value = natgridmodule.geti(name)
             elif typeDict[name] == 'char':
@@ -1214,7 +1214,7 @@ class Natgrid:
                 value = natgridmodule.getrd(name)
 
         else:
-            raise AttributeError, name
+            raise AttributeError(name)
 
         return value
 
@@ -1270,7 +1270,7 @@ def printParameterTable():
 
     for item in names:
         items = (item, parameterDict[item][0], parameterDict[item][1], parameterDict[item][2], parameterDict[item][3])  
-        print '%-7.7s  %-6.6s  %-12.12s   %-15.15s  %s' % items
+        print('%-7.7s  %-6.6s  %-12.12s   %-15.15s  %s' % items)
 
     return 
 
@@ -1302,13 +1302,13 @@ def printStoredParameters():
 
     for item in names:
         if typeDict[item] == 'int':
-            print '   %s = %d' % (item, natgridmodule.geti(item))
+            print('   %s = %d' % (item, natgridmodule.geti(item)))
         elif typeDict[item] == 'char':
-            print '   %s = %s' % (item, natgridmodule.getc(item))
+            print('   %s = %s' % (item, natgridmodule.getc(item)))
         elif typeDict[item] == 'float':
-            print '   %s = %f' % (item, natgridmodule.getr(item))
+            print('   %s = %f' % (item, natgridmodule.getr(item)))
         elif typeDict[item] == 'double':
-            print '   %s = %f' % (item, natgridmodule.getrd(item))
+            print('   %s = %f' % (item, natgridmodule.getrd(item)))
 
     return None      
 
@@ -1384,10 +1384,10 @@ def sendOutput(output, msg, value = None):
     #
     #---------------------------------------------------------------------------------"""
     if value is None:
-        print msg
+        print(msg)
         output.write(msg + '\n')
     else:
-        print msg, `value`
+        print(msg, repr(value))
         output.write(msg + ' %15.11e\n' % (value,))
 
     return None
@@ -1411,92 +1411,92 @@ def document():
     std = sys.stdout                                             # save sys.stout to allow reassigning later
     sys.stdout = open( 'natgrid.doc', 'w')
 
-    print '**********************************************************************************************\n'  
-    print '**************************** Overview of the CDAT interface to natgrid ***********************\n'
-    print '**********************************************************************************************\n'  
-    print nat.__doc__
-    print
-    print
+    print('**********************************************************************************************\n')  
+    print('**************************** Overview of the CDAT interface to natgrid ***********************\n')
+    print('**********************************************************************************************\n')  
+    print(nat.__doc__)
+    print()
+    print()
 
-    print '    ******************** Instructions for use of the natgrids function **************************'
-    print natgridmodule.natgrids.__doc__
-    print
+    print('    ******************** Instructions for use of the natgrids function **************************')
+    print(natgridmodule.natgrids.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the seti function **************************'
-    print natgridmodule.seti.__doc__
-    print
+    print('    ******************** Instructions for use of the seti function **************************')
+    print(natgridmodule.seti.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the geti function **************************'
-    print natgridmodule.geti.__doc__
-    print
+    print('    ******************** Instructions for use of the geti function **************************')
+    print(natgridmodule.geti.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the setr function **************************'
-    print natgridmodule.setr.__doc__
-    print
+    print('    ******************** Instructions for use of the setr function **************************')
+    print(natgridmodule.setr.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getr function **************************'
-    print natgridmodule.getr.__doc__
-    print
+    print('    ******************** Instructions for use of the getr function **************************')
+    print(natgridmodule.getr.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the setc function **************************'
-    print natgridmodule.setc.__doc__
-    print
+    print('    ******************** Instructions for use of the setc function **************************')
+    print(natgridmodule.setc.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getc function **************************'
-    print natgridmodule.getc.__doc__
-    print
+    print('    ******************** Instructions for use of the getc function **************************')
+    print(natgridmodule.getc.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getaspects function **************************'
-    print natgridmodule.getaspects.__doc__
-    print
+    print('    ******************** Instructions for use of the getaspects function **************************')
+    print(natgridmodule.getaspects.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getslopes function **************************'
-    print natgridmodule.getslopes.__doc__
-    print
+    print('    ******************** Instructions for use of the getslopes function **************************')
+    print(natgridmodule.getslopes.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pntinits function **************************'
-    print natgridmodule.pntinits.__doc__
-    print
+    print('    ******************** Instructions for use of the pntinits function **************************')
+    print(natgridmodule.pntinits.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pnts function **************************'
-    print natgridmodule.pnts.__doc__
-    print
+    print('    ******************** Instructions for use of the pnts function **************************')
+    print(natgridmodule.pnts.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pntend function **************************'
-    print natgridmodule.pntend.__doc__
-    print
+    print('    ******************** Instructions for use of the pntend function **************************')
+    print(natgridmodule.pntend.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the natgridd function **************************'
-    print natgridmodule.natgridd.__doc__
-    print
+    print('    ******************** Instructions for use of the natgridd function **************************')
+    print(natgridmodule.natgridd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the setrd function **************************'
-    print natgridmodule.setrd.__doc__
-    print
+    print('    ******************** Instructions for use of the setrd function **************************')
+    print(natgridmodule.setrd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getrd function **************************'
-    print natgridmodule.getrd.__doc__
-    print
+    print('    ******************** Instructions for use of the getrd function **************************')
+    print(natgridmodule.getrd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getaspectd function **************************'
-    print natgridmodule.getaspectd.__doc__
-    print
+    print('    ******************** Instructions for use of the getaspectd function **************************')
+    print(natgridmodule.getaspectd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the getsloped function **************************'
-    print natgridmodule.getsloped.__doc__
-    print
+    print('    ******************** Instructions for use of the getsloped function **************************')
+    print(natgridmodule.getsloped.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pntinitd function **************************'
-    print natgridmodule.pntinitd.__doc__
-    print
+    print('    ******************** Instructions for use of the pntinitd function **************************')
+    print(natgridmodule.pntinitd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pntd function **************************'
-    print natgridmodule.pntd.__doc__
-    print
+    print('    ******************** Instructions for use of the pntd function **************************')
+    print(natgridmodule.pntd.__doc__)
+    print()
 
-    print '    ******************** Instructions for use of the pntendd function **************************'
-    print natgridmodule.pntendd.__doc__
-    print
+    print('    ******************** Instructions for use of the pntendd function **************************')
+    print(natgridmodule.pntendd.__doc__)
+    print()
 
 
 
@@ -1516,14 +1516,14 @@ def sendmsg(msg, value1 = None, value2 = None):
     #
     #---------------------------------------------------------------------------------"""
 
-    print '*******************************************************************'
+    print('*******************************************************************')
     if value1 is None:
-        print msg
+        print(msg)
     elif value2 is None:
-        print msg, value1
+        print(msg, value1)
     else:
-        print msg, value1, value2
-    print '*******************************************************************'
+        print(msg, value1, value2)
+    print('*******************************************************************')
 
     return None
 
@@ -1532,7 +1532,7 @@ def help(choice = None):
     import nat
 
     if choice is None:                               # get instructions for use of help
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
       
       INSTRUCTIONS ON USE THE OBJECT ORIENTED INTERFACE TO THE NATGRID PACKAGE FROM NGMATH 
      
@@ -1608,10 +1608,10 @@ def help(choice = None):
      
                 nat.help('natgrids')
  
-     ------------------------------------------------------------------------------------------------------"""
+     ------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'Natgrid': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
             To make an instance, r, type:
  
@@ -1641,11 +1641,11 @@ def help(choice = None):
                 decision on whether to call for a single or a double precision computation subsequently is made by looking at
                 the type of these arrays. 
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
  
 
     elif choice == 'parameters': 
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
                                            
              In the absence of an instance of the class Natgrid, a description of the control parameters can be found 
              by typing
@@ -1680,7 +1680,7 @@ def help(choice = None):
 
                 nat. printStoredParameters()    -- prints the parameters in memory which may differ from the above if the
                                                    user has made more than one instance of the Natgrid class.
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'table': 
         printParameterTable()
@@ -1688,7 +1688,7 @@ def help(choice = None):
     #-----------------------------------------------------------------------------------------------------
 
     elif choice == 'regrid':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
 
             natgrid is restricted to two dimensions . Consequently, it is the user's responsibility to reduce the processing 
             of higher dimensional data to a sequence of calls using only two dimensional data. A description of the basic
@@ -1717,10 +1717,10 @@ def help(choice = None):
  
                 The computation is either single or double precision as determined by the precision submitted in making
                 the instance.
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'aspectSlope':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
 
             natgrid is restricted to two dimensions . Consequently, it is the user's responsibility to reduce the processing 
             of higher dimensional data to a sequence of calls using only two dimensional data. A description of the basic
@@ -1755,10 +1755,10 @@ def help(choice = None):
                 The computation is either single or double precision as determined by the precision submitted in making
                 the instance.
 
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'singlePoint':  
-        print """     ----------------------------------------------------------------------------------------
+        print("""     ----------------------------------------------------------------------------------------
  
             natgrid is restricted to two dimensions . Consequently, it is the user's responsibility to reduce the processing 
             of higher dimensional data to a sequence of calls using only two dimensional data. A description of the single
@@ -1787,52 +1787,52 @@ def help(choice = None):
                 The computation is either single or double precision as determined by the precision submitted in making
                 the instance.
      
-     --------------------------------------------------------------------------------------------------------------------"""
+     --------------------------------------------------------------------------------------------------------------------""")
 
     elif choice == 'natgrids':
-        print natgridmodule.natgrids.__doc__
+        print(natgridmodule.natgrids.__doc__)
     elif choice == 'seti':
-        print natgridmodule.seti.__doc__
+        print(natgridmodule.seti.__doc__)
     elif choice == 'geti':
-        print natgridmodule.geti.__doc__
+        print(natgridmodule.geti.__doc__)
     elif choice == 'setr':
-        print natgridmodule.setr.__doc__
+        print(natgridmodule.setr.__doc__)
     elif choice == 'getr':
-        print natgridmodule.getr.__doc__
+        print(natgridmodule.getr.__doc__)
     elif choice == 'setc':
-        print natgridmodule.setc.__doc__
+        print(natgridmodule.setc.__doc__)
     elif choice == 'getc':
-        print natgridmodule.getc.__doc__
+        print(natgridmodule.getc.__doc__)
     elif choice == 'getaspects':
-        print natgridmodule.getaspects.__doc__
+        print(natgridmodule.getaspects.__doc__)
     elif choice == 'getslopes':
-        print natgridmodule.getslopes.__doc__
+        print(natgridmodule.getslopes.__doc__)
     elif choice == 'pntinits':
-        print natgridmodule.pntinits.__doc__
+        print(natgridmodule.pntinits.__doc__)
     elif choice == 'pnts':
-        print natgridmodule.pnts.__doc__
+        print(natgridmodule.pnts.__doc__)
     elif choice == 'pntend':
-        print natgridmodule.pntend.__doc__
+        print(natgridmodule.pntend.__doc__)
     elif choice == 'natgridd':
-        print natgridmodule.natgridd.__doc__
+        print(natgridmodule.natgridd.__doc__)
     elif choice == 'setrd':
-        print natgridmodule.setrd.__doc__
+        print(natgridmodule.setrd.__doc__)
     elif choice == 'getrd':
-        print natgridmodule.getrd.__doc__
+        print(natgridmodule.getrd.__doc__)
     elif choice == 'getaspectd':
-        print natgridmodule.getaspectd.__doc__
+        print(natgridmodule.getaspectd.__doc__)
     elif choice == 'getsloped':
-        print natgridmodule.getsloped.__doc__
+        print(natgridmodule.getsloped.__doc__)
     elif choice == 'pntinitd':
-        print natgridmodule.pntinitd.__doc__
+        print(natgridmodule.pntinitd.__doc__)
     elif choice == 'pntd':
-        print natgridmodule.pntd.__doc__
+        print(natgridmodule.pntd.__doc__)
     elif choice == 'pntendd':
-        print natgridmodule.pntendd.__doc__
+        print(natgridmodule.pntendd.__doc__)
 
     else:
-        print 'Your request is not in help.   The help choices are: ' 
-        print 'Natgrid, parameters, table, regrid, aspectSlope, singlePoint, natgrids, seti, geti, setr, getr, setc, getc, getaspects, getslopes, pntinits, pnts, pntend, natgridd, setrd, getrd, getaspectd, getsloped, pntinitd, pntd, pntendd'                               
+        print('Your request is not in help.   The help choices are: ') 
+        print('Natgrid, parameters, table, regrid, aspectSlope, singlePoint, natgrids, seti, geti, setr, getr, setc, getc, getaspects, getslopes, pntinits, pnts, pntend, natgridd, setrd, getrd, getaspectd, getsloped, pntinitd, pntd, pntendd')                               
 
     return None
 

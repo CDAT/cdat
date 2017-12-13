@@ -56,7 +56,7 @@ def binwrite (unit, x):
     elif n == 4:
        binout.binout4 (unit, row_major(d), s[0], s[1], s[2], s[3])
     else:
-	raise FuioError, "binwrite(unit, x): x must be 1-4 dimension"
+	raise FuioError("binwrite(unit, x): x must be 1-4 dimension")
 
 def binread(unit, *sizes):
     "binread(iunit, *sizes): read binary row-major array of given dimensions."
@@ -72,7 +72,7 @@ def binread(unit, *sizes):
     elif n == 4:
         y = binout.binin4(unit, sizes[0], sizes[1], sizes[2], sizes[3])
     else:
-        raise FuioError, "binread(unit, *sizes): must be 0-4 dimensions given."
+        raise FuioError("binread(unit, *sizes): must be 0-4 dimensions given.")
     return y
 
 def test():
@@ -95,10 +95,10 @@ def test():
     y4 = binread(j, 2, 3, 4, 5)
     binclose(j)
     if not numpy.allclose(row_major(x4), y4):
-        print x4
-        print y4
-        raise FuioError, "x4 and y4 fail to compare."
+        print(x4)
+        print(y4)
+        raise FuioError("x4 and y4 fail to compare.")
 
 if __name__ == "__main__":
     test()
-    print "Test completed successfully."
+    print("Test completed successfully.")
