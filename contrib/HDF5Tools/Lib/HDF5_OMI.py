@@ -113,7 +113,7 @@ class HDF5_OMI(HDF5Tools.HDF5):
       sin,sout,serr = os.popen3('%s -h' % self.h5dump)
       err = serr.read()
       if len(err.strip())>0:
-         raise RuntimeError, "h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environement variable H5DUMP"
+         raise RuntimeError("h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environement variable H5DUMP")
 
       self.file = file
       if dimension_kw is None:
@@ -130,12 +130,12 @@ class HDF5_OMI(HDF5Tools.HDF5):
       # Assumes that they all have the same shape
       shape = None
       for c in coordinates.split():
-         if not c in self.variables.keys():
-            raise ValueError,'Error for coordinates attribute, variable %s has been declared as coordinates variable but is not present in file' % c
+         if not c in list(self.variables.keys()):
+            raise ValueError('Error for coordinates attribute, variable %s has been declared as coordinates variable but is not present in file' % c)
          if shape is None:
             shape = self.variables[c].shape
          elif shape!=self.variables[c].shape:
-            raise ValueError,'Error for coordinates attribute (%s), variable %s has been declared as coordinates variable but its shape %s is not consistent with one of previous coordinates %s' % (coordinates,c,self.variables[c].shape,shape)
+            raise ValueError('Error for coordinates attribute (%s), variable %s has been declared as coordinates variable but its shape %s is not consistent with one of previous coordinates %s' % (coordinates,c,self.variables[c].shape,shape))
       # Applies the coordinates attribute
       for v in self.listvariables():
          V=self.variables[v]

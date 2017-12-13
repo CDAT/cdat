@@ -33,13 +33,13 @@ class HDF5_Variable:
       sin,sout,serr = os.popen3('%s -h' % self.h5dump)
       err = serr.read()
       if len(err.strip())>0:
-         raise RuntimeError, "h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environment variable H5DUMP"
+         raise RuntimeError("h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environment variable H5DUMP")
 
       self.file = hdf5file
       if variable in self.file.listvariables()+self.file.listdimension():
          self.variable = variable
       else:
-         raise 'Variable %s not present in file %s' % (variable, self.file.file)
+         raise RuntimeError('Variable {} not present in file {}'.format(variable, self.file.file))
 
       # Figures out the header for h5dump commands
       self._attributes={'missing_value':numpy.array(1.E20,'f')}
@@ -55,7 +55,7 @@ class HDF5_Variable:
 
       # Figures out the shape
       cmd = '%s -H -d %s %s' % (self.h5dump, self._header, self.file.file)
-      for l in os.popen(cmd).xreadlines():
+      for l in os.popen(cmd):
          l=l.strip()
          sp=l.split()
          if sp[0].upper()=='DATASPACE':
@@ -115,7 +115,7 @@ class HDF5_Variable:
            ielement += 1
 
       if ielement != size:
-         raise RuntimeError, 'got wrong number of data %s, expected %s' % (ielement,size)
+         raise RuntimeError('got wrong number of data %s, expected %s' % (ielement,size))
 
       # In case of quirky missing_value attribute - AQUARIUS data (Paul Durack - 130107)
       try:
@@ -132,14 +132,14 @@ class HDF5_Variable:
 
       # And sets the attributes back on
       for a in self._attributes:
-	  # Catch instance where type of missing_value attribute is numpy.ndarray or not string
+      # Catch instance where type of missing_value attribute is numpy.ndarray or not string
           #print 'type: ',type(self._attributes['missing_value'])
           # Deal with Aquarius data with numpy.ndarray type missing_value attribute (Paul Durack - 150211)
           if 'missing_value' in a and type(self._attributes['missing_value']) is numpy.ndarray:
               setattr(data,a,float(self._attributes['missing_value']))
           # Old fix - push through string type
           elif 'missing_value' in a and type(self._attributes['missing_value']) is not str:
-	      setattr(data,a,str(self._attributes['missing_value']))
+              setattr(data,a,str(self._attributes['missing_value']))
           # Else process attributes as string
           else:
               setattr(data,a,getattr(self,a))
@@ -160,7 +160,7 @@ class HDF5:
       sin,sout,serr = os.popen3('%s -h' % self.h5dump)
       err = serr.read()
       if len(err.strip())>0:
-         raise RuntimeError, "h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environement variable H5DUMP" 
+         raise RuntimeError("h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environement variable H5DUMP") 
 
       self.file = file
       self.dimension_kw=dimension_kw
@@ -168,9 +168,9 @@ class HDF5:
       self.open()
 
    def get(self,variable,*args,**kargs):
-      if not variable in self.variables.keys():
-         raise ValueError, 'Variable %s not present in file'
-      return apply(self.variables[variable],args,kargs)
+      if not variable in list(self.variables.keys()):
+         raise ValueError('Variable %s not present in file')
+      return self.variables[variable](*args, **kargs)
 
    __call__ = get
    
@@ -190,7 +190,7 @@ class HDF5:
 
       # Test if it is a valid hdf5 file
       if not isinstance(self.file,str):
-         raise 'Error file must be a string'
+         raise RuntimeError('Error file must be a string')
       else:
          self.file=self.file.strip()
 
@@ -200,7 +200,7 @@ class HDF5:
       self.description = o.readlines()
       err = e.readlines()
       if len(err)>0:
-         raise 'Error opening file',self.file
+          raise RuntimeError('Error opening file: {}'.format(self.file))
 
       self.Variables = self._scan_description()
       self.variables={}
@@ -208,7 +208,7 @@ class HDF5:
          self.variables[v] = var_class(self,v,h5dump=self.h5dump)
 
       if self.dimension_kw is not None: # We defined a keyword
-         for k in self.variables.keys():
+         for k in list(self.variables.keys()):
             v = self.variables[k]
             if v._group.find(self.dimension_kw)!=-1:
                self.dimensions.append(k)
