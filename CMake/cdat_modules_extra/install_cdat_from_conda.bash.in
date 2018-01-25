@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-@CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c @CONDA_CHANNEL_UVCDAT@  ipython libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>=4.9.2 vtk@CONDA_NOX@ libcdms flake8 requests numpy hdf5=1.8.16 cycler matplotlib --show-channel-urls --copy
+@CONDA@ create -y -n @CONDA_ENVIRONMENT_NAME@ -c conda-forge -c @CONDA_CHANNEL_UVCDAT@  ipython libnetcdf lapack clapack ossuuid libcf esmf jasper g2clib yasm x264 ffmpeg cmor proj4>4.9.2 vtk-cdat@CONDA_NOX@ libcdms flake8 requests numpy hdf5 cycler matplotlib --show-channel-urls --copy
 
 source @ACTIVATE@ @CONDA_ENVIRONMENT_NAME@
 
