@@ -5,6 +5,7 @@ python:
 - "3.6"
 
 script:
+  skip_cleanup: true
 - cd scripts
 - travis_wait 45 python install_nightly.py --workdir ${HOME}/test_nightly 
 - ls ${HOME}/test_nightly/miniconda/envs
