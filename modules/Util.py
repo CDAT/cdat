@@ -50,11 +50,11 @@ def git_clone_repo(workdir, repo_name):
 
 def run_in_conda_env(conda_path, env, cmds_list):
     cmd = 'export PATH=' + conda_path + ':$PATH; '
-    cmd += 'source activate ' + env + '; '
+    cmd += 'conda activate ' + env + '; '
     
     for a_cmd in cmds_list:
         cmd += a_cmd + '; '
-    cmd += 'source deactivate'
+    cmd += 'conda deactivate'
     print('CMD: ' + cmd)
     ret_code = os.system(cmd)
     print(ret_code)
