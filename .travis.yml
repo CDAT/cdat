@@ -3,10 +3,10 @@ os:
 language: python
 python:
 - "3.6"
-before_script:
-- cd scripts
-- travis_wait 45 python install_nightly.py --workdir $HOME/test_nightly 
+
 script:
 - cd scripts
-- python run_testsuite.py --workdir $HOME/test_nightly --py_ver 'py2' -t 'cdms'
+- travis_wait 45 python install_nightly.py --workdir ${HOME}/test_nightly 
+- ls ${HOME}/test_nightly/miniconda/envs
+- python run_testsuite.py --workdir ${HOME}/test_nightly --py_ver 'py2' -t 'cdms'
 
