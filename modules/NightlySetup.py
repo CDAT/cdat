@@ -65,28 +65,29 @@ class NightlySetup:
             ret_code = run_cmd(cmd)
             if ret_code != SUCCESS:
                 print("FAIL...installing miniconda")
-                return ret_code
+                return(ret_code)
 
         cmd = conda_path + 'conda install gcc future'
         ret_code = run_cmd(cmd)
         if ret_code != SUCCESS:
-            return(ret_code, conda_path)
+            return(ret_code)
 
         cmd = conda_path + 'conda config --set always_yes yes --set changeps1 no'
     
         ret_code = run_cmd(cmd)
         if ret_code != SUCCESS:
-            return(ret_code, conda_path)
+            print('FAILED: ' + cmd)
+            return(ret_code)
 
         if sys.platform == 'darwin':
             cmd = conda_path + 'conda update -y -q conda'
             ret_code = run_cmd(cmd)
             if ret_code != SUCCESS:
-                return(ret_code, conda_path)
+                return(ret_code)
 
         cmd = conda_path + 'conda config --set anaconda_upload no'
         ret_code = run_cmd(cmd)
-
+        print("xxxx returning from install_miniconda")
         return(ret_code)
 
     def install_nightly(self, py_ver):
