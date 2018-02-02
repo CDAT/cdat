@@ -10,7 +10,7 @@ from Const import *
 #                                                                                                                 
 # following code is mostly copied from cdms/run_tests.py                                                          
 #                                                                                                                 
-def run_cmd(cmd, join_stderr=True, shell_cmd=False):
+def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True):
     print("CMD: " + cmd)
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
@@ -26,7 +26,8 @@ def run_cmd(cmd, join_stderr=True, shell_cmd=False):
     while P.poll() is None:
         read = P.stdout.readline().rstrip()
         out.append(read)
-        print(read)
+        if verbose == True:
+            print(read)
 
     ret_code = P.returncode
     return(ret_code)

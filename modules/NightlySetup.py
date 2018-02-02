@@ -50,8 +50,8 @@ class NightlySetup:
             return ret_code
 
         cmd = 'bash ' + workdir + '/miniconda.sh -b -p ' + workdir + '/miniconda'
-    
-        ret_code = run_cmd(cmd)
+        # run the command, set verbose=False 
+        ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             print("FAIL...installing miniconda")
             return ret_code
@@ -68,7 +68,7 @@ class NightlySetup:
                 return(ret_code)
 
         cmd = conda_path + 'conda install gcc future'
-        ret_code = run_cmd(cmd)
+        ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             return(ret_code)
 
@@ -81,7 +81,7 @@ class NightlySetup:
 
         if sys.platform == 'darwin':
             cmd = conda_path + 'conda update -y -q conda'
-            ret_code = run_cmd(cmd)
+            ret_code = run_cmd(cmd, True, False, False)
             if ret_code != SUCCESS:
                 return(ret_code)
 
@@ -109,6 +109,7 @@ class NightlySetup:
             cmd = conda_path + "conda create -n " + self.py2_env + " cdat \"python<3\" "
             cmd += '-c uvcdat/label/nightly -c conda-forge -c uvcdat'
 
-        ret_code = run_cmd(cmd)
+        ret_code = run_cmd(cmd, True, False, False)
+        # REVISIT: check for nightly really installed
         return(ret_code)
 
