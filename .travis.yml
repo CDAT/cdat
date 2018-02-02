@@ -1,42 +1,14 @@
 os:
-    #- osx
 - linux
-#osx_image: xcode7.1
-sudo: false
-before_install:
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; fi
-  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh; fi
-- export PATH="$HOME/miniconda/bin:$PATH"
-- bash miniconda.sh -b -p $HOME/miniconda
-- conda config --set always_yes yes --set changeps1 no
-- conda update -y -q conda
-- conda install openssl=1.0.2d
-- conda install cmake
+
+language: python
+
+python:
+   - "3.6"
+
+before_script:
+   - cd scripts
+   - python install_nightly.py --workdir $HOME/test_nightly 
 script:
-- export NOX="OFF"
-- export CONDA_XTRA="uvcdat"
-- export NCPUS="4"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NOX="ON"; export CONDA_XTRA="uvcdat -c spyder-ide libxcb"; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then export NCPUS="8" ; fi
-- echo $TRAVIS_BRANCH
-- export TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
-- echo $TRAVIS_EVENT_TYPE
-- echo $TRAVIS_PULL_REQUEST
-- if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then export TRAVIS_PR_BRANCH=$(curl -u doutriaux1:$MY_GITHUB_TOKEN https://api.github.com/repos/UV-CDAT/uvcdat/pulls/$TRAVIS_PULL_REQUEST | grep ref | head -n1 | awk '{print $2}' | cut -d'"' -f 2) ; fi
-- echo $TRAVIS_PR_BRANCH
-- if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git fetch origin +refs/heads/$TRAVIS_PR_BRANCH:refs/remotes/origin/$TRAVIS_PR_BRANCH ; fi
-- if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then git checkout -b $TRAVIS_PR_BRANCH origin/$TRAVIS_PR_BRANCH ; fi
-- git checkout $TRAVIS_PR_BRANCH
-- cd ..
-- mkdir _build
-- cd _build
-- echo "OFFSCREEN IS:"$NOX
-- cmake -DGIT_PROTOCOL=git:// ../uvcdat -DCDAT_BUILD_OFFSCREEN=$NOX -DCONDA_CHANNEL_UVCDAT="$CONDA_XTRA"
-- make
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -VV -R download_sample_data ; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ctest -j$NCPUS -D Experimental -R vcs ; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ctest -j$NCPUS -D Experimental ; fi
-env:
-  global:
-    secure: Z06idl4BP01QMhrocmfuYV4CcbLmb5ZJZoXXymDr5sLIIfqdMiSL/CfDCRkIwl44vKpTN5R9AAhQV6iNMdU0NOQQrftHJyT5YV4y966FuAA1v9ev7y/cgExJFv7M/4E37WAN6YIcO7E42KZReeNKOAodorpqoT87MW6FAImZbrM=
+   - python run_testsuite.py --workdir $HOME/test_nightly --py_ver 'py2' -t 'cdms'
+
