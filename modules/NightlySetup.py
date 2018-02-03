@@ -44,7 +44,7 @@ class NightlySetup:
             install_script = url + 'Miniconda3-4.3.21-Linux-x86_64.sh'
             cmd = 'wget ' + install_script + ' -O ' + workdir + '/miniconda.sh'
 
-        ret_code = run_cmd(cmd)
+        ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             print("FAIL..." + cmd)
             return ret_code

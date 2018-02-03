@@ -30,7 +30,7 @@ class TestSetup:
         if os.path.exists(full_path_dir) == False:
             ret_code = git_clone_repo(workdir, repo_name)
             if ret_code != SUCCESS:
-                return(ret_code)
+                raise Exception('git_clone_repo() failed')
 
         self.repo_name = repo_name
         self.repo_dir = full_path_dir
@@ -43,7 +43,7 @@ class TestSetup:
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
         if ret_code != SUCCESS:
-            return(ret_code)
+            raise Exception('installing needed packages from test failed')
 
     def run_tests(self, nightly_setup, py_version, run_tests_invoke_cmd):
 
