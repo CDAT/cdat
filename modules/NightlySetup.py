@@ -25,6 +25,9 @@ class NightlySetup:
 
     def install_miniconda(self, workdir):
 
+        print("xxx echoing SHELL environment variable: ")
+        os.system("echo $SHELL")
+
         # create workdir if it does not exist         
         if os.path.isdir(workdir) == True:
             print('INFO: ' + workdir + ' already exists')
