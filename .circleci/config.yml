@@ -1,0 +1,15 @@
+version: 2
+
+machine:
+   xcode:
+      version: 7.2
+
+jobs:
+   build:
+      steps:
+         - checkout
+         - run: echo "HELLO ....validate nightly"
+ 
+test:
+   override:
+      - run: echo "Running tests....."
