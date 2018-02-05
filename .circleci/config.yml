@@ -12,7 +12,7 @@ jobs:
           command: git clone -b validateNightly git@github.com:UV-CDAT/uvcdat
       - run:
           name: InstallNightlyCdat
-          command: python3 scripts/install_nightly.py -w test_nightly
+          command: python scripts/install_nightly.py -w test_nightly
 
   test:
     machine:
