@@ -21,7 +21,9 @@ jobs:
     steps:
       - run: echo "run testsuite...step1..."   
       - run: echo "run testsuite...step2..."   
- 
+      - run: 
+          name: RunCdmsTest
+          command: python uvcdat/scripts/run_testsuite.py -w test_nightly -p 'py2' -t 'cdms'
 workflow:
   version: 2
   build_and_test:
