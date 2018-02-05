@@ -17,7 +17,7 @@ jobs:
    
 workflows:
    version: 2
-   validate_nightly
+   validate_nightly:
       jobs:
          - install_nightly
          - run_testsuites:
