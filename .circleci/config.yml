@@ -6,14 +6,16 @@ jobs:
       xcode:
         version: 7.2
       steps:
-        - run: echo "Install nightly..."
+        - run: echo "Install nightly...step1"
+        - run: echo "Install nightly...step2"
 
   test:
     machine:
       xcode:
         version: 7.2       
       steps:
-        - run: echo "run testsuites..."
+        - run: echo "run testsuites...step1"
+        - run: echo "run testsuites...step2"
    
 workflows:
   version: 2
