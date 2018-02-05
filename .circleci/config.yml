@@ -26,7 +26,7 @@ jobs:
           name: RunCdmsTest
           command: python uvcdat/scripts/run_testsuite.py -w test_nightly -p 'py2' -t 'cdms'
 
-workflow:
+workflows:
   version: 2
   build_and_test:
     jobs:
