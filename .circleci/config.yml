@@ -1,14 +1,14 @@
 version: 2
 
 jobs:
-   install_nightly:
+   build:
       machine:
          xcode:
             version: 7.2
       steps:
          - run: echo "Install nightly..."
 
-   run_testsuites:
+   test:
       machine:
          xcode:
             version: 7.2       
@@ -17,9 +17,7 @@ jobs:
    
 workflows:
    version: 2
-   validate_nightly:
+   build_and_test:
       jobs:
-         - install_nightly
-         - run_testsuites:
-              requires:
-	         - install_nightly
+         - build
+	 - test
