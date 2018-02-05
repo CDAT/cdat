@@ -6,8 +6,11 @@ jobs:
       xcode:
         version: 7.2
     steps:
-      - run: echo "Install nightly...step1"
-      - run: echo "Install nightly...step2"
+      - run: echo "Install nightly..."
+      - pwd
+      - git clone -b validateNightly https://github.com/UV-CDAT/uvcdat
+      - cd uvcdat
+      - python3 scripts/install_nightly.py -w test_nightly
 
   test:
     machine:
