@@ -46,6 +46,7 @@ run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'cdms':
     cdms_test_setup = TestSetup.CdmsTestSetup(nightly_setup, ts, py_ver)
+    run_tests_cmd = 'python run_tests.py -s -v2'
     status = cdms_test_setup.run_tests(nightly_setup, py_ver, run_tests_cmd)
     
 elif ts == 'vcs':
