@@ -1,15 +1,25 @@
 version: 2
 
-machine:
-   xcode:
-      version: 7.2
-
 jobs:
-   build:
+   install_nightly:
+      machine:
+         xcode:
+            version: 7.2
       steps:
-         - checkout
-         - run: echo "HELLO ....validate nightly"
- 
-test:
-   override:
-      - run: echo "Running tests....."
+         - run: echo "Install nightly..."
+
+   run_testsuites:
+      machine:
+         xcode:
+            version: 7.2       
+      steps:
+         - run: echo "run testsuites..."
+   
+workflows:
+   version: 2
+   validate_nightly
+      jobs:
+         - install_nightly
+         - run_testsuites:
+              requires:
+	         - install_nightly
