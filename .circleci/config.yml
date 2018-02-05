@@ -7,7 +7,7 @@ jobs:
         version: 7.2
     steps:
       - run: echo "Install nightly..."
-      - git clone -b validateNightly https://github.com/UV-CDAT/uvcdat
+      - git clone -b validateNightly git@github.com:UV-CDAT/uvcdat
       - python3 scripts/install_nightly.py -w test_nightly
 
   test:
