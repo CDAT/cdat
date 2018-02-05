@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  test:
+  build:
     machine:
       xcode:
         version: 7.2
@@ -12,3 +12,19 @@ jobs:
       - cd uvcdat
       - python3 scripts/install_nightly.py -w test_nightly
 
+  test:
+    machine:
+      xcode:
+        version: 7.2
+    steps:
+      - run: echo "run testsuite...step1..."   
+      - run: echo "run testsuite...step2..."   
+ 
+workflow:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
