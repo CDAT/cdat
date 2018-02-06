@@ -1,6 +1,6 @@
 from Util import *
 
-class TestSetup:
+class TestSetup(object):
 
     def __init__(self, nightly_setup, repo_name, py_version):
         """
