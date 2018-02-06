@@ -5,6 +5,8 @@ jobs:
     machine:
       xcode:
         version: 7.2
+      python:
+        version: 3.6.0
     working_directory: /tmp
     steps:
       - run: echo "Install nightly..."
