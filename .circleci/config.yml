@@ -5,19 +5,20 @@ jobs:
     machine:
       xcode:
         version: 7.2
-    working_directory: ~/workspace
+    working_directory: /tmp
     steps:
       - run: echo "Install nightly..."
+      - run: mkdir -p workspace
       - run:
           name: CloneUvcdatCode
-          command: git clone -b validateNightly git@github.com:UV-CDAT/uvcdat
+          command: git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       - run:
           name: InstallNightlyCdat
-          command: python uvcdat/scripts/install_nightly.py -w test_nightly
+          command: python uvcdat/scripts/install_nightly.py -w workspace/test_nightly
       - run: echo "Done installing nightly"
-      - run: ls test_nightly/miniconda/envs
+      - run: ls workspace/test_nightly/miniconda/envs
       - persist_to_workspace:
-          root: /root/workspace
+          root: workspace
           paths: uvcdat test_nightly
   test:
     machine:
@@ -26,9 +27,9 @@ jobs:
     working_directory: ~/workspace
     steps:
       - attach_to_workspace:
-          at: /root/workspace
+          at: /tmp/workspace
       - run: echo "run testsuite...step1..."   
-      - run: echo "run testsuite...step2..."   
+      - run: ls test_nightly/miniconda/envs
       - run: 
           name: RunCdmsTest
           command: python uvcdat/scripts/run_testsuite.py -w test_nightly -p 'py2' -t 'cdms'
