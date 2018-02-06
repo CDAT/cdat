@@ -5,6 +5,7 @@ jobs:
     machine:
       xcode:
         version: 7.2
+    working_directory: ~/workspace
     steps:
       - run: echo "Install nightly..."
       - run:
@@ -15,11 +16,17 @@ jobs:
           command: python uvcdat/scripts/install_nightly.py -w test_nightly
       - run: echo "Done installing nightly"
       - run: ls test_nightly/miniconda/envs
+      - persist_to_workspace:
+          root: /root/workspace
+          paths: uvcdat test_nightly
   test:
     machine:
       xcode:
         version: 7.2
+    working_directory: ~/workspace
     steps:
+      - attach_to_workspace:
+          at: /root/workspace
       - run: echo "run testsuite...step1..."   
       - run: echo "run testsuite...step2..."   
       - run: 
