@@ -14,7 +14,7 @@ jobs:
           command: git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       - run:
           name: InstallNightlyCdat
-          command: python uvcdat/scripts/install_nightly.py -w workspace/test_nightly
+          command: python workspace/uvcdat/scripts/install_nightly.py -w workspace/test_nightly
       - run: echo "Done installing nightly"
       - run: ls workspace/test_nightly/miniconda/envs
       - persist_to_workspace:
