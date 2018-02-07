@@ -52,7 +52,7 @@ workflows:
   build_and_test:
     triggers: 
       - schedule:
-          cron: "0 18 * * *"
+          cron: "50 16 * * *"
     jobs:
       - build
       - test:
