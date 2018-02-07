@@ -85,7 +85,7 @@ class CdmsTestSetup(TestSetup):
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)
         if ret_code != SUCCESS:
-            return(ret_code)
+            raise Exception('Running ' + cmd + ' failed')
 
 
 class VcsTestSetup(TestSetup):
@@ -99,11 +99,11 @@ class VcsTestSetup(TestSetup):
 
         # install additional packages needed by this testsuite
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
-        cmd += '-c uvcdat mesalib image-compare "matplotlib<2.1"'
+        cmd += '-c uvcdat mesalib image-compare \"matplotlib<2.1\"'
         cmds_list = []
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)
         if ret_code != SUCCESS:
-            return(ret_code)
+            raise Exception('Running ' + cmd + ' failed')
 
     
