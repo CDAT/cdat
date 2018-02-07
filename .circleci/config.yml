@@ -40,6 +40,9 @@ jobs:
 workflows:
   version: 2
   build_and_test:
+    triggers: 
+      - schedule:
+          cron: "0 18 * * *"
     jobs:
       - build
       - test:
