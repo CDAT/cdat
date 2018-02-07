@@ -49,10 +49,10 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+    nightly:
     triggers: 
       - schedule:
-          cron: "50 16 * * *"
+          cron: "0 17 * * *"
     jobs:
       - build
       - test:
