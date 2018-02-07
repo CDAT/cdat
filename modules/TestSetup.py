@@ -106,4 +106,29 @@ class VcsTestSetup(TestSetup):
         if ret_code != SUCCESS:
             raise Exception('Running ' + cmd + ' failed')
 
+
+class PcmdiTestSetup(TestSetup):
+    def __init__(self, nightly_setup, repo_name, py_version):
+        super(PcmdiTestSetup, self).__init__(nightly_setup, repo_name, py_version)
+
+        if py_version == 'py2':
+            env = nightly_setup.py2_env
+        elif py_version == 'py3':
+            raise Exception('pcmdi_metrics does not have py3 support')
+
+
+        # install additional packages needed by this testsuite
+        cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
+        cmd += '-c uvcdat vcs vcsaddons cdp mesalib image-compare flake8'
+        cmds_list = []
+        cmds_list.append(cmd)
+
+        cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
+        cmd += '-c uvcdat -c pcmdi/label/nightly -c pcmdi pcmdi_metrics'
+        cmds_list.append(cmd)
+
+        ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)
+        if ret_code != SUCCESS:
+            raise Exception('Running ' + cmd + ' failed')
+
     

@@ -36,7 +36,10 @@ def git_clone_repo(workdir, repo_name):
     """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
         <workdir>/<repo_name> directory                                              
     """
-    url = 'https://github.com/UV-CDAT/' + repo_name
+    if repo_name == 'pcmdi_metrics':
+        url = 'https://github.com/pcmdi/' + repo_name
+    else:
+        url = 'https://github.com/UV-CDAT/' + repo_name
 
     
     cmd = 'git clone ' + url + ' ' + workdir + '/' + repo_name

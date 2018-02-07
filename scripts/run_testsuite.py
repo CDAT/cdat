@@ -69,6 +69,11 @@ elif ts == 'vcsaddons':
     run_tests_cmd = 'python run_tests.py -v2 -n 2'
     status = test_setup.run_tests(nightly_setup, py_ver, run_tests_cmd)
 
+elif ts == 'pcmdi_metrics':
+    test_setup = TestSetup.PcmdiTestSetup(nightly_setup, ts, py_ver)
+    run_tests_cmd = 'python run_tests.py -v2'
+    status = test_setup.run_tests(nightly_setup, py_ver, run_tests_cmd)
+
 sys.exit(status)
 
 
