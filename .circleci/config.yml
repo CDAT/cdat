@@ -53,9 +53,6 @@ jobs:
 workflows:
   version: 2
   build_and_test:
-    triggers:
-      - schedule:
-          cron: "15 12 * * *"
     jobs:
       - build
       - test:
