@@ -1,5 +1,11 @@
 version: 2
 
+aliases:
+
+  - &setup
+    |
+      echo "...in...setup...$PYTHON_VERSION"
+
 jobs:
   macos_nightly:
     machine:
@@ -8,16 +14,23 @@ jobs:
       python:
         version: 3.6.0
     working_directory: /tmp
+    environment:
+      - PYTHON_VERSION: 'py2'
     steps:
       - run: echo "..macos Nightly..."
-      - run: uname -a
+      - run: uname -a      
+      - run: *setup
+
   linux_nightly:
     machine:
       image: circleci/classic:latest
     working_directory: ~/workspace
+    environment:
+      - PYTHON_VERSION: 'py3'
     steps:
       - run: echo "...linux Nightly..."
       - run: uname -a
+      - run: *setup
 workflows:
   version: 2
   nightly:
