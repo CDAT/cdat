@@ -22,7 +22,6 @@ workflows:
   nightly:
     jobs:
       - build
-      - test:
-          requires:
-            - build
+      - test
+
 
