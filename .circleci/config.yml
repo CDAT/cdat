@@ -1,7 +1,7 @@
-ersion: 2
+version: 2
 
 jobs:
-  macos_build:
+  build:
     machine:
       xcode:
         version: 7.2
@@ -9,27 +9,20 @@ jobs:
         version: 3.6.0
     working_directory: /tmp
     steps:
-      - run: echo "...macos build..."
-
-  linux_build:
+      - run: echo "Install nightly..."
+  test:
     machine:
       xcode:
         version: 7.2
-      python:
-        version: 3.6.0
-    working_directory: /tmp
+    working_directory: ~/workspace
     steps:
-      - run: echo "...ubuntu build..."
-      - run: uname -a
-
+      - run: echo "...test..."
 workflows:
   version: 2
   nightly:
     jobs:
-      macos_build
-      linux_build
-
-
-
-
+      - build
+      - test:
+          requires:
+            - build
 
