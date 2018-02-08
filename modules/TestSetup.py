@@ -125,6 +125,7 @@ class PcmdiTestSetup(TestSetup):
 
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
         cmd += '-c uvcdat -c pcmdi/label/nightly -c pcmdi pcmdi_metrics'
+        cmd += ' > /dev/null 2>&1'
         cmds_list.append(cmd)
 
         ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)

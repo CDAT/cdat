@@ -59,6 +59,7 @@ def run_in_conda_env(conda_path, env, cmds_list):
         cmd += a_cmd + '; '
     cmd += 'source deactivate \"'
     print('CMD: ' + cmd)
+
     ret_code = os.system(cmd)
     print(ret_code)
     return(ret_code)
