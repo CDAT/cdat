@@ -10,12 +10,14 @@ jobs:
     working_directory: /tmp
     steps:
       - run: echo "..macos Nightly..."
+      - run: uname -a
   linux_nightly:
     machine:
       image: circleci/classic:latest
     working_directory: ~/workspace
     steps:
       - run: echo "...linux Nightly..."
+      - run: uname -a
 workflows:
   version: 2
   nightly:
