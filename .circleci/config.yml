@@ -9,13 +9,13 @@ jobs:
         version: 3.6.0
     working_directory: /tmp
     steps:
-      - run: echo "Install nightly..."
+      - run: echo "..macos Nightly..."
   linux_nightly:
     machine:
       image: circleci/classic:latest
     working_directory: ~/workspace
     steps:
-      - run: echo "...test..."
+      - run: echo "...linux Nightly..."
 workflows:
   version: 2
   nightly:
