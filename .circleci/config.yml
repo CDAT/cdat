@@ -12,7 +12,7 @@ jobs:
       - run: echo "Install nightly..."
   linux_nightly:
     machine:
-      Linux
+      image: circleci/classic:latest
     working_directory: ~/workspace
     steps:
       - run: echo "...test..."
