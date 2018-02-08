@@ -12,8 +12,11 @@ jobs:
       - run: echo "...macos build..."
 
   linux_build:
-    docker:
-      - image: ubuntu-14.04-XXL-1325-0ccc9ce
+    machine:
+      xcode:
+        version: 7.2
+      python:
+        version: 3.6.0
     working_directory: /tmp
     steps:
       - run: echo "...ubuntu build..."
