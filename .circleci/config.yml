@@ -53,10 +53,10 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+  nightly:
     triggers:
       - schedule:
-          cron: "32 6 * * *"
+          cron: "40 6 * * *"
 	  filters:
 	    branches:
 	      only:
