@@ -29,10 +29,7 @@ jobs:
       - run: echo "..macos Nightly..."
       - run: uname -a
       - run: *setup
-      - run:
-          name: RunCdmsTest
-	  command: *run_cdms_test
-
+      - run: *run_cdms_test
 
   linux_nightly_py3:
     machine:
@@ -43,9 +40,7 @@ jobs:
       - run: echo "...linux Nightly..."
       - run: uname -a
       - run: *setup
-      - run:
-          name: RunCdmsTest
-	  command: *run_cdms_test
+      - run: *run_cdms_test
 
 workflows:
   version: 2
