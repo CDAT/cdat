@@ -12,8 +12,7 @@ jobs:
       - run: echo "Install nightly..."
   linux_nightly:
     machine:
-      xcode:
-        version: 7.2
+      Linux
     working_directory: ~/workspace
     steps:
       - run: echo "...test..."
