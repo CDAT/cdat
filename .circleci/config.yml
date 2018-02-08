@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  build:
+  macos_nightly:
     machine:
       xcode:
         version: 7.2
@@ -10,7 +10,7 @@ jobs:
     working_directory: /tmp
     steps:
       - run: echo "Install nightly..."
-  test:
+  linux_nightly:
     machine:
       xcode:
         version: 7.2
@@ -21,7 +21,7 @@ workflows:
   version: 2
   nightly:
     jobs:
-      - build
-      - test
+      - macos_nightly
+      - linux_nightly
 
 
