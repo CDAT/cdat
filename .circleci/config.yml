@@ -16,9 +16,8 @@ jobs:
       - image: ubuntu-14.04-XXL-1325-0ccc9ce
     working_directory: /tmp
     steps:
-      - run: echo "...machine build..."
+      - run: echo "...ubuntu build..."
       - run: uname -a
-
 
 workflows:
   version: 2
