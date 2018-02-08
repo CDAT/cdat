@@ -4,40 +4,54 @@ aliases:
 
   - &setup
     |
-      - run: echo "...in setup...1"
-      - run: echo "...in setup...2"
+      echo "Install nightly..."
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
+      python workspace/uvcdat/scripts/install_nightly.py -w workspace/test_nightly
+      echo "Done installing nightly"
+      ls workspace/test_nightly/miniconda/envs
+
+  - &run_cdms_test
+    |
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'cdms'
 
 
 jobs:
-  macos_nightly:
+  macos_nightly_py2:
     machine:
       xcode:
         version: 7.2
       python:
         version: 3.6.0
-    working_directory: /tmp
     environment:
       - PYTHON_VERSION: 'py2'
     steps:
       - run: echo "..macos Nightly..."
-      - run: uname -a      
+      - run: uname -a
       - run: *setup
+      - run:
+          name: RunCdmsTest
+	  command: *run_cdms_test
 
-  linux_nightly:
+
+  linux_nightly_py3:
     machine:
       image: circleci/classic:latest
-    working_directory: ~/workspace
     environment:
       - PYTHON_VERSION: 'py3'
     steps:
       - run: echo "...linux Nightly..."
       - run: uname -a
       - run: *setup
+      - run:
+          name: RunCdmsTest
+	  command: *run_cdms_test
+
 workflows:
   version: 2
   nightly:
     jobs:
-      - macos_nightly
-      - linux_nightly
+      - macos_nightly_py2
+      - linux_nightly_py3
 
 
