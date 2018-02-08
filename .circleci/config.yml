@@ -50,12 +50,13 @@ jobs:
           name: RunPcmdiTest
           command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'pcmdi_metrics'
 	  no_output_timeout: 1200
+
 workflows:
   version: 2
   build_and_test:
     triggers:
       - schedule:
-          cron: "30 6 * * *"
+          cron: "32 6 * * *"
 	  filters:
 	    branches:
 	      only:
