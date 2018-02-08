@@ -54,13 +54,6 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "40 6 * * *"
-	  filters:
-	    branches:
-	      only:
-	        - validateNightly
     jobs:
       - build
       - test:
