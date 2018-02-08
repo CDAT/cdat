@@ -31,25 +31,24 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: ls /tmp/workspace/test_nightly/miniconda/envs
-#      - run: 
-#          name: RunCdmsTest
-#          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'cdms'
-#      - run: 
-#          name: RunGenutilTest
-#          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'genutil'
-#      - run: 
-#          name: RunCdutilTest
-#          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'cdutil'
-#      - run: 
-#          name: RunVcsTest
-#          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'vcs'
-#      - run: 
-#          name: RunVcsaddonsTest
-#          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'vcsaddons'
+      - run: 
+          name: RunCdmsTest
+          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'cdms'
+      - run: 
+          name: RunGenutilTest
+          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'genutil'
+      - run: 
+          name: RunCdutilTest
+          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'cdutil'
+      - run: 
+          name: RunVcsTest
+          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'vcs'
+      - run: 
+          name: RunVcsaddonsTest
+          command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'vcsaddons'
       - run: 
           name: RunPcmdiTest
           command: python /tmp/workspace/uvcdat/scripts/run_testsuite.py -w /tmp/workspace/test_nightly -p 'py2' -t 'pcmdi_metrics'
-	  no_output_timeout: 1200
 
 workflows:
   version: 2
