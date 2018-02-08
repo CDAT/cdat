@@ -4,7 +4,8 @@ aliases:
 
   - &setup
     |
-      echo "...in...setup...$PYTHON_VERSION"
+      echo "...in setup...1"
+      echo "...in setup...2"      
 
 jobs:
   macos_nightly:
