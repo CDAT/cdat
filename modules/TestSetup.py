@@ -39,6 +39,7 @@ class TestSetup(object):
         # conda install -c uvcdat/label/nightly -c conda-forge -c uvcdat nose image-compare 
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
         cmd += '-c uvcdat nose'
+        cmd += ' > /dev/null 2>&1'
         cmds_list = []
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
@@ -81,6 +82,7 @@ class CdmsTestSetup(TestSetup):
         # install additional packages needed by this testsuite
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
         cmd += '-c uvcdat image-compare'
+        cmd += ' > /dev/null 2>&1'
         cmds_list = []
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)
@@ -100,6 +102,7 @@ class VcsTestSetup(TestSetup):
         # install additional packages needed by this testsuite
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
         cmd += '-c uvcdat mesalib image-compare \\\"matplotlib<2.1\\\"'
+        cmd += ' > /dev/null 2>&1'
         cmds_list = []
         cmds_list.append(cmd)
         ret_code = run_in_conda_env(nightly_setup.conda_path, env, cmds_list)
@@ -119,7 +122,8 @@ class PcmdiTestSetup(TestSetup):
 
         # install additional packages needed by this testsuite
         cmd = 'conda install -c uvcdat/label/nightly -c conda-forge '
-        cmd += '-c uvcdat vcs vcsaddons cdp mesalib image-compare flake8'
+        cmd += '-c uvcdat vcs vcsaddons cdp mesalib image-compare flake8 '
+        cmd += ' > /dev/null 2>&1'
         cmds_list = []
         cmds_list.append(cmd)
 
