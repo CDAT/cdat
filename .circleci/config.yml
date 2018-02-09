@@ -18,23 +18,28 @@ aliases:
 
   - &run_genutil_test
     name: run_genutil_test
-    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'genutil'
+    command: | 
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'genutil'
 
   - &run_cdutil_test
     name: run_cdutil_test
-    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'cdutil'
+    command: | 
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'cdutil'
 
   - &run_vcs_test
     name: run_vcs_test
-    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcs'
+    command: | 
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcs'
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
-    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcsaddons'
+    command: | 
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcsaddons'
 
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
-    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'pcmdi_metrics'
+    command: | 
+      python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'pcmdi_metrics'
 
 
 
