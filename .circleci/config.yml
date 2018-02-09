@@ -41,8 +41,6 @@ aliases:
     command: | 
       python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'pcmdi_metrics'
 
-
-
 jobs:
   macos_nightly_py2:
     machine:
@@ -115,6 +113,8 @@ workflows:
   nightly:
     jobs:
       - macos_nightly_py2
+      - macos_nightly_py3
+      - linux_nightly_py2
       - linux_nightly_py3
 
 
