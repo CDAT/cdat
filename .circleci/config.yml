@@ -7,7 +7,7 @@ aliases:
       echo "Install nightly..."
       mkdir -p workspace
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
-      python workspace/uvcdat/scripts/install_nightly.py -w workspace/test_nightly
+      python workspace/uvcdat/scripts/install_nightly.py -w workspace/test_nightly -p $PYTHON_VERSION
       echo "Done installing nightly"
       ls workspace/test_nightly/miniconda/envs
 
