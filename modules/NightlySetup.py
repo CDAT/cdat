@@ -22,6 +22,7 @@ class NightlySetup:
             self.py2_env = None
             self.py3_env = None
 
+        os.system("uname -a")
 
     def install_miniconda(self, workdir):
 

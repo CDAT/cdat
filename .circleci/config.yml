@@ -12,8 +12,30 @@ aliases:
       ls workspace/test_nightly/miniconda/envs
 
   - &run_cdms_test
-    |
+    name: run_cdms_test
+    command: |
       python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'cdms'
+
+  - &run_genutil_test
+    name: run_genutil_test
+    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'genutil'
+
+  - &run_cdutil_test
+    name: run_cdutil_test
+    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'cdutil'
+
+  - &run_vcs_test
+    name: run_vcs_test
+    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcs'
+
+  - &run_vcsaddons_test
+    name: run_vcsaddons_test
+    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'vcsaddons'
+
+  - &run_pcmdi_metrics_test
+    name: run_pcmdi_metrics_test
+    command: | python workspace/uvcdat/scripts/run_testsuite.py -w workspace/test_nightly -p $PYTHON_VERSION -t 'pcmdi_metrics'
+
 
 
 jobs:
@@ -21,8 +43,6 @@ jobs:
     machine:
       xcode:
         version: 7.2
-      python:
-        version: 3.6.0
     environment:
       - PYTHON_VERSION: 'py2'
     steps:
@@ -30,6 +50,44 @@ jobs:
       - run: uname -a
       - run: *setup
       - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+
+  macos_nightly_py3:
+    machine:
+      xcode:
+        version: 7.2
+    environment:
+      - PYTHON_VERSION: 'py3'
+    steps:
+      - run: echo "..macos Nightly..."
+      - run: uname -a
+      - run: *setup
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+
+  linux_nightly_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      - PYTHON_VERSION: 'py2'
+    steps:
+      - run: echo "...linux Nightly..."
+      - run: uname -a
+      - run: *setup
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
 
   linux_nightly_py3:
     machine:
@@ -41,6 +99,11 @@ jobs:
       - run: uname -a
       - run: *setup
       - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
 
 workflows:
   version: 2
