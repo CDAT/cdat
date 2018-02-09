@@ -45,7 +45,7 @@ jobs:
   macos_nightly_py2:
     machine:
       xcode:
-        version: 7.2
+        version: 9.2
     environment:
       - PYTHON_VERSION: 'py2'
     steps:
@@ -62,7 +62,7 @@ jobs:
   macos_nightly_py3:
     machine:
       xcode:
-        version: 7.2
+        version: 9.2
     environment:
       - PYTHON_VERSION: 'py3'
     steps:

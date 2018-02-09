@@ -117,7 +117,7 @@ class PcmdiTestSetup(TestSetup):
         if py_version == 'py2':
             env = nightly_setup.py2_env
         elif py_version == 'py3':
-            raise Exception('pcmdi_metrics does not have py3 support')
+            env = nightly_setup.py3_env
 
 
         # install additional packages needed by this testsuite
