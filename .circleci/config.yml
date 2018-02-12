@@ -50,13 +50,6 @@ jobs:
     steps:
       - run: echo "..macos Nightly..."
       - run: uname -a
-      - run: *setup
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
 
   macos_nightly_py3:
     macos:
@@ -66,13 +59,6 @@ jobs:
     steps:
       - run: echo "..macos Nightly..."
       - run: uname -a
-      - run: *setup
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
 
   linux_nightly_py2:
     machine:
@@ -82,13 +68,6 @@ jobs:
     steps:
       - run: echo "...linux Nightly..."
       - run: uname -a
-      - run: *setup
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
 
   linux_nightly_py3:
     machine:
@@ -98,26 +77,22 @@ jobs:
     steps:
       - run: echo "...linux Nightly..."
       - run: uname -a
-      - run: *setup
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
 
 workflows:
   version: 2
   nightly:
     triggers:
       - schedule:
-          cron: "48 20 * * *"
+          cron: "12 21 * * *"
           filters:
             branches:
               only: validateNightly
     jobs:
       - macos_nightly_py2
       - macos_nightly_py3
+          requires:
+            - macos_nightly_py2
       - linux_nightly_py2
       - linux_nightly_py3
-
+          requires:
+            - linux_nightly_py2
