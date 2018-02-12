@@ -2,6 +2,7 @@ machine:
   xcode:
     version: 8.2
 
-test:
-  - bash uname -a
+jobs:
+  test:
+    - bash uname -a
 
