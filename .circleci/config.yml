@@ -4,9 +4,8 @@ machine:
   xcode:
     version: 8.2
 
-jobs:
-  build:
-    steps:
-      - run: echo "building on macOS xxxxx1"
-      - run: uname -a
+test:
+  steps:
+    - run: echo "building on macOS xxxxx1"
+    - run: uname -a
   
