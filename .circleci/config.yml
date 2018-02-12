@@ -112,6 +112,10 @@ workflows:
     triggers:
       - schedule:
           cron: "20 20 * * *"
+	  filters:
+	    branches:
+	      only: validateNightly
+
     jobs:
       - macos_nightly_py2
       - macos_nightly_py3
