@@ -1,11 +1,29 @@
 version: 2
 
-machine:
-  xcode:
-    version: 8.2
+jobs:
+  macos_nightly_py2:
+    machine:
+      xcode:
+        version: 9.2
+    environment:
+      - PYTHON_VERSION: 'py2'
+    steps:
+      - run: echo "..macos Nightly..."
+      - run: uname -a
 
-test:
-  steps:
-    - run: echo "building on macOS xxxxx1"
-    - run: uname -a
-  
+  linux_nightly_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      - PYTHON_VERSION: 'py2'
+    steps:
+      - run: echo "...linux Nightly..."
+      - run: uname -a
+
+workflows:
+  version: 2
+  nightly:
+    jobs:
+      - macos_nightly_py2
+      - linux_nightly_py2
+
