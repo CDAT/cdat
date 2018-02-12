@@ -111,11 +111,10 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "26 20 * * *"
+          cron: "36 20 * * *"
 	  filters:
 	    branches:
 	      only: validateNightly
-
     jobs:
       - macos_nightly_py2
       - macos_nightly_py3
