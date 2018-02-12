@@ -1,10 +1,11 @@
 version: 2
 
+machine:
+  xcode:
+    version: 8.2
+
 jobs:
   build:
-    machine:
-      xcode:
-        version: 8.2
     steps:
       - run: echo "building on macOS xxxxx1"
       - run: uname -a
