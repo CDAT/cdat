@@ -6,6 +6,6 @@ jobs:
       xcode:
         version: 8.2
     steps:
-      - run: echo "building on macOS xxx"
+      - run: echo "building on macOS xxxxx"
       - run: uname -a
-
+  
