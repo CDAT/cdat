@@ -2,9 +2,8 @@ version: 2
 
 jobs:
   macos_nightly_py2:
-    machine:
-      xcode:
-        version: 9.2
+    macos:
+      xcode: "9.2"
     environment:
       - PYTHON_VERSION: 'py2'
     steps:
