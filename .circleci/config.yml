@@ -109,6 +109,9 @@ jobs:
 workflows:
   version: 2
   nightly:
+    triggers:
+      - schedule:
+          cron: "20 20 * * *"
     jobs:
       - macos_nightly_py2
       - macos_nightly_py3
