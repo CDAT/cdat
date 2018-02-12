@@ -1,8 +1,11 @@
-machine:
-  xcode:
-    version: 8.2
+version: 2
 
 jobs:
-  test:
-    - bash uname -a
+  build:
+    machine:
+      xcode:
+        version: 8.2
+    steps:
+      - echo "building on macOS xxx"
+      - bash uname -a
 
