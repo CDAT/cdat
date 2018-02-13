@@ -111,7 +111,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 3 * * *"
+          cron: "0 4 * * *"
           filters:
             branches:
               only: validateNightly
