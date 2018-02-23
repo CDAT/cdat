@@ -9,6 +9,7 @@ aliases:
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       echo "Done installing nightly"
+      ls workspace/test_nightly/miniconda/envs
 
   - &setup_env
     |
@@ -17,6 +18,7 @@ aliases:
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_from_env.py -w $WORKDIR -v $BRANCH_NAME -p $PYTHON_VERSION
       echo "Done installing nightly"
+      ls workspace/test_env/miniconda/envs
 
   - &run_cdms_test
     name: run_cdms_test
