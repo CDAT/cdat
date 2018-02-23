@@ -54,7 +54,12 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         url = 'https://github.com/UV-CDAT/' + repo_name
 
     #repo_dir = workdir + '/' + repo_name
-    repo_dir = os.path.join(workdir, repo_name)
+    
+    branch_dir = os.path.join(workdir, branch)
+    if not os.path.isdir(branch_dir):
+        os.mkdir(branch_dir)
+
+    repo_dir = os.path.join(workdir, branch, repo_name)
     if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
 
@@ -80,11 +85,12 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
         version = cmd_output[0]
 
+        os.chdir(repo_dir)
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd)
 
     os.chdir(current_dir)
-    return(ret_code)
+    return(ret_code, repo_dir)
 
 def run_in_conda_env(conda_path, env, cmds_list):
     cmd = 'bash -c \"export PATH=' + conda_path + ':$PATH; '

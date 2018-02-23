@@ -27,14 +27,12 @@ class TestSetup(object):
         self.conda_path = conda_path
         
         # clone repo
-        full_path_dir = workdir + '/' + repo_name
-        if os.path.exists(full_path_dir) == False:
-            ret_code = git_clone_repo(workdir, repo_name, branch)
-            if ret_code != SUCCESS:
-                raise Exception('git_clone_repo() failed')
+        ret_code, repo_dir = git_clone_repo(workdir, repo_name, branch)
+        if ret_code != SUCCESS:
+            raise Exception('git_clone_repo() failed')
 
         self.repo_name = repo_name
-        self.repo_dir = full_path_dir
+        self.repo_dir = repo_dir
         
         # install things needed for running tests.
 
@@ -44,27 +42,28 @@ class TestSetup(object):
         else:
             self.install_packages(uvcdat_setup, py_version, 'flake8=3.3.0')
 
-    def get_uvcdat_testdata(self, uvcdat_setup, for_repo_dir):
+    def get_uvcdat_testdata(self, uvcdat_setup, for_repo_dir, branch):
 
-        # get the branch 
-        ret_code, branch = get_branch_name_of_repo(for_repo_dir)
+        # get the tag 
+        ret_code, tag = get_branch_name_of_repo(for_repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAILED...in getting branch name of: ' + for_repo_dir)
 
         workdir = uvcdat_setup.workdir
-        repo_dir = workdir + '/uvcdat-testdata'
         
-        ret_code = git_clone_repo(workdir, 'uvcdat-testdata')
+        ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
+        current_dir = os.getcwd()
         os.chdir(repo_dir)
         cmd = 'git pull'
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
-        cmd = 'git checkout ' + branch
+        cmd = 'git checkout ' + tag
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
-            raise Exception('FAIL...' + cmd)            
+            raise Exception('FAIL...' + cmd)
+        os.chdir(current_dir)
 
     def install_packages(self, uvcdat_setup, py_ver, packages, add_channels=[]):
         """
@@ -130,8 +129,8 @@ class VcsTestSetup(TestSetup):
         super(VcsTestSetup, self).install_packages(uvcdat_setup, py_version, packages)
 
         # get uvcdat-testdata
-        for_repo_dir = uvcdat_setup.workdir + '/' + repo_name
-        super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir)
+        for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
+        super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch)
                     
 
 class PcmdiTestSetup(TestSetup):
