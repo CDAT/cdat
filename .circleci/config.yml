@@ -9,48 +9,55 @@ aliases:
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       echo "Done installing nightly"
-      ls workspace/test_nightly/miniconda/envs
+
+  - &setup_env
+    |
+      echo "Install from env file..."
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
+      python workspace/uvcdat/scripts/install_from_env.py -w $WORKDIR -v $BRANCH_NAME -p $PYTHON_VERSION
+      echo "Done installing nightly"
 
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -b $BRANCH_NAME
 
   - &run_genutil_test
     name: run_genutil_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH_NAME
 
   - &run_cdutil_test
     name: run_cdutil_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -b $BRANCH_NAME
 
   - &run_vcs_test
     name: run_vcs_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -b $BRANCH_NAME
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -b $BRANCH_NAME
 
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH
+      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH_NAME
 
 jobs:
   macos_nightly_py2:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: workspace/test_nightly
-      - PYTHON_VERSION: 'py2'
-      - BRANCH: 'master'
+      - WORKDIR: "workspace/test_nightly"
+      - PYTHON_VERSION: "py2"
+      - BRANCH_NAME: "master"
     steps:
-      - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
       - run: *setup_nightly
       #- run: *run_cdms_test
@@ -64,11 +71,11 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: workspace/test_nightly
-      - PYTHON_VERSION: 'py3'
-      - BRANCH: 'master'
+      - WORKDIR: "workspace/test_nightly"
+      - PYTHON_VERSION: "py3"
+      - BRANCH_NAME: "master"
     steps:
-      - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
       - run: *setup_nightly
       #- run: *run_cdms_test
@@ -82,11 +89,11 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: workspace/test_nightly
-      - PYTHON_VERSION: 'py2'
-      - BRANCH: 'master'
+      - WORKDIR: "workspace/test_nightly"
+      - PYTHON_VERSION: "py2"
+      - BRANCH_NAME: "master"
     steps:
-      - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
       - run: *setup_nightly
       #- run: *run_cdms_test
@@ -100,11 +107,11 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: workspace/test_nightly
-      - PYTHON_VERSION: 'py3'
-      - BRANCH: 'master'
+      - WORKDIR: "workspace/test_nightly"
+      - PYTHON_VERSION: "py3"
+      - BRANCH_NAME: "master"
     steps:
-      - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
       - run: *setup_nightly
       - run: *run_cdms_test
@@ -118,13 +125,13 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: workspace/test_env
-      - PYTHON_VERSION: 'py2'
-      - BRANCH: '2.12'
+      - WORKDIR: "workspace/test_env"
+      - PYTHON_VERSION: "py2"
+      - BRANCH_NAME: "2.12"
     steps:
-      - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
-      - run: *setup_nightly
+      - run: *setup_env
       #- run: *run_cdms_test
       - run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -136,13 +143,13 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: workspace/test_env
-      - PYTHON_VERSION: 'py3'
-      - BRANCH: '2.12'
+      - WORKDIR: "workspace/test_env"
+      - PYTHON_VERSION: "py3"
+      - BRANCH_NAME: "2.12"
     steps:
-      - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
-      - run: *setup_nightly
+      - run: *setup_env
       #- run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -154,13 +161,13 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: workspace/test_env
-      - PYTHON_VERSION: 'py2'
-      - BRANCH: '2.12'
+      - WORKDIR: "workspace/test_env"
+      - PYTHON_VERSION: "py2"
+      - BRANCH_NAME: "2.12"
     steps:
-      - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
-      - run: *setup_nightly
+      - run: *setup_env
       #- run: *run_cdms_test
       - run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -172,13 +179,13 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: workspace/test_env
-      - PYTHON_VERSION: 'py3'
-      - BRANCH: '2.12'
+      - WORKDIR: "workspace/test_env"
+      - PYTHON_VERSION: "py3"
+      - BRANCH_NAME: "2.12"
     steps:
-      - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH..."
+      - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
-      - run: *setup_nightly
+      - run: *setup_env
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
