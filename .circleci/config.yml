@@ -28,6 +28,7 @@ aliases:
   - &run_genutil_test
     name: run_genutil_test
     command: | 
+      ls workspace/test_nightly/miniconda/envs
       python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH_NAME
 
   - &run_cdutil_test
@@ -205,13 +206,13 @@ workflows:
     #        branches:
     #          only: validateNightly
     jobs:
-      - macos_nightly_py2
+      #- macos_nightly_py2
       #- macos_nightly_py3:
       #    requires:
       #      - macos_nightly_py2
-      - macos_env_py2:
-          requires:
-            - macos_nightly_py2
+      #- macos_env_py2:
+      #    requires:
+      #      - macos_nightly_py2
       - linux_nightly_py2
       #- linux_nightly_py3:
       #    requires:
