@@ -68,8 +68,6 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         return ret_code
 
     current_dir = os.getcwd()
-    print("DEBUG DEBUG DEBUG...git_clone_repo()")
-    print("DEBUG DEBUG DEBUG...current_dir: " + current_dir)
     os.chdir(repo_dir)
     cmd = 'git pull'
     ret_code = run_cmd(cmd)
@@ -104,8 +102,6 @@ def run_in_conda_env(conda_path, env, cmds_list):
 def get_branch_name_of_repo(repo_dir):
 
     current_dir = os.getcwd()
-    print("DEBUG DEBUG DEBUG...git_branch_name_of_repo")
-    print("DEBUG DEBUG DEBUG...current_dir: " + current_dir)
     os.chdir(repo_dir)
     cmd = 'git describe --tags --abbrev=0'
     ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
