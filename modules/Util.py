@@ -1,6 +1,7 @@
 import os
 import subprocess
 import shlex
+import shutil
 from Const import *
 
 
@@ -9,8 +10,9 @@ from Const import *
 
 #                                                                                                                 
 # following code is mostly copied from cdms/run_tests.py                                                          
-#                                                                                                                 
-def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+#                   
+
+def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True):
     print("CMD: " + cmd)
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
@@ -25,14 +27,24 @@ def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True):
     out = []
     while P.poll() is None:
         read = P.stdout.readline().rstrip()
-        out.append(read)
+        out.append(read.decode('utf-8'))
         if verbose == True:
             print(read)
 
     ret_code = P.returncode
+    return(ret_code, out)
+                                                                                              
+def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+
+    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose)
     return(ret_code)
 
-def git_clone_repo(workdir, repo_name):
+def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+
+    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose)
+    return(ret_code, output)
+
+def git_clone_repo(workdir, repo_name, branch='master'):
     """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
         <workdir>/<repo_name> directory                                              
     """
@@ -41,13 +53,34 @@ def git_clone_repo(workdir, repo_name):
     else:
         url = 'https://github.com/UV-CDAT/' + repo_name
 
-    
-    cmd = 'git clone ' + url + ' ' + workdir + '/' + repo_name
-        
+    #repo_dir = workdir + '/' + repo_name
+    repo_dir = os.path.join(workdir, repo_name)
+    if os.path.isdir(repo_dir):
+            shutil.rmtree(repo_dir)
+
+    #cmd = 'git clone ' + url + ' ' + repo_dir
+    #ret_code = run_cmd(cmd, True, False, False)
+    cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
+    ret_code = run_cmd(cmd)
+
+    if ret_code != SUCCESS:
+        print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
+        return ret_code
+
+    os.chdir(repo_dir)
+    cmd = 'git pull'
     ret_code = run_cmd(cmd)
     if ret_code != SUCCESS:
-        print("FAIL..." + cmd)
+        print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
+
+    if branch != 'master':
+        cmd = 'git describe --tags --abbrev=0'
+        ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
+        version = cmd_output[0]
+
+        cmd = "git checkout {}".format(version)
+        ret_code = run_cmd(cmd)
 
     return(ret_code)
 
@@ -64,3 +97,13 @@ def run_in_conda_env(conda_path, env, cmds_list):
     print(ret_code)
     return(ret_code)
 
+def get_branch_name_of_repo(repo_dir):
+
+    os.chdir(repo_dir)
+    cmd = 'git describe --tags --abbrev=0'
+    ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
+    #cmd_output = "".join(out)
+    #branch = cmd_output.strip()
+    branch = cmd_output[0]
+    print("xxx debug, branch: " + branch)
+    return(ret_code, branch)
