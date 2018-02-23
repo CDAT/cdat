@@ -53,9 +53,9 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: "workspace/test_nightly"
-      - PYTHON_VERSION: "py2"
-      - BRANCH_NAME: "master"
+      WORKDIR: 'workspace/test_nightly'
+      PYTHON_VERSION: 'py2'
+      BRANCH_NAME: 'master'
     steps:
       - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -71,9 +71,9 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: "workspace/test_nightly"
-      - PYTHON_VERSION: "py3"
-      - BRANCH_NAME: "master"
+      WORKDIR: 'workspace/test_nightly'
+      PYTHON_VERSION: 'py3'
+      BRANCH_NAME: 'master'
     steps:
       - run: echo "...MacOS - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -89,9 +89,9 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: "workspace/test_nightly"
-      - PYTHON_VERSION: "py2"
-      - BRANCH_NAME: "master"
+      WORKDIR: 'workspace/test_nightly'
+      PYTHON_VERSION: 'py2'
+      BRANCH_NAME: 'master'
     steps:
       - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -107,9 +107,9 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: "workspace/test_nightly"
-      - PYTHON_VERSION: "py3"
-      - BRANCH_NAME: "master"
+      WORKDIR: 'workspace/test_nightly'
+      PYTHON_VERSION: 'py3'
+      BRANCH_NAME: 'master'
     steps:
       - run: echo "...Linux - test install from nightly, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -125,9 +125,9 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: "workspace/test_env"
-      - PYTHON_VERSION: "py2"
-      - BRANCH_NAME: "2.12"
+      WORKDIR: 'workspace/test_env'
+      PYTHON_VERSION: 'py2'
+      BRANCH_NAME: '2.12'
     steps:
       - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -143,9 +143,9 @@ jobs:
     macos:
       xcode: "9.0"
     environment:
-      - WORKDIR: "workspace/test_env"
-      - PYTHON_VERSION: "py3"
-      - BRANCH_NAME: "2.12"
+      WORKDIR: 'workspace/test_env'
+      PYTHON_VERSION: 'py3'
+      BRANCH_NAME: '2.12'
     steps:
       - run: echo "MacOS - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -161,9 +161,9 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: "workspace/test_env"
-      - PYTHON_VERSION: "py2"
-      - BRANCH_NAME: "2.12"
+      WORKDIR: 'workspace/test_env'
+      PYTHON_VERSION: 'py2'
+      BRANCH_NAME: '2.12'
     steps:
       - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
@@ -179,9 +179,9 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      - WORKDIR: "workspace/test_env"
-      - PYTHON_VERSION: "py3"
-      - BRANCH_NAME: "2.12"
+      WORKDIR: 'workspace/test_env'
+      PYTHON_VERSION: 'py3'
+      BRANCH_NAME: '2.12'
     steps:
       - run: echo "Linux - test install from env file, python: $PYTHON_VERSION, branch: $BRANCH_NAME..."
       - run: uname -a
