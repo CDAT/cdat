@@ -67,6 +67,9 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
+    current_dir = os.getcwd()
+    print("DEBUG DEBUG DEBUG...git_clone_repo()")
+    print("DEBUG DEBUG DEBUG...current_dir: " + current_dir)
     os.chdir(repo_dir)
     cmd = 'git pull'
     ret_code = run_cmd(cmd)
@@ -82,6 +85,7 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd)
 
+    os.chdir(current_dir)
     return(ret_code)
 
 def run_in_conda_env(conda_path, env, cmds_list):
@@ -99,6 +103,9 @@ def run_in_conda_env(conda_path, env, cmds_list):
 
 def get_branch_name_of_repo(repo_dir):
 
+    current_dir = os.getcwd()
+    print("DEBUG DEBUG DEBUG...git_branch_name_of_repo")
+    print("DEBUG DEBUG DEBUG...current_dir: " + current_dir)
     os.chdir(repo_dir)
     cmd = 'git describe --tags --abbrev=0'
     ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
@@ -106,4 +113,6 @@ def get_branch_name_of_repo(repo_dir):
     #branch = cmd_output.strip()
     branch = cmd_output[0]
     print("xxx debug, branch: " + branch)
+    os.chdir(current_dir)
+
     return(ret_code, branch)
