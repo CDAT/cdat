@@ -139,7 +139,6 @@ jobs:
       - run: *run_genutil_test
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
       #- run: *run_pcmdi_metrics_test
 
   macos_env_py3:
@@ -154,10 +153,9 @@ jobs:
       - run: uname -a
       - run: *setup_env
       #- run: *run_cdms_test
-      #- run: *run_genutil_test
+      - run: *run_genutil_test
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
-      - run: *run_vcsaddons_test
       #- run: *run_pcmdi_metrics_test
 
   linux_env_py2:
@@ -175,7 +173,6 @@ jobs:
       - run: *run_genutil_test
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
       #- run: *run_pcmdi_metrics_test
 
   linux_env_py3:
@@ -193,7 +190,6 @@ jobs:
       - run: *run_genutil_test
       - run: *run_cdutil_test
       - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
 
 workflows:
@@ -217,6 +213,6 @@ workflows:
       #- linux_nightly_py3:
       #    requires:
       #      - linux_nightly_py2
-      - linux_env_p2:
+      - linux_env_py2:
           requires:
             - linux_nightly_py2
