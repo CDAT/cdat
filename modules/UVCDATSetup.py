@@ -32,6 +32,24 @@ class UVCDATSetup(object):
         else:
             return(self.py3_env)
 
+    def install_packages(self, py_ver, packages, add_channels=[]):
+        """
+        installs the specified packages from standard channels and 
+        any additional channels (if specified)
+        packages - space separated package names
+        add_channels - is a list of channels
+        """
+        env = self.get_env(py_ver)
+        channels = " -c uvcdat/label/{} -c conda-forge -c uvcdat ".format(self.env_prefix)
+        for channel in add_channels:
+            channels += " -c {} ".format(channel)
+
+        cmd = "conda install {} {} > /dev/null 2>&1".format(channels, packages)
+        cmds_list = []
+        cmds_list.append(cmd)
+        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
+        if ret_code != SUCCESS:
+            raise Exception('Failed in installing packages')
 
 class NightlySetup(UVCDATSetup):
 
@@ -50,14 +68,15 @@ class NightlySetup(UVCDATSetup):
         if not os.path.isdir(conda_path):
             raise Exception('Conda path: ' + conda_path + ' does not exist')
 
+        conda_cmd = os.path.join(conda_path, 'conda')
         if py_ver == 'py3':
             self.py3_env = 'nightly_py3'
-            cmd = conda_path + "conda create -n " + self.py3_env + " cdat \"python>3\" "
+            cmd = conda_cmd + " create -n " + self.py3_env + " cdat \"python>3\" "
             cmd += '-c uvcdat/label/nightly -c conda-forge -c uvcdat '
             cmd += '-c nesii/channel/dev-esmf'
         else:
             self.py2_env = 'nightly_py2'
-            cmd = conda_path + "conda create -n " + self.py2_env + " cdat \"python<3\" "
+            cmd = conda_cmd + " create -n " + self.py2_env + " cdat \"python<3\" "
             cmd += '-c uvcdat/label/nightly -c conda-forge -c uvcdat'
 
         ret_code = run_cmd(cmd, True, False, False)
@@ -98,26 +117,25 @@ class EnvSetup(UVCDATSetup):
 
 
         # download the env file
-        dir = conda_path + '../envs'
-
+        workdir = self.workdir
         url = 'https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/'
         if sys.platform == 'darwin':
             env_file = env_prefix + '-osx.yml'
             url += env_file
-            cmd = 'curl ' + url + ' -o ' + dir + '/' + env_file
+            full_path_env_file = os.path.join(workdir, env_file)
+            cmd = "curl {u} -o {env_f}".format(u=url, env_f=full_path_env_file)
         else:
             env_file = env_prefix + '.yml'
             url += env_file
-            cmd = 'wget ' + url + ' -O ' + dir + '/' + env_file
+            full_path_env_file = os.path.join(workdir, env_file)
+            cmd = "wget {u} -O {env_f}".format(u=url, env_f=full_path_env_file)
 
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             raise Exception('FAIL: ' + cmd)
 
-        the_env_file = dir + '/' + env_file
-
-        cmd = conda_path + '/conda env create -n ' + env_name
-        cmd += ' -f ' + the_env_file
+        conda_cmd = os.path.join(conda_path, 'conda')
+        cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
         
         ret_code = run_cmd(cmd, True, False, False)
         # REVISIT: check for nightly really installed

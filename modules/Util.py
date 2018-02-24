@@ -4,10 +4,6 @@ import shlex
 import shutil
 from Const import *
 
-
-# https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/2.12-osx.yml                                      
-# https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/2.12.yml                                          
-
 #                                                                                                                 
 # following code is mostly copied from cdms/run_tests.py                                                          
 #                   
@@ -46,15 +42,13 @@ def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True):
 
 def git_clone_repo(workdir, repo_name, branch='master'):
     """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
-        <workdir>/<repo_name> directory                                              
+        <workdir>/<branch>/<repo_name> directory                                              
     """
     if repo_name == 'pcmdi_metrics':
         url = 'https://github.com/pcmdi/' + repo_name
     else:
         url = 'https://github.com/UV-CDAT/' + repo_name
 
-    #repo_dir = workdir + '/' + repo_name
-    
     branch_dir = os.path.join(workdir, branch)
     if not os.path.isdir(branch_dir):
         os.mkdir(branch_dir)
@@ -63,8 +57,6 @@ def git_clone_repo(workdir, repo_name, branch='master'):
     if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
 
-    #cmd = 'git clone ' + url + ' ' + repo_dir
-    #ret_code = run_cmd(cmd, True, False, False)
     cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
     ret_code = run_cmd(cmd)
 
@@ -85,7 +77,6 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
         version = cmd_output[0]
 
-        #os.chdir(repo_dir)
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd)
 
@@ -93,6 +84,13 @@ def git_clone_repo(workdir, repo_name, branch='master'):
     return(ret_code, repo_dir)
 
 def run_in_conda_env(conda_path, env, cmds_list):
+    """
+    conda_path - path to comda command
+    env - conda environment name
+    cmds_list - a list of commands
+    This function runs all the commands in cmds_list in the specified
+    conda environment.
+    """
     cmd = 'bash -c \"export PATH=' + conda_path + ':$PATH; '
     cmd += 'source activate ' + env + '; '
     
@@ -105,16 +103,13 @@ def run_in_conda_env(conda_path, env, cmds_list):
     print(ret_code)
     return(ret_code)
 
-def get_branch_name_of_repo(repo_dir):
+def get_tag_name_of_repo(repo_dir):
 
     current_dir = os.getcwd()
     os.chdir(repo_dir)
     cmd = 'git describe --tags --abbrev=0'
     ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
-    #cmd_output = "".join(out)
-    #branch = cmd_output.strip()
     branch = cmd_output[0]
-    print("xxx debug, branch: " + branch)
     os.chdir(current_dir)
 
     return(ret_code, branch)

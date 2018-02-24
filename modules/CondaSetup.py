@@ -26,59 +26,62 @@ class CondaSetup:
         self.workdir = workdir
 
         url = "https://repo.continuum.io/miniconda/"
+        conda_script = os.path.join(workdir, 'miniconda.sh')
+        
         if sys.platform == 'darwin':
-            install_script = url + 'Miniconda3-latest-MacOSX-x86_64.sh'
-            cmd = 'curl ' + install_script + ' -o ' + workdir + '/miniconda.sh'
-        else:
-            
-            install_script = url + 'Miniconda3-4.3.21-Linux-x86_64.sh'
-            cmd = 'wget ' + install_script + ' -O ' + workdir + '/miniconda.sh'
+            source_script = url + 'Miniconda3-latest-MacOSX-x86_64.sh'
+            cmd = "curl {src} -o {dest}".format(src=source_script, dest=conda_script)
+        else:            
+            source_script = url + 'Miniconda3-4.3.21-Linux-x86_64.sh'
+            cmd = "wget {src} -O {dest}".format(src=source_script, dest=conda_script)
 
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             print("FAIL..." + cmd)
             return(ret_code, None)
 
-        cmd = 'bash ' + workdir + '/miniconda.sh -b -p ' + workdir + '/miniconda'
+        conda_dir = os.path.join(workdir, 'miniconda')
+        cmd = "bash {script} -b -p {dir}".format(script=conda_script, dir=conda_dir)
         # run the command, set verbose=False 
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             print("FAIL...installing miniconda")
             return(ret_code, None)
 
-        # REVISIT : check for installation finished in output                                                         
-        self.conda_path = workdir + '/miniconda/bin/'
+        self.conda_path = os.path.join(conda_dir, 'bin')
         conda_path = self.conda_path
 
         if sys.platform == 'linux':
-            cmd = "echo 'conda ==4.3.21' >> " + workdir + '/miniconda/conda-meta/pinned'
+            pinned_dir = os.path.join(conda_dir, 'conda-meta', 'pinned')
+            cmd = "echo 'conda ==4.3.21' >> {dir}".format(dir=pinned_dir)
             ret_code = run_cmd(cmd)
             if ret_code != SUCCESS:
                 print("FAIL...installing miniconda")
                 return(ret_code, None)
 
-        cmd = conda_path + 'conda config --set always_yes yes --set changeps1 no'
+        print("xxxx conda_path: " + conda_path)
+        conda_cmd = os.path.join(conda_path, 'conda')
+        cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
     
         ret_code = run_cmd(cmd)
         if ret_code != SUCCESS:
             print('FAILED: ' + cmd)
             return(ret_code, None)
 
-        cmd = conda_path + 'conda install gcc future'
+        cmd = "{c} install gcc future".format(c=conda_cmd)
         ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             print('FAILED: ' + cmd)
             return(ret_code, None)
 
         if sys.platform == 'darwin':
-            cmd = conda_path + 'conda update -y -q conda'
+            cmd = "{c} update -y -q conda".format(c=conda_cmd)
             ret_code = run_cmd(cmd, True, False, False)
             if ret_code != SUCCESS:
                 return(ret_code, None)
 
-        cmd = conda_path + 'conda config --set anaconda_upload no'
+        cmd = "{c} config --set anaconda_upload no".format(c=conda_cmd)
         ret_code = run_cmd(cmd)
-        print("DEBUG...returning from install_miniconda, ret_code: " + str(ret_code))
         return(ret_code, conda_path)
 
 
