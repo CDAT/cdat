@@ -53,6 +53,8 @@ class TestSetup(object):
         
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
         current_dir = os.getcwd()
+        print("DEBUG...cwd: " + current_dir)
+        print("DEBUG...repo_dir: " + repo_dir)
         os.chdir(repo_dir)
         cmd = 'git pull'
         ret_code = run_cmd(cmd, True, False, False)

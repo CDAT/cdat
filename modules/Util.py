@@ -85,7 +85,7 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
         version = cmd_output[0]
 
-        os.chdir(repo_dir)
+        #os.chdir(repo_dir)
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd)
 
