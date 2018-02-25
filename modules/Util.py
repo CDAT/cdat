@@ -70,9 +70,9 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    ##current_dir = os.getcwd()
-    ##print("xxx current_dir: ", current_dir)
-    print("xxx chdir repo_dir: ", repo_dir)
+    current_dir = os.getcwd()
+    print("xxx current_dir: ", current_dir)
+    print("xxx repo_dir: ", repo_dir)
     ##os.chdir(repo_dir)
     cmd = 'git pull'
     ret_code = run_cmd(cmd, True, False, True, repo_dir)
@@ -86,7 +86,7 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         version = cmd_output[0]
 
         cmd = "git checkout {}".format(version)
-        ret_code = run_cmd(cmd, True, False, True, repo_dir)
+        ret_code = run_cmd(cmd, True, False, True)
 
     ##print("xxx chdir current_dir: " + current_dir)
     ##os.chdir(current_dir)
