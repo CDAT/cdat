@@ -55,7 +55,7 @@ class TestSetup(object):
         cdir = os.getcwd()
         print("xxx current dir: " + cdir)
         cmd = 'git pull'
-        ret_code = run_cmd(cmd, True, False, False, repo_dir)
+        ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
