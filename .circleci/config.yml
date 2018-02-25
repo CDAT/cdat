@@ -159,10 +159,10 @@ jobs:
       - run: echo "Linux - test install from env file"
       - run: uname -a
       - run: *setup_env
-      - run: *run_cdms_test
-      - run: *run_genutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
       - run: *run_cdutil_test
-      - run: *run_vcs_test
+      #- run: *run_vcs_test
 
 
 workflows:
