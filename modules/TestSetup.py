@@ -52,14 +52,18 @@ class TestSetup(object):
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
         ##current_dir = os.getcwd()
         ##os.chdir(repo_dir)
+        cdir = os.getcwd()
+        print("xxx current dir: " + cdir)
         cmd = 'git pull'
         ret_code = run_cmd(cmd, True, False, False, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
+        cdir = os.getcwd()
+        print("xxx current dir: " + cdir)
         print("xxx xxx repo_dir: ", repo_dir)
         cmd = 'git checkout ' + tag
-        ret_code = run_cmd(cmd, True, False, True, repo_dir)
+        ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
         ##os.chdir(current_dir)
