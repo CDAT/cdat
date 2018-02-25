@@ -90,6 +90,9 @@ def git_clone_repo(workdir, repo_name, branch='master'):
 
     ##print("xxx chdir current_dir: " + current_dir)
     ##os.chdir(current_dir)
+    # TEMPORARY
+    cmd = "ls "
+    ret_code = run_cmd(cmd, True, False, True)
     print("xxx returning from git_clone_repo")
     return(ret_code, repo_dir)
 
