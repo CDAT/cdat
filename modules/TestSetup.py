@@ -57,8 +57,9 @@ class TestSetup(object):
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
+        print("xxx xxx repo_dir: ", repo_dir)
         cmd = 'git checkout ' + tag
-        ret_code = run_cmd(cmd, True, False, False, repo_dir)
+        ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
         ##os.chdir(current_dir)
