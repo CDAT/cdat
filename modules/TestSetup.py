@@ -50,18 +50,18 @@ class TestSetup(object):
         workdir = uvcdat_setup.workdir
         
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
-        current_dir = os.getcwd()
-        os.chdir(repo_dir)
+        ##current_dir = os.getcwd()
+        ##os.chdir(repo_dir)
         cmd = 'git pull'
-        ret_code = run_cmd(cmd, True, False, False)
+        ret_code = run_cmd(cmd, True, False, False, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
         cmd = 'git checkout ' + tag
-        ret_code = run_cmd(cmd, True, False, False)
+        ret_code = run_cmd(cmd, True, False, False, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
-        os.chdir(current_dir)
+        ##os.chdir(current_dir)
 
     def run_tests(self, uvcdat_setup, py_version, run_tests_invoke_cmd):
 

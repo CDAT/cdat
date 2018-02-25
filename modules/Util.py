@@ -8,7 +8,7 @@ from Const import *
 # following code is mostly copied from cdms/run_tests.py                                                          
 #                   
 
-def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     print("CMD: " + cmd)
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
@@ -18,8 +18,14 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True):
     else:
         stderr = subprocess.PIPE
 
+    if cwd == None:
+        current_wd = os.getcwd()
+    else:
+        current_wd = cwd
+    #P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
+    #    bufsize=0, cwd=os.getcwd(), shell=shell_cmd)
     P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
-        bufsize=0, cwd=os.getcwd(), shell=shell_cmd)
+        bufsize=0, cwd=current_wd, shell=shell_cmd)
     out = []
     while P.poll() is None:
         read = P.stdout.readline().rstrip()
@@ -30,9 +36,9 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True):
     ret_code = P.returncode
     return(ret_code, out)
                                                                                               
-def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
 
-    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose)
+    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code)
 
 def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True):
@@ -64,23 +70,27 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    current_dir = os.getcwd()
-    os.chdir(repo_dir)
+    ##current_dir = os.getcwd()
+    ##print("xxx current_dir: ", current_dir)
+    print("xxx chdir repo_dir: ", repo_dir)
+    ##os.chdir(repo_dir)
     cmd = 'git pull'
-    ret_code = run_cmd(cmd)
+    ret_code = run_cmd(cmd, True, False, True, repo_dir)
     if ret_code != SUCCESS:
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
     if branch != 'master':
         cmd = 'git describe --tags --abbrev=0'
-        ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
+        ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True, repo_dir)
         version = cmd_output[0]
 
         cmd = "git checkout {}".format(version)
-        ret_code = run_cmd(cmd)
+        ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
-    os.chdir(current_dir)
+    ##print("xxx chdir current_dir: " + current_dir)
+    ##os.chdir(current_dir)
+    print("xxx returning from git_clone_repo")
     return(ret_code, repo_dir)
 
 def run_in_conda_env(conda_path, env, cmds_list):
