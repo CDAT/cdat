@@ -2,12 +2,6 @@ version: 2
 
 aliases:
 
-  - &setup_temp_test
-    |
-      echo "Install nightly..."
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
-
   - &setup_nightly
     |
       echo "Install nightly..."
@@ -57,24 +51,6 @@ aliases:
       python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH_NAME
 
 jobs:
-  temp_test:
-    macos:
-      xcode: "9.0"
-    environment:
-      WORKDIR: "workspace/test_nightly"
-      PYTHON_VERSION: "py2"
-      BRANCH_NAME: "master"
-    steps:
-      - run: echo "...MacOS - test install from nightly"
-      - run: uname -a
-      - run: *setup_temp_test
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      - run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
-
   macos_nightly_py2:
     macos:
       xcode: "9.0"
@@ -190,19 +166,14 @@ workflows:
     #        branches:
     #          only: validateNightly
     jobs:
-      - temp_test
-      - macos_nightly_py2:
-          requires:
-            - temp_test
+      - macos_nightly_py2
       - macos_nightly_py3:
           requires:
             - macos_nightly_py2
       - macos_env_py2:
           requires:
             - macos_nightly_py3
-      - linux_nightly_py2:
-          requires:
-            - temp_test
+      - linux_nightly_py2
       - linux_nightly_py3:
           requires:
             - linux_nightly_py2
