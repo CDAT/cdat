@@ -25,6 +25,20 @@ parser.add_argument('-t', '--testsuite',
 
 args = parser.parse_args()
 
+# TEMPORARY
+ret_code, repo_dir = git_clone_repo(workdir, args.testsuite)
+
+current_dir = os.getcwd()
+#os.chdir(repo_dir)
+cdir = os.getcwd()
+print("xxx current dir: " + cdir)
+
+cmd = "ls " + repo_dir
+ret_code = run_cmd(cmd, True, False, True)
+
+sys.exit(0)
+# END OF TEMPORARY
+
 # This should be consistent with what is set in install_miniconda()
 conda_path = args.workdir + '/miniconda/bin'
 
