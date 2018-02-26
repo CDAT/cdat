@@ -67,7 +67,7 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
-      #- run: *setup_nightly
+      - run: *setup_temp_test
       #- run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
