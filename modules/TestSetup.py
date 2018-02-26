@@ -58,7 +58,7 @@ class TestSetup(object):
         
         # TEMPORARY
         cmd = "ls "
-        ret_code = run_cmd(cmd, True, False, True)
+        ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
         cmd = 'git pull'
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
@@ -68,12 +68,14 @@ class TestSetup(object):
         cdir = os.getcwd()
         print("xxx current dir: " + cdir)
         print("xxx xxx repo_dir: ", repo_dir)
-        cmd = 'git checkout ' + tag
+        ###cmd = 'git checkout ' + tag
         #os.chdir(repo_dir)
-        ret_code = run_cmd(cmd, True, False, True, repo_dir)
-        if ret_code != SUCCESS:
-            raise Exception('FAIL...' + cmd)
+        ###ret_code = run_cmd(cmd, True, False, True, repo_dir)
+        ###if ret_code != SUCCESS:
+        ###    raise Exception('FAIL...' + cmd)
         #os.chdir(current_dir)
+        cmd = 'cd ' + repo_dir + '; git checkout ' + tag
+        os.system(cmd)
 
     def run_tests(self, uvcdat_setup, py_version, run_tests_invoke_cmd):
 
