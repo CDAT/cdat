@@ -2,6 +2,12 @@ version: 2
 
 aliases:
 
+  - &setup_temp_test
+    |
+      echo "Install nightly..."
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
+
   - &setup_nightly
     |
       echo "Install nightly..."
