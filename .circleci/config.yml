@@ -71,7 +71,6 @@ jobs:
       #- run: *run_pcmdi_metrics_test
 
   macos_nightly_py3:
-    <<: *defaults
     macos:
       xcode: "9.0"
     environment:
@@ -90,7 +89,6 @@ jobs:
       - run: *run_pcmdi_metrics_test
 
   linux_nightly_py2:
-    <<: *defaults
     machine:
       image: circleci/classic:latest
     environment:
@@ -109,7 +107,6 @@ jobs:
       - run: *run_pcmdi_metrics_test
 
   linux_nightly_py3:
-    <<: *defaults
     machine:
       image: circleci/classic:latest
     environment:
@@ -128,7 +125,6 @@ jobs:
       - run: *run_pcmdi_metrics_test
 
   macos_env_py2:
-    <<: *defaults
     macos:
       xcode: "9.0"
     environment:
@@ -145,7 +141,6 @@ jobs:
       - run: *run_vcs_test
 
   linux_env_py2:
-    <<: *defaults
     machine:
       image: circleci/classic:latest
     environment:
