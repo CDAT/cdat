@@ -26,7 +26,7 @@ parser.add_argument('-t', '--testsuite',
 args = parser.parse_args()
 
 # TEMPORARY
-ret_code, repo_dir = git_clone_repo(workdir, args.testsuite)
+ret_code, repo_dir = git_clone_repo(args.workdir, args.testsuite)
 
 current_dir = os.getcwd()
 #os.chdir(repo_dir)
