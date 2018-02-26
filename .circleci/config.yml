@@ -1,8 +1,5 @@
 version: 2
 
-defaults: &defaults
-  working_directory: /tmp
-
 aliases:
 
   - &setup_nightly
@@ -97,7 +94,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "/tmp/workspace/test_nightly"
+      WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
       BRANCH_NAME: "master"
     steps:
