@@ -57,8 +57,6 @@ def git_clone_repo(workdir, repo_name, branch='master'):
 
     branch_dir = os.path.join(workdir, branch)
     if not os.path.isdir(branch_dir):
-        # TEMPORARY TEMPORARY
-        os.mkdir(workdir)
         os.mkdir(branch_dir)
 
     repo_dir = os.path.join(workdir, branch, repo_name)
