@@ -49,8 +49,7 @@ class TestSetup(object):
 
         workdir = uvcdat_setup.workdir
         
-        #ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
-
+        ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
 
         current_dir = os.getcwd()
         #os.chdir(repo_dir)
