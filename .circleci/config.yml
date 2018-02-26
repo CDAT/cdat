@@ -52,7 +52,6 @@ aliases:
 
 jobs:
   macos_nightly_py2:
-    <<: *defaults
     macos:
       xcode: "9.0"
     environment:
