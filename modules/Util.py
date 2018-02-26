@@ -73,6 +73,9 @@ def git_clone_repo(workdir, repo_name, branch='master'):
     current_dir = os.getcwd()
     print("xxx current_dir: ", current_dir)
     print("xxx repo_dir: ", repo_dir)
+    # TEMPORARY
+    cmd = "ls "
+    ret_code = run_cmd(cmd, True, False, True)
     ##os.chdir(repo_dir)
     cmd = 'git pull'
     ret_code = run_cmd(cmd, True, False, True, repo_dir)
