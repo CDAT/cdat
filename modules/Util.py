@@ -41,9 +41,9 @@ def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code)
 
-def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True):
+def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
 
-    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose)
+    ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code, output)
 
 def git_clone_repo(workdir, repo_name, branch='master'):

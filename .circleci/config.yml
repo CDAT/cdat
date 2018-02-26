@@ -166,18 +166,14 @@ workflows:
     #        branches:
     #          only: validateNightly
     jobs:
-      - macos_nightly_py2
+      #- macos_nightly_py2
       #- macos_nightly_py3:
       #    requires:
       #      - macos_nightly_py2
-      - macos_env_py2:
-          requires:
-            - macos_nightly_py2
-      - linux_nightly_py2
+      macos_env_py2
+      #- linux_nightly_py2
       #- linux_nightly_py3:
       #    requires:
       #      - linux_nightly_py2
-      - linux_env_py2:
-          requires:
-            - linux_nightly_py2
+      linux_env_py2
 
