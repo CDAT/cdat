@@ -48,8 +48,7 @@ if ts == 'cdms':
     
 elif ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch)
-    # TEMPORARY just run 1 testcase
-    run_tests_cmd = 'python run_tests.py -v2 -n 2 --no-vtk-ui tests/test_vcs_no_extra_objects.py'
+    run_tests_cmd = 'python run_tests.py -v2 -n 2 --no-vtk-ui'
     status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
     
 elif ts == 'genutil':
