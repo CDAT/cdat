@@ -56,9 +56,10 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         url = 'https://github.com/UV-CDAT/' + repo_name
 
     branch_dir = os.path.join(workdir, branch)
+    print("xxx branch_dir: " + branch_dir)
     if not os.path.isdir(branch_dir):
         os.mkdir(branch_dir)
-
+    
     repo_dir = os.path.join(workdir, branch, repo_name)
     if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
