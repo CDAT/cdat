@@ -84,13 +84,14 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    if branch != 'master':
+    if branch != 'master' and repo_name != 'uvcdat-testdata':
+        
         cmd = 'git describe --tags --abbrev=0'
         ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True, repo_dir)
         version = cmd_output[0]
 
         cmd = "git checkout {}".format(version)
-        ret_code = run_cmd(cmd, True, False, True)
+        ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
     ##print("xxx chdir current_dir: " + current_dir)
     ##os.chdir(current_dir)
