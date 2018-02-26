@@ -118,7 +118,7 @@ class VcsTestSetup(TestSetup):
         uvcdat_setup.install_packages(py_version, packages)
 
         # get uvcdat-testdata
-        if branch != master:
+        if branch != 'master':
             for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
             super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch)        
 
