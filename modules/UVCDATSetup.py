@@ -9,17 +9,18 @@ class UVCDATSetup(object):
         env_prefix can be set to either 'nightly' or '2.12' etc..
         """
         if os.path.isdir(workdir):
-            env_dir = workdir + '/miniconda/envs/' + env_prefix + '_py2'
+            env_name = "{prefix}_py2".format(prefix=env_prefix)
+            env_dir = os.path.join(workdir, 'miniconda', 'envs', env_name)
             if os.path.isdir(env_dir):
-                self.py2_env = env_prefix + '_py2'
+                self.py2_env = env_name
 
-            env_dir = workdir + '/miniconda/envs/' + env_prefix + '_py3'
+            env_name = "{prefix}_py3".format(prefix=env_prefix)
+            env_dir = os.path.join(workdir, 'miniconda', 'envs', env_name)
             if os.path.isdir(env_dir):
-                self.py3_env = env_prefix + '_py3'
+                self.py3_env = env_name
         else:
             self.py2_env = None
             self.py3_env = None
-
 
         self.env_prefix = env_prefix
         self.workdir = workdir
@@ -34,8 +35,8 @@ class UVCDATSetup(object):
 
     def install_packages(self, py_ver, packages, add_channels=[]):
         """
-        installs the specified packages from standard channels and 
-        any additional channels (if specified)
+        installs the specified packages from standard channels
+        (conda-forge and uvcdat) and any additional channels (if specified)
         packages - space separated package names
         add_channels - is a list of channels
         """
@@ -71,16 +72,17 @@ class NightlySetup(UVCDATSetup):
         conda_cmd = os.path.join(conda_path, 'conda')
         if py_ver == 'py3':
             self.py3_env = 'nightly_py3'
-            cmd = conda_cmd + " create -n " + self.py3_env + " cdat \"python>3\" "
-            cmd += '-c uvcdat/label/nightly -c conda-forge -c uvcdat '
-            cmd += '-c nesii/channel/dev-esmf'
+            channels = '-c uvcdat/label/nightly -c conda-forge -c uvcdat -c nesii/channel/dev-esmf'
+            cmd = "{c} create -n {e} cdat \"python>3\" {ch}".format(c=conda_cmd,
+                                                                    e=self.py3_env,
+                                                                    ch=channels)
         else:
             self.py2_env = 'nightly_py2'
-            cmd = conda_cmd + " create -n " + self.py2_env + " cdat \"python<3\" "
-            cmd += '-c uvcdat/label/nightly -c conda-forge -c uvcdat'
-
+            channels = '-c uvcdat/label/nightly -c conda-forge -c uvcdat'
+            cmd = "{c} create -n {e} cdat \"python<3\" {ch}".format(c=conda_cmd,
+                                                                    e=self.py2_env,
+                                                                    ch=channels)
         ret_code = run_cmd(cmd, True, False, False)
-        # REVISIT: check for nightly really installed
         return(ret_code)
 
 
@@ -102,30 +104,30 @@ class EnvSetup(UVCDATSetup):
 
         env_prefix = self.env_prefix
         if py_ver == 'py2':
-            env_name = env_prefix + '_py2'
+            env_name = "{prefix}_py2".format(prefix=env_prefix)
             self.py2_env = env_name
         elif py_ver == 'py3':
-            env_name = env_prefix + '_py3'
+            env_name = "{prefix}_py3".format(prefix=env_prefix)
             self.py3_env = env_name
         else:
             raise Exception('invalid python version: ' + py_ver)
 
         # check if env already exists
-        if os.path.isdir(conda_path + '../envs/' + env_name):
-            print('Environment ' + env_name + ' already exists')
+        env_dir = os.path.join(conda_path, '..', 'envs', env_name)
+        if os.path.isdir(env_dir):
+            print("INFO...environment {env} already exists".format(env=env_name))
             return SUCCESS
-
 
         # download the env file
         workdir = self.workdir
         url = 'https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/'
         if sys.platform == 'darwin':
-            env_file = env_prefix + '-osx.yml'
+            env_file = "{prefix}-osx.yml".format(prefix=env_prefix)
             url += env_file
             full_path_env_file = os.path.join(workdir, env_file)
             cmd = "curl {u} -o {env_f}".format(u=url, env_f=full_path_env_file)
         else:
-            env_file = env_prefix + '.yml'
+            env_file = "{prefix}.yml".format(prefix=env_prefix)
             url += env_file
             full_path_env_file = os.path.join(workdir, env_file)
             cmd = "wget {u} -O {env_f}".format(u=url, env_f=full_path_env_file)

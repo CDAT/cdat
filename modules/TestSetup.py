@@ -39,8 +39,10 @@ class TestSetup(object):
     def get_uvcdat_testdata(self, uvcdat_setup, for_repo_dir, branch):
         """
         get uvcdat-testdata code that has same tag as <for_repo_dir>
-        For example, iv <for_repo_dir> is a vcs repo and is tagged '2.12',
+        For example, if <for_repo_dir> is a vcs repo and is tagged '2.12',
         then this function will check out uvcdat-testdata with same tag.
+        It clones uvcdat-testdata into <for_repo_dir>/uvcdat-testdata 
+        directory
         """
         # get the tag 
         ret_code, tag = get_tag_name_of_repo(for_repo_dir)
@@ -48,34 +50,25 @@ class TestSetup(object):
             raise Exception('FAILED...in getting branch name of: ' + for_repo_dir)
 
         workdir = uvcdat_setup.workdir
+        repo_dir = "{dir}/uvcdat-testdata".format(dir=for_repo_dir)
         
-        ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch)
-
-        current_dir = os.getcwd()
-        #os.chdir(repo_dir)
-        cdir = os.getcwd()
-        print("xxx current dir: " + cdir)
-        
-        # TEMPORARY
-        cmd = "ls "
-        ret_code = run_cmd(cmd, True, False, True, repo_dir)
+        ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch, repo_dir)
 
         cmd = 'git pull'
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
-        cdir = os.getcwd()
-        print("xxx current dir: " + cdir)
-        print("xxx xxx repo_dir: ", repo_dir)
-        ###cmd = 'git checkout ' + tag
-        #os.chdir(repo_dir)
-        ###ret_code = run_cmd(cmd, True, False, True, repo_dir)
-        ###if ret_code != SUCCESS:
-        ###    raise Exception('FAIL...' + cmd)
-        #os.chdir(current_dir)
         cmd = 'cd ' + repo_dir + '; git checkout ' + tag
-        os.system(cmd)
+        print("CMD: " + cmd)
+        # may need to revisit -- I have to use os.system() here.
+        # if I use run_cmd() specifying cwd, it does not work in circleci.
+        ret_code = os.system(cmd)
+        if ret_code != SUCCESS:
+            raise Exception('FAILED...' + cmd)
+
+        cmd = "git status"
+        run_cmd(cmd, True, False, True, repo_dir)
 
     def run_tests(self, uvcdat_setup, py_version, run_tests_invoke_cmd):
 

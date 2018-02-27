@@ -59,7 +59,6 @@ class CondaSetup:
                 print("FAIL...installing miniconda")
                 return(ret_code, None)
 
-        print("xxxx conda_path: " + conda_path)
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
     

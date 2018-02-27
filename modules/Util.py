@@ -18,12 +18,11 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     else:
         stderr = subprocess.PIPE
 
-    if cwd == None:
+    if cwd is None:
         current_wd = os.getcwd()
     else:
         current_wd = cwd
-    #P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
-    #    bufsize=0, cwd=os.getcwd(), shell=shell_cmd)
+
     P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
         bufsize=0, cwd=current_wd, shell=shell_cmd)
     out = []
@@ -46,22 +45,25 @@ def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd
     ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code, output)
 
-def git_clone_repo(workdir, repo_name, branch='master'):
+def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
     """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
+        <repo_dir>.
+        If <repo_dir> is not specified, place the repo in 
         <workdir>/<branch>/<repo_name> directory                                              
     """
+    print("DEBUG...in git_clone_repo()")
     if repo_name == 'pcmdi_metrics':
         url = 'https://github.com/pcmdi/' + repo_name
     else:
         url = 'https://github.com/UV-CDAT/' + repo_name
 
     branch_dir = os.path.join(workdir, branch)
-    print("xxx branch_dir: " + branch_dir)
     if not os.path.isdir(branch_dir):
         os.mkdir(branch_dir)
     
-    repo_dir = os.path.join(workdir, branch, repo_name)
-    if os.path.isdir(repo_dir):
+    if repo_dir is None:
+        repo_dir = os.path.join(workdir, branch, repo_name)
+        if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
 
     cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
@@ -71,13 +73,6 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    current_dir = os.getcwd()
-    print("xxx current_dir: ", current_dir)
-    print("xxx repo_dir: ", repo_dir)
-    # TEMPORARY
-    cmd = "ls "
-    ret_code = run_cmd(cmd, True, False, True)
-    ##os.chdir(repo_dir)
     cmd = 'git pull'
     ret_code = run_cmd(cmd, True, False, True, repo_dir)
     if ret_code != SUCCESS:
@@ -93,12 +88,7 @@ def git_clone_repo(workdir, repo_name, branch='master'):
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
-    ##print("xxx chdir current_dir: " + current_dir)
-    ##os.chdir(current_dir)
-    # TEMPORARY
-    cmd = "ls "
-    ret_code = run_cmd(cmd, True, False, True)
-    print("xxx returning from git_clone_repo")
+    print("...returning from git_clone_repo()...")
     return(ret_code, repo_dir)
 
 def run_in_conda_env(conda_path, env, cmds_list):
@@ -109,14 +99,16 @@ def run_in_conda_env(conda_path, env, cmds_list):
     This function runs all the commands in cmds_list in the specified
     conda environment.
     """
-    cmd = 'bash -c \"export PATH=' + conda_path + ':$PATH; '
-    cmd += 'source activate ' + env + '; '
-    
-    for a_cmd in cmds_list:
-        cmd += a_cmd + '; '
-    cmd += 'source deactivate \"'
-    print('CMD: ' + cmd)
 
+    add_path = "export PATH={path}:$PATH".format(path=conda_path)
+    cmds = "{add_path_cmd}; source activate {e}".format(add_path_cmd=add_path,
+                                                       e=env)
+    for a_cmd in cmds_list:
+        cmds = "{existing}; {new}".format(existing=cmds, new=a_cmd)        
+    cmds = "{existing}; source deactivate".format(existing=cmds)
+
+    cmd = "bash -c \"{the_cmds}\"".format(the_cmds=cmds)
+    print("CMD: " + cmd)
     ret_code = os.system(cmd)
     print(ret_code)
     return(ret_code)
