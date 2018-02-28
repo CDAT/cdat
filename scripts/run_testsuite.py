@@ -22,8 +22,8 @@ parser.add_argument('-b', '--branch', nargs='?', default='master',
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
 
-
 args = parser.parse_args()
+
 
 # This should be consistent with what is set in install_miniconda()
 conda_path = args.workdir + '/miniconda/bin'
@@ -37,12 +37,13 @@ if branch == 'master':
 else:
     uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, branch)
 
+    
 ts = args.testsuite
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'cdms':
-    cdms_test_setup = TestSetup.CdmsTestSetup(uvcdat_setup, ts, py_ver, branch)
+    cdms_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
     run_tests_cmd = 'python run_tests.py -s -v2 -p -H'
     status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
     
@@ -63,12 +64,12 @@ elif ts == 'cdutil':
     status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
     
 elif ts == 'vcsaddons':
-    test_setup = TestSetup.VcsaddonsTestSetup(uvcdat_setup, ts, py_ver, branch)
+    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
     run_tests_cmd = 'python run_tests.py -v2 -n 2'
     status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
 
 elif ts == 'pcmdi_metrics':
-    test_setup = TestSetup.PcmdiTestSetup(uvcdat_setup, ts, py_ver, branch)
+    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
     run_tests_cmd = 'python run_tests.py -v2'
     status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
 

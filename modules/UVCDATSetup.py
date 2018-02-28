@@ -51,6 +51,7 @@ class UVCDATSetup(object):
         ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
         if ret_code != SUCCESS:
             raise Exception('Failed in installing packages')
+        return(ret_code)
 
 class NightlySetup(UVCDATSetup):
 
@@ -85,6 +86,17 @@ class NightlySetup(UVCDATSetup):
         ret_code = run_cmd(cmd, True, False, False)
         return(ret_code)
 
+    def install_packages(self, py_ver):
+        packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 "
+        packages += "vcs vcsaddons cdp mesalib flake8"
+        ret_code = super(NightlySetup, self).install_packages(py_ver, packages)
+        if ret_code != SUCCESS:
+            return(ret_code)
+
+        packages = 'pcmdi_metrics cia'
+        channels_list = ['pcmdi/label/nightly', 'pcmdi']
+        ret_code = super(NightlySetup, self).install_packages(py_ver, packages, channels_list)
+        return(ret_code)
 
 class EnvSetup(UVCDATSetup):
 
@@ -143,3 +155,83 @@ class EnvSetup(UVCDATSetup):
         # REVISIT: check for nightly really installed
         return(ret_code)
 
+    def install_packages(self, py_ver):
+        packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 "
+        packages += "vcs vcsaddons cdp mesalib flake8=3.3.0"
+        ret_code = super(EnvSetup, self).install_packages(py_ver, packages)
+        if ret_code != SUCCESS:
+            return(ret_code)
+
+        packages = 'pcmdi_metrics cia'
+        channels_list = ['pcmdi/label/nightly', 'pcmdi']
+        ret_code = super(EnvSetup, self).install_packages(py_ver, packages, channels_list)
+        return(ret_code)
+
+class Beta3_0EnvSetup(UVCDATSetup):
+
+    def __init__(self, conda_path, workdir, env_prefix):
+        super(Beta3_0EnvSetup, self).__init__(conda_path, workdir, env_prefix)
+
+    def install(self, py_ver):
+        """
+        install_nightly <env> <py_ver>:
+           create an environment for cdat nightly.
+           <py_ver> : python version that the environment is to be created for
+        """
+
+        conda_path = self.conda_path
+        if not os.path.isdir(conda_path):
+            raise Exception('Conda path: ' + conda_path + ' does not exist')
+
+        env_prefix = self.env_prefix
+        if py_ver == 'py2':
+            env_name = "{prefix}_py2".format(prefix=env_prefix)
+            self.py2_env = env_name
+        elif py_ver == 'py3':
+            env_name = "{prefix}_py3".format(prefix=env_prefix)
+            self.py3_env = env_name
+        else:
+            raise Exception('invalid python version: ' + py_ver)
+
+        # check if env already exists
+        env_dir = os.path.join(conda_path, '..', 'envs', env_name)
+        if os.path.isdir(env_dir):
+            print("INFO...environment {env} already exists".format(env=env_name))
+            return SUCCESS
+
+        # download the env file
+        workdir = self.workdir
+        url = 'https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/'
+        if sys.platform == 'darwin':
+            env_file = "{prefix}.Darwin.yaml".format(prefix=env_name)
+            url += env_file
+            full_path_env_file = os.path.join(workdir, env_file)
+            cmd = "curl {u} -o {env_f}".format(u=url, env_f=full_path_env_file)
+        else:
+            env_file = "{prefix}.Linux.yml".format(prefix=env_name)
+            url += env_file
+            full_path_env_file = os.path.join(workdir, env_file)
+            cmd = "wget {u} -O {env_f}".format(u=url, env_f=full_path_env_file)
+
+        ret_code = run_cmd(cmd, True, False, False)
+        if ret_code != SUCCESS:
+            raise Exception('FAIL: ' + cmd)
+
+        conda_cmd = os.path.join(conda_path, 'conda')
+        cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
+        
+        ret_code = run_cmd(cmd, True, False, False)
+        # REVISIT: check for nightly really installed
+        return(ret_code)
+
+    def install_packages(self, py_ver):
+        packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 "
+        packages += "vcs vcsaddons cdp mesalib flake8"
+        ret_code = super(Beta3_0EnvSetup, self).install_packages(py_ver, packages)
+        if ret_code != SUCCESS:
+            return(ret_code)
+
+        packages = 'pcmdi_metrics cia'
+        channels_list = ['pcmdi/label/nightly', 'pcmdi']
+        ret_code = super(Beta3_0EnvSetup, self).install_packages(py_ver, packages, channels_list)
+        return(ret_code)

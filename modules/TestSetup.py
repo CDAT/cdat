@@ -28,13 +28,6 @@ class TestSetup(object):
         self.repo_name = repo_name
         self.repo_dir = repo_dir
         
-        # install things needed for running tests.
-
-        uvcdat_setup.install_packages(py_version, 'nose')
-        if branch == 'master':
-            uvcdat_setup.install_packages(py_version, 'flake8')
-        else:
-            uvcdat_setup.install_packages(py_version, 'flake8=3.3.0')
 
     def get_uvcdat_testdata(self, uvcdat_setup, for_repo_dir, branch):
         """
@@ -89,61 +82,16 @@ class TestSetup(object):
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
         return(ret_code)
 
-
-class CdmsTestSetup(TestSetup):
-    def __init__(self, uvcdat_setup, repo_name, py_version, branch='master'):
-        super(CdmsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch)
-
-        if py_version == 'py2':
-            env = uvcdat_setup.py2_env
-        elif py_version == 'py3':
-            env = uvcdat_setup.py3_env
-
-        uvcdat_setup.install_packages(py_version, 'image-compare')
         
 class VcsTestSetup(TestSetup):
     def __init__(self, uvcdat_setup, repo_name, py_version, branch='master'):
         super(VcsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch)
-
-        if py_version == 'py2':
-            env = uvcdat_setup.py2_env
-        elif py_version == 'py3':
-            env = uvcdat_setup.py3_env
-
-        packages = 'mesalib image-compare \\\"matplotlib<2.1\\\"'
-        uvcdat_setup.install_packages(py_version, packages)
 
         # get uvcdat-testdata
         if branch != 'master':
             for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
             super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch)        
 
-class PcmdiTestSetup(TestSetup):
-    def __init__(self, uvcdat_setup, repo_name, py_version, branch='master'):
-        super(PcmdiTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch)
 
-        if py_version == 'py2':
-            env = uvcdat_setup.py2_env
-        elif py_version == 'py3':
-            env = uvcdat_setup.py3_env
-        
-        packages = 'vcs vcsaddons cdp mesalib image-compare'
-        uvcdat_setup.install_packages(py_version, packages)    
-
-        channels_list = ['pcmdi']
-        uvcdat_setup.install_packages(py_version, packages, channels_list)
-
-
-class VcsaddonsTestSetup(TestSetup):
-    def __init__(self, uvcdat_setup, repo_name, py_version, branch='master'):
-        super(VcsaddonsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch)
-
-        if py_version == 'py2':
-            env = uvcdat_setup.py2_env
-        elif py_version == 'py3':
-            env = uvcdat_setup.py3_env
-
-        packages = 'mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 vcs'
-        uvcdat_setup.install_packages(py_version, packages)
 
     
