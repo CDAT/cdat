@@ -107,6 +107,11 @@ class NightlySetup(UVCDATSetup):
         packages = 'pcmdi_metrics cia'
         channels_list = ['pcmdi/label/nightly', 'pcmdi']
         ret_code = super(NightlySetup, self).install_packages(py_ver, packages, channels_list)
+        if ret_code != SUCCESS:
+            return(ret_code)
+
+        cmds_list = ["conda list"]
+        ret_code = run_in_conda_env(conda_path, env, cmds_list)
         return(ret_code)
 
 class EnvSetup(UVCDATSetup):
