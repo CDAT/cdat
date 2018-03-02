@@ -79,7 +79,8 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    if branch != 'master' and repo_name != 'uvcdat-testdata':
+    print("xxx branch: " + branch)
+    if branch != 'master' and repo_name != 'uvcdat-testdata' and branch != 'cdat-3.0.beta':
         
         cmd = 'git describe --tags --abbrev=0'
         ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True, repo_dir)

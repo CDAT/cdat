@@ -18,7 +18,7 @@ parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
 
 parser.add_argument("-v", "--env_version",
-                    help="environment version, '2.12', '2.12-nox', '2.10', '2.10-nox', '2.8', '2.8-nox', '2.6'")
+                    help="environment version, 'cdat-3.0.beta', '2.12', '2.12-nox', '2.10', '2.10-nox', '2.8', '2.8-nox', '2.6'")
 
 parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
                     help="python version, 'py2' or 'py3' --- but only 'py2' for 2.12 or prior envs.")
@@ -34,9 +34,11 @@ if status != SUCCESS:
     sys.exit(FAILURE)
 
 if env_version == '2.12':
-    env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_version)
+    label = '2.12'
 else:
-    env_setup = UVCDATSetup.Beta3_0EnvSetup(conda_path, workdir, env_version)
+    label = 'v30beta'
+
+env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_version, label)
 status = env_setup.install(args.py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)

@@ -21,6 +21,7 @@ class TestSetup(object):
         self.conda_path = conda_path
         
         # clone repo
+
         ret_code, repo_dir = git_clone_repo(workdir, repo_name, branch)
         if ret_code != SUCCESS:
             raise Exception('git_clone_repo() failed')
@@ -52,13 +53,14 @@ class TestSetup(object):
         if ret_code != SUCCESS:
             raise Exception('FAIL...' + cmd)
 
-        cmd = 'cd ' + repo_dir + '; git checkout ' + tag
-        print("CMD: " + cmd)
-        # may need to revisit -- I have to use os.system() here.
-        # if I use run_cmd() specifying cwd, it does not work in circleci.
-        ret_code = os.system(cmd)
-        if ret_code != SUCCESS:
-            raise Exception('FAILED...' + cmd)
+        if branch != 'master' and branch != 'cdat-3.0.beta':
+            cmd = 'cd ' + repo_dir + '; git checkout ' + tag
+            print("CMD: " + cmd)
+            # may need to revisit -- I have to use os.system() here.
+            # if I use run_cmd() specifying cwd, it does not work in circleci.
+            ret_code = os.system(cmd)
+            if ret_code != SUCCESS:
+                raise Exception('FAILED...' + cmd)
 
         cmd = "git status"
         run_cmd(cmd, True, False, True, repo_dir)
