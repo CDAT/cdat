@@ -160,7 +160,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "20 4 * * *"
+          cron: "45 4 * * *"
           filters:
             branches:
               only: validateNightly

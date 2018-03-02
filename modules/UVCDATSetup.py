@@ -110,8 +110,12 @@ class NightlySetup(UVCDATSetup):
         if ret_code != SUCCESS:
             return(ret_code)
 
+        if py_ver == 'py2':
+            env = self.py2_env
+        else:
+            env = self.py3_env
         cmds_list = ["conda list"]
-        ret_code = run_in_conda_env(conda_path, env, cmds_list)
+        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
         return(ret_code)
 
 class EnvSetup(UVCDATSetup):
