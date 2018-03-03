@@ -1,10 +1,11 @@
 name: cdat-3.0.beta_py2
 channels:
 - uvcdat/label/v30beta
-- anaconda
 - uvcdat/label/nightly
+- anaconda
 - conda-forge
 - uvcdat
+- nesii/label/dev-esmf
 - defaults
 dependencies:
 - _nb_ext_conf=0.4.0=py27_1
@@ -44,7 +45,6 @@ dependencies:
 - expat=2.2.5=he0dffb1_0
 - ffmpeg=3.4=h7264315_0
 - flake8=3.5.0=py27_1
-- flask=0.12.2=py27h6d5c1cd_0
 - fontconfig=2.12.4=h88586e7_1
 - freetype=2.8=hab7d2ae_1
 - functools32=3.2.3.2=py27h4ead58f_1
@@ -72,7 +72,6 @@ dependencies:
 - ipywidgets=7.1.2=py27_0
 - isl=0.12.2=0
 - isort=4.3.4=py27_0
-- itsdangerous=0.24=py27hb8295c1_1
 - jasper=1.900.1=hd497a04_4
 - jedi=0.11.1=py27_0
 - jinja2=2.10=py27h4114e70_0
@@ -102,7 +101,7 @@ dependencies:
 - libxml2=2.9.7=h26e45fe_0
 - locket=0.2.0=py27h73929a2_1
 - markupsafe=1.0=py27h97b2822_1
-- matplotlib=2.1.2=py27h0e671d2_0
+- matplotlib=2.0.2=py27h334a7c2_1
 - mccabe=0.6.1=py27h0e7c7be_1
 - mistune=0.8.3=py27_0
 - mkl=2018.0.1=h19d6760_4
@@ -130,7 +129,7 @@ dependencies:
 - pcre=8.41=hc27e229_1
 - pexpect=4.4.0=py27_0
 - pickleshare=0.7.4=py27h09770e1_0
-- pip=9.0.1=py27ha730c48_4
+- pip=9.0.1=py27_5
 - proj4=4.9.3=hc8507d1_7
 - prompt_toolkit=1.0.15=py27h1b593e1_0
 - psutil=5.4.3=py27h14c3975_0
@@ -184,7 +183,6 @@ dependencies:
 - urllib3=1.22=py27ha55213b_0
 - wcwidth=0.1.7=py27h9e3e1ab_0
 - webencodings=0.5.1=py27hff10b21_1
-- werkzeug=0.14.1=py27_0
 - wheel=0.30.0=py27h2bc6bb2_1
 - widgetsnbextension=3.1.4=py27_0
 - wrapt=1.10.11=py27h04f6869_0
@@ -205,26 +203,25 @@ dependencies:
 - libcf=1.0.1=py27_0
 - libdrs=2.12=0
 - libdrs_f=2.12=1
-- mpich=3.2=5
+- mpi=1.0=mpich
+- mpich=3.2=6
 - netcdf-fortran=4.4.4=5
 - ossuuid=1.6.2=0
 - pyspharm=1.0.9=py27_2
 - windspharm=1.5.1=py27_0
 - x264=20131217=3
-- cdp=1.2.3=py27hf758207_0
-- output_viewer=1.2.3=py27h48dab56_0
 - vtk-cdat=7.1.0.2.12=py27hd6333ce_0
-- cdat=3.0.beta=h562cd06_0
+- cdat=3.0.beta=h4229bac_0
 - cdat_info=2.12.2017.11.17.06.40.26af1a0a1e84a92feec40d00964a6a6f01cd2cc8=py27hbb33b33_0
 - cdms2=2.12.2018.02.22.17.40.g09431cb.npy1.13=py27_0
+- cdp=1.2.3=py27hf758207_0
 - cdtime=2.12.2018.02.27.21.58.gfdd6660.np1.13=py27_0
 - cdutil=2.12.2018.02.06.21.40.77d37fb8c6bbaf47a256d9ffc234124ffbfef08a=py27_0
 - dv3d=2.12.2017.11.16.13.59.41777804f6a49b899252e8c8a730ce137f501454=py27h3d159b9_0
 - genutil=2.12.2018.02.27.19.46.g94d9078.npy1.13=py27_0
+- output_viewer=1.2.3=py27h48dab56_0
 - thermo=2.12.2017.11.21.01.57.b77f038915400b3e53b19a944f95a594e0ce0c84=py27hcbb3e66_0
-- vcdat=0.0.5.2018.02.26.22.51.gf8c4b71=py_0
 - vcs=2.12.2018.02.27.03.26.ge721529f=py27_0
-- vcs-js=0.4.2.12.2018.02.27.23.21.gcddb34a=py27h518b126_0
 - vcsaddons=2.12.2018.02.27.01.18.ge84622d=py27_0
 - wk=2.12.2017.11.20.20.59.516e622549422ea4ad63f6902120d5451192c9a3=py27hef924f9_0
 - pip:
@@ -245,6 +242,5 @@ dependencies:
   - output-viewer==1.2.2
   - prompt-toolkit==1.0.15
   - regrid2==3.0.0
-  - vcs-server==0.1
-prefix: /home/doutriaux1/anaconda2/envs/cdat-3.0.beta_py2
+prefix: /export/doutriaux1/miniconda2/envs/cdat-3.0.beta_py2
 
