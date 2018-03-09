@@ -23,7 +23,7 @@ aliases:
   - &validate_install
     |
       echo "Validate install - verify versions of installed packages"
-      python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -v $BRANCH_NAME -p $PYTHON_VERSION
+      python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -b $BRANCH_NAME -p $PYTHON_VERSION
 
   - &run_cdms_test
     name: run_cdms_test
