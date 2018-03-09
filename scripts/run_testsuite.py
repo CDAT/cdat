@@ -37,7 +37,6 @@ if branch == 'master' or branch == '2.12':
 else:
     label = 'v30beta'
 
-
 if branch == 'master':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 else:

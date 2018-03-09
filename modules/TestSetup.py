@@ -1,4 +1,6 @@
+import re
 import shutil
+from datetime import datetime
 from Util import *
 
 class TestSetup(object):
@@ -10,6 +12,7 @@ class TestSetup(object):
         in the environment specified in <uvcdat_setup>
 
         saves the following info:
+           self.branch - can be 'master' or '2.12' 
            self.repo_name - testsuite repo name
            self.repo_dir  - testsuite repo directory
            self.conda_path - conda path
@@ -84,7 +87,22 @@ class TestSetup(object):
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
         return(ret_code)
 
-        
+    def get_last_commit(self):
+        cmd = "git log -n1 --pretty=format:%ad"
+        ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True, self.repo_dir)
+        # parse the cmd_output - 'Fri Mar 2 16:15:37 2018 -0800'
+        match_obj = re.match(r'(\S+\s+\S+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+-\d+', cmd_output[0])
+        last_commit_info = None
+        if match_obj:
+            last_commit_date = match_obj.group(1)
+            # just get the month/date/year
+            last_commit_datetime = datetime.strptime(last_commit_date, "%a %b %d %H:%M:%S %Y")
+            d = last_commit_datetime.strftime("%m/%d/%Y")
+            last_commit_info = {}
+            last_commit_info['datetime'] = last_commit_datetime
+            last_commit_info['date_str'] = d
+        return(ret_code, last_commit_info)
+
 class VcsTestSetup(TestSetup):
     def __init__(self, uvcdat_setup, repo_name, py_version, branch='master'):
         super(VcsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch)

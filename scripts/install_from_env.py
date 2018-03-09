@@ -35,10 +35,11 @@ if status != SUCCESS:
 
 if env_version == '2.12':
     label = '2.12'
+    env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_version, label)
 else:
     label = 'v30beta'
+    env_setup = UVCDATSetup.Env30BetaSetup(conda_path, workdir, env_version, label)
 
-env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_version, label)
 status = env_setup.install(args.py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)

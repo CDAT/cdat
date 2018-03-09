@@ -4,7 +4,7 @@ import sys
 from Util import *
 import CondaSetup
 
-class EnvSetup(UVCDATSetup):
+class EnvSetupOBSOLETE(UVCDATSetup):
 
     def __init__(self, conda_path, workdir, env_prefix):
         """

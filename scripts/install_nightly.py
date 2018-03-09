@@ -31,25 +31,20 @@ if status != SUCCESS:
 
 nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 
+# TEMPORARY
+#packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics"]
+#nightly_setup.get_packages_version(py_ver, packages)
+###
+
 status = nightly_setup.install(py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-status = nightly_setup.install_packages(py_ver)
+
+
+status = nightly_setup.install_packages_for_tests(py_ver)
 sys.exit(status)
 
-# install packages needed to run testsuites
-
-#packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 vcs vcsaddons cdp mesalib"
-        
-#if branch == '2.12':
-#    packages += 'flake8=3.3.0'
-#else:
-#    packages += 'flake8'
-        
-#status = nightly_setup.install_packages(py_ver, packages)
-#if status != SUCCESS:
-#   sys.exit(FAILURE)
     
 
 

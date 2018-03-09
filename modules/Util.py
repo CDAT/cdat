@@ -2,6 +2,8 @@ import os
 import subprocess
 import shlex
 import shutil
+import time
+
 from Const import *
 
 #                                                                                                                 
@@ -28,9 +30,10 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     out = []
     while P.poll() is None:
         read = P.stdout.readline().rstrip()
-        out.append(read.decode('utf-8'))
+        decoded_str = read.decode('utf-8')
+        out.append(decoded_str)
         if verbose == True:
-            print(read)
+            print(decoded_str)
 
     ret_code = P.returncode
     return(ret_code, out)
@@ -40,7 +43,7 @@ def run_cmd(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code)
 
-def run_cmd_get_output(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
+def run_cmd_capture_output(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
 
     ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code, output)
@@ -51,7 +54,6 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
         If <repo_dir> is not specified, place the repo in 
         <workdir>/<branch>/<repo_name> directory                                              
     """
-    print("DEBUG...in git_clone_repo()")
     if repo_name == 'pcmdi_metrics':
         url = 'https://github.com/pcmdi/' + repo_name
     else:
@@ -66,12 +68,13 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
         if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
 
-    cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
-    ret_code = run_cmd(cmd)
+    if not os.path.isdir(repo_dir):
+        cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
+        ret_code = run_cmd(cmd, False, False, False)
 
-    if ret_code != SUCCESS:
-        print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
-        return ret_code
+        if ret_code != SUCCESS:
+            print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
+            return ret_code
 
     cmd = 'git pull'
     ret_code = run_cmd(cmd, True, False, True, repo_dir)
@@ -79,17 +82,15 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    print("xxx branch: " + branch)
     if branch != 'master' and repo_name != 'uvcdat-testdata' and branch != 'cdat-3.0.beta':
         
         cmd = 'git describe --tags --abbrev=0'
-        ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True, repo_dir)
+        ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True, repo_dir)
         version = cmd_output[0]
 
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
-    print("...returning from git_clone_repo()...")
     return(ret_code, repo_dir)
 
 def run_in_conda_env(conda_path, env, cmds_list):
@@ -119,8 +120,44 @@ def get_tag_name_of_repo(repo_dir):
     current_dir = os.getcwd()
     os.chdir(repo_dir)
     cmd = 'git describe --tags --abbrev=0'
-    ret_code, cmd_output = run_cmd_get_output(cmd, True, False, True)
+    ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True)
     branch = cmd_output[0]
     os.chdir(current_dir)
 
     return(ret_code, branch)
+
+def run_in_conda_env_capture_output(conda_path, env, cmds_list):
+
+    current_time = time.localtime(time.time())
+    time_str = time.strftime("%b.%d.%Y.%H:%M:%S", current_time)
+    tmp_file = "/tmp/conda_capture.{curr_time}".format(curr_time=time_str)
+
+    add_path_cmd = "export PATH={path}:$PATH".format(path=conda_path)
+    activate_cmd = "source activate {env}".format(env=env)
+    cmds = None
+    for a_cmd in cmds_list:
+        if cmds == None:
+            cmds = a_cmd
+        else:
+            cmds = "{existing}; {new_cmd}".format(existing=cmds, new_cmd=a_cmd)
+
+    deactivate_cmd = 'source deactivate'
+
+    cmd = "bash -c \"{add_path}; {act}; {cmds}; {deact}\"".format(add_path=add_path_cmd,
+                                                                  act=activate_cmd,
+                                                                  cmds=cmds,
+                                                                  deact=deactivate_cmd)
+
+    cmd = "{the_cmd} > {output_file}".format(the_cmd=cmd, output_file=tmp_file)
+    print("CMD: {cmd}".format(cmd=cmd))
+    ret_code = os.system(cmd)
+    print(ret_code)
+    if ret_code != SUCCESS:
+        return(FAILURE, None)
+
+    with open(tmp_file) as f:
+        output = f.readlines()
+    #os.remove(tmp_file)
+    return(ret_code, output)
+
+
