@@ -200,6 +200,7 @@ class EnvSetup(UVCDATSetup):
 
         # download the env file
         workdir = self.workdir
+        env_prefix = self.env_prefix
         url = 'https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/'
         if sys.platform == 'darwin':
             env_file = "{prefix}-osx.yml".format(prefix=env_prefix)
@@ -219,7 +220,7 @@ class EnvSetup(UVCDATSetup):
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
         
-        ret_code = run_cmd(cmd, True, False, False)
+        ret_code = run_cmd(cmd, True, False, True)
         # REVISIT: check for nightly really installed
         return(ret_code)
 
