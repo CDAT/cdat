@@ -31,15 +31,9 @@ if status != SUCCESS:
 
 nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 
-# TEMPORARY
-#packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics"]
-#nightly_setup.get_packages_version(py_ver, packages)
-###
-
 status = nightly_setup.install(py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
-
 
 
 status = nightly_setup.install_packages_for_tests(py_ver)

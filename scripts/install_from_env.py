@@ -35,14 +35,19 @@ if status != SUCCESS:
 
 if env_version == '2.12':
     label = '2.12'
-    env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_version, label)
-else:
+    env_setup = UVCDATSetup.Env212Setup(conda_path, workdir, env_version, label)
+elif env_version == 'cdat-3.0.beta'
     label = 'v30beta'
     env_setup = UVCDATSetup.Env30BetaSetup(conda_path, workdir, env_version, label)
+else:
+    print("ERROR...incorrect env_version: {v}".format(v=env_version))
 
 status = env_setup.install(args.py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
+if env_version == '2.12':
+    status = env_setup.install_packages_for_tests(args.py_ver)
 
+sys.exit(status)
 

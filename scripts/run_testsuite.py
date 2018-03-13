@@ -57,6 +57,11 @@ if ts == 'cdms':
     cdms_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
     run_tests_cmd = 'python run_tests.py -s -v2 -p -H'
     status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
+
+elif ts == 'dv3d':
+    cdms_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
+    run_tests_cmd = 'python run_tests.py -v2 -n2 -g'
+    status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
     
 elif ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch)
