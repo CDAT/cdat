@@ -43,6 +43,11 @@ else:
 
     uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, branch, label)
 
+
+if uvcdat_setup.get_env_name(py_ver) is None:
+    print("Conda environment for python version {v} does not exist.".format(v=py_ver))
+    sys.exit(FAILURE)
+
 # TEMPORARY
 #if branch == 'cdat-3.0.beta':
 #    # clone the nightly tests
@@ -59,9 +64,9 @@ if ts == 'cdms':
     status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
 
 elif ts == 'dv3d':
-    cdms_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
+    dv3d_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
     run_tests_cmd = 'python run_tests.py -v2 -n2 -g'
-    status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
+    status = dv3d_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
     
 elif ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch)

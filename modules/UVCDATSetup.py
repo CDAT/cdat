@@ -13,6 +13,9 @@ class UVCDATSetup(object):
            for the environment name, so that multiple environments can
            use same conda installation.
         """
+        self.py2_env = None
+        self.py3_env = None
+        self.label = None
 
         if os.path.isdir(workdir):
             if not os.path.isdir(conda_path):
@@ -28,10 +31,6 @@ class UVCDATSetup(object):
             if os.path.isdir(env_dir):
                 self.py3_env = env_name
             self.label = label
-        else:
-            self.py2_env = None
-            self.py3_env = None
-            self.label = None
 
         self.env_prefix = env_prefix
         self.workdir = workdir
@@ -105,6 +104,11 @@ class UVCDATSetup(object):
             env = self.py2_env
         else:
             env = self.py3_env
+        
+        if env is None:
+            print("FAIL...conda env for {v} does not exist.".format(v=py_ver))
+            return(FAILURE)
+
         cmds_list = ["conda list"]
         ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
         return(ret_code)

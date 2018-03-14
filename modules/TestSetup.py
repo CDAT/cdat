@@ -70,7 +70,7 @@ class TestSetup(object):
 
     def run_tests(self, uvcdat_setup, py_version, run_tests_invoke_cmd):
 
-        env = uvcdat_setup.get_env(py_version)
+        env = uvcdat_setup.get_env_name(py_version)
 
         conda_path = uvcdat_setup.conda_path
         workdir = uvcdat_setup.workdir
