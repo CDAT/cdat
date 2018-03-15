@@ -96,7 +96,7 @@ jobs:
       - run: *run_wk_test
       - store_artifacts:
           path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
-          destination wk_tests_html
+          destination: wk_tests_html
 
   macos_nightly_py3:
     macos:
@@ -145,7 +145,7 @@ jobs:
       - run: *run_wk_test
       - store_artifacts:
           path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
-          destination wk_tests_html
+          destination: wk_tests_html
 
   linux_nightly_py3:
     machine:
