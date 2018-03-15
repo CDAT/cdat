@@ -24,15 +24,14 @@ class CondaSetup:
 
         self.workdir = workdir
 
-        url = "https://repo.continuum.io/miniconda/"
+        url = "https://repo.continuum.io/miniconda"
         conda_script = os.path.join(workdir, 'miniconda.sh')
         
-        if sys.platform == 'darwin':
-            source_script = url + 'Miniconda2-latest-MacOSX-x86_64.sh'
+        if sys.platform == 'darwin':            
+            source_script = os.path.join(url, 'Miniconda2-latest-MacOSX-x86_64.sh')
             cmd = "curl {src} -o {dest}".format(src=source_script, dest=conda_script)
         else:            
-            #source_script = url + 'Miniconda3-4.3.21-Linux-x86_64.sh'
-            source_script = url + 'Miniconda2-latest-Linux-x86_64.sh'
+            source_script = os.path.join(url, 'Miniconda2-latest-Linux-x86_64.sh')
             cmd = "wget {src} -O {dest}".format(src=source_script, dest=conda_script)
 
         ret_code = run_cmd(cmd, True, False, False)
@@ -42,6 +41,7 @@ class CondaSetup:
 
         conda_dir = os.path.join(workdir, 'miniconda')
         cmd = "bash {script} -b -p {dir}".format(script=conda_script, dir=conda_dir)
+
         # run the command, set verbose=False 
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
@@ -50,14 +50,6 @@ class CondaSetup:
 
         self.conda_path = os.path.join(conda_dir, 'bin')
         conda_path = self.conda_path
-
-        #if sys.platform == 'linux':
-        #    pinned_dir = os.path.join(conda_dir, 'conda-meta', 'pinned')
-        #    cmd = "echo 'conda ==4.3.21' >> {dir}".format(dir=pinned_dir)
-        #    ret_code = run_cmd(cmd)
-        #    if ret_code != SUCCESS:
-        #        print("FAIL...installing miniconda")
-        #        return(ret_code, None)
 
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
@@ -73,6 +65,7 @@ class CondaSetup:
             print('FAILED: ' + cmd)
             return(ret_code, None)
 
+        # I do not think I need the following
         if sys.platform == 'darwin':
             cmd = "{c} update -y -q conda".format(c=conda_cmd)
             ret_code = run_cmd(cmd, True, False, False)

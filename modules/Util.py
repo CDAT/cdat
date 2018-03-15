@@ -90,6 +90,15 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
 
         cmd = "git checkout {}".format(version)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
+        if ret_code != SUCCESS:
+            print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
+            return ret_code
+
+    # create 'tests_png' and 'tests_html' to avoid processes trying to 
+    # create the directories at the same time.
+    cmd = "mkdir {d1} {d2}".format(d1=os.path.join(repo_dir, 'tests_png'),
+                                   d2=os.path.join(repo_dir, 'tests_html'))
+    ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
     return(ret_code, repo_dir)
 

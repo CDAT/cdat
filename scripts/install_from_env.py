@@ -36,7 +36,7 @@ if status != SUCCESS:
 if env_version == '2.12':
     label = '2.12'
     env_setup = UVCDATSetup.Env212Setup(conda_path, workdir, env_version, label)
-elif env_version == 'cdat-3.0.beta'
+elif env_version == 'cdat-3.0.beta':
     label = 'v30beta'
     env_setup = UVCDATSetup.Env30BetaSetup(conda_path, workdir, env_version, label)
 else:
