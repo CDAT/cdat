@@ -95,7 +95,7 @@ jobs:
       #- run: *run_thermo_test
       #- run: *run_wk_test
       - store_artifacts:
-          path: $WORKDIR/$BRANCH_NAME/pcmdi_metrics/tests_html/
+          path: workspace/test_nightly/master/pcmdi_metrics/tests_html
           destination: pcmdi_metrics_tests_html
 
   macos_nightly_py3:
@@ -144,7 +144,7 @@ jobs:
       #- run: *run_thermo_test
       #- run: *run_wk_test
       - store_artifacts:
-          path: $WORKDIR/$BRANCH_NAME/pcmdi_metrics/tests_html/
+          path: workspace/test_nightly/master/pcmdi_metrics/tests_html
           destination: pcmdi_metrics_tests_html
 
   linux_nightly_py3:
