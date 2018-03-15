@@ -58,42 +58,23 @@ ts = args.testsuite
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'
 
-if ts == 'cdms':
-    cdms_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -s -v2 -p -H'
-    status = cdms_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
-
-elif ts == 'dv3d':
-    dv3d_test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2 -n2 -g'
-    status = dv3d_test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
-    
-elif ts == 'vcs':
+if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2 -n 2 --no-vtk-ui -g'
-    #run_tests_cmd = 'python run_tests.py -v2 -n 1 --no-vtk-ui -g'
-    status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
-    
-elif ts == 'genutil':
+else:
     test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2'
-    status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
 
-elif ts == 'cdutil':
-    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2'
-    status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
-    
-elif ts == 'vcsaddons':
-    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2 -n 2'
-    status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
+if ts == 'cdms':
+    cmds_list = ['python run_tests.py -s -v2 -p -H']
+elif ts == 'dv3d':
+    cmds_list = ['python run_tests.py -v2 -n2 -g']
+elif ts == 'vcs':
+    cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g', 'cd docs', 'make doctest']    
+elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
+    cmds_list = ['python run_tests.py -v2']
+elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
+    cmds_list = ['python run_tests.py -v2 -n 2']
 
-elif ts == 'pcmdi_metrics':
-    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
-    run_tests_cmd = 'python run_tests.py -v2'
-    status = test_setup.run_tests(uvcdat_setup, py_ver, run_tests_cmd)
-
+status = test_setup.run_tests(uvcdat_setup, py_ver, cmds_list)
 sys.exit(status)
 
 

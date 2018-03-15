@@ -32,11 +32,8 @@ if status != SUCCESS:
 nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 
 status = nightly_setup.install(py_ver)
-if status != SUCCESS:
-    sys.exit(FAILURE)
 
-
-status = nightly_setup.install_packages_for_tests(py_ver)
+#status = nightly_setup.install_packages_for_tests(py_ver)
 sys.exit(status)
 
     

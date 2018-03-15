@@ -68,7 +68,7 @@ class TestSetup(object):
         cmd = "git status"
         run_cmd(cmd, True, False, True, repo_dir)
 
-    def run_tests(self, uvcdat_setup, py_version, run_tests_invoke_cmd):
+    def run_tests(self, uvcdat_setup, py_version, run_cmds_list):
 
         env = uvcdat_setup.get_env_name(py_version)
 
@@ -82,8 +82,8 @@ class TestSetup(object):
         cmd = 'cd ' + self.repo_dir 
         cmds_list.append(cmd)
 
-        cmd = run_tests_invoke_cmd
-        cmds_list.append(cmd)
+        for cmd in run_cmds_list:
+            cmds_list.append(cmd)
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
         return(ret_code)
 

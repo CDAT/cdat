@@ -88,15 +88,20 @@ class UVCDATSetup(object):
         """
         Install packages needed for running tests.
         """
-        packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 "
-        packages += "vcs vcsaddons cdp mesalib flake8"
-        ret_code = super(NightlySetup, self).install_packages(py_ver, packages)
-        if ret_code != SUCCESS:
-            return(ret_code)
+        #packages = "nose mesalib image-compare \\\"matplotlib<2.1\\\" numpy=1.13 "
+        #packages += "vcs vcsaddons cdp mesalib flake8"
+        #ret_code = super(NightlySetup, self).install_packages(py_ver, packages)
+        #if ret_code != SUCCESS:
+        #    return(ret_code)
 
-        packages = 'pcmdi_metrics cia'
+        #packages = 'pcmdi_metrics cia'
+        #channels_list = ['pcmdi/label/nightly', 'pcmdi']
+        #ret_code = super(NightlySetup, self).install_packages(py_ver, packages, channels_list)
+
+        packages = 'nose image-compare pcmdi_metrics cia'
         channels_list = ['pcmdi/label/nightly', 'pcmdi']
         ret_code = super(NightlySetup, self).install_packages(py_ver, packages, channels_list)
+
         if ret_code != SUCCESS:
             return(ret_code)
 
@@ -185,17 +190,24 @@ class NightlySetup(UVCDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        default_channels = '-c cdat/label/nightly -c uvcdat/label/nightly -c conda-forge -c uvcdat'
+        ch1 = "-c cdat/label/nightly -c uvcdat/label/nightly"
+        ch2 = "-c nesii/label/dev-esmf -c conda-forge -c uvcdat"
+        ch3 = "-c pcmdi/label/nightly -c pcmdi"
+
         if py_ver == 'py3':
-            channels = "{c} -c nesii/channel/dev-esmf".format(c=default_channels)
-            cmd = "{c} create -n {e} cdat \"python>3\" {ch}".format(c=conda_cmd,
-                                                                    e=env_name,
-                                                                    ch=channels)
+            py_str = "python>3"
         else:
-            channels = default_channels
-            cmd = "{c} create -n {e} cdat \"python<3\" {ch}".format(c=conda_cmd,
-                                                                    e=env_name,
-                                                                    ch=channels)
+            py_str = "python<3"
+
+        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
+        cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2} {c3}".format(c=conda_cmd,
+                                                                            e=env_name,
+                                                                            pkgs=pkgs,
+                                                                            p=py_str,
+                                                                            c1=ch1,
+                                                                            c2=ch2,
+                                                                            c3=ch3)
+
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
             return(ret_code)
