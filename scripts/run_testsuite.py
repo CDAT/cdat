@@ -66,13 +66,13 @@ else:
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
 elif ts == 'dv3d':
-    cmds_list = ['python run_tests.py -v2 -n2 -g']
+    cmds_list = ['python run_tests.py -v2 -n2 -g -H']
 elif ts == 'vcs':
-    cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g', 'cd docs', 'make doctest']    
+    cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H', 'cd docs', 'make doctest']    
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
-    cmds_list = ['python run_tests.py -v2']
+    cmds_list = ['python run_tests.py -v2 -H']
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
-    cmds_list = ['python run_tests.py -v2 -n 2']
+    cmds_list = ['python run_tests.py -v2 -n 2 -H']
 
 status = test_setup.run_tests(uvcdat_setup, py_ver, cmds_list)
 sys.exit(status)

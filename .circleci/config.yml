@@ -90,13 +90,13 @@ jobs:
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
       #- run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_wk_test
       - store_artifacts:
-          path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
-          destination: wk_tests_html
+          path: $WORKDIR/$BRANCH_NAME/pcmdi_metrics/tests_html/
+          destination: pcmdi_metrics_tests_html
 
   macos_nightly_py3:
     macos:
@@ -139,13 +139,13 @@ jobs:
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
       #- run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_wk_test
       - store_artifacts:
-          path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
-          destination: wk_tests_html
+          path: $WORKDIR/$BRANCH_NAME/pcmdi_metrics/tests_html/
+          destination: pcmdi_metrics_tests_html
 
   linux_nightly_py3:
     machine:
