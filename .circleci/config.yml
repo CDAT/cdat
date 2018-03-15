@@ -28,47 +28,48 @@ aliases:
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -b $BRANCH_NAME
 
   - &run_genutil_test
     name: run_genutil_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH_NAME
 
   - &run_cdutil_test
     name: run_cdutil_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -b $BRANCH_NAME
 
   - &run_vcs_test
     name: run_vcs_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -b $BRANCH_NAME
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -b $BRANCH_NAME
 
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH_NAME
 
   - &run_dv3d_test
     name: run_dv3d_test
     command: |
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -b $BRANCH_NAME
 
   - &run_thermo_test
     name: run_thermo_test
     command: |
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -b $BRANCH_NAME
 
   - &run_wk_test
     name: run_wk_test
     command: |
-      python workspace/uvcdat/scripts/run_testsuite.py -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -b $BRANCH_NAME
+
 
 jobs:
   macos_nightly_py2:
@@ -78,20 +79,24 @@ jobs:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
       BRANCH_NAME: "master"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
       - run: *run_wk_test
+      - store_artifacts:
+          path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
+          destination wk_tests_html
 
   macos_nightly_py3:
     macos:
@@ -100,6 +105,7 @@ jobs:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py3"
       BRANCH_NAME: "master"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
@@ -122,20 +128,24 @@ jobs:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
       BRANCH_NAME: "master"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
       - run: *run_wk_test
+      - store_artifacts:
+          path: $WORKDIR/$BRANCH_NAME/wk/tests_html/
+          destination wk_tests_html
 
   linux_nightly_py3:
     machine:
@@ -144,6 +154,7 @@ jobs:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py3"
       BRANCH_NAME: "master"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
@@ -166,6 +177,7 @@ jobs:
       WORKDIR: "workspace/test_env"
       PYTHON_VERSION: "py2"
       BRANCH_NAME: "2.12"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS - test install from env file"
       - run: uname -a
@@ -182,6 +194,7 @@ jobs:
       WORKDIR: "workspace/test_env"
       PYTHON_VERSION: "py2"
       BRANCH_NAME: "2.12"
+      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from env file"
       - run: uname -a
@@ -194,26 +207,28 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 2 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "0 2 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
       - macos_nightly_py2
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2
-      - macos_env_py2:
-          requires:
-            - macos_nightly_py3
+      #- macos_nightly_py3:
+      #    requires:
+      #      - macos_nightly_py2
+      #- macos_env_py2:
+      #    requires:
+      #      - macos_nightly_py3
       - linux_nightly_py2
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
-      - linux_env_py2:
-          requires:
-            - linux_nightly_py3
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
+      #- linux_env_py2:
+      #    requires:
+      #      - linux_nightly_py3
+
+
 
 
