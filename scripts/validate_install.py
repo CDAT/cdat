@@ -44,7 +44,7 @@ else:
     uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, branch, label)
 
 ## REVISIT - packages should be parameter
-packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics"]
+packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics", "dv3d", "thermo", "wk"]
 ret_code, installed_pkgs_dict = uvcdat_setup.get_packages_version(py_ver, packages)
 
 for installed_pkg in installed_pkgs_dict.keys():

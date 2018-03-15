@@ -133,11 +133,9 @@ class UVCDATSetup(object):
            month/day/year)
         """
         env = self.get_env_name(py_ver)
-        cmds_list = []
         package_versions_dict = {}
         for package in packages:
-            cmd = "conda list {pkg}".format(pkg=package)
-            cmds_list.append(cmd)
+            cmds_list = ["conda list {pkg}".format(pkg=package)]
 
             ret_code, output = run_in_conda_env_capture_output(self.conda_path,
                                                                env,
