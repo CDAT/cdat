@@ -346,8 +346,8 @@ workflows:
       #    requires:
       #      - linux_nightly_py2
       - linux_cdat-3.0.beta-nox_py2
-          requires:
-            - linux_nightly_py3
+      #    requires:
+      #      - linux_nightly_py3
       #- linux_cdat-3.0.beta2-nox_py3:
       #    requires:
       #      - linux_cdat-3.0.beta-nox_py2
