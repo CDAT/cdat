@@ -35,7 +35,8 @@ branch = args.branch
 if branch == 'master' or branch == '2.12':
     label = branch
 else:
-    label = 'v30beta'
+    # for cdat 3.0 TEMPORARY
+    label = 'nightly'
 
 if branch == 'master':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
@@ -68,7 +69,10 @@ if ts == 'cdms':
 elif ts == 'dv3d':
     cmds_list = ['python run_tests.py -v2 -n2 -g -H']
 elif ts == 'vcs':
-    cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H', 'cd docs', 'make doctest']    
+    if py_ver == 'py2':
+        cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H']
+    else:
+        cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H', 'cd docs', 'make doctest']
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = ['python run_tests.py -v2 -H']
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':

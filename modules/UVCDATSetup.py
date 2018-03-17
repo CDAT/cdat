@@ -243,7 +243,7 @@ class EnvSetup(UVCDATSetup):
         return(ret_code, dest_file)
 
 
-    def install_from_env_file(self, py_ver, env_file_name):
+    def install_from_env_filePREV(self, py_ver, env_file_name):
         """
         This method creates a CDAT environment from a environment file
            <py_ver> : python version that the environment is to be created for
@@ -272,6 +272,45 @@ class EnvSetup(UVCDATSetup):
 
         return(ret_code)
 
+    def install_from_env_file(self, py_ver, env_file_name):
+        """
+        This method creates a CDAT environment from a environment file
+           <py_ver> : python version that the environment is to be created for
+        """
+
+        conda_path = self.conda_path
+        env_name = super(EnvSetup, self).set_env_name(py_ver)
+
+        # check if env already exists
+        if self.check_if_env_exists(env_name): 
+            print("INFO...environment {env} already exists".format(env=env_name))
+            return SUCCESS
+
+        # download the env file
+        workdir = self.workdir
+        env_prefix = self.env_prefix
+        thisDir = os.path.abspath(os.path.dirname(__file__))
+        full_path_env_file = os.path.join(thisDir, '..', 'conda', env_file_name)
+        print("DEBUG..full_path_env_file: " + full_path_env_file)
+
+        conda_cmd = os.path.join(conda_path, 'conda')
+        cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
+        ret_code = run_cmd(cmd, True, False, True)
+
+        return(ret_code)
+
+    def install_packages_for_tests(self, py_ver):
+
+        if "nox" in self.env_prefix:
+            pkgs = "nose image-compare"
+        else:
+            pkgs = "nose mesalib image-compare"
+        
+        cmds_list = ["conda install -c conda-forge -c uvcdat {p}".format(p=pkgs)]
+        env = self.get_env_name(py_ver)
+        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
+
+        return(ret_code)
 
 class Env212Setup(EnvSetup):
 
@@ -305,10 +344,10 @@ class Env212Setup(EnvSetup):
 
         return(ret_code)
 
-class Env30BetaSetup(EnvSetup):
+class Env30Setup(EnvSetup):
 
     def __init__(self, conda_path, workdir, env_prefix, label):
-        super(Env30BetaSetup, self).__init__(conda_path, workdir, env_prefix, label)
+        super(Env30Setup, self).__init__(conda_path, workdir, env_prefix, label)
 
     def install(self, py_ver):
         """
@@ -321,7 +360,7 @@ class Env30BetaSetup(EnvSetup):
         else:
             env_file = "{prefix}_{py_ver}.Linux.yaml".format(prefix=env_prefix, py_ver=py_ver)
 
-        ret_code = super(Env30BetaSetup, self).install_from_env_file(py_ver, env_file)
+        ret_code = super(Env30Setup, self).install_from_env_file(py_ver, env_file)
         if ret_code != SUCCESS:
             print("FAIL..install_from_env_file(), env_file: {e}".format(e=env_file))
 
