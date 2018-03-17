@@ -9,7 +9,7 @@ aliases:
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       echo "Done installing nightly"
-      ls workspace/test_nightly/miniconda/envs
+      ls $WORKDIR/miniconda/envs
 
   - &setup_env
     |
@@ -18,7 +18,7 @@ aliases:
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
       echo "Done installing from env file"
-      ls workspace/test_env/miniconda/envs
+      ls $WORKDIR//miniconda/envs
 
   - &validate_install
     |
@@ -243,7 +243,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta-nox_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
       PYTHON_VERSION: "py2"
       ENV_NAME: "cdat-3.0.beta-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
@@ -263,7 +263,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta2-nox_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py3_env"
       PYTHON_VERSION: "py3"
       ENV_NAME: "cdat-3.0.beta2-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
@@ -283,7 +283,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
       PYTHON_VERSION: "py2"
       ENV_NAME: "cdat-3.0.beta"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
@@ -301,7 +301,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta2_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2_py3_env"
       PYTHON_VERSION: "py3"
       ENV_NAME: "cdat-3.0.beta2"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
@@ -318,45 +318,45 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "16 7 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "16 7 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
-      - macos_nightly_py2
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2
-      - macos_cdat-3.0.beta-nox_py2:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat-3.0.beta2-nox_py3:
-          requires:
-            - macos_cdat-3.0.beta-nox_py2
-      - macos_cdat-3.0.beta_py2:
-          requires:
-            - macos_cdat-3.0.beta2-nox_py3
-      - macos_cdat-3.0.beta2_py3:
-          requires:
-            - macos_cdat-3.0.beta_py2     
-      - linux_nightly_py2
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
-      - linux_cdat-3.0.beta-nox_py2:
+      #- macos_nightly_py2
+      #- macos_nightly_py3:
+      #    requires:
+      #      - macos_nightly_py2
+      - macos_cdat-3.0.beta-nox_py2
+      #    requires:
+      #      - macos_nightly_py3
+      #- macos_cdat-3.0.beta2-nox_py3:
+      #    requires:
+      #      - macos_cdat-3.0.beta-nox_py2
+      #- macos_cdat-3.0.beta_py2:
+      #    requires:
+      #      - macos_cdat-3.0.beta2-nox_py3
+      #- macos_cdat-3.0.beta2_py3:
+      #    requires:
+      #      - macos_cdat-3.0.beta_py2     
+      #- linux_nightly_py2
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
+      - linux_cdat-3.0.beta-nox_py2
           requires:
             - linux_nightly_py3
-      - linux_cdat-3.0.beta2-nox_py3:
-          requires:
-            - linux_cdat-3.0.beta-nox_py2
-      - linux_cdat-3.0.beta_py2:
-          requires:
-            - linux_cdat-3.0.beta2-nox_py3
-      - linux_cdat-3.0.beta2_py3:
-          requires:
-            - linux_cdat-3.0.beta_py2
+      #- linux_cdat-3.0.beta2-nox_py3:
+      #    requires:
+      #      - linux_cdat-3.0.beta-nox_py2
+      #- linux_cdat-3.0.beta_py2:
+      #    requires:
+      #      - linux_cdat-3.0.beta2-nox_py3
+      #- linux_cdat-3.0.beta2_py3:
+      #    requires:
+      #      - linux_cdat-3.0.beta_py2
 
 
 
