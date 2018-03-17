@@ -17,8 +17,8 @@ parser.add_argument('-w', '--workdir',
                     help="working directory -- where miniconda was installed")
 parser.add_argument('-p', '--py_ver',
                     help="python version to run the testsuite with, can be 'py2' or 'py3'")
-parser.add_argument('-v', '--version', nargs='?', default='master',
-                    help="version of testsuite: 'master' or '2.12' or 'cdat-3.0.beta'")
+parser.add_argument('-v', '--version', nargs='?', default='nightly',
+                    help="version of environment: 'nightly' or '2.12' or 'cdat-3.0.beta'")
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
 
@@ -35,13 +35,13 @@ version = args.version
 #
 # label is the git label to checkout testsuite
 #
-if version == 'master' or version == '2.12':
+if version == 'nightly' or version == '2.12':
     label = version
 elif "cdat-3.0" in version:
     # for cdat 3.0 TEMPORARY
     label = 'nightly'
 
-if version == 'master':
+if version == 'nightly':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 elif "cdat-3.0" in version:
     uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, version, label)

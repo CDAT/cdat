@@ -28,47 +28,47 @@ aliases:
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $BRANCH_NAME
 
   - &run_genutil_test
     name: run_genutil_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -v $BRANCH_NAME
 
   - &run_cdutil_test
     name: run_cdutil_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -v $BRANCH_NAME
 
   - &run_vcs_test
     name: run_vcs_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $BRANCH_NAME
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -v $BRANCH_NAME
 
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $BRANCH_NAME
 
   - &run_dv3d_test
     name: run_dv3d_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $BRANCH_NAME
 
   - &run_thermo_test
     name: run_thermo_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -v $BRANCH_NAME
 
   - &run_wk_test
     name: run_wk_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -b $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $BRANCH_NAME
 
 jobs:
   macos_nightly_py2:
