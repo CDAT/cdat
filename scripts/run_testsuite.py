@@ -17,8 +17,8 @@ parser.add_argument('-w', '--workdir',
                     help="working directory -- where miniconda was installed")
 parser.add_argument('-p', '--py_ver',
                     help="python version to run the testsuite with, can be 'py2' or 'py3'")
-parser.add_argument('-b', '--branch', nargs='?', default='master',
-                    help="git branch of testsuite: 'master' or '2.12' or 'cdat-3.0.beta'")
+parser.add_argument('-v', '--version', nargs='?', default='master',
+                    help="version of testsuite: 'master' or '2.12' or 'cdat-3.0.beta'")
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
 
@@ -30,19 +30,21 @@ conda_path = args.workdir + '/miniconda/bin'
 
 workdir = args.workdir
 py_ver = args.py_ver
-branch = args.branch
+version = args.version
 
-if branch == 'master' or branch == '2.12':
-    label = branch
-else:
+#
+# label is the git label to checkout testsuite
+#
+if version == 'master' or version == '2.12':
+    label = version
+elif "cdat-3.0" in version:
     # for cdat 3.0 TEMPORARY
     label = 'nightly'
 
-if branch == 'master':
+if version == 'master':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
-else:
-
-    uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, branch, label)
+elif "cdat-3.0" in version:
+    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, version, label)
 
 
 if uvcdat_setup.get_env_name(py_ver) is None:
@@ -50,9 +52,9 @@ if uvcdat_setup.get_env_name(py_ver) is None:
     sys.exit(FAILURE)
 
 # TEMPORARY
-#if branch == 'cdat-3.0.beta':
+#if version == 'cdat-3.0.beta':
 #    # clone the nightly tests
-#    branch = 'master'
+#    version = 'master'
 
     
 ts = args.testsuite
@@ -60,9 +62,9 @@ ts = args.testsuite
 run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'vcs':
-    test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch)
+    test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, version)
 else:
-    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch)
+    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, version)
 
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
