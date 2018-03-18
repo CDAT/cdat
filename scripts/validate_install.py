@@ -44,9 +44,9 @@ elif env_prefix == '2.12':
     conda_label = '2.12'
 
 if env_prefix == 'nightly':
-    uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
+    uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
 else:
-    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, conda_label)
+    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, py_ver, conda_label)
 
 ## REVISIT - packages should be parameter
 packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics", "dv3d", "thermo", "wk"]

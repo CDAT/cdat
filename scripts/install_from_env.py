@@ -27,6 +27,7 @@ args = parser.parse_args()
 
 workdir = args.workdir
 env_prefix = args.env_prefix
+py_ver = args.py_ver
 
 conda_setup = CondaSetup.CondaSetup(workdir)
 status, conda_path = conda_setup.install_miniconda(workdir)
@@ -39,15 +40,19 @@ if env_prefix == '2.12':
 elif "cdat-3.0" in env_prefix:
     # TEMPORARY till all testsuites are conda_labeled with 'v3.0'
     conda_label = 'nightly'
-    env_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, conda_label)
+    env_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
 
-status = env_setup.install(args.py_ver)
+status = env_setup.install()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-status = env_setup.install_packages_for_tests(args.py_ver)
+status = env_setup.install_packages_for_tests()
+if status != SUCCESS:
+    sys.exit(FAILURE)
+
+env_setup.conda_list()
 
 sys.exit(status)
 

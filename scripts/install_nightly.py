@@ -29,11 +29,13 @@ status, conda_path = conda_setup.install_miniconda(workdir)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
+nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
+status = nightly_setup.install()
+if status != SUCCESS:
+    sys.exit(FAILURE)
 
-status = nightly_setup.install(py_ver)
+nightly_setup.conda_list()
 
-#status = nightly_setup.install_packages_for_tests(py_ver)
 sys.exit(status)
 
     
