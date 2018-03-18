@@ -21,7 +21,7 @@ parser.add_argument('-b', '--branch', nargs='?', default='master',
                     help="git branch to check out testsuite: 'master' or other git branch")
 parser.add_argument('-l', '--label', nargs='?', default='master',
                     help="git label: 'master' or other git label, like 'v3.0'")
-parser.add_argument('-v', '--env_name', nargs='?', default='nightly',
+parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="cdat env name to run the testsuite in.")
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
@@ -36,24 +36,18 @@ workdir = args.workdir
 py_ver = args.py_ver
 branch = args.branch
 label = args.label
-env_name = args.env_name
+env_prefix = args.env_prefix
 
-if env_name == 'nightly':
+if env_prefix == 'nightly':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
-elif "cdat-3.0" in env_name:
-    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_name, label)
+elif "cdat-3.0" in env_prefix:
+    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, label)
 
 
 if uvcdat_setup.get_env_name(py_ver) is None:
     print("Conda environment for python version {v} does not exist.".format(v=py_ver))
     sys.exit(FAILURE)
 
-# TEMPORARY
-#if version == 'cdat-3.0.beta':
-#    # clone the nightly tests
-#    version = 'master'
-
-    
 ts = args.testsuite
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'

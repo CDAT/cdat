@@ -22,7 +22,7 @@ parser.add_argument('-b', '--branch', nargs='?', default='master',
                     help="git branch to check out testsuite: 'master' or other git branch")
 parser.add_argument('-l', '--label', nargs='?', default='master',
                     help="git label: 'master' or other git label, like 'v3.0'")
-parser.add_argument('-v', '--env_prefix', nargs='?', default='master',
+parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="env_prefix of cdat environment")
 
 

@@ -73,7 +73,7 @@ aliases:
 jobs:
   macos_nightly_py2:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
@@ -98,7 +98,7 @@ jobs:
 
   macos_nightly_py3:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py3"
@@ -173,7 +173,7 @@ jobs:
 
   macos_cdat-3.0.beta-nox_py2:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
       PYTHON_VERSION: "py2"
@@ -195,7 +195,7 @@ jobs:
 
   macos_cdat-3.0.beta2-nox_py3:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py3_env"
       PYTHON_VERSION: "py3"
@@ -217,7 +217,7 @@ jobs:
 
   macos_cdat-3.0.beta_py2:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
       PYTHON_VERSION: "py2"
@@ -237,7 +237,7 @@ jobs:
 
   macos_cdat-3.0.beta2_py3:
     macos:
-      xcode: "9.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2_py3_env"
       PYTHON_VERSION: "py3"
@@ -342,45 +342,45 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "16 7 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "6 2 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
-      #- macos_nightly_py2
-      #- macos_nightly_py3:
-      #    requires:
-      #      - macos_nightly_py2
-      - macos_cdat-3.0.beta-nox_py2
-      #    requires:
-      #      - macos_nightly_py3
-      #- macos_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta-nox_py2
-      #- macos_cdat-3.0.beta_py2:
-      #    requires:
-      #      - macos_cdat-3.0.beta2-nox_py3
-      #- macos_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta_py2     
-      #- linux_nightly_py2
-      #- linux_nightly_py3:
-      #    requires:
-      #      - linux_nightly_py2
-      - linux_cdat-3.0.beta-nox_py2
-      #    requires:
-      #      - linux_nightly_py3
-      #- linux_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta-nox_py2
-      #- linux_cdat-3.0.beta_py2:
-      #    requires:
-      #      - linux_cdat-3.0.beta2-nox_py3
-      #- linux_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta_py2
+      - macos_nightly_py2
+      - macos_nightly_py3:
+          requires:
+            - macos_nightly_py2
+      - macos_cdat-3.0.beta-nox_py2:
+          requires:
+            - macos_nightly_py3
+      - macos_cdat-3.0.beta2-nox_py3:
+          requires:
+            - macos_cdat-3.0.beta-nox_py2
+      - macos_cdat-3.0.beta_py2:
+          requires:
+            - macos_cdat-3.0.beta2-nox_py3
+      - macos_cdat-3.0.beta2_py3:
+          requires:
+            - macos_cdat-3.0.beta_py2     
+      - linux_nightly_py2
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat-3.0.beta-nox_py2:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat-3.0.beta2-nox_py3:
+          requires:
+            - linux_cdat-3.0.beta-nox_py2
+      - linux_cdat-3.0.beta_py2:
+          requires:
+            - linux_cdat-3.0.beta2-nox_py3
+      - linux_cdat-3.0.beta2_py3:
+          requires:
+            - linux_cdat-3.0.beta_py2
 
 
 
