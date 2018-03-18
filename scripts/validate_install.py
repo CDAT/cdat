@@ -16,16 +16,21 @@ parser = argparse.ArgumentParser(description="validate nightly install - verify 
 
 parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
-
 parser.add_argument("-p", "--py_ver",
                     help="python version, 'py2' or 'py3'")
-
 parser.add_argument('-b', '--branch', nargs='?', default='master',
-                    help="git branch of testsuite: 'master' or '2.12' or 'cdat-3.0.beta'")
+                    help="git branch to check out testsuite: 'master' or other git branch")
+parser.add_argument('-l', '--label', nargs='?', default='master',
+                    help="git label: 'master' or other git label, like 'v3.0'")
+parser.add_argument('-v', '--env_prefix', nargs='?', default='master',
+                    help="env_prefix of cdat environment")
+
 
 args = parser.parse_args()
 workdir = args.workdir
 py_ver = args.py_ver
+env_prefix = args.env_prefix
+label = args.label
 branch = args.branch
 
 conda_setup = CondaSetup.CondaSetup(workdir)
@@ -33,15 +38,15 @@ status, conda_path = conda_setup.install_miniconda(workdir)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-if branch == 'master' or branch == '2.12':
-    label = branch
-else:
-    label = 'v30beta'
+if env_prefix == 'nightly' or "cdat-3.0" in env_prefix:
+    conda_label = 'nightly'
+elif env_prefix == '2.12':
+    conda_label = '2.12'
 
-if branch == 'master':
+if env_prefix == 'nightly':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir)
 else:
-    uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, branch, label)
+    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, conda_label)
 
 ## REVISIT - packages should be parameter
 packages = ["cdms", "cdutil", "genutil", "vcs", "pcmdi_metrics", "dv3d", "thermo", "wk"]
@@ -53,7 +58,7 @@ for installed_pkg in installed_pkgs_dict.keys():
         pkg = 'cdms'
     else:
         pkg = installed_pkg
-    test_setup = TestSetup.TestSetup(uvcdat_setup, pkg, py_ver, branch)
+    test_setup = TestSetup.TestSetup(uvcdat_setup, pkg, py_ver, branch, label)
     ret_code, last_commit_info = test_setup.get_last_commit()
     
     installed_pkg_datetime = installed_pkgs_dict[installed_pkg]['datetime']

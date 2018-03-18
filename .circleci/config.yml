@@ -23,52 +23,52 @@ aliases:
   - &validate_install
     |
       echo "Validate install - verify versions of installed packages"
-      python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -b $BRANCH_NAME -p $PYTHON_VERSION
+      python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
 
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_genutil_test
     name: run_genutil_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_cdutil_test
     name: run_cdutil_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_vcs_test
     name: run_vcs_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_dv3d_test
     name: run_dv3d_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_thermo_test
     name: run_thermo_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -v $ENV_NAME -b $BRANCH -l $LABEL
 
   - &run_wk_test
     name: run_wk_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $BRANCH_NAME
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_NAME -b $BRANCH -l $LABEL
 
 jobs:
   macos_nightly_py2:
@@ -77,7 +77,9 @@ jobs:
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
-      BRANCH_NAME: "master"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
@@ -100,7 +102,9 @@ jobs:
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py3"
-      BRANCH_NAME: "master"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
@@ -123,7 +127,9 @@ jobs:
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py2"
-      BRANCH_NAME: "master"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
@@ -146,7 +152,9 @@ jobs:
     environment:
       WORKDIR: "workspace/test_nightly"
       PYTHON_VERSION: "py3"
-      BRANCH_NAME: "master"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
@@ -169,6 +177,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
       PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -189,6 +199,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py3_env"
       PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -209,6 +221,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
       PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -227,6 +241,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2_py3_env"
       PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -245,6 +261,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
       PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -265,6 +283,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py3_env"
       PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -285,6 +305,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
       PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
@@ -303,6 +325,8 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-3.0.beta2_py3_env"
       PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:

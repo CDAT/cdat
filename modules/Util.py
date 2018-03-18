@@ -48,7 +48,7 @@ def run_cmd_capture_output(cmd, join_stderr=True, shell_cmd=False, verbose=True,
     ret_code, output = run_command(cmd, join_stderr, shell_cmd, verbose, cwd)
     return(ret_code, output)
 
-def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
+def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir=None):
     """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
         <repo_dir>.
         If <repo_dir> is not specified, place the repo in 
@@ -69,7 +69,12 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
             shutil.rmtree(repo_dir)
 
     if not os.path.isdir(repo_dir):
-        cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
+        if branch == 'master':
+            cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)
+        else:
+            cmd = "git clone -b {b} {url} {repo_dir}".format(b=branch,
+                                                             url=url, 
+                                                             repo_dir=repo_dir)
         ret_code = run_cmd(cmd, False, False, False)
 
         if ret_code != SUCCESS:
@@ -82,13 +87,13 @@ def git_clone_repo(workdir, repo_name, branch='master', repo_dir=None):
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    if branch != 'master' and repo_name != 'uvcdat-testdata' and branch != 'cdat-3.0.beta':
-        
-        cmd = 'git describe --tags --abbrev=0'
-        ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True, repo_dir)
-        version = cmd_output[0]
+    #if branch != 'master' and repo_name != 'uvcdat-testdata' and branch != 'cdat-3.0.beta':
+    if label != 'master':
+        #cmd = 'git describe --tags --abbrev=0'
+        #ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True, repo_dir)
+        #version = cmd_output[0]
 
-        cmd = "git checkout {}".format(version)
+        cmd = "git checkout {label}".format(label=label)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
             print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
