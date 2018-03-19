@@ -112,15 +112,15 @@ jobs:
       - run: uname -a
       - run: *setup_nightly
       - run: *validate_install
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
       - run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
   linux_nightly_py2:
     machine:
@@ -343,47 +343,45 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 1 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
-      # TEMPORARY
-      - macos_nightly_py3
-      #- macos_nightly_py2
-      #- macos_nightly_py3:
-      #    requires:
-      #      - macos_nightly_py2
-      #- macos_cdat-3.0.beta2-nox_py2:
-      #    requires:
-      #      - macos_nightly_py3
-      #- macos_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta2-nox_py2
-      #- macos_cdat-3.0.beta2_py2:
-      #    requires:
-      #      - macos_cdat-3.0.beta2-nox_py3
-      #- macos_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta2_py2     
-      #- linux_nightly_py2
-      #- linux_nightly_py3:
-      #    requires:
-      #      - linux_nightly_py2
-      #- linux_cdat-3.0.beta2-nox_py2:
-      #    requires:
-      #      - linux_nightly_py3
-      #- linux_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta2-nox_py2
-      #- linux_cdat-3.0.beta2_py2:
-      #    requires:
-      #      - linux_cdat-3.0.beta2-nox_py3
-      #- linux_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta2_py2
+      - macos_nightly_py2
+      - macos_nightly_py3:
+          requires:
+            - macos_nightly_py2
+      - macos_cdat-3.0.beta2-nox_py2:
+          requires:
+            - macos_nightly_py3
+      - macos_cdat-3.0.beta2-nox_py3:
+          requires:
+            - macos_cdat-3.0.beta2-nox_py2
+      - macos_cdat-3.0.beta2_py2:
+          requires:
+            - macos_cdat-3.0.beta2-nox_py3
+      - macos_cdat-3.0.beta2_py3:
+          requires:
+            - macos_cdat-3.0.beta2_py2     
+      - linux_nightly_py2
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat-3.0.beta2-nox_py2:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat-3.0.beta2-nox_py3:
+          requires:
+            - linux_cdat-3.0.beta2-nox_py2
+      - linux_cdat-3.0.beta2_py2:
+          requires:
+            - linux_cdat-3.0.beta2-nox_py3
+      - linux_cdat-3.0.beta2_py3:
+          requires:
+            - linux_cdat-3.0.beta2_py2
 
 
 
