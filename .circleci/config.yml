@@ -171,18 +171,18 @@ jobs:
       - run: *run_thermo_test
       - run: *run_wk_test
 
-  macos_cdat-3.0.beta-nox_py2:
+  macos_cdat-3.0.beta2-nox_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "master"
-      ENV_NAME: "cdat-3.0.beta-nox"
+      ENV_NAME: "cdat-3.0.beta2-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "MacOS + py2 install from cdat-3.0.beta-nox_py2.Darwin.yml"
+      - run: echo "MacOS + py2 install from cdat-3.0.beta2-nox_py2.Darwin.yml"
       - run: uname -a
       - run: *setup_env
       - run: *run_cdms_test
@@ -192,6 +192,8 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
   macos_cdat-3.0.beta2-nox_py3:
     macos:
@@ -214,26 +216,26 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
-  macos_cdat-3.0.beta_py2:
+  macos_cdat-3.0.beta2_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "master"
-      ENV_NAME: "cdat-3.0.beta"
+      ENV_NAME: "cdat-3.0.beta2"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "MacOS + py2 install from cdat-3.0.beta_py2.Darwin.yml"
+      - run: echo "MacOS + py2 install from cdat-3.0.beta2_py2.Darwin.yml"
       - run: uname -a
       - run: *setup_env
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
 
   macos_cdat-3.0.beta2_py3:
     macos:
@@ -252,21 +254,19 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
 
-  linux_cdat-3.0.beta-nox_py2:
+  linux_cdat-3.0.beta2-nox_py2:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta-nox_py2_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2-nox_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "master"
-      ENV_NAME: "cdat-3.0.beta-nox"
+      ENV_NAME: "cdat-3.0.beta2-nox"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "Linux - test install from cdat-3.0.beta-nox_py2.Linux.yaml"
+      - run: echo "Linux - test install from cdat-3.0.beta2-nox_py2.Linux.yaml"
       - run: uname -a
       - run: *setup_env
       - run: *run_cdms_test
@@ -276,6 +276,8 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
   linux_cdat-3.0.beta2-nox_py3:
     machine:
@@ -298,26 +300,26 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
-  linux_cdat-3.0.beta_py2:
+  linux_cdat-3.0.beta2_py2:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-3.0.beta_py2_env"
+      WORKDIR: "workspace/test_cdat-3.0.beta2_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "master"
-      ENV_NAME: "cdat-3.0.beta"
+      ENV_NAME: "cdat-3.0.beta2"
       RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "Linux - test install from cdat-3.0.beta_py2.Linux.yaml"
+      - run: echo "Linux - test install from cdat-3.0.beta2_py2.Linux.yaml"
       - run: uname -a
       - run: *setup_env
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
 
   linux_cdat-3.0.beta2_py3:
     machine:
@@ -336,15 +338,13 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
 
 workflows:
   version: 2
   nightly:
     triggers:
       - schedule:
-          cron: "25 4 * * *"
+          cron: "0 1 * * *"
           filters:
             branches:
               only: validateNightly
@@ -353,34 +353,34 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_nightly_py2
-      - macos_cdat-3.0.beta-nox_py2:
+      - macos_cdat-3.0.beta2-nox_py2:
           requires:
             - macos_nightly_py3
       - macos_cdat-3.0.beta2-nox_py3:
           requires:
-            - macos_cdat-3.0.beta-nox_py2
-      - macos_cdat-3.0.beta_py2:
+            - macos_cdat-3.0.beta2-nox_py2
+      - macos_cdat-3.0.beta2_py2:
           requires:
             - macos_cdat-3.0.beta2-nox_py3
       - macos_cdat-3.0.beta2_py3:
           requires:
-            - macos_cdat-3.0.beta_py2     
+            - macos_cdat-3.0.beta2_py2     
       - linux_nightly_py2
       - linux_nightly_py3:
           requires:
             - linux_nightly_py2
-      - linux_cdat-3.0.beta-nox_py2:
+      - linux_cdat-3.0.beta2-nox_py2:
           requires:
             - linux_nightly_py3
       - linux_cdat-3.0.beta2-nox_py3:
           requires:
-            - linux_cdat-3.0.beta-nox_py2
-      - linux_cdat-3.0.beta_py2:
+            - linux_cdat-3.0.beta2-nox_py2
+      - linux_cdat-3.0.beta2_py2:
           requires:
             - linux_cdat-3.0.beta2-nox_py3
       - linux_cdat-3.0.beta2_py3:
           requires:
-            - linux_cdat-3.0.beta_py2
+            - linux_cdat-3.0.beta2_py2
 
 
 

@@ -148,7 +148,7 @@ class NightlySetup(UVCDATSetup):
         else:
             py_str = "python<3"
 
-        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
+        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx proj4<5"
         cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2} {c3}".format(c=conda_cmd,
                                                                             e=env_name,
                                                                             pkgs=pkgs,
