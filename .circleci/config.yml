@@ -4,7 +4,7 @@ aliases:
 
   - &setup_nightly
     |
-      echo "Install nightly..."
+      echo "Install CDAT nightly..."
       mkdir -p workspace
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
@@ -13,7 +13,7 @@ aliases:
 
   - &setup_env
     |
-      echo "Install from env file..."
+      echo "Install CDAT from env file..."
       mkdir -p workspace
       git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
       python workspace/uvcdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
