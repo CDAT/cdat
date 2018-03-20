@@ -26,8 +26,9 @@ aliases:
       python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
 
   - &save_artifacts
-    path: $WORKDIR/$BRANCH_$LABEL/$TESTSUITE/tests_html
-    destination: $TEST_SUITE_tests_html
+    | 
+      path: $WORKDIR/$BRANCH_$LABEL/$TESTSUITE/tests_html
+      destination: $TEST_SUITE_tests_html
 
   - &run_cdms_test
     name: run_cdms_test
