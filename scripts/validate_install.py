@@ -6,7 +6,7 @@ thisDir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(thisDir + '/../modules/')
 
 import CondaSetup
-import UVCDATSetup
+import CDATSetup
 import TestSetup
 from Const import *
 from Util import *
@@ -48,14 +48,14 @@ else:
     sys.exit(FAILURE)
 
 if env_prefix == 'nightly':
-    uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
+    cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
 else:
-    uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
+    cdat_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 
 ## REVISIT - packages should be parameter
 packages = ["cdms", "cdutil", "genutil", "vcs", 
             "pcmdi_metrics", "dv3d", "thermo", "wk"]
-ret_code, installed_pkgs_dict = uvcdat_setup.get_packages_version(packages)
+ret_code, installed_pkgs_dict = cdat_setup.get_packages_version(packages)
 
 for installed_pkg in installed_pkgs_dict.keys():
     
@@ -63,7 +63,7 @@ for installed_pkg in installed_pkgs_dict.keys():
         pkg = 'cdms'
     else:
         pkg = installed_pkg
-    test_setup = TestSetup.TestSetup(uvcdat_setup, pkg, py_ver, branch, label)
+    test_setup = TestSetup.TestSetup(cdat_setup, pkg, py_ver, branch, label)
     ret_code, last_commit_info = test_setup.get_last_commit()
     
     installed_pkg_datetime = installed_pkgs_dict[installed_pkg]['datetime']

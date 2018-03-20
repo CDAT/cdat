@@ -6,8 +6,8 @@ aliases:
     |
       echo "Install CDAT nightly..."
       mkdir -p workspace
-      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
-      python workspace/uvcdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      python workspace/cdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       echo "Done installing nightly"
       ls $WORKDIR/miniconda/envs
 
@@ -15,15 +15,15 @@ aliases:
     |
       echo "Install CDAT from env file..."
       mkdir -p workspace
-      git clone -b validateNightly git@github.com:UV-CDAT/uvcdat workspace/uvcdat
-      python workspace/uvcdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      python workspace/cdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
       echo "Done installing from env file"
       ls $WORKDIR//miniconda/envs
 
   - &validate_install
     |
       echo "Validate install - verify versions of installed packages"
-      python workspace/uvcdat/scripts/validate_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
+      python workspace/cdat/scripts/validate_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
 
   - &run_cdms_test
     name: run_cdms_test
@@ -81,7 +81,7 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
@@ -106,7 +106,7 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
@@ -131,7 +131,7 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
@@ -156,7 +156,7 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
@@ -181,7 +181,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py2 install from cdat-3.0.beta2-nox_py2.Darwin.yml"
       - run: uname -a
@@ -205,7 +205,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py3 install from cdat-3.0.beta2-nox_py3.Darwin.yml"
       - run: uname -a
@@ -229,7 +229,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py2 install from cdat-3.0.beta2_py2.Darwin.yml"
       - run: uname -a
@@ -247,7 +247,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py3 install from cdat-3.0.beta2_py3.Darwin.yml"
       - run: uname -a
@@ -265,7 +265,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-3.0.beta2-nox_py2.Linux.yaml"
       - run: uname -a
@@ -289,7 +289,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2-nox"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-3.0.beta2-nox_py3.Linux.yaml"
       - run: uname -a
@@ -313,7 +313,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-3.0.beta2_py2.Linux.yaml"
       - run: uname -a
@@ -331,7 +331,7 @@ jobs:
       BRANCH: "master"
       LABEL: "master"
       ENV_NAME: "cdat-3.0.beta2"
-      RUN_TESTSUITE: "workspace/uvcdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-3.0.beta2_py3.Linux.yaml"
       - run: uname -a

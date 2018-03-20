@@ -49,7 +49,7 @@ def run_cmd_capture_output(cmd, join_stderr=True, shell_cmd=False, verbose=True,
     return(ret_code, output)
 
 def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir=None):
-    """ git clone https://github.com/UV-CDAT/<repo_name> and place it in
+    """ git clone https://github.com/CDAT/<repo_name> and place it in
         <repo_dir>.
         If <repo_dir> is not specified, place the repo in 
         <workdir>/<branch>/<repo_name> directory                                              
@@ -57,7 +57,7 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
     if repo_name == 'pcmdi_metrics':
         url = 'https://github.com/pcmdi/' + repo_name
     else:
-        url = 'https://github.com/UV-CDAT/' + repo_name
+        url = 'https://github.com/CDAT/' + repo_name
 
     if repo_dir is None:
         branch_dir = os.path.join(workdir, "{b}_{l}".format(b=branch,

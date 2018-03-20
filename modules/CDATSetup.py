@@ -5,14 +5,14 @@ from datetime import datetime
 
 from Util import *
 
-class UVCDATSetup(object):
+class CDATSetup(object):
 
     def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
         """
-        UVCDATSetup is a base class fpr a uvcdat setup.
+        CDATSetup is a base class fpr a uvcdat setup.
 
         conda_path - where conda is already installed.
-           Note that multiple UVCDATSetup can share a conda setup.
+           Note that multiple CDATSetup can share a conda setup.
         workdir - working directory
            This is where environment yaml file will be downloaded
            to, and this is also where testsuites will be cloned to.
@@ -134,9 +134,9 @@ class UVCDATSetup(object):
                                                          v=package_versions_dict[pkg]['date_str']))
         return(ret_code, package_versions_dict)
 
-class NightlySetup(UVCDATSetup):
+class NightlySetup(CDATSetup):
     """
-    NightlySetup is a subclass of UVCDATSetup, specifically for 
+    NightlySetup is a subclass of CDATSetup, specifically for 
     nightly install.
     """
 
@@ -159,30 +159,35 @@ class NightlySetup(UVCDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        ch1 = "-c cdat/label/nightly -c uvcdat/label/nightly"
-        ch2 = "-c nesii/label/dev-esmf -c conda-forge -c uvcdat"
-        ch3 = "-c pcmdi/label/nightly -c pcmdi"
+        #ch1 = "-c cdat/label/nightly -c uvcdat/label/nightly"
+        #ch2 = "-c nesii/label/dev-esmf -c conda-forge -c uvcdat"
+        #ch3 = "-c pcmdi/label/nightly -c pcmdi"
+
+        ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
 
         if self.py_ver == 'py3':
+            ch2 = "-c pcmdi"
             py_str = "python>3"
+            pkgs = "nose mesalib image-compare cia easydev nbsphinx \"proj4<5\""
         else:
+            ch2 = "-c pcmdi/label/nightly -c pcmdi"
             py_str = "python<3"
+            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
 
-        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx proj4<5"
-        cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2} {c3}".format(c=conda_cmd,
-                                                                            e=env_name,
-                                                                            pkgs=pkgs,
-                                                                            p=py_str,
-                                                                            c1=ch1,
-                                                                            c2=ch2,
-                                                                            c3=ch3)
+            
+        cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2}".format(c=conda_cmd,
+                                                                       e=env_name,
+                                                                       pkgs=pkgs,
+                                                                       p=py_str,
+                                                                       c1=ch1,
+                                                                       c2=ch2)
 
-        ret_code = run_cmd(cmd, True, False, False)
+        ret_code = run_cmd(cmd, True, False, True)
 
         return(ret_code)
 
 
-class EnvSetup(UVCDATSetup):
+class EnvSetup(CDATSetup):
 
     def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
         super(EnvSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
@@ -195,28 +200,6 @@ class EnvSetup(UVCDATSetup):
             env_file = "{pr}_{py_ver}.Linux.yaml".format(pr=env_prefix, 
                                                          py_ver=py_ver)
         return(env_file)
-
-    def __download_env_file(self, env_file_name):
-        """
-        This function downloads the specified env_file_name and
-        place it under <workdir>
-        """
-        url_location = 'https://raw.githubusercontent.com/UV-CDAT/uvcdat/master/conda/'
-        env_file_url = "{u}/{f}".format(u=url_location, f=env_file_name)
-        dest_file = os.path.join(self.workdir, env_file_name)
-
-        if sys.platform == 'darwin':
-            cmd = "curl {u} -o {env_f}".format(u=env_file_url, 
-                                               env_f=dest_file)
-        else:
-            cmd = "wget {u} -O {env_f}".format(u=env_file_url, 
-                                               env_f=dest_file)
-        
-        ret_code = run_cmd(cmd, True, False, False)
-        if ret_code != SUCCESS:
-            print("FAIL: {c}".format(c=cmd))
-        return(ret_code, dest_file)
-
 
     def install_from_env_file(self, env_file_name):
         """

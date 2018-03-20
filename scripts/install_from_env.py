@@ -7,7 +7,7 @@ thisDir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(thisDir + '/../modules/')
 
 import CondaSetup
-import UVCDATSetup
+import CDATSetup
 from Const import *
 from Util import *
 
@@ -34,7 +34,7 @@ if status != SUCCESS:
 if "cdat-3.0" in env_prefix:
     # TEMPORARY till all cdat packages are conda_labeled with 'v3.0' for v3.0 release.
     conda_label = 'nightly'
-    env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
+    env_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
     sys.exit(FAILURE)

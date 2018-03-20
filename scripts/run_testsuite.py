@@ -7,7 +7,7 @@ thisDir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(thisDir + '/../modules/')
 
 from Util import *
-import UVCDATSetup
+import CDATSetup
 import TestSetup
 
 parser = argparse.ArgumentParser(description="run cdms tests",
@@ -39,9 +39,9 @@ label = args.label
 env_prefix = args.env_prefix
 
 if env_prefix == 'nightly':
-    uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
+    cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
 elif "cdat-3.0" in env_prefix:
-    uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
+    cdat_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
     sys.exit(FAILURE)
@@ -52,9 +52,9 @@ ts = args.testsuite
 run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'vcs':
-    test_setup = TestSetup.VcsTestSetup(uvcdat_setup, ts, py_ver, branch, label)
+    test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
 else:
-    test_setup = TestSetup.TestSetup(uvcdat_setup, ts, py_ver, branch, label)
+    test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
@@ -70,7 +70,7 @@ elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics':
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
     cmds_list = ['python run_tests.py -v2 -n 2 -H']
 
-status = test_setup.run_tests(uvcdat_setup, py_ver, cmds_list)
+status = test_setup.run_tests(cdat_setup, py_ver, cmds_list)
 sys.exit(status)
 
 

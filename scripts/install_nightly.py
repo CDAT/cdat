@@ -7,7 +7,7 @@ thisDir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(thisDir + '/../modules/')
 
 import CondaSetup
-import UVCDATSetup
+import CDATSetup
 from Const import *
 from Util import *
 
@@ -28,7 +28,7 @@ status, conda_path = conda_setup.install_miniconda()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-nightly_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
+nightly_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
 status = nightly_setup.install()
 if status != SUCCESS:
     sys.exit(FAILURE)
