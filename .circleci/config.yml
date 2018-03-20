@@ -27,6 +27,7 @@ aliases:
 
   - &save_artifacts
     | 
+      echo "xxx store_artifacts...$WORKDIR/$BRANCH_$LABEL/$TESTSUITE/tests_html"
       path: $WORKDIR/$BRANCH_$LABEL/$TESTSUITE/tests_html
       destination: $TEST_SUITE_tests_html
 
