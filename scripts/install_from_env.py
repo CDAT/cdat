@@ -16,33 +16,28 @@ parser = argparse.ArgumentParser(description="install from env file",
 
 parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
-
 parser.add_argument("-v", "--env_prefix",
-                    help="environment version, 'cdat-3.0.beta', '2.12', '2.12-nox', '2.10', '2.10-nox', '2.8', '2.8-nox', '2.6'")
-
+                    help="environment prefix - this can be 'cdat-3.0.beta2-nox' or 'cdat-3.0.beta2'")
 parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
-                    help="python version, 'py2' or 'py3' --- but only 'py2' for 2.12 or prior envs.")
-
+                    help="python version, 'py2' or 'py3'")
 args = parser.parse_args()
 
 workdir = args.workdir
 env_prefix = args.env_prefix
 py_ver = args.py_ver
 
-conda_setup = CondaSetup.CondaSetup(workdir)
-status, conda_path = conda_setup.install_miniconda(workdir)
+conda_setup = CondaSetup.CondaSetup(workdir, py_ver)
+status, conda_path = conda_setup.install_miniconda()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-if env_prefix == '2.12':
-    conda_label = '2.12'
-    env_setup = UVCDATSetup.Env212Setup(conda_path, workdir, env_prefix, conda_label)
-elif "cdat-3.0" in env_prefix:
-    # TEMPORARY till all testsuites are conda_labeled with 'v3.0'
+if "cdat-3.0" in env_prefix:
+    # TEMPORARY till all cdat packages are conda_labeled with 'v3.0' for v3.0 release.
     conda_label = 'nightly'
-    env_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, py_ver, conda_label)
+    env_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
+    sys.exit(FAILURE)
 
 status = env_setup.install()
 if status != SUCCESS:

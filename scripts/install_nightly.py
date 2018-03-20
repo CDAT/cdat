@@ -16,7 +16,6 @@ parser = argparse.ArgumentParser(description="install nightly",
 
 parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
-
 parser.add_argument("-p", "--py_ver",
                     help="python version, 'py2' or 'py3'")
 
@@ -24,8 +23,8 @@ args = parser.parse_args()
 workdir = args.workdir
 py_ver = args.py_ver
 
-conda_setup = CondaSetup.CondaSetup(workdir)
-status, conda_path = conda_setup.install_miniconda(workdir)
+conda_setup = CondaSetup.CondaSetup(workdir, py_ver)
+status, conda_path = conda_setup.install_miniconda()
 if status != SUCCESS:
     sys.exit(FAILURE)
 

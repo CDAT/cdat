@@ -41,12 +41,13 @@ env_prefix = args.env_prefix
 if env_prefix == 'nightly':
     uvcdat_setup = UVCDATSetup.NightlySetup(conda_path, workdir, py_ver)
 elif "cdat-3.0" in env_prefix:
-    uvcdat_setup = UVCDATSetup.Env30Setup(conda_path, workdir, env_prefix, py_ver, label)
+    uvcdat_setup = UVCDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
+else:
+    print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
+    sys.exit(FAILURE)
 
-#
-# REVISIT ... should do some checking on uvcdat_setup?
-#
 ts = args.testsuite
+
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'
 
