@@ -72,14 +72,6 @@ aliases:
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_NAME -b $BRANCH -l $LABEL
 
-  - &prep_artifacts
-    name: prep_artifacts
-    command: |
-      echo "xxx: ln -s $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html"
-      ls -l $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html
-      mkdir /tmp/pcmdi_tests_html  
-      cp $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html/* /tmp/pcmdi_tests_html    
-
 jobs:
   macos_nightly_py2:
     macos:
@@ -94,19 +86,18 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
-      #- run: *setup_nightly
-      #- run: *validate_install
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
       
-
   macos_nightly_py3:
     macos:
       xcode: "9.2.0"
@@ -142,25 +133,20 @@ jobs:
       ENV_NAME: "nightly"
       LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      working directory: /tmp
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
       - run: *setup_nightly
-      #- run: *validate_install
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *prep_artifacts
-      - store_artifacts:
-          path: /tmp/pcmdi_tests_html
-          destination: pcmdi_tests_html
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
 
   linux_nightly_py3:
     machine:
@@ -358,45 +344,45 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 1 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - macos_nightly_py2
-      #- macos_nightly_py3:
-      #    requires:
-      #      - macos_nightly_py2
-      #- macos_cdat-3.0.beta2-nox_py2:
-      #    requires:
-      #      - macos_nightly_py3
-      #- macos_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta2-nox_py2
-      #- macos_cdat-3.0.beta2_py2:
-      #    requires:
-      #      - macos_cdat-3.0.beta2-nox_py3
-      #- macos_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - macos_cdat-3.0.beta2_py2     
+      - macos_nightly_py3:
+          requires:
+            - macos_nightly_py2
+      - macos_cdat-3.0.beta2-nox_py2:
+          requires:
+            - macos_nightly_py3
+      - macos_cdat-3.0.beta2-nox_py3:
+          requires:
+            - macos_cdat-3.0.beta2-nox_py2
+      - macos_cdat-3.0.beta2_py2:
+          requires:
+            - macos_cdat-3.0.beta2-nox_py3
+      - macos_cdat-3.0.beta2_py3:
+          requires:
+            - macos_cdat-3.0.beta2_py2     
       - linux_nightly_py2
-      #- linux_nightly_py3:
-      #    requires:
-      #      - linux_nightly_py2
-      #- linux_cdat-3.0.beta2-nox_py2:
-      #    requires:
-      #      - linux_nightly_py3
-      #- linux_cdat-3.0.beta2-nox_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta2-nox_py2
-      #- linux_cdat-3.0.beta2_py2:
-      #    requires:
-      #      - linux_cdat-3.0.beta2-nox_py3
-      #- linux_cdat-3.0.beta2_py3:
-      #    requires:
-      #      - linux_cdat-3.0.beta2_py2
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat-3.0.beta2-nox_py2:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat-3.0.beta2-nox_py3:
+          requires:
+            - linux_cdat-3.0.beta2-nox_py2
+      - linux_cdat-3.0.beta2_py2:
+          requires:
+            - linux_cdat-3.0.beta2-nox_py3
+      - linux_cdat-3.0.beta2_py3:
+          requires:
+            - linux_cdat-3.0.beta2_py2
 
 
 
