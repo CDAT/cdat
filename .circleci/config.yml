@@ -88,7 +88,6 @@ jobs:
       ENV_NAME: "nightly"
       LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-    working directory: /tmp
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
@@ -140,6 +139,7 @@ jobs:
       ENV_NAME: "nightly"
       LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      working directory: /tmp
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
