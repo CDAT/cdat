@@ -142,8 +142,8 @@ jobs:
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
-      #- run: uname -a
-      #- run: *setup_nightly
+      - run: uname -a
+      - run: *setup_nightly
       #- run: *validate_install
       #- run: *run_cdms_test
       #- run: *run_genutil_test
