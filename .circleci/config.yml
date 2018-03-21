@@ -77,7 +77,7 @@ aliases:
     command: |
       echo "xxx: ln -s $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html"
       ls -l $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html  
-      ln -s $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html    
+      cp $WORKDIR/$BRANCH-$LABEL/pcmdi_metrics/tests_html/* /tmp/pcmdi_tests_html    
 
 jobs:
   macos_nightly_py2:
