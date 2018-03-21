@@ -75,8 +75,8 @@ aliases:
   - &prep_artifacts
     name: prep_artifacts
     command: |
-      echo "xxx: ln -s $WORKDIR/$ENV_NAME/$BRANCH_$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html"
-      ln -s $WORKDIR/$ENV_NAME/$BRANCH_$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html    
+      echo "xxx: ln -s $WORKDIR/$BRANCH_$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html"
+      ln -s $WORKDIR/$BRANCH_$LABEL/pcmdi_metrics/tests_html /tmp/pcmdi_tests_html    
 
 jobs:
   macos_nightly_py2:
