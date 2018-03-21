@@ -346,7 +346,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "33 17  * * *"
+          cron: "45 17 * * *"
           filters:
             branches:
               only: validateNightly
