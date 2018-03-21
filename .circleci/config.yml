@@ -86,17 +86,14 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
-      - run: *setup_nightly
-      - run: *validate_install
+      #- run: *setup_nightly
+      #- run: *validate_install
       #- run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
       #- run: *run_vcs_test
       #- run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - store_artifacts:
-          path: $WORKDIR/$BRANCH_$LABEL/pcmdi_metrics/tests_html
-          destination: pcmdi_metrics_tests_html
+      #- run: *run_pcmdi_metrics_test
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
       #- run: *run_wk_test
@@ -347,12 +344,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "17 4  * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "33 17  * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - macos_nightly_py2
       #- macos_nightly_py3:
