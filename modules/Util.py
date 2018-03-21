@@ -60,7 +60,7 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
         url = 'https://github.com/CDAT/' + repo_name
 
     if repo_dir is None:
-        branch_dir = os.path.join(workdir, "{b}_{l}".format(b=branch,
+        branch_dir = os.path.join(workdir, "{b}-{l}".format(b=branch,
                                                             l=label))
         if not os.path.isdir(branch_dir):
             os.mkdir(branch_dir)
