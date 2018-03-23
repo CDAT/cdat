@@ -29,7 +29,7 @@ aliases:
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l $LABEL
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l "v3.0"
 
   - &run_genutil_test
     name: run_genutil_test
@@ -180,7 +180,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -204,7 +204,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -228,7 +228,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -246,7 +246,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80_py3_env"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -264,7 +264,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -288,7 +288,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -312,7 +312,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80_py2_env"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -330,7 +330,7 @@ jobs:
       WORKDIR: "workspace/test_cdat-v80_py3_env"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
-      LABEL: "master"
+      LABEL: "v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
