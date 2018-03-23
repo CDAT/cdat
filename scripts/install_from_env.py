@@ -31,9 +31,10 @@ status, conda_path = conda_setup.install_miniconda()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-if "cdat-3.0" in env_prefix:
+if "cdat-v80" in env_prefix:
     # TEMPORARY till all cdat packages are conda_labeled with 'v3.0' for v3.0 release.
-    conda_label = 'nightly'
+    #conda_label = 'nightly'
+    conda_label = 'v80'
     env_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))

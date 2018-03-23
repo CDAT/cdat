@@ -40,7 +40,7 @@ env_prefix = args.env_prefix
 
 if env_prefix == 'nightly':
     cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
-elif "cdat-3.0" in env_prefix:
+elif "cdat-v80" in env_prefix:
     cdat_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
@@ -63,6 +63,7 @@ elif ts == 'dv3d':
 elif ts == 'vcs':
     if py_ver == 'py2':
         cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H']
+        #cmds_list = ['python run_tests.py -v2 -n 1 --no-vtk-ui -g -H']
     else:
         cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui -g -H', 'cd docs', 'make doctest']
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
