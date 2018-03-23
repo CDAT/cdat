@@ -358,19 +358,21 @@ workflows:
       #- macos_cdat-v80-nox_py2:
       #    requires:
       #      - macos_nightly_py3
-      #- macos_cdat-v80-nox_py3:
-      #    requires:
-      #      - macos_cdat-v80-nox_py2
-      #- macos_cdat-v80_py2:
-      #    requires:
-      #      - macos_cdat-v80-nox_py3
-      #- macos_cdat-v80_py3:
-      #    requires:
-      #      - macos_cdat-v80_py2     
-      #- linux_nightly_py2
-      #- linux_nightly_py3:
-      #    requires:
-      #      - linux_nightly_py2
+      # TEMPORARY
+      - macos_cdat-v80-nox_py2
+      - macos_cdat-v80-nox_py3:
+          requires:
+            - macos_cdat-v80-nox_py2
+      - macos_cdat-v80_py2:
+          requires:
+            - macos_cdat-v80-nox_py3
+      - macos_cdat-v80_py3:
+          requires:
+            - macos_cdat-v80_py2     
+      - linux_nightly_py2
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
       #- linux_cdat-v80-nox_py2:
       #    requires:
       #      - linux_nightly_py3
