@@ -369,10 +369,10 @@ workflows:
       - macos_cdat-v80_py3:
           requires:
             - macos_cdat-v80_py2     
-      - linux_nightly_py2
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
+      #- linux_nightly_py2
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
       #- linux_cdat-v80-nox_py2:
       #    requires:
       #      - linux_nightly_py3
@@ -387,6 +387,10 @@ workflows:
       - linux_cdat-v80_py3:
           requires:
             - linux_cdat-v80_py2
+
+
+
+
 
 
 
