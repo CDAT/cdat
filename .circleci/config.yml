@@ -55,7 +55,7 @@ aliases:
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $PCMDI_LABEL
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $PCMDI_METRICS_LABEL
 
   - &run_dv3d_test
     name: run_dv3d_test
