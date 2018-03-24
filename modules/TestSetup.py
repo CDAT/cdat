@@ -109,7 +109,7 @@ class VcsTestSetup(TestSetup):
         super(VcsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch, label)
 
         # get uvcdat-testdata
-        if branch != 'master':
+        if label != 'master':
             for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
             super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)        
 

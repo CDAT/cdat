@@ -118,6 +118,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
       
   macos_nightly_py3:
     macos:
@@ -145,6 +149,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_nightly_py2:
     machine:
@@ -172,6 +180,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_nightly_py3:
     machine:
@@ -199,6 +211,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   macos_cdat-v80-nox_py2:
     macos:
@@ -217,11 +233,11 @@ jobs:
       - run: uname -a
       - run: *setup_env
       #- run: *run_cdms_test
-      - run: *run_genutil_test
+      #- run: *run_genutil_test
       #- run: *run_cdutil_test
-      #- run: *run_vcs_test
+      - run: *run_vcs_test
       #- run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
+      #- run: *run_pcmdi_metrics_test
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
       #- run: *run_wk_test
@@ -255,6 +271,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   macos_cdat-v80_py2:
     macos:
@@ -275,6 +295,10 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   macos_cdat-v80_py3:
     macos:
@@ -295,6 +319,10 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_cdat-v80-nox_py2:
     machine:
@@ -313,11 +341,11 @@ jobs:
       - run: uname -a
       - run: *setup_env
       #- run: *run_cdms_test
-      - run: *run_genutil_test
+      #- run: *run_genutil_test
       #- run: *run_cdutil_test
-      #- run: *run_vcs_test
+      - run: *run_vcs_test
       #- run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
+      #- run: *run_pcmdi_metrics_test
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
       #- run: *run_wk_test
@@ -351,6 +379,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_cdat-v80_py2:
     machine:
@@ -371,6 +403,10 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_cdat-v80_py3:
     machine:
@@ -391,6 +427,10 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
 workflows:
   version: 2
@@ -406,11 +446,10 @@ workflows:
       #- macos_nightly_py3:
       #    requires:
       #      - macos_nightly_py2
+      - macos_cdat-v80-nox_py2
       #- macos_cdat-v80-nox_py2:
       #    requires:
       #      - macos_nightly_py3
-      # TEMPORARY
-      - macos_cdat-v80-nox_py2
       #- macos_cdat-v80-nox_py3:
       #    requires:
       #      - macos_cdat-v80-nox_py2
@@ -424,11 +463,10 @@ workflows:
       #- linux_nightly_py3:
       #    requires:
       #      - linux_nightly_py2
+      - linux_cdat-v80-nox_py2
       #- linux_cdat-v80-nox_py2:
       #    requires:
       #      - linux_nightly_py3
-      # TEMPORARY
-      - linux_cdat-v80-nox_py2
       #- linux_cdat-v80-nox_py3:
       #    requires:
       #      - linux_cdat-v80-nox_py2

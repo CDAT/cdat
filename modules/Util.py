@@ -6,10 +6,6 @@ import time
 
 from Const import *
 
-#                                                                                                                 
-# following code is mostly copied from cdms/run_tests.py                                                          
-#                   
-
 def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     print("CMD: " + cmd)
     if isinstance(cmd, str):
