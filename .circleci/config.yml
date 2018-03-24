@@ -29,7 +29,7 @@ aliases:
   - &run_cdms_test
     name: run_cdms_test
     command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l "v3.0"
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l $CDMS_LABEL
 
   - &run_genutil_test
     name: run_genutil_test
@@ -55,7 +55,7 @@ aliases:
   - &run_pcmdi_metrics_test
     name: run_pcmdi_metrics_test
     command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $LABEL
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $PCMDI_LABEL
 
   - &run_dv3d_test
     name: run_dv3d_test
@@ -72,6 +72,16 @@ aliases:
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_NAME -b $BRANCH -l $LABEL
 
+  - &prep_artifacts
+    name: prep_artifacts
+    command: |
+      for ts in 'cdms' 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'pcmdi_metrics' 'dv3d' 'thermo' 'wk'
+      do
+         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
+	    mkdir -p all_tests_html/$ts-tests_html  
+            cp $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
+         fi
+      done
 jobs:
   macos_nightly_py2:
     macos:
@@ -82,6 +92,8 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
@@ -107,6 +119,8 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...MacOS - test install from nightly"
@@ -132,6 +146,8 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
@@ -157,6 +173,8 @@ jobs:
       BRANCH: "master"
       ENV_NAME: "nightly"
       LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "...Linux - test install from nightly"
@@ -181,6 +199,8 @@ jobs:
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -196,6 +216,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - prep_artifacts: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   macos_cdat-v80-nox_py3:
     macos:
@@ -205,6 +229,8 @@ jobs:
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -229,6 +255,8 @@ jobs:
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -247,6 +275,8 @@ jobs:
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -265,6 +295,8 @@ jobs:
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -280,6 +312,10 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - prep_artifacts: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
 
   linux_cdat-v80-nox_py3:
     machine:
@@ -289,6 +325,8 @@ jobs:
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80-nox"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -313,6 +351,8 @@ jobs:
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
@@ -331,6 +371,8 @@ jobs:
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_LABEL: "cdat_v8.0"
       ENV_NAME: "cdat-v80"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
