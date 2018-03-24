@@ -77,10 +77,10 @@ aliases:
     command: |
       for ts in 'cdms' 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'pcmdi_metrics' 'dv3d' 'thermo' 'wk'
       do
-         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
-	    mkdir -p all_tests_html/$ts-tests_html  
-            cp $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
-         fi
+        if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
+           mkdir -p all_tests_html/$ts-tests_html  
+           cp $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
+        fi
       done
 jobs:
   macos_nightly_py2:
