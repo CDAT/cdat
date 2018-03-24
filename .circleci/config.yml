@@ -216,7 +216,7 @@ jobs:
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
       #- run: *run_wk_test
-      - prep_artifacts: *prep_artifacts
+      - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
            destination: all_tests_html
@@ -312,7 +312,7 @@ jobs:
       #- run: *run_dv3d_test
       #- run: *run_thermo_test
       #- run: *run_wk_test
-      - prep_artifacts: *prep_artifacts
+      - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
            destination: all_tests_html
