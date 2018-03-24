@@ -79,16 +79,16 @@ aliases:
       do
         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
            mkdir -p all_tests_html/$ts-tests_html  
-           cp $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
+           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
         fi
       done
       if [ "$(ls -A $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html)" ]; then
          mkdir -p all_tests_html/cdms-tests_html  
-         cp $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html/* all_tests_html/cdms-tests_html    
+         cp -r $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html/* all_tests_html/cdms-tests_html    
       fi
       if [ "$(ls -A $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html)" ]; then
          mkdir -p all_tests_html/pcmdi_metrics-tests_html  
-         cp $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html/* all_tests_html/pcmdi_metrics-tests_html    
+         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html/* all_tests_html/pcmdi_metrics-tests_html    
       fi
 
 jobs:
