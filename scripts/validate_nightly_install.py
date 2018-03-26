@@ -2,8 +2,10 @@ import sys
 import os
 import argparse
 import datetime
-thisDir = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(thisDir + '/../modules/')
+
+this_dir = os.path.abspath(os.path.dirname(__file__))
+modules_dir = os.path.join(this_dir, '..', 'modules')
+sys.path.append(modules_dir)
 
 import CondaSetup
 import CDATSetup

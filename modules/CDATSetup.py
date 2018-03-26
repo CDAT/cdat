@@ -165,7 +165,7 @@ class EnvSetup(CDATSetup):
     def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
         super(EnvSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
 
-    def construct_env_file_name(self, env_prefix, py_ver):
+    def __construct_env_file_name(self, env_prefix, py_ver):
         if sys.platform == 'darwin':
             env_file = "{pr}_{py_ver}.Darwin.yaml".format(pr=env_prefix, 
                                                           py_ver=py_ver)
@@ -174,7 +174,7 @@ class EnvSetup(CDATSetup):
                                                          py_ver=py_ver)
         return(env_file)
 
-    def install_from_env_file(self, env_file_name):
+    def __install_from_env_file(self, env_file_name):
         """
         This method creates a CDAT environment from a environment file
            <py_ver> : python version that the environment is to be created for
@@ -193,7 +193,6 @@ class EnvSetup(CDATSetup):
         env_prefix = self.env_prefix
         thisDir = os.path.abspath(os.path.dirname(__file__))
         full_path_env_file = os.path.join(thisDir, '..', 'conda', env_file_name)
-        print("DEBUG..full_path_env_file: " + full_path_env_file)
 
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
@@ -216,6 +215,18 @@ class EnvSetup(CDATSetup):
         if ret_code != SUCCESS:
             print("FAIL...{cmd}".format(cmd=cmd))
             return(ret_code)
+
+        return(ret_code)
+
+    def install(self):
+
+        env_prefix = self.env_prefix
+        py_ver = self.py_ver
+        env_file = self.__construct_env_file_name(env_prefix, py_ver)
+
+        ret_code = self.__install_from_env_file(env_file)
+        if ret_code != SUCCESS:
+            print("FAIL..install_from_env_file(), env_file: {e}".format(e=env_file))
 
         return(ret_code)
 

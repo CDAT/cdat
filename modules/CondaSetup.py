@@ -74,7 +74,7 @@ class CondaSetup:
             print('FAILED: ' + cmd)
             return(ret_code, None)
 
-        # I do not think I need the following
+        # I am not sure if I need the following
         if sys.platform == 'darwin':
             cmd = "{c} update -y -q conda".format(c=conda_cmd)
             ret_code = run_cmd(cmd, True, False, False)
