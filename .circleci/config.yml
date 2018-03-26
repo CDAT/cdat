@@ -22,8 +22,8 @@ aliases:
 
   - &validate_install
     |
-      echo "Validate install - verify versions of installed packages"
-      python workspace/cdat/scripts/validate_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
+      echo "Validate nightly install - verify versions of installed packages"
+      python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
 
 
   - &run_cdms_test
