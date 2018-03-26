@@ -435,12 +435,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "48 4 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "27 5 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - macos_nightly_py2
       - macos_nightly_py3:
