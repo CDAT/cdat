@@ -11,15 +11,19 @@ import CDATSetup
 from Const import *
 from Util import *
 
-parser = argparse.ArgumentParser(description="install from env file",
+valid_env_prefixes = ["cdat-v80-nox", "cdat-v80"]
+release_conda_label = "v80"
+valid_py_vers = ["py2", "py3"]
+
+parser = argparse.ArgumentParser(description="install CDAT from env file",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument("-w", "--workdir",
+parser.add_argument("-w", "--workdir", required=True,
                     help="working directory -- miniconda will be installed here")
-parser.add_argument("-v", "--env_prefix",
-                    help="environment prefix - this can be 'cdat-3.0.beta2-nox' or 'cdat-3.0.beta2'")
+parser.add_argument("-v", "--env_prefix", required=True,
+                    help="environment prefix string", choices=valid_env_prefixes)
 parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
-                    help="python version, 'py2' or 'py3'")
+                    help="python version", choices=valid_py_vers)
 args = parser.parse_args()
 
 workdir = args.workdir
@@ -31,14 +35,8 @@ status, conda_path = conda_setup.install_miniconda()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-if "cdat-v80" in env_prefix:
-    # TEMPORARY till all cdat packages are conda_labeled with 'v3.0' for v3.0 release.
-    #conda_label = 'nightly'
-    conda_label = 'v80'
-    env_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
-else:
-    print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
-    sys.exit(FAILURE)
+conda_label = release_conda_label
+env_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 
 status = env_setup.install()
 if status != SUCCESS:

@@ -11,12 +11,14 @@ import CDATSetup
 from Const import *
 from Util import *
 
+valid_py_vers = ["py2", "py3"]
+
 parser = argparse.ArgumentParser(description="install nightly",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
-parser.add_argument("-p", "--py_ver",
+parser.add_argument("-p", "--py_ver", choices=valid_py_vers,
                     help="python version, 'py2' or 'py3'")
 
 args = parser.parse_args()

@@ -59,33 +59,54 @@ class CDATSetup(object):
         else:
             return False
 
-    def install_packages(self, py_ver, packages, add_channels=[]):
-        """
-        installs the specified packages from standard channels
-           -c cdat/label/<label> -c uvcdat/label/<label> 
-           -c conda-forge -c uvcdat
-           and any additional channels specified <add_channels>
-        packages - space separated package names
-        add_channels - is a list of channels
-
-        Return value: SUCCESS or FAILURE
-        """
-        env = self.env_name
-        channels = "-c cdat/label/{l} -c uvcdat/label/{l} -c conda-forge -c uvcdat ".format(l=self.label)
-        for channel in add_channels:
-            channels += " -c {} ".format(channel)
-
-        cmd = "conda install {} {} > /dev/null 2>&1".format(channels, packages)
-        cmds_list = []
-        cmds_list.append(cmd)
-        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
-        if ret_code != SUCCESS:
-            print("FAIL...{c}".format(c=cmd))
-        return(ret_code)
-
     def conda_list(self):
         cmds_list = ["conda list"]
         ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
+        return(ret_code)
+
+class NightlySetup(CDATSetup):
+    """
+    NightlySetup is a subclass of CDATSetup, specifically for 
+    nightly install.
+    """
+
+    def __init__(self, conda_path, workdir, py_ver):
+        super(NightlySetup, self).__init__(conda_path, workdir, 'nightly', py_ver, 'nightly')
+        
+    def install(self):
+        """
+        install_nightly <env> <py_ver>:
+           creates an environment for cdat nightly.
+           The envirnonment name is set to <env>_<py_ver>
+             
+        """
+        conda_path = self.conda_path        
+        env_name = self.env_name
+
+        # check if env already exists
+        if self.check_if_env_exists(env_name): 
+            print("INFO...environment {env} already exists".format(env=env_name))
+            return SUCCESS
+
+        conda_cmd = os.path.join(conda_path, 'conda')
+        ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
+
+        if self.py_ver == 'py3':
+            ch2 = "-c pcmdi"
+            py_str = "python>3"
+            pkgs = "nose mesalib image-compare cia easydev nbsphinx \"proj4<5\""
+        else:
+            ch2 = "-c pcmdi/label/nightly -c pcmdi"
+            py_str = "python<3"
+            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
+            
+        cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2}".format(c=conda_cmd,
+                                                                       e=env_name,
+                                                                       pkgs=pkgs,
+                                                                       p=py_str,
+                                                                       c1=ch1,
+                                                                       c2=ch2)
+        ret_code = run_cmd(cmd, True, False, True)
         return(ret_code)
 
     def get_packages_version(self, packages):
@@ -134,60 +155,12 @@ class CDATSetup(object):
                                                          v=package_versions_dict[pkg]['date_str']))
         return(ret_code, package_versions_dict)
 
-class NightlySetup(CDATSetup):
-    """
-    NightlySetup is a subclass of CDATSetup, specifically for 
-    nightly install.
-    """
-
-    def __init__(self, conda_path, workdir, py_ver):
-        super(NightlySetup, self).__init__(conda_path, workdir, 'nightly', py_ver, 'nightly')
-        
-    def install(self):
-        """
-        install_nightly <env> <py_ver>:
-           creates an environment for cdat nightly.
-           The envirnonment name is set to <env>_<py_ver>
-             
-        """
-        conda_path = self.conda_path        
-        env_name = self.env_name
-
-        # check if env already exists
-        if self.check_if_env_exists(env_name): 
-            print("INFO...environment {env} already exists".format(env=env_name))
-            return SUCCESS
-
-        conda_cmd = os.path.join(conda_path, 'conda')
-        #ch1 = "-c cdat/label/nightly -c uvcdat/label/nightly"
-        #ch2 = "-c nesii/label/dev-esmf -c conda-forge -c uvcdat"
-        #ch3 = "-c pcmdi/label/nightly -c pcmdi"
-
-        ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
-
-        if self.py_ver == 'py3':
-            ch2 = "-c pcmdi"
-            py_str = "python>3"
-            pkgs = "nose mesalib image-compare cia easydev nbsphinx \"proj4<5\""
-        else:
-            ch2 = "-c pcmdi/label/nightly -c pcmdi"
-            py_str = "python<3"
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
-
-            
-        cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2}".format(c=conda_cmd,
-                                                                       e=env_name,
-                                                                       pkgs=pkgs,
-                                                                       p=py_str,
-                                                                       c1=ch1,
-                                                                       c2=ch2)
-
-        ret_code = run_cmd(cmd, True, False, True)
-
-        return(ret_code)
-
-
 class EnvSetup(CDATSetup):
+
+    """
+    EnvSetup is a subclass of CDATSetup for a CDAT environment 
+    created from yaml file.
+    """
 
     def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
         super(EnvSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
@@ -230,13 +203,11 @@ class EnvSetup(CDATSetup):
 
     def install_packages_for_tests(self):
 
-        print("DEBUG DEBUG...in install_packages_for_test()...")
         if "nox" in self.env_prefix:
             pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
         else:
             pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
         
-        #cmds_list = ["conda install -c conda-forge -c uvcdat {p}".format(p=pkgs)]
         channels = "-c conda-forge -c uvcdat -c pcmdi/label/nightly -c pcmdi"
         cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
                                                               pkgs=pkgs)]
@@ -248,38 +219,5 @@ class EnvSetup(CDATSetup):
 
         return(ret_code)
 
-    def install(self):
-        """
-        This method installs 3.0 Beta environment.
-        """
-        env_prefix = self.env_prefix
-        py_ver = self.py_ver
-        env_file = self.construct_env_file_name(env_prefix, py_ver)
-
-        ret_code = self.install_from_env_file(env_file)
-        if ret_code != SUCCESS:
-            print("FAIL..install_from_env_file(), env_file: {e}".format(e=env_file))
-
-        return(ret_code)
-
-
-class Env30SetupOBSOLETE(EnvSetup):
-
-    def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
-        super(Env30Setup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
-
-    def install(self):
-        """
-        This method installs 3.0 Beta environment.
-        """
-        env_prefix = self.env_prefix
-        py_ver = self.py_ver
-        env_file = self.construct_env_file_name(env_prefix, py_ver)
-
-        ret_code = super(Env30Setup, self).install_from_env_file(env_file)
-        if ret_code != SUCCESS:
-            print("FAIL..install_from_env_file(), env_file: {e}".format(e=env_file))
-
-        return(ret_code)
 
 

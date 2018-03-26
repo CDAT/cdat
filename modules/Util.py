@@ -7,7 +7,7 @@ import time
 from Const import *
 
 def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
-    print("CMD: " + cmd)
+    print("CMD: {c}".format(c=cmd))
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
 
@@ -84,22 +84,16 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
         print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
         return ret_code
 
-    #if branch != 'master' and repo_name != 'uvcdat-testdata' and branch != 'cdat-3.0.beta':
     if label != 'master':
-        #cmd = 'git describe --tags --abbrev=0'
-        #ret_code, cmd_output = run_cmd_capture_output(cmd, True, False, True, repo_dir)
-        #version = cmd_output[0]
-
+        
+        if repo_name == 'pcmdi_metrics':
+            label = "cdat_{label}".format(label=label)
         cmd = "git checkout {label}".format(label=label)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
             print("FAIL...{failed_cmd}".format(failed_cmd=cmd))
             return ret_code
 
-    # create 'tests_png' and 'tests_html' to avoid processes trying to 
-    # create the directories at the same time.
-    #cmd = "mkdir {d1} {d2}".format(d1=os.path.join(repo_dir, 'tests_png'),
-    #                               d2=os.path.join(repo_dir, 'tests_html'))
     cmd = "mkdir tests_png tests_html"
     ret_code = run_cmd(cmd, True, False, True, repo_dir)
 
@@ -122,7 +116,7 @@ def run_in_conda_env(conda_path, env, cmds_list):
     cmds = "{existing}; source deactivate".format(existing=cmds)
 
     cmd = "bash -c \"{the_cmds}\"".format(the_cmds=cmds)
-    print("CMD: " + cmd)
+    print("CMD: {c}".format(c=cmd))
     ret_code = os.system(cmd)
     print(ret_code)
     return(ret_code)
@@ -169,7 +163,7 @@ def run_in_conda_env_capture_output(conda_path, env, cmds_list):
 
     with open(tmp_file) as f:
         output = f.readlines()
-    #os.remove(tmp_file)
+    os.remove(tmp_file)
     return(ret_code, output)
 
 
