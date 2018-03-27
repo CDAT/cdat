@@ -64,7 +64,7 @@ dependencies:
   - future=0.16.0=py27_0
   - futures=3.2.0=py27_0
   - g2clib=1.6.0=5
-  - genutil=8.0=py27_0
+  - genutil=8.0=py27_1
   - geos=3.6.2=1
   - gettext=0.19.8.1=0
   - glib=2.55.0=0
