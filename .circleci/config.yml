@@ -510,9 +510,10 @@ workflows:
       #- linux_nightly_py3:
       #    requires:
       #      - linux_nightly_py2
-      - linux_cdat-v80-nox_py2:
-          requires:
-            - linux_nightly_py3
+      # ADD colon
+      - linux_cdat-v80-nox_py2
+      #    requires:
+      #      - linux_nightly_py3
       - linux_cdat-v80-nox_py3:
           requires:
             - linux_cdat-v80-nox_py2
