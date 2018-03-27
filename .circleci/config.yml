@@ -232,15 +232,15 @@ jobs:
       - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
       - run: uname -a
       - run: *setup_env
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -340,15 +340,15 @@ jobs:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: uname -a
       - run: *setup_env
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
