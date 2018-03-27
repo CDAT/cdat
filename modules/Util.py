@@ -86,8 +86,8 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
 
     if label != 'master':
         
-        if repo_name == 'pcmdi_metrics':
-            label = "cdat_{label}".format(label=label)
+        #if repo_name == 'pcmdi_metrics':
+        #    label = "cdat_{label}".format(label=label)
         cmd = "git checkout {label}".format(label=label)
         ret_code = run_cmd(cmd, True, False, True, repo_dir)
         if ret_code != SUCCESS:
