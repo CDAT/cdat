@@ -1,11 +1,10 @@
 name: cdat-v80-nox_py2
 channels:
-  - nesii/label/dev-esmf
   - cdat/label/v80
   - conda-forge
   - defaults
 dependencies:
-  - cdat=2.12.nightly=2
+  - cdat=8.0=0
   - cdp=1.2.3=py27hf758207_0
   - dv3d=8.0=py27_0
   - output_viewer=1.2.3=py27h48dab56_0
@@ -25,11 +24,11 @@ dependencies:
   - backports_abc=0.5=py27_0
   - basemap=1.1.0=py27_4
   - bleach=2.1.3=py_0
-  - bokeh=0.12.14=py27_0
+  - bokeh=0.12.14=py27_1
   - bzip2=1.0.6=1
   - ca-certificates=2018.1.18=0
   - cdat_info=8.0=py27_0
-  - cdms2=3.0=py27_3
+  - cdms2=3.0=py27_5
   - cdtime=3.0=py27_0
   - cdutil=8.0=py27_1
   - certifi=2018.1.18=py27_0
@@ -40,7 +39,7 @@ dependencies:
   - click=6.7=py_1
   - cloudpickle=0.5.2=py_0
   - configparser=3.5.0=py27_0
-  - cryptography=2.1.4=py27_0
+  - cryptography=2.2.1=py27_0
   - curl=7.59.0=0
   - cycler=0.10.0=py27_0
   - cytoolz=0.9.0.1=py27_0
@@ -54,6 +53,8 @@ dependencies:
   - entrypoints=0.2.3=py27_1
   - enum34=1.1.6=py27_1
   - eofs=1.3.0=py27_0
+  - esmf=7.1.0r=0
+  - esmpy=7.1.0r=py27_1
   - expat=2.2.5=0
   - ffmpeg=3.4.2=0
   - flake8=3.5.0=py27_0
@@ -89,7 +90,7 @@ dependencies:
   - jinja2=2.10=py27_0
   - jpeg=9b=2
   - jsonschema=2.6.0=py27_1
-  - jupyter=1.0.0=py27_0
+  - jupyter=1.0.0=py_1
   - jupyter_client=5.2.3=py27_0
   - jupyter_console=5.2.0=py27_0
   - jupyter_core=4.4.0=py_0
@@ -164,7 +165,7 @@ dependencies:
   - pysocks=1.6.8=py27_1
   - pyspharm=1.0.9=py27_2
   - python=2.7.14=4
-  - python-dateutil=2.7.0=py_0
+  - python-dateutil=2.7.2=py_0
   - pytz=2018.3=py_0
   - pyyaml=3.12=py27_1
   - pyzmq=17.0.0=py27_3
@@ -184,7 +185,7 @@ dependencies:
   - six=1.11.0=py27_1
   - snowballstemmer=1.2.1=py27_0
   - sortedcontainers=1.5.9=py27_0
-  - sphinx=1.7.1=py27_0
+  - sphinx=1.7.2=py27_0
   - sphinxcontrib-websupport=1.0.1=py27_0
   - spyder=3.2.8=py27_0
   - sqlite=3.20.1=2
@@ -225,8 +226,6 @@ dependencies:
   - mkl=2018.0.2=1
   - numpy=1.14.2=py27hdbf6ddf_0
   - system=5.8=2
-  - esmf=7.1.0.dev52=1
-  - esmpy=7.1.0.dev52=py27_1
   - pip:
     - cibot==0.2
     - mv2==3.0.0

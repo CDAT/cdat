@@ -1,11 +1,10 @@
 name: cdat-v80-nox_py3
 channels:
   - cdat/label/v80
-  - nesii/label/dev-esmf
   - conda-forge
   - defaults
 dependencies:
-  - cdat=2.12.nightly=2
+  - cdat=8.0=0
   - cdp=1.2.3=py36_0
   - dv3d=8.0=py36_0
   - output_viewer=1.2.3=py36h55fec5a_0
@@ -24,11 +23,11 @@ dependencies:
   - backports.functools_lru_cache=1.5=py36_0
   - basemap=1.1.0=py36_4
   - bleach=2.1.3=py_0
-  - bokeh=0.12.14=py36_0
+  - bokeh=0.12.14=py36_1
   - bzip2=1.0.6=1
   - ca-certificates=2018.1.18=0
   - cdat_info=8.0=py36_0
-  - cdms2=3.0=py36_3
+  - cdms2=3.0=py36_5
   - cdtime=3.0=py36_0
   - cdutil=8.0=py36_1
   - certifi=2018.1.18=py36_0
@@ -38,7 +37,7 @@ dependencies:
   - clapack=3.2.1=0
   - click=6.7=py_1
   - cloudpickle=0.5.2=py_0
-  - cryptography=2.1.4=py36_0
+  - cryptography=2.2.1=py36_0
   - curl=7.59.0=0
   - cycler=0.10.0=py36_0
   - cytoolz=0.9.0.1=py36_0
@@ -50,6 +49,8 @@ dependencies:
   - docutils=0.14=py36_0
   - entrypoints=0.2.3=py36_1
   - eofs=1.3.0=py36_0
+  - esmf=7.1.0r=0
+  - esmpy=7.1.0r=py36_1
   - expat=2.2.5=0
   - ffmpeg=3.4.2=0
   - flake8=3.5.0=py36_0
@@ -78,7 +79,7 @@ dependencies:
   - jinja2=2.10=py36_0
   - jpeg=9b=2
   - jsonschema=2.6.0=py36_1
-  - jupyter=1.0.0=py36_0
+  - jupyter=1.0.0=py_1
   - jupyter_client=5.2.3=py36_0
   - jupyter_console=5.2.0=py36_0
   - jupyter_core=4.4.0=py_0
@@ -147,7 +148,7 @@ dependencies:
   - pysocks=1.6.8=py36_1
   - pyspharm=1.0.9=py36_2
   - python=3.6.4=0
-  - python-dateutil=2.7.0=py_0
+  - python-dateutil=2.7.2=py_0
   - python.app=1.2=py36_0
   - pytz=2018.3=py_0
   - pyyaml=3.12=py36_1
@@ -166,7 +167,7 @@ dependencies:
   - six=1.11.0=py36_1
   - snowballstemmer=1.2.1=py36_0
   - sortedcontainers=1.5.9=py36_0
-  - sphinx=1.7.1=py36_0
+  - sphinx=1.7.2=py36_0
   - sphinxcontrib-websupport=1.0.1=py36_0
   - spyder=3.2.8=py36_0
   - sqlite=3.20.1=2
@@ -197,8 +198,6 @@ dependencies:
   - libgfortran=3.0.1=h93005f0_2
   - mkl=2018.0.2=1
   - numpy=1.14.2=py36ha9ae307_0
-  - esmf=7.1.0.dev52=1
-  - esmpy=7.1.0.dev52=py36_1
   - pip:
     - cibot==0.2
     - mv2==3.0.0
