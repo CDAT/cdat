@@ -522,6 +522,6 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      - linux_cdat-v80_py3
+      - linux_cdat-v80-nox_py3
 
 

@@ -207,7 +207,7 @@ class EnvSetup(CDATSetup):
         else:
             pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
         
-        channels = "-c conda-forge -c uvcdat -c pcmdi/label/nightly -c pcmdi"
+        channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
         cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
                                                               pkgs=pkgs)]
         env = self.env_name
