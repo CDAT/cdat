@@ -194,6 +194,7 @@ dependencies:
   - libgfortran=3.0.1=h93005f0_2
   - mkl=2018.0.2=1
   - numpy=1.14.2=py36ha9ae307_0
+  - scipy=1.0.0
   - pip:
     - cibot==0.2
     - mv2==3.0.0
