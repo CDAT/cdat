@@ -251,7 +251,7 @@ class EnvFromChannelSetup(CDATSetup):
         super(EnvFromChannelSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
 
     def install(self):
-        env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver_py_ver)
+        env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
         if label == 'v80':
             cdat_channel = "-c cdat/label/{l}".format(l=label)
         else:
