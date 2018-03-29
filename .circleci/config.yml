@@ -61,6 +61,7 @@ aliases:
     name: run_dv3d_test
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $ENV_NAME -b $BRANCH -l $LABEL
+    no_output_timeout: 30m
 
   - &run_thermo_test
     name: run_thermo_test
@@ -485,7 +486,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 1 * * *"
+          cron: "56 2 * * *"
           filters:
             branches:
               only: validateNightly
