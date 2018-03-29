@@ -1,0 +1,528 @@
+version: 2
+
+aliases:
+
+  - &setup_nightly
+    |
+      echo "Install CDAT nightly..."
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      python workspace/cdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
+      echo "Done installing nightly"
+      ls $WORKDIR/miniconda/envs
+
+  - &setup_env
+    |
+      echo "Install CDAT from env file..."
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      python workspace/cdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
+      echo "Done installing from env file"
+      ls $WORKDIR//miniconda/envs
+
+  - &validate_install
+    |
+      echo "Validate nightly install - verify versions of installed packages"
+      python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
+
+
+  - &run_cdms_test
+    name: run_cdms_test
+    command: |
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_NAME -b $BRANCH -l $CDMS_LABEL
+
+  - &run_genutil_test
+    name: run_genutil_test
+    command: | 
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -v $ENV_NAME -b $BRANCH -l $LABEL
+
+  - &run_cdutil_test
+    name: run_cdutil_test
+    command: | 
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -v $ENV_NAME -b $BRANCH -l $LABEL
+
+  - &run_vcs_test
+    name: run_vcs_test
+    command: | 
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $ENV_NAME -b $BRANCH -l $LABEL
+    no_output_timeout: 30m
+
+  - &run_vcsaddons_test
+    name: run_vcsaddons_test
+    command: | 
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -v $ENV_NAME -b $BRANCH -l $LABEL
+
+  - &run_pcmdi_metrics_test
+    name: run_pcmdi_metrics_test
+    command: | 
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_NAME -b $BRANCH -l $PCMDI_METRICS_LABEL
+
+  - &run_dv3d_test
+    name: run_dv3d_test
+    command: |
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $ENV_NAME -b $BRANCH -l $LABEL
+    no_output_timeout: 30m
+
+  - &run_thermo_test
+    name: run_thermo_test
+    command: |
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -v $ENV_NAME -b $BRANCH -l $LABEL
+
+  - &run_wk_test
+    name: run_wk_test
+    command: |
+      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_NAME -b $BRANCH -l $LABEL
+
+  - &prep_artifacts
+    name: prep_artifacts
+    command: |
+      for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'thermo' 'wk'
+      do
+        if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
+           mkdir -p all_tests_html/$ts-tests_html  
+           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
+        fi
+      done
+      if [ "$(ls -A $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html)" ]; then
+         mkdir -p all_tests_html/cdms-tests_html  
+         cp -r $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html/* all_tests_html/cdms-tests_html    
+      fi
+      if [ "$(ls -A $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html)" ]; then
+         mkdir -p all_tests_html/pcmdi_metrics-tests_html  
+         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html/* all_tests_html/pcmdi_metrics-tests_html    
+      fi
+
+      for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'thermo' 'wk'
+      do
+        if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_png)" ]; then
+           mkdir -p all_tests_png/$ts-tests_png 
+           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_png/* all_tests_png/$ts-tests_png    
+        fi
+      done
+      if [ "$(ls -A $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png)" ]; then
+         mkdir -p all_tests_png/pcmdi_metrics-tests_png  
+         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png/* all_tests_png/pcmdi_metrics-tests_png    
+      fi
+
+jobs:
+  macos_nightly_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_nightly"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "...MacOS - test install from nightly"
+      - run: uname -a
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+      
+  macos_nightly_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_nightly"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "...MacOS - test install from nightly"
+      - run: uname -a
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_nightly_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_nightly"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "...Linux - test install from nightly"
+      - run: uname -a
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_nightly_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_nightly"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      ENV_NAME: "nightly"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "...Linux - test install from nightly"
+      - run: uname -a
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat-v80-nox_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80-nox"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat-v80-nox_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80-nox"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat-v80_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_cdat-v80_py2_env"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat-v80_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_cdat-v80_py3_env"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat-v80-nox_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80-nox"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat-v80-nox_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80-nox"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat-v80_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_cdat-v80_py2_env"
+      PYTHON_VERSION: "py2"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat-v80_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_cdat-v80_py3_env"
+      PYTHON_VERSION: "py3"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      ENV_NAME: "cdat-v80"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
+      - run: uname -a
+      - run: *setup_env
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+workflows:
+  version: 2
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only: validateNightly
+    jobs:
+      - macos_nightly_py2
+      - macos_nightly_py3:
+          requires:
+            - macos_nightly_py2   
+      - macos_cdat-v80-nox_py2:
+          requires:
+            - macos_nightly_py3
+      - macos_cdat-v80-nox_py3:
+          requires:
+            - macos_cdat-v80-nox_py2
+      - macos_cdat-v80_py2:
+          requires:
+            - macos_cdat-v80-nox_py3
+      - macos_cdat-v80_py3:
+          requires:
+            - macos_cdat-v80_py2     
+      - linux_nightly_py2
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat-v80-nox_py2:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat-v80-nox_py3:
+          requires:
+            - linux_cdat-v80-nox_py2
+      - linux_cdat-v80_py2:
+          requires:
+            - linux_cdat-v80-nox_py3
+      - linux_cdat-v80_py3:
+          requires:
+            - linux_cdat-v80_py2
+      
+
+
