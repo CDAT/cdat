@@ -27,7 +27,7 @@ aliases:
     command: |
       mkdir -p workspace
       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -l $CONDA_LABEL
+      python workspace/cdat/scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -c $CONDA_LABEL
       ls $WORKDIR//miniconda/envs
     no_output_timeout: 30m
 

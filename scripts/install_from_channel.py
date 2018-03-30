@@ -13,17 +13,17 @@ from Const import *
 from Util import *
 
 valid_py_vers = ["py2", "py3"]
-
+valid_env_prefixes = ["cdat_latest_channel", "cdat_v80_channel"]
 parser = argparse.ArgumentParser(description="install CDAT from conda channel",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument("-w", "--workdir", required=True,
                     help="working directory -- miniconda will be installed here")
-parser.add_argument("-v", "--env_prefix", required=True,
+parser.add_argument("-v", "--env_prefix", required=True, choices=valid_env_prefixes,
                     help="environment prefix string", default='cdat')
 parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
                     help="python version", choices=valid_py_vers)
-parser.add_argument("-l", "--conda_label", default='latest',
+parser.add_argument("-c", "--conda_label", default='latest',
                     help="conda label, can be 'v80' or 'latest'")
 
 args = parser.parse_args()
