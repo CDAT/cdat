@@ -232,3 +232,47 @@ class EnvSetup(CDATSetup):
 
 
 
+class EnvFromChannelSetup(CDATSetup):
+
+    """
+    EnvFromChannelSetup is a subclass of CDATSetup. 
+    This class is for cdat env that is created by installing for conda channels.
+    """
+
+    def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
+        """
+        py_ver: 'py2' or 'py3'
+        label: 'v80' or 'latest'
+           if label == 'v80', env will be created with this command:
+               conda create -n <env_name> -c conda-forge -c cdat/label/v80 <python_version> cdat
+           if label == 'latest', env will be created with this command:
+               conda create -n <env_name>-c conda-forge -c cdat <python_version> cdat
+        """
+        super(EnvFromChannelSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
+
+    def install(self):
+        env_prefix = self.env_prefix
+        py_ver = self.py_ver
+        label = self.label
+
+        env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
+        if label == 'v80':
+            cdat_channel = "cdat/label/{l}".format(l=label)
+        else:
+            cdat_channel = "cdat"
+
+        conda_path = self.conda_path
+        conda_cmd = os.path.join(conda_path, "conda")
+        if py_ver == 'py2':
+            py_ver_str = "python=2.7"
+        else:
+            py_ver_str = "python=3.6"
+
+        cmd = "{c} create -n {n} -c conda-forge -c {channel} {ver} cdat".format(c=conda_cmd,
+                                                                                n=env_name,
+                                                                                channel=cdat_channel,
+                                                                                ver=py_ver_str)
+        ret_code = run_cmd(cmd, True, False, True)
+        return(ret_code)
+
+
