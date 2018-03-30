@@ -12,8 +12,8 @@ aliases:
       ls $WORKDIR/miniconda/envs
     no_output_timeout: 30m
 
-  - &install_cdat_from_yaml_file
-    name: install_cdat_from_yaml_file
+  - &install_from_yaml_file
+    name: install_from_yaml_file
     command: |
       mkdir -p workspace
       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
@@ -270,7 +270,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat channel"
       - run: uname -a
-      - run: *install_cdat_from_conda_channel
+      - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
@@ -303,7 +303,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   macos_cdat-v80-nox_py3:
     macos:
@@ -320,7 +320,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   macos_cdat-v80_py2:
     macos:
@@ -337,7 +337,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   macos_cdat-v80_py3:
     macos:
@@ -354,7 +354,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py2:
     machine:
@@ -371,7 +371,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py3:
     machine:
@@ -388,7 +388,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   linux_cdat-v80_py2:
     machine:
@@ -405,7 +405,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
   linux_cdat-v80_py3:
     machine:
@@ -422,7 +422,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
-      - run: *install_cdat_from_yaml_file
+      - run: *install_from_yaml_file
 
 workflows:
   version: 2
