@@ -12,16 +12,16 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
         cmd = shlex.split(cmd)
 
     if join_stderr:
-        stderr = subprocess.STDOUT
+        stderr_setting = subprocess.STDOUT
     else:
-        stderr = subprocess.PIPE
+        stderr_setting = subprocess.PIPE
 
     if cwd is None:
         current_wd = os.getcwd()
     else:
         current_wd = cwd
 
-    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr_setting,
         bufsize=0, cwd=current_wd, shell=shell_cmd)
     out = []
     while P.poll() is None:
