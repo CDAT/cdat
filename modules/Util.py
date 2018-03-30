@@ -21,7 +21,7 @@ def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
     else:
         current_wd = cwd
 
-    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
+    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         bufsize=0, cwd=current_wd, shell=shell_cmd)
     out = []
     while P.poll() is None:
