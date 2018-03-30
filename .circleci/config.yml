@@ -268,7 +268,7 @@ jobs:
       PCMDI_METRICS_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "MacOS + py2 install from cdat channel"
+      - run: echo "MacOS + py2 install from cdat latest channel"
       - run: uname -a
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -276,7 +276,6 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -303,7 +302,76 @@ jobs:
       PCMDI_METRICS_LABEL: "master"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "Linux + py2 install from cdat channel"
+      - run: echo "Linux + py2 install from cdat latest channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat_latest_channel_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_macos_cdat_latest_channel_py3_env"
+      PYTHON_VERSION: "py3"
+      ENV_PREFIX: "cdat_latest_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "latest"
+      BRANCH: "master"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py3 install from cdat latest channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat_latest_channel_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_linux_cdat_latest_channel_py3_env"
+      PYTHON_VERSION: "py3"
+      ENV_PREFIX: "cdat_latest_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "latest"
+      BRANCH: "master"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux + py3 install from cdat latest channel"
       - run: uname -a
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -329,12 +397,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
       PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80-nox"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
       - run: uname -a
@@ -346,12 +409,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
       PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80-nox"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
       - run: uname -a
@@ -363,12 +421,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80_py2_env"
       PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
       - run: uname -a
@@ -380,12 +433,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80_py3_env"
       PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
       - run: uname -a
@@ -397,12 +445,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
       PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80-nox"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: uname -a
@@ -414,12 +457,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
       PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80-nox"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
@@ -431,12 +469,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80_py2_env"
       PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
       - run: uname -a
@@ -448,12 +481,7 @@ jobs:
     environment:
       WORKDIR: "workspace/test_cdat-v80_py3_env"
       PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
       ENV_PREFIX: "cdat-v80"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
@@ -469,8 +497,8 @@ workflows:
     #        branches:
     #          only: validateNightly
     jobs:
-      #
-      - linux_cdat_latest_channel_py2
+      - macos_cdat-v80-nox_py2
+      - linux_cdat-v80-nox_py2
       #- macos_nightly_py2
       #- macos_nightly_py3:
       #    requires:
@@ -487,6 +515,12 @@ workflows:
       #- macos_cdat-v80_py3:
       #    requires:
       #      - macos_cdat-v80_py2     
+      #- macos_cdat_latest_channel_py2:
+      #    requires:
+      #      - macos_cdat-v80_py3
+      #- macos_cdat_latest_channel_py3:
+      #    requires:
+      #      - macos_cdat_latest_channel_py2
       #- linux_nightly_py2
       #- linux_nightly_py3:
       #    requires:
@@ -503,6 +537,12 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      
+      #- linux_cdat_latest_channel_py2:
+      #    requires:
+      #      - linux_cdat-v80_py3
+      #- linux_cdat_latest_channel_py3:
+      #    requires:
+      #      - linux_cdat_latest_channel_py2
+
 
 
