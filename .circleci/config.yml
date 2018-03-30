@@ -261,7 +261,7 @@ jobs:
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat_latest_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_CHANNEL: "latest"
+      CONDA_LABEL: "latest"
       BRANCH: "master"
       LABEL: "master"
       CDMS_LABEL: "master"
