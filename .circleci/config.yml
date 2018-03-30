@@ -3,28 +3,31 @@ version: 2
 aliases:
 
   - &setup_nightly
-    |
-      echo "Install CDAT nightly..."
+    name: setup_nightly
+    command: |
       mkdir -p workspace
       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
       python workspace/cdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       echo "Done installing nightly"
       ls $WORKDIR/miniconda/envs
+    no_output_timeout: 30m
 
   - &setup_env
-    |
-      echo "Install CDAT from env file..."
+    name: setup_env
+    command: |
       mkdir -p workspace
       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
       python workspace/cdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION
       echo "Done installing from env file"
       ls $WORKDIR//miniconda/envs
+    no_output_timeout: 30m
 
   - &validate_install
-    |
+    name: validate_install
+    command: |
       echo "Validate nightly install - verify versions of installed packages"
       python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_NAME -p $PYTHON_VERSION -b $BRANCH -l $LABEL
-
+    no_output_timeout: 30m
 
   - &run_cdms_test
     name: run_cdms_test
@@ -382,7 +385,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 1 * * *"
+          cron: "0 5 * * *"
           filters:
             branches:
               only: validateNightly
