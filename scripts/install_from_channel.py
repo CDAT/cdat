@@ -44,6 +44,10 @@ status = env_setup.install()
 if status != SUCCESS:
     sys.exit(FAILURE)
 
+status = env_setup.install_packages_for_tests()
+if status != SUCCESS:
+    sys.exit(FAILURE)
+
 env_setup.conda_list()
 
 sys.exit(status)

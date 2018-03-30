@@ -64,6 +64,24 @@ class CDATSetup(object):
         ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
         return(ret_code)
 
+    def install_packages_for_tests(self):
+
+        if "nox" in self.env_prefix:
+            pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
+        else:
+            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
+        
+        channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
+        cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
+                                                              pkgs=pkgs)]
+        env = self.env_name
+        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
+        if ret_code != SUCCESS:
+            print("FAIL...{cmd}".format(cmd=cmd))
+            return(ret_code)
+
+        return(ret_code)
+
 class NightlySetup(CDATSetup):
     """
     NightlySetup is a subclass of CDATSetup, specifically for 
@@ -195,24 +213,6 @@ class EnvSetup(CDATSetup):
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} env create -n {e} -f {f}".format(c=conda_cmd, e=env_name, f=full_path_env_file)
         ret_code = run_cmd(cmd, True, False, True)
-
-        return(ret_code)
-
-    def install_packages_for_tests(self):
-
-        if "nox" in self.env_prefix:
-            pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
-        else:
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
-        
-        channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
-        cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
-                                                              pkgs=pkgs)]
-        env = self.env_name
-        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
-        if ret_code != SUCCESS:
-            print("FAIL...{cmd}".format(cmd=cmd))
-            return(ret_code)
 
         return(ret_code)
 

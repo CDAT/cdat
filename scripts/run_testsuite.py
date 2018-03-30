@@ -46,7 +46,7 @@ if env_prefix == 'nightly':
 elif "cdat-v80" in env_prefix:
     cdat_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
 elif "channel" in env_prefix:
-    env_setup = CDATSetup.EnvFromChannelSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
+    cdat_setup = CDATSetup.EnvFromChannelSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
     sys.exit(FAILURE)
