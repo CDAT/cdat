@@ -39,6 +39,7 @@ py_ver = args.py_ver
 branch = args.branch
 label = args.label
 env_prefix = args.env_prefix
+conda_label = args.conda_label
 
 if env_prefix == 'nightly':
     cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
