@@ -89,16 +89,14 @@ class NightlySetup(CDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
-
+        #ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
+        ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
+        ch2 = "-c pcmdi/label/nightly -c pcmdi"
+        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
         if self.py_ver == 'py3':
-            ch2 = "-c pcmdi"
             py_str = "python>3"
-            pkgs = "nose mesalib image-compare cia easydev nbsphinx \"proj4<5\""
         else:
-            ch2 = "-c pcmdi/label/nightly -c pcmdi"
             py_str = "python<3"
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
             
         cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2}".format(c=conda_cmd,
                                                                        e=env_name,
