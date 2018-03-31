@@ -513,9 +513,9 @@ workflows:
       #- macos_cdat-v80_py3:
       #    requires:
       #      - macos_cdat-v80_py2     
-      - macos_cdat_latest_channel_py2:
-          requires:
-            - macos_nightly_py3
+      - macos_cdat_latest_channel_py2
+      #    requires:
+      #      - macos_nightly_py3
       - macos_cdat_latest_channel_py3:
           requires:
             - macos_cdat_latest_channel_py2
@@ -535,9 +535,9 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
+      - linux_cdat_latest_channel_py2
+      #    requires:
+      #      - linux_nightly_py3
       - linux_cdat_latest_channel_py3:
           requires:
             - linux_cdat_latest_channel_py2
