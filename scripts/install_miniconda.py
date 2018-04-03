@@ -13,7 +13,7 @@ from Util import *
 
 valid_py_vers = ["py2", "py3"]
 
-parser = argparse.ArgumentParser(description="install nightly",
+parser = argparse.ArgumentParser(description="install miniconda",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument("-w", "--workdir",
@@ -27,22 +27,3 @@ py_ver = args.py_ver
 
 conda_setup = CondaSetup.CondaSetup(workdir, py_ver)
 status, conda_path = conda_setup.install_miniconda()
-if status != SUCCESS:
-    sys.exit(FAILURE)
-
-nightly_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
-status = nightly_setup.install()
-if status != SUCCESS:
-    sys.exit(FAILURE)
-
-nightly_setup.conda_list()
-
-sys.exit(status)
-
-    
-
-
-
-
-
-
