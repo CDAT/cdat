@@ -157,7 +157,7 @@ dependencies:
   - pyflakes=1.6.0=py27_0
   - pygments=2.2.0=py27_0
   - pylint=1.8.2=py27_0
-  - pyopenssl=17.5.0=py27_0
+  - pyopenssl=17.5.0=py27_1
   - pyparsing=2.2.0=py27_0
   - pyproj=1.9.5.1=py27_0
   - pyqt=5.6.0=py27_4
