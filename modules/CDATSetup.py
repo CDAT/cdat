@@ -64,6 +64,13 @@ class CDATSetup(object):
         ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
         return(ret_code)
 
+    def conda_env_export(self):
+        yaml_file = os.path.join(self.workdir, "{e}_env.yaml".format(e=self.env_name))
+        cmd = "conda env export > {yaml_file}".format(yaml_file=yaml_file)
+        cmds_list = [cmd]
+        ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
+        return(ret_code)
+
     def install_packages_for_tests(self):
 
         if "nox" in self.env_prefix:
