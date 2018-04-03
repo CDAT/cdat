@@ -391,6 +391,145 @@ jobs:
            path: all_tests_png
            destination: all_tests_png
 
+  macos_cdat_v80_channel_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_macos_cdat_v80_channel_py2_env"
+      PYTHON_VERSION: "py2"
+      ENV_PREFIX: "cdat_v80_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "v80"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py2 install from cdat v80 channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat_v80_channel_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_linux_cdat_v80_channel_py2_env"
+      PYTHON_VERSION: "py2"
+      ENV_PREFIX: "cdat_v80_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "v80"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux + py2 install from cdat v80 channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_cdat_v80_channel_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_macos_cdat_v80_channel_py3_env"
+      PYTHON_VERSION: "py3"
+      ENV_PREFIX: "cdat_v80_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "v80"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "MacOS + py3 install from cdat v80 channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  linux_cdat_v80_channel_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_linux_cdat_v80_channel_py3_env"
+      PYTHON_VERSION: "py3"
+      ENV_PREFIX: "cdat_v80_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "v80"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux + py3 install from cdat v80 channel"
+      - run: uname -a
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+
   macos_cdat-v80-nox_py2:
     macos:
       xcode: "9.2.0"
@@ -490,17 +629,17 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    ##triggers:
+      ##- schedule:
+      ##    cron: "0 1 * * *"
+      ##    filters:
+      ##      branches:
+      ##        only: validateNightly
     jobs:
-      - macos_nightly_py2
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2   
+      ##- macos_nightly_py2
+      ##- macos_nightly_py3:
+      ##    requires:
+      ##      - macos_nightly_py2   
       #- macos_cdat-v80-nox_py2:
       #    requires:
       #      - macos_nightly_py3
@@ -513,16 +652,22 @@ workflows:
       #- macos_cdat-v80_py3:
       #    requires:
       #      - macos_cdat-v80_py2     
-      - macos_cdat_latest_channel_py2:
+      ##- macos_cdat_latest_channel_py2:
+      ##    requires:
+      ##      - macos_nightly_py3
+      ##- macos_cdat_latest_channel_py3:
+      ##    requires:
+      ##      - macos_cdat_latest_channel_py2
+      - macos_cdat_v80_channel_py2
+      ##    requires:
+      ##      - macos_cdat_latest_channel_py3
+      - macos_cdat_v80_channel_py3:
           requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
-          requires:
-            - macos_cdat_latest_channel_py2
-      - linux_nightly_py2
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
+            - macos_cdat_v80_channel_py2
+      ##- linux_nightly_py2
+      ##- linux_nightly_py3:
+      ##    requires:
+      ##      - linux_nightly_py2
       #- linux_cdat-v80-nox_py2:
       #    requires:
       #      - linux_nightly_py3
@@ -535,12 +680,17 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      - linux_cdat_latest_channel_py2:
+      ##- linux_cdat_latest_channel_py2:
+      ##    requires:
+      ##      - linux_nightly_py3
+      ##- linux_cdat_latest_channel_py3:
+      ##    requires:
+      ##      - linux_cdat_latest_channel_py2
+      - linux_cdat_v80_channel_py2
+      ##    requires:
+      ##      - linux_cdat_latest_channel_py3
+      - linux_cdat_v80_channel_py3:
           requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-
+            - linux_cdat_v80_channel_py2
 
 
