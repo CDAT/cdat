@@ -116,6 +116,12 @@ aliases:
          cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png/* all_tests_png/pcmdi_metrics-tests_png    
       fi
 
+      # for installing cdat from latest channel, save the output of "conda env export"
+      if [ "$(ls -A $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml)" ]; then
+         echo "xxx xxx xxx copying $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml"
+         cp $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml env.yaml
+      fi
+
 jobs:
   macos_nightly_py2:
     macos:
@@ -286,6 +292,9 @@ jobs:
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
 
   linux_cdat_latest_channel_py2:
     machine:
@@ -305,15 +314,15 @@ jobs:
       - run: echo "Linux + py2 install from cdat latest channel"
       - run: uname -a
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -321,6 +330,9 @@ jobs:
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
 
   macos_cdat_latest_channel_py3:
     macos:
@@ -355,6 +367,9 @@ jobs:
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
 
   linux_cdat_latest_channel_py3:
     machine:
@@ -390,6 +405,9 @@ jobs:
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
 
   macos_cdat_v80_channel_py2:
     macos:
@@ -636,62 +654,62 @@ workflows:
       ##      branches:
       ##        only: validateNightly
     jobs:
-      - macos_nightly_py2
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2   
-      - macos_cdat_latest_channel_py2:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
-          requires:
-            - macos_cdat_latest_channel_py2
-      - macos_cdat_v80_channel_py2:
-          requires:
-            - macos_cdat_latest_channel_py3
-      - macos_cdat_v80_channel_py3:
-          requires:
-            - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_cdat_v80_channel_py3
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2     
-      - linux_nightly_py2
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2:
-         requires:
-            - linux_cdat_v80_channel_py3
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
+      #- macos_nightly_py2
+      #- macos_nightly_py3:
+      #    requires:
+      #      - macos_nightly_py2   
+      #- macos_cdat_latest_channel_py2:
+      #    requires:
+      #      - macos_nightly_py3
+      #- macos_cdat_latest_channel_py3:
+      #    requires:
+      #      - macos_cdat_latest_channel_py2
+      #- macos_cdat_v80_channel_py2:
+      #    requires:
+      #      - macos_cdat_latest_channel_py3
+      #- macos_cdat_v80_channel_py3:
+      #    requires:
+      #      - macos_cdat_v80_channel_py2
+      #- macos_cdat-v80-nox_py2:
+      #    requires:
+      #      - macos_cdat_v80_channel_py3
+      #- macos_cdat-v80-nox_py3:
+      #    requires:
+      #      - macos_cdat-v80-nox_py2
+      #- macos_cdat-v80_py2:
+      #    requires:
+      #      - macos_cdat-v80-nox_py3
+      #- macos_cdat-v80_py3:
+      #    requires:
+      #      - macos_cdat-v80_py2     
+      #- linux_nightly_py2
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
+      - linux_cdat_latest_channel_py2
+      #    requires:
+      #      - linux_nightly_py3
+      #- linux_cdat_latest_channel_py3:
+      #    requires:
+      #      - linux_cdat_latest_channel_py2
+      #- linux_cdat_v80_channel_py2:
+      #    requires:
+      #      - linux_cdat_latest_channel_py3
+      #- linux_cdat_v80_channel_py3:
+      #    requires:
+      #      - linux_cdat_v80_channel_py2
+      #- linux_cdat-v80-nox_py2:
+      #   requires:
+      #      - linux_cdat_v80_channel_py3
+      #- linux_cdat-v80-nox_py3:
+      #    requires:
+      #      - linux_cdat-v80-nox_py2
+      #- linux_cdat-v80_py2:
+      #    requires:
+      #      - linux_cdat-v80-nox_py3
+      #- linux_cdat-v80_py3:
+      #    requires:
+      #      - linux_cdat-v80_py2
 
 
 
