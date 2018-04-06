@@ -151,7 +151,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/miniconda_py2"
+      WORKDIR: "workspace/macos_miniconda_py2"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -166,7 +166,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/miniconda_py3"
+      WORKDIR: "workspace/macos_miniconda_py3"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -181,7 +181,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/miniconda_py2"
+      WORKDIR: "workspace/linux_miniconda_py2"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -196,7 +196,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/miniconda_py3"
+      WORKDIR: "workspace/linux_miniconda_py3"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
