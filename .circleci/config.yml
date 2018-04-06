@@ -20,7 +20,8 @@ aliases:
     name: get_conda_cache
     command: |
        mkdir -p $WORKDIR
-       mv miniconda $WORKDIR/
+       #mv miniconda $WORKDIR/
+       ln -s miniconda $WORKDIR/.
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
@@ -151,7 +152,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/macos_miniconda_py2"
+      WORKDIR: "workspace/miniconda"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -166,7 +167,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/macos_miniconda_py3"
+      WORKDIR: "workspace/miniconda"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -181,7 +182,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/linux_miniconda_py2"
+      WORKDIR: "workspace/miniconda"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -196,7 +197,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/linux_miniconda_py3"
+      WORKDIR: "workspace/miniconda"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
