@@ -2,6 +2,30 @@ version: 2
 
 aliases:
 
+  - &setup_miniconda
+    name: setup_miniconda
+    command: |
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      ls workspace/cdat
+      # following will install miniconda under $WORKDIR
+      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
+
+  - &prep_conda_cache
+    name: prep_conda_cache
+    command: |
+       mv $WORKDIR/miniconda miniconda
+
+  - &get_conda_cache
+    name: get_conda_cache
+    command: |
+       mkdir -p $WORKDIR
+       mv miniconda $WORKDIR/
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       conda config --set always_yes yes --set changeps1 no
+       conda update -y -q conda
+       conda config --set anaconda_upload no
+
   - &setup_nightly
     name: setup_nightly
     command: |
@@ -123,6 +147,66 @@ aliases:
       fi
 
 jobs:
+  macos_py2_miniconda:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/miniconda_py2"
+      PYTHON_VERSION: 'py2'
+    steps:
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
+  macos_py3_miniconda:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/miniconda_py3"
+      PYTHON_VERSION: 'py3'
+    steps:
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
+  linux_py2_miniconda:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/miniconda_py2"
+      PYTHON_VERSION: 'py2'
+    steps:
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
+  linux_py3_miniconda:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/miniconda_py3"
+      PYTHON_VERSION: 'py3'
+    steps:
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
   macos_nightly_py2:
     macos:
       xcode: "9.2.0"
@@ -138,17 +222,22 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
+      ##- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
+      ##- run: *run_cdutil_test
+      ##- run: *run_vcs_test
+      ##- run: *run_vcsaddons_test
       #- run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      ##- run: *run_dv3d_test
+      ##- run: *run_thermo_test
+      ##- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -172,17 +261,21 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
+      ##- run: *run_cdms_test
+      ##- run: *run_genutil_test
+      ##- run: *run_cdutil_test
+      ##- run: *run_vcs_test
+      ##- run: *run_vcsaddons_test
       #- run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      ##- run: *run_dv3d_test
+      ##- run: *run_thermo_test
+      ##- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -206,17 +299,21 @@ jobs:
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
+      #- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -240,17 +337,21 @@ jobs:
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
+      #- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -276,6 +377,10 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat latest channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -313,6 +418,10 @@ jobs:
     steps:
       - run: echo "Linux + py2 install from cdat latest channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -351,6 +460,10 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat latest channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -388,6 +501,10 @@ jobs:
     steps:
       - run: echo "Linux + py3 install from cdat latest channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -426,6 +543,10 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat v80 channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -460,6 +581,10 @@ jobs:
     steps:
       - run: echo "Linux + py2 install from cdat v80 channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -495,6 +620,10 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat v80 channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -529,6 +658,10 @@ jobs:
     steps:
       - run: echo "Linux + py3 install from cdat v80 channel"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -558,6 +691,10 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80-nox_py3:
@@ -570,6 +707,10 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80_py2:
@@ -582,6 +723,10 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80_py3:
@@ -594,6 +739,10 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: macos_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py2:
@@ -606,6 +755,10 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py3:
@@ -618,6 +771,10 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80_py2:
@@ -630,6 +787,10 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py2_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80_py3:
@@ -642,6 +803,10 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: uname -a
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - restore_cache:
+          keys:
+          key: linux_py3_conda_abc1-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
 workflows:
@@ -654,62 +819,74 @@ workflows:
             branches:
               only: validateNightly
     jobs:
-      - macos_nightly_py2
+      - macos_py2_miniconda
+      - macos_py3_miniconda:
+          requires:
+            - macos_py2_miniconda
+      - macos_nightly_py2:
+          requires:
+            - macos_py3_miniconda
       - macos_nightly_py3:
           requires:
             - macos_nightly_py2   
-      - macos_cdat_latest_channel_py2:
+      #- macos_cdat_latest_channel_py2:
+      #    requires:
+      #      - macos_nightly_py3
+      #- macos_cdat_latest_channel_py3:
+      #    requires:
+      #      - macos_cdat_latest_channel_py2
+      #- macos_cdat_v80_channel_py2:
+      #    requires:
+      #      - macos_cdat_latest_channel_py3
+      #- macos_cdat_v80_channel_py3:
+      #    requires:
+      #      - macos_cdat_v80_channel_py2
+      #- macos_cdat-v80-nox_py2:
+      #    requires:
+      #      - macos_cdat_v80_channel_py3
+      #- macos_cdat-v80-nox_py3:
+      #    requires:
+      #      - macos_cdat-v80-nox_py2
+      #- macos_cdat-v80_py2:
+      #    requires:
+      #      - macos_cdat-v80-nox_py3
+      #- macos_cdat-v80_py3:
+      #    requires:
+      #      - macos_cdat-v80_py2 
+      - linux_py2_miniconda
+      - linux_py3_miniconda:
           requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
+            - linux_py2_miniconda    
+      - linux_nightly_py2:
           requires:
-            - macos_cdat_latest_channel_py2
-      - macos_cdat_v80_channel_py2:
-          requires:
-            - macos_cdat_latest_channel_py3
-      - macos_cdat_v80_channel_py3:
-          requires:
-            - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_cdat_v80_channel_py3
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2     
-      - linux_nightly_py2
+            - linux_py3_miniconda
       - linux_nightly_py3:
           requires:
             - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2:
-         requires:
-            - linux_cdat_v80_channel_py3
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
+      #- linux_cdat_latest_channel_py2:
+      #    requires:
+      #      - linux_nightly_py3
+      #- linux_cdat_latest_channel_py3:
+      #    requires:
+      #      - linux_cdat_latest_channel_py2
+      #- linux_cdat_v80_channel_py2:
+      #    requires:
+      #      - linux_cdat_latest_channel_py3
+      #- linux_cdat_v80_channel_py3:
+      #    requires:
+      #      - linux_cdat_v80_channel_py2
+      #- linux_cdat-v80-nox_py2:
+      #   requires:
+      #      - linux_cdat_v80_channel_py3
+      #- linux_cdat-v80-nox_py3:
+      #    requires:
+      #      - linux_cdat-v80-nox_py2
+      #- linux_cdat-v80_py2:
+      #    requires:
+      #      - linux_cdat-v80-nox_py3
+      #- linux_cdat-v80_py3:
+      #    requires:
+      #      - linux_cdat-v80_py2
 
 
 
