@@ -20,8 +20,7 @@ aliases:
     name: get_conda_cache
     command: |
        mkdir -p $WORKDIR
-       #mv miniconda $WORKDIR/
-       ln -s miniconda $WORKDIR/.
+       mv miniconda $WORKDIR/
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
@@ -152,7 +151,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/miniconda"
+      WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -167,7 +166,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/miniconda"
+      WORKDIR: "workspace"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -182,7 +181,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/miniconda"
+      WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -197,7 +196,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/miniconda"
+      WORKDIR: "workspace"
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
@@ -212,7 +211,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_nightly"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
@@ -251,7 +250,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_nightly"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
@@ -289,7 +288,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_nightly"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
@@ -327,7 +326,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_nightly"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
@@ -365,7 +364,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_macos_cdat_latest_channel_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat_latest_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -406,7 +405,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_cdat_latest_channel_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat_latest_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -448,7 +447,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_macos_cdat_latest_channel_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat_latest_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -489,7 +488,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_cdat_latest_channel_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat_latest_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -531,7 +530,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_macos_cdat_v80_channel_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat_v80_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -569,7 +568,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_cdat_v80_channel_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat_v80_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -608,7 +607,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_macos_cdat_v80_channel_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat_v80_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -646,7 +645,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_cdat_v80_channel_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat_v80_channel"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
@@ -686,7 +685,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat-v80-nox"
     steps:
@@ -702,7 +701,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat-v80-nox"
     steps:
@@ -718,7 +717,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-v80_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat-v80"
     steps:
@@ -734,7 +733,7 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_cdat-v80_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat-v80"
     steps:
@@ -750,7 +749,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-v80-nox_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat-v80-nox"
     steps:
@@ -766,7 +765,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-v80-nox_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat-v80-nox"
     steps:
@@ -782,7 +781,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-v80_py2_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py2"
       ENV_PREFIX: "cdat-v80"
     steps:
@@ -798,7 +797,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_cdat-v80_py3_env"
+      WORKDIR: "workspace"
       PYTHON_VERSION: "py3"
       ENV_PREFIX: "cdat-v80"
     steps:
