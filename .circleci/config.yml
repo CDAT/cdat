@@ -159,7 +159,7 @@ jobs:
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   macos_py3_miniconda:
@@ -174,7 +174,7 @@ jobs:
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   linux_py2_miniconda:
@@ -189,7 +189,7 @@ jobs:
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   linux_py3_miniconda:
@@ -204,7 +204,7 @@ jobs:
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   macos_nightly_py2:
@@ -225,7 +225,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -264,7 +264,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
       ##- run: *run_cdms_test
@@ -302,7 +302,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
       #- run: *run_cdms_test
@@ -340,7 +340,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *setup_nightly
       - run: *validate_install
       #- run: *run_cdms_test
@@ -380,7 +380,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -421,7 +421,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -463,7 +463,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -504,7 +504,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -546,7 +546,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -584,7 +584,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -623,7 +623,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -661,7 +661,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_conda_channel
       - run: *run_cdms_test
       - run: *run_genutil_test
@@ -694,7 +694,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80-nox_py3:
@@ -710,7 +710,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80_py2:
@@ -726,7 +726,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   macos_cdat-v80_py3:
@@ -742,7 +742,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: macos_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py2:
@@ -758,7 +758,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80-nox_py3:
@@ -774,7 +774,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80_py2:
@@ -790,7 +790,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py2_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
   linux_cdat-v80_py3:
@@ -806,7 +806,7 @@ jobs:
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - restore_cache:
           keys:
-          key: linux_py3_conda_abc2-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_abc3-{{ checksum "todaysDate.txt" }}
       - run: *install_from_yaml_file
 
 workflows:
