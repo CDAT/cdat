@@ -677,7 +677,6 @@ jobs:
            path: all_tests_png
            destination: all_tests_png
 
-
   macos_cdat-v80-nox_py2:
     macos:
       xcode: "9.2.0"
@@ -693,6 +692,20 @@ jobs:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   macos_cdat-v80-nox_py3:
     macos:
@@ -709,6 +722,20 @@ jobs:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   macos_cdat-v80_py2:
     macos:
@@ -725,6 +752,15 @@ jobs:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   macos_cdat-v80_py3:
     macos:
@@ -741,6 +777,15 @@ jobs:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   linux_cdat-v80-nox_py2:
     machine:
@@ -757,6 +802,21 @@ jobs:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   linux_cdat-v80-nox_py3:
     machine:
@@ -773,6 +833,21 @@ jobs:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   linux_cdat-v80_py2:
     machine:
@@ -789,6 +864,15 @@ jobs:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
   linux_cdat-v80_py3:
     machine:
@@ -805,6 +889,15 @@ jobs:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
 
 workflows:
   version: 2
@@ -842,15 +935,15 @@ workflows:
           requires:
       #      - macos_cdat_v80_channel_py3
              - macos_py3_miniconda
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2 
+      #- macos_cdat-v80-nox_py3:
+      #    requires:
+      #      - macos_cdat-v80-nox_py2
+      #- macos_cdat-v80_py2:
+      #    requires:
+      #      - macos_cdat-v80-nox_py3
+      #- macos_cdat-v80_py3:
+      #    requires:
+      #      - macos_cdat-v80_py2 
       - linux_py2_miniconda
       - linux_py3_miniconda:
           requires:
@@ -877,15 +970,15 @@ workflows:
          requires:
       #      - linux_cdat_v80_channel_py3
              - linux_py3_miniconda
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
+      #- linux_cdat-v80-nox_py3:
+      #    requires:
+      #      - linux_cdat-v80-nox_py2
+      #- linux_cdat-v80_py2:
+      #    requires:
+      #      - linux_cdat-v80-nox_py3
+      #- linux_cdat-v80_py3:
+      #    requires:
+      #      - linux_cdat-v80_py2
 
 
 
