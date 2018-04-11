@@ -153,6 +153,7 @@ jobs:
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -168,6 +169,7 @@ jobs:
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -183,6 +185,7 @@ jobs:
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -198,6 +201,7 @@ jobs:
       PYTHON_VERSION: 'py3'
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -220,6 +224,7 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -258,6 +263,7 @@ jobs:
     steps:
       - run: echo "...MacOS - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -296,6 +302,7 @@ jobs:
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -334,6 +341,7 @@ jobs:
     steps:
       - run: echo "...Linux - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -374,6 +382,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -415,6 +424,7 @@ jobs:
     steps:
       - run: echo "Linux + py2 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -457,6 +467,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -498,6 +509,7 @@ jobs:
     steps:
       - run: echo "Linux + py3 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -540,6 +552,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -578,6 +591,7 @@ jobs:
     steps:
       - run: echo "Linux + py2 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -617,6 +631,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -655,6 +670,7 @@ jobs:
     steps:
       - run: echo "Linux + py3 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -692,6 +708,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -727,6 +744,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -762,6 +780,7 @@ jobs:
     steps:
       - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -792,6 +811,7 @@ jobs:
     steps:
       - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -822,6 +842,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -858,6 +879,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -894,6 +916,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -924,6 +947,7 @@ jobs:
     steps:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
       - restore_cache:
           keys:
           key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -944,36 +968,36 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "1 6 * * *"
+          cron: "33 3 * * *"
           filters:
             branches:
               only: validateNightly
     jobs:
-      #- macos_py2_miniconda
-      #- macos_py3_miniconda:
-      #    requires:
-      #      - macos_py2_miniconda
-      #- macos_nightly_py2:
-      #    requires:
-      #      - macos_py3_miniconda
-      #- macos_nightly_py3:
-      #    requires:
-      #      - macos_nightly_py2   
-      #- macos_cdat_latest_channel_py2:
-      #    requires:
-      #      - macos_nightly_py3
-      #- macos_cdat_latest_channel_py3:
-      #    requires:
-      #      - macos_cdat_latest_channel_py2
-      #- macos_cdat_v80_channel_py2:
-      #    requires:
-      #      - macos_cdat_latest_channel_py3
-      #- macos_cdat_v80_channel_py3:
-      #    requires:
-      #      - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2
-      #    requires:
-      #      - macos_cdat_v80_channel_py3
+      - macos_py2_miniconda
+      - macos_py3_miniconda:
+          requires:
+            - macos_py2_miniconda
+      - macos_nightly_py2:
+          requires:
+            - macos_py3_miniconda
+      - macos_nightly_py3:
+          requires:
+            - macos_nightly_py2   
+      - macos_cdat_latest_channel_py2:
+          requires:
+            - macos_nightly_py3
+      - macos_cdat_latest_channel_py3:
+          requires:
+            - macos_cdat_latest_channel_py2
+      - macos_cdat_v80_channel_py2:
+          requires:
+            - macos_cdat_latest_channel_py3
+      - macos_cdat_v80_channel_py3:
+          requires:
+            - macos_cdat_v80_channel_py2
+      - macos_cdat-v80-nox_py2:
+          requires:
+            - macos_cdat_v80_channel_py3
       - macos_cdat-v80-nox_py3:
           requires:
             - macos_cdat-v80-nox_py2
@@ -983,31 +1007,31 @@ workflows:
       - macos_cdat-v80_py3:
           requires:
             - macos_cdat-v80_py2 
-      #- linux_py2_miniconda
-      #- linux_py3_miniconda:
-      #    requires:
-      #      - linux_py2_miniconda    
-      #- linux_nightly_py2:
-      #    requires:
-      #      - linux_py3_miniconda
-      #- linux_nightly_py3:
-      #    requires:
-      #      - linux_nightly_py2
-      #- linux_cdat_latest_channel_py2:
-      #    requires:
-      #      - linux_nightly_py3
-      #- linux_cdat_latest_channel_py3:
-      #    requires:
-      #      - linux_cdat_latest_channel_py2
-      #- linux_cdat_v80_channel_py2:
-      #    requires:
-      #      - linux_cdat_latest_channel_py3
-      #- linux_cdat_v80_channel_py3:
-      #    requires:
-      #      - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2
-      #   requires:
-      #      - linux_cdat_v80_channel_py3
+      - linux_py2_miniconda
+      - linux_py3_miniconda:
+          requires:
+            - linux_py2_miniconda    
+      - linux_nightly_py2:
+          requires:
+            - linux_py3_miniconda
+      - linux_nightly_py3:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat_latest_channel_py2:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat_latest_channel_py3:
+          requires:
+            - linux_cdat_latest_channel_py2
+      - linux_cdat_v80_channel_py2:
+          requires:
+            - linux_cdat_latest_channel_py3
+      - linux_cdat_v80_channel_py3:
+          requires:
+            - linux_cdat_v80_channel_py2
+      - linux_cdat-v80-nox_py2:
+          requires:
+            - linux_cdat_v80_channel_py3
       - linux_cdat-v80-nox_py3:
           requires:
             - linux_cdat-v80-nox_py2
