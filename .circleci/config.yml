@@ -307,7 +307,7 @@ jobs:
       - run: echo "...Linux - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -348,7 +348,7 @@ jobs:
       - run: echo "...Linux - test install from nightly"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -435,7 +435,7 @@ jobs:
       - run: echo "Linux + py2 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -524,7 +524,7 @@ jobs:
       - run: echo "Linux + py3 install from cdat latest channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -610,7 +610,7 @@ jobs:
       - run: echo "Linux + py2 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -693,7 +693,7 @@ jobs:
       - run: echo "Linux + py3 install from cdat v80 channel"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -875,7 +875,7 @@ jobs:
       - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -914,7 +914,7 @@ jobs:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -953,7 +953,7 @@ jobs:
       - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -986,7 +986,7 @@ jobs:
       - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
       - restore_cache:
           keys:
             - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
@@ -1008,7 +1008,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 1 * * *"
+          cron: "21 3 * * *"
           filters:
             branches:
               only: validateNightly
