@@ -960,15 +960,15 @@ jobs:
             - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- store_artifacts:
+      #     path: all_tests_html
+      #    destination: all_tests_html
+      #- store_artifacts:
+      #     path: all_tests_png
+      #     destination: all_tests_png
 
   linux_cdat-v80_py3:
     machine:
@@ -993,15 +993,15 @@ jobs:
             - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- store_artifacts:
+      #     path: all_tests_html
+      #     destination: all_tests_html
+      #- store_artifacts:
+      #     path: all_tests_png
+      #     destination: all_tests_png
 
 workflows:
   version: 2
@@ -1013,7 +1013,7 @@ workflows:
             branches:
               only: validateNightly
     jobs:
-      - macos_py2_miniconda
+      #- macos_py2_miniconda
       - macos_py3_miniconda:
           requires:
             - macos_py2_miniconda
@@ -1051,27 +1051,28 @@ workflows:
       - linux_py3_miniconda:
           requires:
             - linux_py2_miniconda    
-      - linux_nightly_py2:
-          requires:
-            - linux_py3_miniconda
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
+      #- linux_nightly_py2:
+      #    requires:
+      #      - linux_py3_miniconda
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
+      #- linux_cdat_latest_channel_py2:
+      #    requires:
+      #      - linux_nightly_py3
+      #- linux_cdat_latest_channel_py3:
+      #    requires:
+      #      - linux_cdat_latest_channel_py2
+      #- linux_cdat_v80_channel_py2:
+      #    requires:
+      #      - linux_cdat_latest_channel_py3
+      #- linux_cdat_v80_channel_py3:
+      #    requires:
+      #      - linux_cdat_v80_channel_py2
       - linux_cdat-v80-nox_py2:
           requires:
-            - linux_cdat_v80_channel_py3
+            #- linux_cdat_v80_channel_py3
+            - linux_py3_miniconda
       - linux_cdat-v80-nox_py3:
           requires:
             - linux_cdat-v80-nox_py2
