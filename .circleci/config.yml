@@ -965,7 +965,7 @@ jobs:
       - run: *run_cdutil_test
       - store_artifacts:
            path: all_tests_html
-          destination: all_tests_html
+           destination: all_tests_html
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
