@@ -68,13 +68,6 @@ class CondaSetup:
             print('FAILED: ' + cmd)
             return(ret_code, None)
 
-        cmd = "{c} install gcc future".format(c=conda_cmd)
-        ret_code = run_cmd(cmd, True, False, True)
-        if ret_code != SUCCESS:
-            print("FAILED: {c}, ret_code:{r}".format(c=cmd, r=ret_code))
-            # Not sure why this sometimes return not SUCCESS
-            #return(ret_code, None)
-
         # I am not sure if I need the following
         if sys.platform == 'darwin':
             cmd = "{c} update -y -q conda".format(c=conda_cmd)
