@@ -1137,7 +1137,13 @@ workflows:
       - linux_py2_miniconda
       - linux_py3_miniconda:
           requires:
-            - linux_py2_miniconda    
+            - linux_py2_miniconda
+      - linux_cdat_custom_channel_py2:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat_custom_channel_py3:
+          requires:
+            - linux_cdat_custom_channel_py2
       #- linux_nightly_py2:
       #    requires:
       #      - linux_py3_miniconda
@@ -1168,12 +1174,6 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      #- linux_cdat_custom_channel_py2:
-      #    requires:
-      #      - linux_py3_miniconda
-      #- linux_cdat_custom_channel_py3:
-      #    requires:
-      #      - linux_cdat_custom_channel_py2
 
 
 
