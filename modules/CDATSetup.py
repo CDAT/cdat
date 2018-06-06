@@ -263,8 +263,10 @@ class EnvFromChannelSetup(CDATSetup):
         env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
         if label == 'v80':
             cdat_channel = "cdat/label/{l}".format(l=label)
-        else:
+        elif label == 'latest':
             cdat_channel = "cdat"
+        else:
+            cdat_channel = "cdat/label/{l} -c cdat/label/nightly".format(l=label)
 
         conda_path = self.conda_path
         conda_cmd = os.path.join(conda_path, "conda")

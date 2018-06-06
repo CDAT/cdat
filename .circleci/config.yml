@@ -1003,6 +1003,93 @@ jobs:
            path: all_tests_png
            destination: all_tests_png
 
+  linux_cdat_custom_channel_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace"
+      PYTHON_VERSION: "py2"
+      ENV_PREFIX: "cdat_latest_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "unstable"
+      BRANCH: "master"
+      LABEL: "master"
+      CDMS_LABEL: "master"
+      PCMDI_METRICS_LABEL: "master"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux + py2 install from cdat latest channel"
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - restore_cache:
+          keys:
+            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+
+  linux_cdat_custom_channel_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace"
+      PYTHON_VERSION: "py3"
+      ENV_PREFIX: "cdat_v80_channel"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      CONDA_LABEL: "unstable"
+      BRANCH: "master"
+      LABEL: "v8.0"
+      CDMS_LABEL: "v3.0"
+      PCMDI_METRICS_LABEL: "cdat_v8.0"
+      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+    steps:
+      - run: echo "Linux + py3 install from cdat v80 channel"
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
+      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
 workflows:
   version: 2
   nightly:
@@ -1013,74 +1100,80 @@ workflows:
             branches:
               only: validateNightly
     jobs:
-      - macos_py2_miniconda
-      - macos_py3_miniconda:
-          requires:
-            - macos_py2_miniconda
-      - macos_nightly_py2:
-          requires:
-            - macos_py3_miniconda
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2   
-      - macos_cdat_latest_channel_py2:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
-          requires:
-            - macos_cdat_latest_channel_py2
-      - macos_cdat_v80_channel_py2:
-          requires:
-            - macos_cdat_latest_channel_py3
-      - macos_cdat_v80_channel_py3:
-          requires:
-            - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_cdat_v80_channel_py3
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2 
+      #- macos_py2_miniconda
+      #- macos_py3_miniconda:
+      #    requires:
+      #      - macos_py2_miniconda
+      #- macos_nightly_py2:
+      #    requires:
+      #      - macos_py3_miniconda
+      #- macos_nightly_py3:
+      #    requires:
+      #      - macos_nightly_py2   
+      #- macos_cdat_latest_channel_py2:
+      #    requires:
+      #      - macos_nightly_py3
+      #- macos_cdat_latest_channel_py3:
+      #    requires:
+      #      - macos_cdat_latest_channel_py2
+      #- macos_cdat_v80_channel_py2:
+      #    requires:
+      #      - macos_cdat_latest_channel_py3
+      #- macos_cdat_v80_channel_py3:
+      #    requires:
+      #      - macos_cdat_v80_channel_py2
+      #- macos_cdat-v80-nox_py2:
+      #    requires:
+      #      - macos_cdat_v80_channel_py3
+      #- macos_cdat-v80-nox_py3:
+      #    requires:
+      #      - macos_cdat-v80-nox_py2
+      #- macos_cdat-v80_py2:
+      #    requires:
+      #      - macos_cdat-v80-nox_py3
+      #- macos_cdat-v80_py3:
+      #    requires:
+      #      - macos_cdat-v80_py2 
       - linux_py2_miniconda
       - linux_py3_miniconda:
           requires:
             - linux_py2_miniconda    
-      - linux_nightly_py2:
+      #- linux_nightly_py2:
+      #    requires:
+      #      - linux_py3_miniconda
+      #- linux_nightly_py3:
+      #    requires:
+      #      - linux_nightly_py2
+      #- linux_cdat_latest_channel_py2:
+      #    requires:
+      #      - linux_nightly_py3
+      #- linux_cdat_latest_channel_py3:
+      #    requires:
+      #      - linux_cdat_latest_channel_py2
+      #- linux_cdat_v80_channel_py2:
+      #    requires:
+      #      - linux_cdat_latest_channel_py3
+      #- linux_cdat_v80_channel_py3:
+      #    requires:
+      #      - linux_cdat_v80_channel_py2
+      #- linux_cdat-v80-nox_py2:
+      #    requires:
+      #      - linux_cdat_v80_channel_py3
+      #- linux_cdat-v80-nox_py3:
+      #    requires:
+      #      - linux_cdat-v80-nox_py2
+      #- linux_cdat-v80_py2:
+      #    requires:
+      #      - linux_cdat-v80-nox_py3
+      #- linux_cdat-v80_py3:
+      #    requires:
+      #      - linux_cdat-v80_py2
+      - linux_cdat_custom_channel_py2:
           requires:
             - linux_py3_miniconda
-      - linux_nightly_py3:
+      - linux_cdat_custom_channel_py3:
           requires:
-            - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2:
-          requires:
-            - linux_cdat_v80_channel_py3
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
+            - linux_cdat_custom_channel_py2
 
 
 
