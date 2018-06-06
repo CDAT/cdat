@@ -266,7 +266,8 @@ class EnvFromChannelSetup(CDATSetup):
         elif label == 'latest':
             channel = "-c conda-forge -c cdat"
         else:
-            channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat".format(l=label)
+            # TEMPORARY
+            channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
 
         conda_path = self.conda_path
         conda_cmd = os.path.join(conda_path, "conda")
