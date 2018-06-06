@@ -1093,12 +1093,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "6 7 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "0 3 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
       #- macos_py2_miniconda
       #- macos_py3_miniconda:
@@ -1168,12 +1168,12 @@ workflows:
       #- linux_cdat-v80_py3:
       #    requires:
       #      - linux_cdat-v80_py2
-      - linux_cdat_custom_channel_py2:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat_custom_channel_py3:
-          requires:
-            - linux_cdat_custom_channel_py2
+      #- linux_cdat_custom_channel_py2:
+      #    requires:
+      #      - linux_py3_miniconda
+      #- linux_cdat_custom_channel_py3:
+      #    requires:
+      #      - linux_cdat_custom_channel_py2
 
 
 
