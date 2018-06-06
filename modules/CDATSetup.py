@@ -262,11 +262,11 @@ class EnvFromChannelSetup(CDATSetup):
 
         env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
         if label == 'v80':
-            cdat_channel = "cdat/label/{l}".format(l=label)
+            channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
         elif label == 'latest':
-            cdat_channel = "cdat"
+            channel = "-c conda-forge -c cdat"
         else:
-            cdat_channel = "cdat/label/{l} -c cdat/label/nightly".format(l=label)
+            channel = "-c cdat/label{l} -c cdat/label/nightly -c conda-forge".format(l=label)
 
         conda_path = self.conda_path
         conda_cmd = os.path.join(conda_path, "conda")
@@ -275,10 +275,11 @@ class EnvFromChannelSetup(CDATSetup):
         else:
             py_ver_str = "python=3.6"
 
-        cmd = "{c} create -n {n} -c conda-forge -c {channel} {ver} cdat".format(c=conda_cmd,
-                                                                                n=env_name,
-                                                                                channel=cdat_channel,
-                                                                                ver=py_ver_str)
+        cmd = "{c} create -n {n} {channel} {ver} cdat".format(c=conda_cmd,
+                                                              n=env_name,
+                                                              channel=channel,
+                                                              ver=py_ver_str)
+
         ret_code = run_cmd(cmd, True, False, True)
         return(ret_code)
 
