@@ -1222,7 +1222,7 @@ workflows:
       #- macos_cdat-v80_py3:
       #    requires:
       #      - macos_cdat-v80_py2 
-      - linux_py2_miniconda
+      # - linux_py2_miniconda
       #- linux_nightly_py2:
       #    requires:
       #      - linux_py3_miniconda
