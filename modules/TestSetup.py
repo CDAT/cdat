@@ -138,9 +138,7 @@ class CdmsTestSetup(TestSetup):
                                                                                                                              w=workdir)
         ret_code = run_in_conda_env(conda_path, env, cmds_list)
         dds_url = "https://aims3.llnl.gov/thredds/dodsC/cmip5_css02_data/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/cct/1/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
-        #dds_url = "https://esgf-node.cmcc.it/thredds/dodsC/esg_dataroot/cm\
-ip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/v20170725/cct/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-20351\
-2.nc.dds"
+        #dds_url = "https://esgf-node.cmcc.it/thredds/dodsC/esg_dataroot/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/v20170725/cct/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
 
         if py_version == 'py2':
             cacert = "--cacert {w}/miniconda/lib/python2.7/site-packages/certifi/cacert.pem".format(w=workdir)
