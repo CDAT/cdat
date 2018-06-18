@@ -61,9 +61,11 @@ aliases:
       python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -b $BRANCH -l $LABEL
     no_output_timeout: 30m
 
-  - &run_cdms_test
-    name: run_cdms_test
+  - &setup_for_cdms
+    name: setup_for_cdms
     command: |
+      export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
+      source activate ${ENV_PREFIX}_${PYTHON_VERSION}
       mkdir $HOME/.esg
       echo "Get ESGF certificates"
       echo ${ESGF_PWD} | myproxyclient logon -s esgf-node.llnl.gov -p 7512 -t 12 -S -b -l ${ESGF_USER} -o $HOME/.esg/esgf.cert
@@ -74,6 +76,11 @@ aliases:
        else
          cp tests/dodsrccircleciDarwin $HOME/.dodsrc
       fi
+      source deactivate
+
+  - &run_cdms_test
+    name: run_cdms_test
+    command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_PREFIX -b $BRANCH -l $CDMS_LABEL
 
   - &run_genutil_test
@@ -243,6 +250,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
+      - run: *setup_for_cdms
       - run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -283,6 +291,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
+      - run: *setup_for_cdms
       - run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -323,6 +332,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
+      - run: *setup_for_cdms
       - run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
@@ -364,6 +374,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
+      - run: *setup_for_cdms
       - run: *run_cdms_test
       #- run: *run_genutil_test
       #- run: *run_cdutil_test
