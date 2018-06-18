@@ -64,6 +64,16 @@ aliases:
   - &run_cdms_test
     name: run_cdms_test
     command: |
+      mkdir $HOME/.esg
+      echo "Get ESGF certificates"
+      echo ${ESGF_PWD} | myproxyclient logon -s esgf-node.llnl.gov -p 7512 -t 12 -S -b -l ${ESGF_USER} -o $HOME/.esg/esgf.cert
+      echo "Create .dods_cookies"
+      curl -L  -v   -c $HOME/.esg/.dods_cookies --cert $HOME/.esg/esgf.cert  --key $HOME/.esg/esgf.cert "https://aims3.llnl.gov/thredds/dodsC/cmip5_css02_data/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/cct/1/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
+      if [ $(uname) == "Linux" ];then
+         cp tests/dodsrccircleciLinux $HOME/.dodsrc
+       else
+         cp tests/dodsrccircleciDarwin $HOME/.dodsrc
+      fi
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_PREFIX -b $BRANCH -l $CDMS_LABEL
 
   - &run_genutil_test
@@ -234,14 +244,13 @@ jobs:
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -275,14 +284,13 @@ jobs:
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -316,14 +324,14 @@ jobs:
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -357,14 +365,14 @@ jobs:
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: all_tests_html
@@ -1006,12 +1014,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "0 3 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
       - macos_py2_miniconda
       - macos_py3_miniconda:
@@ -1023,30 +1031,6 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_nightly_py2   
-      - macos_cdat_latest_channel_py2:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
-          requires:
-            - macos_cdat_latest_channel_py2
-      - macos_cdat_v80_channel_py2:
-          requires:
-            - macos_cdat_latest_channel_py3
-      - macos_cdat_v80_channel_py3:
-          requires:
-            - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_cdat_v80_channel_py3
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2 
       - linux_py2_miniconda
       - linux_py3_miniconda:
           requires:
@@ -1057,30 +1041,6 @@ workflows:
       - linux_nightly_py3:
           requires:
             - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2:
-          requires:
-            - linux_cdat_v80_channel_py3
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
 
 
 
