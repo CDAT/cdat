@@ -68,6 +68,7 @@ aliases:
       source activate ${ENV_PREFIX}_${PYTHON_VERSION}
       mkdir $HOME/.esg
       echo "Get ESGF certificates"
+      pip install MyProxyClient
       echo ${ESGF_PWD} | myproxyclient logon -s esgf-node.llnl.gov -p 7512 -t 12 -S -b -l ${ESGF_USER} -o $HOME/.esg/esgf.cert
       echo "Create .dods_cookies"
       curl -L  -v   -c $HOME/.esg/.dods_cookies --cert $HOME/.esg/esgf.cert  --key $HOME/.esg/esgf.cert "https://aims3.llnl.gov/thredds/dodsC/cmip5_css02_data/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/cct/1/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
