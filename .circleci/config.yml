@@ -68,9 +68,9 @@ aliases:
       source activate ${ENV_PREFIX}_${PYTHON_VERSION}
       mkdir $HOME/.esg
       echo "Get ESGF certificates"
-      echo "xxx DEBUG xxx...ESGF_PWD: "${ESGF_PWD}
-      echo "xxx DEBUG xxx...ESGF_USER: "${ESGF_USER}
-      echo "xxx DEBUG xxx...HOME: "${HOME}
+      echo "xxx DEBUG xxxx...ESGF_PWD: "${ESGF_PWD}
+      echo "xxx DEBUG xxxx...ESGF_USER: "${ESGF_USER}
+      echo "xxx DEBUG xxxx...HOME: "${HOME}
       pip install MyProxyClient
       echo ${ESGF_PWD} | myproxyclient logon -s esgf-node.llnl.gov -p 7512 -t 12 -S -b -l ${ESGF_USER} -o $HOME/.esg/esgf.cert
       echo "Create .dods_cookies"
