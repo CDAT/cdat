@@ -163,6 +163,9 @@ class CdmsTestSetup(TestSetup):
                                                                url=dds_url)
         run_cmd(cmd, True, False, True)
 
+        cmd = "ls {workdir}/.esg".format(workdir=workdir)
+        run_cmd(cmd, True, False, True)
+
         user_home = os.environ['HOME']
         print("xxx HOME: {h}".format(h=user_home))
         #if sys.platform == 'darwin':
