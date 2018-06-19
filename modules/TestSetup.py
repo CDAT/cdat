@@ -165,14 +165,14 @@ class CdmsTestSetup(TestSetup):
 
         user_home = os.environ['HOME']
         print("xxx HOME: {h}".format(h=user_home))
-        if sys.platform == 'darwin':
-            cmd = "cp {d}/tests/dodsrccircleciDarwin {h}/.dodsrc".format(d=repo_dir,
-                                                                         h=user_home)
-        else:
-            cmd = "cp {d}/tests/dodsrccircleciLinux {h}/.dodsrc".format(d=repo_dir,
-                                                                        h=user_home)
+        #if sys.platform == 'darwin':
+        #    cmd = "cp {d}/tests/dodsrccircleciDarwin {h}/.dodsrc".format(d=repo_dir,
+        #                                                                 h=user_home)
+        #else:
+        #    cmd = "cp {d}/tests/dodsrccircleciLinux {h}/.dodsrc".format(d=repo_dir,
+        #                                                                h=user_home)
 
-        run_cmd(cmd, True, False, True)
+        #run_cmd(cmd, True, False, True)
 
         # remove afterwards...
 
