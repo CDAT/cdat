@@ -58,8 +58,6 @@ run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
-elif ts == 'cdms':
-    test_setup = TestSetup.CdmsTestSetup(cdat_setup, ts, py_ver, branch, label)
 else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
