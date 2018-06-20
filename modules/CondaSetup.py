@@ -18,8 +18,9 @@ class CondaSetup:
         # create workdir if it does not exist
         workdir = self.workdir
         if os.path.isdir(workdir) == True:
-            print('INFO: ' + workdir + ' already exists')
+            print("INFO: {dir} already exists".format(dir=workdir))
             if self.conda_path != None and os.path.isdir(self.conda_path) == True:
+                print("INFO: {dir} already exists".format(dir=self.conda_path))
                 return(SUCCESS, self.conda_path)
         else:
             os.mkdir(workdir)
