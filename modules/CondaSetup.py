@@ -51,7 +51,7 @@ class CondaSetup:
         conda_dir = os.path.join(workdir, 'miniconda')
         cmd = "bash {script} -b -p {dir}".format(script=conda_script_full_path, 
                                                  dir=conda_dir)
-
+        print("XXX DEBUG...going to run {cmd}".format(cmd=cmd))
         # run the command, set verbose=False 
         ret_code = run_cmd(cmd, True, False, False)
         if ret_code != SUCCESS:
