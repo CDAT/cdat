@@ -147,7 +147,7 @@ aliases:
 jobs:
   centos_py2_miniconda:
     docker:
-      - image: circleci/centos7
+      - image: circleci/centos:7
     environment:
       WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
