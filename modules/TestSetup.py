@@ -1,3 +1,5 @@
+import sys
+import os
 import re
 import shutil
 from datetime import datetime
@@ -111,8 +113,69 @@ class VcsTestSetup(TestSetup):
         # get uvcdat-testdata
         if label != 'master':
             for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
-            super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)        
+            super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
 
+class CdmsTestSetup(TestSetup):
+    def __init__(self, uvcdat_setup, repo_name, py_version, branch='master', label='master'):
+        super(CdmsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch, label)
+
+        repo_dir = self.repo_dir
+        user_home = os.environ['HOME']
+        cmd = "mkdir {d}/.esg".format(d=user_home)
+        run_cmd(cmd, True, False, True)
+
+        esgf_pwd = os.environ['ESGF_PWD']
+        esgf_user = os.environ['ESGF_USER']
+        
+        # install MyProxyClient
+        conda_path = self.conda_path
+        env = uvcdat_setup.get_env_name()
+        cmds_list = ["pip install MyProxyClient"]
+        ret_code = run_in_conda_env(conda_path, env, cmds_list)
+        myproxyclient_cmd = "myproxyclient logon -s esgf-node.llnl.gov -p 7512 -t 12 -S -b"
+        cmds_list = ["echo {p} | {cmd} -l {u} -o {w}/.esg/esgf.cert".format(p=esgf_pwd,
+                                                                            cmd=myproxyclient_cmd,
+                                                                            u=esgf_user,
+                                                                            w=user_home)]
+        ret_code = run_in_conda_env(conda_path, env, cmds_list, False)
+        dds_url = "https://aims3.llnl.gov/thredds/dodsC/cmip5_css02_data/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/cct/1/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
+        #dds_url = "https://esgf-node.cmcc.it/thredds/dodsC/esg_dataroot/cmip5/output1/CMCC/CMCC-CM/decadal2005/mon/atmos/Amon/r1i1p1/v20170725/cct/cct_Amon_CMCC-CM_decadal2005_r1i1p1_202601-203512.nc.dds"
+
+        # following is needed ONLY if running test locally in the lab.
+        #if py_version == 'py2':
+        #    cacert = "--cacert {w}/miniconda/lib/python2.7/site-packages/certifi/cacert.pem".format(w=workdir)
+        #else:
+        #    cacert = "--cacert {w}/miniconda/lib/python3.6/site-packages/certifi/cacert.pem".format(w=workdir)
+
+        cookies = "-c {w}/.esg/.dods_cookies".format(w=user_home)
+        key = "--key {w}/.esg/esgf.cert".format(w=user_home)
+        cert = "--cert {w}/.esg/esgf.cert".format(w=user_home)
+
+        #cmd = "curl -L -v {cacert} {cookies} {key} {cert} {url}".format(cacert=cacert,
+        #                                                                cookies=cookies,
+        #                                                                key=key,
+        #                                                                cert=cert,
+        #                                                                url=dds_url)
+
+        cmd = "curl -L -v {cookies} {key} {cert} {url}".format(cookies=cookies,
+                                                               key=key,
+                                                               cert=cert,
+                                                               url=dds_url)
+        run_cmd(cmd, True, False, True)
+
+        cmd = "ls -al {workdir}/.esg".format(workdir=user_home)
+        run_cmd(cmd, True, False, True)
+
+        user_home = os.environ['HOME']
+        print("xxx HOME: {h}".format(h=user_home))
+        if sys.platform == 'darwin':
+            cmd = "cp {d}/tests/dodsrccircleciDarwin {h}/.dodsrc".format(d=repo_dir,
+                                                                         h=user_home)
+        else:
+            cmd = "cp {d}/tests/dodsrccircleciLinux {h}/.dodsrc".format(d=repo_dir,
+                                                                        h=user_home)
+
+        run_cmd(cmd, True, False, True)
 
 
     

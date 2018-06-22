@@ -7,21 +7,22 @@ import time
 from Const import *
 
 def run_command(cmd, join_stderr=True, shell_cmd=False, verbose=True, cwd=None):
-    print("CMD: {c}".format(c=cmd))
+    if verbose:
+        print("CMD: {c}".format(c=cmd))
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
 
     if join_stderr:
-        stderr = subprocess.STDOUT
+        stderr_setting = subprocess.STDOUT
     else:
-        stderr = subprocess.PIPE
+        stderr_setting = subprocess.PIPE
 
     if cwd is None:
         current_wd = os.getcwd()
     else:
         current_wd = cwd
 
-    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr,
+    P = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr_setting,
         bufsize=0, cwd=current_wd, shell=shell_cmd)
     out = []
     while P.poll() is None:
@@ -99,7 +100,7 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
 
     return(ret_code, repo_dir)
 
-def run_in_conda_env(conda_path, env, cmds_list):
+def run_in_conda_env(conda_path, env, cmds_list, verbose=True):
     """
     conda_path - path to comda command
     env - conda environment name
@@ -116,7 +117,8 @@ def run_in_conda_env(conda_path, env, cmds_list):
     cmds = "{existing}; source deactivate".format(existing=cmds)
 
     cmd = "bash -c \"{the_cmds}\"".format(the_cmds=cmds)
-    print("CMD: {c}".format(c=cmd))
+    if verbose:
+        print("CMD: {c}".format(c=cmd))
     ret_code = os.system(cmd)
     print(ret_code)
     return(ret_code)

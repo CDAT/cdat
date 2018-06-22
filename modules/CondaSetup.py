@@ -18,8 +18,9 @@ class CondaSetup:
         # create workdir if it does not exist
         workdir = self.workdir
         if os.path.isdir(workdir) == True:
-            print('INFO: ' + workdir + ' already exists')
+            print("INFO: {dir} already exists".format(dir=workdir))
             if self.conda_path != None and os.path.isdir(self.conda_path) == True:
+                print("INFO: {dir} already exists".format(dir=self.conda_path))
                 return(SUCCESS, self.conda_path)
         else:
             os.mkdir(workdir)
@@ -64,12 +65,6 @@ class CondaSetup:
         cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
     
         ret_code = run_cmd(cmd)
-        if ret_code != SUCCESS:
-            print('FAILED: ' + cmd)
-            return(ret_code, None)
-
-        cmd = "{c} install gcc future".format(c=conda_cmd)
-        ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             print('FAILED: ' + cmd)
             return(ret_code, None)

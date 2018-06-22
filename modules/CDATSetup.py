@@ -64,6 +64,31 @@ class CDATSetup(object):
         ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
         return(ret_code)
 
+    def conda_env_export(self):
+        yaml_file = os.path.join(self.workdir, "{e}_env.yaml".format(e=self.env_name))
+        cmd = "conda env export > {yaml_file}".format(yaml_file=yaml_file)
+        cmds_list = [cmd]
+        ret_code = run_in_conda_env(self.conda_path, self.env_name, cmds_list)
+        return(ret_code)
+
+    def install_packages_for_tests(self):
+
+        if "nox" in self.env_prefix:
+            pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
+        else:
+            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
+        
+        channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
+        cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
+                                                              pkgs=pkgs)]
+        env = self.env_name
+        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
+        if ret_code != SUCCESS:
+            print("FAIL...{cmd}".format(cmd=cmd))
+            return(ret_code)
+
+        return(ret_code)
+
 class NightlySetup(CDATSetup):
     """
     NightlySetup is a subclass of CDATSetup, specifically for 
@@ -89,16 +114,14 @@ class NightlySetup(CDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
-
+        #ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
+        ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
+        ch2 = "-c pcmdi/label/nightly -c pcmdi"
+        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
         if self.py_ver == 'py3':
-            ch2 = "-c pcmdi"
             py_str = "python>3"
-            pkgs = "nose mesalib image-compare cia easydev nbsphinx \"proj4<5\""
         else:
-            ch2 = "-c pcmdi/label/nightly -c pcmdi"
             py_str = "python<3"
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
             
         cmd = "{c} create -n {e} cdat {pkgs} \"{p}\" {c1} {c2}".format(c=conda_cmd,
                                                                        e=env_name,
@@ -200,24 +223,6 @@ class EnvSetup(CDATSetup):
 
         return(ret_code)
 
-    def install_packages_for_tests(self):
-
-        if "nox" in self.env_prefix:
-            pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
-        else:
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
-        
-        channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
-        cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
-                                                              pkgs=pkgs)]
-        env = self.env_name
-        ret_code = run_in_conda_env(self.conda_path, env, cmds_list)
-        if ret_code != SUCCESS:
-            print("FAIL...{cmd}".format(cmd=cmd))
-            return(ret_code)
-
-        return(ret_code)
-
     def install(self):
 
         env_prefix = self.env_prefix
@@ -230,5 +235,53 @@ class EnvSetup(CDATSetup):
 
         return(ret_code)
 
+
+
+class EnvFromChannelSetup(CDATSetup):
+
+    """
+    EnvFromChannelSetup is a subclass of CDATSetup. 
+    This class is for cdat env that is created by installing for conda channels.
+    """
+
+    def __init__(self, conda_path, workdir, env_prefix, py_ver, label):
+        """
+        py_ver: 'py2' or 'py3'
+        label: 'v80' or 'latest'
+           if label == 'v80', env will be created with this command:
+               conda create -n <env_name> -c conda-forge -c cdat/label/v80 <python_version> cdat
+           if label == 'latest', env will be created with this command:
+               conda create -n <env_name>-c conda-forge -c cdat <python_version> cdat
+        """
+        super(EnvFromChannelSetup, self).__init__(conda_path, workdir, env_prefix, py_ver, label)
+
+    def install(self):
+        env_prefix = self.env_prefix
+        py_ver = self.py_ver
+        label = self.label
+
+        env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
+        if label == 'v80':
+            channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
+        elif label == 'latest':
+            channel = "-c conda-forge -c cdat"
+        else:
+            # TEMPORARY
+            channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
+
+        conda_path = self.conda_path
+        conda_cmd = os.path.join(conda_path, "conda")
+        if py_ver == 'py2':
+            py_ver_str = "python=2.7"
+        else:
+            py_ver_str = "python=3.6"
+
+        cmd = "{c} create -n {n} {channel} {ver} cdat".format(c=conda_cmd,
+                                                              n=env_name,
+                                                              channel=channel,
+                                                              ver=py_ver_str)
+
+        ret_code = run_cmd(cmd, True, False, True)
+        return(ret_code)
 
 

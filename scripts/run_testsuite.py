@@ -26,7 +26,8 @@ parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="cdat env name to run the testsuite in.")
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
-
+parser.add_argument("-c", "--conda_label", default='latest',
+                    help="conda label, can be 'v80' or 'latest'")
 args = parser.parse_args()
 
 
@@ -38,11 +39,14 @@ py_ver = args.py_ver
 branch = args.branch
 label = args.label
 env_prefix = args.env_prefix
+conda_label = args.conda_label
 
 if env_prefix == 'nightly':
     cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
 elif "cdat-v80" in env_prefix:
     cdat_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, label)
+elif "channel" in env_prefix:
+    cdat_setup = CDATSetup.EnvFromChannelSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
 else:
     print("ERROR...incorrect env_prefix: {v}".format(v=env_prefix))
     sys.exit(FAILURE)
@@ -54,6 +58,8 @@ run_tests_cmd = 'python run_tests.py -s -v2'
 
 if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
+elif ts == 'cdms':
+    test_setup = TestSetup.CdmsTestSetup(cdat_setup, ts, py_ver, branch, label)
 else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
