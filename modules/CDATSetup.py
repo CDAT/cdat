@@ -117,7 +117,8 @@ class NightlySetup(CDATSetup):
         #ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
         ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
-        pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
+        # openblas and nupmy 1.14 to force use of conda-forge channel
+        pkgs = "numpy=1.14 openblas nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
         if self.py_ver == 'py3':
             py_str = "python>3"
         else:
