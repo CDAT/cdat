@@ -65,6 +65,7 @@ aliases:
     name: run_cdms_test
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_PREFIX -b $BRANCH -l $CDMS_LABEL
+    no_output_timeout: 30m
 
   - &run_genutil_test
     name: run_genutil_test
