@@ -154,6 +154,7 @@ jobs:
       PYTHON_VERSION: 'py2'
     steps:
       - run: date '+%Y-%m-%d' 
+      - run: uname -a
       - run: cat /proc/version
 
 
