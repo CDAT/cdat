@@ -148,7 +148,7 @@ aliases:
 jobs:
   centos_py2_miniconda:
     docker:
-      - image: muryanto1/mycentos7:mycentos7withgit
+      - image: muryanto1/mycentos7
     environment:
       WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
