@@ -155,7 +155,8 @@ jobs:
     steps:
       - run: date '+%Y-%m-%d' 
       - run: cat /proc/version
-      - run: git
+      - run: docker run -it mycentos7
+      - run: cat /proc/version
 
   macos_py2_miniconda:
     macos:
