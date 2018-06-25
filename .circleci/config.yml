@@ -153,14 +153,9 @@ jobs:
       WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
     steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: *setup_miniconda
-      - run: ls $WORKDIR/miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: centos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
+      - run: date '+%Y-%m-%d' 
+      - run: cat /proc/version
+      - run: git
 
   macos_py2_miniconda:
     macos:
