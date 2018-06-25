@@ -158,10 +158,7 @@ jobs:
       - run: cat /proc/version
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: "echo DOCKER_USER: $DOCKER_USER, DOCKER_PASS: $DOCKER_PASS"
-      - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-          docker run -it mycentos7
+      - run: docker run -it mycentos7
       - run: cat /proc/version
 
 
