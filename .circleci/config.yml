@@ -157,7 +157,11 @@ jobs:
       - run: uname -a
       - run: cat /proc/version
       - setup_remote_docker
+      - run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker run -it mycentos7
       - run: cat /proc/version
+
 
   macos_py2_miniconda:
     macos:
