@@ -153,7 +153,6 @@ jobs:
       WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
     steps:
-      - checkout
       - run: date '+%Y-%m-%d' 
       - run: cat /proc/version
 
