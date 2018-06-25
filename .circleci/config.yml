@@ -146,15 +146,21 @@ aliases:
       fi
 
 jobs:
-  centos7_py2_miniconda:
+  centos_py2_miniconda:
     docker:
       - image: muryanto1/mycentos7:mycentos7withgit
     environment:
       WORKDIR: "workspace"
       PYTHON_VERSION: 'py2'
     steps:
-      - run: id
-
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: centos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
 
   macos_py2_miniconda:
     macos:
@@ -1018,6 +1024,6 @@ workflows:
   version: 2
   nightly:
     jobs:
-      - centos7_py2_miniconda
+      - centos_py2_miniconda
 
 
