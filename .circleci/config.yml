@@ -156,7 +156,8 @@ jobs:
       - run: date '+%Y-%m-%d' 
       - run: uname -a
       - run: cat /proc/version
-
+      - setup_remote_docker
+      - run: cat /proc/version
 
   macos_py2_miniconda:
     macos:
@@ -1022,6 +1023,6 @@ workflows:
   nightly:
     jobs:
       - centos_py2_miniconda
-      - macos_py2_miniconda
+
 
 
