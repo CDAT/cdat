@@ -146,6 +146,16 @@ aliases:
       fi
 
 jobs:
+  centos7_py2_miniconda:
+    docker:
+      - image: muryanto1/mycentos7:mycentos7withgit
+    environment:
+      WORKDIR: "workspace"
+      PYTHON_VERSION: 'py2'
+    steps:
+      - run: id
+
+
   macos_py2_miniconda:
     macos:
       xcode: "9.2.0"
@@ -1007,81 +1017,7 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
     jobs:
-      - macos_py2_miniconda
-      - macos_py3_miniconda:
-          requires:
-            - macos_py2_miniconda
-      - macos_nightly_py2:
-          requires:
-            - macos_py3_miniconda
-      - macos_nightly_py3:
-          requires:
-            - macos_nightly_py2   
-      - macos_cdat_latest_channel_py2:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat_latest_channel_py3:
-          requires:
-            - macos_cdat_latest_channel_py2
-      - macos_cdat_v80_channel_py2:
-          requires:
-            - macos_cdat_latest_channel_py3
-      - macos_cdat_v80_channel_py3:
-          requires:
-            - macos_cdat_v80_channel_py2
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_cdat_v80_channel_py3
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_cdat-v80-nox_py2
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_cdat-v80-nox_py3
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_cdat-v80_py2 
-      - linux_py2_miniconda
-      - linux_py3_miniconda:
-          requires:
-            - linux_py2_miniconda    
-      - linux_nightly_py2:
-          requires:
-            - linux_py3_miniconda
-      - linux_nightly_py3:
-          requires:
-            - linux_nightly_py2
-      - linux_cdat_latest_channel_py2:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat_latest_channel_py3:
-          requires:
-            - linux_cdat_latest_channel_py2
-      - linux_cdat_v80_channel_py2:
-          requires:
-            - linux_cdat_latest_channel_py3
-      - linux_cdat_v80_channel_py3:
-          requires:
-            - linux_cdat_v80_channel_py2
-      - linux_cdat-v80-nox_py2:
-          requires:
-            - linux_cdat_v80_channel_py3
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_cdat-v80-nox_py2
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_cdat-v80-nox_py3
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_cdat-v80_py2
-
+      - centos7_py2_miniconda
 
 
