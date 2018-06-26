@@ -1007,12 +1007,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "0 3 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
       - macos_py2_miniconda
       - macos_py3_miniconda:
