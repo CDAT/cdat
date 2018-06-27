@@ -56,6 +56,12 @@ ts = args.testsuite
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'
 
+#
+# add conda_path to PATH since *TestSetup may do 'conda install ...'
+#
+os.environ['PATH'] = "{new}:{current}".format(new=conda_path,
+                                              current=os.environ['PATH'])
+
 if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
 elif ts == 'cdms':
