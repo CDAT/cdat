@@ -951,7 +951,7 @@ jobs:
       PCMDI_METRICS_LABEL: "cdat_v8.0"
       RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
     steps:
-      - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
+      - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml..."
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
       - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
@@ -1007,12 +1007,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 3 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - macos_py2_miniconda
       - macos_py3_miniconda:
