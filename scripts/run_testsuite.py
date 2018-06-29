@@ -62,6 +62,11 @@ run_tests_cmd = 'python run_tests.py -s -v2'
 os.environ['PATH'] = "{new}:{current}".format(new=conda_path,
                                               current=os.environ['PATH'])
 
+if label == 'master':
+    checkout_baseline_opt = "--checkout-baseline"
+else:
+    checkout_baseline_opt = "-g"
+
 if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
 elif ts == 'cdms':
@@ -72,13 +77,14 @@ else:
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
 elif ts == 'dv3d':
-    cmds_list = ['python run_tests.py -v2 -n2 --checkout-baseline -H']
+    cmds_list = ["python run_tests.py -v2 -n2 {opt} -H".format(opt=checkout_baseline_opt)]
+
 elif ts == 'vcs':
     if py_ver == 'py2':
-        cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui --checkout-baseline -H']
-        #cmds_list = ['python run_tests.py -v2 -n 1 --no-vtk-ui --checkout-baseline -H']
+        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {opt} -H".format(opt=checkout_baseline_opt)]
     else:
-        cmds_list = ['python run_tests.py -v2 -n 2 --no-vtk-ui --checkout-baseline -H', 'cd docs', 'make doctest']
+        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {opt} -H".format(opt=checkout_baseline_opt),
+                     'cd docs', 'make doctest']
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = ['python run_tests.py -v2 -H']
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
