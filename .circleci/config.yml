@@ -5,10 +5,8 @@ aliases:
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      # following will install miniconda under $WORKDIR
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
+      mkdir -p $WORKDIR
+      python scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
 
   - &prep_conda_cache
     name: prep_conda_cache
@@ -28,19 +26,14 @@ aliases:
   - &setup_nightly
     name: setup_nightly
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
-      echo "Done installing nightly"
+      python scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       ls $WORKDIR/miniconda/envs
     no_output_timeout: 30m
 
   - &install_from_yaml_file
     name: install_from_yaml_file
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION
+      python scripts/install_from_env.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION
       echo "Done installing from env file"
       ls $WORKDIR//miniconda/envs
     no_output_timeout: 30m
@@ -48,9 +41,7 @@ aliases:
   - &install_from_conda_channel
     name: install_from_conda_channel
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -c $CONDA_LABEL
+      python scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -c $CONDA_LABEL
       ls $WORKDIR//miniconda/envs
     no_output_timeout: 30m
 
@@ -58,7 +49,7 @@ aliases:
     name: validate_install
     command: |
       echo "Validate nightly install - verify versions of installed packages"
-      python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -b $BRANCH -l $LABEL
+      python scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -b $BRANCH -l $LABEL
     no_output_timeout: 30m
 
   - &run_cdms_test
@@ -146,92 +137,21 @@ aliases:
       fi
 
 jobs:
-  macos_py2_miniconda:
-    macos:
-      xcode: "9.2.0"
-    environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py2'
-    steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: *setup_miniconda
-      - run: ls $WORKDIR/miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
-  macos_py3_miniconda:
-    macos:
-      xcode: "9.2.0"
-    environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py3'
-    steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: *setup_miniconda
-      - run: ls $WORKDIR/miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
-  linux_py2_miniconda:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py2'
-    steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: *setup_miniconda
-      - run: ls $WORKDIR/miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
-  linux_py3_miniconda:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py3'
-    steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: *setup_miniconda
-      - run: ls $WORKDIR/miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
   macos_nightly_py2:
     macos:
       xcode: "9.2.0"
+      working_directory: workspace
     environment:
-      WORKDIR: "workspace"
+      WORKDIR: /workspace/workdir
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
       LABEL: "master"
       CDMS_LABEL: "master"
       PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...MacOS - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
-      - restore_cache:
-          keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
-      - run: *get_conda_cache
+      - checkout
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
@@ -254,25 +174,17 @@ jobs:
   macos_nightly_py3:
     macos:
       xcode: "9.2.0"
+      working_directory: workspace
     environment:
-      WORKDIR: "workspace"
+      WORKDIR: /workspace/workdir
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
       LABEL: "master"
       CDMS_LABEL: "master"
       PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...MacOS - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
-      - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
@@ -295,25 +207,17 @@ jobs:
   linux_nightly_py2:
     machine:
       image: circleci/classic:latest
+      working_directory: workspace
     environment:
-      WORKDIR: "workspace"
+      WORKDIR: /workspace/workdir
       PYTHON_VERSION: "py2"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
       LABEL: "master"
       CDMS_LABEL: "master"
       PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: "scripts/run_testsuite.py"
     steps:
-      - run: echo "...Linux - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
-      - restore_cache:
-          keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
-      - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
@@ -336,25 +240,17 @@ jobs:
   linux_nightly_py3:
     machine:
       image: circleci/classic:latest
+      working_directory: workspace
     environment:
-      WORKDIR: "workspace"
+      WORKDIR: /workspace/workdir
       PYTHON_VERSION: "py3"
       BRANCH: "master"
       ENV_PREFIX: "nightly"
       LABEL: "master"
       CDMS_LABEL: "master"
       PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...Linux - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
-      - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
       - run: *run_cdms_test
@@ -1014,13 +910,7 @@ workflows:
             branches:
               only: validateNightly
     jobs:
-      - macos_py2_miniconda
-      - macos_py3_miniconda:
-          requires:
-            - macos_py2_miniconda
-      - macos_nightly_py2:
-          requires:
-            - macos_py3_miniconda
+      - macos_nightly_py2
       - macos_nightly_py3:
           requires:
             - macos_nightly_py2   
@@ -1048,13 +938,7 @@ workflows:
       - macos_cdat-v80_py3:
           requires:
             - macos_cdat-v80_py2 
-      - linux_py2_miniconda
-      - linux_py3_miniconda:
-          requires:
-            - linux_py2_miniconda    
-      - linux_nightly_py2:
-          requires:
-            - linux_py3_miniconda
+      - linux_nightly_py2
       - linux_nightly_py3:
           requires:
             - linux_nightly_py2
