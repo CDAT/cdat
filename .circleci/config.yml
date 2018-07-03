@@ -499,7 +499,6 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2
       ENV_PREFIX: cdat_latest_channel
@@ -583,7 +582,6 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      #WORKDIR: "workspace"
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3
       ENV_PREFIX: cdat_latest_channel
@@ -1096,12 +1094,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 3 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - macos_py2_miniconda
       - macos_py3_miniconda
