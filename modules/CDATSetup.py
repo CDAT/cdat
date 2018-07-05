@@ -46,7 +46,6 @@ class CDATSetup(object):
         self.py_ver = py_ver
         self.workdir = workdir
         self.conda_path = conda_path
-        os.system("uname -a")
 
     def get_env_name(self):
         return(self.env_name)
@@ -118,7 +117,9 @@ class NightlySetup(CDATSetup):
         ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
         # openblas and nupmy 1.14 to force use of conda-forge channel
-        pkgs = "numpy=1.14 openblas nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
+        #pkgs = "numpy=1.14 openblas nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
+        temp_settings = "\"libdrs_f<3.0.1\" \"libdrs<3.0.1\""
+        pkgs = "numpy=1.14 openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx testsrunner \"proj4<5\" {t}".format(t=temp_settings)
         if self.py_ver == 'py3':
             py_str = "python>3"
         else:
@@ -149,7 +150,9 @@ class NightlySetup(CDATSetup):
         env = self.env_name
         package_versions_dict = {}
         for package in packages:
-            cmds_list = ["conda list {pkg}".format(pkg=package)]
+            #cmds_list = ["conda list {pkg}".format(pkg=package)]
+            cmds_list = ["{c}/conda list {pkg}".format(c=self.conda_path,
+                                                       pkg=package)]
 
             ret_code, output = run_in_conda_env_capture_output(self.conda_path,
                                                                env,

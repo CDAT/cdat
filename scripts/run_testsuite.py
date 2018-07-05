@@ -56,16 +56,10 @@ ts = args.testsuite
 # default run_tests.py invocation command
 run_tests_cmd = 'python run_tests.py -s -v2'
 
-#
-# add conda_path to PATH since *TestSetup may do 'conda install ...'
-#
-os.environ['PATH'] = "{new}:{current}".format(new=conda_path,
-                                              current=os.environ['PATH'])
-
-if label == 'master':
-    checkout_baseline_opt = "--checkout-baseline"
+if env_prefix == 'nightly':
+    baseline_opt = "--checkout-baseline"
 else:
-    checkout_baseline_opt = "-g"
+    baseline_opt = "-g"
 
 if ts == 'vcs':
     test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
@@ -77,13 +71,12 @@ else:
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
 elif ts == 'dv3d':
-    cmds_list = ["python run_tests.py -v2 -n2 {opt} -H".format(opt=checkout_baseline_opt)]
-
+        cmds_list = ["python run_tests.py -v2 -n2 {cb} -H".format(cb=baseline_opt)]
 elif ts == 'vcs':
     if py_ver == 'py2':
-        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {opt} -H".format(opt=checkout_baseline_opt)]
+        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {cb} -H".format(cb=baseline_opt)]
     else:
-        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {opt} -H".format(opt=checkout_baseline_opt),
+        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {cb} -H".format(cb=baseline_opt),
                      'cd docs', 'make doctest']
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = ['python run_tests.py -v2 -H']
