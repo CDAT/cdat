@@ -5,10 +5,10 @@ aliases:
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      # following will install miniconda under $WORKDIR
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
+       mkdir -p $WORKDIR
+       python scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
+       echo "export PATH=$WORKDIR/miniconda/bin:\$PATH" >> ~/.bashrc
+       source ~/.bashrc
 
   - &prep_conda_cache
     name: prep_conda_cache
@@ -24,47 +24,53 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
+ 
+  - &get_time_stamp
+    name: get_time_stamp
+    command: |
+      date '+%Y-%m-%d' > todaysDate.txt
+      date -d "yesterday" '+%Y-%m-%d' > yesterdaysDate.txt       
 
+  - &macos_get_time_stamp
+    name: macos_get_time_stamp
+    command: |
+      date '+%Y-%m-%d' > todaysDate.txt
+      date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt       
+   
   - &setup_nightly
     name: setup_nightly
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
-      echo "Done installing nightly"
+      python scripts/install_nightly.py -w $WORKDIR -p $PYTHON_VERSION
       ls $WORKDIR/miniconda/envs
     no_output_timeout: 30m
 
   - &install_from_yaml_file
     name: install_from_yaml_file
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_from_env.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION
-      echo "Done installing from env file"
-      ls $WORKDIR//miniconda/envs
+      mkdir -p $WORKDIR
+      python scripts/install_from_env.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION
+      ls $WORKDIR/miniconda/envs
     no_output_timeout: 30m
 
   - &install_from_conda_channel
     name: install_from_conda_channel
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -c $CONDA_LABEL
-      ls $WORKDIR//miniconda/envs
+      mkdir -p $WORKDIR
+      python scripts/install_from_channel.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -c $CONDA_LABEL
+      ls $WORKDIR/miniconda/envs
     no_output_timeout: 30m
 
   - &validate_install
     name: validate_install
     command: |
-      echo "Validate nightly install - verify versions of installed packages"
-      python workspace/cdat/scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -b $BRANCH -l $LABEL
+      python scripts/validate_nightly_install.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION -b $BRANCH -l $LABEL
     no_output_timeout: 30m
 
   - &run_cdms_test
     name: run_cdms_test
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_PREFIX -b $BRANCH -l $CDMS_LABEL
+    no_output_timeout: 30m
 
   - &run_genutil_test
     name: run_genutil_test
@@ -149,87 +155,129 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py2'
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
     steps:
+      - checkout
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
+          key: macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   macos_py3_miniconda:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py3'
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
     steps:
+      - checkout
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
+          key: macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   linux_py2_miniconda:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py2'
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
     steps:
+      - checkout
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
+          key: linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   linux_py3_miniconda:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: 'py3'
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
     steps:
+      - checkout
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
       - save_cache:
-          key: linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
+          key: linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
-  macos_nightly_py2:
-    macos:
-      xcode: "9.2.0"
+  centos_py2_miniconda:
+    docker:
+      - image: muryanto1/mycentos:latest
+    working_directory: workspace
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      ENV_PREFIX: "nightly"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /workspace/workdir
+      PYTHON_VERSION: 'py2'
     steps:
-      - run: echo "...MacOS - test install from nightly"
+      - checkout
       - run: date '+%Y-%m-%d' > todaysDate.txt
       - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: centos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
+  centos_py3_miniconda:
+    docker:
+      - image: muryanto1/mycentos:latest
+    working_directory: workspace
+    environment:
+      WORKDIR: /workspace/workdir
+      PYTHON_VERSION: 'py3'
+    steps:
+      - checkout
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: cat todaysDate.txt
+      - run: *setup_miniconda
+      - run: ls $WORKDIR/miniconda
+      - run: *prep_conda_cache
+      - save_cache:
+          key: centos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+          paths: miniconda
+
+  #
+  # nightly builds
+  #
+  centos_nightly_py2:
+    docker:
+      - image: muryanto1/mycentos:latest
+    working_directory: workspace
+    environment:
+      WORKDIR: /workspace/workdir
+      PYTHON_VERSION: py2
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - centos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - centos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -238,7 +286,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -249,28 +297,27 @@ jobs:
       - store_artifacts:
            path: all_tests_png
            destination: all_tests_png
-      
-  macos_nightly_py3:
-    macos:
-      xcode: "9.2.0"
+
+  centos_nightly_py3:
+    docker:
+      - image: muryanto1/mycentos:latest
+    working_directory: workspace
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      ENV_PREFIX: "nightly"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /workspace/workdir
+      PYTHON_VERSION: py3
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...MacOS - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - centos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - centos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -279,7 +326,83 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #- run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_nightly_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - run: *macos_get_time_stamp
+      - restore_cache:
+          keys:
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: all_tests_html
+           destination: all_tests_html
+      - store_artifacts:
+           path: all_tests_png
+           destination: all_tests_png
+
+  macos_nightly_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - run: *macos_get_time_stamp
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *validate_install
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -295,23 +418,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      BRANCH: "master"
-      ENV_PREFIX: "nightly"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...Linux - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -336,23 +457,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      BRANCH: "master"
-      ENV_PREFIX: "nightly"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "...Linux - test install from nightly"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -373,29 +492,29 @@ jobs:
            path: all_tests_png
            destination: all_tests_png
 
+  #
+  # install from cdat latest channel
+  #
   macos_cdat_latest_channel_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat_latest_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "latest"
-      BRANCH: "master"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat_latest_channel
+      CONDA_LABEL: latest
+      BRANCH: master
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py2 install from cdat latest channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -421,25 +540,22 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat_latest_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "latest"
-      BRANCH: "master"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat_latest_channel
+      CONDA_LABEL: latest
+      BRANCH: master
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux + py2 install from cdat latest channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -466,25 +582,22 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat_latest_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "latest"
-      BRANCH: "master"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat_latest_channel
+      CONDA_LABEL: latest
+      BRANCH: master
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py3 install from cdat latest channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -510,25 +623,22 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat_latest_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "latest"
-      BRANCH: "master"
-      LABEL: "master"
-      CDMS_LABEL: "master"
-      PCMDI_METRICS_LABEL: "master"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat_latest_channel
+      CONDA_LABEL: latest
+      BRANCH: master
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux + py3 install from cdat latest channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -551,29 +661,29 @@ jobs:
            path: env.yaml
            destination: env.yaml
 
+  #
+  # cdat v80 channel
+  #
   macos_cdat_v80_channel_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat_v80_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat_v80_channel
+      CONDA_LABEL: v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py2 install from cdat v80 channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -596,25 +706,22 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat_v80_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat_v80_channel
+      CONDA_LABEL: v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux + py2 install from cdat v80 channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -638,25 +745,22 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat_v80_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat_v80_channel
+      CONDA_LABEL: v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py3 install from cdat v80 channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -679,25 +783,22 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat_v80_channel"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
-      CONDA_LABEL: "v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat_v80_channel
+      CONDA_LABEL: v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux + py3 install from cdat v80 channel"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -717,27 +818,28 @@ jobs:
            path: all_tests_png
            destination: all_tests_png
 
+  #
+  # install from cdat-v80* yaml files
+  #
   macos_cdat-v80-nox_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat-v80-nox"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat-v80-nox
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py2 install from cdat-v80-nox_py2.Darwin.yml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -759,23 +861,21 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat-v80-nox"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat-v80-nox
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py3 install from cdat-v80-nox_py3.Darwin.yml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -797,23 +897,21 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat-v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat-v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py2 install from cdat-v80_py2.Darwin.yml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -830,23 +928,21 @@ jobs:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat-v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat-v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "MacOS + py3 install from cdat-v80_py3.Darwin.yml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
-            - macos_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -863,23 +959,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat-v80-nox"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat-v80-nox
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux - test install from cdat-v80-nox_py2.Linux.yaml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -902,23 +996,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat-v80-nox"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat-v80-nox
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -941,23 +1033,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py2"
-      ENV_PREFIX: "cdat-v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2
+      ENV_PREFIX: cdat-v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux - test install from cdat-v80_py2.Linux.yaml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py2_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -974,23 +1064,21 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace"
-      PYTHON_VERSION: "py3"
-      ENV_PREFIX: "cdat-v80"
-      BRANCH: "master"
-      LABEL: "v8.0"
-      CDMS_LABEL: "v3.0"
-      PCMDI_METRICS_LABEL: "cdat_v8.0"
-      RUN_TESTSUITE: "workspace/cdat/scripts/run_testsuite.py"
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3
+      ENV_PREFIX: cdat-v80
+      BRANCH: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
+      RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
-      - run: echo "Linux - test install from cdat-v80_py3.Linux.yaml"
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
-      - run: date -d"yesterday" '+%Y-%m-%d' > yesterdaysDate.txt
+      - checkout
+      - run: *get_time_stamp
       - restore_cache:
           keys:
-            - linux_py3_conda_V100-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V100-{{ checksum "yesterdaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -1001,7 +1089,7 @@ jobs:
            destination: all_tests_html
       - store_artifacts:
            path: all_tests_png
-           destination: all_tests_png
+           destination: all_tests_png      
 
 workflows:
   version: 2
@@ -1014,15 +1102,23 @@ workflows:
               only: validateNightly
     jobs:
       - macos_py2_miniconda
-      - macos_py3_miniconda:
+      - macos_py3_miniconda
+      - linux_py2_miniconda
+      - linux_py3_miniconda
+      - centos_py2_miniconda
+      - centos_py3_miniconda
+      - centos_nightly_py2:
           requires:
-            - macos_py2_miniconda
+            - centos_py2_miniconda
+      - centos_nightly_py3:
+          requires:
+            - centos_py3_miniconda   
       - macos_nightly_py2:
           requires:
-            - macos_py3_miniconda
+            - macos_py2_miniconda
       - macos_nightly_py3:
           requires:
-            - macos_nightly_py2   
+            - macos_py3_miniconda
       - macos_cdat_latest_channel_py2:
           requires:
             - macos_nightly_py3
@@ -1047,16 +1143,12 @@ workflows:
       - macos_cdat-v80_py3:
           requires:
             - macos_cdat-v80_py2 
-      - linux_py2_miniconda
-      - linux_py3_miniconda:
+      - linux_nightly_py2:      
           requires:
-            - linux_py2_miniconda    
-      - linux_nightly_py2:
-          requires:
-            - linux_py3_miniconda
+            - linux_py2_miniconda
       - linux_nightly_py3:
           requires:
-            - linux_nightly_py2
+            - linux_py3_miniconda
       - linux_cdat_latest_channel_py2:
           requires:
             - linux_nightly_py3
@@ -1084,3 +1176,4 @@ workflows:
 
 
 
+      

@@ -6,12 +6,11 @@ from Util import *
 class CondaSetup:
     def __init__(self, workdir, py_ver):
         if os.path.isdir(workdir) == True:
-            self.conda_path = workdir + '/miniconda/bin/'
+            self.conda_path = workdir + '/miniconda/bin'
         else:
             self.conda_path = None
         self.workdir = workdir
         self.py_ver = py_ver
-        os.system("uname -a")
 
     def install_miniconda(self):
 
@@ -43,7 +42,9 @@ class CondaSetup:
             source_script = os.path.join(url, conda_script)
             cmd = "wget {src} -O {dest}".format(src=source_script, dest=conda_script_full_path)
 
-        ret_code = run_cmd(cmd, True, False, False)
+        print("xxx DEBUG DEBUG xxx...cmd: {c}".format(c=cmd))
+
+        ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             print("FAIL..." + cmd)
             return(ret_code, None)
@@ -53,7 +54,7 @@ class CondaSetup:
                                                  dir=conda_dir)
 
         # run the command, set verbose=False 
-        ret_code = run_cmd(cmd, True, False, False)
+        ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             print("FAIL...installing miniconda")
             return(ret_code, None)
@@ -64,7 +65,7 @@ class CondaSetup:
         conda_cmd = os.path.join(conda_path, 'conda')
         cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
     
-        ret_code = run_cmd(cmd)
+        ret_code = run_cmd(cmd, True, False, True)
         if ret_code != SUCCESS:
             print('FAILED: ' + cmd)
             return(ret_code, None)

@@ -108,17 +108,20 @@ def run_in_conda_env(conda_path, env, cmds_list, verbose=True):
     This function runs all the commands in cmds_list in the specified
     conda environment.
     """
-
+    #if os.path.isfile('/etc/os-release') is False:
     add_path = "export PATH={path}:$PATH".format(path=conda_path)
+    
     cmds = "{add_path_cmd}; source activate {e}".format(add_path_cmd=add_path,
-                                                       e=env)
+                                                        e=env)
     for a_cmd in cmds_list:
         cmds = "{existing}; {new}".format(existing=cmds, new=a_cmd)        
     cmds = "{existing}; source deactivate".format(existing=cmds)
 
     cmd = "bash -c \"{the_cmds}\"".format(the_cmds=cmds)
+    #cmd = cmds
+
     if verbose:
-        print("CMD: {c}".format(c=cmd))
+        print("CMD...: {c}".format(c=cmd))
     ret_code = os.system(cmd)
     print(ret_code)
     return(ret_code)
@@ -140,8 +143,20 @@ def run_in_conda_env_capture_output(conda_path, env, cmds_list):
     time_str = time.strftime("%b.%d.%Y.%H:%M:%S", current_time)
     tmp_file = "/tmp/conda_capture.{curr_time}".format(curr_time=time_str)
 
+    print("DEBUG xxx....conda_path: {}".format(conda_path))
+
+    #if os.path.isfile('/etc/os-release'):
+    ##print("DEBUGxxx xxx we are in CentOS...")
+    #a1 = "echo \"pathmunge {path}\" > /etc/profile.d/ree.sh".format(path=conda_path)
+    #a2 = "chmod +x /etc/profile.d/ree.sh"
+    #a3 = ". /etc/profile"
+    #add_path_cmd = "{cmd1}; {cmd2}; {cmd3}".format(cmd1=a1,
+    #                                           cmd2=a2,
+    #                                           cmd3=a3)
     add_path_cmd = "export PATH={path}:$PATH".format(path=conda_path)
+    
     activate_cmd = "source activate {env}".format(env=env)
+
     cmds = None
     for a_cmd in cmds_list:
         if cmds == None:
@@ -149,15 +164,19 @@ def run_in_conda_env_capture_output(conda_path, env, cmds_list):
         else:
             cmds = "{existing}; {new_cmd}".format(existing=cmds, new_cmd=a_cmd)
 
-    deactivate_cmd = 'source deactivate'
+    deactivate_cmd = "source deactivate"
 
     cmd = "bash -c \"{add_path}; {act}; {cmds}; {deact}\"".format(add_path=add_path_cmd,
                                                                   act=activate_cmd,
                                                                   cmds=cmds,
                                                                   deact=deactivate_cmd)
+    #cmd = "{add_path}; {act}; {cmds}; {deact}".format(add_path=add_path_cmd,
+    #                                                  act=activate_cmd,
+    #                                                  cmds=cmds,
+    #                                                  deact=deactivate_cmd)
 
     cmd = "{the_cmd} > {output_file}".format(the_cmd=cmd, output_file=tmp_file)
-    print("CMD: {cmd}".format(cmd=cmd))
+    print("CMD xxx xxx : {cmd}".format(cmd=cmd))
     ret_code = os.system(cmd)
     print(ret_code)
     if ret_code != SUCCESS:

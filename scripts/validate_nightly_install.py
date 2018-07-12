@@ -65,13 +65,14 @@ for installed_pkg in installed_pkgs_dict.keys():
         pkg = 'cdms'
     else:
         pkg = installed_pkg
+
+    print("pkg: {p}".format(p=pkg))
     test_setup = TestSetup.TestSetup(cdat_setup, pkg, py_ver, branch, label)
     ret_code, last_commit_info = test_setup.get_last_commit()
     
     installed_pkg_datetime = installed_pkgs_dict[installed_pkg]['datetime']
     pkg_last_commit_datetime = last_commit_info['datetime']
     
-    print("pkg: {p}".format(p=pkg))
     print("   installed: {i}, last_commit_date: {c}".format(i=installed_pkgs_dict[installed_pkg]['date_str'],
                                                             c=last_commit_info['date_str']))
 
