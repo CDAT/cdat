@@ -54,7 +54,7 @@ else:
 ts = args.testsuite
 
 # default run_tests.py invocation command
-run_tests_cmd = 'python run_tests.py -s -v2'
+run_tests_cmd = 'python run_tests.py -s -v2 -H'
 
 if env_prefix == 'nightly':
     baseline_opt = "--checkout-baseline"
