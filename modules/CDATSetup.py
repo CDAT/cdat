@@ -118,7 +118,8 @@ class NightlySetup(CDATSetup):
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
         # openblas and nupmy 1.14 to force use of conda-forge channel
         #pkgs = "numpy=1.14 openblas nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
-        temp_settings = "\"libdrs_f<3.0.1\" \"libdrs<3.0.1\""
+        #temp_settings = "\"libdrs_f<3.0.1\" \"libdrs<3.0.1\""
+        temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\""
         pkgs = "numpy=1.14 openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx testsrunner \"proj4<5\" {t}".format(t=temp_settings)
         if self.py_ver == 'py3':
             py_str = "python>3"
