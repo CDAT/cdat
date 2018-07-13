@@ -277,13 +277,13 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -316,13 +316,13 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -354,12 +354,12 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -391,12 +391,12 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -428,13 +428,13 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -466,13 +466,13 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -507,12 +507,12 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -547,13 +547,13 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -588,12 +588,12 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -628,13 +628,13 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -672,12 +672,12 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -709,13 +709,13 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -747,12 +747,12 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -784,13 +784,13 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
@@ -859,12 +859,12 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
@@ -894,9 +894,9 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
+      #- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdutil_test
       - store_artifacts:
            path: macos_cdat-v80_py2
            destination: macos_cdat-v80_py2
@@ -924,9 +924,9 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
+      #- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdutil_test
       - store_artifacts:
            path: macos_cdat-v80_py3
            destination: macos_cdat-v80_py3
@@ -954,13 +954,13 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
@@ -990,13 +990,13 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
@@ -1056,9 +1056,9 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
+      #- run: *run_cdms_test
       - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdutil_test
       - store_artifacts:
            path: linux_cdat-v80_py3
            destination: linux_cdat-v80_py3
