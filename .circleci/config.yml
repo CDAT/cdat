@@ -157,8 +157,8 @@ jobs:
       PYTHON_VERSION: py2
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -174,8 +174,8 @@ jobs:
       PYTHON_VERSION: py3
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -191,8 +191,8 @@ jobs:
       PYTHON_VERSION: py2
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -208,8 +208,8 @@ jobs:
       PYTHON_VERSION: py3
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -226,8 +226,8 @@ jobs:
       PYTHON_VERSION: 'py2'
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -244,8 +244,8 @@ jobs:
       PYTHON_VERSION: 'py3'
     steps:
       - checkout
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: cat todaysDate.txt
+      - attach_workspace:
+          at: .
       - run: *setup_miniconda
       - run: ls $WORKDIR/miniconda
       - run: *prep_conda_cache
@@ -271,6 +271,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - centos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -310,6 +312,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - centos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -348,6 +352,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -385,6 +391,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -422,6 +430,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -460,6 +470,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -502,6 +514,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -542,6 +556,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -583,6 +599,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -623,6 +641,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -667,6 +687,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -704,6 +726,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -742,6 +766,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -779,6 +805,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -819,6 +847,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -854,6 +884,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -889,6 +921,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -919,6 +953,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -949,6 +985,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -985,6 +1023,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -1021,6 +1061,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -1051,6 +1093,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
