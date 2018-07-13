@@ -634,6 +634,7 @@ jobs:
       PYTHON_VERSION: py3
       ENV_PREFIX: cdat_latest_channel
       CONDA_LABEL: latest
+      BRANCH: master
       LABEL: v8.0
       CDMS_LABEL: v3.0
       PCMDI_METRICS_LABEL: cdat_v8.0
