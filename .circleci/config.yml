@@ -1,7 +1,6 @@
 version: 2
 
 aliases:
-
   - &setup_miniconda
     name: setup_miniconda
     command: |
@@ -25,18 +24,6 @@ aliases:
        conda update -y -q conda
        conda config --set anaconda_upload no
  
-  - &get_time_stamp
-    name: get_time_stamp
-    command: |
-      date '+%Y-%m-%d' > todaysDate.txt
-      date -d "yesterday" '+%Y-%m-%d' > yesterdaysDate.txt       
-
-  - &macos_get_time_stamp
-    name: macos_get_time_stamp
-    command: |
-      date '+%Y-%m-%d' > todaysDate.txt
-      date -v-1d '+%Y-%m-%d' > yesterdaysDate.txt       
-   
   - &setup_nightly
     name: setup_nightly
     command: |
@@ -120,29 +107,29 @@ aliases:
       for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'thermo' 'wk'
       do
         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_html)" ]; then
-           mkdir -p all_tests_html/$ts-tests_html  
-           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* all_tests_html/$ts-tests_html    
+           mkdir -p $CIRCLE_JOB/$ts-tests_html  
+           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html    
         fi
       done
       if [ "$(ls -A $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html)" ]; then
-         mkdir -p all_tests_html/cdms-tests_html  
-         cp -r $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html/* all_tests_html/cdms-tests_html    
+         mkdir -p $CIRCLE_JOB/cdms-tests_html  
+         cp -r $WORKDIR/$BRANCH-$CDMS_LABEL/cdms/tests_html/* $CIRCLE_JOB/cdms-tests_html    
       fi
       if [ "$(ls -A $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html)" ]; then
-         mkdir -p all_tests_html/pcmdi_metrics-tests_html  
-         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html/* all_tests_html/pcmdi_metrics-tests_html    
+         mkdir -p $CIRCLE_JOB/pcmdi_metrics-tests_html  
+         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_html/* $CIRCLE_JOB/pcmdi_metrics-tests_html    
       fi
 
       for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'thermo' 'wk'
       do
         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_png)" ]; then
-           mkdir -p all_tests_png/$ts-tests_png 
-           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_png/* all_tests_png/$ts-tests_png    
+           mkdir -p $CIRCLE_JOB/$ts-tests_png 
+           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
         fi
       done
       if [ "$(ls -A $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png)" ]; then
-         mkdir -p all_tests_png/pcmdi_metrics-tests_png  
-         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png/* all_tests_png/pcmdi_metrics-tests_png    
+         mkdir -p $CIRCLE_JOB/pcmdi_metrics-tests_png  
+         cp -r $WORKDIR/$BRANCH-$PCMDI_METRICS_LABEL/pcmdi_metrics/tests_png/* $CIRCLE_JOB/pcmdi_metrics-tests_png    
       fi
 
       # for installing cdat from latest channel, save the output of "conda env export"
@@ -151,6 +138,17 @@ aliases:
       fi
 
 jobs:
+  get_time_stamp:
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+    macos:
+      xcode: "9.2.0"
+    steps:
+      - run: date '+%Y-%m-%d' > todaysDate.txt
+      - persist_to_workspace:
+          root: .
+          paths: todaysDate.txt
+
   macos_py2_miniconda:
     macos:
       xcode: "9.2.0"
@@ -273,11 +271,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - centos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - centos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -292,11 +288,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: centos_nightly_py2
+           destination: centos_nightly_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - centos_nightly_py2
 
   centos_nightly_py3:
     docker:
@@ -313,11 +310,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - centos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - centos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -332,12 +327,13 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
-
+           path: centos_nightly_py3
+           destination: centos_nightly_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - centos_nightly_py3
+ 
   macos_nightly_py2:
     macos:
       xcode: "9.2.0"
@@ -352,11 +348,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -370,11 +364,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_nightly_py2
+           destination: macos_nightly_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_nightly_py2
 
   macos_nightly_py3:
     macos:
@@ -390,11 +385,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -408,11 +401,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_nightly_py3
+           destination: macos_nightly_py3
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - macos_nightly_py3
 
   linux_nightly_py2:
     machine:
@@ -428,11 +422,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -447,11 +439,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_nightly_py2
+           destination: linux_nightly_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py2
 
   linux_nightly_py3:
     machine:
@@ -467,11 +460,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
@@ -486,11 +477,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_nightly_py3
+           destination: linux_nightly_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py3
 
   #
   # install from cdat latest channel
@@ -510,11 +502,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -527,14 +517,15 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat_latest_channel_py2
+           destination: macos_cdat_latest_channel_py2
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_latest_channel_py2
 
   linux_cdat_latest_channel_py2:
     machine:
@@ -551,11 +542,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -569,14 +558,15 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat_latest_channel_py2
+           destination: linux_cdat_latest_channel_py2
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_latest_channel_py2
 
   macos_cdat_latest_channel_py3:
     macos:
@@ -593,11 +583,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -610,14 +598,15 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat_latest_channel_py3
+           destination: macos_cdat_latest_channel_py3
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_latest_channel_py3
 
   linux_cdat_latest_channel_py3:
     machine:
@@ -634,11 +623,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -652,14 +639,15 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat_latest_channel_py3
+           destination: linux_cdat_latest_channel_py3
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_latest_channel_py3
 
   #
   # cdat v80 channel
@@ -679,11 +667,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -696,11 +682,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat_v80_channel_py2
+           destination: macos_cdat_v80_channel_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_v80_channel_py2
 
   linux_cdat_v80_channel_py2:
     machine:
@@ -717,11 +704,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -735,11 +720,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat_v80_channel_py2
+           destination: linux_cdat_v80_channel_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v80_channel_py2
 
   macos_cdat_v80_channel_py3:
     macos:
@@ -756,11 +742,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -773,11 +757,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat_v80_channel_py3
+           destination: macos_cdat_v80_channel_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_v80_channel_py3
 
   linux_cdat_v80_channel_py3:
     machine:
@@ -794,11 +779,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
       - run: *run_cdms_test
@@ -812,11 +795,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat_v80_channel_py3
+           destination: linux_cdat_v80_channel_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v80_channel_py3
 
   #
   # install from cdat-v80* yaml files
@@ -835,11 +819,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -851,11 +833,12 @@ jobs:
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat-v80-nox_py2
+           destination: macos_cdat-v80-nox_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v80-nox_py2
 
   macos_cdat-v80-nox_py3:
     macos:
@@ -871,11 +854,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -887,11 +868,12 @@ jobs:
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat-v80-nox_py3
+           destination: macos_cdat-v80-nox_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v80-nox_py3
 
   macos_cdat-v80_py2:
     macos:
@@ -907,22 +889,21 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat-v80_py2
+           destination: macos_cdat-v80_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v80_py2
 
   macos_cdat-v80_py3:
     macos:
@@ -938,22 +919,21 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *macos_get_time_stamp
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - macos_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: macos_cdat-v80_py3
+           destination: macos_cdat-v80_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v80_py3
 
   linux_cdat-v80-nox_py2:
     machine:
@@ -969,11 +949,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -986,11 +964,12 @@ jobs:
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat-v80-nox_py2
+           destination: linux_cdat-v80-nox_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v80-nox_py2
 
   linux_cdat-v80-nox_py3:
     machine:
@@ -1006,11 +985,9 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
@@ -1023,11 +1000,12 @@ jobs:
       - run: *run_thermo_test
       - run: *run_wk_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat-v80-nox_py3
+           destination: linux_cdat-v80-nox_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v80-nox_py3
 
   linux_cdat-v80_py2:
     machine:
@@ -1043,22 +1021,21 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py2_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
-      - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png
+           path: linux_cdat-v80_py2
+           destination: linux_cdat-v80_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v80_py2
 
   linux_cdat-v80_py3:
     machine:
@@ -1074,22 +1051,109 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - run: *get_time_stamp
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-            - linux_py3_conda_V101-{{ checksum "yesterdaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
       - store_artifacts:
-           path: all_tests_html
-           destination: all_tests_html
+           path: linux_cdat-v80_py3
+           destination: linux_cdat-v80_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v80_py3
+
+  collect_nightlies_test_results:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: .
       - store_artifacts:
-           path: all_tests_png
-           destination: all_tests_png      
+           path: centos_nightly_py2
+           destination: centos_nightly_py2
+      - store_artifacts:
+           path: centos_nightly_py3
+           destination: centos_nightly_py3
+      - store_artifacts:
+           path: macos_nightly_py2
+           destination: macos_nightly_py2
+      - store_artifacts:
+           path: macos_nightly_py3
+           destination: macos_nightly_py3
+      - store_artifacts:
+           path: linux_nightly_py2
+           destination: linux_nightly_py2
+      - store_artifacts:
+           path: linux_nightly_py3
+           destination: linux_nightly_py3
+
+  collect_channels_test_results:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - store_artifacts:
+           path: macos_cdat_latest_channel_py2
+           destination: macos_cdat_latest_channel_py2
+      - store_artifacts:
+           path: linux_cdat_latest_channel_py2
+           destination: linux_cdat_latest_channel_py2
+      - store_artifacts:
+           path: macos_cdat_latest_channel_py3
+           destination: macos_cdat_latest_channel_py3
+      - store_artifacts:
+           path: linux_cdat_latest_channel_py3
+           destination: linux_cdat_latest_channel_py3
+      - store_artifacts:
+           path: macos_cdat_v80_channel_py2
+           destination: macos_cdat_v80_channel_py2
+      - store_artifacts:
+           path: linux_cdat_v80_channel_py2
+           destination: linux_cdat_v80_channel_py2
+      - store_artifacts:
+           path: macos_cdat_v80_channel_py3
+           destination: macos_cdat_v80_channel_py3
+      - store_artifacts:
+           path: linux_cdat_v80_channel_py3
+           destination: linux_cdat_v80_channel_py3
+
+  collect_yamls_test_results:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - store_artifacts:
+           path: macos_cdat-v80-nox_py2
+           destination: macos_cdat-v80-nox_py2
+      - store_artifacts:
+           path: macos_cdat-v80-nox_py3
+           destination: macos_cdat-v80-nox_py3
+      - store_artifacts:
+           path: macos_cdat-v80_py2
+           destination: macos_cdat-v80_py2
+      - store_artifacts:
+           path: macos_cdat-v80_py3
+           destination: macos_cdat-v80_py3
+      - store_artifacts:
+           path: linux_cdat-v80-nox_py2
+           destination: linux_cdat-v80-nox_py2
+      - store_artifacts:
+           path: linux_cdat-v80-nox_py3
+           destination: linux_cdat-v80-nox_py3
+      - store_artifacts:
+           path: linux_cdat-v80_py2
+           destination: linux_cdat-v80_py2
+      - store_artifacts:
+           path: linux_cdat-v80_py3
+           destination: linux_cdat-v80_py3
+
 
 workflows:
   version: 2
@@ -1101,12 +1165,25 @@ workflows:
     #        branches:
     #          only: validateNightly
     jobs:
-      - macos_py2_miniconda
-      - macos_py3_miniconda
-      - linux_py2_miniconda
-      - linux_py3_miniconda
-      - centos_py2_miniconda
-      - centos_py3_miniconda
+      - get_time_stamp
+      - macos_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - macos_py3_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py3_miniconda:
+          requires:
+            - get_time_stamp
+      - centos_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - centos_py3_miniconda:
+          requires:
+            - get_time_stamp
       - centos_nightly_py2:
           requires:
             - centos_py2_miniconda
@@ -1121,28 +1198,28 @@ workflows:
             - macos_py3_miniconda
       - macos_cdat_latest_channel_py2:
           requires:
-            - macos_nightly_py3
+            - macos_nightly_py2
       - macos_cdat_latest_channel_py3:
           requires:
-            - macos_cdat_latest_channel_py2
+            - macos_nightly_py3
       - macos_cdat_v80_channel_py2:
           requires:
-            - macos_cdat_latest_channel_py3
+            - macos_nightly_py2
       - macos_cdat_v80_channel_py3:
           requires:
-            - macos_cdat_v80_channel_py2
+            - macos_nightly_py3
       - macos_cdat-v80-nox_py2:
           requires:
-            - macos_cdat_v80_channel_py3
+            - macos_nightly_py2
       - macos_cdat-v80-nox_py3:
           requires:
-            - macos_cdat-v80-nox_py2
+            - macos_nightly_py3
       - macos_cdat-v80_py2:
           requires:
-            - macos_cdat-v80-nox_py3
+            - macos_nightly_py2
       - macos_cdat-v80_py3:
           requires:
-            - macos_cdat-v80_py2 
+            - macos_nightly_py3
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
@@ -1173,7 +1250,31 @@ workflows:
       - linux_cdat-v80_py3:
           requires:
             - linux_nightly_py3
-
-
-
-      
+      - collect_nightlies_test_results:
+          requires:
+            - centos_nightly_py2
+            - centos_nightly_py3
+            - macos_nightly_py2
+            - macos_nightly_py3
+            - linux_nightly_py2
+            - linux_nightly_py3
+      - collect_channels_test_results:
+          requires:
+            - macos_cdat_latest_channel_py2
+            - linux_cdat_latest_channel_py2
+            - macos_cdat_latest_channel_py3
+            - linux_cdat_latest_channel_py3
+            - macos_cdat_v80_channel_py2
+            - linux_cdat_v80_channel_py2
+            - macos_cdat_v80_channel_py3
+            - linux_cdat_v80_channel_py3
+      - collect_yamls_test_results:
+          requires:
+            - macos_cdat-v80-nox_py2
+            - macos_cdat-v80-nox_py3
+            - macos_cdat-v80_py2
+            - macos_cdat-v80_py3
+            - linux_cdat-v80-nox_py2
+            - linux_cdat-v80-nox_py3
+            - linux_cdat-v80_py2
+            - linux_cdat-v80_py3
