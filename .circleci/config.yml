@@ -508,9 +508,9 @@ jobs:
       ENV_PREFIX: cdat_latest_channel
       CONDA_LABEL: latest
       BRANCH: master
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
@@ -550,9 +550,9 @@ jobs:
       ENV_PREFIX: cdat_latest_channel
       CONDA_LABEL: latest
       BRANCH: master
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
@@ -593,9 +593,9 @@ jobs:
       ENV_PREFIX: cdat_latest_channel
       CONDA_LABEL: latest
       BRANCH: master
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
@@ -634,10 +634,9 @@ jobs:
       PYTHON_VERSION: py3
       ENV_PREFIX: cdat_latest_channel
       CONDA_LABEL: latest
-      BRANCH: master
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
+      LABEL: v8.0
+      CDMS_LABEL: v3.0
+      PCMDI_METRICS_LABEL: cdat_v8.0
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
@@ -862,6 +861,7 @@ jobs:
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v80-nox_py2
            destination: macos_cdat-v80-nox_py2
@@ -899,6 +899,7 @@ jobs:
       #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v80-nox_py3
            destination: macos_cdat-v80-nox_py3
@@ -931,6 +932,7 @@ jobs:
       #- run: *run_cdms_test
       - run: *run_genutil_test
       #- run: *run_cdutil_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v80_py2
            destination: macos_cdat-v80_py2
@@ -963,6 +965,7 @@ jobs:
       #- run: *run_cdms_test
       - run: *run_genutil_test
       #- run: *run_cdutil_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v80_py3
            destination: macos_cdat-v80_py3
@@ -1001,6 +1004,7 @@ jobs:
       #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v80-nox_py2
            destination: linux_cdat-v80-nox_py2
@@ -1039,6 +1043,7 @@ jobs:
       #- run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v80-nox_py3
            destination: linux_cdat-v80-nox_py3
@@ -1071,6 +1076,7 @@ jobs:
       - run: *run_cdms_test
       - run: *run_genutil_test
       - run: *run_cdutil_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v80_py2
            destination: linux_cdat-v80_py2
@@ -1103,6 +1109,7 @@ jobs:
       #- run: *run_cdms_test
       - run: *run_genutil_test
       #- run: *run_cdutil_test
+      - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v80_py3
            destination: linux_cdat-v80_py3

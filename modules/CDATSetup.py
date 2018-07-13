@@ -269,7 +269,7 @@ class EnvFromChannelSetup(CDATSetup):
         if label == 'v80':
             channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
         elif label == 'latest':
-            channel = "-c conda-forge -c cdat"
+            channel = "-c cdat/label/v80 -c conda-forge -c cdat"
         else:
             # TEMPORARY
             channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
