@@ -119,7 +119,8 @@ class VcsTestSetup(TestSetup):
 
         # get uvcdat-testdata
         if label != 'master':
-            for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
+            subdir = "{b}-{l}".format(b=branch, l=label)
+            for_repo_dir = os.path.join(uvcdat_setup.workdir, subdir, repo_name)
             print("xxx DEBUG xxx...for_repo_dir: {dir}".format(dir=for_repo_dir))
 
             super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
