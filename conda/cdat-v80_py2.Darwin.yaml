@@ -124,7 +124,7 @@ dependencies:
   - mkl_fft=1.0.1=py27_1
   - mkl_random=1.0.1=py27_0
   - mpi=1.0=mpich
-  - mpich=3.2.1=0
+  - mpich=3.2.1
   - msgpack-python=0.5.6=py27_0
   - nb_conda=2.2.1=py27_0
   - nb_conda_kernels=2.1.0=py27_0
