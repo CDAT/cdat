@@ -51,12 +51,16 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
         If <repo_dir> is not specified, place the repo in 
         <workdir>/<branch>/<repo_name> directory                                              
     """
+    print("xxx DEBUG xxx...git_clone_repo(), repo_name: {r}, branch: {b}, label: {l}".format(r=repo_name,
+                                                                                             b=branch,
+                                                                                             l=label))
     if repo_name == 'pcmdi_metrics':
         url = 'https://github.com/pcmdi/' + repo_name
     else:
         url = 'https://github.com/CDAT/' + repo_name
 
     if repo_dir is None:
+        print("xxx DEBUG xxx...repo_dir is None")
         branch_dir = os.path.join(workdir, "{b}-{l}".format(b=branch,
                                                             l=label))
         if not os.path.isdir(branch_dir):
@@ -66,6 +70,7 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
         if os.path.isdir(repo_dir):
             shutil.rmtree(repo_dir)
 
+    print("xxx DEBUG xxx...repo_dir: {r}".format(r=repo_dir))
     if not os.path.isdir(repo_dir):
         if branch == 'master':
             cmd = "git clone {url} {repo_dir}".format(url=url, repo_dir=repo_dir)

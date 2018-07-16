@@ -41,6 +41,11 @@ label = args.label
 env_prefix = args.env_prefix
 conda_label = args.conda_label
 
+
+def get_sample_data(branch):
+    
+
+
 if env_prefix == 'nightly':
     cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
 elif "cdat-v80" in env_prefix:
