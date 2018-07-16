@@ -27,7 +27,9 @@ class TestSetup(object):
         self.conda_path = conda_path
         
         # clone repo
-
+        print("xxx DEBUG xxx in TestSetup init(), workdir:{w}, branch: {b}, label: {l}".format(w=workdir,
+                                                                                               b=branch,
+                                                                                               l=label))
         ret_code, repo_dir = git_clone_repo(workdir, repo_name, branch, label)
         if ret_code != SUCCESS:
             raise Exception('git_clone_repo() failed')
@@ -51,7 +53,12 @@ class TestSetup(object):
 
         workdir = uvcdat_setup.workdir
         repo_dir = "{dir}/uvcdat-testdata".format(dir=for_repo_dir)
-        
+
+        print("xxx DEBUG.get_uvcdat_testdata(), for_repo_dir: {r}, workdir: {w}, branch: {b}, label: {l}".format(r=repo_dir,
+                                                                                                                 w=workdir,
+                                                                                                                 b=branch,
+                                                                                                                 l=label))
+
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch, label, repo_dir)
 
         #cmd = 'git pull'
