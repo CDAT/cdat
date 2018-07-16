@@ -848,14 +848,14 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
       - run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_thermo_test
+      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v80-nox_py2
@@ -1215,15 +1215,15 @@ workflows:
       - macos_py2_miniconda:
           requires:
             - get_time_stamp
-      #- macos_py3_miniconda:
-      #    requires:
-      #      - get_time_stamp
-      #- linux_py2_miniconda:
-      #    requires:
-      #      - get_time_stamp
-      #- linux_py3_miniconda:
-      #    requires:
-      #      - get_time_stamp
+      - macos_py3_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py3_miniconda:
+          requires:
+            - get_time_stamp
       #- centos_py2_miniconda:
       #    requires:
       #      - get_time_stamp
@@ -1257,15 +1257,15 @@ workflows:
       - macos_cdat-v80-nox_py2:
           requires:
             - macos_py2_miniconda
-      #- macos_cdat-v80-nox_py3:
-      #    requires:
-      #      - macos_py3_miniconda
-      #- macos_cdat-v80_py2:
-      #    requires:
-      #      - macos_py2_miniconda
-      #- macos_cdat-v80_py3:
-      #    requires:
-      #      - macos_py3_miniconda
+      - macos_cdat-v80-nox_py3:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v80_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v80_py3:
+          requires:
+            - macos_py3_miniconda
       #- linux_nightly_py2:      
       #    requires:
       #      - linux_py2_miniconda
@@ -1284,18 +1284,18 @@ workflows:
       #- linux_cdat_v80_channel_py3:
       #    requires:
       #      - linux_nightly_py3
-      #- linux_cdat-v80-nox_py2:
-      #    requires:
-      #      - linux_py2_miniconda
-      #- linux_cdat-v80-nox_py3:
-      #    requires:
-      #      - linux_py3_miniconda
-      #- linux_cdat-v80_py2:
-      #    requires:
-      #      - linux_py2_miniconda
-      #- linux_cdat-v80_py3:
-      #    requires:
-      #      - linux_py3_miniconda
+      - linux_cdat-v80-nox_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v80-nox_py3:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v80_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v80_py3:
+          requires:
+            - linux_py3_miniconda
       #- collect_nightlies_test_results:
       #    requires:
       #      - centos_nightly_py2
