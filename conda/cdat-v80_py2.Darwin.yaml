@@ -31,7 +31,7 @@ dependencies:
   - bzip2=1.0.6=1
   - ca-certificates=2018.1.18=0
   - cdat_info=8.0=py27_0
-  - cdms2=3.0
+  - cdms2=3.0=py27_5
   - cdtime=3.0
   - cdutil=8.0
   - certifi=2018.1.18=py27_0
