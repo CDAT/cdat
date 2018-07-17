@@ -27,7 +27,9 @@ class TestSetup(object):
         self.conda_path = conda_path
         
         # clone repo
-
+        print("xxx DEBUG xxx in TestSetup init(), workdir:{w}, branch: {b}, label: {l}".format(w=workdir,
+                                                                                               b=branch,
+                                                                                               l=label))
         ret_code, repo_dir = git_clone_repo(workdir, repo_name, branch, label)
         if ret_code != SUCCESS:
             raise Exception('git_clone_repo() failed')
@@ -51,7 +53,12 @@ class TestSetup(object):
 
         workdir = uvcdat_setup.workdir
         repo_dir = "{dir}/uvcdat-testdata".format(dir=for_repo_dir)
-        
+
+        print("xxx DEBUG.get_uvcdat_testdata(), for_repo_dir: {r}, workdir: {w}, branch: {b}, label: {l}".format(r=repo_dir,
+                                                                                                                 w=workdir,
+                                                                                                                 b=branch,
+                                                                                                                 l=label))
+
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch, label, repo_dir)
 
         #cmd = 'git pull'
@@ -112,7 +119,10 @@ class VcsTestSetup(TestSetup):
 
         # get uvcdat-testdata
         if label != 'master':
-            for_repo_dir = os.path.join(uvcdat_setup.workdir, branch, repo_name)
+            subdir = "{b}-{l}".format(b=branch, l=label)
+            for_repo_dir = os.path.join(uvcdat_setup.workdir, subdir, repo_name)
+            print("xxx DEBUG xxx...for_repo_dir: {dir}".format(dir=for_repo_dir))
+
             super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
 
 class CdmsTestSetup(TestSetup):

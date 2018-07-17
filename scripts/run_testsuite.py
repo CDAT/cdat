@@ -54,7 +54,10 @@ else:
 ts = args.testsuite
 
 # default run_tests.py invocation command
-run_tests_cmd = 'python run_tests.py -s -v2'
+run_tests_cmd = 'python run_tests.py -s -v2 -H'
+
+if env_prefix == 'nightly':
+    baseline_opt = "--checkout-baseline"
 
 if env_prefix == 'nightly':
     baseline_opt = "--checkout-baseline"
@@ -71,13 +74,20 @@ else:
 if ts == 'cdms':
     cmds_list = ['python run_tests.py -s -v2 -p -H']
 elif ts == 'dv3d':
+    if env_prefix == 'nightly':
         cmds_list = ["python run_tests.py -v2 -n2 {cb} -H".format(cb=baseline_opt)]
+    else:
+        cmds_list = ["python run_tests.py -v2 -n2 -H"]
 elif ts == 'vcs':
-    if py_ver == 'py2':
+    if env_prefix == 'nightly':
         cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {cb} -H".format(cb=baseline_opt)]
     else:
-        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {cb} -H".format(cb=baseline_opt),
-                     'cd docs', 'make doctest']
+        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui -H"]
+
+    if py_ver == 'py3':
+        cmds_list.append('cd docs')
+        cmds_list.append('make doctest')
+
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = ['python run_tests.py -v2 -H']
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':

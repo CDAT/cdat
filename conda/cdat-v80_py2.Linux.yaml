@@ -1,6 +1,5 @@
 name: cdat-v80_py2
 channels:
-  - cdat/label/test
   - cdat/label/v80
   - conda-forge
   - defaults
@@ -104,7 +103,7 @@ dependencies:
   - libdrs=3.0=0
   - libdrs_f=3.0=0
   - libffi=3.2.1=3
-  - libiconv=1.15=0
+  - libiconv=1.15
   - libidn11=1.33=0
   - libnetcdf=4.4.1.1=10
   - libpng=1.6.34=0
@@ -112,7 +111,7 @@ dependencies:
   - libssh2=1.8.0=2
   - libtiff=4.0.9=0
   - libxcb=1.13=0
-  - libxml2=2.9.8=0
+  - libxml2=2.9.8
   - locket=0.2.0=py27_1
   - markupsafe=1.0=py27_0
   - matplotlib=2.2.2=py27_1
@@ -121,7 +120,7 @@ dependencies:
   - mkl_fft=1.0.1=py27_1
   - mkl_random=1.0.1=py27_0
   - mpi=1.0=mpich
-  - mpich=3.2.1=0
+  - mpich=3.2.1
   - msgpack-python=0.5.6=py27_0
   - nb_conda=2.2.1=py27_0
   - nb_conda_kernels=2.1.0=py27_0
