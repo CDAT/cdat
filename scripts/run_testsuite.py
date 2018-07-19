@@ -54,7 +54,10 @@ else:
 ts = args.testsuite
 
 # default run_tests.py invocation command
-run_tests_cmd = 'python run_tests.py -s -v2 -H'
+# NOTE that if launching run_tests.py with -s option, the html and png artifacts
+# will not be stored in .circleci nightly runs.
+
+run_tests_cmd = 'python run_tests.py -v2 -H'
 
 if env_prefix == 'nightly':
     baseline_opt = "--checkout-baseline"
@@ -67,7 +70,7 @@ else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
 if ts == 'cdms':
-    cmds_list = ['python run_tests.py -s -v2 -p -H']
+    cmds_list = ['python run_tests.py -v2 -p -H']
 elif ts == 'dv3d':
     if env_prefix == 'nightly':
         cmds_list = ["python run_tests.py -v2 -n2 {cb} -H".format(cb=baseline_opt)]

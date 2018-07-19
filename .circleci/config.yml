@@ -133,7 +133,7 @@ aliases:
       fi
 
       # for installing cdat from latest channel, save the output of "conda env export"
-      if [ "$(ls -A $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml)" ]; then
+      if [ $CIRCLE_JOB == *"latest"* ]; then
          cp $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml env.yaml
       fi
 
