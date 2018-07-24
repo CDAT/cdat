@@ -61,9 +61,11 @@ run_tests_cmd = 'python run_tests.py -v2 -H'
 
 if env_prefix == 'nightly':
     baseline_opt = "--checkout-baseline"
+else:
+    baseline_opt = "-g"
 
-if ts == 'vcs':
-    test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
+if ts == 'vcs' or ts == 'dv3d':
+    test_setup = TestSetup.TestSetupWithSampleData(cdat_setup, ts, py_ver, branch, label)
 elif ts == 'cdms':
     test_setup = TestSetup.CdmsTestSetup(cdat_setup, ts, py_ver, branch, label)
 else:

@@ -113,9 +113,9 @@ class TestSetup(object):
             last_commit_info['date_str'] = d
         return(ret_code, last_commit_info)
 
-class VcsTestSetup(TestSetup):
+class TestSetupWithSampleData(TestSetup):
     def __init__(self, uvcdat_setup, repo_name, py_version, branch='master', label='master'):
-        super(VcsTestSetup, self).__init__(uvcdat_setup, repo_name, py_version, branch, label)
+        super(TestSetupWithSampleData, self).__init__(uvcdat_setup, repo_name, py_version, branch, label)
 
         # get uvcdat-testdata
         if label != 'master':
@@ -123,7 +123,7 @@ class VcsTestSetup(TestSetup):
             for_repo_dir = os.path.join(uvcdat_setup.workdir, subdir, repo_name)
             print("xxx DEBUG xxx...for_repo_dir: {dir}".format(dir=for_repo_dir))
 
-            super(VcsTestSetup, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
+            super(TestSetupWithSampleData, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
 
 class CdmsTestSetup(TestSetup):
     def __init__(self, uvcdat_setup, repo_name, py_version, branch='master', label='master'):
