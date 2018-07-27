@@ -1290,5 +1290,3 @@ workflows:
       - macos_nightly_py2_with_coverage:
           requires:
             - macos_py2_miniconda
-:
-
