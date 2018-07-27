@@ -26,10 +26,6 @@ class TestSetup(object):
         conda_path = uvcdat_setup.conda_path
         self.conda_path = conda_path
         
-        # clone repo
-        print("xxx DEBUG xxx in TestSetup init(), workdir:{w}, branch: {b}, label: {l}".format(w=workdir,
-                                                                                               b=branch,
-                                                                                               l=label))
         ret_code, repo_dir = git_clone_repo(workdir, repo_name, branch, label)
         if ret_code != SUCCESS:
             raise Exception('git_clone_repo() failed')
@@ -46,34 +42,10 @@ class TestSetup(object):
         It clones uvcdat-testdata into <for_repo_dir>/uvcdat-testdata 
         directory
         """
-        # get the tag 
-        #ret_code, tag = get_tag_name_of_repo(for_repo_dir)
-        #if ret_code != SUCCESS:
-        #    raise Exception('FAILED...in getting branch name of: ' + for_repo_dir)
 
         workdir = uvcdat_setup.workdir
-        repo_dir = "{dir}/uvcdat-testdata".format(dir=for_repo_dir)
-
-        print("xxx DEBUG.get_uvcdat_testdata(), for_repo_dir: {r}, workdir: {w}, branch: {b}, label: {l}".format(r=repo_dir,
-                                                                                                                 w=workdir,
-                                                                                                                 b=branch,
-                                                                                                                 l=label))
-
+        repo_dir = os.path.join(for_repo_dir, 'uvcdat-testdata')
         ret_code, repo_dir = git_clone_repo(workdir, 'uvcdat-testdata', branch, label, repo_dir)
-
-        #cmd = 'git pull'
-        #ret_code = run_cmd(cmd, True, False, True, repo_dir)
-        #if ret_code != SUCCESS:
-        #    raise Exception('FAIL...' + cmd)
-
-        #if branch != 'master' and branch != 'cdat-3.0.beta':
-        #    cmd = 'cd ' + repo_dir + '; git checkout ' + tag
-        #    print("CMD: " + cmd)
-            # may need to revisit -- I have to use os.system() here.
-            # if I use run_cmd() specifying cwd, it does not work in circleci.
-        #    ret_code = os.system(cmd)
-        #    if ret_code != SUCCESS:
-        #        raise Exception('FAILED...' + cmd)
 
         cmd = "git status"
         run_cmd(cmd, True, False, True, repo_dir)
@@ -119,10 +91,7 @@ class TestSetupWithSampleData(TestSetup):
 
         # get uvcdat-testdata
         if label != 'master':
-            subdir = "{b}-{l}".format(b=branch, l=label)
-            for_repo_dir = os.path.join(uvcdat_setup.workdir, subdir, repo_name)
-            print("xxx DEBUG xxx...for_repo_dir: {dir}".format(dir=for_repo_dir))
-
+            for_repo_dir = os.path.join(uvcdat_setup.workdir, repo_name)
             super(TestSetupWithSampleData, self).get_uvcdat_testdata(uvcdat_setup, for_repo_dir, branch, label)       
 
 class CdmsTestSetup(TestSetup):
@@ -177,7 +146,6 @@ class CdmsTestSetup(TestSetup):
         run_cmd(cmd, True, False, True)
 
         user_home = os.environ['HOME']
-        print("xxx HOME: {h}".format(h=user_home))
         if sys.platform == 'darwin':
             cmd = "cp {d}/tests/dodsrccircleciDarwin {h}/.dodsrc".format(d=repo_dir,
                                                                          h=user_home)
