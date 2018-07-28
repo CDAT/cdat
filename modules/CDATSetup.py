@@ -133,9 +133,9 @@ class NightlySetup(CDATSetup):
 
         # TEMPORARY TEMPORARY - remove the following install when changes
         # of testsrunner for coverage is in nightly
-        cmd = "{c} install -n {e} -c cdat/label/linatest testsrunner".format(c=conda_cmd,
-                                                                             e=env_name)
-        ret_code1 = run_cmd(cmd, True, False, True)
+        # cmd = "{c} install -n {e} -c cdat/label/linatest testsrunner".format(c=conda_cmd,
+        #                                                                     e=env_name)
+        # ret_code1 = run_cmd(cmd, True, False, True)
 
         return(ret_code)
 
