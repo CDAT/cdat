@@ -23,7 +23,7 @@ parser.add_argument("-v", "--env_prefix", required=True, choices=valid_env_prefi
                     help="environment prefix string", default='cdat')
 parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
                     help="python version", choices=valid_py_vers)
-parser.add_argument("-C", "--conda_label", default='latest',
+parser.add_argument("-c", "--conda_label", default='latest',
                     help="conda label, can be 'v80' or 'latest'")
 
 args = parser.parse_args()
