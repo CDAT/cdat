@@ -78,7 +78,7 @@ else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
 if ts == 'cdms':
-    cmds_list = ["{cmd} -s -p".format(cmd=run_tests_cmd)]
+    cmds_list = ["{cmd} -s --package".format(cmd=run_tests_cmd)]
 elif ts == 'dv3d':
     if env_prefix == 'nightly':
         cmds_list = ["{cmd} -n2 {cb}".format(cmd=run_tests_cmd,
