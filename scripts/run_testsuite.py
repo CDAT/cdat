@@ -72,8 +72,6 @@ else:
 
 if ts == 'vcs' or ts == 'dv3d':
     test_setup = TestSetup.TestSetupWithSampleData(cdat_setup, ts, py_ver, branch, label)
-elif ts == 'cdms':
-    test_setup = TestSetup.CdmsTestSetup(cdat_setup, ts, py_ver, branch, label)
 else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
