@@ -115,7 +115,7 @@ class NightlySetup(CDATSetup):
         ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
-        base_pkgs = "openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx testsrunner coverage"
+        base_pkgs = "openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage"
         temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" numpy=1.14 \"proj4<5\""
         pkgs = "{p} {t}".format(p=base_pkgs, t=temp_settings)
         if self.py_ver == 'py3':
