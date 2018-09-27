@@ -272,14 +272,14 @@ class EnvFromChannelSetup(CDATSetup):
         label = self.label
 
         env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
-        if label == 'v80':
-            channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
-        elif label == 'latest':
-            channel = "-c cdat/label/v80 -c conda-forge -c cdat"
-        else:
+        #if label == 'v80':
+        #    channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
+        #elif label == 'latest':
+        #    channel = "-c cdat/label/v80 -c conda-forge -c cdat"
+        #else:
             # TEMPORARY
-            channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
-
+            #channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
+        channel = "-c cdat/label/{l} -c conda-forge -c cdat".format(l=label)
         conda_path = self.conda_path
         conda_cmd = os.path.join(conda_path, "conda")
         if py_ver == 'py2':
