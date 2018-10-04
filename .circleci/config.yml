@@ -116,7 +116,7 @@ aliases:
       do
         if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_png)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_png 
-           cp -r $WORKDIR/$BRANCH-$LABEL/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
+           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
         fi
       done
 
