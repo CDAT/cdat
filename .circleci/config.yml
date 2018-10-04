@@ -114,7 +114,7 @@ aliases:
 
       for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'thermo' 'wk' 'pcmdi_metrics'
       do
-        if [ "$(ls -A $WORKDIR/$BRANCH-$LABEL/$ts/tests_png)" ]; then
+        if [ "$(ls -A $WORKDIR/$ts/tests_png)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_png 
            cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
         fi
