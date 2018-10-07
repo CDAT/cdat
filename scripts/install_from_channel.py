@@ -49,7 +49,6 @@ if status != SUCCESS:
     sys.exit(FAILURE)
 
 env_setup.conda_list()
-if conda_label == 'latest':
-    status = env_setup.conda_env_export()
+status = env_setup.conda_env_export()
 sys.exit(status)
 
