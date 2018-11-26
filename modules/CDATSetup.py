@@ -116,7 +116,7 @@ class NightlySetup(CDATSetup):
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
         base_pkgs = "openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage"
-        temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" numpy=1.14 \"proj4<5\""
+        temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" numpy=1.14.5 \"proj4<5\""
         if sys.platform == 'darwin':
             temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
 
