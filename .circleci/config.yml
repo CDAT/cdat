@@ -347,6 +347,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -386,6 +387,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
