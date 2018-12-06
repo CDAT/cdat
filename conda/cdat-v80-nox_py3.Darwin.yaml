@@ -52,7 +52,7 @@ dependencies:
   - esmf=7.1.0r=0
   - esmpy=7.1.0r=py36_1
   - expat=2.2.5=0
-  - ffmpeg=3.4.2=0
+  - ffmpeg=4.0
   - flake8=3.5.0=py36_0
   - freetype=2.8.1=0
   - future=0.16.0=py36_0
