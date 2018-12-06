@@ -31,7 +31,7 @@ dependencies:
   - ca-certificates=2018.1.18=0
   - cdat_info=8.0=py27_0
   - cdms2=3.0=py27_5
-  - cdtime=3.0
+  - cdtime=3.0=py27_0
   - cdutil=8.0
   - certifi=2018.1.18=py27_0
   - cffi=1.11.5=py27_0
