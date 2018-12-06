@@ -34,7 +34,7 @@ aliases:
   - &install_from_yaml_file
     name: install_from_yaml_file
     command: |
-      echo "xxxx"
+      echo "xxxxx"
       mkdir -p $WORKDIR
       python scripts/install_from_env.py -w $WORKDIR -v $ENV_PREFIX -p $PYTHON_VERSION
       ls $WORKDIR/miniconda/envs
