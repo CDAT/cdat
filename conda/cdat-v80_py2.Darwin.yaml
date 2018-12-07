@@ -13,7 +13,7 @@ dependencies:
   - thermo=8.0=py27_0
   - vcs=8.0=py27_0
   - vcsaddons=8.0=py27_0
-  - vtk-cdat=8.0.1.8.0=py27_0
+  - vtk-cdat=8.0.1.8.0
   - wk=8.0=py27_0
   - alabaster=0.7.10=py27_1
   - appnope=0.1.0=py27_0
@@ -32,7 +32,7 @@ dependencies:
   - ca-certificates=2018.1.18=0
   - cdat_info=8.0=py27_0
   - cdms2=3.0=py27_5
-  - cdtime=3.0
+  - cdtime=3.0=py27_0
   - cdutil=8.0
   - certifi=2018.1.18=py27_0
   - cffi=1.11.5=py27_0
@@ -62,7 +62,7 @@ dependencies:
   - esmf=7.1.0r=0
   - esmpy=7.1.0r=py27_1
   - expat=2.2.5=0
-  - ffmpeg=3.4.2=0
+  - ffmpeg=4.0
   - flake8=3.5.0=py27_0
   - freetype=2.8.1=0
   - functools32=3.2.3.2=py27_2

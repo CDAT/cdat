@@ -26,8 +26,10 @@ parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="cdat env name to run the testsuite in.")
 parser.add_argument('-t', '--testsuite',
                     help='testsuite to run')
-parser.add_argument("-c", "--conda_label", default='latest',
+parser.add_argument("-C", "--conda_label", default='latest',
                     help="conda label, can be 'v80' or 'latest'")
+parser.add_argument("-c", "--coverage", default=False, action="store_true",
+                    help="run testsuite with code coverage")
 args = parser.parse_args()
 
 
@@ -40,6 +42,7 @@ branch = args.branch
 label = args.label
 env_prefix = args.env_prefix
 conda_label = args.conda_label
+coverage = args.coverage
 
 if env_prefix == 'nightly':
     cdat_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
@@ -54,44 +57,48 @@ else:
 ts = args.testsuite
 
 # default run_tests.py invocation command
-run_tests_cmd = 'python run_tests.py -s -v2 -H'
+# NOTE that if launching run_tests.py with -s option, the html and png artifacts
+# will not be stored in .circleci nightly runs.
 
-if env_prefix == 'nightly':
-    baseline_opt = "--checkout-baseline"
+if coverage:
+    run_tests_cmd = 'python run_tests.py -v2 -H -c'
+else:
+    run_tests_cmd = 'python run_tests.py -v2 -H'
 
 if env_prefix == 'nightly':
     baseline_opt = "--checkout-baseline"
 else:
     baseline_opt = "-g"
 
-if ts == 'vcs':
-    test_setup = TestSetup.VcsTestSetup(cdat_setup, ts, py_ver, branch, label)
-elif ts == 'cdms':
-    test_setup = TestSetup.CdmsTestSetup(cdat_setup, ts, py_ver, branch, label)
+if ts == 'vcs' or ts == 'dv3d':
+    test_setup = TestSetup.TestSetupWithSampleData(cdat_setup, ts, py_ver, branch, label)
+
 else:
     test_setup = TestSetup.TestSetup(cdat_setup, ts, py_ver, branch, label)
 
 if ts == 'cdms':
-    cmds_list = ['python run_tests.py -s -v2 -p -H']
+    cmds_list = ["{cmd} --subdir --package".format(cmd=run_tests_cmd)]
 elif ts == 'dv3d':
     if env_prefix == 'nightly':
-        cmds_list = ["python run_tests.py -v2 -n2 {cb} -H".format(cb=baseline_opt)]
+        cmds_list = ["{cmd} -n2 {cb}".format(cmd=run_tests_cmd,
+                                             cb=baseline_opt)]
     else:
-        cmds_list = ["python run_tests.py -v2 -n2 -H"]
+        cmds_list = ["{cmd} -n2".format(cmd=run_tests_cmd)]
 elif ts == 'vcs':
     if env_prefix == 'nightly':
-        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui {cb} -H".format(cb=baseline_opt)]
+        cmds_list = ["{cmd} -n 2 --no-vtk-ui {cb}".format(cmd=run_tests_cmd,
+                                                          cb=baseline_opt)]
     else:
-        cmds_list = ["python run_tests.py -v2 -n 2 --no-vtk-ui -H"]
+        cmds_list = ["{cmd} -n 2 --no-vtk-ui".format(cmd=run_tests_cmd)]
 
     if py_ver == 'py3':
         cmds_list.append('cd docs')
         cmds_list.append('make doctest')
 
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
-    cmds_list = ['python run_tests.py -v2 -H']
+    cmds_list = [run_tests_cmd]
 elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
-    cmds_list = ['python run_tests.py -v2 -n 2 -H']
+    cmds_list = ["{cmd} -n 2".format(cmd=run_tests_cmd)]
 
 status = test_setup.run_tests(cdat_setup, py_ver, cmds_list)
 sys.exit(status)

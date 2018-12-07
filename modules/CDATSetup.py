@@ -72,10 +72,9 @@ class CDATSetup(object):
 
     def install_packages_for_tests(self):
 
-        if "nox" in self.env_prefix:
-            pkgs = "nose image-compare pcmdi_metrics cia easydev nbsphinx"
-        else:
-            pkgs = "nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx"
+        pkgs = "nose coverage image-compare pcmdi_metrics cia easydev nbsphinx"
+        if "nox" not in self.env_prefix:
+            pkgs += " mesalib"
         
         channels = "-c conda-forge -c cdat -c pcmdi/label/nightly -c pcmdi"
         cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
@@ -113,13 +112,16 @@ class NightlySetup(CDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        #ch1 = "-c cdat/label/nightly -c nesii/label/dev-esmf -c conda-forge -c cdat"
         ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
-        # openblas and nupmy 1.14 to force use of conda-forge channel
-        #pkgs = "numpy=1.14 openblas nose mesalib image-compare pcmdi_metrics cia easydev nbsphinx \"proj4<5\""
-        temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\""
-        pkgs = "numpy=1.14 openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx testsrunner \"proj4<5\" {t}".format(t=temp_settings)
+
+        base_pkgs = "openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage"
+        temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" numpy=1.14.5 \"proj4<5\""
+        if sys.platform == 'darwin':
+            temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
+
+        pkgs = "{p} {t}".format(p=base_pkgs, t=temp_settings)
+
         if self.py_ver == 'py3':
             py_str = "python>3"
         else:
@@ -132,6 +134,13 @@ class NightlySetup(CDATSetup):
                                                                        c1=ch1,
                                                                        c2=ch2)
         ret_code = run_cmd(cmd, True, False, True)
+
+        # TEMPORARY TEMPORARY - remove the following install when changes
+        # of testsrunner for coverage is in nightly
+        # cmd = "{c} install -n {e} -c cdat/label/linatest testsrunner".format(c=conda_cmd,
+        #                                                                     e=env_name)
+        # ret_code1 = run_cmd(cmd, True, False, True)
+
         return(ret_code)
 
     def get_packages_version(self, packages):
@@ -150,7 +159,6 @@ class NightlySetup(CDATSetup):
         env = self.env_name
         package_versions_dict = {}
         for package in packages:
-            #cmds_list = ["conda list {pkg}".format(pkg=package)]
             cmds_list = ["{c}/conda list {pkg}".format(c=self.conda_path,
                                                        pkg=package)]
 
@@ -265,14 +273,14 @@ class EnvFromChannelSetup(CDATSetup):
         label = self.label
 
         env_name = "{pref}_{py_ver}".format(pref=env_prefix, py_ver=py_ver)
-        if label == 'v80':
-            channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
-        elif label == 'latest':
-            channel = "-c cdat/label/v80 -c conda-forge -c cdat"
-        else:
+        #if label == 'v80':
+        #    channel = "-c conda-forge -c cdat/label/{l}".format(l=label)
+        #elif label == 'latest':
+        #    channel = "-c cdat/label/v80 -c conda-forge -c cdat"
+        #else:
             # TEMPORARY
-            channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
-
+            #channel = "-c cdat/label/{l} -c cdat/label/nightly -c conda-forge -c cdat \"cdms2>3.0.1\"".format(l=label)
+        channel = "-c cdat/label/{l} -c conda-forge -c cdat".format(l=label)
         conda_path = self.conda_path
         conda_cmd = os.path.join(conda_path, "conda")
         if py_ver == 'py2':

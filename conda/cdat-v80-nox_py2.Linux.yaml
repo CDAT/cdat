@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - vtk-cdat=8.0.1.8.0=py27_mesalib_1
+  - vtk-cdat=8.0.1.8.0=py27_mesalib_2
   - cdat=8.0=0
   - cdp=1.2.3=py27hf758207_0
   - dv3d=8.0=py27_0
@@ -56,7 +56,7 @@ dependencies:
   - esmf=7.1.0r=0
   - esmpy=7.1.0r=py27_1
   - expat=2.2.5=0
-  - ffmpeg=3.4.2=0
+  - ffmpeg=4.0
   - flake8=3.5.0=py27_0
   - fontconfig=2.12.6=0
   - freetype=2.8.1=0

@@ -13,7 +13,7 @@ from Const import *
 from Util import *
 
 valid_py_vers = ["py2", "py3"]
-valid_env_prefixes = ["cdat_latest_channel", "cdat_v80_channel"]
+valid_env_prefixes = ["cdat_v80_latest_channel"]
 parser = argparse.ArgumentParser(description="install CDAT from conda channel",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -49,7 +49,6 @@ if status != SUCCESS:
     sys.exit(FAILURE)
 
 env_setup.conda_list()
-if conda_label == 'latest':
-    status = env_setup.conda_env_export()
+status = env_setup.conda_env_export()
 sys.exit(status)
 
