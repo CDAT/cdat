@@ -1017,6 +1017,12 @@ jobs:
 workflows:
   version: 2
   nightly:
+    triggers:
+      - schedule:
+          cron: "30 3 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1025,6 +1031,37 @@ workflows:
       - macos_py3_miniconda:
           requires:
             - get_time_stamp
+      - linux_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py3_miniconda:
+          requires:
+            - get_time_stamp
+      #- centos_py2_miniconda:
+      #    requires:
+      #      - get_time_stamp
+      #- centos_py3_miniconda:
+      #    requires:
+      #      - get_time_stamp
+      #- centos_nightly_py2:
+      #    requires:
+      #      - centos_py2_miniconda
+      #- centos_nightly_py3:
+      #    requires:
+      #      - centos_py3_miniconda
+   
+      - macos_nightly_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_nightly_py3:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat_v80_latest_channel_py2:
+          requires:
+            - macos_nightly_py2
+      - macos_cdat_v80_latest_channel_py3:
+          requires:
+            - macos_nightly_py3
       - macos_cdat-v80-nox_py2:
           requires:
             - macos_py2_miniconda
@@ -1037,10 +1074,52 @@ workflows:
       - macos_cdat-v80_py3:
           requires:
             - macos_py3_miniconda
+      - linux_nightly_py2:      
+          requires:
+            - linux_py2_miniconda
+      - linux_nightly_py3:
+          requires:
+            - linux_py3_miniconda
 
+      - linux_cdat_v80_latest_channel_py2:
+          requires:
+            - linux_nightly_py2
+      - linux_cdat_v80_latest_channel_py3:
+          requires:
+            - linux_nightly_py3
+      - linux_cdat-v80-nox_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v80-nox_py3:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v80_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v80_py3:
+          requires:
+            - linux_py3_miniconda
+      - collect_nightlies_test_results:
+          requires:
+            #- centos_nightly_py2
+            #- centos_nightly_py3
+            - macos_nightly_py2
+            - macos_nightly_py3
+            - linux_nightly_py2
+            - linux_nightly_py3
+      - collect_channels_test_results:
+          requires:
+            - macos_cdat_v80_latest_channel_py2
+            - linux_cdat_v80_latest_channel_py2
+            - macos_cdat_v80_latest_channel_py3
+            - linux_cdat_v80_latest_channel_py3
       - collect_yamls_test_results:
           requires:
             - macos_cdat-v80-nox_py2
             - macos_cdat-v80-nox_py3
             - macos_cdat-v80_py2
             - macos_cdat-v80_py3
+            - linux_cdat-v80-nox_py2
+            - linux_cdat-v80-nox_py3
+            - linux_cdat-v80_py2
+            - linux_cdat-v80_py3
