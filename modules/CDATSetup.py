@@ -121,6 +121,7 @@ class NightlySetup(CDATSetup):
             temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
 
         pkgs = "{p} {t}".format(p=base_pkgs, t=temp_settings)
+
         if self.py_ver == 'py3':
             py_str = "python>3"
         else:
