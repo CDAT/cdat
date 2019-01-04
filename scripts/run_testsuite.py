@@ -102,7 +102,6 @@ elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
 
 elif ts == 'pcmdi_metrics':
     cmds_list = ["python setup.py build",
-                 "rm -rf build/ pcmdi_metrics.egg-info",
                  run_tests_cmd]
 
 status = test_setup.run_tests(cdat_setup, py_ver, cmds_list)
