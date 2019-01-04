@@ -101,8 +101,12 @@ elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
     cmds_list = ["{cmd} -n 2".format(cmd=run_tests_cmd)]
 
 elif ts == 'pcmdi_metrics':
-    cmds_list = ["python setup.py build",
-                 run_tests_cmd]
+    if py_ver == 'py2':
+        cmds_list = ["python setup.py install",
+                     run_tests_cmd]
+    else:
+        cmds_list = ["python setup.py build",
+                     run_tests_cmd]
 
 status = test_setup.run_tests(cdat_setup, py_ver, cmds_list)
 sys.exit(status)
