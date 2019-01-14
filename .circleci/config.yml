@@ -302,15 +302,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: centos_nightly_py3
@@ -342,15 +334,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_nightly_py2
@@ -382,15 +366,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_nightly_py3
@@ -422,15 +398,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_nightly_py2
@@ -462,15 +430,7 @@ jobs:
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *validate_install
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_nightly_py3
@@ -1017,12 +977,6 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "30 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1056,24 +1010,6 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
-      - macos_cdat_v80_latest_channel_py2:
-          requires:
-            - macos_nightly_py2
-      - macos_cdat_v80_latest_channel_py3:
-          requires:
-            - macos_nightly_py3
-      - macos_cdat-v80-nox_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v80-nox_py3:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v80_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v80_py3:
-          requires:
-            - macos_py3_miniconda
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
@@ -1081,45 +1017,3 @@ workflows:
           requires:
             - linux_py3_miniconda
 
-      - linux_cdat_v80_latest_channel_py2:
-          requires:
-            - linux_nightly_py2
-      - linux_cdat_v80_latest_channel_py3:
-          requires:
-            - linux_nightly_py3
-      - linux_cdat-v80-nox_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v80-nox_py3:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v80_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v80_py3:
-          requires:
-            - linux_py3_miniconda
-      - collect_nightlies_test_results:
-          requires:
-            #- centos_nightly_py2
-            #- centos_nightly_py3
-            - macos_nightly_py2
-            - macos_nightly_py3
-            - linux_nightly_py2
-            - linux_nightly_py3
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v80_latest_channel_py2
-            - linux_cdat_v80_latest_channel_py2
-            - macos_cdat_v80_latest_channel_py3
-            - linux_cdat_v80_latest_channel_py3
-      - collect_yamls_test_results:
-          requires:
-            - macos_cdat-v80-nox_py2
-            - macos_cdat-v80-nox_py3
-            - macos_cdat-v80_py2
-            - macos_cdat-v80_py3
-            - linux_cdat-v80-nox_py2
-            - linux_cdat-v80-nox_py3
-            - linux_cdat-v80_py2
-            - linux_cdat-v80_py3
