@@ -991,18 +991,6 @@ workflows:
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
-      #- centos_py2_miniconda:
-      #    requires:
-      #      - get_time_stamp
-      #- centos_py3_miniconda:
-      #    requires:
-      #      - get_time_stamp
-      #- centos_nightly_py2:
-      #    requires:
-      #      - centos_py2_miniconda
-      #- centos_nightly_py3:
-      #    requires:
-      #      - centos_py3_miniconda
    
       - macos_nightly_py2:
           requires:
