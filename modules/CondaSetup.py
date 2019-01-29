@@ -71,11 +71,11 @@ class CondaSetup:
             return(ret_code, None)
 
         # I am not sure if I need the following
-        if sys.platform == 'darwin':
-            cmd = "{c} update -y -q conda".format(c=conda_cmd)
-            ret_code = run_cmd(cmd, True, False, False)
-            if ret_code != SUCCESS:
-                return(ret_code, None)
+        #if sys.platform == 'darwin':
+        #    cmd = "{c} update -y -q conda".format(c=conda_cmd)
+        #    ret_code = run_cmd(cmd, True, False, False)
+        #    if ret_code != SUCCESS:
+        #        return(ret_code, None)
 
         cmd = "{c} config --set anaconda_upload no".format(c=conda_cmd)
         ret_code = run_cmd(cmd)
