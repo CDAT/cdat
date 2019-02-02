@@ -112,7 +112,10 @@ class NightlySetup(CDATSetup):
             return SUCCESS
 
         conda_cmd = os.path.join(conda_path, 'conda')
-        ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
+        if sys.platform == 'darwin':
+            ch1 = "-c danlipsa -c cdat/label/nightly -c conda-forge -c cdat"
+        else:
+            ch1 = "-c cdat/label/nightly -c conda-forge -c cdat"
         ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
         base_pkgs = "openblas mesalib image-compare pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage"

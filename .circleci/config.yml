@@ -73,7 +73,7 @@ aliases:
     name: run_vcs_test
     command: | 
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-    no_output_timeout: 30m
+    no_output_timeout: 60m
 
   - &run_vcsaddons_test
     name: run_vcsaddons_test
