@@ -1,0 +1,7 @@
+name: cdat-v81-nox_py3.6
+channels:
+  - cdat/label/v81
+  - conda-forge
+  - defaults
+prefix: /home/doutriaux1/miniconda/envs/cdat-v81-nox_py3.6
+
