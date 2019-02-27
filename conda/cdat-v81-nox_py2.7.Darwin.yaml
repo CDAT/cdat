@@ -29,7 +29,7 @@ dependencies:
   - certifi=2018.11.29=py27_1000
   - cffi=1.12.2=py27h342bebf_0
   - chardet=3.0.4=py27_1003
-  - cibots=0.3=py27_1000
+  - cibots=0.2=py_0
   - click=7.0=py_0
   - cloudpickle=0.8.0=py_0
   - configparser=3.7.3=py27_1
@@ -111,6 +111,7 @@ dependencies:
   - matplotlib=2.2.3=py27_1
   - matplotlib-base=2.2.3=py27hd64abcd_1
   - mccabe=0.6.1=py_1
+  - mesalib=17.3.9=hdd5ec5b_0
   - mistune=0.8.4=py27h1de35cc_1000
   - mpi=1.0=mpich
   - mpich=3.2.1=h71abe9c_1008
@@ -201,7 +202,7 @@ dependencies:
   - urllib3=1.24.1=py27_1000
   - vcs=8.1=py_0
   - vcsaddons=8.1=py27h1de35cc_0
-  - vtk-cdat=8.2.0rc2.8.1=py27h258435d_0
+  - vtk-cdat=8.2.0rc2.8.1=py27_mesalibhd2c075b_0
   - wcwidth=0.1.7=py_1
   - webencodings=0.5.1=py_1
   - widgetsnbextension=3.4.2=py27_1000

@@ -26,7 +26,7 @@ dependencies:
   - certifi=2018.11.29=py36_1000
   - cffi=1.12.2=py36h342bebf_0
   - chardet=3.0.4=py36_1003
-  - cibots=0.3=py36_1000
+  - cibots=0.2=py_0
   - click=7.0=py_0
   - cloudpickle=0.8.0=py_0
   - cryptography=2.5=py36hc2b1221_1
@@ -103,6 +103,7 @@ dependencies:
   - matplotlib=3.0.3=py36_0
   - matplotlib-base=3.0.3=py36hf043ca5_0
   - mccabe=0.6.1=py_1
+  - mesalib=17.3.9=hdd5ec5b_0
   - mistune=0.8.4=py36h1de35cc_1000
   - mpi=1.0=mpich
   - mpich=3.2.1=h71abe9c_1008
@@ -188,7 +189,7 @@ dependencies:
   - urllib3=1.24.1=py36_1000
   - vcs=8.1=py_0
   - vcsaddons=8.1=py36h1de35cc_0
-  - vtk-cdat=8.2.0rc2.8.1=py36h258435d_0
+  - vtk-cdat=8.2.0rc2.8.1=py36_mesalibhd2c075b_0
   - wcwidth=0.1.7=py_1
   - webencodings=0.5.1=py_1
   - widgetsnbextension=3.4.2=py36_1000
