@@ -7,14 +7,16 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 modules_dir = os.path.join(this_dir, '..', 'modules')
 sys.path.append(modules_dir)
 
-import CondaSetup
-import CDATSetup
 from Const import *
-from Util import *
+#from Util import *
+from CondaUtils import *
+from CDATSetupUtils import *
 
-valid_env_prefixes = ["cdat-v80-nox", "cdat-v80"]
-release_conda_label = "v80"
-valid_py_vers = ["py2", "py3"]
+
+conda_label = CONDA_LABEL
+valid_py_vers = PYTHON_VERSIONS
+valid_env_prefixes = ["cdat-{l}-nox".format(l=conda_label), 
+                      "cdat-{l}".format(l=conda_label)]
 
 parser = argparse.ArgumentParser(description="install CDAT from env file",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -23,7 +25,7 @@ parser.add_argument("-w", "--workdir", required=True,
                     help="working directory -- miniconda will be installed here")
 parser.add_argument("-v", "--env_prefix", required=True,
                     help="environment prefix string", choices=valid_env_prefixes)
-parser.add_argument("-p", "--py_ver", nargs='?', default='py2',
+parser.add_argument("-p", "--py_ver", nargs='?', default='py2.7',
                     help="python version", choices=valid_py_vers)
 args = parser.parse_args()
 
@@ -31,23 +33,19 @@ workdir = args.workdir
 env_prefix = args.env_prefix
 py_ver = args.py_ver
 
-conda_setup = CondaSetup.CondaSetup(workdir, py_ver)
-status, conda_path = conda_setup.install_miniconda()
+status, conda_path = install_miniconda(workdir, py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-conda_label = release_conda_label
-env_setup = CDATSetup.EnvSetup(conda_path, workdir, env_prefix, py_ver, conda_label)
-
-status = env_setup.install()
+status, env_name = install_from_env_file(workdir, conda_path, env_prefix, py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-status = env_setup.install_packages_for_tests()
+status = install_packages_for_tests(conda_path, env_name)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-env_setup.conda_list()
+status = conda_list(conda_path, env_name)
 
 sys.exit(status)
 
