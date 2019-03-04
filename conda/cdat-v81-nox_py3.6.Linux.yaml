@@ -115,6 +115,7 @@ dependencies:
   - mpi=1.0=mpich
   - mpich=3.2.1=h1c2f66e_1008
   - msgpack-python=0.6.1=py36h6bb024c_0
+  - myproxyclient
   - nb_conda=2.2.1=py36_0
   - nb_conda_kernels=2.2.1=py36_0
   - nbconvert=5.3.1=py_1
