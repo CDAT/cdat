@@ -127,7 +127,7 @@ dependencies:
   - olefile=0.46=py_0
   - openblas=0.3.3=h9ac9557_1001
   - openh264=1.8.0=hdbcaa40_1000
-  - openssl=1.1.1a=h14c3975_1000
+  - openssl=1.1.1b
   - ossuuid=1.6.2=hf484d3e_1000
   - output_viewer=1.2.5=py36_0
   - packaging=19.0=py_0
