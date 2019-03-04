@@ -229,6 +229,7 @@ dependencies:
   - zlib=1.2.11=h14c3975_1004
   - pip:
     - cdms2==3.0.0
+    - myproxyclient
     - regrid2==3.0.0
 prefix: /home/doutriaux1/miniconda/envs/cdat-v81-nox_py2.7
 

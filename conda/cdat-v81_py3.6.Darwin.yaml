@@ -204,6 +204,7 @@ dependencies:
   - zlib=1.2.11=h1de35cc_1004
   - pip:
     - cdms2==3.0.0
+    - myproxyclient
     - regrid2==3.0.0
 prefix: /Users/doutriaux1/miniconda3/envs/cdat-v81_py3.6
 
