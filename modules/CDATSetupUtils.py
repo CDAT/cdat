@@ -28,7 +28,7 @@ def conda_env_export(workdir, conda_path, env_name):
 
 def install_packages_for_tests(conda_path, env_name):
 
-    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner pytest"
+    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner"
     if "nox" not in env_name:
         pkgs += " mesalib"
         
@@ -73,7 +73,7 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
         ch1 = "-c cdat/label/nightly -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
-    base_pkgs = "openblas mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage"
+    base_pkgs = "openblas mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
     #temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" \"proj4<5\" \"vtk-cdat>8.1\""
     #if sys.platform == 'darwin':
     #    temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
