@@ -8,7 +8,7 @@ dependencies:
   - appnope=0.1.0
   - asn1crypto=0.24.0
   - astroid=1.6.5
-  - attrs=18.2.0
+  - attrs=19.1.0
   - autopep8=1.4.3
   - babel=2.6.0
   - backports=1.0
@@ -16,12 +16,12 @@ dependencies:
   - backports.shutil_get_terminal_size=1.0.0
   - backports_abc=0.5
   - basemap=1.2.0
-  - blas=1.1=openblas
+  - blas=1.1
   - bleach=3.1.0
   - bokeh=1.0.4
   - bzip2=1.0.6
   - ca-certificates=2018.11.29
-  - cdat=8.1=0
+  - cdat=8.1
   - cdat_info=8.1.1
   - cdp=1.4.2
   - cdtime=3.1.2
@@ -37,8 +37,8 @@ dependencies:
   - curl=7.64.0
   - cycler=0.10.0
   - cytoolz=0.9.0.1
-  - dask=1.1.2
-  - dask-core=1.1.2
+  - dask=1.1.3
+  - dask-core=1.1.3
   - decorator=4.3.2
   - distarray=2.12.2
   - distributed=1.26.0
@@ -74,12 +74,12 @@ dependencies:
   - ipython=5.8.0
   - ipython_genutils=0.2.0
   - ipywidgets=7.4.2
-  - isort=4.3.9
+  - isort=4.3.10
   - jasper=1.900.1
   - jedi=0.13.3
   - jinja2=2.10
   - jpeg=9c
-  - jsonschema=3.0.0
+  - jsonschema=3.0.1
   - jupyter=1.0.0
   - jupyter_client=5.2.4
   - jupyter_console=5.2.0
@@ -113,7 +113,7 @@ dependencies:
   - mccabe=0.6.1
   - mesalib=17.3.9
   - mistune=0.8.4
-  - mpi=1.0=mpich
+  - mpi=1.0
   - mpich=3.2.1
   - msgpack-python=0.6.1
   - nb_conda=2.2.1
@@ -149,7 +149,7 @@ dependencies:
   - ptyprocess=0.6.0
   - pycodestyle=2.5.0
   - pycparser=2.19
-  - pyflakes=2.1.0
+  - pyflakes=2.1.1
   - pygments=2.3.1
   - pylint=1.9.2
   - pyopenssl=19.0.0
@@ -157,7 +157,7 @@ dependencies:
   - pyproj=1.9.6
   - pyqt=5.6.0
   - pyrsistent=0.14.11
-  - pyshp=2.1.0=py_0
+  - pyshp=2.1.0
   - pysocks=1.6.8
   - pyspharm=1.0.9
   - python=2.7.15
@@ -165,7 +165,7 @@ dependencies:
   - python.app=1.2
   - pytz=2018.9
   - pyyaml=3.13
-  - pyzmq=18.0.0
+  - pyzmq=18.0.1
   - qt=5.6.2
   - qtawesome=0.5.6
   - qtconsole=4.4.3
@@ -218,7 +218,6 @@ dependencies:
   - zlib=1.2.11
   - pip:
     - cdms2==3.0.0
-    - myproxyclient
     - regrid2==3.0.0
 prefix: /Users/doutriaux1/miniconda3/envs/cdat-v81-nox_py2.7
 
