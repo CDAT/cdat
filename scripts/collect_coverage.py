@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser(description=desc,
 parser.add_argument('-w', '--workdir',
                     help="working directory -- where miniconda was installed")
 parser.add_argument('-p', '--py_ver',
-                    help="python version to run the testsuite with, can be 'py2' or 'py3'")
+                    help="python version to run the testsuite with, can be 'py2.7' or 'py3.6' or 'py3.7'")
 parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="cdat env name to run the testsuite in.")
 parser.add_argument('-t', '--test_suites', default=all_test_suites,
@@ -87,10 +87,12 @@ def get_coverage_html(dir, pkgs_list):
     coverage_html_dir = os.path.join(dir, 'coverage_htmls')
     os.mkdir(coverage_html_dir)
 
-    if py_ver == 'py2':
+    if py_ver == 'py2.7':
         py_ver_str = "python2.7"
-    else:
+    elif py_ver == 'py3.6':
         py_ver_str = "python3.6"
+    elif py_ver == 'py3.7':
+        py_ver_str = "python3.7"
 
     pkgs_dir = os.path.join(env_path, 'lib', py_ver_str, 'site-packages')
 

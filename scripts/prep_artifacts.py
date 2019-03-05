@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description="preparing artifacts for a circle c
 parser.add_argument('-w', '--workdir',
                     help="working directory -- where miniconda was installed")
 parser.add_argument('-p', '--py_ver',
-                    help="python version to run the testsuite with, can be 'py2' or 'py3'")
+                    help="python version to run the testsuite with, can be 'py2.7' or 'py3.6' or 'py3.7'")
 parser.add_argument('-v', '--env_prefix', nargs='?', default='nightly',
                     help="cdat env name to run the testsuite in.")
 parser.add_argument('-j', '--circle_ci_job',

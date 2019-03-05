@@ -68,6 +68,7 @@ def git_clone_repo(workdir, repo_name, branch='master', label='master', repo_dir
             cmd = "git clone -b {b} {url} {repo_dir}".format(b=branch,
                                                              url=url, 
                                                              repo_dir=repo_dir)
+        print("CMD: {c}".format(c=cmd))
         ret_code = run_cmd(cmd, False, False, False)
 
         if ret_code != SUCCESS:

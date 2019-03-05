@@ -6,12 +6,12 @@ this_dir = os.path.abspath(os.path.dirname(__file__))
 modules_dir = os.path.join(this_dir, '..', 'modules')
 sys.path.append(modules_dir)
 
-import CondaSetup
-import CDATSetup
 from Const import *
 from Util import *
+from CondaUtils import *
+from CDATSetupUtils import *
 
-valid_py_vers = ["py2", "py3"]
+valid_py_vers = PYTHON_VERSIONS
 
 parser = argparse.ArgumentParser(description="install nightly",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -19,23 +19,23 @@ parser = argparse.ArgumentParser(description="install nightly",
 parser.add_argument("-w", "--workdir",
                     help="working directory -- miniconda will be installed here")
 parser.add_argument("-p", "--py_ver", choices=valid_py_vers,
-                    help="python version, 'py2' or 'py3'")
+                    help="python version, 'py2.7' or 'py3.6' or 'py3.7'")
 
 args = parser.parse_args()
 workdir = args.workdir
 py_ver = args.py_ver
 
-conda_setup = CondaSetup.CondaSetup(workdir, py_ver)
-status, conda_path = conda_setup.install_miniconda()
+status, conda_path = install_miniconda(workdir, py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-nightly_setup = CDATSetup.NightlySetup(conda_path, workdir, py_ver)
-status = nightly_setup.install()
+print("xxx conda_path: {p}".format(p=conda_path))
+
+status, env_name = install_nightly(workdir, conda_path, 'nightly', py_ver)
 if status != SUCCESS:
     sys.exit(FAILURE)
 
-nightly_setup.conda_list()
+status = conda_list(conda_path, env_name)
 
 sys.exit(status)
 
