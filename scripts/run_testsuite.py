@@ -68,7 +68,7 @@ else:
 status = setup_tests(workdir, conda_path, ts, py_ver, branch, label, sample_data)
 
 if ts == 'cdms':
-    cmds_list = ["{cmd} --subdir --package".format(cmd=run_tests_cmd)]
+    cmds_list = ["{cmd} -n 1 --subdir --package".format(cmd=run_tests_cmd)]
 elif ts == 'dv3d':
     if env_prefix == 'nightly':
         cmds_list = ["{cmd} -n2 {cb}".format(cmd=run_tests_cmd,
@@ -88,8 +88,10 @@ elif ts == 'vcs':
 
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = [run_tests_cmd]
-elif ts == 'vcsaddons' or ts == 'thermo' or ts == 'wk':
+elif ts == 'thermo' or ts == 'wk':
     cmds_list = ["{cmd} -n 2".format(cmd=run_tests_cmd)]
+elif ts == 'vcsaddons':
+    cmds_list = ["{cmd} -n 1".format(cmd=run_tests_cmd)]
 
 env_name = get_env_name(env_prefix, py_ver)
 status = run_tests(workdir, conda_path, env_name, ts, cmds_list)
