@@ -1006,19 +1006,9 @@ workflows:
   nightly:
     jobs:
       - get_time_stamp
-      - macos_py2_miniconda:
-          requires:
-            - get_time_stamp
       - macos_py3_miniconda:
           requires:
             - get_time_stamp
-      - macos_cdat_v81_latest_channel_py2:
-          requires:
-            - macos_py2_miniconda
       - macos_cdat_v81_latest_channel_py3:
           requires:
             - macos_py3_miniconda
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v81_latest_channel_py2
-            - macos_cdat_v81_latest_channel_py3
