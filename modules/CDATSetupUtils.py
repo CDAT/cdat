@@ -128,7 +128,7 @@ def install_from_channel(workdir, conda_path, env_prefix, py_ver, conda_label):
 
     env_name = get_env_name(env_prefix, py_ver)
 
-    channel = "-c cdat/label/{l} -c cdat-forge".format(l=conda_label)
+    channel = "-c cdat/label/{l} -c conda-forge".format(l=conda_label)
     conda_cmd = os.path.join(conda_path, "conda")
 
     py_str = construct_conda_py_str(py_ver)
