@@ -998,12 +998,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 3 * * *"
-    #      filters:
-    #        branches:
-    #          only: validateNightly
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
