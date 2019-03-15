@@ -391,8 +391,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -413,10 +413,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat_v81_latest_channel_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat_v81_latest_channel_py2
 
   linux_cdat_v81_latest_channel_py2:
     machine:
@@ -434,8 +434,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -457,10 +457,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat_v81_latest_channel_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat_v81_latest_channel_py2
 
   macos_cdat_v81_latest_channel_py3:
     macos:
@@ -478,8 +478,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -500,10 +500,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat_v81_latest_channel_py3
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat_v81_latest_channel_py3
 
   linux_cdat_v81_latest_channel_py3:
     machine:
@@ -521,8 +521,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -544,10 +544,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat_v81_latest_channel_py3
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat_v81_latest_channel_py3
 
   #
   # install from cdat-v81* yaml files
@@ -567,8 +567,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -586,10 +586,10 @@ jobs:
       - store_artifacts:
            path: macos_cdat-v81-nox_py2
            destination: macos_cdat-v81-nox_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81-nox_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81-nox_py2
 
   macos_cdat-v81-nox_py3.6:
     macos:
@@ -606,8 +606,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -625,10 +625,10 @@ jobs:
       - store_artifacts:
            path: macos_cdat-v81-nox_py3.6
            destination: macos_cdat-v81-nox_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81-nox_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81-nox_py3.6
 
   macos_cdat-v81_py2:
     macos:
@@ -645,8 +645,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -659,10 +659,10 @@ jobs:
       - store_artifacts:
            path: macos_cdat-v81_py2
            destination: macos_cdat-v81_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81_py2
 
   macos_cdat-v81_py3.6:
     macos:
@@ -679,8 +679,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -693,10 +693,10 @@ jobs:
       - store_artifacts:
            path: macos_cdat-v81_py3.6
            destination: macos_cdat-v81_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81_py3.6
 
   linux_cdat-v81-nox_py2:
     machine:
@@ -713,8 +713,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -733,10 +733,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81-nox_py2
            destination: linux_cdat-v81-nox_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py2
 
   linux_cdat-v81-nox_py3.6:
     machine:
@@ -753,8 +753,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -773,10 +773,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81-nox_py3.6
            destination: linux_cdat-v81-nox_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py3.6
 
   linux_cdat-v81-nox_py3.7:
     machine:
@@ -793,8 +793,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -813,10 +813,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81-nox_py3.7
            destination: linux_cdat-v81-nox_py3.7
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py3.7
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py3.7
 
   linux_cdat-v81_py2:
     machine:
@@ -833,8 +833,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -847,10 +847,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81_py2
            destination: linux_cdat-v81_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py2
 
   linux_cdat-v81_py3.6:
     machine:
@@ -867,8 +867,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -881,10 +881,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81_py3.6
            destination: linux_cdat-v81_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py3.6
 
   linux_cdat-v81_py3.7:
     machine:
@@ -901,8 +901,8 @@ jobs:
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      #- attach_workspace:
+      #    at: .
       - restore_cache:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
@@ -915,10 +915,10 @@ jobs:
       - store_artifacts:
            path: linux_cdat-v81_py3.7
            destination: linux_cdat-v81_py3.7
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py3.7
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py3.7
 
   collect_nightlies_test_results:
     machine:
@@ -1079,21 +1079,21 @@ workflows:
             - macos_nightly_py3
             - linux_nightly_py2
             - linux_nightly_py3
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v81_latest_channel_py2
-            - linux_cdat_v81_latest_channel_py2
-            - macos_cdat_v81_latest_channel_py3
-            - linux_cdat_v81_latest_channel_py3
-      - collect_yamls_test_results:
-          requires:
-            - macos_cdat-v81-nox_py2
-            - macos_cdat-v81-nox_py3.6
-            - macos_cdat-v81_py2
-            - macos_cdat-v81_py3.6
-            - linux_cdat-v81-nox_py2
-            - linux_cdat-v81-nox_py3.6
-            - linux_cdat-v81-nox_py3.7
-            - linux_cdat-v81_py2
-            - linux_cdat-v81_py3.6
-            - linux_cdat-v81_py3.7
+      #- collect_channels_test_results:
+      #    requires:
+      #      - macos_cdat_v81_latest_channel_py2
+      #      - linux_cdat_v81_latest_channel_py2
+      #      - macos_cdat_v81_latest_channel_py3
+      #      - linux_cdat_v81_latest_channel_py3
+      #- collect_yamls_test_results:
+      #    requires:
+      #      - macos_cdat-v81-nox_py2
+      #      - macos_cdat-v81-nox_py3.6
+      #      - macos_cdat-v81_py2
+      #      - macos_cdat-v81_py3.6
+      #      - linux_cdat-v81-nox_py2
+      #      - linux_cdat-v81-nox_py3.6
+      #      - linux_cdat-v81-nox_py3.7
+      #      - linux_cdat-v81_py2
+      #      - linux_cdat-v81_py3.6
+      #      - linux_cdat-v81_py3.7
