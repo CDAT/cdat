@@ -8,6 +8,8 @@ cdat
 [![Anaconda-Server Badge](https://anaconda.org/cdat/cdat/badges/installer/conda.svg)](https://conda.anaconda.org/cdat)
 [![Anaconda-Server Badge](https://anaconda.org/cdat/cdat/badges/downloads.svg)](https://anaconda.org/cdat/cdat)
 
+CDAT builds on the following key technologies:
+
   1. Python and its ecosystem (e.g. NumPy, Matplotlib);
   2. Jupyter Notebooks and iPython;
   3. A toolset developed at LLNL for the analysis, visualization, and management of large-scale distributed climate data;
