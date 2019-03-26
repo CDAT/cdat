@@ -235,7 +235,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -276,7 +276,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -317,7 +317,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -358,7 +358,7 @@ jobs:
       - run: *run_cdutil_test
       - run: *run_vcs_test
       - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
+      - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
       - run: *run_thermo_test
       - run: *run_wk_test
@@ -398,14 +398,14 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat_v81_latest_channel_py2
@@ -413,10 +413,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat_v81_latest_channel_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat_v81_latest_channel_py2
 
   linux_cdat_v81_latest_channel_py2:
     machine:
@@ -441,15 +441,15 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      ##-run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat_v81_latest_channel_py2
@@ -457,10 +457,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat_v81_latest_channel_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat_v81_latest_channel_py2
 
   macos_cdat_v81_latest_channel_py3:
     macos:
@@ -485,14 +485,14 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat_v81_latest_channel_py3
@@ -500,10 +500,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat_v81_latest_channel_py3
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat_v81_latest_channel_py3
 
   linux_cdat_v81_latest_channel_py3:
     machine:
@@ -528,15 +528,15 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_conda_channel
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      ##-run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat_v81_latest_channel_py3
@@ -544,10 +544,10 @@ jobs:
       - store_artifacts:
            path: env.yaml
            destination: env.yaml
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat_v81_latest_channel_py3
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat_v81_latest_channel_py3
 
   #
   # install from cdat-v81* yaml files
@@ -574,22 +574,22 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v81-nox_py2
            destination: macos_cdat-v81-nox_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81-nox_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81-nox_py2
 
   macos_cdat-v81-nox_py3.6:
     macos:
@@ -613,22 +613,22 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v81-nox_py3.6
            destination: macos_cdat-v81-nox_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81-nox_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81-nox_py3.6
 
   macos_cdat-v81_py2:
     macos:
@@ -652,17 +652,17 @@ jobs:
             - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v81_py2
            destination: macos_cdat-v81_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81_py2
 
   macos_cdat-v81_py3.6:
     macos:
@@ -686,17 +686,17 @@ jobs:
             - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
            path: macos_cdat-v81_py3.6
            destination: macos_cdat-v81_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - macos_cdat-v81_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - macos_cdat-v81_py3.6
 
   linux_cdat-v81-nox_py2:
     machine:
@@ -720,23 +720,23 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      ##-run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81-nox_py2
            destination: linux_cdat-v81-nox_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py2
 
   linux_cdat-v81-nox_py3.6:
     machine:
@@ -760,23 +760,23 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      ##-run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81-nox_py3.6
            destination: linux_cdat-v81-nox_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py3.6
 
   linux_cdat-v81-nox_py3.7:
     machine:
@@ -800,23 +800,23 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      #-run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_thermo_test
-      - run: *run_wk_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
+      #- run: *run_vcs_test
+      #- run: *run_vcsaddons_test
+      ##-run: *run_pcmdi_metrics_test
+      #- run: *run_dv3d_test
+      #- run: *run_thermo_test
+      #- run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81-nox_py3.7
            destination: linux_cdat-v81-nox_py3.7
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81-nox_py3.7
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81-nox_py3.7
 
   linux_cdat-v81_py2:
     machine:
@@ -840,17 +840,17 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81_py2
            destination: linux_cdat-v81_py2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py2
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py2
 
   linux_cdat-v81_py3.6:
     machine:
@@ -874,17 +874,17 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81_py3.6
            destination: linux_cdat-v81_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py3.6
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py3.6
 
   linux_cdat-v81_py3.7:
     machine:
@@ -908,17 +908,17 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
+      #- run: *run_cdms_test
+      #- run: *run_genutil_test
+      #- run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
            path: linux_cdat-v81_py3.7
            destination: linux_cdat-v81_py3.7
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_cdat-v81_py3.7
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - linux_cdat-v81_py3.7
 
   collect_nightlies_test_results:
     machine:
@@ -927,14 +927,8 @@ jobs:
       - attach_workspace:
           at: .
       #- store_artifacts:
-      #     path: centos_nightly_py2
-      #     destination: centos_nightly_py2
-      #- store_artifacts:
-      #     path: centos_nightly_py3
-      #     destination: centos_nightly_py3
-      - store_artifacts:
-           path: macos_nightly_py2
-           destination: macos_nightly_py2
+      #     path: macos_nightly_py2
+      #     destination: macos_nightly_py2
       - store_artifacts:
            path: macos_nightly_py3
            destination: macos_nightly_py3
@@ -1025,9 +1019,9 @@ workflows:
           requires:
             - get_time_stamp
    
-      - macos_nightly_py2:
-          requires:
-            - macos_py2_miniconda
+      #- macos_nightly_py2:
+      #    requires:
+      #      - macos_py2_miniconda
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
@@ -1081,27 +1075,25 @@ workflows:
             - linux_py3_miniconda
       - collect_nightlies_test_results:
           requires:
-            #- centos_nightly_py2
-            #- centos_nightly_py3
-            - macos_nightly_py2
+            #- macos_nightly_py2
             - macos_nightly_py3
             - linux_nightly_py2
             - linux_nightly_py3
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v81_latest_channel_py2
-            - linux_cdat_v81_latest_channel_py2
-            - macos_cdat_v81_latest_channel_py3
-            - linux_cdat_v81_latest_channel_py3
-      - collect_yamls_test_results:
-          requires:
-            - macos_cdat-v81-nox_py2
-            - macos_cdat-v81-nox_py3.6
-            - macos_cdat-v81_py2
-            - macos_cdat-v81_py3.6
-            - linux_cdat-v81-nox_py2
-            - linux_cdat-v81-nox_py3.6
-            - linux_cdat-v81-nox_py3.7
-            - linux_cdat-v81_py2
-            - linux_cdat-v81_py3.6
-            - linux_cdat-v81_py3.7
+      #- collect_channels_test_results:
+      #    requires:
+      #      - macos_cdat_v81_latest_channel_py2
+      #      - linux_cdat_v81_latest_channel_py2
+      #      - macos_cdat_v81_latest_channel_py3
+      #      - linux_cdat_v81_latest_channel_py3
+      #- collect_yamls_test_results:
+      #    requires:
+      #      - macos_cdat-v81-nox_py2
+      #      - macos_cdat-v81-nox_py3.6
+      #      - macos_cdat-v81_py2
+      #      - macos_cdat-v81_py3.6
+      #      - linux_cdat-v81-nox_py2
+      #      - linux_cdat-v81-nox_py3.6
+      #      - linux_cdat-v81-nox_py3.7
+      #      - linux_cdat-v81_py2
+      #      - linux_cdat-v81_py3.6
+      #      - linux_cdat-v81_py3.7
