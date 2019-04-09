@@ -68,7 +68,7 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
 
     conda_cmd = os.path.join(conda_path, 'conda')
     if sys.platform == 'darwin':
-        ch1 = "-c danlipsa -c cdat/label/nightly -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c conda-forge"
     else:
         ch1 = "-c cdat/label/nightly -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
