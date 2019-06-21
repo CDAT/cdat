@@ -104,11 +104,17 @@ aliases:
   - &prep_artifacts
     name: prep_artifacts
     command: |
+      #if [ ! -d collect_nightlies_test_results ]; then
+      #  mkdir collect_nightlies_test_results
+      #fi
       for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'thermo' 'wk' 'cdms' 'pcmdi_metrics'
       do
         if [ "$(ls -A $WORKDIR/$ts/tests_html)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_html  
-           cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html    
+           cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html
+           if [ "$(ls -A $WORKDIR/$ts/tests_html/failed_index.html)" ]; then
+             echo "$ts " >> collect_nightlies_test_results/failed
+           fi
         fi
       done
 
@@ -116,7 +122,7 @@ aliases:
       do
         if [ "$(ls -A $WORKDIR/$ts/tests_png)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_png 
-           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
+           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png
         fi
       done
 
@@ -124,6 +130,17 @@ aliases:
       if [ $CIRCLE_JOB == *"latest"* ]; then
          cp $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml env.yaml
       fi
+
+  - &check_nightlies_test_results
+    name: check_nightlies_test_results
+    command: |
+      if [ "$(ls -A collect_nightlies_test_results/failed)" ]; then
+        echo "Failed tests: "
+        cat collect_nightlies_test_results/failed
+        echo "Please examine artifacts under: "
+        cat collect_nightlies_test_results/url
+        exit 1
+      fi 
 
 jobs:
   get_time_stamp:
@@ -133,9 +150,12 @@ jobs:
       WORKDIR: /Users/distiller/project/workdir
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: mkdir collect_nightlies_test_results
       - persist_to_workspace:
           root: .
-          paths: todaysDate.txt
+          paths: 
+            - todaysDate.txt
+            - collect_nightlies_test_results
 
   macos_py2_miniconda:
     macos:
@@ -247,6 +267,7 @@ jobs:
           root: .
           paths:
             - macos_nightly_py2
+            - collect_nightlies_test_results
       #- run: *validate_install
 
   macos_nightly_py3:
@@ -288,6 +309,7 @@ jobs:
           root: .
           paths: 
             - macos_nightly_py3
+            - collect_nightlies_test_results
       #- run: *validate_install
 
   linux_nightly_py2:
@@ -329,6 +351,7 @@ jobs:
           root: .
           paths:
             - linux_nightly_py2
+            - collect_nightlies_test_results
       #- run: *validate_install
 
   linux_nightly_py3:
@@ -370,6 +393,7 @@ jobs:
           root: .
           paths:
             - linux_nightly_py3
+            - collect_nightlies_test_results
       #- run: *validate_install
 
   #
@@ -926,6 +950,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: echo "$CIRCLE_BUILD_URL" > collect_nightlies_test_results/url
       #- store_artifacts:
       #     path: macos_nightly_py2
       #     destination: macos_nightly_py2
@@ -938,6 +963,18 @@ jobs:
       - store_artifacts:
            path: linux_nightly_py3
            destination: linux_nightly_py3
+      - persist_to_workspace:
+          root: .
+          paths:
+            - collect_nightlies_test_results
+
+  check_nightlies:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - run: *check_nightlies_test_results
 
   collect_channels_test_results:
     machine:
@@ -1079,6 +1116,10 @@ workflows:
             - macos_nightly_py3
             - linux_nightly_py2
             - linux_nightly_py3
+      - check_nightlies:
+          requires:
+            - collect_nightlies_test_results
+
       #- collect_channels_test_results:
       #    requires:
       #      - macos_cdat_v81_latest_channel_py2
