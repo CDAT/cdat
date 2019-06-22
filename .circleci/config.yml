@@ -104,16 +104,14 @@ aliases:
   - &prep_artifacts
     name: prep_artifacts
     command: |
-      #if [ ! -d collect_nightlies_test_results ]; then
-      #  mkdir collect_nightlies_test_results
-      #fi
+      mkdir collect_nightlies_test_results/$CIRCLE_JOB
       for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'thermo' 'wk' 'cdms' 'pcmdi_metrics'
       do
         if [ "$(ls -A $WORKDIR/$ts/tests_html)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_html  
            cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html
            if [ "$(ls -A $WORKDIR/$ts/tests_html/failed_index.html)" ]; then
-             echo "$ts " >> collect_nightlies_test_results/failed
+             echo "$ts " >> collect_nightlies_test_results/$CIRCLE_JOB/failed
            fi
         fi
       done
@@ -134,13 +132,15 @@ aliases:
   - &check_nightlies_test_results
     name: check_nightlies_test_results
     command: |
-      if [ "$(ls -A collect_nightlies_test_results/failed)" ]; then
-        echo "Failed tests: "
-        cat collect_nightlies_test_results/failed
-        echo "Please examine artifacts under: "
-        cat collect_nightlies_test_results/url
-        exit 1
-      fi 
+      ls -l
+      for j in 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
+      do
+        if [ "$(ls -A $j/failed)" ]; then
+           echo "Failed tests for $j "
+           cat $j/failed
+        fi 
+      done
+      cat url
 
 jobs:
   get_time_stamp:
@@ -267,7 +267,7 @@ jobs:
           root: .
           paths:
             - macos_nightly_py2
-            - collect_nightlies_test_results
+            - collect_nightlies_test_results/macos_nightly_py2
       #- run: *validate_install
 
   macos_nightly_py3:
@@ -309,7 +309,7 @@ jobs:
           root: .
           paths: 
             - macos_nightly_py3
-            - collect_nightlies_test_results
+            - collect_nightlies_test_results/macos_nightly_py3
       #- run: *validate_install
 
   linux_nightly_py2:
@@ -351,7 +351,7 @@ jobs:
           root: .
           paths:
             - linux_nightly_py2
-            - collect_nightlies_test_results
+            - collect_nightlies_test_results/linux_nightly_py2
       #- run: *validate_install
 
   linux_nightly_py3:
@@ -393,7 +393,7 @@ jobs:
           root: .
           paths:
             - linux_nightly_py3
-            - collect_nightlies_test_results
+            - collect_nightlies_test_results/linux_nightly_py3
       #- run: *validate_install
 
   #
@@ -966,7 +966,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - collect_nightlies_test_results
+            - collect_nightlies_test_results/url
 
   check_nightlies:
     machine:
@@ -1035,12 +1035,6 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1062,52 +1056,10 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
-      - macos_cdat_v81_latest_channel_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat_v81_latest_channel_py3:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v81-nox_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v81-nox_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v81_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v81_py3.6:
-          requires:
-            - macos_py3_miniconda
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
       - linux_nightly_py3:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat_v81_latest_channel_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat_v81_latest_channel_py3:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81-nox_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v81-nox_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81-nox_py3.7:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v81_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81_py3.7:
           requires:
             - linux_py3_miniconda
       - collect_nightlies_test_results:
