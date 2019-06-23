@@ -135,12 +135,12 @@ aliases:
       ls -l
       for j in 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
       do
-        if [ "$(ls -A $j/failed)" ]; then
-           echo "Failed tests for $j "
-           cat $j/failed
+        if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
+           echo "Failed tests in $j "
+           cat collect_nightlies_test_results/$j/failed
         fi 
       done
-      cat url
+      cat collect_nightlies_test_results/url
 
 jobs:
   get_time_stamp:
@@ -1090,3 +1090,4 @@ workflows:
       #      - linux_cdat-v81_py2
       #      - linux_cdat-v81_py3.6
       #      - linux_cdat-v81_py3.7
+
