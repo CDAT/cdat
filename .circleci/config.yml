@@ -1116,6 +1116,10 @@ workflows:
             - macos_nightly_py3
             - linux_nightly_py2
             - linux_nightly_py3
+      - check_nightlies:
+          requires:
+            - collect_nightlies_test_results
+
       #- collect_channels_test_results:
       #    requires:
       #      - macos_cdat_v81_latest_channel_py2
