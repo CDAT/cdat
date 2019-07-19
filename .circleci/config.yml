@@ -110,6 +110,7 @@ aliases:
         if [ "$(ls -A $WORKDIR/$ts/tests_html)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_html  
            cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html
+           echo "$CIRCLE_BUILD_URL " >> collect_nightlies_test_results/$CIRCLE_JOB/url
            if [ "$(ls -A $WORKDIR/$ts/tests_html/failed_index.html)" ]; then
              echo "$ts " >> collect_nightlies_test_results/$CIRCLE_JOB/failed
            fi
@@ -136,7 +137,8 @@ aliases:
       for j in 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
       do
         if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
-           echo "Failed tests in $j "
+           url = `cat collect_nightlies_test_results/$j/url`
+           echo "Failed tests in $j -- $url"
            cat collect_nightlies_test_results/$j/failed
         fi 
       done
