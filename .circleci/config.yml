@@ -1197,6 +1197,8 @@ workflows:
             - macos_nightly_py3
             - linux_nightly_py2
             - linux_nightly_py3
+            - linux_jupyter_vcdat
+
       - check_nightlies:
           requires:
             - collect_nightlies_test_results
