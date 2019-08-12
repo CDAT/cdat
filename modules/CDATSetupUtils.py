@@ -26,13 +26,17 @@ def conda_env_export(workdir, conda_path, env_name):
     ret_code = run_in_conda_env(conda_path, env_name, cmds_list)
     return(ret_code)
 
-def install_packages_for_tests(conda_path, env_name):
+def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
 
     pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient"
     if "nox" not in env_name:
         pkgs += " mesalib"
-        
-    channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+    
+    if pcmdi_from_nightly:
+        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+    else:
+        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi".format(l=CONDA_LABEL)
+
     cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
                                                           pkgs=pkgs)]
     ret_code = run_in_conda_env(conda_path, env_name, cmds_list)
