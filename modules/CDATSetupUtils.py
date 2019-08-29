@@ -72,9 +72,9 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
 
     conda_cmd = os.path.join(conda_path, 'conda')
     if sys.platform == 'darwin':
-        ch1 = "-c cdat/label/nightly -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
     else:
-        ch1 = "-c cdat/label/nightly -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
     base_pkgs = "openblas mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"

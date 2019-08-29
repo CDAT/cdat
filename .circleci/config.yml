@@ -181,7 +181,7 @@ aliases:
       for j in 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
       do
         if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
-           url = `cat collect_nightlies_test_results/$j/url`
+           url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
            echo "Failed tests in $j -- $url"
            cat collect_nightlies_test_results/$j/failed
         fi 
@@ -1110,12 +1110,6 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1137,53 +1131,11 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
-      - macos_cdat_v81_latest_channel_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat_v81_latest_channel_py3:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v81-nox_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v81-nox_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v81_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v81_py3.6:
-          requires:
-            - macos_py3_miniconda
 
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
       - linux_nightly_py3:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat_v81_latest_channel_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat_v81_latest_channel_py3:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81-nox_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v81-nox_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81-nox_py3.7:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v81_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v81_py3.7:
           requires:
             - linux_py3_miniconda
 
