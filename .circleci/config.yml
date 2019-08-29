@@ -1041,7 +1041,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - collect_nightlies_test_results/url
+            - collect_nightlies_test_results
 
   check_nightlies:
     machine:
@@ -1049,6 +1049,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: ls -l
       - run: *check_nightlies_test_results
 
   collect_channels_test_results:
@@ -1110,6 +1111,12 @@ jobs:
 workflows:
   version: 2
   nightly:
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1131,11 +1138,53 @@ workflows:
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
+      - macos_cdat_v81_latest_channel_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat_v81_latest_channel_py3:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v81-nox_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v81-nox_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v81_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v81_py3.6:
+          requires:
+            - macos_py3_miniconda
 
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
       - linux_nightly_py3:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat_v81_latest_channel_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat_v81_latest_channel_py3:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v81-nox_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v81-nox_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v81-nox_py3.7:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v81_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v81_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v81_py3.7:
           requires:
             - linux_py3_miniconda
 
@@ -1173,5 +1222,6 @@ workflows:
       #      - linux_cdat-v81_py2
       #      - linux_cdat-v81_py3.6
       #      - linux_cdat-v81_py3.7
+
 
 
