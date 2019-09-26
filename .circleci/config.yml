@@ -1115,12 +1115,12 @@ workflows:
           requires:
             - macos_py3_miniconda
    
-      #- macos_cdat_v82_latest_channel_py2:
-      #    requires:
-      #      - macos_py2_miniconda
-      #- macos_cdat_v82_latest_channel_py3:
-      #    requires:
-      #      - macos_py3_miniconda
+      - macos_cdat_v82_latest_channel_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat_v82_latest_channel_py3:
+          requires:
+            - macos_py3_miniconda
 
       - linux_nightly_py2:      
           requires:
@@ -1129,12 +1129,12 @@ workflows:
           requires:
             - linux_py3_miniconda
 
-      #- linux_cdat_v82_latest_channel_py2:
-      #    requires:
-      #      - linux_py2_miniconda
-      #- linux_cdat_v82_latest_channel_py3:
-      #    requires:
-      #      - linux_py3_miniconda
+      - linux_cdat_v82_latest_channel_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat_v82_latest_channel_py3:
+          requires:
+            - linux_py3_miniconda
 
       #- collect_channels_test_results:
       #    requires:
