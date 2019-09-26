@@ -48,7 +48,7 @@ conda_path = os.path.join(conda_dir, 'bin')
 conda_label = 'nightly'
 
 packages = ["cdms", "cdutil", "genutil", "vcs", 
-            "pcmdi_metrics", "dv3d", "thermo", "wk"]
+            "pcmdi_metrics", "dv3d", "wk"]
 
 env_name = get_env_name(env_prefix, py_ver)
 ret_code, installed_pkgs_dict = get_packages_version(conda_path, env_name, packages)

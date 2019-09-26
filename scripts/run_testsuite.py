@@ -88,7 +88,7 @@ elif ts == 'vcs':
 
 elif ts == 'genutil' or ts == 'cdutil' or ts == 'pcmdi_metrics': 
     cmds_list = [run_tests_cmd]
-elif ts == 'thermo' or ts == 'wk':
+elif ts == 'wk':
     cmds_list = ["{cmd} -n 2".format(cmd=run_tests_cmd)]
 elif ts == 'vcsaddons':
     cmds_list = ["{cmd} -n 1".format(cmd=run_tests_cmd)]
