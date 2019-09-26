@@ -485,7 +485,7 @@ jobs:
       BRANCH: master
       CONDA_LABEL: v82
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -528,7 +528,7 @@ jobs:
       BRANCH: master
       CONDA_LABEL: v82
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -572,7 +572,7 @@ jobs:
       BRANCH: master
       CONDA_LABEL: v82
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -615,7 +615,7 @@ jobs:
       BRANCH: master
       CONDA_LABEL: v82
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -661,7 +661,7 @@ jobs:
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -700,7 +700,7 @@ jobs:
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -739,7 +739,7 @@ jobs:
       ENV_PREFIX: cdat-v82
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -773,7 +773,7 @@ jobs:
       ENV_PREFIX: cdat-v82
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -807,7 +807,7 @@ jobs:
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -847,7 +847,7 @@ jobs:
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -887,7 +887,7 @@ jobs:
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -927,7 +927,7 @@ jobs:
       ENV_PREFIX: cdat-v82
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -961,7 +961,7 @@ jobs:
       ENV_PREFIX: cdat-v82
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -995,7 +995,7 @@ jobs:
       ENV_PREFIX: cdat-v82
       BRANCH: master
       LABEL: v8.2
-      CDMS_LABEL: v3.1.3
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
