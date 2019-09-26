@@ -178,7 +178,7 @@ aliases:
     name: check_nightlies_test_results
     command: |
       ls -l
-      for j in 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
+      for j in 'macos_nightly_py2' 'macos_nightly_py3' 'linux_nightly_py2' 'linux_nightly_py3'
       do
         if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
            url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
@@ -191,7 +191,7 @@ aliases:
 jobs:
   get_time_stamp:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
     steps:
@@ -205,7 +205,7 @@ jobs:
 
   macos_py2_miniconda:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -222,7 +222,7 @@ jobs:
 
   macos_py3_miniconda:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -276,7 +276,7 @@ jobs:
   # 
   macos_nightly_py2:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -318,10 +318,10 @@ jobs:
 
   macos_nightly_py3:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       BRANCH: master
       ENV_PREFIX: nightly
@@ -405,7 +405,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       BRANCH: master
       ENV_PREFIX: nightly
@@ -476,7 +476,7 @@ jobs:
   #
   macos_cdat_v82_latest_channel_py2:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -563,10 +563,10 @@ jobs:
 
   macos_cdat_v82_latest_channel_py3:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
@@ -609,7 +609,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
@@ -653,7 +653,7 @@ jobs:
   #
   macos_cdat-v82-nox_py2:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -690,12 +690,12 @@ jobs:
           paths:
             - macos_cdat-v82-nox_py2
 
-  macos_cdat-v82-nox_py3.6:
+  macos_cdat-v82-nox_py3.7:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
@@ -722,16 +722,16 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: macos_cdat-v82-nox_py3.6
-           destination: macos_cdat-v82-nox_py3.6
+           path: macos_cdat-v82-nox_py3.7
+           destination: macos_cdat-v82-nox_py3.7
       - persist_to_workspace:
           root: .
           paths:
-            - macos_cdat-v82-nox_py3.6
+            - macos_cdat-v82-nox_py3.7
 
   macos_cdat-v82_py2:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -763,12 +763,12 @@ jobs:
           paths:
             - macos_cdat-v82_py2
 
-  macos_cdat-v82_py3.6:
+  macos_cdat-v82_py3.7:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       ENV_PREFIX: cdat-v82
       BRANCH: master
@@ -790,12 +790,12 @@ jobs:
       - run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: macos_cdat-v82_py3.6
-           destination: macos_cdat-v82_py3.6
+           path: macos_cdat-v82_py3.7
+           destination: macos_cdat-v82_py3.7
       - persist_to_workspace:
           root: .
           paths:
-            - macos_cdat-v82_py3.6
+            - macos_cdat-v82_py3.7
 
   linux_cdat-v82-nox_py2:
     machine:
@@ -837,12 +837,12 @@ jobs:
           paths:
             - linux_cdat-v82-nox_py2
 
-  linux_cdat-v82-nox_py3.6:
+  linux_cdat-v82-nox_py3.7:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: cdat-v82-nox
       BRANCH: master
@@ -870,12 +870,12 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v82-nox_py3.6
-           destination: linux_cdat-v82-nox_py3.6
+           path: linux_cdat-v82-nox_py3.7
+           destination: linux_cdat-v82-nox_py3.7
       - persist_to_workspace:
           root: .
           paths:
-            - linux_cdat-v82-nox_py3.6
+            - linux_cdat-v82-nox_py3.7
 
   linux_cdat-v82-nox_py3.7:
     machine:
@@ -951,12 +951,12 @@ jobs:
           paths:
             - linux_cdat-v82_py2
 
-  linux_cdat-v82_py3.6:
+  linux_cdat-v82_py3.7:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: cdat-v82
       BRANCH: master
@@ -978,12 +978,12 @@ jobs:
       - run: *run_cdutil_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v82_py3.6
-           destination: linux_cdat-v82_py3.6
+           path: linux_cdat-v82_py3.7
+           destination: linux_cdat-v82_py3.7
       - persist_to_workspace:
           root: .
           paths:
-            - linux_cdat-v82_py3.6
+            - linux_cdat-v82_py3.7
 
   linux_cdat-v82_py3.7:
     machine:
@@ -1026,9 +1026,9 @@ jobs:
       - attach_workspace:
           at: .
       - run: echo "$CIRCLE_BUILD_URL" > collect_nightlies_test_results/url
-      #- store_artifacts:
-      #     path: macos_nightly_py2
-      #     destination: macos_nightly_py2
+      - store_artifacts:
+           path: macos_nightly_py2
+           destination: macos_nightly_py2
       - store_artifacts:
            path: macos_nightly_py3
            destination: macos_nightly_py3
@@ -1081,20 +1081,20 @@ jobs:
            path: macos_cdat-v82-nox_py2
            destination: macos_cdat-v82-nox_py2
       - store_artifacts:
-           path: macos_cdat-v82-nox_py3.6
-           destination: macos_cdat-v82-nox_py3.6
+           path: macos_cdat-v82-nox_py3.7
+           destination: macos_cdat-v82-nox_py3.7
       - store_artifacts:
            path: macos_cdat-v82_py2
            destination: macos_cdat-v82_py2
       - store_artifacts:
-           path: macos_cdat-v82_py3.6
-           destination: macos_cdat-v82_py3.6
+           path: macos_cdat-v82_py3.7
+           destination: macos_cdat-v82_py3.7
       - store_artifacts:
            path: linux_cdat-v82-nox_py2
            destination: linux_cdat-v82-nox_py2
       - store_artifacts:
-           path: linux_cdat-v82-nox_py3.6
-           destination: linux_cdat-v82-nox_py3.6
+           path: linux_cdat-v82-nox_py3.7
+           destination: linux_cdat-v82-nox_py3.7
       - store_artifacts:
            path: linux_cdat-v82-nox_py3.7
            destination: linux_cdat-v82-nox_py3.7
@@ -1102,8 +1102,8 @@ jobs:
            path: linux_cdat-v82_py2
            destination: linux_cdat-v82_py2
       - store_artifacts:
-           path: linux_cdat-v82_py3.6
-           destination: linux_cdat-v82_py3.6
+           path: linux_cdat-v82_py3.7
+           destination: linux_cdat-v82_py3.7
       - store_artifacts:
            path: linux_cdat-v82_py3.7
            destination: linux_cdat-v82_py3.7
@@ -1125,22 +1125,34 @@ workflows:
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
-   
-      - macos_cdat_v82_latest_channel_py2:
+
+      - macos_nightly_py2:
           requires:
             - macos_py2_miniconda
-      - macos_cdat_v82_latest_channel_py3:
+      - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
+   
+      #- macos_cdat_v82_latest_channel_py2:
+      #    requires:
+      #      - macos_py2_miniconda
+      #- macos_cdat_v82_latest_channel_py3:
+      #    requires:
+      #      - macos_py3_miniconda
 
-      - linux_cdat_v82_latest_channel_py2:
+      - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
-      - linux_cdat_v82_latest_channel_py3:
+      - linux_nightly_py3:
           requires:
             - linux_py3_miniconda
 
-
+      #- linux_cdat_v82_latest_channel_py2:
+      #    requires:
+      #      - linux_py2_miniconda
+      #- linux_cdat_v82_latest_channel_py3:
+      #    requires:
+      #      - linux_py3_miniconda
 
       #- collect_channels_test_results:
       #    requires:
@@ -1151,14 +1163,14 @@ workflows:
       #- collect_yamls_test_results:
       #    requires:
       #      - macos_cdat-v82-nox_py2
-      #      - macos_cdat-v82-nox_py3.6
+      #      - macos_cdat-v82-nox_py3.7
       #      - macos_cdat-v82_py2
-      #      - macos_cdat-v82_py3.6
+      #      - macos_cdat-v82_py3.7
       #      - linux_cdat-v82-nox_py2
-      #      - linux_cdat-v82-nox_py3.6
+      #      - linux_cdat-v82-nox_py3.7
       #      - linux_cdat-v82-nox_py3.7
       #      - linux_cdat-v82_py2
-      #      - linux_cdat-v82_py3.6
+      #      - linux_cdat-v82_py3.7
       #      - linux_cdat-v82_py3.7
 
 
