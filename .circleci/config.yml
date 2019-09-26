@@ -1126,12 +1126,6 @@ workflows:
           requires:
             - get_time_stamp
    
-      #- macos_nightly_py2:
-      #    requires:
-      #      - macos_py2_miniconda
-      - macos_nightly_py3:
-          requires:
-            - macos_py3_miniconda
       - macos_cdat_v82_latest_channel_py2:
           requires:
             - macos_py2_miniconda
@@ -1139,12 +1133,6 @@ workflows:
           requires:
             - macos_py3_miniconda
 
-      - linux_nightly_py2:      
-          requires:
-            - linux_py2_miniconda
-      - linux_nightly_py3:
-          requires:
-            - linux_py3_miniconda
       - linux_cdat_v82_latest_channel_py2:
           requires:
             - linux_py2_miniconda
@@ -1153,17 +1141,6 @@ workflows:
             - linux_py3_miniconda
 
 
-      - collect_nightlies_test_results:
-          requires:
-            #- macos_nightly_py2
-            - macos_nightly_py3
-            - linux_nightly_py2
-            - linux_nightly_py3
-            #- linux_jupyter_vcdat
-
-      - check_nightlies:
-          requires:
-            - collect_nightlies_test_results
 
       #- collect_channels_test_results:
       #    requires:
