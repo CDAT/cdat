@@ -555,7 +555,7 @@ jobs:
       xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.7
+      PYTHON_VERSION: py3.6
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
@@ -597,7 +597,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.7
+      PYTHON_VERSION: py3.6
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
