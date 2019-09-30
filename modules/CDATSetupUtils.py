@@ -77,7 +77,7 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
         ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
-    base_pkgs = "openblas=0.3.6 mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
+    base_pkgs = "openblas mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
     #temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" \"proj4<5\" \"vtk-cdat>8.1\""
     #if sys.platform == 'darwin':
     #    temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
