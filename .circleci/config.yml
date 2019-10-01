@@ -220,7 +220,7 @@ jobs:
       xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
     steps:
       - checkout
@@ -254,7 +254,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
     steps:
       - checkout
@@ -555,7 +555,7 @@ jobs:
       xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
@@ -597,7 +597,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: cdat_v82_latest_channel
       BRANCH: master
@@ -1095,60 +1095,60 @@ workflows:
   nightly:
     jobs:
       - get_time_stamp
-      - macos_py2_miniconda:
-          requires:
-            - get_time_stamp
+      #- macos_py2_miniconda:
+      #    requires:
+      #      - get_time_stamp
       - macos_py3_miniconda:
           requires:
             - get_time_stamp
-      - linux_py2_miniconda:
-          requires:
-            - get_time_stamp
+      #- linux_py2_miniconda:
+      #    requires:
+      #      - get_time_stamp
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
 
-      - macos_nightly_py2:
-          requires:
-            - macos_py2_miniconda
+      #- macos_nightly_py2:
+      #    requires:
+      #      - macos_py2_miniconda
       - macos_nightly_py3:
           requires:
             - macos_py3_miniconda
    
-      - macos_cdat_v82_latest_channel_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat_v82_latest_channel_py3:
-          requires:
-            - macos_py3_miniconda
+      #- macos_cdat_v82_latest_channel_py2:
+      #    requires:
+      #      - macos_py2_miniconda
+      #- macos_cdat_v82_latest_channel_py3:
+      #    requires:
+      #      - macos_py3_miniconda
 
-      - linux_nightly_py2:      
-          requires:
-            - linux_py2_miniconda
+      #- linux_nightly_py2:      
+      #    requires:
+      #      - linux_py2_miniconda
       - linux_nightly_py3:
           requires:
             - linux_py3_miniconda
 
-      - linux_cdat_v82_latest_channel_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat_v82_latest_channel_py3:
-          requires:
-            - linux_py3_miniconda
+      #- linux_cdat_v82_latest_channel_py2:
+      #    requires:
+      #      - linux_py2_miniconda
+      #- linux_cdat_v82_latest_channel_py3:
+      #    requires:
+      #      - linux_py3_miniconda
 
-      - collect_nightlies_test_results:
-          requires:
-            - macos_nightly_py2
-            - macos_nightly_py3
-            - linux_nightly_py2
-            - linux_nightly_py3
+      #- collect_nightlies_test_results:
+      #    requires:
+      #      - macos_nightly_py2
+      #      - macos_nightly_py3
+      #      - linux_nightly_py2
+      #      - linux_nightly_py3
 
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v82_latest_channel_py2
-            - linux_cdat_v82_latest_channel_py2
-            - macos_cdat_v82_latest_channel_py3
-            - linux_cdat_v82_latest_channel_py3
+      #- collect_channels_test_results:
+      #    requires:
+      #      - macos_cdat_v82_latest_channel_py2
+      #      - linux_cdat_v82_latest_channel_py2
+      #      - macos_cdat_v82_latest_channel_py3
+      #      - linux_cdat_v82_latest_channel_py3
       #- collect_yamls_test_results:
       #    requires:
       #      - macos_cdat-v82-nox_py2
