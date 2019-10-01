@@ -28,7 +28,7 @@ def conda_env_export(workdir, conda_path, env_name):
 
 def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
 
-    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
+    pkgs = "mesalib nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
     if "nox" not in env_name:
         pkgs += " mesalib"
     
