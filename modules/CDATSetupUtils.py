@@ -28,7 +28,7 @@ def conda_env_export(workdir, conda_path, env_name):
 
 def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
 
-    pkgs = "mesalib nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
+    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
     if "nox" not in env_name:
         pkgs += " mesalib"
     
@@ -41,7 +41,7 @@ def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
                                                           pkgs=pkgs)]
     ret_code = run_in_conda_env(conda_path, env_name, cmds_list)
     if ret_code != SUCCESS:
-        print("FAIL...{cmd}".format(cmd=cmd))
+        print("FAIL FAIL...{cmd}".format(cmd=cmd))
         return(ret_code)
         
     return(ret_code)
@@ -137,10 +137,10 @@ def install_from_channel(workdir, conda_path, env_prefix, py_ver, conda_label):
 
     py_str = construct_conda_py_str(py_ver)
 
-    cmd = "{c} create -n {n} {channel} \"{p}\" cdat".format(c=conda_cmd,
-                                                            n=env_name,
-                                                            channel=channel,
-                                                            p=py_str)
+    cmd = "{c} create -n {n} {channel} \"{p}\" cdat mesalib".format(c=conda_cmd,
+                                                                    n=env_name,
+                                                                    channel=channel,
+                                                                    p=py_str)
 
     ret_code = run_cmd(cmd, True, False, True)
     return ret_code, env_name
