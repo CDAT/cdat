@@ -716,6 +716,49 @@ jobs:
           paths:
             - macos_cdat_v82_latest_channel_py3.7
 
+  linux_cdat_v82_latest_channel_py3.6:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #-run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat_v82_latest_channel_py3.6
+           destination: linux_cdat_v82_latest_channel_py3.6
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v82_latest_channel_py3.6
+
   linux_cdat_v82_latest_channel_py3.7:
     machine:
       image: circleci/classic:latest
