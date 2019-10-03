@@ -1186,6 +1186,44 @@ workflows:
           requires:
             - get_time_stamp
 
+      - macos_cdat-v82-nox_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v82-nox_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82-nox_py3.7:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v82_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82_py3.7:
+          requires:
+            - macos_py3_miniconda
+
+      - linux_cdat-v82-nox_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v82-nox_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82-nox_py3.7:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v82_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82_py3.7:
+          requires:
+            - linux_py3_miniconda
+
       - collect_yamls_test_results:
           requires:
             - macos_cdat-v82-nox_py2
