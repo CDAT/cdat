@@ -6,7 +6,7 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - alabaster=0.7.12
-  - asn1crypto=0.24.0
+  - asn1crypto=1.0.0
   - astroid=1.6.5
   - attrs=19.2.0
   - autopep8=1.4.4
@@ -194,7 +194,7 @@ dependencies:
   - singledispatch=3.4.0.3
   - sip=4.19.8
   - six=1.12.0
-  - snowballstemmer=1.9.1
+  - snowballstemmer=2.0.0
   - sortedcontainers=2.1.0
   - sphinx=1.8.5
   - sphinxcontrib-websupport=1.1.2
