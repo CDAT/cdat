@@ -516,7 +516,8 @@ jobs:
 
   linux_jupyter_vcdat:
     docker:
-      - image: circleci/node:jessie-browsers
+      #- image: circleci/node:jessie-browsers
+      - image: cdat/vcdat_circleci:nightly
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.7
