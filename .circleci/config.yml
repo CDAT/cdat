@@ -127,7 +127,9 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        source activate jupyter-vcdat
-       cd $WORKDIR/jupyter-vcdat
+       cd $WORKDIR
+       git clone https://github.com/CDAT/jupyter-vcdat.git
+       cd jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
