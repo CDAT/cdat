@@ -525,7 +525,7 @@ jobs:
       #- image: circleci/node:jessie-browsers
       - image: cdat/vcdat_circleci:nightly
     environment:
-      WORKDIR: /home/circleci/project/workdir
+      WORKDIR: /tmp/jp-vcdat
       PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: jupyter_vcdat_nightly
