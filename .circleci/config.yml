@@ -103,7 +103,7 @@ aliases:
        cd $WORKDIR
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda create -n jupyter-vcdat -c cdat/label/nightly -c conda-forge jupyter-vcdat testsrunner cdat_info
-       source activate jupyter_vcdat
+       source activate jupyter-vcdat
        pip install selenium
        pip install pyvirtualdisplay
        conda list
@@ -113,7 +113,7 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
-       source activate jupyter_vcdat
+       source activate jupyter-vcdat
        cd $WORKDIR/jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -126,7 +126,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       source activate jupyter_vcdat
+       source activate jupyter-vcdat
        cd $WORKDIR/jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
