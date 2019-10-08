@@ -103,12 +103,13 @@ aliases:
        cd $WORKDIR
        echo "xxx ls $WORKDIR"
        ls $WORKDIR
-       cd $WORKDIR/jupyter-vcdat
        export PATH=$WORKDIR/miniconda/bin:$PATH
        source activate jupyter-vcdat
        conda install -c cdat/label/nightly -c conda-forge jupyter-vcdat vcs libnetcdf=4.6.2 testsrunner cdat_info
        pip install selenium
        pip install pyvirtualdisplay
+       git clone https://github.com/CDAT/jupyter-vcdat.git
+       cd jupyter-vcdat
        npm install
        jupyter lab build
        jupyter-labextension install .
@@ -136,9 +137,7 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        source activate jupyter-vcdat
-       cd $WORKDIR
-       git clone https://github.com/CDAT/jupyter-vcdat.git
-       cd jupyter-vcdat
+       cd $WORKDIR/jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
        python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
