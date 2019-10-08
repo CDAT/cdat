@@ -99,8 +99,11 @@ aliases:
   - &setup_jupyter_vcdat_nightly
     name: setup_jupyter_vcdat_nightly
     command: |
-       mkdir -p $WORKDIR
+       # mkdir -p $WORKDIR
        cd $WORKDIR
+       echo "xxx ls $WORKDIR"
+       ls $WORKDIR
+       cd $WORKDIR/jupyter-vcdat
        export PATH=$WORKDIR/miniconda/bin:$PATH
        source activate jupyter-vcdat
        conda install -c cdat/label/nightly -c conda-forge jupyter-vcdat vcs libnetcdf=4.6.2 testsrunner cdat_info
