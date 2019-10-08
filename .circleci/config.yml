@@ -112,7 +112,7 @@ aliases:
        cd jupyter-vcdat
        npm install
        jupyter lab build
-       jupyter-labextension install .
+       # jupyter-labextension install .
        echo "xxx npm list xxx"
        npm list
        echo "xxx conda list xxx"
