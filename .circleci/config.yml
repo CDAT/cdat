@@ -99,23 +99,16 @@ aliases:
   - &setup_jupyter_vcdat_nightly
     name: setup_jupyter_vcdat_nightly
     command: |
-       # mkdir -p $WORKDIR
+       mkdir -p $WORKDIR
        cd $WORKDIR
-       echo "xxx ls $WORKDIR"
-       ls $WORKDIR
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       source activate jupyter-vcdat
-       conda install -c cdat/label/nightly -c conda-forge jupyter-vcdat vcs libnetcdf=4.6.2 testsrunner cdat_info
-       pip install selenium
-       pip install pyvirtualdisplay
        git clone https://github.com/CDAT/jupyter-vcdat.git
        cd jupyter-vcdat
-       npm install
-       jupyter lab build
-       # jupyter-labextension install .
-       echo "xxx npm list xxx"
-       npm list
-       echo "xxx conda list xxx"
+       ./install_script.sh -n jupyter_vcdat_nightly -c cdat/label/nightly -v
+       source activate jupyter_vcdat_nightly
+       conda install -c cdat/label/nightly testsrunner cdat_info
+       pip install selenium
+       pip install pyvirtualdisplay
        conda list
 
   - &run_jupyter_vcdat
@@ -123,7 +116,7 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
-       source activate jupyter-vcdat
+       source activate jupyter_vcdat_nightly
        cd $WORKDIR/jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -136,7 +129,7 @@ aliases:
       BROWSER_DRIVER: "/usr/local/bin/geckodriver"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       source activate jupyter-vcdat
+       source activate jupyter_vcdat_nightly
        cd $WORKDIR/jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
@@ -524,10 +517,9 @@ jobs:
 
   linux_jupyter_vcdat:
     docker:
-      #- image: circleci/node:jessie-browsers
-      - image: cdat/vcdat_circleci:nightly
+      - image: circleci/node:jessie-browsers
     environment:
-      WORKDIR: /tmp/jp-vcdat
+      WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
       ENV_PREFIX: jupyter_vcdat_nightly
@@ -1360,11 +1352,126 @@ workflows:
   nightly:
     jobs:
       - get_time_stamp
+      - macos_py2_miniconda:
+          requires:
+            - get_time_stamp
+      - macos_py3_miniconda:
+          requires:
+            - get_time_stamp
+      - linux_py2_miniconda:
+          requires:
+            - get_time_stamp
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
 
-      - linux_jupyter_vcdat:
+      - macos_nightly_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_nightly_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_nightly_py3.7:
+          requires:
+            - macos_py3_miniconda
+   
+      - macos_cdat_v82_latest_channel_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat_v82_latest_channel_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat_v82_latest_channel_py3.7:
+          requires:
+            - macos_py3_miniconda
+
+      - macos_cdat-v82-nox_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v82-nox_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82-nox_py3.7:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_cdat-v82_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82_py3.7:
+          requires:
+            - macos_py3_miniconda
+
+      - linux_nightly_py2:      
+          requires:
+            - linux_py2_miniconda
+      - linux_nightly_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_nightly_py3.7:
           requires:
             - linux_py3_miniconda
 
+      - linux_cdat_v82_latest_channel_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat_v82_latest_channel_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat_v82_latest_channel_py3.7:
+          requires:
+            - linux_py3_miniconda
+
+      - linux_cdat-v82-nox_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v82-nox_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82-nox_py3.7:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82_py2:
+          requires:
+            - linux_py2_miniconda
+      - linux_cdat-v82_py3.6:
+          requires:
+            - linux_py3_miniconda
+      - linux_cdat-v82_py3.7:
+          requires:
+            - linux_py3_miniconda
+
+      - collect_nightlies_test_results:
+          requires:
+            - macos_nightly_py2
+            - macos_nightly_py3.6
+            - macos_nightly_py3.7
+            - linux_nightly_py2
+            - linux_nightly_py3.6
+            - linux_nightly_py3.7
+
+      - collect_channels_test_results:
+          requires:
+            - macos_cdat_v82_latest_channel_py2
+            - linux_cdat_v82_latest_channel_py2
+            - macos_cdat_v82_latest_channel_py3.6
+            - linux_cdat_v82_latest_channel_py3.6
+            - macos_cdat_v82_latest_channel_py3.7
+            - linux_cdat_v82_latest_channel_py3.7
+
+      - collect_yamls_test_results:
+          requires:
+            - macos_cdat-v82-nox_py2
+            - macos_cdat-v82-nox_py3.6
+            - macos_cdat-v82-nox_py3.7
+            - macos_cdat-v82_py2
+            - macos_cdat-v82_py3.6
+            - macos_cdat-v82_py3.7
+            - linux_cdat-v82-nox_py2
+            - linux_cdat-v82-nox_py3.6
+            - linux_cdat-v82-nox_py3.7
+            - linux_cdat-v82_py2
+            - linux_cdat-v82_py3.6
+            - linux_cdat-v82_py3.7
