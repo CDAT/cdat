@@ -23,10 +23,12 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        echo "XXX conda --version: "
        conda --version
-       echo "XXX conda update -y -q conda"
-       conda update -y -q conda
+       # do not do conda update for now, updating from 4.7.10 to 4.7.12 failed
+       # since it tries to remove setuptools
+       # echo "XXX conda update -y -q conda"
+       # conda update -y -q conda
        conda config --set anaconda_upload no
-       echo "XXX conda --version: "
+       # echo "XXX conda --version: "
        conda --version
 
   - &setup_nightly
