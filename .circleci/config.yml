@@ -21,7 +21,7 @@ aliases:
        mv miniconda $WORKDIR/
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
-       echo "XXX conda --version: "
+       echo "XXXXX conda --version: "
        conda --version
        # do not do conda update for now, updating from 4.7.10 to 4.7.12 failed
        # since it tries to remove setuptools
