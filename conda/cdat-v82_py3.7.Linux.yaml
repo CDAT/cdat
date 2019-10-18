@@ -6,9 +6,9 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - alabaster=0.7.12
-  - asn1crypto=1.0.0
-  - astroid=2.3.1
-  - attrs=19.2.0
+  - asn1crypto=1.2.0
+  - astroid=2.3.2
+  - attrs=19.3.0
   - autopep8=1.4.4
   - babel=2.7.0
   - backcall=0.1.0
@@ -23,7 +23,7 @@ dependencies:
   - cdtime=3.1.2
   - cdutil=8.2
   - certifi=2019.9.11
-  - cffi=1.12.3
+  - cffi=1.13.0
   - chardet=3.0.4
   - cibots=0.3
   - click=7.0
@@ -32,13 +32,13 @@ dependencies:
   - curl=7.65.3
   - cycler=0.10.0
   - cytoolz=0.10.0
-  - dask=2.5.0
-  - dask-core=2.5.0
+  - dask=2.6.0
+  - dask-core=2.6.0
   - dbus=1.13.6
   - decorator=4.4.0
   - defusedxml=0.6.0
   - distarray=2.12.2
-  - distributed=2.5.1
+  - distributed=2.6.0
   - docutils=0.15.2
   - dv3d=8.2
   - entrypoints=0.3
@@ -50,8 +50,8 @@ dependencies:
   - flake8=3.7.8
   - fontconfig=2.13.1
   - freetype=2.10.0
-  - fsspec=0.5.1
-  - future=0.17.1
+  - fsspec=0.5.2
+  - future=0.18.1
   - g2clib=1.6.0
   - genutil=8.2
   - geos=3.7.2
@@ -68,6 +68,7 @@ dependencies:
   - icu=64.2
   - idna=2.8
   - imagesize=1.1.0
+  - importlib_metadata=0.23
   - ipykernel=5.1.2
   - ipython=7.8.0
   - ipython_genutils=0.2.0
@@ -76,13 +77,13 @@ dependencies:
   - jasper=1.900.1
   - jedi=0.15.1
   - jeepney=0.4.1
-  - jinja2=2.10.1
+  - jinja2=2.10.3
   - jpeg=9c
-  - jsonschema=3.0.2
+  - jsonschema=3.1.1
   - jupyter=1.0.0
   - jupyter_client=5.3.3
   - jupyter_console=6.0.0
-  - jupyter_core=4.4.0
+  - jupyter_core=4.5.0
   - keyring=19.2.0
   - kiwisolver=1.1.0
   - krb5=1.16.3
@@ -92,6 +93,7 @@ dependencies:
   - libcblas=3.8.0
   - libcdms=3.1.2
   - libcf=1.0.3
+  - libclang=9.0.0
   - libcurl=7.65.3
   - libdrs=3.1.2
   - libdrs_f=3.1.2
@@ -102,6 +104,7 @@ dependencies:
   - libgfortran-ng=7.3.0
   - libiconv=1.15
   - liblapack=3.8.0
+  - libllvm9=9.0.0
   - libnetcdf=4.6.2
   - libopenblas=0.3.6
   - libpng=1.6.37
@@ -111,6 +114,7 @@ dependencies:
   - libtiff=4.0.10
   - libuuid=2.32.1
   - libxcb=1.13
+  - libxkbcommon=0.8.4
   - libxml2=2.9.9
   - locket=0.2.0
   - lz4-c=1.8.3
@@ -119,6 +123,7 @@ dependencies:
   - matplotlib-base=3.1.1
   - mccabe=0.6.1
   - mistune=0.8.4
+  - more-itertools=7.2.0
   - mpi=1.0
   - mpich=3.3.1
   - msgpack-python=0.6.2
@@ -130,24 +135,26 @@ dependencies:
   - netcdf-fortran=4.4.5
   - nettle=3.4.1
   - notebook=6.0.1
+  - nspr=4.20
+  - nss=3.46
   - numpy=1.17.2
   - numpydoc=0.9.1
   - olefile=0.46
   - openblas=0.3.6
   - openh264=1.8.0
   - openssl=1.1.1c
-  - output_viewer=1.3.0
+  - output_viewer=1.3.1
   - packaging=19.2
-  - pandas=0.25.1
+  - pandas=0.25.2
   - pandoc=2.7.3
   - pandocfilters=1.4.2
   - parso=0.5.1
   - partd=1.0.0
-  - pcre=8.41
+  - pcre=8.43
   - pexpect=4.7.0
   - pickleshare=0.7.5
   - pillow=6.2.0
-  - pip=19.2.3
+  - pip=19.3.1
   - proj4=5.2.0
   - prometheus_client=0.7.1
   - prompt_toolkit=2.0.10
@@ -158,21 +165,21 @@ dependencies:
   - pycparser=2.19
   - pyflakes=2.1.1
   - pygments=2.4.2
-  - pylint=2.4.2
+  - pylint=2.4.3
   - pyopenssl=19.0.0
   - pyparsing=2.4.2
   - pyproj=1.9.6
-  - pyqt=5.9.2
+  - pyqt=5.12.3
   - pyrsistent=0.15.4
   - pyshp=2.1.0
   - pysocks=1.7.1
   - pyspharm=1.0.9
   - python=3.7.3
   - python-dateutil=2.8.0
-  - pytz=2019.2
+  - pytz=2019.3
   - pyyaml=5.1.2
   - pyzmq=18.1.0
-  - qt=5.9.7
+  - qt=5.12.5
   - qtawesome=0.6.0
   - qtconsole=4.5.5
   - qtpy=1.9.0
@@ -182,8 +189,7 @@ dependencies:
   - scipy=1.3.1
   - secretstorage=3.1.1
   - send2trash=1.5.0
-  - setuptools=41.2.0
-  - sip=4.19.8
+  - setuptools=41.4.0
   - six=1.12.0
   - snowballstemmer=2.0.0
   - sortedcontainers=2.1.0
@@ -196,14 +202,14 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.3
   - spyder=3.3.6
   - spyder-kernels=0.5.2
-  - sqlite=3.29.0
+  - sqlite=3.30.1
   - tblib=1.4.0
   - terminado=0.8.2
   - testpath=0.4.2
   - tk=8.6.9
   - toolz=0.10.0
   - tornado=6.0.3
-  - traitlets=4.3.2
+  - traitlets=4.3.3
   - udunits2=2.2.27.6
   - urllib3=1.25.6
   - vcs=8.2
@@ -224,10 +230,13 @@ dependencies:
   - yaml=0.1.7
   - zeromq=4.3.2
   - zict=1.0.0
+  - zipp=0.6.0
   - zlib=1.2.11
-  - zstd=1.4.0
+  - zstd=1.4.3
   - pip:
     - cdms2==3.1.4
+    - pyqt5-sip==4.19.18
+    - pyqtwebengine==5.12.1
     - regrid2==3.1.4
 prefix: /home/muryanto1/work/cdat82/miniconda3/envs/cdat-v82_py3.7
 

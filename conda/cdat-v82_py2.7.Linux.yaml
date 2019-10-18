@@ -6,9 +6,9 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - alabaster=0.7.12
-  - asn1crypto=1.0.0
+  - asn1crypto=1.2.0
   - astroid=1.6.5
-  - attrs=19.2.0
+  - attrs=19.3.0
   - autopep8=1.4.4
   - babel=2.7.0
   - backports=1.0
@@ -26,12 +26,13 @@ dependencies:
   - cdtime=3.1.2
   - cdutil=8.2
   - certifi=2019.9.11
-  - cffi=1.12.3
+  - cffi=1.13.0
   - chardet=3.0.4
   - cibots=0.3
   - click=7.0
   - cloudpickle=1.2.2
   - configparser=3.7.3
+  - contextlib2=0.6.0.post1
   - cryptography=2.7
   - curl=7.65.3
   - cycler=0.10.0
@@ -56,7 +57,7 @@ dependencies:
   - fontconfig=2.13.1
   - freetype=2.10.0
   - functools32=3.2.3.2
-  - future=0.17.1
+  - future=0.18.1
   - futures=3.3.0
   - g2clib=1.6.0
   - genutil=8.2
@@ -74,7 +75,8 @@ dependencies:
   - icu=64.2
   - idna=2.8
   - imagesize=1.1.0
-  - ipaddress=1.0.22
+  - importlib_metadata=0.23
+  - ipaddress=1.0.23
   - ipykernel=4.10.0
   - ipython=5.8.0
   - ipython_genutils=0.2.0
@@ -82,13 +84,13 @@ dependencies:
   - isort=4.3.21
   - jasper=1.900.1
   - jedi=0.15.1
-  - jinja2=2.10.1
+  - jinja2=2.10.3
   - jpeg=9c
-  - jsonschema=3.0.2
+  - jsonschema=3.1.1
   - jupyter=1.0.0
   - jupyter_client=5.3.3
   - jupyter_console=5.2.0
-  - jupyter_core=4.4.0
+  - jupyter_core=4.5.0
   - kiwisolver=1.1.0
   - krb5=1.16.3
   - lame=3.100
@@ -124,6 +126,7 @@ dependencies:
   - matplotlib-base=2.2.4
   - mccabe=0.6.1
   - mistune=0.8.4
+  - more-itertools=4.3.0
   - mpi=1.0
   - mpich=3.3.1
   - msgpack-python=0.6.2
@@ -141,7 +144,7 @@ dependencies:
   - openblas=0.3.6
   - openh264=1.8.0
   - openssl=1.1.1c
-  - output_viewer=1.3.0
+  - output_viewer=1.3.1
   - packaging=19.2
   - pandas=0.24.2
   - pandoc=2.7.3
@@ -149,11 +152,11 @@ dependencies:
   - parso=0.5.1
   - partd=1.0.0
   - pathlib2=2.3.5
-  - pcre=8.41
+  - pcre=8.43
   - pexpect=4.7.0
   - pickleshare=0.7.5
   - pillow=6.2.0
-  - pip=19.2.3
+  - pip=19.3.1
   - proj4=5.2.0
   - prometheus_client=0.7.1
   - prompt_toolkit=1.0.15
@@ -175,7 +178,7 @@ dependencies:
   - pyspharm=1.0.9
   - python=2.7.15
   - python-dateutil=2.8.0
-  - pytz=2019.2
+  - pytz=2019.3
   - pyyaml=5.1.2
   - pyzmq=18.1.0
   - qt=5.9.7
@@ -188,7 +191,7 @@ dependencies:
   - scandir=1.10.0
   - scipy=1.2.1
   - send2trash=1.5.0
-  - setuptools=41.2.0
+  - setuptools=41.4.0
   - simplegeneric=0.8.1
   - singledispatch=3.4.0.3
   - sip=4.19.8
@@ -199,7 +202,7 @@ dependencies:
   - sphinxcontrib-websupport=1.1.2
   - spyder=3.3.6
   - spyder-kernels=0.5.2
-  - sqlite=3.29.0
+  - sqlite=3.30.1
   - subprocess32=3.5.4
   - tblib=1.4.0
   - terminado=0.8.2
@@ -207,7 +210,7 @@ dependencies:
   - tk=8.6.9
   - toolz=0.10.0
   - tornado=5.1.1
-  - traitlets=4.3.2
+  - traitlets=4.3.3
   - typing=3.7.4.1
   - udunits2=2.2.27.6
   - urllib3=1.25.6
@@ -229,8 +232,9 @@ dependencies:
   - yaml=0.1.7
   - zeromq=4.3.2
   - zict=1.0.0
+  - zipp=0.6.0
   - zlib=1.2.11
-  - zstd=1.4.0
+  - zstd=1.4.3
   - pip:
     - cdms2==3.1.4
     - regrid2==3.1.4

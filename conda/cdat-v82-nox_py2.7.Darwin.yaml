@@ -6,9 +6,9 @@ channels:
 dependencies:
   - alabaster=0.7.12
   - appnope=0.1.0
-  - asn1crypto=1.0.0
+  - asn1crypto=1.2.0
   - astroid=1.6.5
-  - attrs=19.2.0
+  - attrs=19.3.0
   - autopep8=1.4.4
   - babel=2.7.0
   - backports=1.0
@@ -26,12 +26,13 @@ dependencies:
   - cdtime=3.1.2
   - cdutil=8.2
   - certifi=2019.9.11
-  - cffi=1.12.3
+  - cffi=1.13.0
   - chardet=3.0.4
   - cibots=0.3
   - click=7.0
   - cloudpickle=1.2.2
   - configparser=3.7.3
+  - contextlib2=0.6.0.post1
   - cryptography=2.7
   - curl=7.65.3
   - cycler=0.10.0
@@ -55,7 +56,7 @@ dependencies:
   - flake8=3.7.8
   - freetype=2.10.0
   - functools32=3.2.3.2
-  - future=0.17.1
+  - future=0.18.1
   - futures=3.3.0
   - g2clib=1.6.0
   - genutil=8.2
@@ -71,7 +72,8 @@ dependencies:
   - icu=64.2
   - idna=2.8
   - imagesize=1.1.0
-  - ipaddress=1.0.22
+  - importlib_metadata=0.23
+  - ipaddress=1.0.23
   - ipykernel=4.10.0
   - ipython=5.8.0
   - ipython_genutils=0.2.0
@@ -79,13 +81,13 @@ dependencies:
   - isort=4.3.21
   - jasper=1.900.1
   - jedi=0.15.1
-  - jinja2=2.10.1
+  - jinja2=2.10.3
   - jpeg=9c
-  - jsonschema=3.0.2
+  - jsonschema=3.1.1
   - jupyter=1.0.0
   - jupyter_client=5.3.3
   - jupyter_console=5.2.0
-  - jupyter_core=4.4.0
+  - jupyter_core=4.5.0
   - keyring=18.0.0
   - kiwisolver=1.1.0
   - krb5=1.16.3
@@ -95,6 +97,7 @@ dependencies:
   - libcblas=3.8.0
   - libcdms=3.1.2
   - libcf=1.0.3
+  - libclang=8.0.1
   - libcurl=7.65.3
   - libcxx=9.0.0
   - libcxxabi=9.0.0
@@ -106,6 +109,7 @@ dependencies:
   - libgfortran=4.0.0
   - libiconv=1.15
   - liblapack=3.8.0
+  - libllvm8=8.0.1
   - libnetcdf=4.6.2
   - libopenblas=0.3.6
   - libpng=1.6.37
@@ -122,6 +126,7 @@ dependencies:
   - mccabe=0.6.1
   - mesalib=17.3.9
   - mistune=0.8.4
+  - more-itertools=4.3.0
   - mpi=1.0
   - mpich=3.3.1
   - msgpack-python=0.6.2
@@ -133,13 +138,15 @@ dependencies:
   - netcdf-fortran=4.4.5
   - nettle=3.4.1
   - notebook=5.7.8
+  - nspr=4.20
+  - nss=3.47
   - numpy=1.16.4
   - numpydoc=0.9.1
   - olefile=0.46
   - openblas=0.3.6
   - openh264=1.8.0
   - openssl=1.1.1c
-  - output_viewer=1.3.0
+  - output_viewer=1.3.1
   - packaging=19.2
   - pandas=0.24.2
   - pandoc=2.7.3
@@ -147,11 +154,11 @@ dependencies:
   - parso=0.5.1
   - partd=1.0.0
   - pathlib2=2.3.5
-  - pcre=8.41
+  - pcre=8.43
   - pexpect=4.7.0
   - pickleshare=0.7.5
   - pillow=6.2.0
-  - pip=19.2.3
+  - pip=19.3.1
   - proj4=5.2.0
   - prometheus_client=0.7.1
   - prompt_toolkit=1.0.15
@@ -165,7 +172,7 @@ dependencies:
   - pyopenssl=19.0.0
   - pyparsing=2.4.2
   - pyproj=1.9.6
-  - pyqt=5.9.2
+  - pyqt=5.12.3
   - pyrsistent=0.15.4
   - pyshp=2.1.0
   - pysocks=1.7.1
@@ -173,10 +180,10 @@ dependencies:
   - python=2.7.15
   - python-dateutil=2.8.0
   - python.app=1.2
-  - pytz=2019.2
+  - pytz=2019.3
   - pyyaml=5.1.2
   - pyzmq=18.1.0
-  - qt=5.9.7
+  - qt=5.12.5
   - qtawesome=0.6.0
   - qtconsole=4.5.5
   - qtpy=1.9.0
@@ -186,10 +193,9 @@ dependencies:
   - scandir=1.10.0
   - scipy=1.2.1
   - send2trash=1.5.0
-  - setuptools=41.2.0
+  - setuptools=41.4.0
   - simplegeneric=0.8.1
   - singledispatch=3.4.0.3
-  - sip=4.19.8
   - six=1.12.0
   - snowballstemmer=2.0.0
   - sortedcontainers=2.1.0
@@ -197,7 +203,7 @@ dependencies:
   - sphinxcontrib-websupport=1.1.2
   - spyder=3.3.6
   - spyder-kernels=0.5.2
-  - sqlite=3.29.0
+  - sqlite=3.30.1
   - subprocess32=3.5.4
   - tblib=1.4.0
   - terminado=0.8.2
@@ -205,7 +211,7 @@ dependencies:
   - tk=8.6.9
   - toolz=0.10.0
   - tornado=5.1.1
-  - traitlets=4.3.2
+  - traitlets=4.3.3
   - typing=3.7.4.1
   - udunits2=2.2.27.6
   - urllib3=1.25.6
@@ -225,10 +231,13 @@ dependencies:
   - yaml=0.1.7
   - zeromq=4.3.2
   - zict=1.0.0
+  - zipp=0.6.0
   - zlib=1.2.11
-  - zstd=1.4.0
+  - zstd=1.4.3
   - pip:
     - cdms2==3.1.4
+    - pyqt5-sip==4.19.18
+    - pyqtwebengine==5.12.1
     - regrid2==3.1.4
-prefix: /Users/muryanto1/work/cdat82.09.25/miniconda3/envs/cdat-v82-nox_py2.7
+prefix: /Users/muryanto1/work/cdat82.10.18/miniconda3/envs/cdat-v82-nox_py2.7
 
