@@ -533,7 +533,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: *setup_miniconda
-      - run: *setup_jupyter_vcdat_nightly
+      - run: *setup_jupyter_vcdat
       - run: *run_jupyter_vcdat
       - run: *run_jupyter_vcdat_tests_with_firefox
       - run: *prep_artifacts
