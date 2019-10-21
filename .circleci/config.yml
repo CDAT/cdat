@@ -125,7 +125,9 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter_vcdat_$LABEL
-       npm build
+       npm install
+       jupyter lab build
+       jupyter-labextension install .
        jupyter lab --ip='127.0.0.1'
     background: true
 
