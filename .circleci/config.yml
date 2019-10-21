@@ -103,17 +103,14 @@ aliases:
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_PREFIX -b $BRANCH -l $LABEL
 
-  - &setup_jupyter_vcdat_nightly
-    name: setup_jupyter_vcdat_nightly
+  - &setup_jupyter_vcdat
+    name: setup_jupyter_vcdat
     command: |
        mkdir -p $WORKDIR
        cd $WORKDIR
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       git clone https://github.com/CDAT/jupyter-vcdat.git
-       cd jupyter-vcdat
-       ./install_script.sh -n jupyter_vcdat_nightly -c cdat/label/nightly -v
-       source activate jupyter_vcdat_nightly
-       conda install -c cdat/label/nightly testsrunner cdat_info
+       conda create -n jupyter-vcdat-$LABEL -c cdat/label/$LABEL -c conda-forge jupyter-vcdat testsrunner cdat_info
+       source activate jupyter_vcdat_$LABEL
        pip install selenium
        pip install pyvirtualdisplay
        conda list
@@ -522,17 +519,15 @@ jobs:
             - collect_nightlies_test_results/linux_nightly_py3.7
       #- run: *validate_install
 
-  linux_jupyter_vcdat:
+  linux_jupyter_vcdat_nightly:
     docker:
       - image: circleci/node:jessie-browsers
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: jupyter_vcdat_nightly
       BRANCH: master
-      LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
+      LABEL: nightly
     steps:
       - checkout
       - attach_workspace:
@@ -543,13 +538,13 @@ jobs:
       - run: *run_jupyter_vcdat_tests_with_firefox
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_jupyter_vcdat
-           destination: linux_jupyter_vcdat
+           path: linux_jupyter_vcdat_nightly
+           destination: linux_jupyter_vcdat_nightly
       - persist_to_workspace:
           root: .
           paths: 
-            - linux_jupyter_vcdat
-            - collect_nightlies_test_results/linux_jupyter_vcdat
+            - linux_jupyter_vcdat_nightly
+            - collect_nightlies_test_results/linux_jupyter_vcdat_nightly
 
   #
   # install from cdat v82 channel
@@ -1358,127 +1353,4 @@ workflows:
   version: 2
   nightly:
     jobs:
-      - get_time_stamp
-      - macos_py2_miniconda:
-          requires:
-            - get_time_stamp
-      - macos_py3_miniconda:
-          requires:
-            - get_time_stamp
-      - linux_py2_miniconda:
-          requires:
-            - get_time_stamp
-      - linux_py3_miniconda:
-          requires:
-            - get_time_stamp
-
-      - macos_nightly_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_nightly_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_nightly_py3.7:
-          requires:
-            - macos_py3_miniconda
-   
-      - macos_cdat_v82_latest_channel_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat_v82_latest_channel_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat_v82_latest_channel_py3.7:
-          requires:
-            - macos_py3_miniconda
-
-      - macos_cdat-v82-nox_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v82-nox_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v82-nox_py3.7:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v82_py2:
-          requires:
-            - macos_py2_miniconda
-      - macos_cdat-v82_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat-v82_py3.7:
-          requires:
-            - macos_py3_miniconda
-
-      - linux_nightly_py2:      
-          requires:
-            - linux_py2_miniconda
-      - linux_nightly_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_nightly_py3.7:
-          requires:
-            - linux_py3_miniconda
-
-      - linux_cdat_v82_latest_channel_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat_v82_latest_channel_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat_v82_latest_channel_py3.7:
-          requires:
-            - linux_py3_miniconda
-
-      - linux_cdat-v82-nox_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v82-nox_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v82-nox_py3.7:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v82_py2:
-          requires:
-            - linux_py2_miniconda
-      - linux_cdat-v82_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_cdat-v82_py3.7:
-          requires:
-            - linux_py3_miniconda
-
-      - collect_nightlies_test_results:
-          requires:
-            - macos_nightly_py2
-            - macos_nightly_py3.6
-            - macos_nightly_py3.7
-            - linux_nightly_py2
-            - linux_nightly_py3.6
-            - linux_nightly_py3.7
-
-      - collect_channels_test_results:
-          requires:
-            - macos_cdat_v82_latest_channel_py2
-            - linux_cdat_v82_latest_channel_py2
-            - macos_cdat_v82_latest_channel_py3.6
-            - linux_cdat_v82_latest_channel_py3.6
-            - macos_cdat_v82_latest_channel_py3.7
-            - linux_cdat_v82_latest_channel_py3.7
-
-      - collect_yamls_test_results:
-          requires:
-            - macos_cdat-v82-nox_py2
-            - macos_cdat-v82-nox_py3.6
-            - macos_cdat-v82-nox_py3.7
-            - macos_cdat-v82_py2
-            - macos_cdat-v82_py3.6
-            - macos_cdat-v82_py3.7
-            - linux_cdat-v82-nox_py2
-            - linux_cdat-v82-nox_py3.6
-            - linux_cdat-v82-nox_py3.7
-            - linux_cdat-v82_py2
-            - linux_cdat-v82_py3.6
-            - linux_cdat-v82_py3.7
+      - linux_jupyter_vcdat_nightly
