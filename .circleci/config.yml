@@ -143,7 +143,7 @@ aliases:
        python run_tests.py -H -v 2 tests/test_plot_locators.py
        python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
        RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT} 
+       echo "** jupyter-vcdat test result: "${RESULT} 
        exit $RESULT
 
   - &prep_artifacts
