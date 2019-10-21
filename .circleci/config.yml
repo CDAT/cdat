@@ -113,6 +113,10 @@ aliases:
        source activate jupyter_vcdat_$LABEL
        pip install selenium
        pip install pyvirtualdisplay
+       echo "XXX conda list --verbose vcs"
+       conda list --verbose vcs
+       echo "XXX conda list --verbose jupyter-vcdat"
+       conda list --verbose jupyter-vcdat
        conda list
 
   - &run_jupyter_vcdat
