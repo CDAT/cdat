@@ -125,6 +125,8 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter_vcdat_$LABEL
+       cd $WORKDIR
+       git clone https://github.com/CDAT/jupyter-vcdat.git
        cd $WORKDIR/jupyter-vcdat
        jupyter lab --ip='127.0.0.1'
     background: true
@@ -138,8 +140,6 @@ aliases:
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        source activate jupyter_vcdat_$LABEL
-       cd $WORKDIR
-       git clone https://github.com/CDAT/jupyter-vcdat.git
        cd $WORKDIR/jupyter-vcdat
        python run_tests.py -H -v 2 tests/test_locators.py
        python run_tests.py -H -v 2 tests/test_load_a_variable.py
