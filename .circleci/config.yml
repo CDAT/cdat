@@ -125,7 +125,9 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export CDAT_ANONYMOUS_LOG=False
        source activate jupyter_vcdat_$LABEL
+       echo "RUNNING...jupyter lab build..."
        jupyter lab build
+       echo "RUNNING...jupyter lab --ip='127.0.0.1'"
        jupyter lab --ip='127.0.0.1'
     background: true
 
