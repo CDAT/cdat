@@ -9,8 +9,8 @@ sys.path.append(modules_dir)
 from Util import *
 
 desc = "collect coverage information (htmls) for cdat packages"
-all_test_suites = "cdms genutil cdutil vcs vcsaddons pcmdi_metrics dv3d thermo wk"
-all_pkgs = "cdms2 genutil cdutil vcs vcsaddons pcmdi_metrics dv3d thermo wk"
+all_test_suites = "cdms genutil cdutil vcs vcsaddons pcmdi_metrics dv3d wk"
+all_pkgs = "cdms2 genutil cdutil vcs vcsaddons pcmdi_metrics dv3d wk"
 
 #
 # This script collects coverage information for the specified packages

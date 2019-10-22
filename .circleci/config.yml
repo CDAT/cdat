@@ -21,8 +21,15 @@ aliases:
        mv miniconda $WORKDIR/
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
-       conda update -y -q conda
+       echo "XXX conda --version: "
+       conda --version
+       # do not do conda update for now, updating from 4.7.10 to 4.7.12 failed
+       # since it tries to remove setuptools
+       # echo "XXX conda update -y -q conda"
+       # conda update -y -q conda
        conda config --set anaconda_upload no
+       # echo "XXX conda --version: "
+       conda --version
 
   - &setup_nightly
     name: setup_nightly
@@ -91,32 +98,76 @@ aliases:
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $ENV_PREFIX -b $BRANCH -l $LABEL
     no_output_timeout: 30m
 
-  - &run_thermo_test
-    name: run_thermo_test
-    command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'thermo' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-
   - &run_wk_test
     name: run_wk_test
     command: |
       python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_PREFIX -b $BRANCH -l $LABEL
 
+  - &setup_jupyter_vcdat_nightly
+    name: setup_jupyter_vcdat_nightly
+    command: |
+       mkdir -p $WORKDIR
+       cd $WORKDIR
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       git clone https://github.com/CDAT/jupyter-vcdat.git
+       cd jupyter-vcdat
+       ./install_script.sh -n jupyter_vcdat_nightly -c cdat/label/nightly -v
+       source activate jupyter_vcdat_nightly
+       conda install -c cdat/label/nightly testsrunner cdat_info
+       pip install selenium
+       pip install pyvirtualdisplay
+       conda list
+
+  - &run_jupyter_vcdat
+    name: run_jupyter_vcdat
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       export CDAT_ANONYMOUS_LOG=False
+       source activate jupyter_vcdat_nightly
+       cd $WORKDIR/jupyter-vcdat
+       jupyter lab --ip='127.0.0.1'
+    background: true
+
+  - &run_jupyter_vcdat_tests_with_firefox
+    name: run_jupyter_vcdat_tests_with_firefox
+    environment:
+      BROWSER_TYPE: "firefox"
+      BROWSER_BINARY: "/usr/local/bin/firefox"
+      BROWSER_DRIVER: "/usr/local/bin/geckodriver"
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       source activate jupyter_vcdat_nightly
+       cd $WORKDIR/jupyter-vcdat
+       python run_tests.py -H -v 2 tests/test_locators.py
+       python run_tests.py -H -v 2 tests/test_load_a_variable.py
+       python run_tests.py -H -v 2 tests/test_load_variables_popup_locators.py
+       python run_tests.py -H -v 2 tests/test_plot_locators.py
+       python run_tests.py -H -v 2 tests/test_edit_axis_locators.py
+       RESULT=$?
+       echo "*** $PY_VER test result: "${RESULT} 
+       exit $RESULT
+
   - &prep_artifacts
     name: prep_artifacts
     command: |
-      for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'thermo' 'wk' 'cdms' 'pcmdi_metrics'
+      mkdir collect_nightlies_test_results/$CIRCLE_JOB
+      for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'wk' 'cdms' 'pcmdi_metrics' 'jupyter-vcdat'
       do
         if [ "$(ls -A $WORKDIR/$ts/tests_html)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_html  
-           cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html    
+           cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html
+           echo "$CIRCLE_BUILD_URL " >> collect_nightlies_test_results/$CIRCLE_JOB/url
+           if [ "$(ls -A $WORKDIR/$ts/tests_html/failed_index.html)" ]; then
+             echo "$ts " >> collect_nightlies_test_results/$CIRCLE_JOB/failed
+           fi
         fi
       done
 
-      for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'thermo' 'wk' 'pcmdi_metrics'
+      for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'wk' 'pcmdi_metrics'
       do
         if [ "$(ls -A $WORKDIR/$ts/tests_png)" ]; then
            mkdir -p $CIRCLE_JOB/$ts-tests_png 
-           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png    
+           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png
         fi
       done
 
@@ -125,21 +176,38 @@ aliases:
          cp $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml env.yaml
       fi
 
+  - &check_nightlies_test_results
+    name: check_nightlies_test_results
+    command: |
+      ls -l
+      for j in 'macos_nightly_py2' 'macos_nightly_py3.6' 'macos_nightly_py3.7' 'linux_nightly_py2' 'linux_nightly_py3.6' 'linux_nightly_py3.7'
+      do
+        if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
+           url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
+           echo "Failed tests in $j -- $url"
+           cat collect_nightlies_test_results/$j/failed
+        fi 
+      done
+      cat collect_nightlies_test_results/url
+
 jobs:
   get_time_stamp:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
     steps:
       - run: date '+%Y-%m-%d' > todaysDate.txt
+      - run: mkdir collect_nightlies_test_results
       - persist_to_workspace:
           root: .
-          paths: todaysDate.txt
+          paths: 
+            - todaysDate.txt
+            - collect_nightlies_test_results
 
   macos_py2_miniconda:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -156,10 +224,10 @@ jobs:
 
   macos_py3_miniconda:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /Users/distiller/project/workdir/miniconda3
     steps:
       - checkout
@@ -193,7 +261,7 @@ jobs:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
+      PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
     steps:
       - checkout
@@ -210,7 +278,7 @@ jobs:
   # 
   macos_nightly_py2:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -237,7 +305,6 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
-      - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
@@ -247,11 +314,12 @@ jobs:
           root: .
           paths:
             - macos_nightly_py2
+            - collect_nightlies_test_results/macos_nightly_py2
       #- run: *validate_install
 
-  macos_nightly_py3:
+  macos_nightly_py3.6:
     macos:
-      xcode: "10.2.0"
+      xcode: "9.2.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -278,16 +346,57 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
-      - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: macos_nightly_py3
-           destination: macos_nightly_py3
+           path: macos_nightly_py3.6
+           destination: macos_nightly_py3.6
       - persist_to_workspace:
           root: .
           paths: 
-            - macos_nightly_py3
+            - macos_nightly_py3.6
+            - collect_nightlies_test_results/macos_nightly_py3.6
+      #- run: *validate_install
+
+  macos_nightly_py3.7:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_nightly_py3.7
+           destination: macos_nightly_py3.7
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - macos_nightly_py3.7
+            - collect_nightlies_test_results/macos_nightly_py3.7
       #- run: *validate_install
 
   linux_nightly_py2:
@@ -319,7 +428,6 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
-      - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
@@ -329,9 +437,10 @@ jobs:
           root: .
           paths:
             - linux_nightly_py2
+            - collect_nightlies_test_results/linux_nightly_py2
       #- run: *validate_install
 
-  linux_nightly_py3:
+  linux_nightly_py3.6:
     machine:
       image: circleci/classic:latest
     environment:
@@ -360,435 +469,272 @@ jobs:
       - run: *run_vcsaddons_test
       - run: *run_pcmdi_metrics_test
       - run: *run_dv3d_test
-      - run: *run_thermo_test
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_nightly_py3
-           destination: linux_nightly_py3
+           path: linux_nightly_py3.6
+           destination: linux_nightly_py3.6
       - persist_to_workspace:
           root: .
           paths:
-            - linux_nightly_py3
+            - linux_nightly_py3.6
+            - collect_nightlies_test_results/linux_nightly_py3.6
       #- run: *validate_install
 
-  #
-  # install from cdat v81 channel
-  #
-  macos_cdat_v81_latest_channel_py2:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py2.7
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
-      ENV_PREFIX: cdat_v81_latest_channel
-      BRANCH: master
-      CONDA_LABEL: v81
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_conda_channel
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat_v81_latest_channel_py2
-           destination: macos_cdat_v81_latest_channel_py2
-      - store_artifacts:
-           path: env.yaml
-           destination: env.yaml
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat_v81_latest_channel_py2
-
-  linux_cdat_v81_latest_channel_py2:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py2.7
-      CONDA_DIR: /home/circleci/project/workdir/miniconda2
-      ENV_PREFIX: cdat_v81_latest_channel
-      BRANCH: master
-      CONDA_LABEL: v81
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_conda_channel
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      ##-run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_cdat_v81_latest_channel_py2
-           destination: linux_cdat_v81_latest_channel_py2
-      - store_artifacts:
-           path: env.yaml
-           destination: env.yaml
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat_v81_latest_channel_py2
-
-  macos_cdat_v81_latest_channel_py3:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
-      ENV_PREFIX: cdat_v81_latest_channel
-      BRANCH: master
-      CONDA_LABEL: v81
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_conda_channel
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat_v81_latest_channel_py3
-           destination: macos_cdat_v81_latest_channel_py3
-      - store_artifacts:
-           path: env.yaml
-           destination: env.yaml
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat_v81_latest_channel_py3
-
-  linux_cdat_v81_latest_channel_py3:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
-      CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: cdat_v81_latest_channel
-      BRANCH: master
-      CONDA_LABEL: v81
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_conda_channel
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      ##-run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_cdat_v81_latest_channel_py3
-           destination: linux_cdat_v81_latest_channel_py3
-      - store_artifacts:
-           path: env.yaml
-           destination: env.yaml
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat_v81_latest_channel_py3
-
-  #
-  # install from cdat-v81* yaml files
-  #
-  macos_cdat-v81-nox_py2:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py2.7
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
-      ENV_PREFIX: cdat-v81-nox
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat-v81-nox_py2
-           destination: macos_cdat-v81-nox_py2
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat-v81-nox_py2
-
-  macos_cdat-v81-nox_py3.6:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81-nox
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat-v81-nox_py3.6
-           destination: macos_cdat-v81-nox_py3.6
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat-v81-nox_py3.6
-
-  macos_cdat-v81_py2:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py2.7
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
-      ENV_PREFIX: cdat-v81
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat-v81_py2
-           destination: macos_cdat-v81_py2
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat-v81_py2
-
-  macos_cdat-v81_py3.6:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
-      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_cdat-v81_py3.6
-           destination: macos_cdat-v81_py3.6
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - macos_cdat-v81_py3.6
-
-  linux_cdat-v81-nox_py2:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py2.7
-      CONDA_DIR: /home/circleci/project/workdir/miniconda2
-      ENV_PREFIX: cdat-v81-nox
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      ##-run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_cdat-v81-nox_py2
-           destination: linux_cdat-v81-nox_py2
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81-nox_py2
-
-  linux_cdat-v81-nox_py3.6:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
-      CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81-nox
-      BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
-      PCMDI_METRICS_LABEL: cdat_v8.1
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      ##-run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_cdat-v81-nox_py3.6
-           destination: linux_cdat-v81-nox_py3.6
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81-nox_py3.6
-
-  linux_cdat-v81-nox_py3.7:
+  linux_nightly_py3.7:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81-nox
       BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_nightly_py3.7
+           destination: linux_nightly_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py3.7
+            - collect_nightlies_test_results/linux_nightly_py3.7
+      #- run: *validate_install
+
+  linux_jupyter_vcdat:
+    docker:
+      - image: circleci/node:jessie-browsers
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: jupyter_vcdat_nightly
+      BRANCH: master
+      LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: *setup_miniconda
+      - run: *setup_jupyter_vcdat_nightly
+      - run: *run_jupyter_vcdat
+      - run: *run_jupyter_vcdat_tests_with_firefox
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_jupyter_vcdat
+           destination: linux_jupyter_vcdat
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - linux_jupyter_vcdat
+            - collect_nightlies_test_results/linux_jupyter_vcdat
+
+  #
+  # install from cdat v82 channel
+  #
+  macos_cdat_v82_latest_channel_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat_v82_latest_channel_py2
+           destination: macos_cdat_v82_latest_channel_py2
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_v82_latest_channel_py2
+
+  linux_cdat_v82_latest_channel_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2.7
+      CONDA_DIR: /home/circleci/project/workdir/miniconda2
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      # - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat_v82_latest_channel_py2
+           destination: linux_cdat_v82_latest_channel_py2
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v82_latest_channel_py2
+
+  macos_cdat_v82_latest_channel_py3.6:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat_v82_latest_channel_py3.6
+           destination: macos_cdat_v82_latest_channel_py3.6
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_v82_latest_channel_py3.6
+
+  macos_cdat_v82_latest_channel_py3.7:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat_v82_latest_channel_py3.7
+           destination: macos_cdat_v82_latest_channel_py3.7
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat_v82_latest_channel_py3.7
+
+  linux_cdat_v82_latest_channel_py3.6:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -799,36 +745,300 @@ jobs:
           keys:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
-      - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
-      #- run: *run_vcs_test
-      #- run: *run_vcsaddons_test
-      ##-run: *run_pcmdi_metrics_test
-      #- run: *run_dv3d_test
-      #- run: *run_thermo_test
-      #- run: *run_wk_test
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      # - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v81-nox_py3.7
-           destination: linux_cdat-v81-nox_py3.7
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81-nox_py3.7
+           path: linux_cdat_v82_latest_channel_py3.6
+           destination: linux_cdat_v82_latest_channel_py3.6
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v82_latest_channel_py3.6
 
-  linux_cdat-v81_py2:
+  linux_cdat_v82_latest_channel_py3.7:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: cdat_v82_latest_channel
+      BRANCH: master
+      CONDA_LABEL: v82
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_conda_channel
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      # - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat_v82_latest_channel_py3.7
+           destination: linux_cdat_v82_latest_channel_py3.7
+      - store_artifacts:
+           path: env.yaml
+           destination: env.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat_v82_latest_channel_py3.7
+
+  #
+  # install from cdat-v82* yaml files
+  #
+  macos_cdat-v82-nox_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
+      ENV_PREFIX: cdat-v82-nox
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82-nox_py2
+           destination: macos_cdat-v82-nox_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82-nox_py2
+
+  macos_cdat-v82-nox_py3.6:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82-nox
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82-nox_py3.6
+           destination: macos_cdat-v82-nox_py3.6
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82-nox_py3.6
+
+  macos_cdat-v82-nox_py3.7:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82-nox
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82-nox_py3.7
+           destination: macos_cdat-v82-nox_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82-nox_py3.7
+
+  macos_cdat-v82_py2:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py2.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda2
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82_py2
+           destination: macos_cdat-v82_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82_py2
+
+  macos_cdat-v82_py3.6:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82_py3.6
+           destination: macos_cdat-v82_py3.6
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82_py3.6
+
+  macos_cdat-v82_py3.7:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /Users/distiller/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: macos_cdat-v82_py3.7
+           destination: macos_cdat-v82_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - macos_cdat-v82_py3.7
+
+  linux_cdat-v82-nox_py2:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py2.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda2
-      ENV_PREFIX: cdat-v81
+      ENV_PREFIX: cdat-v82-nox
       BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -840,29 +1050,34 @@ jobs:
             - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v81_py2
-           destination: linux_cdat-v81_py2
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81_py2
+           path: linux_cdat-v82-nox_py2
+           destination: linux_cdat-v82-nox_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82-nox_py2
 
-  linux_cdat-v81_py3.6:
+  linux_cdat-v82-nox_py3.6:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.6
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81
+      ENV_PREFIX: cdat-v82-nox
       BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -874,29 +1089,34 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      # - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v81_py3.6
-           destination: linux_cdat-v81_py3.6
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81_py3.6
+           path: linux_cdat-v82-nox_py3.6
+           destination: linux_cdat-v82-nox_py3.6
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82-nox_py3.6
 
-  linux_cdat-v81_py3.7:
+  linux_cdat-v82-nox_py3.7:
     machine:
       image: circleci/classic:latest
     environment:
       WORKDIR: /home/circleci/project/workdir
       PYTHON_VERSION: py3.7
       CONDA_DIR: /home/circleci/project/workdir/miniconda3
-      ENV_PREFIX: cdat-v81
+      ENV_PREFIX: cdat-v82-nox
       BRANCH: master
-      LABEL: v8.1
-      CDMS_LABEL: v3.1.2
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
       PCMDI_METRICS_LABEL: cdat_v8.1
       RUN_TESTSUITE: scripts/run_testsuite.py
     steps:
@@ -908,17 +1128,124 @@ jobs:
             - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *install_from_yaml_file
-      #- run: *run_cdms_test
-      #- run: *run_genutil_test
-      #- run: *run_cdutil_test
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      #- run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_cdat-v81_py3.7
-           destination: linux_cdat-v81_py3.7
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - linux_cdat-v81_py3.7
+           path: linux_cdat-v82-nox_py3.7
+           destination: linux_cdat-v82-nox_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82-nox_py3.7
+
+  linux_cdat-v82_py2:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py2.7
+      CONDA_DIR: /home/circleci/project/workdir/miniconda2
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat-v82_py2
+           destination: linux_cdat-v82_py2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82_py2
+
+  linux_cdat-v82_py3.6:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.6
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat-v82_py3.6
+           destination: linux_cdat-v82_py3.6
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82_py3.6
+
+  linux_cdat-v82_py3.7:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.7
+      CONDA_DIR: /home/circleci/project/workdir/miniconda3
+      ENV_PREFIX: cdat-v82
+      BRANCH: master
+      LABEL: v8.2
+      CDMS_LABEL: v3.1.4
+      PCMDI_METRICS_LABEL: cdat_v8.1
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *install_from_yaml_file
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_cdat-v82_py3.7
+           destination: linux_cdat-v82_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_cdat-v82_py3.7
 
   collect_nightlies_test_results:
     machine:
@@ -926,18 +1253,38 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      #- store_artifacts:
-      #     path: macos_nightly_py2
-      #     destination: macos_nightly_py2
+      - run: echo "$CIRCLE_BUILD_URL" > collect_nightlies_test_results/url
       - store_artifacts:
-           path: macos_nightly_py3
-           destination: macos_nightly_py3
+           path: macos_nightly_py2
+           destination: macos_nightly_py2
+      - store_artifacts:
+           path: macos_nightly_py3.6
+           destination: macos_nightly_py3.6
+      - store_artifacts:
+           path: macos_nightly_py3.7
+           destination: macos_nightly_py3.7
       - store_artifacts:
            path: linux_nightly_py2
            destination: linux_nightly_py2
       - store_artifacts:
-           path: linux_nightly_py3
-           destination: linux_nightly_py3
+           path: linux_nightly_py3.6
+           destination: linux_nightly_py3.6
+      - store_artifacts:
+           path: linux_nightly_py3.7
+           destination: linux_nightly_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - collect_nightlies_test_results
+
+  check_nightlies:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - run: ls -l
+      - run: *check_nightlies_test_results
 
   collect_channels_test_results:
     machine:
@@ -946,17 +1293,23 @@ jobs:
       - attach_workspace:
           at: .
       - store_artifacts:
-           path: macos_cdat_v81_latest_channel_py2
-           destination: macos_cdat_v81_latest_channel_py2
+           path: macos_cdat_v82_latest_channel_py2
+           destination: macos_cdat_v82_latest_channel_py2
       - store_artifacts:
-           path: linux_cdat_v81_latest_channel_py2
-           destination: linux_cdat_v81_latest_channel_py2
+           path: linux_cdat_v82_latest_channel_py2
+           destination: linux_cdat_v82_latest_channel_py2
       - store_artifacts:
-           path: macos_cdat_v81_latest_channel_py3
-           destination: macos_cdat_v81_latest_channel_py3
+           path: macos_cdat_v82_latest_channel_py3.6
+           destination: macos_cdat_v82_latest_channel_py3.6
       - store_artifacts:
-           path: linux_cdat_v81_latest_channel_py3
-           destination: linux_cdat_v81_latest_channel_py3
+           path: linux_cdat_v82_latest_channel_py3.6
+           destination: linux_cdat_v82_latest_channel_py3.6
+      - store_artifacts:
+           path: macos_cdat_v82_latest_channel_py3.7
+           destination: macos_cdat_v82_latest_channel_py3.7
+      - store_artifacts:
+           path: linux_cdat_v82_latest_channel_py3.7
+           destination: linux_cdat_v82_latest_channel_py3.7
 
   collect_yamls_test_results:
     machine:
@@ -965,45 +1318,45 @@ jobs:
       - attach_workspace:
           at: .
       - store_artifacts:
-           path: macos_cdat-v81-nox_py2
-           destination: macos_cdat-v81-nox_py2
+           path: macos_cdat-v82-nox_py2
+           destination: macos_cdat-v82-nox_py2
       - store_artifacts:
-           path: macos_cdat-v81-nox_py3.6
-           destination: macos_cdat-v81-nox_py3.6
+           path: macos_cdat-v82-nox_py3.6
+           destination: macos_cdat-v82-nox_py3.6
       - store_artifacts:
-           path: macos_cdat-v81_py2
-           destination: macos_cdat-v81_py2
+           path: macos_cdat-v82-nox_py3.7
+           destination: macos_cdat-v82-nox_py3.7
       - store_artifacts:
-           path: macos_cdat-v81_py3.6
-           destination: macos_cdat-v81_py3.6
+           path: macos_cdat-v82_py2
+           destination: macos_cdat-v82_py2
       - store_artifacts:
-           path: linux_cdat-v81-nox_py2
-           destination: linux_cdat-v81-nox_py2
+           path: macos_cdat-v82_py3.6
+           destination: macos_cdat-v82_py3.6
       - store_artifacts:
-           path: linux_cdat-v81-nox_py3.6
-           destination: linux_cdat-v81-nox_py3.6
+           path: macos_cdat-v82_py3.7
+           destination: macos_cdat-v82_py3.7
       - store_artifacts:
-           path: linux_cdat-v81-nox_py3.7
-           destination: linux_cdat-v81-nox_py3.7
+           path: linux_cdat-v82-nox_py2
+           destination: linux_cdat-v82-nox_py2
       - store_artifacts:
-           path: linux_cdat-v81_py2
-           destination: linux_cdat-v81_py2
+           path: linux_cdat-v82-nox_py3.6
+           destination: linux_cdat-v82-nox_py3.6
       - store_artifacts:
-           path: linux_cdat-v81_py3.6
-           destination: linux_cdat-v81_py3.6
+           path: linux_cdat-v82-nox_py3.7
+           destination: linux_cdat-v82-nox_py3.7
       - store_artifacts:
-           path: linux_cdat-v81_py3.7
-           destination: linux_cdat-v81_py3.7
+           path: linux_cdat-v82_py2
+           destination: linux_cdat-v82_py2
+      - store_artifacts:
+           path: linux_cdat-v82_py3.6
+           destination: linux_cdat-v82_py3.6
+      - store_artifacts:
+           path: linux_cdat-v82_py3.7
+           destination: linux_cdat-v82_py3.7
 
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
@@ -1018,82 +1371,114 @@ workflows:
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
+
+      - macos_nightly_py2:
+          requires:
+            - macos_py2_miniconda
+      - macos_nightly_py3.6:
+          requires:
+            - macos_py3_miniconda
+      - macos_nightly_py3.7:
+          requires:
+            - macos_py3_miniconda
    
-      #- macos_nightly_py2:
-      #    requires:
-      #      - macos_py2_miniconda
-      - macos_nightly_py3:
-          requires:
-            - macos_py3_miniconda
-      - macos_cdat_v81_latest_channel_py2:
+      - macos_cdat_v82_latest_channel_py2:
           requires:
             - macos_py2_miniconda
-      - macos_cdat_v81_latest_channel_py3:
+      - macos_cdat_v82_latest_channel_py3.6:
           requires:
             - macos_py3_miniconda
-      - macos_cdat-v81-nox_py2:
+      - macos_cdat_v82_latest_channel_py3.7:
+          requires:
+            - macos_py3_miniconda
+
+      - macos_cdat-v82-nox_py2:
           requires:
             - macos_py2_miniconda
-      - macos_cdat-v81-nox_py3.6:
+      - macos_cdat-v82-nox_py3.6:
           requires:
             - macos_py3_miniconda
-      - macos_cdat-v81_py2:
+      - macos_cdat-v82-nox_py3.7:
+          requires:
+            - macos_py3_miniconda
+      - macos_cdat-v82_py2:
           requires:
             - macos_py2_miniconda
-      - macos_cdat-v81_py3.6:
+      - macos_cdat-v82_py3.6:
           requires:
             - macos_py3_miniconda
+      - macos_cdat-v82_py3.7:
+          requires:
+            - macos_py3_miniconda
+
       - linux_nightly_py2:      
           requires:
             - linux_py2_miniconda
-      - linux_nightly_py3:
+      - linux_nightly_py3.6:
           requires:
             - linux_py3_miniconda
-      - linux_cdat_v81_latest_channel_py2:
+      - linux_nightly_py3.7:
+          requires:
+            - linux_py3_miniconda
+
+      - linux_cdat_v82_latest_channel_py2:
           requires:
             - linux_py2_miniconda
-      - linux_cdat_v81_latest_channel_py3:
+      - linux_cdat_v82_latest_channel_py3.6:
           requires:
             - linux_py3_miniconda
-      - linux_cdat-v81-nox_py2:
+      - linux_cdat_v82_latest_channel_py3.7:
+          requires:
+            - linux_py3_miniconda
+
+      - linux_cdat-v82-nox_py2:
           requires:
             - linux_py2_miniconda
-      - linux_cdat-v81-nox_py3.6:
+      - linux_cdat-v82-nox_py3.6:
           requires:
             - linux_py3_miniconda
-      - linux_cdat-v81-nox_py3.7:
+      - linux_cdat-v82-nox_py3.7:
           requires:
             - linux_py3_miniconda
-      - linux_cdat-v81_py2:
+      - linux_cdat-v82_py2:
           requires:
             - linux_py2_miniconda
-      - linux_cdat-v81_py3.6:
+      - linux_cdat-v82_py3.6:
           requires:
             - linux_py3_miniconda
-      - linux_cdat-v81_py3.7:
+      - linux_cdat-v82_py3.7:
           requires:
             - linux_py3_miniconda
+
       - collect_nightlies_test_results:
           requires:
-            #- macos_nightly_py2
-            - macos_nightly_py3
+            - macos_nightly_py2
+            - macos_nightly_py3.6
+            - macos_nightly_py3.7
             - linux_nightly_py2
-            - linux_nightly_py3
-      #- collect_channels_test_results:
-      #    requires:
-      #      - macos_cdat_v81_latest_channel_py2
-      #      - linux_cdat_v81_latest_channel_py2
-      #      - macos_cdat_v81_latest_channel_py3
-      #      - linux_cdat_v81_latest_channel_py3
-      #- collect_yamls_test_results:
-      #    requires:
-      #      - macos_cdat-v81-nox_py2
-      #      - macos_cdat-v81-nox_py3.6
-      #      - macos_cdat-v81_py2
-      #      - macos_cdat-v81_py3.6
-      #      - linux_cdat-v81-nox_py2
-      #      - linux_cdat-v81-nox_py3.6
-      #      - linux_cdat-v81-nox_py3.7
-      #      - linux_cdat-v81_py2
-      #      - linux_cdat-v81_py3.6
-      #      - linux_cdat-v81_py3.7
+            - linux_nightly_py3.6
+            - linux_nightly_py3.7
+
+      - collect_channels_test_results:
+          requires:
+            - macos_cdat_v82_latest_channel_py2
+            - linux_cdat_v82_latest_channel_py2
+            - macos_cdat_v82_latest_channel_py3.6
+            - linux_cdat_v82_latest_channel_py3.6
+            - macos_cdat_v82_latest_channel_py3.7
+            - linux_cdat_v82_latest_channel_py3.7
+
+      - collect_yamls_test_results:
+          requires:
+            - macos_cdat-v82-nox_py2
+            - macos_cdat-v82-nox_py3.6
+            - macos_cdat-v82-nox_py3.7
+            - macos_cdat-v82_py2
+            - macos_cdat-v82_py3.6
+            - macos_cdat-v82_py3.7
+            - linux_cdat-v82-nox_py2
+            - linux_cdat-v82-nox_py3.6
+            - linux_cdat-v82-nox_py3.7
+            - linux_cdat-v82_py2
+            - linux_cdat-v82_py3.6
+            - linux_cdat-v82_py3.7

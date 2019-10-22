@@ -26,18 +26,22 @@ def conda_env_export(workdir, conda_path, env_name):
     ret_code = run_in_conda_env(conda_path, env_name, cmds_list)
     return(ret_code)
 
-def install_packages_for_tests(conda_path, env_name):
+def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
 
-    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient"
+    pkgs = "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
     if "nox" not in env_name:
         pkgs += " mesalib"
-        
-    channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+    
+    if pcmdi_from_nightly:
+        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+    else:
+        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi".format(l=CONDA_LABEL)
+
     cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
                                                           pkgs=pkgs)]
     ret_code = run_in_conda_env(conda_path, env_name, cmds_list)
     if ret_code != SUCCESS:
-        print("FAIL...{cmd}".format(cmd=cmd))
+        print("FAIL FAIL...{cmd}".format(cmd=cmd))
         return(ret_code)
         
     return(ret_code)
@@ -68,12 +72,12 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
 
     conda_cmd = os.path.join(conda_path, 'conda')
     if sys.platform == 'darwin':
-        ch1 = "-c danlipsa -c cdat/label/nightly -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
     else:
-        ch1 = "-c cdat/label/nightly -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
-    base_pkgs = "openblas mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
+    base_pkgs = "mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
     #temp_settings = "\"libnetcdf >4.6\" \"hdf5 >=1.10.2\" \"proj4<5\" \"vtk-cdat>8.1\""
     #if sys.platform == 'darwin':
     #    temp_settings = "{} \"ffmpeg>4\" \"libpng>1.6.34\"".format(temp_settings)
@@ -133,10 +137,10 @@ def install_from_channel(workdir, conda_path, env_prefix, py_ver, conda_label):
 
     py_str = construct_conda_py_str(py_ver)
 
-    cmd = "{c} create -n {n} {channel} \"{p}\" cdat".format(c=conda_cmd,
-                                                            n=env_name,
-                                                            channel=channel,
-                                                            p=py_str)
+    cmd = "{c} create -n {n} {channel} \"{p}\" cdat mesalib".format(c=conda_cmd,
+                                                                    n=env_name,
+                                                                    channel=channel,
+                                                                    p=py_str)
 
     ret_code = run_cmd(cmd, True, False, True)
     return ret_code, env_name

@@ -9,7 +9,7 @@ sys.path.append(modules_dir)
 
 from Util import *
 
-all_test_suites = "cdms genutil cdutil vcs vcsaddons pcmdi_metrics dv3d thermo wk"
+all_test_suites = "cdms genutil cdutil vcs vcsaddons pcmdi_metrics dv3d wk"
 
 parser = argparse.ArgumentParser(description="preparing artifacts for a circle ci job",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -29,10 +29,10 @@ env_prefix = args.env_prefix
 ci_job = args.circle_ci_job
 
 # test suites that generate htmls
-html_ts_list = ['genutil', 'cdutil', 'vcs', 'vcsaddons', 'dv3d', 'thermo',
+html_ts_list = ['genutil', 'cdutil', 'vcs', 'vcsaddons', 'dv3d',
                 'wk', 'cdms', 'pcmdi_metrics']
 # test suites that generate pngs
-png_ts_list = ['vcs', 'vcsaddons', 'pcmdi_metrics', 'thermo', 'wk']
+png_ts_list = ['vcs', 'vcsaddons', 'pcmdi_metrics', 'wk']
 
 #
 # This scripts is only to be called from ./circleci/config.yml.
