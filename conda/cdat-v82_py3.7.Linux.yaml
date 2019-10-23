@@ -1,6 +1,7 @@
 name: cdat-v82_py3.7
 channels:
   - cdat/label/v82
+  - cdat-forge
   - conda-forge
   - defaults
 dependencies:
