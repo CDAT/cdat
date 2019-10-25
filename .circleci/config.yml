@@ -193,7 +193,7 @@ aliases:
 jobs:
   get_time_stamp:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
     steps:
@@ -207,7 +207,7 @@ jobs:
 
   macos_py2_miniconda:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -224,7 +224,7 @@ jobs:
 
   macos_py3_miniconda:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -278,7 +278,7 @@ jobs:
   # 
   macos_nightly_py2:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -319,7 +319,7 @@ jobs:
 
   macos_nightly_py3.6:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -360,7 +360,7 @@ jobs:
 
   macos_nightly_py3.7:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -556,7 +556,7 @@ jobs:
   #
   macos_cdat_v82_latest_channel_py2:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -641,7 +641,7 @@ jobs:
 
   macos_cdat_v82_latest_channel_py3.6:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -683,7 +683,7 @@ jobs:
 
   macos_cdat_v82_latest_channel_py3.7:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -814,7 +814,7 @@ jobs:
   #
   macos_cdat-v82-nox_py2:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -852,7 +852,7 @@ jobs:
 
   macos_cdat-v82-nox_py3.6:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -890,7 +890,7 @@ jobs:
 
   macos_cdat-v82-nox_py3.7:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -928,7 +928,7 @@ jobs:
 
   macos_cdat-v82_py2:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -962,7 +962,7 @@ jobs:
 
   macos_cdat-v82_py3.6:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.6
@@ -996,7 +996,7 @@ jobs:
 
   macos_cdat-v82_py3.7:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -1357,12 +1357,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightly
+    #triggers:
+    #  - schedule:
+    #      cron: "0 3 * * *"
+    #      filters:
+    #        branches:
+    #          only: validateNightly
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
