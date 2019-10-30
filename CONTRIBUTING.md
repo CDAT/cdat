@@ -1,5 +1,5 @@
-Contributing to UV-CDAT
-======================
+Contributing to CDAT
+====================
 
 Where to start?
 ---------------
@@ -9,18 +9,20 @@ enhancements and ideas are welcome.
 
 If you are simply looking to start working with the *UV-CDAT* codebase,
 navigate to the [GitHub "issues"
-tab](https://github.com/UV-CDAT/uvcdat/issues) and start looking through
+tab](https://github.com/CDAT/cdat/issues) and start looking through
 interesting issues.
 
+Note that CDAT main components are [cdms](https://github.com/CDAT/cdms) and [vcs](https://github.com/CDAT/vcs), you might want to check these repos issues as well.
+
 Feel free to ask questions on [mailing
-list](uvcdat-users@llnl.gov) or [askbot](http://askbot-uvcdat.llnl.gov/questions)
+list(cdat-users@llnl.gov)
 
 Bug Reports/Enhancement Requests
 --------------------------------
 
-Bug reports are an important part of making *UV-CDAT* more stable. Having
+Bug reports are an important part of making *CDAT* more stable. Having
 a complete bug report will allow others to reproduce the bug and provide
-insight into fixing. Since many versions of *UV-CDAT* are supported,
+insight into fixing. Since many versions of *CDAT* are supported,
 knowing version information will also identify improvements made since
 previous versions. Often trying the bug-producing code out on the
 *master* branch is a worthwhile exercise to confirm the bug still
@@ -43,7 +45,7 @@ Bug reports must:
 2.  Explain why the current behavior is wrong/not desired and what you
     expect instead.
 
-The issue will then show up to the *UV-CDAT* community and be open to
+The issue will then show up to the *CDAT* community and be open to
 comments/ideas from others.
 
 Working with the code
@@ -51,7 +53,7 @@ Working with the code
 
 Now that you have an issue you want to fix, enhancement to add, or
 documentation to improve, you need to learn how to work with GitHub and
-the *UV-CDAT* code base.
+the *CDAT* code base.
 
 ### Version Control, Git, and GitHub
 
@@ -61,7 +63,7 @@ sticking to the guidelines below will make the process straightforward
 and will work without much trouble. As always, if you are having
 difficulties please feel free to ask for help.
 
-The code is hosted on [GitHub](https://www.github.com/UV-CDAT/uvcdat). To
+The code is hosted on [GitHub](https://www.github.com/CDAT/cdat). To
 contribute you will need to sign up for a [free GitHub
 account](https://github.com/signup/free). We use
 [Git](http://git-scm.com/) for version control to allow many people to
@@ -83,28 +85,34 @@ local repository and GitHub.
 
 ### Forking
 
-If you have write access to the main UV-CDAT repository, then just create a branch there. If you don't, you can create your fork of UV-CDAT by going to the [UV-CDAT project page](https://github.com/UV-CDAT/uvcdat)
+If you have write access to the main UV-CDAT repository, then just create a branch there. If you don't, you can create your fork of CDAT by going to the [CDAT project page](https://github.com/CDAT/cdat)
 and hitting the *fork* button. You will want to clone your fork to your machine: (HTTPS
 or SSH is preferred to git:// for security reasons).
 
-    git clone git://github.com/UV-CDAT/uvcdat.git UV-CDAT-yourname
-    cd UV-CDAT-yourname
-    git remote add myuvcdat git@github.com:your-user-name/uvcdat.git
+```
+    git clone git://github.com/UV-CDAT/cdat.git CDAT-yourname
+    cd CDAT-yourname
+    git remote add myuvcdat git@github.com:your-user-name/cdat.git
+```
 
-This creates the directory UV-CDAT-yourname and connects your repository
-to both the upstream (main project) *UV-CDAT* repository and your new fork.
+This creates the directory CDAT-yourname and connects your repository
+to both the upstream (main project) *CDAT* repository and your new fork.
 
 ### Creating a Branch
 
 You want your changes to appear in separate pull requests, so remember to
 create a separate feature branch for changes. For example:
 
+```
     git branch shiny-new-feature
     git checkout shiny-new-feature
+```
 
 The above can be simplified to:
 
+```
     git checkout -b shiny-new-feature
+```
 
 This changes your working directory to the shiny-new-feature branch.
 Keep any changes in this branch specific to one bug or feature so it is
@@ -114,28 +122,22 @@ command.
 
 ### Making changes
 
-Before making your code changes, it is often necessary to build the code
-that was just checked out. The best way to develop *UV-CDAT* is to build
-using default settings:
-
-    mkdir uvcdat-build
-    cmake uvcdat-path-to-source
-    make -jN
+Before making your code changes, make sure the test suite still passesin the repo you're editing
 
 Contributing to the documentation
 ---------------------------------
 
 If you're not the developer type, contributing to the documentation is
-still of huge value. You don't even have to be an expert on *UV-CDAT* to
+still of huge value. You don't even have to be an expert on *CDAT* to
 do so! Something as simple as pointing out missing information or broken links
-will be of great value.
+will be of great value. Most documentation is done via readthedocs and sphinx.
 
 Contributing to the code base
 -----------------------------
 
 ### Code Standards
 
-*UV-CDAT* uses the [flake8](http://pypi.python.org/pypi/flake8) tool to
+*CDAT* uses the [flake8](http://pypi.python.org/pypi/flake8) tool to
 check the style of your code.
 
 Please try to maintain backward-compatibility. *UV-CDAT* has lots of
@@ -146,7 +148,7 @@ deprecation warnings where needed.
 
 ### Test-driven Development/Writing Code
 
-*UV-CDAT* is serious about [Test-driven Development
+*CDAT* is serious about [Test-driven Development
 (TDD)](http://en.wikipedia.org/wiki/Test-driven_development). This
 development process "relies on the repetition of a very short
 development cycle: first the developer writes an (initially failing)
@@ -157,7 +159,7 @@ can be taken from the original GitHub issue. However, it is always worth
 considering additional use cases and writing corresponding tests.
 
 Adding tests is one of the most common requests after code is pushed to
-*UV-CDAT*. It is worth getting in the habit of writing tests ahead of
+*CDAT*. It is worth getting in the habit of writing tests ahead of
 time so this is never an issue.
 
 #### Writing tests
@@ -197,21 +199,9 @@ transformation is equivalent to baseline. For an example see below:
 
 The tests can then be run directly inside your build tree (directory) by typing:
 
-    ctest
+    python runtests.py
 
-To save time and run tests in parallel
-
-    ctest -jN
-
-The tests suite is exhaustive and takes around 20 minutes to run. Often
-it is worth running only a subset of tests first around your changes
-before running the entire suite. This is done by using one of the following
-constructs:
-
-    ctest -R test-name
-    ctest -R regex*
-
-Contributing your changes to *UV-CDAT*
+Contributing your changes to *CDAT*
 --------------------------------------
 
 ### Committing your code
@@ -261,20 +251,12 @@ or
 
     git commit -a -m "Message here"
 
-After having worked on your branch for a while, you might want to combine or reorder some of them to get a cleaner history (and thus, a cleaner pull request). To do that, you can use the interactive rebase feature:
-
-    git rebase -i HEAD~#
-
-where \# is the number of commits you want to combine. Then you can pick
-the relevant commit message and discard others (or use the other commands;
-refer to the help at the bottom of the buffer).
-
 ### Pushing your changes
 
 When you want your changes to appear publicly on your GitHub page, push
 your forked feature branch's commits:
 
-    git push myuvcdat shiny-new-feature
+    git push -u mycdat shiny-new-feature
 
 Here myuvcdat is the name given to your own GitHub fork, if you followed the previous instructions. You can list the remote repositories with:
 
@@ -282,8 +264,8 @@ Here myuvcdat is the name given to your own GitHub fork, if you followed the pre
 
 which should display something like:
 
-    origin   git://github.com/UV-CDAT/uvcdat.git
-    myuvcdat git@github.com:yourname/uvcdat.git
+    origin   git://github.com/CDAT/cdat.git
+    uvcdat git@github.com:yourname/cdat.git
 
 Now your code is on GitHub, but it is not yet a part of the *UV-CDAT*
 project. For that to happen, a Pull Request needs to be submitted on
