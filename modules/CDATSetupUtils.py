@@ -33,9 +33,10 @@ def install_packages_for_tests(conda_path, env_name, pcmdi_from_nightly=True):
         pkgs += " mesalib"
     
     if pcmdi_from_nightly:
-        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+        #channels = "-c cdat/label/{l} -c conda-forge -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
+        channels = "-c conda-forge -c cdat/label/{l} -c pcmdi/label/nightly -c pcmdi".format(l=CONDA_LABEL)
     else:
-        channels = "-c cdat/label/{l} -c conda-forge -c pcmdi".format(l=CONDA_LABEL)
+        channels = "-c conda-forge -c cdat/label/{l} -c pcmdi".format(l=CONDA_LABEL)
 
     cmds_list = ["conda install {channels} {pkgs}".format(channels=channels,
                                                           pkgs=pkgs)]
@@ -72,9 +73,9 @@ def install_nightly(workdir, conda_path, env_prefix, py_ver):
 
     conda_cmd = os.path.join(conda_path, 'conda')
     if sys.platform == 'darwin':
-        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c conda-forge"
     else:
-        ch1 = "-c cdat/label/nightly -c cdat -c conda-forge"
+        ch1 = "-c cdat/label/nightly -c conda-forge"
     ch2 = "-c pcmdi/label/nightly -c pcmdi"
 
     base_pkgs = "mesalib pcmdi_metrics cia easydev nbsphinx myproxyclient testsrunner coverage pytest"
@@ -132,7 +133,8 @@ def install_from_channel(workdir, conda_path, env_prefix, py_ver, conda_label):
 
     env_name = get_env_name(env_prefix, py_ver)
 
-    channel = "-c cdat/label/{l} -c conda-forge".format(l=conda_label)
+    # channel = "-c cdat/label/{l} -c conda-forge".format(l=conda_label)
+    channel = "-c conda-forge -c cdat/label/{l}".format(l=conda_label)
     conda_cmd = os.path.join(conda_path, "conda")
 
     py_str = construct_conda_py_str(py_ver)

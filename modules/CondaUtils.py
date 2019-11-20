@@ -70,5 +70,18 @@ def install_miniconda(workdir, py_ver):
 
     cmd = "{c} config --set anaconda_upload no".format(c=conda_cmd)
     ret_code = run_cmd(cmd)
+    if ret_code != SUCCESS:
+        print('FAILED: ' + cmd)
+        return(ret_code, None)
+
+    cmd = "{c} config --add channels conda-forge".format(c=conda_cmd)
+    ret_code = run_cmd(cmd)
+    if ret_code != SUCCESS:
+        print('FAILED: ' + cmd)
+        return(ret_code, None)
+
+    cmd = "{c} config --set channel_priority strict".format(c=conda_cmd)
+    ret_code = run_cmd(cmd)
+
     print("DEBUG...install_miniconda() returning conda_path: {p}".format(p=conda_path))
     return(ret_code, conda_path)
