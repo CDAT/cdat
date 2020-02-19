@@ -34,7 +34,7 @@ aliases:
   - &setup_nightly
     name: setup_nightly
     environment:
-       PKGS: cdat_info cdtime cdms2 genutil cdutil mesalib dv3d vcs wk vcsaddons
+       PKGS: "cdat_info cdtime cdms2 genutil cdutil mesalib dv3d vcs wk vcsaddons"
     command: |
        if [[ $PYTHON_VERSION == "py2.7" ]]; then
           PYTHON_VER="python>=2.7,<3"
