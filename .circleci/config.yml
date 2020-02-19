@@ -1363,7 +1363,7 @@ workflows:
           cron: "0 3 * * *"
           filters:
             branches:
-              only: validateNightly
+              only: notexist
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
