@@ -46,6 +46,7 @@ aliases:
        conda config --add channels conda-forge --force
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
+       echo "conda create -n nightly_$PYTHON_VERSION $PYTHON_VER -c cdat/label/nightly -c conda-forge $PKGS"
        conda create -n nightly_$PYTHON_VERSION $PYTHON_VER -c cdat/label/nightly -c conda-forge $PKGS
     no_output_timeout: 15m
 
