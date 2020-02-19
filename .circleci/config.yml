@@ -127,7 +127,7 @@ aliases:
     name: check_nightlies_test_results
     command: |
       ls -l
-      for j in 'macos_nightly_py2' 'macos_nightly_py3.6' 'macos_nightly_py3.7' 'linux_nightly_py2' 'linux_nightly_py3.6' 'linux_nightly_py3.7'
+      for j in 'macos_nightly_py2' 'macos_nightly_py3.7' 'linux_nightly_py2' 'linux_nightly_py3.7'
       do
         if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
            url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
@@ -136,6 +136,7 @@ aliases:
         fi 
       done
       cat collect_nightlies_test_results/url
+
 
 jobs:
   get_time_stamp:
@@ -390,17 +391,11 @@ jobs:
            path: macos_nightly_py2
            destination: macos_nightly_py2
       - store_artifacts:
-           path: macos_nightly_py3.6
-           destination: macos_nightly_py3.6
-      - store_artifacts:
            path: macos_nightly_py3.7
            destination: macos_nightly_py3.7
       - store_artifacts:
            path: linux_nightly_py2
            destination: linux_nightly_py2
-      - store_artifacts:
-           path: linux_nightly_py3.6
-           destination: linux_nightly_py3.6
       - store_artifacts:
            path: linux_nightly_py3.7
            destination: linux_nightly_py3.7
@@ -517,3 +512,10 @@ workflows:
       - linux_nightly_py3.7:
           requires:
             - linux_py3_miniconda
+
+      - collect_nightlies_test_results:
+          requires:
+            - macos_nightly_py2
+            - macos_nightly_py3.7
+            - linux_nightly_py2
+            - linux_nightly_py3.7
