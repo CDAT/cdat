@@ -505,10 +505,13 @@ workflows:
       - macos_nightly_py2:
           requires:
             - macos_py2_miniconda
-      - macos_nightly_py3.6:
-          requires:
-            - macos_py3_miniconda
       - macos_nightly_py3.7:
           requires:
             - macos_py3_miniconda
    
+      - linux_nightly_py2:      
+          requires:
+            - linux_py2_miniconda
+      - linux_nightly_py3.7:
+          requires:
+            - linux_py3_miniconda
