@@ -36,7 +36,8 @@ aliases:
     environment:
        CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c pcmdi -c conda-forge"
        PKGS: "cdat_info cdtime cdms2 genutil cdutil mesalib dv3d vcs wk vcsaddons"
-       TEST_PKGS: "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest"
+       TEST_PKGS: "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest ipywidgets scipy"
+       # scipy for pcmdi_metrics
     command: |
        if [[ $PYTHON_VERSION == "py2.7" ]]; then
           PYTHON_VER="'python>=2.7,<3'"
@@ -49,6 +50,7 @@ aliases:
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
        conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $TEST_PKGS
+       conda list
     no_output_timeout: 15m
 
   - &run_cdms_test
