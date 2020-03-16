@@ -61,6 +61,12 @@ def install_miniconda(workdir, py_ver):
         print("FAIL...installing miniconda")
         return(ret_code, None)
 
+    cmd = "source {d}/etc/profile.d/conda.sh".format(d=conda_dir)
+    ret_code = run_cmd(cmd, True, False, True)
+    if ret_code != SUCCESS:
+        print('FAILED: ' + cmd)
+        return(ret_code, None)    
+
     conda_cmd = os.path.join(conda_path, 'conda')
     cmd = "{c} config --set always_yes yes --set changeps1 no".format(c=conda_cmd)
     
