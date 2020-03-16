@@ -33,13 +33,14 @@ def install_miniconda(workdir, py_ver):
     else:
         conda_ver = 'Miniconda3'
 
+    miniconda_ver = '4.7.12.1'
     if sys.platform == 'darwin':
-        conda_script = "{c}-latest-MacOSX-x86_64.sh".format(c=conda_ver)
+        conda_script = "{c}-{v}-MacOSX-x86_64.sh".format(c=conda_ver, v=miniconda_ver)
         conda_script_full_path = os.path.join(workdir, conda_script)
         source_script = os.path.join(url, conda_script)
         cmd = "curl {src} -o {dest}".format(src=source_script, dest=conda_script_full_path)
     else:
-        conda_script = "{c}-latest-Linux-x86_64.sh".format(c=conda_ver)
+        conda_script = "{c}-{v}-Linux-x86_64.sh".format(c=conda_ver, v=miniconda_ver)
         conda_script_full_path = os.path.join(workdir, conda_script)
         source_script = os.path.join(url, conda_script)
         cmd = "wget {src} -O {dest}".format(src=source_script, dest=conda_script_full_path)
