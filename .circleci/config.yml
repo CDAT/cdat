@@ -488,36 +488,36 @@ workflows:
   nightly:
     jobs:
       - get_time_stamp
-      - macos_py2_miniconda:
-          requires:
-            - get_time_stamp
+      #- macos_py2_miniconda:
+      #    requires:
+      #      - get_time_stamp
       - macos_py3_miniconda:
           requires:
             - get_time_stamp
-      - linux_py2_miniconda:
-          requires:
-            - get_time_stamp
+      #- linux_py2_miniconda:
+      #    requires:
+      #      - get_time_stamp
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
 
-      - macos_nightly_py2:
-          requires:
-            - macos_py2_miniconda
+      #- macos_nightly_py2:
+      #    requires:
+      #      - macos_py2_miniconda
       - macos_nightly_py3.7:
           requires:
             - macos_py3_miniconda
    
-      - linux_nightly_py2:      
-          requires:
-            - linux_py2_miniconda
+      #- linux_nightly_py2:      
+      #    requires:
+      #      - linux_py2_miniconda
       - linux_nightly_py3.7:
           requires:
             - linux_py3_miniconda
 
       - collect_nightlies_test_results:
           requires:
-            - macos_nightly_py2
+            #- macos_nightly_py2
             - macos_nightly_py3.7
-            - linux_nightly_py2
+            #- linux_nightly_py2
             - linux_nightly_py3.7
