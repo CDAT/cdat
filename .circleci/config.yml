@@ -488,10 +488,10 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 3 * * *"
-          filters:
-            branches:
-              only: validateNightlyNew
+          cron: "0 18 * * *"
+          #filters:
+          #  branches:
+          #    only: validateNightlyNew
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
