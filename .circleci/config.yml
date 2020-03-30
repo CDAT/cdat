@@ -143,7 +143,7 @@ aliases:
 jobs:
   get_time_stamp:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
     steps:
@@ -157,7 +157,7 @@ jobs:
 
   macos_py2_miniconda:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py2.7
@@ -173,7 +173,7 @@ jobs:
 
   macos_py3_miniconda:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -224,7 +224,7 @@ jobs:
   # 
   macos_nightly_py2:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: "py2.7"
@@ -264,7 +264,7 @@ jobs:
 
   macos_nightly_py3.7:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
       PYTHON_VERSION: py3.7
@@ -486,12 +486,12 @@ jobs:
 workflows:
   version: 2
   nightly:
-    triggers:
-      - schedule:
-          cron: "0 18 * * *"
-          #filters:
-          #  branches:
-          #    only: validateNightlyNew
+    #triggers:
+    #  - schedule:
+    #      cron: "0 18 * * *"
+    #      #filters:
+    #      #  branches:
+    #      #    only: validateNightlyNew
     jobs:
       - get_time_stamp
       - macos_py2_miniconda:
