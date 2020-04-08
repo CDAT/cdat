@@ -26,7 +26,7 @@ def install_miniconda(workdir, py_ver):
         return(SUCCESS, conda_path)
 
 
-    url = "https://repo.continuum.io/miniconda"
+    url = "https://repo.anaconda.com/miniconda"
     conda_script = os.path.join(workdir, 'miniconda.sh')
     if py_ver.startswith('py2'):
         conda_ver = 'Miniconda2'
