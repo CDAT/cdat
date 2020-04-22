@@ -56,6 +56,7 @@ aliases:
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
        conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS
+       conda activate nightly_$PYTHON_VERSION
        conda list
     no_output_timeout: 15m
 
