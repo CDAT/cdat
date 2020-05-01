@@ -40,10 +40,12 @@ aliases:
        TEST_PKGS: "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest ipywidgets scipy"
        # scipy for pcmdi_metrics
     command: |
-       if [[ $PYTHON_VERSION == "py2.7" ]]; then
-          PYTHON_VER="'python>=2.7,<3'"
-       else
+       if [[ $PYTHON_VERSION == "py3.6" ]]; then
+          PYTHON_VER="'python>=3.6,<3.7'"
+       elif [[ $PYTHON_VERSION == "py3.7" ]]; then
           PYTHON_VER="'python>=3.7,<3.8'"
+       elif [[ $PYTHON_VERSION == "py3.8" ]]; then
+          PYTHON_VER="'python>=3.8,<3.9'"
        fi
        if [[ `uname` == "Linux" ]]; then
           MESA="mesalib=18.3.1"
@@ -55,7 +57,7 @@ aliases:
        conda config --add channels conda-forge --force
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
-       conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS
+       conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS "libnetcdf=*=nompi_*"
        conda activate nightly_$PYTHON_VERSION
        conda list
     no_output_timeout: 15m
@@ -136,7 +138,7 @@ aliases:
     name: check_nightlies_test_results
     command: |
       ls -l
-      for j in 'macos_nightly_py2' 'macos_nightly_py3.7' 'linux_nightly_py2' 'linux_nightly_py3.7'
+      for j in 'macos_nightly_py3.7' 'linux_nightly_py3.7'
       do
         if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
            url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
@@ -162,22 +164,6 @@ jobs:
             - todaysDate.txt
             - collect_nightlies_test_results
 
-  macos_py2_miniconda:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py2.7
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: *setup_miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
   macos_py3_miniconda:
     macos:
       xcode: "11.4"
@@ -192,22 +178,6 @@ jobs:
       - run: *prep_conda_cache
       - save_cache:
           key: macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
-  linux_py2_miniconda:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py2.7
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: *setup_miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
           paths: miniconda
 
   linux_py3_miniconda:
@@ -229,12 +199,12 @@ jobs:
   #
   # nightly builds
   # 
-  macos_nightly_py2:
+  macos_nightly_py3.6:
     macos:
       xcode: "11.4"
     environment:
       WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: "py2.7"
+      PYTHON_VERSION: py3.6
       BRANCH: master
       ENV_PREFIX: nightly
       LABEL: master
@@ -247,7 +217,7 @@ jobs:
           at: .
       - restore_cache:
           keys:
-            - macos_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *run_cdms_test
@@ -260,14 +230,13 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: macos_nightly_py2
-           destination: macos_nightly_py2
+           path: macos_nightly_py3.6
+           destination: macos_nightly_py3.6
       - persist_to_workspace:
           root: .
-          paths:
-            - macos_nightly_py2
-            - collect_nightlies_test_results/macos_nightly_py2
-      #- run: *validate_install
+          paths: 
+            - macos_nightly_py3.6
+            - collect_nightlies_test_results/macos_nightly_py3.6
 
   macos_nightly_py3.7:
     macos:
@@ -307,14 +276,13 @@ jobs:
           paths: 
             - macos_nightly_py3.7
             - collect_nightlies_test_results/macos_nightly_py3.7
-      #- run: *validate_install
 
-  linux_nightly_py2:
-    machine:
-      image: circleci/classic:latest
+  macos_nightly_py3.8:
+    macos:
+      xcode: "11.4"
     environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py2.7
+      WORKDIR: /Users/distiller/project/workdir
+      PYTHON_VERSION: py3.8
       BRANCH: master
       ENV_PREFIX: nightly
       LABEL: master
@@ -327,7 +295,7 @@ jobs:
           at: .
       - restore_cache:
           keys:
-            - linux_py2_conda_V101-{{ checksum "todaysDate.txt" }}
+            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
       - run: *get_conda_cache
       - run: *setup_nightly
       - run: *run_cdms_test
@@ -340,13 +308,13 @@ jobs:
       - run: *run_wk_test
       - run: *prep_artifacts
       - store_artifacts:
-           path: linux_nightly_py2
-           destination: linux_nightly_py2
+           path: macos_nightly_py3.8
+           destination: macos_nightly_py3.8
       - persist_to_workspace:
           root: .
-          paths:
-            - linux_nightly_py2
-            - collect_nightlies_test_results/linux_nightly_py2
+          paths: 
+            - macos_nightly_py3.8
+            - collect_nightlies_test_results/macos_nightly_py3.8
       #- run: *validate_install
 
   linux_nightly_py3.7:
@@ -389,6 +357,126 @@ jobs:
             - collect_nightlies_test_results/linux_nightly_py3.7
       #- run: *validate_install
 
+  linux_nightly_py3.6:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.6
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_nightly_py3.6
+           destination: linux_nightly_py3.6
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py3.6
+            - collect_nightlies_test_results/linux_nightly_py3.6
+      #- run: *validate_install
+
+  linux_nightly_py3.7:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.7
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_nightly_py3.7
+           destination: linux_nightly_py3.7
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py3.7
+            - collect_nightlies_test_results/linux_nightly_py3.7
+      #- run: *validate_install
+
+  linux_nightly_py3.8:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: /home/circleci/project/workdir
+      PYTHON_VERSION: py3.8
+      BRANCH: master
+      ENV_PREFIX: nightly
+      LABEL: master
+      CDMS_LABEL: master
+      PCMDI_METRICS_LABEL: master
+      RUN_TESTSUITE: scripts/run_testsuite.py
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
+      - run: *get_conda_cache
+      - run: *setup_nightly
+      - run: *run_cdms_test
+      - run: *run_genutil_test
+      - run: *run_cdutil_test
+      - run: *run_vcs_test
+      - run: *run_vcsaddons_test
+      - run: *run_pcmdi_metrics_test
+      - run: *run_dv3d_test
+      - run: *run_wk_test
+      - run: *prep_artifacts
+      - store_artifacts:
+           path: linux_nightly_py3.8
+           destination: linux_nightly_py3.8
+      - persist_to_workspace:
+          root: .
+          paths:
+            - linux_nightly_py3.8
+            - collect_nightlies_test_results/linux_nightly_py3.8
+      #- run: *validate_install
+
   collect_nightlies_test_results:
     machine:
       image: circleci/classic:latest
@@ -397,17 +485,23 @@ jobs:
           at: .
       - run: echo "$CIRCLE_BUILD_URL" > collect_nightlies_test_results/url
       - store_artifacts:
-           path: macos_nightly_py2
-           destination: macos_nightly_py2
+           path: macos_nightly_py3.6
+           destination: macos_nightly_py3.6
       - store_artifacts:
            path: macos_nightly_py3.7
            destination: macos_nightly_py3.7
       - store_artifacts:
-           path: linux_nightly_py2
-           destination: linux_nightly_py2
+           path: macos_nightly_py3.8
+           destination: macos_nightly_py3.8
+      - store_artifacts:
+           path: linux_nightly_py3.6
+           destination: linux_nightly_py3.6
       - store_artifacts:
            path: linux_nightly_py3.7
            destination: linux_nightly_py3.7
+      - store_artifacts:
+           path: linux_nightly_py3.8
+           destination: linux_nightly_py3.8
       - persist_to_workspace:
           root: .
           paths:
@@ -422,74 +516,6 @@ jobs:
       - run: ls -l
       - run: *check_nightlies_test_results
 
-  collect_channels_test_results:
-    machine:
-      image: circleci/classic:latest
-    steps:
-      - attach_workspace:
-          at: .
-      - store_artifacts:
-           path: macos_cdat_v82_latest_channel_py2
-           destination: macos_cdat_v82_latest_channel_py2
-      - store_artifacts:
-           path: linux_cdat_v82_latest_channel_py2
-           destination: linux_cdat_v82_latest_channel_py2
-      - store_artifacts:
-           path: macos_cdat_v82_latest_channel_py3.6
-           destination: macos_cdat_v82_latest_channel_py3.6
-      - store_artifacts:
-           path: linux_cdat_v82_latest_channel_py3.6
-           destination: linux_cdat_v82_latest_channel_py3.6
-      - store_artifacts:
-           path: macos_cdat_v82_latest_channel_py3.7
-           destination: macos_cdat_v82_latest_channel_py3.7
-      - store_artifacts:
-           path: linux_cdat_v82_latest_channel_py3.7
-           destination: linux_cdat_v82_latest_channel_py3.7
-
-  collect_yamls_test_results:
-    machine:
-      image: circleci/classic:latest
-    steps:
-      - attach_workspace:
-          at: .
-      - store_artifacts:
-           path: macos_cdat-v82-nox_py2
-           destination: macos_cdat-v82-nox_py2
-      - store_artifacts:
-           path: macos_cdat-v82-nox_py3.6
-           destination: macos_cdat-v82-nox_py3.6
-      - store_artifacts:
-           path: macos_cdat-v82-nox_py3.7
-           destination: macos_cdat-v82-nox_py3.7
-      - store_artifacts:
-           path: macos_cdat-v82_py2
-           destination: macos_cdat-v82_py2
-      - store_artifacts:
-           path: macos_cdat-v82_py3.6
-           destination: macos_cdat-v82_py3.6
-      - store_artifacts:
-           path: macos_cdat-v82_py3.7
-           destination: macos_cdat-v82_py3.7
-      - store_artifacts:
-           path: linux_cdat-v82-nox_py2
-           destination: linux_cdat-v82-nox_py2
-      - store_artifacts:
-           path: linux_cdat-v82-nox_py3.6
-           destination: linux_cdat-v82-nox_py3.6
-      - store_artifacts:
-           path: linux_cdat-v82-nox_py3.7
-           destination: linux_cdat-v82-nox_py3.7
-      - store_artifacts:
-           path: linux_cdat-v82_py2
-           destination: linux_cdat-v82_py2
-      - store_artifacts:
-           path: linux_cdat-v82_py3.6
-           destination: linux_cdat-v82_py3.6
-      - store_artifacts:
-           path: linux_cdat-v82_py3.7
-           destination: linux_cdat-v82_py3.7
-
 workflows:
   version: 2
   nightly:
@@ -501,36 +527,36 @@ workflows:
     #      #    only: validateNightlyNew
     jobs:
       - get_time_stamp
-      #- macos_py2_miniconda:
-      #    requires:
-      #      - get_time_stamp
       - macos_py3_miniconda:
           requires:
             - get_time_stamp
-      #- linux_py2_miniconda:
-      #    requires:
-      #      - get_time_stamp
       - linux_py3_miniconda:
           requires:
             - get_time_stamp
-
-      #- macos_nightly_py2:
-      #    requires:
-      #      - macos_py2_miniconda
+      - macos_nightly_py3.6:
+          requires:
+            - macos_py3_miniconda
       - macos_nightly_py3.7:
           requires:
             - macos_py3_miniconda
-   
-      #- linux_nightly_py2:      
-      #    requires:
-      #      - linux_py2_miniconda
+      - macos_nightly_py3.8:
+          requires:
+            - macos_py3_miniconda
+      - linux_nightly_py3.6:
+          requires:
+            - linux_py3_miniconda
       - linux_nightly_py3.7:
+          requires:
+            - linux_py3_miniconda
+      - linux_nightly_py3.8:
           requires:
             - linux_py3_miniconda
 
       - collect_nightlies_test_results:
           requires:
-            #- macos_nightly_py2
+            - macos_nightly_py3.6
             - macos_nightly_py3.7
-            #- linux_nightly_py2
+            - macos_nightly_py3.8
+            - linux_nightly_py3.6
             - linux_nightly_py3.7
+            - linux_nightly_py3.8
