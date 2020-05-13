@@ -39,6 +39,7 @@ aliases:
        PKGS: "cdat_info cdtime cdms2 genutil cdutil dv3d vcs wk vcsaddons"
        TEST_PKGS: "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest ipywidgets scipy"
        # scipy for pcmdi_metrics
+       LIBNETCDF: "libnetcdf=*=nompi_*"
     command: |
        if [[ $PYTHON_VERSION == "py3.6" ]]; then
           PYTHON_VER="'python>=3.6,<3.7'"
@@ -57,7 +58,8 @@ aliases:
        conda config --add channels conda-forge --force
        conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
-       conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS "libnetcdf=*=nompi_*"
+       echo "conda create -n nightly_$PYTHON_VERSION $CHANNELS \"$PYTHON_VER\" $PKGS $MESA $TEST_PKGS \"$LIBNETCDF\""
+       conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS "$LIBNETCDF"
        conda activate nightly_$PYTHON_VERSION
        conda list
     no_output_timeout: 15m
