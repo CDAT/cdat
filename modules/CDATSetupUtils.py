@@ -57,7 +57,9 @@ def construct_conda_py_str(py_ver):
     if py_ver == 'py3.6':
         py_str = "python>=3.6,<3.7"
     elif py_ver == 'py3.7':
-        py_str = "python>=3.7"
+        py_str = "python>=3.7,<3.8"
+    elif py_ver == 'py3.8':
+        py_str = "python>=3.8"
     else:
         py_str = "python<3"
     return py_str
