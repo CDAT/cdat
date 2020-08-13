@@ -59,6 +59,7 @@ aliases:
        else
           make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=$REPO_NAME artifact_dir=$dir run_tests_opts="-H -v2"
        fi
+    no_output_timeout: 30m
 
   - &run_pmp_tests
     name: run_pmp_tests
