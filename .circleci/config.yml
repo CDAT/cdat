@@ -1,524 +1,241 @@
-version: 2
+version: 2.1
 
 aliases:
+  - &setup_envPREV
+    name: setup_env
+    command: |
+       if [[ `uname` == "Darwin" ]]; then
+          echo 'export WORKDIR=/Users/distiller/project/workdir/macos' >> $BASH_ENV
+       else
+          echo 'export WORKDIR=/home/circleci/project/workdir/linux' >> $BASH_ENV
+       fi
+       source $BASH_ENV
+       mkdir -p $WORKDIR
+
+  - &setup_env
+    name: setup_env
+    command: |
+       if [[ `uname` == "Darwin" ]]; then
+          echo 'export WORKDIR=/Users/distiller/project/workdir/macos/$PY_VER/$LIBNETCDF' >> $BASH_ENV
+       else
+          echo 'export WORKDIR=/home/circleci/project/workdir/linux/$PY_VER/$LIBNETCDF' >> $BASH_ENV
+       fi
+       source $BASH_ENV
+       mkdir -p $WORKDIR
+
   - &setup_miniconda
     name: setup_miniconda
     command: |
-       mkdir -p $WORKDIR
-       python scripts/install_miniconda.py -w $WORKDIR -p $PYTHON_VERSION
+       source $BASH_ENV
+       git clone https://github.com/CDAT/cdat.git $WORKDIR/cdat
+       # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+       python $WORKDIR/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
-  - &prep_conda_cache
-    name: prep_conda_cache
+  - &create_env
+    name: create_env
     command: |
-       mv $WORKDIR/miniconda miniconda
-
-  - &get_conda_cache
-    name: get_conda_cache
-    command: |
-       mkdir -p $WORKDIR
-       mv miniconda $WORKDIR/
+       source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       conda config --set always_yes yes --set changeps1 no
-       echo "XXX conda --version: "
-       conda --version
-       #
-       # do not do conda update for now, updating from 4.7.10 to 4.7.12 failed
-       # since it tries to remove setuptools
-       # echo "XXX conda update -y -q conda"
-       # conda update -y -q conda
-       conda config --set anaconda_upload no
-       # echo "XXX conda --version: "
-       conda --version
+       echo "make create-env workdir=$WORKDIR env_name=$ENV_NAME channels=$CHANNELS py_ver=$PY_VER extra_pkgs=\"libnetcdf=*=${LIBNETCDF}_*\" pkgs=$PKGS"
+       make create-env workdir=$WORKDIR env_name=$ENV_NAME channels="$CHANNELS" py_ver=$PY_VER extra_pkgs="libnetcdf=*=${LIBNETCDF}_*" pkgs="$PKGS"
 
-  - &setup_nightly
-    name: setup_nightly
-    environment:
-       CHANNELS: "-c cdat/label/nightly -c pcmdi/label/nightly -c pcmdi -c conda-forge"
-       #PKGS: "cdat_info cdtime cdms2 genutil cdutil mesalib dv3d vcs wk vcsaddons"
-       PKGS: "cdat_info cdtime cdms2 genutil cdutil dv3d vcs wk vcsaddons"
-       TEST_PKGS: "nose coverage pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest ipywidgets scipy"
-       # scipy for pcmdi_metrics
-       LIBNETCDF: "libnetcdf=*=nompi_*"
+  - &run_tests
+    name: run_tests
     command: |
-       if [[ $PYTHON_VERSION == "py3.6" ]]; then
-          PYTHON_VER="'python>=3.6,<3.7'"
-       elif [[ $PYTHON_VERSION == "py3.7" ]]; then
-          PYTHON_VER="'python>=3.7,<3.8'"
-       elif [[ $PYTHON_VERSION == "py3.8" ]]; then
-          PYTHON_VER="'python>=3.8,<3.9'"
-       fi
-       if [[ `uname` == "Linux" ]]; then
-          MESA="mesalib=18.3.1"
+       source $BASH_ENV
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       os=`uname`
+       dir=$PWD/artifacts/$os-$PY_VER-$LIBNETCDF-$REPO_NAME
+       mkdir -p $dir
+       make get-repo workdir=$WORKDIR repo_name=$REPO_NAME
+       if [[ $REPO_NAME == "cdms" ]]; then
+          make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=$REPO_NAME artifact_dir=$dir run_tests_opts="-H -v2 -n 1"
+       elif [[ $REPO_NAME == "vcs" ]]; then
+          make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=$REPO_NAME artifact_dir=$dir run_tests_opts="-n 4 -H -v2 --timeout=100000 --checkout-baseline --no-vtk-ui"
+       elif [[ $REPO_NAME == "dv3d" ]] || [[ $REPO_NAME == "wk" ]]; then
+          make get-testdata workdir=$WORKDIR repo_name=$REPO_NAME
+          ls -l $WORKDIR/$REPO_NAME
+          make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=$REPO_NAME artifact_dir=$dir run_tests_opts="-H -v2"
        else
-          MESA="mesalib=17.3.9"
+          make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=$REPO_NAME artifact_dir=$dir run_tests_opts="-H -v2"
        fi
+
+  - &run_pmp_tests
+    name: run_pmp_tests
+    command: |
+       source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       conda config --add channels conda-forge --force
-       conda config --add channels cdat/label/nightly --force
-       conda config --set channel_priority strict
-       echo "conda create -n nightly_$PYTHON_VERSION $CHANNELS \"$PYTHON_VER\" $PKGS $MESA $TEST_PKGS \"$LIBNETCDF\""
-       conda create -n nightly_$PYTHON_VERSION $CHANNELS "$PYTHON_VER" $PKGS $MESA $TEST_PKGS "$LIBNETCDF"
-       conda activate nightly_$PYTHON_VERSION
-       conda list
-    no_output_timeout: 15m
+       make get-repo workdir=$WORKDIR repo_name=pcmdi_metrics organization=pcmdi
+       make run-tests workdir=$WORKDIR env_name=$ENV_NAME repo_name=pcmdi_metrics run_tests_opts="-H -v2" 
 
-  - &run_cdms_test
-    name: run_cdms_test
-    command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdms' -v $ENV_PREFIX -b $BRANCH -l $CDMS_LABEL
-    no_output_timeout: 30m
+commands:
+   run_repo_tests:
+      description: "Run project test cases"
+      parameters:
+         repo_name:
+            type: string
+            default: cdms
+      steps:
+         - run: echo "export REPO_NAME="<< parameters.repo_name >> >> $BASH_ENV
+         - run: *run_tests
 
-  - &run_genutil_test
-    name: run_genutil_test
-    command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'genutil' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-
-  - &run_cdutil_test
-    name: run_cdutil_test
-    command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'cdutil' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-
-  - &run_vcs_test
-    name: run_vcs_test
-    command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcs' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-    no_output_timeout: 60m
-
-  - &run_vcsaddons_test
-    name: run_vcsaddons_test
-    command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'vcsaddons' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-
-  - &run_pcmdi_metrics_test
-    name: run_pcmdi_metrics_test
-    command: | 
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'pcmdi_metrics' -v $ENV_PREFIX -b $BRANCH -l $PCMDI_METRICS_LABEL
-
-  - &run_dv3d_test
-    name: run_dv3d_test
-    command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'dv3d' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-    no_output_timeout: 30m
-
-  - &run_wk_test
-    name: run_wk_test
-    command: |
-      python $RUN_TESTSUITE -w $WORKDIR -p $PYTHON_VERSION -t 'wk' -v $ENV_PREFIX -b $BRANCH -l $LABEL
-
-  - &prep_artifacts
-    name: prep_artifacts
-    command: |
-      mkdir collect_nightlies_test_results/$CIRCLE_JOB
-      for ts in 'genutil' 'cdutil' 'vcs' 'vcsaddons' 'dv3d' 'wk' 'cdms' 'pcmdi_metrics' 'jupyter-vcdat'
-      do
-        if [ "$(ls -A $WORKDIR/$ts/tests_html)" ]; then
-           mkdir -p $CIRCLE_JOB/$ts-tests_html  
-           cp -r $WORKDIR/$ts/tests_html/* $CIRCLE_JOB/$ts-tests_html
-           echo "$CIRCLE_BUILD_URL " >> collect_nightlies_test_results/$CIRCLE_JOB/url
-           if [ "$(ls -A $WORKDIR/$ts/tests_html/failed_index.html)" ]; then
-             echo "$ts " >> collect_nightlies_test_results/$CIRCLE_JOB/failed
-           fi
-        fi
-      done
-
-      for ts in 'vcs' 'vcsaddons' 'pcmdi_metrics' 'wk' 'pcmdi_metrics'
-      do
-        if [ "$(ls -A $WORKDIR/$ts/tests_png)" ]; then
-           mkdir -p $CIRCLE_JOB/$ts-tests_png 
-           cp -r $WORKDIR/$ts/tests_png/* $CIRCLE_JOB/$ts-tests_png
-        fi
-      done
-
-      # for installing cdat from latest channel, save the output of "conda env export"
-      if [ $CIRCLE_JOB == *"latest"* ]; then
-         cp $WORKDIR/${ENV_PREFIX}_${PYTHON_VERSION}_env.yaml env.yaml
-      fi
-
-  - &check_nightlies_test_results
-    name: check_nightlies_test_results
-    command: |
-      ls -l
-      for j in 'macos_nightly_py3.7' 'linux_nightly_py3.7'
-      do
-        if [ "$(ls -A collect_nightlies_test_results/$j/failed)" ]; then
-           url = `cat collect_nightlies_test_results/$CIRCLE_JOB/url`
-           echo "Failed tests in $j -- $url"
-           cat collect_nightlies_test_results/$j/failed
-        fi 
-      done
-      cat collect_nightlies_test_results/url
-
+executors:
+   linux:
+      machine:
+         image: circleci/classic:latest
+   macos:
+      macos:
+         xcode: "11.4.0"
 
 jobs:
-  get_time_stamp:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-    steps:
-      - run: date '+%Y-%m-%d' > todaysDate.txt
-      - run: mkdir collect_nightlies_test_results
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - todaysDate.txt
-            - collect_nightlies_test_results
+   nightly_env:
+      parameters:
+         os:
+            type: executor
+         py_ver: 
+            type: string
+         libnetcdf:
+            type: string
+      executor: << parameters.os >>
+      environment:
+         ENV_NAME: nightly
+         CHANNELS: "cdat/label/nightly conda-forge"
+         PKGS: "cdat_info cdtime cdms2 genutil cdutil dv3d vcs wk vcsaddons"
+         PY_VER: << parameters.py_ver >>
+         LIBNETCDF: << parameters.libnetcdf >>
+      steps:
+         - checkout
+         - run: *setup_env
+         - run: *setup_miniconda
+         - run: *create_env
+#         - run: *run_pmp_tests
+         - run_repo_tests:
+              repo_name: "cdtime"
+         - run_repo_tests:
+              repo_name: "cdms"
+         - run_repo_tests:
+              repo_name: "genutil"
+         - run_repo_tests:
+              repo_name: "cdutil"
+         - run_repo_tests:
+              repo_name: "dv3d"
+         - run_repo_tests:
+              repo_name: "vcs"
+         - run_repo_tests:
+              repo_name: "wk"
+         - run_repo_tests:
+              repo_name: "vcsaddons"
+         - store_artifacts:
+              path: artifacts
+              destination: artifacts
+         - persist_to_workspace:
+              root: .
+              paths: 
+                 - artifacts
 
-  macos_py3_miniconda:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.7
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: *setup_miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
+   release_env:
+      parameters:
+         os:
+            type: executor
+         py_ver: 
+            type: string
+         libnetcdf:
+            type: string
+      executor: << parameters.os >>
+      environment:
+         ENV_NAME: cdat_8.2.1
+         CHANNELS: "conda-forge cdat/label/v8.2.1"
+         PKGS: "cdat"
+         PY_VER: << parameters.py_ver >>
+         LIBNETCDF: << parameters.libnetcdf >>
+      steps:
+         - checkout
+         - run: *setup_env
+         - run: *setup_miniconda
+         - run: *create_env
+#         - run: *run_pmp_tests
+         - run_repo_tests:
+              repo_name: "cdtime"
+         - run_repo_tests:
+              repo_name: "cdms"
+         - run_repo_tests:
+              repo_name: "genutil"
+         - run_repo_tests:
+              repo_name: "cdutil"
+         - run_repo_tests:
+              repo_name: "dv3d"
+         - run_repo_tests:
+              repo_name: "vcs"
+         - run_repo_tests:
+              repo_name: "wk"
+         - run_repo_tests:
+              repo_name: "vcsaddons"
+         - store_artifacts:
+              path: artifacts
+              destination: artifacts
+         - persist_to_workspace:
+              root: .
+              paths: 
+                 - artifacts
 
-  linux_py3_miniconda:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.7
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: *setup_miniconda
-      - run: *prep_conda_cache
-      - save_cache:
-          key: linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-          paths: miniconda
-
-  #
-  # nightly builds
-  # 
-  macos_nightly_py3.6:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.6
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_nightly_py3.6
-           destination: macos_nightly_py3.6
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - macos_nightly_py3.6
-            - collect_nightlies_test_results/macos_nightly_py3.6
-
-  macos_nightly_py3.7:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.7
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_nightly_py3.7
-           destination: macos_nightly_py3.7
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - macos_nightly_py3.7
-            - collect_nightlies_test_results/macos_nightly_py3.7
-
-  macos_nightly_py3.8:
-    macos:
-      xcode: "11.4"
-    environment:
-      WORKDIR: /Users/distiller/project/workdir
-      PYTHON_VERSION: py3.8
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - macos_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: macos_nightly_py3.8
-           destination: macos_nightly_py3.8
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - macos_nightly_py3.8
-            - collect_nightlies_test_results/macos_nightly_py3.8
-      #- run: *validate_install
-
-  linux_nightly_py3.6:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.6
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_nightly_py3.6
-           destination: linux_nightly_py3.6
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_nightly_py3.6
-            - collect_nightlies_test_results/linux_nightly_py3.6
-      #- run: *validate_install
-
-  linux_nightly_py3.7:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.7
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_nightly_py3.7
-           destination: linux_nightly_py3.7
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_nightly_py3.7
-            - collect_nightlies_test_results/linux_nightly_py3.7
-      #- run: *validate_install
-
-  linux_nightly_py3.8:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: /home/circleci/project/workdir
-      PYTHON_VERSION: py3.8
-      BRANCH: master
-      ENV_PREFIX: nightly
-      LABEL: master
-      CDMS_LABEL: master
-      PCMDI_METRICS_LABEL: master
-      RUN_TESTSUITE: scripts/run_testsuite.py
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - linux_py3_conda_V101-{{ checksum "todaysDate.txt" }}
-      - run: *get_conda_cache
-      - run: *setup_nightly
-      - run: *run_cdms_test
-      - run: *run_genutil_test
-      - run: *run_cdutil_test
-      - run: *run_vcs_test
-      - run: *run_vcsaddons_test
-      - run: *run_pcmdi_metrics_test
-      - run: *run_dv3d_test
-      - run: *run_wk_test
-      - run: *prep_artifacts
-      - store_artifacts:
-           path: linux_nightly_py3.8
-           destination: linux_nightly_py3.8
-      - persist_to_workspace:
-          root: .
-          paths:
-            - linux_nightly_py3.8
-            - collect_nightlies_test_results/linux_nightly_py3.8
-      #- run: *validate_install
-
-  collect_nightlies_test_results:
-    machine:
-      image: circleci/classic:latest
-    steps:
-      - attach_workspace:
-          at: .
-      - run: echo "$CIRCLE_BUILD_URL" > collect_nightlies_test_results/url
-      - store_artifacts:
-           path: macos_nightly_py3.6
-           destination: macos_nightly_py3.6
-      - store_artifacts:
-           path: macos_nightly_py3.7
-           destination: macos_nightly_py3.7
-      - store_artifacts:
-           path: macos_nightly_py3.8
-           destination: macos_nightly_py3.8
-      - store_artifacts:
-           path: linux_nightly_py3.6
-           destination: linux_nightly_py3.6
-      - store_artifacts:
-           path: linux_nightly_py3.7
-           destination: linux_nightly_py3.7
-      - store_artifacts:
-           path: linux_nightly_py3.8
-           destination: linux_nightly_py3.8
-      - persist_to_workspace:
-          root: .
-          paths:
-            - collect_nightlies_test_results
-
-  check_nightlies:
-    machine:
-      image: circleci/classic:latest
-    steps:
-      - attach_workspace:
-          at: .
-      - run: ls -l
-      - run: *check_nightlies_test_results
+   collect_artifacts:
+      parameters:
+         os:
+            type: executor
+      executor: << parameters.os >>
+      steps:
+         - attach_workspace:
+              at: .
+         - run: ls -l artifacts
+         - store_artifacts:
+              path: artifacts
+              destination: artifacts
 
 workflows:
-  version: 2
-  nightly:
-    #triggers:
-    #  - schedule:
-    #      cron: "0 18 * * *"
-    #      #filters:
-    #      #  branches:
-    #      #    only: validateNightlyNew
-    jobs:
-      - get_time_stamp
-      - macos_py3_miniconda:
-          requires:
-            - get_time_stamp
-      - linux_py3_miniconda:
-          requires:
-            - get_time_stamp
-      - macos_nightly_py3.6:
-          requires:
-            - macos_py3_miniconda
-      - macos_nightly_py3.7:
-          requires:
-            - macos_py3_miniconda
-      - macos_nightly_py3.8:
-          requires:
-            - macos_py3_miniconda
-      - linux_nightly_py3.6:
-          requires:
-            - linux_py3_miniconda
-      - linux_nightly_py3.7:
-          requires:
-            - linux_py3_miniconda
-      - linux_nightly_py3.8:
-          requires:
-            - linux_py3_miniconda
+   nightly_regression_tests:
+      jobs:
+         - nightly_env:
+              matrix:
+                 parameters:
+                    os: [ linux, macos ]
+                    py_ver: [ "3.6", "3.7", "3.8" ]
+                    libnetcdf: [ "nompi", "mpi_openmpi" ]
+                    # libnetcdf: [ "nompi", "mpi_openmpi", "mpi_mpich" ]
+              name: nightly-<< matrix.os >>-<< matrix.py_ver >>-<< matrix.libnetcdf >>
 
-      - collect_nightlies_test_results:
-          requires:
-            - macos_nightly_py3.6
-            - macos_nightly_py3.7
-            - macos_nightly_py3.8
-            - linux_nightly_py3.6
-            - linux_nightly_py3.7
-            - linux_nightly_py3.8
+         - collect_artifacts:
+              matrix:
+                 parameters:
+                    os: [ linux, macos ]
+              name: artifacts-<< matrix.os >>
+              requires:
+                 - nightly-<< matrix.os >>-3.6-nompi
+                 - nightly-<< matrix.os >>-3.7-nompi
+                 - nightly-<< matrix.os >>-3.8-nompi
+                 - nightly-<< matrix.os >>-3.6-mpi_openmpi
+                 - nightly-<< matrix.os >>-3.7-mpi_openmpi
+                 - nightly-<< matrix.os >>-3.8-mpi_openmpi
+
+   release_regression_tests:
+      jobs:
+         - release_env:
+              matrix:
+                 parameters:
+                    os: [ linux, macos ]
+                    py_ver: [ "3.6", "3.7", "3.8" ]
+                    libnetcdf: [ "nompi", "mpi_openmpi" ]
+                    # libnetcdf: [ "nompi", "mpi_openmpi", "mpi_mpich" ]
+              name: release-<< matrix.os >>-<< matrix.py_ver >>-<< matrix.libnetcdf >>
+
+         - collect_artifacts:
+              matrix:
+                 parameters:
+                    os: [ linux, macos ]
+              name: artifacts-<< matrix.os >>
+              requires:
+                 - release-<< matrix.os >>-3.6-nompi
+                 - release-<< matrix.os >>-3.7-nompi
+                 - release-<< matrix.os >>-3.8-nompi
+                 - release-<< matrix.os >>-3.6-mpi_openmpi
+                 - release-<< matrix.os >>-3.7-mpi_openmpi
+                 - release-<< matrix.os >>-3.8-mpi_openmpi
