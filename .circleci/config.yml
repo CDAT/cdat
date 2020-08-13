@@ -194,6 +194,14 @@ jobs:
 
 workflows:
    nightly_regression_tests:
+      triggers:
+         - schedule:
+              cron: "48 21 * * *"
+              filters:
+                 branches:
+                    only:
+                      - master
+                      - add_nightly_and_release_workflows
       jobs:
          - nightly_env:
               matrix:
@@ -219,6 +227,14 @@ workflows:
 
    release_regression_tests:
       jobs:
+      triggers:
+         - schedule:
+              cron: "43 21 * * *"
+              filters:
+                 branches:
+                    only:
+                      - master
+                      - add_nightly_and_release_workflows
          - release_env:
               matrix:
                  parameters:
