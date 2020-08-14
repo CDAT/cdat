@@ -226,7 +226,6 @@ workflows:
                  - nightly-<< matrix.os >>-3.8-mpi_openmpi
 
    release_regression_tests:
-      jobs:
       triggers:
          - schedule:
               cron: "43 21 * * *"
@@ -235,6 +234,7 @@ workflows:
                     only:
                       - master
                       - add_nightly_and_release_workflows
+      jobs:
          - release_env:
               matrix:
                  parameters:
