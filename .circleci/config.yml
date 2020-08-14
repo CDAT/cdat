@@ -196,7 +196,7 @@ workflows:
    nightly_regression_tests:
       triggers:
          - schedule:
-              cron: "48 21 * * *"
+              cron: "20 16 * * *"
               filters:
                  branches:
                     only:
