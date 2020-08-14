@@ -34,7 +34,7 @@ endif
 python_ver = "python=$(py_ver)"
 pkgs ?= cdat_info cdtime cdms2 genutil cdutil dv3d vcs wk vcsaddons
 #test_pkgs ?= nose coverage scipy matplotlib pcmdi_metrics cia easydev nbsphinx testsrunner myproxyclient pytest ipywidgets
-test_pkgs ?= nose nbsphinx testsrunner myproxyclient pytest
+test_pkgs ?= nose nbsphinx testsrunner myproxyclient pytest matplotlib ipywidgets
 
 
 #
