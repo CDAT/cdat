@@ -46,7 +46,6 @@ Packages/vcs/cdatwrap
 Packages/vcs/Info/__init__.py
 Packages/vcs/Src/Qt/moc_mainwindow.cpp
 Packages/vcs/result.pdf
-Makefile
 Scripts/cdat
 Scripts/vcdat
 checked_get.sh
