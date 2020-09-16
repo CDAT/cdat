@@ -33,7 +33,8 @@ def install_miniconda(workdir, py_ver):
     else:
         conda_ver = 'Miniconda3'
 
-    miniconda_ver = '4.7.12.1'
+    # miniconda_ver = '4.7.12.1'
+    miniconda_ver = 'latest'
     if sys.platform == 'darwin':
         conda_script = "{c}-{v}-MacOSX-x86_64.sh".format(c=conda_ver, v=miniconda_ver)
         conda_script_full_path = os.path.join(workdir, conda_script)
