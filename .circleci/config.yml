@@ -194,14 +194,14 @@ jobs:
 
 workflows:
    nightly_regression_tests:
-      triggers:
-         - schedule:
-              cron: "20 18 * * *"
-              filters:
-                 branches:
-                    only:
-                      - master
-                      - add_nightly_and_release_workflows
+#      triggers:
+#         - schedule:
+#              cron: "20 18 * * *"
+#              filters:
+#                 branches:
+#                    only:
+#                      - master
+#                      - add_nightly_and_release_workflows
       jobs:
          - nightly_env:
               matrix:
