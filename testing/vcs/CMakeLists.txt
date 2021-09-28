@@ -1206,7 +1206,95 @@ cdat_add_test(test_vcs_textextents
   ${BASELINE_DIR}/test_textextents.png
 )
 
+cdat_add_test(test_vcs_docstrings_boxfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_boxfill.py
+)
 
+cdat_add_test(test_vcs_docstrings_Canvas
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_Canvas.py
+)
+
+cdat_add_test(test_vcs_docstrings_colormap
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_colormap.py
+)
+
+cdat_add_test(test_vcs_docstrings_displayplot
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_Canvas.py
+)
+
+cdat_add_test(test_vcs_docstrings_fillarea
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_fillarea.py
+)
+
+cdat_add_test(test_vcs_docstrings_isofill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_isofill.py
+)
+
+cdat_add_test(test_vcs_docstrings_isoline
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_isoline.py
+)
+
+cdat_add_test(test_vcs_docstrings_line
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_line.py
+)
+
+cdat_add_test(test_vcs_docstrings_manageElements
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_manageElements.py
+)
+
+cdat_add_test(test_vcs_docstrings_marker
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_marker.py
+)
+
+cdat_add_test(test_vcs_docstrings_meshfill
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_meshfill.py
+)
+
+cdat_add_test(test_vcs_docstrings_projection
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_projection.py
+)
+
+cdat_add_test(test_vcs_docstrings_queries
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_queries.py
+)
+
+cdat_add_test(test_vcs_docstrings_taylordiagram
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_taylordiagram.py
+)
+
+cdat_add_test(test_vcs_docstrings_template
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_template.py
+)
+
+cdat_add_test(test_vcs_docstrings_textcombined
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_textcombined.py
+)
+
+cdat_add_test(test_vcs_docstrings_textorientation
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_textorientation.py
+)
+
+cdat_add_test(test_vcs_docstrings_texttable
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_docstrings_texttable.py
+)
 
 add_subdirectory(vtk_ui)
 add_subdirectory(editors)
