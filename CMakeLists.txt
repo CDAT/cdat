@@ -254,7 +254,7 @@ include(ExternalProject)
 include(cdat_pkg)
 # CONDA Options
 set(CONDA_ENVIRONMENT_NAME ${cdat_VERSION} CACHE STRING "Name of conda environment we want to build CDAT in")
-set(CONDA_CHANNEL_UVCDAT uvcdat CACHE STRING "channels to use (if more than one use '-c' between channels e.g. uvcdat/label/nightly -c uvcdat)")
+set(CONDA_CHANNEL_UVCDAT "conda-forge -c uvcdat" CACHE STRING "channels to use (if more than one use '-c' between channels e.g. uvcdat/label/nightly -c uvcdat)")
 
 execute_process(COMMAND
     "${GIT_EXECUTABLE}" symbolic-ref --short HEAD
