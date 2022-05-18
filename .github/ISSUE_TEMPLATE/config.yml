@@ -1,4 +1,4 @@
-blank_issues_enabled: false
+blank_issues_enabled: True
 contact_links:
     - name: ⚠️ Maintenance-only mode
       url: https://github.com/xCDAT/xcdat
