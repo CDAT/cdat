@@ -1,5 +1,11 @@
 cdat
 ======
+
+| :warning: WARNING: Maintenance-only mode until around the end of 2023.          |
+| :------------------------------------------------------------------------------ |
+|The CDAT library and its sub-packages are in maintenance-only mode and will be deprecated around the end of 2023. This means that only package dependencies will be monitored to ensure the packages build and install in Conda environments. Unfortunately, feature requests and bug fixes will no longer be addressed.|
+If you are interested in an alternative solution, please check out the [xarray](https://docs.xarray.dev/en/stable/index.html) and [xCDAT (Xarray Extended With Climate Data Analysis Tools)](https://github.com/xCDAT/xcdat) projects.|
+
 [![build status](https://travis-ci.org/CDAT/cdat.svg?branch=master)](https://travis-ci.org/CDAT/cdat/builds)
 [![stable version](http://img.shields.io/badge/stable%20version-8.1-brightgreen.svg)](https://github.com/CDAT/cdat/releases/tag/v8.1)
 ![platforms](http://img.shields.io/badge/platforms-linux%20|%20osx-lightgrey.svg)
